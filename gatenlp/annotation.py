@@ -1,12 +1,12 @@
 """
 An annotation is immutable, but the features it contains are mutable.
 """
-from .feature_map import FeatureMap
+from .feature_bearer import FeatureBearer
 from functools import total_ordering
 
 
 @total_ordering
-class Annotation:
+class Annotation(FeatureBearer):
     """
     NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
     in an annotation set.
@@ -14,14 +14,27 @@ class Annotation:
     of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
     to store annotations from different sets you need to use (annotationset, id) as the unique identifier!
     """
-    def __init__(self, annot_type, start, end, annot_id, owner_setname=None, changelogger=None, initialfeatures=None):
+
+    # We use slots to avoid the dict and save memory if we have a large number of annotations
+    __slots__ = ('changelogger', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
+
+    def __init__(self, annot_type, start, end, annot_id, owner_setname=None, changelogger=None, features=None):
+        super().__init__(features)
         self.changelogger = changelogger
         self.type = annot_type
         self.start = start
         self.end = end
-        self.features = FeatureMap(changelogger=changelogger, owner_setname=owner_setname,
-                                   owner_id=id, initialfeatures=initialfeatures)
         self.id = annot_id
+        self.owner_setname = owner_setname
+
+    def _log_feature_change(self, command, feature=None, value=None):
+        if self.changelogger is None:
+            return
+        ch = {"command": command, "annotation_set": self.owner_setname, "annotation_id": self.id}
+        if feature is not None:
+            ch["name"] = feature
+            ch["value"] = value
+        self.changelogger.append(ch)
 
     def __eq__(self, other):
         """
@@ -77,6 +90,14 @@ class Annotation:
 
     def __repr__(self):
         return "Annotation<({},{},{},id={})>".format(self.type, self.start, self.end, self.id)
+
+    def __len__(self):
+        """
+        The length of the annotation is the length of the offset span. Since the end offset is one after the last
+        element, we return end-start-1
+        :return:
+        """
+        return self.end - self.start - 1
 
 
 class AnnotationFromSet:

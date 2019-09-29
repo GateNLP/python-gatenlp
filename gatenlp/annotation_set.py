@@ -186,8 +186,8 @@ class AnnotationSet:
         if annid is None:
             self._max_annid = self._max_annid + 1
             annid = self._max_annid
-        ann = Annotation(anntype, start, end, annid, owner_setname=self, changelogger=self.changelogger,
-                         initialfeatures=features)
+        ann = Annotation(anntype, start, end, annid, owner_setname=self,
+                         changelogger=self.changelogger, features=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
         self.changelogger.append({
