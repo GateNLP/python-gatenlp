@@ -6,7 +6,7 @@ The map can optionally track changes through a changelogger.
 
 class FeatureMap(dict):
 
-    def __init__(self, changelogger=None, initialfeatures=[], owner_set=None, owner_id=None):
+    def __init__(self, changelogger=None, initialfeatures=None, owner_setname=None, owner_id=None):
         """
         Create a feature map, optionally so that it logs chages to the changelogger.
         If a changelogger is given, the owner should be set so it uniquely identifies
@@ -14,27 +14,30 @@ class FeatureMap(dict):
         (The owner should get set automatically whenever an owning object creates its FeatureMap)
         :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
         :param changelogger: a ChangeLogger for tracking changes to the feature map
-        :param owner_set: if the featuremap belongs to an annotation the annotation set name, if it belongs to the
+        :param owner_setname: if the featuremap belongs to an annotation the annotation set name, if it belongs to the
         document, None.
         :param owner_id: if the featuremap belongs to an annotation, the annotation id, if it belongs to the document,
         None.
         """
+        if initialfeatures is None:
+            initialfeatures = []
         super().__init__(initialfeatures)
         self.changelogger = changelogger
-        if (owner_set is None and owner_id is None) or (isinstance(owner_set, str) and isinstance(owner_id, int)):
-            pass # fine, thats what we want!
+        if (owner_setname is None and owner_id is None) or \
+                (isinstance(owner_setname, str) and isinstance(owner_id, int)):
+            pass  # fine, thats what we want!
         else:
             raise Exception("FeatureMap owner_set must be str and owner_id must be int, or both must be None")
-        self.owner_set = owner_set
+        self.owner_setname = owner_setname
         self.owner_id = owner_id
 
     def _log_change(self, command, feature=None, value=None):
         if self.changelogger is None:
             return
-        if self.owner_set is None:
+        if self.owner_setname is None:
             ch = {"command": command}
         else:
-            ch = {"command": command, "annotation_set": self.owner_set, "annotation_id": self.owner_id}
+            ch = {"command": command, "annotation_set": self.owner_setname, "annotation_id": self.owner_id}
         if feature is not None:
             ch[feature] = value
         self.changelogger.append(ch)
@@ -62,6 +65,5 @@ class FeatureMap(dict):
         super().__setitem__(key, value)
 
     def __delitem__(self, key):
-        self.log_change("REMOVE_FEATURE", feature=key)
+        self._log_change("REMOVE_FEATURE", feature=key)
         super().__delitem__(key)
-

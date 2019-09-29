@@ -1,4 +1,8 @@
-# TODO: currently uses intervaltree for offset range overlaps, but will do on-demand resorting
+# TODO: currently uses intervaltree, but this is not ideal, since intervaltree does not return sorted lists
+# Ideally, if we create an immutable subset of annotations, that subset should get a partial interval tree
+# for those annotations, if we already have the interval tree for the original set (which in most cases we have
+# since we need it for creating the subset in the first place). Then, if the intervaltree would allow ordered
+# lists, we could directly use it to get the annotations in document order!
 
 
 from collections import defaultdict
@@ -46,8 +50,7 @@ class AnnotationSet:
     def __init__(self, name="", changelogger=None, owner_doc=None):
         """
         Create a new annotation set.
-        :param name: the name of the annotation set.
-        :param annotations: an iterable of annotations, where the iterator yields annotation_id/annotation pairs.
+        :param name: the name of the annotation set. This is only really needed if the changelogger is used.
         :param changelogger:
         :param owner_doc:
         """
@@ -88,7 +91,6 @@ class AnnotationSet:
                 self._index_by_offset[ann.start:ann.end] = ann.id
                 self._sorted_by_offset.add(Interval(ann.start, ann.end, ann.id))
 
-
     def _create_index_by_type(self):
         """
         Generates the type index, if it does not already exist. The type index is a map from
@@ -116,6 +118,25 @@ class AnnotationSet:
             self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].remove(annotation.id)
+
+    @staticmethod
+    def _intvs2idlist(intvs):
+        """
+        Convert an iterable of intervals+id to a list of ids
+        :param intvs:
+        :return:
+        """
+        return [i.data for i in intvs]
+
+    @staticmethod
+    def _intvs2idset(intvs):
+        ret = set()
+        for i in intvs:
+            ret.add(i.data)
+        return ret
+
+    def _restrict_intvs(self, intvs):
+        return self.restrict(AnnotationSet._intvs2idlist(intvs))
 
     def __len__(self):
         return len(self._annotations)
@@ -165,7 +186,7 @@ class AnnotationSet:
         if annid is None:
             self._max_annid = self._max_annid + 1
             annid = self._max_annid
-        ann = Annotation(anntype, start, end, annid, annotationset=self, changelogger=self.changelogger,
+        ann = Annotation(anntype, start, end, annid, owner_setname=self, changelogger=self.changelogger,
                          initialfeatures=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
@@ -184,6 +205,7 @@ class AnnotationSet:
         :param annotation: either the id (int) or the annotation instance (Annotation)
         :return:
         """
+        annid = None  # make pycharm happy
         if self._is_immutable:
             raise Exception("Cannot remove an annotation from an immutable annotation set")
         if isinstance(annotation, int):
@@ -208,14 +230,14 @@ class AnnotationSet:
         Iterator for going through all the annotations in arbitrary order.
         :return:
         """
-        return self._annotations.iter()
+        return self._annotations.values()
 
     def in_document_order(self, start=None, end=None, reverse=False):
         """
         Returns an iterator for going through all the annotations in document order. Optionally restrict
         the
-        :param from: the offset where to start
-        :param ti: the last offset to include(!)
+        :param start: the offset where to start
+        :param end: the last offset to include(!)
         :param reverse: process in reverse document order
         :return: iterator for annotations in document order
         """
@@ -223,7 +245,7 @@ class AnnotationSet:
         if start is not None:
             start = Interval(start, 0, None)
         if end is not None:
-            end = Interval(end, 9999999999, None)
+            end = Interval(end, 9999999999, None)  # provide a bogus end offset for sorting
         for interval in self._sorted_by_offset.irange(minimum=start, maximum=end, reverse=reverse):
             yield self._annotations[interval.data]
 
@@ -263,77 +285,127 @@ class AnnotationSet:
         return self._index_by_type.keys()
 
     def types(self):
-        """Returns the dictionary index of types of annotation in this set"""
-        if self._annot_types is None:
-            self._index_by_type()
-
-        return self._annot_types
+        """
+        Returns the index of types, mapping each type to the set of annotation ids of that type. If necessary
+        creates the index.
+        """
+        self._create_index_by_type()
+        return self._index_by_type
 
     def at(self, start):
         """
-        Gets all annotations at the given offset (empty if none)
+        Gets all annotations at the given offset (empty if none) and returns them in an immutable annotation set.
         """
         self._create_index_by_offset()
-        idset = self._index_by_offset[start]
-        return self.restrict(idset)
+        intvs = self._index_by_offset[start]
+        return self._restrict_intvs(intvs)
 
     def first_from(self, offset):
         """
-        Gets all annotations at the first valid position at or after the given offset.
+        Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
+        annotation set.
         """
         self._create_index_by_offset()
-        idset = self._index_by_offset[offset:]
-
-        return self.restrict(result)
+        intvs = sorted(self._index_by_offset[offset:])
+        # now select only those first ones which all have the same offset
+        if len(intvs) < 2:
+            return self._restrict_intvs(intvs)
+        else:
+            retids = set()
+            start = intvs[0].start
+            for intv in intvs:
+                if intv.start == start:
+                    retids.add(intv.data)
+            return self.restrict(retids)
 
     @support_single
     @support_annotation
-    def overlapping(self, left, right):
-        """Gets annotations overlapping with the two points"""
-        result = self._annotations_start[I(left):I(right)]
-        result += self._annotations_end[I(left + 1):I(max(right, left + 1))]  # Must not end at the left offset.
-
-        return self.restrict(result)
+    def overlapping(self, start, end):
+        """
+        Gets annotations overlapping with the given span.
+        """
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.overlap(start, end)
+        return self._restrict_intvs(intvs)
 
     @support_single
     @support_annotation
-    def covering(self, left, right):
-        """Gets annotations that completely cover the span given"""
-        result = set(self._annotations_start[I(0):I(left)])
-        result.intersection_update(set(self._annotations_end[I(right):I(self.owner_doc.size())]))
-        return self.restrict(result)
+    def covering(self, start, end):
+        """
+        Gets annotations that completely cover the span given.
+        """
+        # This is not directly supported so we find the overlapping ones and then filter those where the
+        # start and end fits
+        # This may not be optimal
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.overlap(start, end)
+        retintvs = set()
+        for intv in intvs:
+            if intv.start <= start and intv.end >= end:
+                retintvs.add(intv)
+        return self._restrict_intvs(intvs)
 
     @support_annotation
-    def within(self, left, right):
+    def within(self, start, end):
         """Gets annotations that fall completely within the left and right given"""
-        result = set(self._annotations_start[I(left):I(right)])
-        result.intersection_update(set(self._annotations_end[I(left):I(right)]))
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.envelop(start, end)
+        return self._restrict_intvs(intvs)
 
-        return self.restrict(result)
+    @support_annotation
+    def after(self, start, end=None):
+        """
+        Return the annotations that start after the given offset (or annotation). This also accepts an annotation.
+        :param start: Start offset
+        :param end: ignored, only here so the @support_annotation decorator works.
+        :return: an immutable annotation set of the matching annotations
+        """
+        self._create_index_by_offset()
+        intvs = self._index_by_offset[start:]
+        return self._restrict_intvs(intvs)
 
-    def after(self, offset):
-        """Gets annotations that start after the given offset"""
-        return self.restrict(self._annotations_start[I(offset):I(self.owner_doc.size())])
-
-    def before(self, offset):
-        """Gets annotations that start after the given offset"""
-        return self.restrict(self._annotations_start[I(0):I(offset)])
+    def before(self, start, end=None):
+        """
+        Return the annotations that start before the given offset (or annotation). This also accepts an annotation.
+        :param start: Start offset
+        :param end: ignored, only here so the @support_annotation decorator works.
+        :return: an immutable annotation set of the matching annotations
+        """
+        self._create_index_by_offset()
+        intvs = self._index_by_offset[0:start]
+        return self._restrict_intvs(intvs)
 
     def first(self):
-        """Gets the first annotation within the annotation set"""
-        return self._annotations_start.min()
+        """
+        Return the/an annotation that has the smallest offset (and shortest length if several such).
+        :return: the annotation, or None if the annotation set is empty
+        """
+        if len(self._annotations) == 0:
+            return None
+        elif len(self._annotations) == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        return self._annotations[self._sorted_by_offset[0].data]
 
     def last(self):
-        """Gets the last annotation within the annotation set"""
-        return self._annotations_start.max()
+        """
+        Gets the/an annotation with the biggest start offset (and longest length if several such).
+        :return: the annotation, or None if the annotation set is empty
+        """
+        if len(self._annotations) == 0:
+            return None
+        elif len(self._annotations) == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        return self._annotations[self._sorted_by_offset[-1].data]
 
-    def __contains__(self, value):
+    def __contains__(self, annorannid):
         """Provides annotation in annotation_set functionality"""
-        if hasattr(value, "id"):  # Annotations have ids, so check those instead.
-            return value.id in self._annots and value in self._annots.viewvalues()
-        return value in self._annots  # On the off chance someone passed an ID in directly
+        if isinstance(annorannid, Annotation):
+            return annorannid.id in self._annotations
+        return annorannid in self._annotations  # On the off chance someone passed an ID in directly
 
     contains = __contains__
 
     def __repr__(self):
-        return repr([annotation for annotation in self])
+        return repr({annotation for annotation in self})
