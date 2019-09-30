@@ -17,6 +17,16 @@ class _AnnotationSetsDict(collections.defaultdict):
 
 
 class Document(FeatureBearer):
+    """
+    Represent a GATE document. This is different from the original Java GATE representation in several ways:
+    * the text is not mutable and can only be set at creation time, so there is no "edit" method
+    * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
+      no separate "FeatureMap" to store them
+    * does not support listener callbacks
+    * there is no separate abstraction for "content", the only content possible is text which is a unicode string
+      that can be acessed with the "text()" method
+    *
+    """
     def __init__(self, text, features=None, changelogger=None):
         super().__init__(features)
         self.changelogger = changelogger
@@ -64,3 +74,20 @@ class Document(FeatureBearer):
         :return: annotation set names
         """
         return self.annotation_sets.keys()
+
+    def set_source_url(self, url):
+        """
+
+        :param url:
+        :return:
+        """
+        pass  # TODO
+
+    def get_source_url(self):
+        """
+
+        :return:
+        """
+        pass  # TODO
+
+    # TODO: all the other fields to allow round-tripping an original GATE document
