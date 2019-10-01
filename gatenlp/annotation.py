@@ -16,11 +16,11 @@ class Annotation(FeatureBearer):
     """
 
     # We use slots to avoid the dict and save memory if we have a large number of annotations
-    __slots__ = ('changelogger', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
+    __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
 
-    def __init__(self, annot_type, start, end, annot_id, owner_setname=None, changelogger=None, features=None):
+    def __init__(self, annot_type, start, end, annot_id, owner_setname=None, changelog=None, features=None):
         super().__init__(features)
-        self.changelogger = changelogger
+        self.changelog = changelog
         self.type = annot_type
         self.start = start
         self.end = end
@@ -28,13 +28,13 @@ class Annotation(FeatureBearer):
         self.owner_setname = owner_setname
 
     def _log_feature_change(self, command, feature=None, value=None):
-        if self.changelogger is None:
+        if self.changelog is None:
             return
         ch = {"command": command, "annotation_set": self.owner_setname, "annotation_id": self.id}
         if feature is not None:
             ch["name"] = feature
             ch["value"] = value
-        self.changelogger.append(ch)
+        self.changelog.append(ch)
 
     def __eq__(self, other):
         """

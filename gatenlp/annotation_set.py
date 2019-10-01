@@ -47,14 +47,14 @@ def support_single(method):
 
 
 class AnnotationSet:
-    def __init__(self, name="", changelogger=None, owner_doc=None):
+    def __init__(self, name="", changelog=None, owner_doc=None):
         """
         Create a new annotation set.
-        :param name: the name of the annotation set. This is only really needed if the changelogger is used.
-        :param changelogger:
+        :param name: the name of the annotation set. This is only really needed if the changelog is used.
+        :param changelog:
         :param owner_doc:
         """
-        self.changelogger = changelogger
+        self.changelog = changelog
         self.name = name
         self.owner_doc = owner_doc
 
@@ -187,10 +187,10 @@ class AnnotationSet:
             self._max_annid = self._max_annid + 1
             annid = self._max_annid
         ann = Annotation(anntype, start, end, annid, owner_setname=self,
-                         changelogger=self.changelogger, features=features)
+                         changelog=self.changelog, features=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
-        self.changelogger.append({
+        self.changelog.append({
             "command": "ADD_ANNOT",
             "set": self.name,
             "start": ann.start,
@@ -218,7 +218,7 @@ class AnnotationSet:
             if annid not in self._annotations:
                 raise Exception("Annotation with id {} does not belong to this set, cannot remove".format(annid))
         del self._annotations[annid]
-        self.changelogger.append({
+        self.changelog.append({
             "command": "REMOVE_ANNOT",
             "set": self.name,
             "id": annid})

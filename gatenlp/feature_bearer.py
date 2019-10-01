@@ -2,7 +2,7 @@
 A "mixin" class to use for classes which should have features. This turns the class into something
 that can be used much like a dict in addition to original methods of the class. The inheriting class
 must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
-changelogger.
+changelog.
 """
 
 
@@ -18,7 +18,7 @@ class FeatureBearer:
             self.features = dict(initialfeatures)
         else:
             self.features = None
-        self.changelogger = None  # this must be set by the inheriting class!
+        self.changelog = None  # this must be set by the inheriting class!
 
     def _log_feature_change(self, command, feature=None, value=None):
         """

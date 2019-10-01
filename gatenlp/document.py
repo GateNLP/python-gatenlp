@@ -50,7 +50,7 @@ class _AnnotationSetsDict(collections.defaultdict):
         self.owner_doc = owner_doc
 
     def __missing__(self, key):
-        annset = AnnotationSet(name=key, changelogger=self.changelogger, owner_doc=self.owner_doc)
+        annset = AnnotationSet(name=key, changelog=self.changelogger, owner_doc=self.owner_doc)
         self[key] = annset
         return annset
 
@@ -66,10 +66,10 @@ class Document(FeatureBearer):
       that can be acessed with the "text()" method
     *
     """
-    def __init__(self, text, features=None, changelogger=None):
+    def __init__(self, text, features=None, changelog=None):
         super().__init__(features)
-        self.changelogger = changelogger
-        self.annotation_sets = _AnnotationSetsDict(self.changelogger, owner_doc=self)
+        self.changelog = changelog
+        self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
 
     @property
@@ -84,13 +84,13 @@ class Document(FeatureBearer):
         return int(len(self.text))
 
     def _log_feature_change(self, command, feature=None, value=None):
-        if self.changelogger is None:
+        if self.changelog is None:
             return
         ch = {"command": command}
         if feature is not None:
             ch["name"] = feature
             ch["value"] = value
-        self.changelogger.append(ch)
+        self.changelog.append(ch)
 
     def __len__(self):
         """
