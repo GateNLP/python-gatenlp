@@ -4,6 +4,45 @@ from .annotation_set import AnnotationSet
 from .feature_bearer import FeatureBearer
 
 
+# About offsets: the text of the document, when stored as json, is always saved encoded as utf-8, no matter
+# if the document got saved from Java or from Python.
+# However, the annotation offsets, if saved from Java refer to UTF16 code units, while the Python annotation offsets
+# refer to unicode code points. When we load a serialised document from JSON, the annotations offsets may be
+# java or python offsets. If they are python offsets, nothing needs to be done. If they are java offsets,
+# we need to be able to map back to python offsets by creating the mapping from java to python offsets.
+# In order to do this, we first create the python to java mapping, then invert that mapping.
+
+class OffsetMapper:
+    def __init__(self, text):
+        """
+        Calculate an offset mapping unicode code points to utf16 code units.
+        :param text: the text as a python string
+        """
+        import numpy as np
+        # TODO: maybe we should not create/keep the python2java?
+        # for mapping from python to java we create an array with the java offset for each python character,
+        # so this array has as many elements as there are characters
+        cur_java_off = 0
+        cur_python_off = 0
+        python2java_list = [0]
+        java2python_list = [0]
+        for i, c in enumerate(text[:-1]):
+            # get the java size of the next character
+            width = int(len(c.encode("utf-16be"))/2)
+            assert width == 1 or width == 2
+            # the next java offset we get by incrementing the java offset by the with of the current char
+            cur_java_off += width
+            python2java_list.append(cur_java_off)
+            # i is the current python offset, so we append this as many times to java2python_list as we have width
+            java2python_list.append(i)
+            if width == 2:
+                java2python_list.append(i)
+        self.python2java = np.array(python2java_list, np.int32)
+        self.java2python = np.array(java2python_list, np.int32)
+
+    def convert_from_java(self, *offsets):
+
+
 class _AnnotationSetsDict(collections.defaultdict):
     def __init__(self, changelogger=None, owner_doc=None):
         super().__init__()
