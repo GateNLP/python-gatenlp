@@ -41,6 +41,21 @@ class OffsetMapper:
         self.java2python = np.array(java2python_list, np.int32)
 
     def convert_from_java(self, *offsets):
+        # TODO: check invalid offset!
+        if len(offsets) == 1
+            return self.java2python(offsets[0])
+        ret = []
+        for offset in offsets:
+            ret.append(self.java2python[offset])
+
+    def convert_from_python(self, *offsets):
+        # TODO: check invalid offset!
+        if len(offsets) == 1
+            return self.python2java(offsets[0])
+        ret = []
+        for offset in offsets:
+            ret.append(self.python2java[offset])
+
 
 
 class _AnnotationSetsDict(collections.defaultdict):
@@ -113,6 +128,8 @@ class Document(FeatureBearer):
         :return: annotation set names
         """
         return self.annotation_sets.keys()
+
+    # TODO: this and other fields we need for round-tripping should get stored in special gate-reserved features!
 
     def set_source_url(self, url):
         """
