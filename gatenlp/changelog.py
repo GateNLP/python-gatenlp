@@ -1,26 +1,61 @@
 from .document import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 import gatenlp
+from .offsetmapping import OffsetMapper
+
 
 class ChangeLog:
-    def __init__(self, document):
-        self.log = []
+    def __init__(self):
+        self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
-        self.document = document
 
     def append(self, element):
         assert isinstance(element, dict)
-        self.log.append(element)
+        self.changes.append(element)
 
     def __len__(self):
-        return len(self.log)
+        return len(self.changes)
+
+    def _fixup_changes(self, method):
+        ret = []
+        for change in self.changes:
+            if "start" in change:
+                change["start"] = method(change["start"])
+            if "end" in change:
+                change["end"] = method(change["end"])
+            ret.append(change)
+        return ret
 
     def json_repr(self, **kwargs):
-        # TODO: if we have the offset_type kwarg and we need to convert offsets, create a copy of the
-        # chencges on the fly after creating the OffsetMapping and include that copy together with the
-        # changed offset type
+        offset_type = self.offset_type
+        changes = self.changes
+        if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
+            om = kwargs.get("offset_mapper")
+            if om is None:
+                raise Exception("Need to convert offsets, but no offset_mapper parameter given")
+            offset_type = kwargs["offset_type"]
+            if offset_type == OFFSET_TYPE_JAVA:
+                changes = self._fixup_changes(om.convert_to_java)
+            else:
+                changes = self._fixup_changes(om.convert_to_python)
         return {
             "object_type": "gatenlp.changelog.ChangeLog",
             "gatenlp_version": gatenlp.__version__,
-            "changes": self.log,
-            "offset_type": self.offset_type
+            "changes": changes,
+            "offset_type": offset_type
         }
+
+    @staticmethod
+    def from_json_map(jsonmap, **kwargs):
+        cl = ChangeLog()
+        cl.changes = jsonmap.get("changes")
+        cl.offset_type = jsonmap.get("offset_type")
+        if cl.offset_type == OFFSET_TYPE_JAVA:
+            # we need either an offset mapper or a document
+            if "offset_mapper" in kwargs:
+                om = kwargs.get("offset_mapper")
+            elif "document" in kwargs:
+                om = OffsetMapper(kwargs.get("document"))
+            else:
+                raise Exception("Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'")
+            cl.changes = cl._fixup_changes(om.convert_to_python)
+        return cl

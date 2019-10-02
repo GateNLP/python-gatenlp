@@ -4,6 +4,8 @@ An annotation is immutable, but the features it contains are mutable.
 from .feature_bearer import FeatureBearer
 from functools import total_ordering
 from .offsetmapping import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+import gatenlp
+
 
 @total_ordering
 class Annotation(FeatureBearer):
@@ -89,7 +91,7 @@ class Annotation(FeatureBearer):
                         return False
 
     def __repr__(self):
-        return "Annotation({},{},{},id={})".format(self.start, self.end, self.type, self.id)
+        return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self.features)
 
     def __len__(self):
         """
@@ -113,12 +115,21 @@ class Annotation(FeatureBearer):
             start = self.start
             end = self.end
         return {
+            "object_type": "gatenlp.annotation.Annotation",
+            "gatenlp_version": gatenlp.__version__,
             "start": start,
             "end": end,
             "type": self.type,
             "id": self.id,
             "features": self.features
         }
+
+    @staticmethod
+    def from_json_map(jsonmap, **kwargs):
+        ann = Annotation(jsonmap.get("start"), jsonmap.get("end"), jsonmap.get("type"), jsonmap.get("id"),
+                         features=jsonmap.get("features"))
+        return ann
+
 
 class AnnotationFromSet:
     """

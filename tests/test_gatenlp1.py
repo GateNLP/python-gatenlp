@@ -49,3 +49,11 @@ class TestDocument01:
         assert len(annset1.within(0, 10)) == 2
         assert len(annset1.within(1, 3)) == 0
         assert len(annset1.within(0, 22)) == 3
+        doc1.set_feature("docfeat1", 33)
+        assert doc1.get_feature("docfeat1") == 33
+        print("DOC: {}".format(doc1), file=sys.stderr)
+        jsonstr = gatesimplejsondoc.dumps(doc1, offset_type=OFFSET_TYPE_JAVA)
+        print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
+        doc2 = gatesimplejsondoc.loads(jsonstr)
+        print("DOC BACK: {}".format(doc2), file=sys.stderr)
+

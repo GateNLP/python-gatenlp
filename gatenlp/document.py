@@ -1,4 +1,5 @@
 import collections
+import sys
 
 from .offsetmapping import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from .annotation_set import AnnotationSet
@@ -49,27 +50,25 @@ class Document(FeatureBearer):
             raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
 
     def _fixup_annotations(self, method):
-        annset_names = self.get_annotation_set_names()
+        annset_names = self.annotation_sets.keys()
         for annset_name in annset_names:
-            annset = self.get_annotations(annset_name)
+            annset = self.annotation_sets[annset_name]
             for ann in annset:
                 ann.start = method(ann.start)
                 ann.end = method(ann.end)
-
-        raise Exception("Not yet implemented :( :(")
 
     def to_type(self, offsettype):
         if offsettype == self.offset_type:
             return
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
             # convert from currently python to java
-            om1 = OffsetMapper(self)
-            self._fixup_annotations(om1.convert_from_python)
+            om1 = OffsetMapper(self._text)
+            self._fixup_annotations(om1.convert_to_java)
             self.offset_type = OFFSET_TYPE_JAVA
         elif offsettype == OFFSET_TYPE_PYTHON and self.offset_type == OFFSET_TYPE_JAVA:
             # convert from currently java to python
-            om1 = OffsetMapper(self)
-            self._fixup_annotations(om1.convert_from_java)
+            om1 = OffsetMapper(self._text)
+            self._fixup_annotations(om1.convert_to_python)
             self.offset_type = OFFSET_TYPE_PYTHON
         else:
             raise Exception("Odd offset type")
@@ -127,21 +126,37 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         return self.annotation_sets.keys()
 
+    def __repr__(self):
+        return "Document({},features={},anns={})".format(self.text, self.features, self.annotation_sets)
+
     def json_repr(self, **kwargs):
         """
         Return a JSON-representable version of this object
         :return: something JSON can serialise
         """
-        # TODO: if we need to change the offsets, create the mapper here and add it to the kwargs
         offset_type = self.offset_type
         if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
-            om = OffsetMapper(self)
+            om = OffsetMapper(self._text)
             kwargs["offset_mapper"] = om
+            offset_type = kwargs["offset_type"]
         return {
-            "object_type": "gatenlp.Document",
+            "object_type": "gatenlp.document.Document",
             "gatenlp_version": gatenlp.__version__,
             "text": self._text,
+            "features": self.features,
             # turn our special class into an ordinary map
             "annotation_sets": {name: annset.json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
             "offset_type": offset_type
         }
+
+    @staticmethod
+    def from_json_map(jsonmap, **kwargs):
+        doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
+        doc.annotation_sets = _AnnotationSetsDict()
+        for k, v in jsonmap.get("annotation_sets").items():
+            doc.annotation_sets[k] = v
+        offset_type = jsonmap.get("offset_type")
+        doc.offset_type = offset_type
+        if offset_type == OFFSET_TYPE_JAVA:
+            doc.to_type(OFFSET_TYPE_PYTHON)
+        return doc

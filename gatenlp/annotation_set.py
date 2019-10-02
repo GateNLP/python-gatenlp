@@ -11,6 +11,7 @@ from sortedcontainers import SortedSet
 from .annotation import Annotation
 from .exceptions import InvalidOffsetException
 import numbers
+import gatenlp
 
 
 def support_annotation_or_set(method):
@@ -475,6 +476,18 @@ class AnnotationSet:
 
     def json_repr(self, **kwargs):
         return {
+            "object_type": "gatenlp.annotation_set.AnnotationSet",
+            "gatenlp_version": gatenlp.__version__,
             "annotations": [ann.json_repr(**kwargs) for ann in self._annotations.values()],
-            "max_annid": self._max_annid
+            "max_annid": self._max_annid,
+            "name": self.name
         }
+
+    @staticmethod
+    def from_json_map(jsonmap, **kwargs):
+        annset = AnnotationSet(name=jsonmap.get("name"))
+        anns = jsonmap.get("annotations")
+        annmap = {ann.id: ann for ann in anns}
+        annset._annotations = annmap
+        annset._max_annid = jsonmap.get("max_annid")
+        return annset
