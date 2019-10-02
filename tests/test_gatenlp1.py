@@ -51,9 +51,46 @@ class TestDocument01:
         assert len(annset1.within(0, 22)) == 3
         doc1.set_feature("docfeat1", 33)
         assert doc1.get_feature("docfeat1") == 33
-        print("DOC: {}".format(doc1), file=sys.stderr)
+        # print("DOC: {}".format(doc1), file=sys.stderr)
         jsonstr = gatesimplejsondoc.dumps(doc1, offset_type=OFFSET_TYPE_JAVA)
-        print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
+        # print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
         doc2 = gatesimplejsondoc.loads(jsonstr)
-        print("DOC BACK: {}".format(doc2), file=sys.stderr)
+        # print("DOC BACK: {}".format(doc2), file=sys.stderr)
+        assert doc2.get_feature("docfeat1") == 33
+        d2annset1 = doc2.get_annotations("")
+        assert len(d2annset1) == 3
+        at8 = d2annset1.at(8)
+        # print("AT8: {}".format(at8), file=sys.stderr)
+        assert len(at8) == 1
 
+
+class TestChangeLog01:
+
+    def test_changelog01m01(self):
+        from gatenlp.document import Document, OFFSET_TYPE_JAVA
+        from gatenlp.changelog import ChangeLog
+        from gatenlp.offsetmapping import OffsetMapper
+        from gatenlp.docformats import gatesimplejsondoc
+        chlog = ChangeLog()
+        doc1 = Document("Just a simple \U0001F4A9 document.", changelog=chlog)
+        annset1 = doc1.get_annotations("")
+        ann1id = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
+        ann2id = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
+        ann3id = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
+        ann4id = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
+        ann5id = annset1.add(16, 24, "Token", {"n": 5})
+        annset2 = doc1.get_annotations("Set2")
+        annset2.add(0, 12, "Ann1", None)
+        annset1.remove(ann2id)
+        annset1.get(ann3id).set_feature("str", "simple")
+        doc1.set_feature("docfeature1", "value1")
+        doc1.set_feature("docfeature1", "value1b")
+        # print("Changelog:", chlog, file=sys.stderr)
+        # print("Changelog:", file=sys.stderr)
+        # chlog.format_to(sys.stderr)
+        om = OffsetMapper(doc1)
+        jsonstr = gatesimplejsondoc.dumps(chlog, offset_type=OFFSET_TYPE_JAVA, offset_mapper=om)
+        # print("JSON:", jsonstr, file=sys.stderr)
+        chlog2 = gatesimplejsondoc.loads(jsonstr, offset_mapper=om)
+        # print("Changelog from JSON:", chlog2, file=sys.stderr)
+        assert chlog2.changes[4].get("end") == 24

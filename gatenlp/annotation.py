@@ -5,7 +5,7 @@ from .feature_bearer import FeatureBearer
 from functools import total_ordering
 from .offsetmapping import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 import gatenlp
-
+import sys
 
 @total_ordering
 class Annotation(FeatureBearer):
@@ -22,6 +22,7 @@ class Annotation(FeatureBearer):
 
     def __init__(self, start, end, annot_type, annot_id, owner_setname=None, changelog=None, features=None):
         super().__init__(features)
+        # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
         self.changelog = changelog
         self.type = annot_type
         self.start = start
@@ -32,9 +33,12 @@ class Annotation(FeatureBearer):
     def _log_feature_change(self, command, feature=None, value=None):
         if self.changelog is None:
             return
-        ch = {"command": command, "annotation_set": self.owner_setname, "annotation_id": self.id}
+        ch = {
+            "command": command,
+            "set": self.owner_setname,
+            "id": self.id}
         if feature is not None:
-            ch["name"] = feature
+            ch["feature"] = feature
             ch["value"] = value
         self.changelog.append(ch)
 

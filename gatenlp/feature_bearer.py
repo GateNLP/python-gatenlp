@@ -38,10 +38,9 @@ class FeatureBearer:
         # if we do not have features, this is a NOOP
         if self.features is None:
             return
-        self._log_feature_change("CLEAR_FEATURES")
+        self._log_feature_change("features:clear")
         # instead of emptying the dict, we remove it comepletely, maybe it wont be used anyway
         self.features = None
-
 
     def set_feature(self, key, value):
         """
@@ -52,18 +51,18 @@ class FeatureBearer:
         """
         if self.features is None:
             self.features = dict()
-        self._log_feature_change("UPDATE_FEATURE", feature=key, value=value)
+        self._log_feature_change("feature:set", feature=key, value=value)
         self.features[key] = value
 
     def del_feature(self, featurename):
         """
         Remove the feature with that name
-        :param key:
+        :param featurename: the feature to remove from the set
         :return:
         """
         if self.features is None:
             raise KeyError(featurename)
-        self._log_feature_change("REMOVE_FEATURE", feature=featurename)
+        self._log_feature_change("feature:remove", feature=featurename)
         del self.features[featurename]
 
     def get_feature(self, key, default=None):
@@ -118,13 +117,13 @@ class FeatureBearer:
         if other:
             if hasattr(other, "keys"):
                 for k in other:
-                    self.feature[k] = other[k]
+                    self.set_feature(k, other[k])
             else:
                 for k, v in other:
-                    self.feature[k] = v
+                    self.set_feature(k, v)
         if kwargs:
             for k in kwargs:
-                self.feature[k] = kwargs[k]
+                self.set_feature(k, kwargs[k])
 
     def num_features(self):
         """

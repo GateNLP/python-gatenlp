@@ -25,6 +25,13 @@ class ChangeLog:
             ret.append(change)
         return ret
 
+    def __repr__(self):
+        return "ChangeLog([{}])".format(",".join([str(c) for c in self.changes]))
+
+    def format_to(self, fp, prefix=""):
+        for c in self.changes:
+            print(prefix, str(c), sep="", file=fp)
+
     def json_repr(self, **kwargs):
         offset_type = self.offset_type
         changes = self.changes

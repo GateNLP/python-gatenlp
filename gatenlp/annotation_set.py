@@ -12,6 +12,15 @@ from .annotation import Annotation
 from .exceptions import InvalidOffsetException
 import numbers
 import gatenlp
+import sys
+
+# NOTE: the intervaltree package originally looked like it would be what I need, but it turns out it is limited
+# Either replace it with double RB-tree or fix it or do something other
+# What is missing:
+# * covering/enveloped: get all intervals that contain a given span
+# * starting-at/ending-et: get all intervals starting/ending at that offset
+# * sorted result: currently the results are sets in no particular order, would be cool if we could guarantee sorted
+#   intervals always, then could use this to make "in document order" much more efficient
 
 
 def support_annotation_or_set(method):
@@ -50,6 +59,7 @@ class AnnotationSet:
         :param changelog:
         :param owner_doc:
         """
+        # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self.changelog = changelog
         self.name = name
         self.owner_doc = owner_doc
@@ -57,6 +67,7 @@ class AnnotationSet:
         # NOTE: the index is only created when we actually need it!
         self._index_by_offset = None
         self._index_by_type = None
+        self._sorted_by_offset = None
         # internally we represent the annotations as a map from annotation id (int) to Annotation
         self._annotations = {}
         self._is_immutable = False
@@ -140,6 +151,13 @@ class AnnotationSet:
     def size(self):
         return len(self._annotations)
 
+    def get_doc(self):
+        """
+        Get the owning document, if known.
+        :return: the document this annotation set belongs to
+        """
+        return self.owner_doc
+
     @support_annotation_or_set
     def _check_offsets(self, start, end):
         """
@@ -186,9 +204,9 @@ class AnnotationSet:
                          changelog=self.changelog, features=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
-        if self.changelog:
+        if self.changelog is not None:
             self.changelog.append({
-                "command": "ADD_ANNOT",
+                "command": "annotation:add",
                 "set": self.name,
                 "start": ann.start,
                 "end": ann.end,
@@ -216,13 +234,30 @@ class AnnotationSet:
             if annid not in self._annotations:
                 raise Exception("Annotation with id {} does not belong to this set, cannot remove".format(annid))
         del self._annotations[annid]
-        if self.changelog:
+        if self.changelog is not None:
             self.changelog.append({
-                "command": "REMOVE_ANNOT",
+                "command": "annotation:remove",
                 "set": self.name,
                 "id": annid})
 
         self._remove_from_indices(annotation)
+
+    def clear_annotations(self):
+        """
+        Remove all annotations from the set.
+        :return:
+        """
+        allids = self._annotations.keys()
+        for annid in allids:
+            del self._annotations[annid]
+        self._index_by_offset = None
+        self._index_by_type = None
+        self._sorted_by_offset = None
+        if self.changelog is not None:
+            self.changelog.append({
+                "command": "annotations:clear",
+                "set": self.name})
+
 
     def __iter__(self):
         """
@@ -237,7 +272,7 @@ class AnnotationSet:
         is given, then those annotations, optionally limited by the other parameters are returned in
         document order, otherwise, all annotations in the set are returned, otionally limited by the other
         parameters.
-        :param *annotations: either missing or exactly one parameter which must be an iterable of annotations
+        :param annotations: either missing or exactly one parameter which must be an iterable of annotations
         from this annotation set.
         :param from_offset: the offset from where to start including annotations
         :param to_offset: the last offset to use as the starting offset of an annotation
@@ -310,10 +345,13 @@ class AnnotationSet:
 
     def at(self, start):
         """
-        Gets all annotations at the given offset (empty if none) and returns them in an immutable annotation set.
+        Gets all annotations starting at the given offset (empty if none) and returns them in an immutable annotation set.
         """
+        # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
+        # point query
         self._create_index_by_offset()
         intvs = self._index_by_offset[start]
+        intvs = [intv for intv in intvs if intv.begin == start]
         return self._restrict_intvs(intvs)
 
     def first_from(self, offset):

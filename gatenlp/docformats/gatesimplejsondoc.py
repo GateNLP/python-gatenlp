@@ -57,33 +57,36 @@ def load(fp, **kwargs):
     return json.load(fp, object_hook=get_object_hook(**kwargs))
 
 
-def loads(str):
+def loads(str, **kwargs):
     """
     Create gatenlp object from JSON string and return it.
     :param str: JSON string
     :return: the gatenlp object
     """
-    return json.loads(str, object_hook=get_object_hook())
+    return json.loads(str, object_hook=get_object_hook(**kwargs))
 
 
-def dump(fp, obj, offset_type=OFFSET_TYPE_PYTHON):
+def dump(fp, obj, indent=None, **kwargs):
     """
     Write the given gatenlp object to the file.
     :param fp: a file like object as required by json.dump
     :param obj: the object to save
-    :param offset_type: if specified and OFFSET_TYPE_JAVA, convert the offsets to java offsets in the JSON
+    :param indent: passed on to jsom.dump
+    :param kwargs:
     :return:
     """
-    json.dump(fp, obj, default=get_object_encoder(offset_type=offset_type))
+    json.dump(fp, obj, indent=indent, default=get_object_encoder(*kwargs))
 
 
-def dumps(obj, indent=None, offset_type=OFFSET_TYPE_PYTHON):
+def dumps(obj, indent=None, **kwargs):
     """
     Create JSON string representing the given object.
     :param obj: the object
     :param indent: passed on to json.dumps
-    :param offset_type: if specified and OFFSET_TYPE_JAVA, convert the offsets to java offsets in the JSON
+    :param kwargs:
+    offset_type: if specified and OFFSET_TYPE_JAVA, convert the offsets to java offsets in the JSON
+    offset_mapper: if specified, used for the offset mapping if an offset mapper cannot otherwise be found
     :return: JSON string
     """
-    return json.dumps(obj, indent=indent, default=get_object_encoder(offset_type=offset_type))
+    return json.dumps(obj, indent=indent, default=get_object_encoder(**kwargs))
 

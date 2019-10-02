@@ -91,7 +91,7 @@ class Document(FeatureBearer):
             return
         ch = {"command": command}
         if feature is not None:
-            ch["name"] = feature
+            ch["feature"] = feature
             ch["value"] = value
         self.changelog.append(ch)
 
