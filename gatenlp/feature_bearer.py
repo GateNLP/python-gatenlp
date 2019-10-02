@@ -30,7 +30,7 @@ class FeatureBearer:
         """
         raise Exception("must be overridden by the inheriting class")
 
-    def clear(self):
+    def clear_features(self):
         """
         Remove all features.
         :return:
@@ -42,22 +42,8 @@ class FeatureBearer:
         # instead of emptying the dict, we remove it comepletely, maybe it wont be used anyway
         self.features = None
 
-    def pop(self, key, default=None):
-        """
-        Remove the given key and return its value, if not found, default is returned.
-        :param key: feature to remove
-        :param default: value to return if feature does not exist
-        :return:
-        """
-        if self.features is None:
-            return default
-        self._log_feature_change("REMOVE_FEATURE", feature=key)
-        ret = self.features.pop(key, default)
-        if len(self.features) == 0:
-            self.features = None
-        return ret
 
-    def __setitem__(self, key, value):
+    def set_feature(self, key, value):
         """
         Set feature to the given value
         :param key: feature name
@@ -69,7 +55,7 @@ class FeatureBearer:
         self._log_feature_change("UPDATE_FEATURE", feature=key, value=value)
         self.features[key] = value
 
-    def __delitem__(self, featurename):
+    def del_feature(self, featurename):
         """
         Remove the feature with that name
         :param key:
@@ -80,17 +66,17 @@ class FeatureBearer:
         self._log_feature_change("REMOVE_FEATURE", feature=featurename)
         del self.features[featurename]
 
-    def get(self, key, default=None):
+    def get_feature(self, key, default=None):
         if self.features is None:
             return default
         return self.features.get(key, default)
 
-    def __contains__(self, key):
+    def has_feature(self, key):
         if self.features is None:
             return False
         return key in self.features
 
-    def featurenames(self):
+    def feature_names(self):
         """
         Return an iterable with the feature names. This is NOT a view and does not update when the features change!
         :return:
@@ -100,7 +86,7 @@ class FeatureBearer:
         else:
             return set(self.features.keys())
 
-    def featurevalues(self):
+    def feature_values(self):
         """
         Return an iterable with the feature values. This is NOT a view and does not update when the features change!
         :return:
@@ -120,7 +106,7 @@ class FeatureBearer:
         else:
             return self.features.copy()
 
-    def update(self, *other, **kwargs):
+    def update_features(self, *other, **kwargs):
         """
         Update the features from another map or an iterable of key value pairs or from keyword arguments
         :param other: another dictionary or an iterable of key,value pairs
@@ -139,7 +125,6 @@ class FeatureBearer:
         if kwargs:
             for k in kwargs:
                 self.feature[k] = kwargs[k]
-
 
     def num_features(self):
         """

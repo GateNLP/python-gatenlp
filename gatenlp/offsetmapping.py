@@ -1,0 +1,66 @@
+import numbers
+
+OFFSET_TYPE_JAVA = "j"
+OFFSET_TYPE_PYTHON = "p"
+
+
+class OffsetMapper:
+    def __init__(self, text):
+        """
+        Calculate the tables for mapping unicode code points to utf16 code units.
+        NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+        if after creating the java2python table we find that all offsets are identical, we discard
+        the tables and just set a flag for that.
+        :param text: the text as a python string
+        """
+        import numpy as np
+        cur_java_off = 0
+        python2java_list = [0]
+        java2python_list = []
+        last = len(text)-1
+        for i, c in enumerate(text):
+            # get the java size of the current character
+            width = int(len(c.encode("utf-16be"))/2)
+            assert width == 1 or width == 2
+            # the next java offset we get by incrementing the java offset by the with of the current char
+            cur_java_off += width
+            if i != last:
+                python2java_list.append(cur_java_off)
+            # i is the current python offset, so we append as many times to java2python_list as we have width
+            java2python_list.append(i)
+            if width == 2:
+                java2python_list.append(i)
+        if len(java2python_list) == len(text):
+            self.python2java = None
+            self.java2python = None
+            self.bijective = len(text)
+        else:
+            self.python2java = np.array(python2java_list, np.int32)
+            self.java2python = np.array(java2python_list, np.int32)
+            self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
+
+    def _convert_from(self, offsets, from_table=None):
+        if from_table is None:
+            return offsets
+        if isinstance(offsets, numbers.Integral):
+            return int(from_table[offsets])
+        ret = []
+        for offset in offsets:
+            ret.append(int(from_table[offset]))
+        return ret
+
+    def convert_to_python(self, offsets):
+        """
+        Convert one java offset or an iterable of java offsets to python offset/s
+        :param offsets: a single offset or an iterable of offsets
+        :return:
+        """
+        return self._convert_from(offsets, from_table=self.java2python)
+
+    def convert_to_java(self, offsets):
+        """
+        Convert one python offset or an iterable of python offsets to java offset/s
+        :param offsets: a single offset or an iterable of offsets
+        :return:
+        """
+        return self._convert_from(offsets, from_table=self.python2java)

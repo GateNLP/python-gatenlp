@@ -3,7 +3,7 @@ An annotation is immutable, but the features it contains are mutable.
 """
 from .feature_bearer import FeatureBearer
 from functools import total_ordering
-
+from .offsetmapping import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 
 @total_ordering
 class Annotation(FeatureBearer):
@@ -18,7 +18,7 @@ class Annotation(FeatureBearer):
     # We use slots to avoid the dict and save memory if we have a large number of annotations
     __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
 
-    def __init__(self, annot_type, start, end, annot_id, owner_setname=None, changelog=None, features=None):
+    def __init__(self, start, end, annot_type, annot_id, owner_setname=None, changelog=None, features=None):
         super().__init__(features)
         self.changelog = changelog
         self.type = annot_type
@@ -89,7 +89,7 @@ class Annotation(FeatureBearer):
                         return False
 
     def __repr__(self):
-        return "Annotation<({},{},{},id={})>".format(self.type, self.start, self.end, self.id)
+        return "Annotation({},{},{},id={})".format(self.start, self.end, self.type, self.id)
 
     def __len__(self):
         """
@@ -99,6 +99,26 @@ class Annotation(FeatureBearer):
         """
         return self.end - self.start - 1
 
+    def json_repr(self, **kwargs):
+        if "offset_mapper" in kwargs:
+            om = kwargs["offset_mapper"]
+            to_type = kwargs["offset_type"]
+            if to_type == OFFSET_TYPE_JAVA:
+                start = om.convert_to_java(self.start)
+                end = om.convert_to_java(self.end)
+            else:
+                start = om.convert_to_python(self.start)
+                end = om.convert_to_python(self.end)
+        else:
+            start = self.start
+            end = self.end
+        return {
+            "start": start,
+            "end": end,
+            "type": self.type,
+            "id": self.id,
+            "features": self.features
+        }
 
 class AnnotationFromSet:
     """
@@ -173,6 +193,5 @@ class AnnotationFromSet:
         else:
             raise Exception("Do not know how to handle type {}".format(astype))
         return ret
-
 
 

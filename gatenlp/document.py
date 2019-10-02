@@ -1,76 +1,26 @@
 import collections
 
+from .offsetmapping import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from .annotation_set import AnnotationSet
+from .annotation import Annotation
 from .feature_bearer import FeatureBearer
-
-
-# About offsets: the text of the document, when stored as json, is always saved encoded as utf-8, no matter
-# if the document got saved from Java or from Python.
-# However, the annotation offsets, if saved from Java refer to UTF16 code units, while the Python annotation offsets
-# refer to unicode code points. When we load a serialised document from JSON, the annotations offsets may be
-# java or python offsets. If they are python offsets, nothing needs to be done. If they are java offsets,
-# we need to be able to map back to python offsets by creating the mapping from java to python offsets.
-# In order to do this, we first create the python to java mapping, then invert that mapping.
-
-class OffsetMapper:
-    def __init__(self, text):
-        """
-        Calculate an offset mapping unicode code points to utf16 code units.
-        :param text: the text as a python string
-        """
-        import numpy as np
-        # TODO: maybe we should not create/keep the python2java?
-        # for mapping from python to java we create an array with the java offset for each python character,
-        # so this array has as many elements as there are characters
-        cur_java_off = 0
-        cur_python_off = 0
-        python2java_list = [0]
-        java2python_list = [0]
-        for i, c in enumerate(text[:-1]):
-            # get the java size of the next character
-            width = int(len(c.encode("utf-16be"))/2)
-            assert width == 1 or width == 2
-            # the next java offset we get by incrementing the java offset by the with of the current char
-            cur_java_off += width
-            python2java_list.append(cur_java_off)
-            # i is the current python offset, so we append this as many times to java2python_list as we have width
-            java2python_list.append(i)
-            if width == 2:
-                java2python_list.append(i)
-        self.python2java = np.array(python2java_list, np.int32)
-        self.java2python = np.array(java2python_list, np.int32)
-
-    def convert_from_java(self, *offsets):
-        # TODO: check invalid offset!
-        if len(offsets) == 1
-            return self.java2python(offsets[0])
-        ret = []
-        for offset in offsets:
-            ret.append(self.java2python[offset])
-
-    def convert_from_python(self, *offsets):
-        # TODO: check invalid offset!
-        if len(offsets) == 1
-            return self.python2java(offsets[0])
-        ret = []
-        for offset in offsets:
-            ret.append(self.python2java[offset])
-
+import gatenlp
 
 
 class _AnnotationSetsDict(collections.defaultdict):
-    def __init__(self, changelogger=None, owner_doc=None):
+    def __init__(self, changelog=None, owner_doc=None):
         super().__init__()
-        self.changelogger = changelogger
+        self.changelog = changelog
         self.owner_doc = owner_doc
 
     def __missing__(self, key):
-        annset = AnnotationSet(name=key, changelog=self.changelogger, owner_doc=self.owner_doc)
+        annset = AnnotationSet(name=key, changelog=self.changelog, owner_doc=self.owner_doc)
         self[key] = annset
         return annset
 
 
 class Document(FeatureBearer):
+
     """
     Represent a GATE document. This is different from the original Java GATE representation in several ways:
     * the text is not mutable and can only be set at creation time, so there is no "edit" method
@@ -79,16 +29,54 @@ class Document(FeatureBearer):
     * does not support listener callbacks
     * there is no separate abstraction for "content", the only content possible is text which is a unicode string
       that can be acessed with the "text()" method
-    *
+    * Spans of text can be directly accessed using doc[from:to]
+    * features are not stored in a separate feature map object, but are directly set on the document, e.g.
+      doc.set_feature("x",y) or doc.get_feature("x", defaultvalue)
+    * Features may only have string keys and values which can be json-serialised
+    * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
+      are UTF-16 Unicode code units
+    * Offsets of all annotations can be changed from/to Java
     """
     def __init__(self, text, features=None, changelog=None):
         super().__init__(features)
         self.changelog = changelog
         self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
+        self.offset_type = OFFSET_TYPE_PYTHON
+
+    def _ensure_type_python(self):
+        if self.offset_type != OFFSET_TYPE_PYTHON:
+            raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
+
+    def _fixup_annotations(self, method):
+        annset_names = self.get_annotation_set_names()
+        for annset_name in annset_names:
+            annset = self.get_annotations(annset_name)
+            for ann in annset:
+                ann.start = method(ann.start)
+                ann.end = method(ann.end)
+
+        raise Exception("Not yet implemented :( :(")
+
+    def to_type(self, offsettype):
+        if offsettype == self.offset_type:
+            return
+        if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
+            # convert from currently python to java
+            om1 = OffsetMapper(self)
+            self._fixup_annotations(om1.convert_from_python)
+            self.offset_type = OFFSET_TYPE_JAVA
+        elif offsettype == OFFSET_TYPE_PYTHON and self.offset_type == OFFSET_TYPE_JAVA:
+            # convert from currently java to python
+            om1 = OffsetMapper(self)
+            self._fixup_annotations(om1.convert_from_java)
+            self.offset_type = OFFSET_TYPE_PYTHON
+        else:
+            raise Exception("Odd offset type")
 
     @property
     def text(self):
+        self._ensure_type_python()
         return self._text
 
     @text.setter
@@ -96,6 +84,7 @@ class Document(FeatureBearer):
         raise NotImplementedError("Text cannot be modified in a Python processing resource")
 
     def size(self):
+        self._ensure_type_python()
         return int(len(self.text))
 
     def _log_feature_change(self, command, feature=None, value=None):
@@ -112,7 +101,14 @@ class Document(FeatureBearer):
         Return the length of the text.
         :return:
         """
+        self._ensure_type_python()
         return len(self._text)
+
+    def __getitem__(self, item):
+        self._ensure_type_python()
+        if isinstance(item, Annotation):
+            return self.text[item.start:item.end]
+        return self.text[item]
 
     def get_annotations(self, name=""):
         """
@@ -120,6 +116,7 @@ class Document(FeatureBearer):
         If the annotation set does not already exist, it is created.
         :return: the specified annotation set.
         """
+        self._ensure_type_python()
         return self.annotation_sets[name]
 
     def get_annotation_set_names(self):
@@ -127,23 +124,24 @@ class Document(FeatureBearer):
         Return the set of known annotation set names.
         :return: annotation set names
         """
+        self._ensure_type_python()
         return self.annotation_sets.keys()
 
-    # TODO: this and other fields we need for round-tripping should get stored in special gate-reserved features!
-
-    def set_source_url(self, url):
+    def json_repr(self, **kwargs):
         """
-
-        :param url:
-        :return:
+        Return a JSON-representable version of this object
+        :return: something JSON can serialise
         """
-        pass  # TODO
-
-    def get_source_url(self):
-        """
-
-        :return:
-        """
-        pass  # TODO
-
-    # TODO: all the other fields to allow round-tripping an original GATE document
+        # TODO: if we need to change the offsets, create the mapper here and add it to the kwargs
+        offset_type = self.offset_type
+        if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
+            om = OffsetMapper(self)
+            kwargs["offset_mapper"] = om
+        return {
+            "object_type": "gatenlp.Document",
+            "gatenlp_version": gatenlp.__version__,
+            "text": self._text,
+            # turn our special class into an ordinary map
+            "annotation_sets": {name: annset.json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
+            "offset_type": offset_type
+        }
