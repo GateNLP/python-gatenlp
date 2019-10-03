@@ -27,7 +27,7 @@ class TestDocument01:
 
     def test_document01m01(self):
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
-        from gatenlp.docformats import gatesimplejsondoc
+        from gatenlp.docformats import simplejson
         doc1 = Document("This is a \U0001F4A9 document.\n이것은 문서입니다 \U0001F4A9\nЭто \U0001F4A9 документ\nاین یک سند \U0001F4A9 است")
         annset1 = doc1.get_annotations("")
         ann1id = annset1.add(8, 9, "Type1", {"f1": 1, "f2": 2})
@@ -52,9 +52,9 @@ class TestDocument01:
         doc1.set_feature("docfeat1", 33)
         assert doc1.get_feature("docfeat1") == 33
         # print("DOC: {}".format(doc1), file=sys.stderr)
-        jsonstr = gatesimplejsondoc.dumps(doc1, offset_type=OFFSET_TYPE_JAVA)
+        jsonstr = simplejson.dumps(doc1, offset_type=OFFSET_TYPE_JAVA)
         # print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
-        doc2 = gatesimplejsondoc.loads(jsonstr)
+        doc2 = simplejson.loads(jsonstr)
         # print("DOC BACK: {}".format(doc2), file=sys.stderr)
         assert doc2.get_feature("docfeat1") == 33
         d2annset1 = doc2.get_annotations("")
@@ -70,7 +70,7 @@ class TestChangeLog01:
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
         from gatenlp.changelog import ChangeLog
         from gatenlp.offsetmapper import OffsetMapper
-        from gatenlp.docformats import gatesimplejsondoc
+        from gatenlp.docformats import simplejson
         chlog = ChangeLog()
         doc1 = Document("Just a simple \U0001F4A9 document.", changelog=chlog)
         annset1 = doc1.get_annotations("")
@@ -89,8 +89,8 @@ class TestChangeLog01:
         # print("Changelog:", file=sys.stderr)
         # chlog.format_to(sys.stderr)
         om = OffsetMapper(doc1)
-        jsonstr = gatesimplejsondoc.dumps(chlog, offset_type=OFFSET_TYPE_JAVA, offset_mapper=om)
+        jsonstr = simplejson.dumps(chlog, offset_type=OFFSET_TYPE_JAVA, offset_mapper=om)
         # print("JSON:", jsonstr, file=sys.stderr)
-        chlog2 = gatesimplejsondoc.loads(jsonstr, offset_mapper=om)
+        chlog2 = simplejson.loads(jsonstr, offset_mapper=om)
         # print("Changelog from JSON:", chlog2, file=sys.stderr)
         assert chlog2.changes[4].get("end") == 24

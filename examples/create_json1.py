@@ -1,5 +1,5 @@
 from gatenlp.document import Document
-from gatenlp.docformats import gatesimplejsondoc
+from gatenlp.docformats import simplejson
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
 
 doc1 = Document("Just a simple \U0001F4A9 document.")
@@ -16,5 +16,5 @@ annset1.get(ann3id).set_feature("str", "simple")
 doc1.set_feature("docfeature1", "value1")
 doc1.set_feature("docfeature1", "value1b")
 with open("doc1.gsjson", "wt") as outf:
-    gatesimplejsondoc.dump(doc1, outf, indent=2, offset_type=OFFSET_TYPE_JAVA)
+    simplejson.dump(doc1, outf, indent=2, offset_type=OFFSET_TYPE_JAVA)
 
