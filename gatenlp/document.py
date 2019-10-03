@@ -1,7 +1,7 @@
 import collections
 import sys
 
-from .offsetmapping import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+from .offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from .annotation_set import AnnotationSet
 from .annotation import Annotation
 from .feature_bearer import FeatureBearer
@@ -36,7 +36,11 @@ class Document(FeatureBearer):
     * Features may only have string keys and values which can be json-serialised
     * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
       are UTF-16 Unicode code units
-    * Offsets of all annotations can be changed from/to Java
+    * Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
+      of UTF-16 code unit and back)
+    * No part of the document has to be present, not even the text (this allows saving just the annotations separately
+      from the text)
+    * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
     """
     def __init__(self, text, features=None, changelog=None):
         super().__init__(features)
@@ -80,7 +84,10 @@ class Document(FeatureBearer):
 
     @text.setter
     def text(self, value):
-        raise NotImplementedError("Text cannot be modified in a Python processing resource")
+        if self._text is None:
+            self._text = value
+        else:
+            raise NotImplementedError("Text cannot be modified")
 
     def size(self):
         self._ensure_type_python()
@@ -154,7 +161,7 @@ class Document(FeatureBearer):
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
         for k, v in jsonmap.get("annotation_sets").items():
-            doc.annotation_sets[k] = v
+            doc.annotation_sets[k] = AnnotationSet.from_json_map(v, **kwargs)
         offset_type = jsonmap.get("offset_type")
         doc.offset_type = offset_type
         if offset_type == OFFSET_TYPE_JAVA:

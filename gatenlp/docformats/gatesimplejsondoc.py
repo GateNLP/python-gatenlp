@@ -2,7 +2,7 @@
 GATE-specific (de)serialisation of documents.
 """
 import json
-from ..offsetmapping import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA, OffsetMapper
+from ..offsetmapper import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA, OffsetMapper
 from ..document import Document
 from ..annotation import Annotation
 from ..annotation_set import AnnotationSet
@@ -35,10 +35,6 @@ def get_object_hook(**kwargs):
             # we check all the known types here
             if obj_type == "gatenlp.document.Document":
                 return Document.from_json_map(thedict, **kwargs)
-            elif obj_type == "gatenlp.annotation.Annotation":
-                return Annotation.from_json_map(thedict, **kwargs)
-            elif obj_type == "gatenlp.annotation_set.AnnotationSet":
-                return AnnotationSet.from_json_map(thedict, **kwargs)
             elif obj_type == "gatenlp.changelog.ChangeLog":
                 return ChangeLog.from_json_map(thedict, **kwargs)
             else:
@@ -75,7 +71,7 @@ def dump(fp, obj, indent=None, **kwargs):
     :param kwargs:
     :return:
     """
-    json.dump(fp, obj, indent=indent, default=get_object_encoder(*kwargs))
+    json.dump(fp, obj, indent=indent, default=get_object_encoder(**kwargs))
 
 
 def dumps(obj, indent=None, **kwargs):

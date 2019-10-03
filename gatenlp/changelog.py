@@ -1,6 +1,6 @@
 from .document import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 import gatenlp
-from .offsetmapping import OffsetMapper
+from .offsetmapper import OffsetMapper
 
 
 class ChangeLog:

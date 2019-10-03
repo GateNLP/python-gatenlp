@@ -69,7 +69,7 @@ class TestChangeLog01:
     def test_changelog01m01(self):
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
         from gatenlp.changelog import ChangeLog
-        from gatenlp.offsetmapping import OffsetMapper
+        from gatenlp.offsetmapper import OffsetMapper
         from gatenlp.docformats import gatesimplejsondoc
         chlog = ChangeLog()
         doc1 = Document("Just a simple \U0001F4A9 document.", changelog=chlog)
