@@ -159,7 +159,8 @@ class Document(FeatureBearer):
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
         for k, v in jsonmap.get("annotation_sets").items():
-            doc.annotation_sets[k] = AnnotationSet.from_json_map(v, **kwargs)
+            print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
+            doc.annotation_sets[k] = v
         offset_type = jsonmap.get("offset_type")
         doc.offset_type = offset_type
         if offset_type == OFFSET_TYPE_JAVA:

@@ -522,8 +522,7 @@ class AnnotationSet:
     @staticmethod
     def from_json_map(jsonmap, **kwargs):
         annset = AnnotationSet(name=jsonmap.get("name"))
-        anns = (Annotation.from_json_map(ann, **kwargs) for ann in jsonmap.get("annotations"))
-        annmap = {ann.id: ann for ann in anns}
+        annmap = {ann.id: ann for ann in jsonmap.get("annotations")}
         annset._annotations = annmap
         annset._max_annid = jsonmap.get("max_annid")
         return annset

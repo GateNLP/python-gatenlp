@@ -35,7 +35,7 @@ def get_object_hook(**kwargs):
             return Document.from_json_map(thedict, **kwargs)
         elif "start" in thedict and "id" in thedict:
             return Annotation.from_json_map(thedict, **kwargs)
-        elif "_annotations" in thedict:
+        elif "annotations" in thedict and "max_annid" in thedict:
             return AnnotationSet.from_json_map(thedict, **kwargs)
         elif "changes" in thedict:
             return ChangeLog.from_json_map(thedict, **kwargs)
