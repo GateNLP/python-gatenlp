@@ -39,7 +39,7 @@ def support_annotation_or_set(method):
             elif isinstance(args[0], (tuple, list)) and len(args[0]) == 2:
                 left, right = args[0]
             elif isinstance(args[0], numbers.Integral):
-                left, right = args[0], args[0]
+                left, right = args[0], args[0]+1
             else:
                 raise Exception("Not an annotation or an annotation set or pair: {}".format(args[0]))
         else:
@@ -368,7 +368,7 @@ class AnnotationSet:
             retids = set()
             start = intvs[0].start
             for intv in intvs:
-                if intv.start == start:
+                if intv.begin == start:
                     retids.add(intv.data)
             return self.restrict(retids)
 
@@ -396,7 +396,7 @@ class AnnotationSet:
         intvs = self._index_by_offset.overlap(start, end)
         retintvs = set()
         for intv in intvs:
-            if intv.start <= start and intv.end >= end:
+            if intv.begin <= start and intv.end >= end:
                 retintvs.add(intv)
         return self._restrict_intvs(intvs)
 

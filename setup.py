@@ -12,7 +12,7 @@ with open(os.path.join(here, 'README.md')) as f:
 
 setup(
     name="gatenlp",
-    version="0.1",
+    version="8.5",
     author="Johann Petrak",
     author_email="johann.petrak@gmail.com",
     description='Library for GATE NLP interaction and resource manipulation',
