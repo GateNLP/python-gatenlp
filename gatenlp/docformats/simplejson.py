@@ -30,15 +30,15 @@ def get_object_hook(**kwargs):
     :return: the object hook function
     """
     def object_hook(thedict):
-        if "object_type" in thedict:
-            obj_type = thedict["object_type"]
-            # we check all the known types here
-            if obj_type == "gatenlp.document.Document":
-                return Document.from_json_map(thedict, **kwargs)
-            elif obj_type == "gatenlp.changelog.ChangeLog":
-                return ChangeLog.from_json_map(thedict, **kwargs)
-            else:
-                return thedict
+        # we use duck-typing here to guess the type of the object
+        if "text" in thedict:
+            return Document.from_json_map(thedict, **kwargs)
+        elif "start" in thedict and "id" in thedict:
+            return Annotation.from_json_map(thedict, **kwargs)
+        elif "_annotations" in thedict:
+            return AnnotationSet.from_json_map(thedict, **kwargs)
+        elif "changes" in thedict:
+            return ChangeLog.from_json_map(thedict, **kwargs)
         else:
             return thedict
     return object_hook

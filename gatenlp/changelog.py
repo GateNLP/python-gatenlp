@@ -45,8 +45,6 @@ class ChangeLog:
             else:
                 changes = self._fixup_changes(om.convert_to_python)
         return {
-            "object_type": "gatenlp.changelog.ChangeLog",
-            "gatenlp_version": gatenlp.__version__,
             "changes": changes,
             "offset_type": offset_type
         }

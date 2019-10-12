@@ -119,8 +119,6 @@ class Annotation(FeatureBearer):
             start = self.start
             end = self.end
         return {
-            # "object_type": "gatenlp.annotation.Annotation",
-            # "gatenlp_version": gatenlp.__version__,
             "start": start,
             "end": end,
             "type": self.type,

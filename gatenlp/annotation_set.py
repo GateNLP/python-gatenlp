@@ -514,8 +514,6 @@ class AnnotationSet:
 
     def json_repr(self, **kwargs):
         return {
-            # "object_type": "gatenlp.annotation_set.AnnotationSet",
-            # "gatenlp_version": gatenlp.__version__,
             "annotations": [ann.json_repr(**kwargs) for ann in self._annotations.values()],
             "max_annid": self._max_annid,
             "name": self.name

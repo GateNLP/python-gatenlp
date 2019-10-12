@@ -147,8 +147,6 @@ class Document(FeatureBearer):
             kwargs["offset_mapper"] = om
             offset_type = kwargs["offset_type"]
         return {
-            "object_type": "gatenlp.document.Document",
-            "gatenlp_version": gatenlp.__version__,
             "text": self._text,
             "features": self.features,
             # turn our special class into an ordinary map
