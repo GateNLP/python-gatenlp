@@ -33,7 +33,7 @@ setup(
         # "Development Status :: 5 - Production/Stable",
         # "Development Status :: 4 - Beta",
         # "Development Status :: 3 - Alpha",
-        # "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 2 - Pre-Alpha",
         # "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
