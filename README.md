@@ -31,4 +31,7 @@ a Java GATE process in two different ways:
 
 ## More information and documentation
 
-TBD: links to python doc, examples/tutorial, GATE python plugin
+* [Documentation](https://gatenlp.github.io/python-gatenlp/) with
+  * [Usage Examples](https://gatenlp.github.io/python-gatenlp/UsageExamples)
+  * [Tutorial](https://gatenlp.github.io/python-gatenlp/Tutorial) TBD!
+  * [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/)
