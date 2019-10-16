@@ -36,7 +36,7 @@ from gatenlp.document import Document
 from gatenlp.changelog import ChangeLog
 
 
-class PrWrapper:
+class _PrWrapper:
     def __init__(self):
         self.func_execute = None   # the function to process each doc
         self.func_execute_allowkws = False
@@ -49,27 +49,42 @@ class PrWrapper:
         self.script_parms = None   # Script parms to pass to each execute
 
     def execute(self, doc):
-        ret = self.func_execute(doc, **self.script_parms)
-        # TODO: we may want to check if this returns a doc or changelog,
-        # if it returns a doc, maybe return the changelog instead if
-        # the doc has one??
+        if self.func_execute_allowkws:
+            ret = self.func_execute(doc, **self.script_parms)
+        else:
+            ret = self.func_execute(doc)
+        if ret is None:
+            if doc.changelog is None:
+                ret = doc
+            else:
+                ret = doc.changelog
         return ret
 
     def start(self, script_params):
         self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
-        ret = None
         if self.func_start is not None:
-            ret = self.func_start(**self.script_parms)
-        return ret
+            if self.func_start_allowkws:
+                self.func_start(**self.script_parms)
+            else:
+                self.func_start()
 
     def finish(self):
-        ret = None
         if self.func_finish is not None:
-            ret = self.func_finish(**self.script_parms)
-        return ret
+            if self.func_finish_allowkws:
+                self.func_finish(**self.script_parms)
+            else:
+                self.func_finish()
 
-def check_exec(func):
+    def reduce(self, resultslist):
+        if self.func_reduce is not None:
+            if self.func_reduce_allowkws:
+                ret = self.func_reduce(resultslist, **self.script_parms)
+            else:
+                ret = self.func_reduce(resultslist, **self.script_parms)
+            return ret
+
+def _check_exec(func):
     """
     Check the signature of the func to see if it is a proper
     execute function: must accept one (or more optional) args
@@ -89,7 +104,8 @@ def check_exec(func):
     else:
         return False
 
-def has_method(theobj, name):
+
+def _has_method(theobj, name):
     """
     Check if the object has a callable method with the given name,
     if yes return the method, otherwise return None
@@ -104,7 +120,7 @@ def has_method(theobj, name):
         return None
 
 
-def pr_decorator(what):
+def _pr_decorator(what):
     """
     This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
@@ -116,33 +132,33 @@ def pr_decorator(what):
     """
     gatenlp.gate_python_plugin_pr = "The PR from here!!!"
 
-    wrapper = PrWrapper()
+    wrapper = _PrWrapper()
     if inspect.isclass(what):
-        execmethod = has_method(what, "execute")
+        execmethod = _has_method(what, "execute")
         if not execmethod:
-            execmethod = has_method(what, "__call__")
+            execmethod = _has_method(what, "__call__")
         if not execmethod:
             raise Exception("PR does not have an execute(doc) or __call__(doc) method.")
-        allowkws = check_exec(execmethod)
+        allowkws = _check_exec(execmethod)
         wrapper.func_execute_allowkws = allowkws
-        startmethod = has_method(what, "start")
+        startmethod = _has_method(what, "start")
         if startmethod:
             wrapper.func_start = startmethod
             if inspect.getfullargspec(startmethod).varkw:
                 wrapper.func_start_allowkws = True
-        finishmethod = has_method(what, "finish")
+        finishmethod = _has_method(what, "finish")
         if finishmethod:
             wrapper.func_finish = finishmethod
             if inspect.getfullargspec(finishmethod).varkw:
                 wrapper.func_finish_allowkws = True
-        reducemethod = has_method(what, "reduce")
+        reducemethod = _has_method(what, "reduce")
         if reducemethod:
             wrapper.func_reduce = reducemethod
             if inspect.getfullargspec(reducemethod).varkw:
                 wrapper.func_reduce_allowkws = True
 
     elif inspect.isfunction(what):
-        allowkws = check_exec(what)
+        allowkws = _check_exec(what)
         wrapper.func_execute = what
         wrapper.func_execute_allowkws = allowkws
     else:
@@ -164,8 +180,8 @@ class DefaultPr:
         logger.info(f"called finish with kwargs={kwargs}")
         return None
 
-    def reduce(self, resultlist):
-        logger.info(f"called finish with kwargs={resultlist}")
+    def reduce(self, resultlist, **kwargs):
+        logger.info(f"called finish with results {resultlist} and kwargs={resultlist}")
         return None
 
 
@@ -187,7 +203,7 @@ def interact():
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None:
         logger.warning("No processing resource defined with @gatenlp.PR decorator, using default do-nothing")
-        pr_decorator(DefaultPr())
+        _pr_decorator(DefaultPr())
 
     pr = gatenlp.gate_python_plugin_pr
 
@@ -253,7 +269,8 @@ def interact():
                     "error": error,
                     "info": info
                 }
-            print(dumps(response))
+            print(dumps(response), file=ostream)
+            ostream.flush()
             if stop_requested:
                 break
         # TODO: do any cleanup/restoring needed
