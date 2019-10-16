@@ -1,11 +1,11 @@
 import collections
 import sys
 
-from .offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from .annotation_set import AnnotationSet
-from .annotation import Annotation
+from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+from gatenlp.annotation_set import AnnotationSet
+from gatenlp.annotation import Annotation
+from gatenlp.changelog import ChangeLog
 from .feature_bearer import FeatureBearer
-import gatenlp
 
 
 class _AnnotationSetsDict(collections.defaultdict):
@@ -76,6 +76,21 @@ class Document(FeatureBearer):
             self.offset_type = OFFSET_TYPE_PYTHON
         else:
             raise Exception("Odd offset type")
+
+    def set_changelog(self, chlog):
+        """
+        Make the document use the given changelog to record all changes
+        from this moment on.
+        :param chlog: the new changelog to use or None to not use any
+        :return: the changelog used previously or None
+        """
+        oldchlog = self.changelog
+        self.changelog = chlog
+        # make sure all the inner data structures use that chlog as well:
+        if self.annotation_sets:
+            for k, v in self.annotation_sets.items():
+                v.changelog = chlog
+        return oldchlog
 
     @property
     def text(self):
@@ -165,4 +180,7 @@ class Document(FeatureBearer):
         doc.offset_type = offset_type
         if offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
+        if "with_changelog" in kwargs:
+            chlog = ChangeLog()
+            doc.set_changelog(chlog)
         return doc

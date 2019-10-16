@@ -56,6 +56,7 @@ def load(fp, **kwargs):
 def loads(str, **kwargs):
     """
     Create gatenlp object from JSON string and return it.
+
     :param str: JSON string
     :return: the gatenlp object
     """
