@@ -1,0 +1,7 @@
+gatenlp.feature\_bearer module
+==============================
+
+.. automodule:: gatenlp.feature_bearer
+    :members:
+    :undoc-members:
+    :show-inheritance:

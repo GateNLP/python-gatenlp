@@ -1,0 +1,7 @@
+gatenlp.docformats.simplejson module
+====================================
+
+.. automodule:: gatenlp.docformats.simplejson
+    :members:
+    :undoc-members:
+    :show-inheritance:

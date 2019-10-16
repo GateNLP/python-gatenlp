@@ -1,0 +1,19 @@
+gatenlp.docformats package
+==========================
+
+Submodules
+----------
+
+.. toctree::
+
+   gatenlp.docformats.flatbuffers
+   gatenlp.docformats.gatexml
+   gatenlp.docformats.simplejson
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.docformats
+    :members:
+    :undoc-members:
+    :show-inheritance:

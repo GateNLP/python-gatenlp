@@ -1,0 +1,7 @@
+gatenlp.exceptions module
+=========================
+
+.. automodule:: gatenlp.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
