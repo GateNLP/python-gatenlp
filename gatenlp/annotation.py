@@ -1,11 +1,12 @@
 """
 An annotation is immutable, but the features it contains are mutable.
 """
-from .feature_bearer import FeatureBearer
+from __future__ import annotations
+from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView
 from functools import total_ordering
-from .offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-import gatenlp
-import sys
+from gatenlp.feature_bearer import FeatureBearer
+from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+from gatenlp.changelog import ChangeLog
 
 @total_ordering
 class Annotation(FeatureBearer):
@@ -20,7 +21,8 @@ class Annotation(FeatureBearer):
     # We use slots to avoid the dict and save memory if we have a large number of annotations
     __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
 
-    def __init__(self, start, end, annot_type, annot_id, owner_setname=None, changelog=None, features=None):
+    def __init__(self, start: int, end: int, annot_type: str, annot_id: int,
+                 owner_setname: str = None, changelog: ChangeLog = None, features=None):
         super().__init__(features)
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
         self.changelog = changelog
@@ -30,7 +32,7 @@ class Annotation(FeatureBearer):
         self.id = annot_id
         self.owner_setname = owner_setname
 
-    def _log_feature_change(self, command, feature=None, value=None):
+    def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
         ch = {
@@ -42,7 +44,7 @@ class Annotation(FeatureBearer):
             ch["value"] = value
         self.changelog.append(ch)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Equality of annotations is only based on the annotation ID! This means you should never compare annotations
         from different sets directly!
@@ -64,7 +66,7 @@ class Annotation(FeatureBearer):
         """
         return hash(self.id)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         """
         Comparison for sorting: this sorts by increasing start offset, then increasing end offset, then increasing
         type name, then increasing annotation id.
@@ -94,10 +96,10 @@ class Annotation(FeatureBearer):
                     else:
                         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self.features)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         The length of the annotation is the length of the offset span. Since the end offset is one after the last
         element, we return end-start-1
@@ -105,7 +107,7 @@ class Annotation(FeatureBearer):
         """
         return self.end - self.start - 1
 
-    def json_repr(self, **kwargs):
+    def json_repr(self, **kwargs) -> Dict:
         if "offset_mapper" in kwargs:
             om = kwargs["offset_mapper"]
             to_type = kwargs["offset_type"]
@@ -127,7 +129,7 @@ class Annotation(FeatureBearer):
         }
 
     @staticmethod
-    def from_json_map(jsonmap, **kwargs):
+    def from_json_map(jsonmap, **kwargs) -> Annotation:
         ann = Annotation(jsonmap.get("start"), jsonmap.get("end"), jsonmap.get("type"), jsonmap.get("id"),
                          features=jsonmap.get("features"))
         return ann
@@ -142,7 +144,7 @@ class AnnotationFromSet:
     It is the responsibility of the user to deal with this by using their own wrapping or other mechanism in
     those cases!!
     """
-    def __init__(self, annotation, setname=None):
+    def __init__(self, annotation: Annotation, setname: str = None):
         """
         Tries to create an AnnotationFromSet from an annotation object and an optional annotation set name.
         If the annotation set name is not given, we try to get the name from the featuremap of the annotation,
@@ -163,7 +165,7 @@ class AnnotationFromSet:
         self.owner_set = setname
         self.annotation = annotation
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Compare if two annotations from potentially different sets are equal. They are only equal if they come from
         the same set and have the same id.
@@ -179,7 +181,7 @@ class AnnotationFromSet:
         return True
 
     @staticmethod
-    def from_anns(annotations, setname=None, astype=None):
+    def from_anns(annotations: Union[Set, List], setname: str = None, astype=None) -> Union[List, Set]:
         """
         Create a list/set from the list/set of annotations. If the annotations are not a list or not a set, then
         the collection type astype is used if specified, otherwise a set is returned.

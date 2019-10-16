@@ -5,6 +5,8 @@ must implement _log_feature_change(command, feature=None, value=None) and must h
 changelog.
 """
 
+from __future__ import annotations
+from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView
 
 class FeatureBearer:
 
@@ -20,7 +22,8 @@ class FeatureBearer:
             self.features = None
         self.changelog = None  # this must be set by the inheriting class!
 
-    def _log_feature_change(self, command, feature=None, value=None):
+    def _log_feature_change(self, command: str,
+                            feature: Union[str, None] = None, value: Union[str, None] = None):
         """
         This should be overriden by the inheriting class!
         :param command: the command to log
@@ -30,7 +33,7 @@ class FeatureBearer:
         """
         raise Exception("must be overridden by the inheriting class")
 
-    def clear_features(self):
+    def clear_features(self) -> None:
         """
         Remove all features.
         :return:
@@ -42,7 +45,7 @@ class FeatureBearer:
         # instead of emptying the dict, we remove it comepletely, maybe it wont be used anyway
         self.features = None
 
-    def set_feature(self, key, value):
+    def set_feature(self, key: str, value) -> None:
         """
         Set feature to the given value
         :param key: feature name
@@ -54,7 +57,7 @@ class FeatureBearer:
         self._log_feature_change("feature:set", feature=key, value=value)
         self.features[key] = value
 
-    def del_feature(self, featurename):
+    def del_feature(self, featurename: str) -> None:
         """
         Remove the feature with that name
         :param featurename: the feature to remove from the set
@@ -65,17 +68,17 @@ class FeatureBearer:
         self._log_feature_change("feature:remove", feature=featurename)
         del self.features[featurename]
 
-    def get_feature(self, key, default=None):
+    def get_feature(self, key: str, default=None):
         if self.features is None:
             return default
         return self.features.get(key, default)
 
-    def has_feature(self, key):
+    def has_feature(self, key: str) -> bool:
         if self.features is None:
             return False
         return key in self.features
 
-    def feature_names(self):
+    def feature_names(self) -> Union[Set, KeysView]:
         """
         Return an iterable with the feature names. This is NOT a view and does not update when the features change!
         :return:
@@ -85,7 +88,7 @@ class FeatureBearer:
         else:
             return set(self.features.keys())
 
-    def feature_values(self):
+    def feature_values(self) -> List:
         """
         Return an iterable with the feature values. This is NOT a view and does not update when the features change!
         :return:
@@ -93,9 +96,9 @@ class FeatureBearer:
         if self.features is None:
             return []
         else:
-            return [set(self.features.keys())]
+            return [set(self.features.values())]
 
-    def features(self):
+    def features(self) -> Dict:
         """
         Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
         :return:
@@ -125,7 +128,7 @@ class FeatureBearer:
             for k in kwargs:
                 self.set_feature(k, kwargs[k])
 
-    def num_features(self):
+    def num_features(self) -> int:
         """
         Return the number of features. We do not use "len" for this, since the feature bearing object may
         have its own useful len implementation.

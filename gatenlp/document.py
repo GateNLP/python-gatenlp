@@ -1,6 +1,7 @@
+from __future__ import annotations
 import collections
 import sys
-
+from typing import List, Tuple, Union, Callable, Dict, Optional, KeysView, ValuesView
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
@@ -9,12 +10,12 @@ from .feature_bearer import FeatureBearer
 
 
 class _AnnotationSetsDict(collections.defaultdict):
-    def __init__(self, changelog=None, owner_doc=None):
+    def __init__(self, changelog: ChangeLog = None, owner_doc: Document=None):
         super().__init__()
         self.changelog = changelog
         self.owner_doc = owner_doc
 
-    def __missing__(self, key):
+    def __missing__(self, key: str):
         annset = AnnotationSet(name=key, changelog=self.changelog, owner_doc=self.owner_doc)
         self[key] = annset
         return annset
@@ -42,18 +43,18 @@ class Document(FeatureBearer):
       from the text)
     * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
     """
-    def __init__(self, text, features=None, changelog=None):
+    def __init__(self, text: str, features=None, changelog: ChangeLog = None):
         super().__init__(features)
         self.changelog = changelog
         self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
 
-    def _ensure_type_python(self):
+    def _ensure_type_python(self) -> None:
         if self.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
 
-    def _fixup_annotations(self, method):
+    def _fixup_annotations(self, method: Callable) -> None:
         annset_names = self.annotation_sets.keys()
         for annset_name in annset_names:
             annset = self.annotation_sets[annset_name]
@@ -61,7 +62,7 @@ class Document(FeatureBearer):
                 ann.start = method(ann.start)
                 ann.end = method(ann.end)
 
-    def to_type(self, offsettype):
+    def to_type(self, offsettype: str) -> None:
         if offsettype == self.offset_type:
             return
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
@@ -77,7 +78,7 @@ class Document(FeatureBearer):
         else:
             raise Exception("Odd offset type")
 
-    def set_changelog(self, chlog):
+    def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
         """
         Make the document use the given changelog to record all changes
         from this moment on.
@@ -87,28 +88,28 @@ class Document(FeatureBearer):
         oldchlog = self.changelog
         self.changelog = chlog
         # make sure all the inner data structures use that chlog as well:
-        if self.annotation_sets:
-            for k, v in self.annotation_sets.items():
-                v.changelog = chlog
+        self.annotation_sets.changelog = chlog
+        for k, v in self.annotation_sets.items():
+            v.changelog = chlog
         return oldchlog
 
     @property
-    def text(self):
+    def text(self) -> str:
         self._ensure_type_python()
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str) -> None:
         if self._text is None:
             self._text = value
         else:
             raise NotImplementedError("Text cannot be modified")
 
-    def size(self):
+    def size(self) -> int:
         self._ensure_type_python()
         return int(len(self.text))
 
-    def _log_feature_change(self, command, feature=None, value=None):
+    def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
         ch = {"command": command}
@@ -117,7 +118,7 @@ class Document(FeatureBearer):
             ch["value"] = value
         self.changelog.append(ch)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Return the length of the text.
         :return:
@@ -125,13 +126,14 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         return len(self._text)
 
-    def __getitem__(self, item):
+    # TODO: type annotation for span/int?
+    def __getitem__(self, item) -> str:
         self._ensure_type_python()
         if isinstance(item, Annotation):
             return self.text[item.start:item.end]
         return self.text[item]
 
-    def get_annotations(self, name=""):
+    def get_annotations(self, name: str = "") -> AnnotationSet:
         """
         Get the named annotation set, if name is not given or the empty string, the default annotation set.
         If the annotation set does not already exist, it is created.
@@ -140,7 +142,7 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         return self.annotation_sets[name]
 
-    def get_annotation_set_names(self):
+    def get_annotation_set_names(self) -> KeysView[str]:
         """
         Return the set of known annotation set names.
         :return: annotation set names
@@ -148,10 +150,10 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         return self.annotation_sets.keys()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Document({},features={},anns={})".format(self.text, self.features, self.annotation_sets)
 
-    def json_repr(self, **kwargs):
+    def json_repr(self, **kwargs) -> Dict:
         """
         Return a JSON-representable version of this object
         :return: something JSON can serialise
@@ -170,7 +172,7 @@ class Document(FeatureBearer):
         }
 
     @staticmethod
-    def from_json_map(jsonmap, **kwargs):
+    def from_json_map(jsonmap, **kwargs) -> Document:
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
         for k, v in jsonmap.get("annotation_sets").items():

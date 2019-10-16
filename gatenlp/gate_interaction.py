@@ -84,6 +84,7 @@ class _PrWrapper:
                 ret = self.func_reduce(resultslist, **self.script_parms)
             return ret
 
+
 def _check_exec(func):
     """
     Check the signature of the func to see if it is a proper
@@ -92,14 +93,14 @@ def _check_exec(func):
     :param func: the function to check
     :return: true if the function accepts kwargs
     """
-    argspec = inspect.getfullargspec()
+    argspec = inspect.getfullargspec(func)
     if len(argspec.args) == 1 \
           or len(argspec.args) == 2 and argspec.args[0] == "self" \
           or argspec.varargs is not None:
         pass
     else:
         raise Exception("Processing resource execution function does not accept exactly one or any number of arguments")
-    if argspec.kwargs is not None:
+    if argspec.varkw is not None:
         return True
     else:
         return False
