@@ -31,7 +31,9 @@ def get_object_hook(**kwargs):
     """
     def object_hook(thedict):
         # we use duck-typing here to guess the type of the object
-        if "text" in thedict:
+        if "command" in thedict or "change" in thedict:  # probably a request or change
+            return thedict
+        elif "text" in thedict:
             return Document.from_json_map(thedict, **kwargs)
         elif "start" in thedict and "id" in thedict:
             return Annotation.from_json_map(thedict, **kwargs)

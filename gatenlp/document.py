@@ -174,7 +174,7 @@ class Document(FeatureBearer):
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
         for k, v in jsonmap.get("annotation_sets").items():
-            print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
+            # print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
             doc.annotation_sets[k] = v
         offset_type = jsonmap.get("offset_type")
         doc.offset_type = offset_type

@@ -1,3 +1,4 @@
+from loguru import logger
 from .document import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 import gatenlp
 from .offsetmapper import OffsetMapper
@@ -16,14 +17,18 @@ class ChangeLog:
         return len(self.changes)
 
     def _fixup_changes(self, method):
-        ret = []
+        """
+        In-place modify the annotation offsets of the changes according to
+        the given method.
+        :param method: an object method method for converting offsets from or to python.
+        :return: the modified changes, a reference to the modified changes list of the instance
+        """
         for change in self.changes:
             if "start" in change:
                 change["start"] = method(change["start"])
             if "end" in change:
                 change["end"] = method(change["end"])
-            ret.append(change)
-        return ret
+        return self.changes
 
     def __repr__(self):
         return "ChangeLog([{}])".format(",".join([str(c) for c in self.changes]))
@@ -62,5 +67,5 @@ class ChangeLog:
                 om = OffsetMapper(kwargs.get("document"))
             else:
                 raise Exception("Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'")
-            cl.changes = cl._fixup_changes(om.convert_to_python)
+            cl._fixup_changes(om.convert_to_python)
         return cl
