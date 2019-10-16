@@ -1,3 +1,3 @@
-# Examples of using the gatelfpytorch library
+# Examples of using the gatenlp package
 
 TBD
