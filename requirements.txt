@@ -1,2 +1,4 @@
+argparse
 intervaltree
+loguru
 sortedcontainers
