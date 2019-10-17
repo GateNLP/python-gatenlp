@@ -1,8 +1,8 @@
 """
-GATE-specific (de)serialisation of documents.
+GATE-specific (de)serialisation of documents. This is called "simplejson" to make it easy
+to keep it apart from the default JSON de/serialiser (which is used but extended).
 """
 import json
-from ..offsetmapper import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA, OffsetMapper
 from ..document import Document
 from ..annotation import Annotation
 from ..annotation_set import AnnotationSet
