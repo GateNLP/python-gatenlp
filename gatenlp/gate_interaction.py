@@ -238,21 +238,24 @@ def interact():
             request = loads(line)
             cmd = request.get("cmd", None)
             stop_requested = False
+            ret = None
             try:
                 if cmd == "execute":
                     doc = request.get("document")
                     doc.set_changelog(ChangeLog())
-                    ret = pr.execute(doc)
+                    pr.execute(doc)
+                    # NOTE: for now we just discard what the method returns and always return
+                    # the changelog instead!
+                    ret = doc.changelog
                 elif cmd == "start":
                     parms = request.get("parameters")
-                    ret = pr.func_start(parms)
+                    pr.func_start(parms)
                 elif cmd == "finish":
-                    ret = pr.func_finish()
+                    pr.func_finish()
                 elif cmd == "reduce":
                     results = request.get("results")
                     ret = pr.func_reduce(results)
                 elif cmd == "stop":
-                    ret = None
                     stop_requested = True
                 else:
                     raise Exception(f"Odd command receive: {cmd}")

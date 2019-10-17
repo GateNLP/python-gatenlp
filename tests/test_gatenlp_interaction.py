@@ -14,7 +14,6 @@ class TestInteraction01:
         mypr.execute(doc1)
         mypr.finish()
 
-
     def test_interaction01_01(self):
         @GateNlpPr
         def do_it(doc: Document, **kwargs):
