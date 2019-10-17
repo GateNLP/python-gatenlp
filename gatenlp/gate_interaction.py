@@ -261,7 +261,7 @@ def interact():
                     raise Exception(f"Odd command receive: {cmd}")
                 response = {
                     "return": ret,
-                    "status": "OK",
+                    "status": "ok",
                 }
             except Exception as ex:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -269,7 +269,7 @@ def interact():
                 info = "\n".join(traceback.format_tb(exc_traceback))
                 response = {
                     "return": None,
-                    "status": "ERROR",
+                    "status": "error",
                     "error": error,
                     "info": info
                 }
