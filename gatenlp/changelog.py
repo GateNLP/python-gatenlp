@@ -34,6 +34,23 @@ class ChangeLog:
                 change["end"] = method(change["end"])
         return self.changes
 
+    def fixup_changes(self, offset_mapper, offset_type):
+        """
+        In-place update the offsets of all annotations in this changelog to the desired
+        offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.
+        :param offset_mapper: a prepared offset mapper to use
+        :param offset_type: the desired offset type
+        :return: a reference to the modified changes
+        """
+        if offset_type != self.offset_type:
+            if offset_type == OFFSET_TYPE_JAVA:
+                method = offset_mapper.convert_to_java
+            elif offset_type == OFFSET_TYPE_PYTHON:
+                method = offset_mapper.convert_to_python
+            else:
+                raise Exception(f"Not a proper offset type: {offset_type}")
+            return self._fixup_changes(method)
+
     def __repr__(self) -> str:
         return "ChangeLog([{}])".format(",".join([str(c) for c in self.changes]))
 

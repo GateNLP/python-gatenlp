@@ -34,7 +34,7 @@ class Annotator:
         process creates their annotated document or changelog and this method should be able to combine
         all the partial results to create one result document.
         This should be implemented like a static method, not using any of the instance specific
-        data. 
+        data.
         :param doc: the original input document
         :param docsorlogs: a collection of documents or changelogs where each element represents
         partial annotations carried out on the original document
