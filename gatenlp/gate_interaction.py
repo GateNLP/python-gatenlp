@@ -244,6 +244,7 @@ def interact():
     else:
         raise Exception("Not a supported interchange format: {}".format(args.format))
 
+    logger.debug("Starting interaction args={}".format(args))
     if args.mode == "pipe":
         # save the current stdout, assign stderr to sys.stdout
         # use saved stdout or internal stdout for pipe
@@ -256,6 +257,7 @@ def interact():
         ostream = sys.stdout
         for line in instream:
             request = loads(line)
+            logger.debug("Got request object: {}".format(request))
             cmd = request.get("command", None)
             stop_requested = False
             ret = None
@@ -296,11 +298,13 @@ def interact():
                     "error": error,
                     "info": info
                 }
+            logger.debug("Sending back response: {}".format(response))
             print(dumps(response), file=ostream)
             ostream.flush()
             if stop_requested:
                 break
         # TODO: do any cleanup/restoring needed
+        logger.debug("Finishing interaction")
     elif args.mode == "http":
         raise Exception("Mode http not implemented yet")
     elif args.mode == "websockets":
