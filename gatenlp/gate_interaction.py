@@ -44,12 +44,14 @@ class _PrWrapper:
         self.func_start_allowkws = False
         self.func_finish  = None   # called when processing finishes
         self.func_finish_allowkws = False
+        self.func_result = None    # function for returning any over-corpus result
+        self.func_result_allowkws = False
         self.func_reduce = None    # function for combining results
         self.func_reduce_allowkws = False
-        self.script_parms = None   # Script parms to pass to each execute
+        self.script_parms = {}   # Script parms to pass to each execute
 
     def execute(self, doc):
-        if self.func_execute_allowkws:
+        if self.func_execute_allowkws and self.script_parms:
             ret = self.func_execute(doc, **self.script_parms)
         else:
             ret = self.func_execute(doc)
@@ -61,27 +63,35 @@ class _PrWrapper:
         return ret
 
     def start(self, script_params):
-        self.script_parms = script_params
+        if script_params:
+            self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
         if self.func_start is not None:
-            if self.func_start_allowkws:
+            if self.func_start_allowkws and self.script_parms:
                 self.func_start(**self.script_parms)
             else:
                 self.func_start()
 
     def finish(self):
         if self.func_finish is not None:
-            if self.func_finish_allowkws:
+            if self.func_finish_allowkws and self.script_parms:
                 self.func_finish(**self.script_parms)
             else:
                 self.func_finish()
 
+    def result(self):
+        if self.func_result is not None:
+            if self.func_result_allowkws and self.script_parms:
+                return self.func_result(**self.script_parms)
+            else:
+                return self.func_result()
+
     def reduce(self, resultslist):
         if self.func_reduce is not None:
-            if self.func_reduce_allowkws:
+            if self.func_reduce_allowkws and self.script_parms:
                 ret = self.func_reduce(resultslist, **self.script_parms)
             else:
-                ret = self.func_reduce(resultslist, **self.script_parms)
+                ret = self.func_reduce(resultslist)
             return ret
 
 
@@ -152,6 +162,11 @@ def _pr_decorator(what):
             wrapper.func_finish = finishmethod
             if inspect.getfullargspec(finishmethod).varkw:
                 wrapper.func_finish_allowkws = True
+        resultmethod = _has_method(what, "result")
+        if resultmethod:
+            wrapper.func_result = resultmethod
+            if inspect.getfullargspec(resultmethod).varkw:
+                wrapper.func_result_allowkws = True
         reducemethod = _has_method(what, "reduce")
         if reducemethod:
             wrapper.func_reduce = reducemethod
@@ -170,19 +185,22 @@ def _pr_decorator(what):
 
 class DefaultPr:
     def __call__(self, doc, **kwargs):
-        logger.info(f"called __call__ with doc={doc}, kwargs={kwargs}")
+        logger.info("called __call__() with doc={}, kwargs={}".format(doc, kwargs))
         return doc
 
     def start(self, **kwargs):
-        logger.info(f"called start with kwargs={kwargs}")
+        logger.info("called start() with kwargs={}".format(kwargs))
         return None
 
     def finish(self, **kwargs):
-        logger.info(f"called finish with kwargs={kwargs}")
+        logger.info("called finish() with kwargs={}".format(kwargs))
         return None
 
+    def result(self, **kwargs):
+        logger.info("called result() with kwargs={}".format(kwargs))
+
     def reduce(self, resultlist, **kwargs):
-        logger.info(f"called finish with results {resultlist} and kwargs={resultlist}")
+        logger.info("called reduce() with results {} and kwargs={}".format(resultlist, kwargs))
         return None
 
 
@@ -217,12 +235,14 @@ def interact():
                            help="Enable debugging: log to stderr")
     args = argparser.parse_args()
 
+    if args.d:
+        logger.add("gatenlp_interaction_{time}.log", level="DEBUG")
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
     elif args.format == "flatbuffers":
         raise Exception("Not implemented yet!")
     else:
-        raise Exception(f"Not a supported interchange format: {args.format}")
+        raise Exception("Not a supported interchange format: {}".format(args.format))
 
     if args.mode == "pipe":
         # save the current stdout, assign stderr to sys.stdout
@@ -236,31 +256,34 @@ def interact():
         ostream = sys.stdout
         for line in instream:
             request = loads(line)
-            cmd = request.get("cmd", None)
+            cmd = request.get("command", None)
             stop_requested = False
             ret = None
             try:
                 if cmd == "execute":
-                    doc = request.get("document")
+                    doc = request.get("data")
                     doc.set_changelog(ChangeLog())
                     pr.execute(doc)
                     # NOTE: for now we just discard what the method returns and always return
                     # the changelog instead!
                     ret = doc.changelog
+                    logger.info("CHANGELOG: {}".format(ret))
                 elif cmd == "start":
-                    parms = request.get("parameters")
+                    parms = request.get("data")
                     pr.func_start(parms)
                 elif cmd == "finish":
                     pr.func_finish()
                 elif cmd == "reduce":
                     results = request.get("results")
                     ret = pr.func_reduce(results)
+                elif cmd == "result":
+                    ret = pr.func_result()
                 elif cmd == "stop":
                     stop_requested = True
                 else:
-                    raise Exception(f"Odd command receive: {cmd}")
+                    raise Exception("Odd command received: {}".format(cmd))
                 response = {
-                    "return": ret,
+                    "data": ret,
                     "status": "ok",
                 }
             except Exception as ex:
@@ -268,7 +291,7 @@ def interact():
                 error = repr(ex)
                 info = "\n".join(traceback.format_tb(exc_traceback))
                 response = {
-                    "return": None,
+                    "data": None,
                     "status": "error",
                     "error": error,
                     "info": info
@@ -283,5 +306,5 @@ def interact():
     elif args.mode == "websockets":
         raise Exception("Mode websockets not implemented yet")
     else:
-        raise Exception(f"Not a valid mode: {args.mode}")
+        raise Exception("Not a valid mode: {}".format(args.mode))
 

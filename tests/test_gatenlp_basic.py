@@ -113,3 +113,8 @@ class TestChangeLog01:
         doc1.set_feature("docfeature1", "value1")
         doc1.set_feature("docfeature1", "value1b")
         assert len(doc1.changelog) == len(chlog1)
+
+        # test removing all annotations
+        assert len(annset1) == 4
+        annset1.clear()
+        assert len(annset1) == 0

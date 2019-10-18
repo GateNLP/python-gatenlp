@@ -243,14 +243,12 @@ class AnnotationSet:
 
         self._remove_from_indices(annotation)
 
-    def clear_annotations(self) -> None:
+    def clear(self) -> None:
         """
         Remove all annotations from the set.
         :return:
         """
-        allids = self._annotations.keys()
-        for annid in allids:
-            del self._annotations[annid]
+        self._annotations.clear()
         self._index_by_offset = None
         self._index_by_type = None
         self._sorted_by_offset = None
