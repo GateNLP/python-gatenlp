@@ -5,7 +5,7 @@
 # lists, we could directly use it to get the annotations in document order!
 
 
-from __future__ import annotations
+# from __future__ import annotations
 from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView, Iterator, Iterable, Generator
 from collections import defaultdict
 from intervaltree import IntervalTree, Interval
@@ -74,7 +74,7 @@ class AnnotationSet:
         self._is_immutable = False
         self._max_annid = 0
 
-    def restrict(self, restrict_to=None) -> AnnotationSet:
+    def restrict(self, restrict_to=None) -> "AnnotationSet":
         """
         Create an immutable copy of this set, optionally restricted to the given annotation ids.
         :param restrict_to: an iterable of annotation ids
@@ -143,7 +143,7 @@ class AnnotationSet:
             ret.add(i.data)
         return ret
 
-    def _restrict_intvs(self, intvs) -> AnnotationSet:
+    def _restrict_intvs(self, intvs) -> "AnnotationSet":
         return self.restrict(AnnotationSet._intvs2idlist(intvs))
 
     def __len__(self) -> int:
@@ -266,7 +266,7 @@ class AnnotationSet:
 
     def in_document_order(self, *annotations, from_offset: Union[int, None] = None,
                           to_offset: Union[None, int] = None,
-                          reverse: bool = False, anntype: str = None) -> Generator[Annotation]:
+                          reverse: bool = False, anntype: str = None) -> Generator:
         """
         Returns an iterator for going through annotations in document order. If an iterator of annotations
         is given, then those annotations, optionally limited by the other parameters are returned in
@@ -314,7 +314,7 @@ class AnnotationSet:
 
     # All the following methods return an immutable annotation set!
 
-    def all_by_type(self, anntype: Union[str, None] = None) -> AnnotationSet:
+    def all_by_type(self, anntype: Union[str, None] = None) -> "AnnotationSet":
         """
         Gets annotations of the specified type. If the anntype is None, return all annotation in an immutable set.
         Creates the type index if necessary.
@@ -343,7 +343,7 @@ class AnnotationSet:
         self._create_index_by_type()
         return self._index_by_type
 
-    def at(self, start: int) -> AnnotationSet:
+    def at(self, start: int) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in an immutable annotation set.
         """
@@ -354,7 +354,7 @@ class AnnotationSet:
         intvs = [intv for intv in intvs if intv.begin == start]
         return self._restrict_intvs(intvs)
 
-    def first_from(self, offset: int) -> AnnotationSet:
+    def first_from(self, offset: int) -> "AnnotationSet":
         """
         Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
         annotation set.
@@ -373,7 +373,7 @@ class AnnotationSet:
             return self.restrict(retids)
 
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int) -> AnnotationSet:
+    def overlapping(self, start: int, end: int) -> "AnnotationSet":
         """
         Gets annotations overlapping with the given span.
         """
@@ -382,7 +382,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int) -> AnnotationSet:
+    def covering(self, start: int, end: int) -> "AnnotationSet":
         """
         Get the annotations which contain the given offset range (or annotation/annotation set)
         :param start: the start offset of the span
@@ -401,7 +401,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def within(self, start: int, end: int) -> AnnotationSet:
+    def within(self, start: int, end: int) -> "AnnotationSet":
         """Gets annotations that fall completely within the left and right given"""
         if start == end:
             intvs = []
@@ -413,7 +413,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def after(self, start: int, end: Union[int,None] = None) -> AnnotationSet:
+    def after(self, start: int, end: Union[int,None] = None) -> "AnnotationSet":
         """
         Return the annotations that start after the given offset (or annotation). If an end offset or an annotation
         or an annotation set is given the end offset or end of the annotation/set is used.
@@ -430,7 +430,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def before(self, start: int, end=None) -> AnnotationSet:
+    def before(self, start: int, end=None) -> "AnnotationSet":
         """
         Return the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
@@ -512,15 +512,15 @@ class AnnotationSet:
     def __repr__(self) -> str:
         return "AnnotationSet({})".format(repr(list(self.in_document_order())))
 
-    def json_repr(self, **kwargs) -> Dict:
+    def _json_repr(self, **kwargs) -> Dict:
         return {
-            "annotations": [ann.json_repr(**kwargs) for ann in self._annotations.values()],
+            "annotations": [ann._json_repr(**kwargs) for ann in self._annotations.values()],
             "max_annid": self._max_annid,
             "name": self.name
         }
 
     @staticmethod
-    def from_json_map(jsonmap, **kwargs) -> AnnotationSet:
+    def _from_json_map(jsonmap, **kwargs) -> "AnnotationSet":
         annset = AnnotationSet(name=jsonmap.get("name"))
         annmap = {ann.id: ann for ann in jsonmap.get("annotations")}
         annset._annotations = annmap

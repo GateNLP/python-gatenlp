@@ -1,6 +1,6 @@
 
 
-from __future__ import annotations
+# from __future__ import annotations
 from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView, Iterator, Iterable, Generator
 from loguru import logger
 from .document import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
@@ -58,7 +58,7 @@ class ChangeLog:
         for c in self.changes:
             print(prefix, str(c), sep="", file=fp)
 
-    def json_repr(self, **kwargs) -> Dict:
+    def _json_repr(self, **kwargs) -> Dict:
         offset_type = self.offset_type
         changes = self.changes
         if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
@@ -76,7 +76,7 @@ class ChangeLog:
         }
 
     @staticmethod
-    def from_json_map(jsonmap, **kwargs) -> ChangeLog:
+    def _from_json_map(jsonmap, **kwargs) -> "ChangeLog":
         cl = ChangeLog()
         cl.changes = jsonmap.get("changes")
         cl.offset_type = jsonmap.get("offset_type")

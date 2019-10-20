@@ -16,7 +16,7 @@ def get_object_encoder(**kwargs):
     :return:
     """
     def object_encoder(obj):
-        if hasattr(obj, "json_repr"):
+        if hasattr(obj, "_json_repr"):
             return obj._json_repr(**kwargs)
         else:
             raise TypeError("Cannot JSON-serialise {} of type {}".format(obj, type(obj)))

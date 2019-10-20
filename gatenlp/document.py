@@ -204,7 +204,7 @@ class Document(FeatureBearer):
             "text": self._text,
             "features": self.features,
             # turn our special class into an ordinary map
-            "annotation_sets": {name: annset.json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
+            "annotation_sets": {name: annset._json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
             "offset_type": offset_type,
             "document_type": self.document_type,
             "repr_version": self.repr_version

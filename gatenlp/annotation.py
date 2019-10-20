@@ -152,6 +152,21 @@ class Annotation(FeatureBearer):
                          features=jsonmap.get("features"))
         return ann
 
+    def __setattr__(self, key, value):
+        """
+        Prevent start, stop, type and annotation id from getting overridden, once they have been
+        set.
+        :param key: attribute to set
+        :param value: value to set attribute to
+        :return:
+        """
+        if key == "start" or key == "end" or key == "type" or key == "id":
+            if self.__dict__.get(key, None) is None:
+                super().__setattr__(key, value)
+            else:
+                raise Exception("Annotation attributes cannot get changed after being set")
+        else:
+            super().__setattr__(key, value)
 
 class AnnotationFromSet:
     """
