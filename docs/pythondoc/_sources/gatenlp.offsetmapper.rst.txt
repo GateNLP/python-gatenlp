@@ -1,0 +1,7 @@
+gatenlp.offsetmapper module
+===========================
+
+.. automodule:: gatenlp.offsetmapper
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+gatenlp.gateplugin\_python module
+=================================
+
+.. automodule:: gatenlp.gateplugin_python
+    :members:
+    :undoc-members:
+    :show-inheritance:

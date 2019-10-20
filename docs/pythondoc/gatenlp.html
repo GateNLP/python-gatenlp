@@ -1,0 +1,518 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>gatenlp package &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gatenlp.docformats package" href="gatenlp.docformats.html" />
+    <link rel="prev" title="gatenlp" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.html" title="gatenlp.docformats package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="gatenlp"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gatenlp-package">
+<h1>gatenlp package<a class="headerlink" href="#gatenlp-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.docformats.html">gatenlp.docformats package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gatenlp.docformats.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.flatbuffers.html">gatenlp.docformats.flatbuffers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.gatexml.html">gatenlp.docformats.gatexml module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.simplejson.html">gatenlp.docformats.simplejson module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gatenlp.docformats.html#module-gatenlp.docformats">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.annotation.html">gatenlp.annotation module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.annotation_set.html">gatenlp.annotation_set module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.changelog.html">gatenlp.changelog module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.document.html">gatenlp.document module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.exceptions.html">gatenlp.exceptions module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.feature_bearer.html">gatenlp.feature_bearer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.gate_interaction.html">gatenlp.gate_interaction module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.gateplugin_python.html">gatenlp.gateplugin_python module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.offsetmapper.html">gatenlp.offsetmapper module</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-gatenlp">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gatenlp" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="gatenlp.GateNlpPr">
+<code class="descclassname">gatenlp.</code><code class="descname">GateNlpPr</code><span class="sig-paren">(</span><em>what</em><span class="sig-paren">)</span><a class="headerlink" href="#gatenlp.GateNlpPr" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the decorator to identify a class or function as a processing
+resource. This is made available with the name PR in the gatenlp
+package.</p>
+<p>This creates an instance of PRWrapper and registers all the relevant
+functions of the decorated class or the decorated function in the
+wrapper.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.Annotation">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Annotation</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em>, <em>annot_type: str</em>, <em>annot_id: int</em>, <em>owner_setname: Optional[str] = None</em>, <em>changelog: Optional[gatenlp.changelog.ChangeLog] = None</em>, <em>features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<p>NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
+in an annotation set.
+!! This means that equality and hashing outside of an annotation set will not work as expected: the identify
+of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
+to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</p>
+<dl class="attribute">
+<dt id="gatenlp.Annotation.changelog">
+<code class="descname">changelog</code><a class="headerlink" href="#gatenlp.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.end">
+<code class="descname">end</code><a class="headerlink" href="#gatenlp.Annotation.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.features">
+<code class="descname">features</code><a class="headerlink" href="#gatenlp.Annotation.features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
+:return:</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="gatenlp.Annotation.from_json_map">
+<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation.Annotation<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.from_json_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.id">
+<code class="descname">id</code><a class="headerlink" href="#gatenlp.Annotation.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.json_repr">
+<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.owner_setname">
+<code class="descname">owner_setname</code><a class="headerlink" href="#gatenlp.Annotation.owner_setname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.start">
+<code class="descname">start</code><a class="headerlink" href="#gatenlp.Annotation.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Annotation.type">
+<code class="descname">type</code><a class="headerlink" href="#gatenlp.Annotation.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.Document">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">Document</code><span class="sig-paren">(</span><em>text: str</em>, <em>features=None</em>, <em>changelog: Optional[gatenlp.changelog.ChangeLog] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<p>Represent a GATE document. This is different from the original Java GATE representation in several ways:
+* the text is not mutable and can only be set at creation time, so there is no “edit” method
+* as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is</p>
+<blockquote>
+<div>no separate “FeatureMap” to store them</div></blockquote>
+<ul class="simple">
+<li>does not support listener callbacks</li>
+<li>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
+that can be acessed with the “text()” method</li>
+<li>Spans of text can be directly accessed using doc[from:to]</li>
+<li>features are not stored in a separate feature map object, but are directly set on the document, e.g.
+doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</li>
+<li>Features may only have string keys and values which can be json-serialised</li>
+<li>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
+are UTF-16 Unicode code units</li>
+<li>Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
+of UTF-16 code unit and back)</li>
+<li>No part of the document has to be present, not even the text (this allows saving just the annotations separately
+from the text)</li>
+<li>Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)</li>
+</ul>
+<dl class="staticmethod">
+<dt id="gatenlp.Document.from_json_map">
+<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.document.Document<a class="reference internal" href="_modules/gatenlp/document.html#Document.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.from_json_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.get_annotation_set_names">
+<code class="descname">get_annotation_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView[str]<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotation_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.get_annotation_set_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of known annotation set names.
+:return: annotation set names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.get_annotations">
+<code class="descname">get_annotations</code><span class="sig-paren">(</span><em>name: str = ''</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.get_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
+If the annotation set does not already exist, it is created.
+:return: the specified annotation set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.json_repr">
+<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/document.html#Document.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a JSON-representable version of this object
+:return: something JSON can serialise</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.set_changelog">
+<code class="descname">set_changelog</code><span class="sig-paren">(</span><em>chlog: gatenlp.changelog.ChangeLog</em><span class="sig-paren">)</span> &#x2192; gatenlp.changelog.ChangeLog<a class="reference internal" href="_modules/gatenlp/document.html#Document.set_changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.set_changelog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the document use the given changelog to record all changes
+from this moment on.
+:param chlog: the new changelog to use or None to not use any
+:return: the changelog used previously or None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.size">
+<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/document.html#Document.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.Document.text">
+<code class="descname">text</code><a class="headerlink" href="#gatenlp.Document.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Document.to_type">
+<code class="descname">to_type</code><span class="sig-paren">(</span><em>offsettype: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/document.html#Document.to_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.to_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.AnnotationSet">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">AnnotationSet</code><span class="sig-paren">(</span><em>name: str = ''</em>, <em>changelog: Optional[gatenlp.changelog.ChangeLog] = None</em>, <em>owner_doc: Optional[Document] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em>, <em>anntype: str</em>, <em>features</em>, <em>annid: Optional[int] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> – start offset</li>
+<li><strong>end</strong> – end offset</li>
+<li><strong>anntype</strong> – the annotation type</li>
+<li><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>used to create a new feature map for this annotation.
+:param annid: the annotation id, if not specified the next free one for this set is used
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.after">
+<code class="descname">after</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.after" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.all_by_type">
+<code class="descname">all_by_type</code><span class="sig-paren">(</span><em>anntype: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.all_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.all_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets annotations of the specified type. If the anntype is None, return all annotation in an immutable set.
+Creates the type index if necessary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.at">
+<code class="descname">at</code><span class="sig-paren">(</span><em>start: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all annotations starting at the given offset (empty if none) and returns them in an immutable annotation set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.before">
+<code class="descname">before</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.before" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.clear_annotations">
+<code class="descname">clear_annotations</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.clear_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.clear_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all annotations from the set.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>annorannid: Union[int, gatenlp.annotation.Annotation]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#gatenlp.AnnotationSet.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides annotation in annotation_set functionality</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.covering">
+<code class="descname">covering</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.covering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.first">
+<code class="descname">first</code><span class="sig-paren">(</span><em>by_end: bool = False</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation.Annotation<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the/an annotation that has the smallest start offset (and shortest length if several such).
+If by_end is True, instead return the/an annotation that has the smallest end offset.
+:return: the annotation, or None if the annotation set is empty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.first_from">
+<code class="descname">first_from</code><span class="sig-paren">(</span><em>offset: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.first_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
+annotation set.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="gatenlp.AnnotationSet.from_json_map">
+<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.from_json_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>annid: int</em>, <em>default=None</em><span class="sig-paren">)</span> &#x2192; Optional[gatenlp.annotation.Annotation]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the annotation with the given annotation id or returns the given default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.get_doc">
+<code class="descname">get_doc</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[Document]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.get_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.get_doc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the owning document, if known.
+:return: the document this annotation set belongs to</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.in_document_order">
+<code class="descname">in_document_order</code><span class="sig-paren">(</span><em>*annotations</em>, <em>from_offset: Union[int</em>, <em>None] = None</em>, <em>to_offset: Union[None</em>, <em>int] = None</em>, <em>reverse: bool = False</em>, <em>anntype: str = None</em><span class="sig-paren">)</span> &#x2192; Generator[Annotation]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.in_document_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.in_document_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator for going through annotations in document order. If an iterator of annotations
+is given, then those annotations, optionally limited by the other parameters are returned in
+document order, otherwise, all annotations in the set are returned, otionally limited by the other
+parameters.
+:param annotations: either missing or exactly one parameter which must be an iterable of annotations
+from this annotation set.
+:param from_offset: the offset from where to start including annotations
+:param to_offset: the last offset to use as the starting offset of an annotation
+:param anntype: only annotations of this type
+:param reverse: process in reverse document order
+:return: iterator for annotations in document order</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.json_repr">
+<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.last">
+<code class="descname">last</code><span class="sig-paren">(</span><em>by_end: bool = False</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation.Annotation<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the/an annotation with the biggest start offset (and longest length if several such).
+:return: the annotation, or None if the annotation set is empty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.overlapping">
+<code class="descname">overlapping</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.overlapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>annotation: Union[int, gatenlp.annotation.Annotation]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the given annotation which is either the id or the annotation instance.
+:param annotation: either the id (int) or the annotation instance (Annotation)
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.restrict">
+<code class="descname">restrict</code><span class="sig-paren">(</span><em>restrict_to=None</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.restrict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.restrict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an immutable copy of this set, optionally restricted to the given annotation ids.
+:param restrict_to: an iterable of annotation ids
+:return: an immutable annotation set with all the annotations of this set or restricted to the ids
+in restrict_to</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.size">
+<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.span">
+<code class="descname">span</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[int, int]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.span" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+and the largest end offset of any annotation.
+(Currently requires O(n) every time it is called)
+:return: tuple of minimum start offset and maximum end offset</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.type_names">
+<code class="descname">type_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView[str]<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.type_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.type_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the names of all types in this set. Creates the type index if necessary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.types">
+<code class="descname">types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index of types, mapping each type to the set of annotation ids of that type. If necessary
+creates the index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.within">
+<code class="descname">within</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.within" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="gatenlp.InvalidOffsetException">
+<em class="property">exception </em><code class="descclassname">gatenlp.</code><code class="descname">InvalidOffsetException</code><a class="reference internal" href="_modules/gatenlp/exceptions.html#InvalidOffsetException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.InvalidOffsetException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="gatenlp.ChangeLog">
+<em class="property">class </em><code class="descclassname">gatenlp.</code><code class="descname">ChangeLog</code><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.ChangeLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="gatenlp.ChangeLog.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>element: Dict[KT, VT]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.ChangeLog.append" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.ChangeLog.format_to">
+<code class="descname">format_to</code><span class="sig-paren">(</span><em>fp</em>, <em>prefix=''</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.format_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.ChangeLog.format_to" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="gatenlp.ChangeLog.from_json_map">
+<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.changelog.ChangeLog<a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.ChangeLog.from_json_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.ChangeLog.json_repr">
+<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.ChangeLog.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gatenlp package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-gatenlp">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">gatenlp</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gatenlp.docformats.html"
+                        title="next chapter">gatenlp.docformats package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gatenlp.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.html" title="gatenlp.docformats package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="gatenlp"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

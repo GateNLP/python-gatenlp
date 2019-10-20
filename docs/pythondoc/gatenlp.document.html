@@ -1,0 +1,189 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>gatenlp.document module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gatenlp.exceptions module" href="gatenlp.exceptions.html" />
+    <link rel="prev" title="gatenlp.changelog module" href="gatenlp.changelog.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.changelog.html" title="gatenlp.changelog module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gatenlp.document">
+<span id="gatenlp-document-module"></span><h1>gatenlp.document module<a class="headerlink" href="#module-gatenlp.document" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="gatenlp.document.Document">
+<em class="property">class </em><code class="descclassname">gatenlp.document.</code><code class="descname">Document</code><span class="sig-paren">(</span><em>text: str</em>, <em>features=None</em>, <em>changelog: Optional[gatenlp.changelog.ChangeLog] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<p>Represent a GATE document. This is different from the original Java GATE representation in several ways:
+* the text is not mutable and can only be set at creation time, so there is no “edit” method
+* as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is</p>
+<blockquote>
+<div>no separate “FeatureMap” to store them</div></blockquote>
+<ul class="simple">
+<li>does not support listener callbacks</li>
+<li>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
+that can be acessed with the “text()” method</li>
+<li>Spans of text can be directly accessed using doc[from:to]</li>
+<li>features are not stored in a separate feature map object, but are directly set on the document, e.g.
+doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</li>
+<li>Features may only have string keys and values which can be json-serialised</li>
+<li>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
+are UTF-16 Unicode code units</li>
+<li>Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
+of UTF-16 code unit and back)</li>
+<li>No part of the document has to be present, not even the text (this allows saving just the annotations separately
+from the text)</li>
+<li>Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)</li>
+</ul>
+<dl class="staticmethod">
+<dt id="gatenlp.document.Document.from_json_map">
+<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.document.Document<a class="reference internal" href="_modules/gatenlp/document.html#Document.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.from_json_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.get_annotation_set_names">
+<code class="descname">get_annotation_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView[str]<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotation_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotation_set_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of known annotation set names.
+:return: annotation set names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.get_annotations">
+<code class="descname">get_annotations</code><span class="sig-paren">(</span><em>name: str = ''</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
+If the annotation set does not already exist, it is created.
+:return: the specified annotation set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.json_repr">
+<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/document.html#Document.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.json_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a JSON-representable version of this object
+:return: something JSON can serialise</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.set_changelog">
+<code class="descname">set_changelog</code><span class="sig-paren">(</span><em>chlog: gatenlp.changelog.ChangeLog</em><span class="sig-paren">)</span> &#x2192; gatenlp.changelog.ChangeLog<a class="reference internal" href="_modules/gatenlp/document.html#Document.set_changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.set_changelog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the document use the given changelog to record all changes
+from this moment on.
+:param chlog: the new changelog to use or None to not use any
+:return: the changelog used previously or None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.size">
+<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/document.html#Document.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gatenlp.document.Document.text">
+<code class="descname">text</code><a class="headerlink" href="#gatenlp.document.Document.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.document.Document.to_type">
+<code class="descname">to_type</code><span class="sig-paren">(</span><em>offsettype: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/document.html#Document.to_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.to_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gatenlp.changelog.html"
+                        title="previous chapter">gatenlp.changelog module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gatenlp.exceptions.html"
+                        title="next chapter">gatenlp.exceptions module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gatenlp.document.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.changelog.html" title="gatenlp.changelog module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+  </body>
+</html>

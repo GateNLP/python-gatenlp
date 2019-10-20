@@ -5,7 +5,7 @@ OFFSET_TYPE_PYTHON = "p"
 
 
 class OffsetMapper:
-    def __init__(self, text):
+    def __init__(self, text: str):
         """
         Calculate the tables for mapping unicode code points to utf16 code units.
         NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:

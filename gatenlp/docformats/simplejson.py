@@ -1,8 +1,8 @@
 """
-GATE-specific (de)serialisation of documents.
+GATE-specific (de)serialisation of documents. This is called "simplejson" to make it easy
+to keep it apart from the default JSON de/serialiser (which is used but extended).
 """
 import json
-from ..offsetmapper import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA, OffsetMapper
 from ..document import Document
 from ..annotation import Annotation
 from ..annotation_set import AnnotationSet
@@ -17,7 +17,7 @@ def get_object_encoder(**kwargs):
     """
     def object_encoder(obj):
         if hasattr(obj, "json_repr"):
-            return obj.json_repr(**kwargs)
+            return obj._json_repr(**kwargs)
         else:
             raise TypeError("Cannot JSON-serialise {} of type {}".format(obj, type(obj)))
     return object_encoder
@@ -30,15 +30,17 @@ def get_object_hook(**kwargs):
     :return: the object hook function
     """
     def object_hook(thedict):
-        if "object_type" in thedict:
-            obj_type = thedict["object_type"]
-            # we check all the known types here
-            if obj_type == "gatenlp.document.Document":
-                return Document.from_json_map(thedict, **kwargs)
-            elif obj_type == "gatenlp.changelog.ChangeLog":
-                return ChangeLog.from_json_map(thedict, **kwargs)
-            else:
-                return thedict
+        # we use duck-typing here to guess the type of the object
+        if "command" in thedict or "change" in thedict:  # probably a request or change
+            return thedict
+        elif "text" in thedict:
+            return Document._from_json_map(thedict, **kwargs)
+        elif "start" in thedict and "id" in thedict:
+            return Annotation._from_json_map(thedict, **kwargs)
+        elif "annotations" in thedict and "max_annid" in thedict:
+            return AnnotationSet._from_json_map(thedict, **kwargs)
+        elif "changes" in thedict:
+            return ChangeLog._from_json_map(thedict, **kwargs)
         else:
             return thedict
     return object_hook
@@ -56,6 +58,7 @@ def load(fp, **kwargs):
 def loads(str, **kwargs):
     """
     Create gatenlp object from JSON string and return it.
+
     :param str: JSON string
     :return: the gatenlp object
     """

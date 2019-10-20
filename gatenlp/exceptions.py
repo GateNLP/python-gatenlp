@@ -2,4 +2,5 @@
 
 
 class InvalidOffsetException(KeyError):
-	pass 
+    pass
+
