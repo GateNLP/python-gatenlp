@@ -14,6 +14,7 @@ class _AnnotationSetsDict(collections.defaultdict):
         self.changelog = changelog
         self.owner_doc = owner_doc
 
+
     def __missing__(self, key):
         annset = AnnotationSet(name=key, changelog=self.changelog, owner_doc=self.owner_doc)
         self[key] = annset
@@ -48,6 +49,8 @@ class Document(FeatureBearer):
         self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
+        self.document_type = "simple"
+        self.rep_version = '1.0'
 
     def _ensure_type_python(self):
         if self.offset_type != OFFSET_TYPE_PYTHON:
@@ -62,6 +65,13 @@ class Document(FeatureBearer):
                 ann.end = method(ann.end)
 
     def to_type(self, offsettype):
+        """
+        Convert all the offsets of all the annotations in this document to the
+        required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
+        are already of that type, this does nothing.
+        :param offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
+        :return:
+        """
         if offsettype == self.offset_type:
             return
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
