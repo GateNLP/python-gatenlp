@@ -57,8 +57,10 @@ class AnnotationSet:
         """
         Create a new annotation set.
         :param name: the name of the annotation set. This is only really needed if the changelog is used.
-        :param changelog:
-        :param owner_doc:
+        :param changelog: if a changelog is used, then all changes to the set and its annotations are logged
+        :param owner_doc: if this is set, the set and all sets created from it can be queried for the
+        owning document and offsets get checked against the text of the owning document, if it has
+        text.
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self.changelog = changelog
@@ -131,13 +133,18 @@ class AnnotationSet:
     def _intvs2idlist(intvs) -> List[int]:
         """
         Convert an iterable of intervals+id to a list of ids
-        :param intvs:
-        :return:
+        :param intvs: iterable of intervals
+        :return: list of ids
         """
         return [i.data for i in intvs]
 
     @staticmethod
     def _intvs2idset(intvs) -> Set[int]:
+        """
+        Convert an iterable of intervals+id to a set of ids
+        :param intvs: iterable of intervals
+        :return: set of ids
+        """
         ret = set()
         for i in intvs:
             ret.add(i.data)
@@ -147,15 +154,23 @@ class AnnotationSet:
         return self.restrict(AnnotationSet._intvs2idlist(intvs))
 
     def __len__(self) -> int:
+        """
+        Return number of annotations in the set
+        :return: number of annotations
+        """
         return len(self._annotations)
 
     def size(self) -> int:
+        """
+        Return number of annotations in the set
+        :return: number of annotations
+        """
         return len(self._annotations)
 
     def get_doc(self) -> Union["Document", None]:
         """
-        Get the owning document, if known.
-        :return: the document this annotation set belongs to
+        Get the owning document, if known. If the owning document was not set, return None.
+        :return: the document this annotation set belongs to or None if unknown.
         """
         return self.owner_doc
 
@@ -163,9 +178,11 @@ class AnnotationSet:
     def _check_offsets(self, start: int, end: int) -> None:
         """
         Checks the offsets for the given annotation against the document boundaries, if we know the owning
-        document.
+        document and if the owning document has text.
         """
         if self.owner_doc is None:
+            return
+        if self.owner_doc.text is None:
             return
         doc_size = self.owner_doc.size()
 
@@ -184,13 +201,15 @@ class AnnotationSet:
 
     def add(self, start: int, end: int, anntype: str, features, annid: int = None):
         """
-
+        Add an annotation to the set. Once an annotation has been added, the start and end offsets,
+        the type, and the annotation id are immutable.
         :param start: start offset
         :param end: end offset
         :param anntype: the annotation type
         :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are
         used to create a new feature map for this annotation.
-        :param annid: the annotation id, if not specified the next free one for this set is used
+        :param annid: the annotation id, if not specified the next free one for this set is used.
+        NOTE: the id should normally left unspecified and get assigned automatically.
         :return:
         """
         if self._is_immutable:
@@ -257,13 +276,16 @@ class AnnotationSet:
                 "command": "annotations:clear",
                 "set": self.name})
 
+    # TODO this actually returns a Generator!
     def __iter__(self) -> Iterator:
         """
-        Iterator for going through all the annotations in arbitrary order.
-        :return:
+        Iterator for going through all the annotations of the set.
+        :return: the annotations in document order
         """
-        return iter(self._annotations.values())
+        # return iter(self._annotations.values())
+        return self.in_document_order()
 
+    # TODO: this actually returns a Generator! Is this a problem?
     def in_document_order(self, *annotations, from_offset: Union[int, None] = None,
                           to_offset: Union[None, int] = None,
                           reverse: bool = False, anntype: str = None) -> Generator:
@@ -312,8 +334,6 @@ class AnnotationSet:
         """
         return self._annotations.get(annid, default)
 
-    # All the following methods return an immutable annotation set!
-
     def all_by_type(self, anntype: Union[str, None] = None) -> "AnnotationSet":
         """
         Gets annotations of the specified type. If the anntype is None, return all annotation in an immutable set.
@@ -335,17 +355,11 @@ class AnnotationSet:
         self._create_index_by_type()
         return self._index_by_type.keys()
 
-    def types(self):
-        """
-        Returns the index of types, mapping each type to the set of annotation ids of that type. If necessary
-        creates the index.
-        """
-        self._create_index_by_type()
-        return self._index_by_type
-
     def at(self, start: int) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in an immutable annotation set.
+        :param start: the offset where annotations should start
+        :return: annotation set of matching annotations
         """
         # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
         # point query
@@ -358,6 +372,8 @@ class AnnotationSet:
         """
         Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
         annotation set.
+        :param offset: The offset
+        :return: annotation set of matching annotations
         """
         self._create_index_by_offset()
         intvs = sorted(self._index_by_offset[offset:])
@@ -375,7 +391,11 @@ class AnnotationSet:
     @support_annotation_or_set
     def overlapping(self, start: int, end: int) -> "AnnotationSet":
         """
-        Gets annotations overlapping with the given span.
+        Gets annotations overlapping with the given span. Instead of the start and end offsets,
+        also accepts an annotation or annotation set.
+        :param start: start offset of the span
+        :param end: end offset of the span
+        :return: an immutable annotation set with the matching annotations
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.overlap(start, end)
@@ -402,7 +422,12 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def within(self, start: int, end: int) -> "AnnotationSet":
-        """Gets annotations that fall completely within the left and right given"""
+        """
+        Gets annotations that fall completely within the given offset range
+        :param start: start offset of the range
+        :param end: end offset of the range
+        :return: an immutable annotation set with the matching annotations
+        """
         if start == end:
             intvs = []
         elif start > end:
@@ -502,7 +527,11 @@ class AnnotationSet:
         return min_start, max_end
 
     def __contains__(self, annorannid: Union[int, Annotation]) -> bool:
-        """Provides annotation in annotation_set functionality"""
+        """
+        Provides 'annotation in annotation_set' functionality
+        :param annorannid: the annotation instance or annotation id to check
+        :return: true if the annotation exists in the set, false otherwise
+        """
         if isinstance(annorannid, Annotation):
             return annorannid.id in self._annotations
         return annorannid in self._annotations  # On the off chance someone passed an ID in directly
@@ -510,6 +539,10 @@ class AnnotationSet:
     contains = __contains__
 
     def __repr__(self) -> str:
+        """
+        String representation of the set.
+        :return: string representation.
+        """
         return "AnnotationSet({})".format(repr(list(self.in_document_order())))
 
     def _json_repr(self, **kwargs) -> Dict:
