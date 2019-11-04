@@ -30,7 +30,9 @@ class TestInteraction01:
         assert "Set1" in doc1.annotation_sets
         myset = doc1.get_annotations("Set1")
         assert len(myset) == 1
-        myann = myset.first()
+        myanns = myset.first_from(0)
+        assert len(myanns) == 1
+        myann = next(iter(myanns))
         assert myann is not None
         assert myann.start == 2
         assert myann.end == 3

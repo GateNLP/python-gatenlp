@@ -35,20 +35,20 @@ class TestSortedIntvls01:
         assert (4, 5, "int2") in ret3
         assert (4, 10, "int4") in ret3
         assert (4, 5, "int3") in ret3
-        ret4 = list(si1.contained_in(3, 8))
+        ret4 = list(si1.within(3, 8))
         logger.info("contained in 3,8={}".format(ret4))
         assert len(ret4) == 3
         assert (4, 5, "int2") in ret4
         assert (4, 5, "int3") in ret4
         assert (5, 6, "int5") in ret4
-        ret5 = list(si1.contained_in(0, 20))
+        ret5 = list(si1.within(0, 20))
         logger.info("contained in 0,20={}".format(ret5))
         assert len(ret5) == len(intvls)
-        ret6 = list(si1.containing(3, 4))
+        ret6 = list(si1.covering(3, 4))
         logger.info("containing 3,4={}".format(ret6))
         assert len(ret6) == 1
         assert (0, 20, "int0") in ret6
-        ret7 = list(si1.containing(8, 9))
+        ret7 = list(si1.covering(8, 9))
         logger.info("containing 8,9={}".format(ret7))
         assert len(ret7) == 5
         assert (0, 20, 'int0') in ret7

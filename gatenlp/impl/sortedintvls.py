@@ -7,13 +7,16 @@ NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key
 for sorting.
 """
 
-from sortedcollections import SortedList
+from sortedcontainers import SortedKeyList
 from loguru import logger
+
 
 class SortedIntvls:
     def __init__(self):
-        self._by_start = SortedList(key=lambda x: x[0])
-        self._by_end = SortedList(key=lambda x: x[1])
+        # NOTE: we sort by increasing start offset and decreasing end offset for this
+        self._by_start = SortedKeyList(key=lambda x: x[0])
+        # for this we only sort by the end offset
+        self._by_end = SortedKeyList(key=lambda x: x[1])
 
     def add(self, start, end, data):
         self._by_start.add((start, end, data))
@@ -22,6 +25,14 @@ class SortedIntvls:
     def update(self, tupleiterable):
         self._by_start.update(tupleiterable)
         self._by_end.update(tupleiterable)
+
+    def remove(self, start, end, data):
+        self._by_start.remove((start, end, data))
+        self._by_end.remove((start, end, data))
+
+    def discard(self, start, end, data):
+        self._by_start.discard((start, end, data))
+        self._by_end.discard((start, end, data))
 
     def __len__(self):
         return len(self._by_start)
@@ -49,12 +60,12 @@ class SortedIntvls:
         :param end:
         :return:
         """
-        for intvl in self._by_end.irange_key(min_key=start, max_key=start):
+        for intvl in self._by_start.irange_key(min_key=start, max_key=start):
             if intvl[1] == end:
                 yield intvl
 
     # SAME as within
-    def contained_in(self, start, end):
+    def within(self, start, end):
         """
         Return intervals which are fully contained within start...end
         :param start:
@@ -102,7 +113,7 @@ class SortedIntvls:
         return self._by_end.irange_key(min_key=offset+1)
 
     # SAME as covering
-    def containing(self, start, end):
+    def covering(self, start, end):
         """
         Intervals that contain the given range
         :param start:
@@ -164,6 +175,23 @@ class SortedIntvls:
                 yield intvl
             else:
                 return
+
+    def min_start(self):
+        """
+        Returns the smallest start offset we have
+        :return:
+        """
+        return self._by_start[0][0]
+
+    def max_end(self):
+        """
+        Returns the biggest end offset we have
+        :return:
+        """
+        return self._by_end[-1][1]
+
+    def irange(self, minoff=None, maxoff=None, reverse=False):
+        return self._by_start.irange_key(min_key=minoff, max_key=maxoff, reverse=reverse)
 
     def __repr__(self):
         return "SortedIntvls({},{})".format(self._by_start, self._by_end)

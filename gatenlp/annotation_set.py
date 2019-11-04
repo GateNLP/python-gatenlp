@@ -8,20 +8,12 @@
 # from __future__ import annotations
 from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView, Iterator, Iterable, Generator
 from collections import defaultdict
-from intervaltree import IntervalTree, Interval
-from sortedcontainers import SortedSet
 from gatenlp.annotation import Annotation
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
+from gatenlp.impl import SortedIntvls
 import numbers
 
-# NOTE: the intervaltree package originally looked like it would be what I need, but it turns out it is limited
-# Either replace it with double RB-tree or fix it or do something other
-# What is missing:
-# * covering/enveloped: get all intervals that contain a given span
-# * starting-at/ending-et: get all intervals starting/ending at that offset
-# * sorted result: currently the results are sets in no particular order, would be cool if we could guarantee sorted
-#   intervals always, then could use this to make "in document order" much more efficient
 
 
 def support_annotation_or_set(method):
@@ -68,9 +60,8 @@ class AnnotationSet:
         self.owner_doc = owner_doc
 
         # NOTE: the index is only created when we actually need it!
-        self._index_by_offset = None
+        self._index_by_offset: SortedIntvls = None
         self._index_by_type = None
-        self._sorted_by_offset = None
         # internally we represent the annotations as a map from annotation id (int) to Annotation
         self._annotations = {}
         self._is_immutable = False
@@ -95,11 +86,9 @@ class AnnotationSet:
         The offset index is an interval tree that stores the annotation ids for the offset interval of the annotation.
         """
         if self._index_by_offset is None:
-            self._index_by_offset = IntervalTree()
-            self._sorted_by_offset = SortedSet()
+            self._index_by_offset = SortedIntvls()
             for ann in self._annotations.values():
-                self._index_by_offset[ann.start:ann.end] = ann.id
-                self._sorted_by_offset.add(Interval(ann.start, ann.end, ann.id))
+                self._index_by_offset.add(ann.start, ann.end, ann.id)
 
     def _create_index_by_type(self) -> None:
         """
@@ -120,8 +109,7 @@ class AnnotationSet:
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].add(annotation.id)
         if self._index_by_offset is not None:
-            self._index_by_offset[annotation.start:annotation.end] = annotation.id
-            self._sorted_by_offset.add(Interval(annotation.start, annotation.end, annotation.id))
+            self._index_by_offset.add(annotation.start, annotation.end, annotation.id)
 
     def _remove_from_indices(self, annotation: Annotation) -> None:
         if self._index_by_offset is not None:
@@ -132,22 +120,22 @@ class AnnotationSet:
     @staticmethod
     def _intvs2idlist(intvs) -> List[int]:
         """
-        Convert an iterable of intervals+id to a list of ids
-        :param intvs: iterable of intervals
+        Convert an iterable of interval tuples (start, end, id) to a list of ids
+        :param intvs: iterable of interval tuples
         :return: list of ids
         """
-        return [i.data for i in intvs]
+        return [i[2] for i in intvs]
 
     @staticmethod
     def _intvs2idset(intvs) -> Set[int]:
         """
-        Convert an iterable of intervals+id to a set of ids
-        :param intvs: iterable of intervals
+        Convert an iterable of interval tuples (start, end, id) to a set of ids
+        :param intvs: iterable of interval tuples
         :return: set of ids
         """
         ret = set()
         for i in intvs:
-            ret.add(i.data)
+            ret.add(i[2])
         return ret
 
     def _restrict_intvs(self, intvs) -> "AnnotationSet":
@@ -259,7 +247,6 @@ class AnnotationSet:
                 "command": "annotation:remove",
                 "set": self.name,
                 "id": annid})
-
         self._remove_from_indices(annotation)
 
     def clear(self) -> None:
@@ -270,7 +257,6 @@ class AnnotationSet:
         self._annotations.clear()
         self._index_by_offset = None
         self._index_by_type = None
-        self._sorted_by_offset = None
         if self.changelog is not None:
             self.changelog.append({
                 "command": "annotations:clear",
@@ -308,16 +294,12 @@ class AnnotationSet:
             assert to_offset >= 1
         if to_offset is not None and from_offset is not None:
             assert to_offset > from_offset
-        if len(annotations) == 0:
+        if len(annotations) == 0:  # no annotations given, we use the ones in the set
             self._create_index_by_offset()
-            if from_offset is not None:
-                from_offset = Interval(from_offset, 0, None)
-            if to_offset is not None:
-                to_offset = Interval(to_offset, 9999999999, None)  # provide a bogus end offset for sorting
-            for interval in self._sorted_by_offset.irange(minimum=from_offset, maximum=to_offset, reverse=reverse):
-                if anntype is not None and self._annotations[interval.data].type != anntype:
+            for _start, _end, annid in self._index_by_offset.irange(minoff=from_offset, maxoff=to_offset, reverse=reverse):
+                if anntype is not None and self._annotations[annid].type != anntype:
                     continue
-                yield self._annotations[interval.data]
+                yield self._annotations[annid]
         elif len(annotations) == 1:
             for ann in sorted(annotations, reverse=reverse, key=lambda x: (x.start, x.end)):
                 if anntype is not None and ann.type != anntype:
@@ -355,7 +337,7 @@ class AnnotationSet:
         self._create_index_by_type()
         return self._index_by_type.keys()
 
-    def at(self, start: int) -> "AnnotationSet":
+    def starting_at(self, start: int) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in an immutable annotation set.
         :param start: the offset where annotations should start
@@ -364,8 +346,7 @@ class AnnotationSet:
         # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
         # point query
         self._create_index_by_offset()
-        intvs = self._index_by_offset[start]
-        intvs = [intv for intv in intvs if intv.begin == start]
+        intvs = self._index_by_offset.starting_at(start)
         return self._restrict_intvs(intvs)
 
     def first_from(self, offset: int) -> "AnnotationSet":
@@ -376,17 +357,20 @@ class AnnotationSet:
         :return: annotation set of matching annotations
         """
         self._create_index_by_offset()
-        intvs = sorted(self._index_by_offset[offset:])
+        intvs = self._index_by_offset.starting_from(offset)
         # now select only those first ones which all have the same offset
-        if len(intvs) < 2:
-            return self._restrict_intvs(intvs)
-        else:
-            retids = set()
-            start = intvs[0].start
-            for intv in intvs:
-                if intv.begin == start:
-                    retids.add(intv.data)
-            return self.restrict(retids)
+        retids = set()
+        startoff = None
+        for intv in intvs:
+            if startoff is None:
+                startoff = intv[0]
+                retids.add(intv[2])
+            elif startoff == intv[0]:
+                retids.add(intv[2])
+            else:
+                break
+        return self.restrict(retids)
+
 
     @support_annotation_or_set
     def overlapping(self, start: int, end: int) -> "AnnotationSet":
@@ -413,11 +397,7 @@ class AnnotationSet:
         # start and end fits
         # This may not be optimal
         self._create_index_by_offset()
-        intvs = self._index_by_offset.overlap(start, end)
-        retintvs = set()
-        for intv in intvs:
-            if intv.begin <= start and intv.end >= end:
-                retintvs.add(intv)
+        intvs = self._index_by_offset.covering(start, end)
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
@@ -434,97 +414,50 @@ class AnnotationSet:
             raise Exception("Invalid offset range: {},{}".format(start, end))
         else:
             self._create_index_by_offset()
-            intvs = self._index_by_offset.envelop(start, end)
+            intvs = self._index_by_offset.within(start, end)
         return self._restrict_intvs(intvs)
 
-    @support_annotation_or_set
-    def after(self, start: int, end: Union[int,None] = None) -> "AnnotationSet":
+    def starting_from(self, start: int) -> "AnnotationSet":
         """
-        Return the annotations that start after the given offset (or annotation). If an end offset or an annotation
-        or an annotation set is given the end offset or end of the annotation/set is used.
+        Return the annotations that start at or after the given start offset.
         :param start: Start offset
-        :param end: ignored, only here so the @support_annotation decorator works.
         :return: an immutable annotation set of the matching annotations
         """
-        if end is not None:
-            off = end
-        else:
-            off = start
         self._create_index_by_offset()
-        intvs = self._index_by_offset[off:]
+        intvs = self._index_by_offset.starting_from(start)
         return self._restrict_intvs(intvs)
 
-    @support_annotation_or_set
-    def before(self, start: int, end=None) -> "AnnotationSet":
+    def starting_before(self, offset: int) -> "AnnotationSet":
         """
         Return the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
-        :param start: Start offset
-        :param end: ignored, only here so the @support_annotation decorator works.
+        :param offset: offset before which the annotations should start
         :return: an immutable annotation set of the matching annotations
         """
         self._create_index_by_offset()
-        intvs = self._index_by_offset[0:start]
+        intvs = self._index_by_offset.starting_before(offset)
         return self._restrict_intvs(intvs)
 
-    def first(self, by_end: bool = False) -> Annotation:
+    def coextensive(self, start: int, end: int) -> "AnnotatioNSet":
         """
-        Return the/an annotation that has the smallest start offset (and shortest length if several such).
-        If by_end is True, instead return the/an annotation that has the smallest end offset.
-        :return: the annotation, or None if the annotation set is empty
+        Return an immutable annotation set with all annotations that start and end at the given offsets.
+        :param start:
+        :param end:
+        :return:
         """
-        if len(self._annotations) == 0:
-            return None
-        elif len(self._annotations) == 1:
-            return next(iter(self._annotations.values()))
-        if by_end:
-            min_end = 999999999999
-            min_ann = None
-            for ann in self:
-                if ann.end < min_end:
-                    min_end = ann.end
-                    min_ann = ann
-            return min_ann
-        else:
-            self._create_index_by_offset()
-            return self._annotations[self._sorted_by_offset[0].data]
-
-    def last(self, by_end: bool = False) -> Annotation:
-        """
-        Gets the/an annotation with the biggest start offset (and longest length if several such).
-        :return: the annotation, or None if the annotation set is empty
-        """
-        if len(self._annotations) == 0:
-            return None
-        elif len(self._annotations) == 1:
-            return next(iter(self._annotations.values()))
-        if by_end:
-            max_end = -1
-            max_ann = None
-            for ann in self:
-                if ann.end > max_end:
-                    max_end = ann.end
-                    max_ann = ann
-            return max_ann
-        else:
-            self._create_index_by_offset()
-            return self._annotations[self._sorted_by_offset[-1].data]
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.at(start, end)
+        return self._restrict_intvs(intvs)
 
     def span(self) -> Tuple[int, int]:
         """
         Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
         and the largest end offset of any annotation.
-        (Currently requires O(n) every time it is called)
+        (Builds the offset index)
         :return: tuple of minimum start offset and maximum end offset
         """
-        min_start = 99999999999
-        max_end = -1
-        for ann in self:
-            if ann.start < min_start:
-                min_start = ann.start
-            if ann.end > max_end:
-                max_end = ann.end
-        return min_start, max_end
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start(), self._index_by_offset.max_end()
 
     def __contains__(self, annorannid: Union[int, Annotation]) -> bool:
         """

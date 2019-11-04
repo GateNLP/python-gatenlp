@@ -42,10 +42,6 @@ class TestDocument01:
         ann3id = annset1.add(0, 22, "Type2", {"feat1": True})
         assert ann3id in annset1
         assert annset1.span() == (0, 22)
-        assert annset1.first() == annset1.get(ann2id)
-        assert annset1.last() == annset1.get(ann1id)
-        assert annset1.first(by_end=True) == annset1.get(ann2id)
-        assert annset1.last(by_end=True) == annset1.get(ann3id)
         assert len(annset1.within(0, 10)) == 2
         assert len(annset1.within(1, 3)) == 0
         assert len(annset1.within(0, 22)) == 3
@@ -59,7 +55,7 @@ class TestDocument01:
         assert doc2.get_feature("docfeat1") == 33
         d2annset1 = doc2.get_annotations("")
         assert len(d2annset1) == 3
-        at8 = d2annset1.at(8)
+        at8 = d2annset1.starting_at(8)
         # print("AT8: {}".format(at8), file=sys.stderr)
         assert len(at8) == 1
 
