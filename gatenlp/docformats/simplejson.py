@@ -15,10 +15,14 @@ def get_object_encoder(**kwargs):
     has the method "json_repr" and if yes, calls it with the kwargs we got.
     :return:
     """
+    # Todo: check https://realpython.com/python-json/#encoding-and-decoding-custom-python-objects and similar
+    # again for how to do this correctly. Instead of providing our own default method, maybe override
+    # the JSONEncoder class: has the advantage that we can fallback to the default default method!
     def object_encoder(obj):
         if hasattr(obj, "_json_repr"):
             return obj._json_repr(**kwargs)
         else:
+            # objtypename = obj.__class__.__name__
             raise TypeError("Cannot JSON-serialise {} of type {}".format(obj, type(obj)))
     return object_encoder
 

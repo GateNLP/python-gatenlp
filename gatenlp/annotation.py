@@ -46,6 +46,13 @@ class Annotation(FeatureBearer):
         self.id = annot_id
         self.owner_setname = owner_setname
 
+    # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
+    # allow any user specific types in order to make sure what we create is interchangeable with GATE.
+    # In addition we do NOT allow None features.
+    # So a feature name always has to be a string (not None), the value has to be anything that is json
+    # serialisable (except None keys for maps).
+    # For performance reasons we check the feature name but not the value (maybe make checking optional
+    # on by default but still optional?)
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
@@ -55,6 +62,7 @@ class Annotation(FeatureBearer):
             "id": self.id}
         if feature is not None:
             ch["feature"] = feature
+        if value is not None:
             ch["value"] = value
         self.changelog.append(ch)
 

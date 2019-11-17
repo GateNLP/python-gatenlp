@@ -27,8 +27,11 @@ class FeatureBearer:
         """
         This should be overriden by the inheriting class!
         :param command: the command to log
-        :param feature: the feature name involved
-        :param value: the value involved
+        :param feature: the feature name involved. If the command is any that needds a feature name,
+        the invoking method needs to make sure that the feature name is not None and also otherwise
+        something that is allowed as a key.
+        :param value: the value involved. None is a proper value if the feature is set. Otherwise, the value
+        is always ignored.
         :return:
         """
         raise Exception("must be overridden by the inheriting class")
@@ -54,6 +57,8 @@ class FeatureBearer:
         """
         if self.features is None:
             self.features = dict()
+        if key is None or not isinstance(key, str):
+            raise Exception("A feature name must be a string, not {}".format(type(key)))
         self._log_feature_change("feature:set", feature=key, value=value)
         self.features[key] = value
 
