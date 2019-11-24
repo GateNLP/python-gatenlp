@@ -272,14 +272,14 @@ def interact():
                     logger.info("CHANGELOG: {}".format(ret))
                 elif cmd == "start":
                     parms = request.get("data")
-                    pr.func_start(parms)
+                    pr.start(parms)
                 elif cmd == "finish":
-                    pr.func_finish()
+                    pr.finish()
                 elif cmd == "reduce":
                     results = request.get("results")
-                    ret = pr.func_reduce(results)
+                    ret = pr.reduce(results)
                 elif cmd == "result":
-                    ret = pr.func_result()
+                    ret = pr.result()
                 elif cmd == "stop":
                     stop_requested = True
                 else:
