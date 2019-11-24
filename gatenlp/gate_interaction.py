@@ -152,6 +152,7 @@ def _pr_decorator(what):
             raise Exception("PR does not have an execute(doc) or __call__(doc) method.")
         allowkws = _check_exec(execmethod)
         wrapper.func_execute_allowkws = allowkws
+        wrapper.func_execute = execmethod
         startmethod = _has_method(what, "start")
         if startmethod:
             wrapper.func_start = startmethod
