@@ -217,7 +217,7 @@ def interact():
 
     :return:
     """
-
+    logger.info("Using gatenlp version {}".format(gatenlp.__version__))
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None:
