@@ -42,7 +42,7 @@ class ChangeLog:
             elif offset_type == OFFSET_TYPE_PYTHON:
                 method = offset_mapper.convert_to_python
             else:
-                raise Exception(f"Not a proper offset type: {offset_type}")
+                raise Exception("Not a proper offset type: {}".format(offset_type))
             return self._fixup_changes(method)
 
     def __repr__(self) -> str:

@@ -38,6 +38,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 class _PrWrapper:
     def __init__(self):
         self.func_execute = None   # the function to process each doc
