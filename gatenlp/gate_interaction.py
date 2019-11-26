@@ -188,22 +188,25 @@ def _pr_decorator(what):
 
 class DefaultPr:
     def __call__(self, doc, **kwargs):
-        logger.info("called __call__() with doc={}, kwargs={}".format(doc, kwargs))
+        logger.debug("DefaultPr: called __call__() with doc={}, kwargs={}".format(doc, kwargs))
         return doc
 
     def start(self, **kwargs):
-        logger.info("called start() with kwargs={}".format(kwargs))
+        logger.debug("DefaultPr: called start() with kwargs={}".format(kwargs))
+        logger.warning("Running DefaultPr: did you define a @GateNlpPr class or function?")
         return None
 
     def finish(self, **kwargs):
-        logger.info("called finish() with kwargs={}".format(kwargs))
+        logger.debug("DefaultPr: called finish() with kwargs={}".format(kwargs))
+        logger.warning("Finished DefaultPr: did you define a @GateNlpPr class or function?")
         return None
 
     def result(self, **kwargs):
-        logger.info("called result() with kwargs={}".format(kwargs))
+        logger.debug("DefaultPr: called result() with kwargs={}".format(kwargs))
 
     def reduce(self, resultlist, **kwargs):
-        logger.info("called reduce() with results {} and kwargs={}".format(resultlist, kwargs))
+        logger.debug("DefaultPr: called reduce() with results {} and kwargs={}".format(
+            resultlist, kwargs))
         return None
 
 
@@ -224,7 +227,7 @@ def interact():
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None:
-        logger.warning("No processing resource defined with @gatenlp.PR decorator, using default do-nothing")
+        logger.warning("No processing resource defined with @GateNlpPr decorator, using default do-nothing")
         _pr_decorator(DefaultPr())
 
     pr = gatenlp.gate_python_plugin_pr
@@ -253,11 +256,12 @@ def interact():
         # use saved stdout or internal stdout for pipe
         # loop: read commands from the python plugin
         #   - when we hit EOF, terminate
-        #   - when we get the stop command, ackgnowledge and terminate
+        #   - when we get the stop command, acknowledge and terminate
         #   - when we catch an exception: how to avoid deadlock?
         #   - process the commands by calling the appropriate function
         instream = sys.stdin
         ostream = sys.stdout
+        sys.stdout = sys.stderr
         for line in instream:
             request = loads(line)
             logger.debug("Got request object: {}".format(request))
@@ -272,7 +276,7 @@ def interact():
                     # NOTE: for now we just discard what the method returns and always return
                     # the changelog instead!
                     ret = doc.changelog
-                    logger.info("CHANGELOG: {}".format(ret))
+                    logger.debug("Returning CHANGELOG: {}".format(ret))
                 elif cmd == "start":
                     parms = request.get("data")
                     pr.start(parms)
