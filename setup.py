@@ -30,7 +30,7 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     setup_requires=["pytest-runner"],
-    install_requires=[],
+    install_requires=["sortedcontainers"],
     python_requires=">=3.5",
     tests_require=['pytest'],
     platforms='any',
