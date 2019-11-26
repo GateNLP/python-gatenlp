@@ -5,8 +5,8 @@ must implement _log_feature_change(command, feature=None, value=None) and must h
 changelog.
 """
 
-# from __future__ import annotations
-from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView
+from typing import List, Union, Dict, Set, KeysView
+
 
 class FeatureBearer:
 

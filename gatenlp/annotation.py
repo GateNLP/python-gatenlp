@@ -1,11 +1,10 @@
 """
 An annotation is immutable, but the features it contains are mutable.
 """
-# from __future__ import annotations
-from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView
+from typing import List, Union, Dict, Set
 from functools import total_ordering
 from gatenlp.feature_bearer import FeatureBearer
-from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
 from gatenlp.changelog import ChangeLog
 
 

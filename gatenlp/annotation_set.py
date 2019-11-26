@@ -4,16 +4,13 @@
 # since we need it for creating the subset in the first place). Then, if the intervaltree would allow ordered
 # lists, we could directly use it to get the annotations in document order!
 
-
-# from __future__ import annotations
-from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView, Iterator, Iterable, Generator
+from typing import List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections import defaultdict
 from gatenlp.annotation import Annotation
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 from gatenlp.impl import SortedIntvls
 import numbers
-
 
 
 def support_annotation_or_set(method):

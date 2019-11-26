@@ -1,7 +1,5 @@
-# from __future__ import annotations
 import collections
-import sys
-from typing import List, Tuple, Union, Callable, Dict, Optional, KeysView, ValuesView, Any
+from typing import Callable, Dict, KeysView, Any
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation

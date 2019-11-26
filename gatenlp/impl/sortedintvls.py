@@ -8,7 +8,6 @@ for sorting.
 """
 
 from sortedcontainers import SortedKeyList
-from loguru import logger
 
 
 class SortedIntvls:
@@ -147,18 +146,18 @@ class SortedIntvls:
         :return:
         """
         laststart = None
-        logger.info("DEBUG: set laststart to None")
+        # logger.info("DEBUG: set laststart to None")
         for intvl in self._by_start.irange_key():
-            logger.info("DEBUG: checking interval {}".format(intvl))
+            # logger.info("DEBUG: checking interval {}".format(intvl))
             if laststart is None:
                 laststart = intvl[0]
-                logger.info("DEBUG: setting laststart to {} and yielding {}".format(intvl[0], intvl))
+                # logger.info("DEBUG: setting laststart to {} and yielding {}".format(intvl[0], intvl))
                 yield intvl
             elif intvl[0] == laststart:
-                logger.info("DEBUG: yielding {}".format(intvl))
+                # logger.info("DEBUG: yielding {}".format(intvl))
                 yield intvl
             else:
-                logger.info("DEBUG: returning since we got {}".format(intvl))
+                # logger.info("DEBUG: returning since we got {}".format(intvl))
                 return
 
     def lasts(self):

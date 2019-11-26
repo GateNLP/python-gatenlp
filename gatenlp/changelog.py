@@ -1,11 +1,5 @@
-
-
-# from __future__ import annotations
-from typing import List, Tuple, Union, Callable, Dict, Set, Optional, KeysView, ValuesView, Iterator, Iterable, Generator
-from loguru import logger
-from .document import OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
-import gatenlp
-from .offsetmapper import OffsetMapper
+from typing import List, Callable, Dict
+from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 
 
 class ChangeLog:

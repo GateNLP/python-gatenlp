@@ -30,11 +30,13 @@ import sys
 import traceback
 import gatenlp
 from argparse import ArgumentParser
-from loguru import logger
 import inspect
-from gatenlp.document import Document
+import logging
 from gatenlp.changelog import ChangeLog
 
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class _PrWrapper:
     def __init__(self):
@@ -237,7 +239,7 @@ def interact():
     args = argparser.parse_args()
 
     if args.d:
-        logger.add("gatenlp_interaction_{time}.log", level="DEBUG")
+        logger.setLevel(logging.DEBUG)
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
     elif args.format == "flatbuffers":

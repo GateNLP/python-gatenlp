@@ -13,7 +13,8 @@ class OffsetMapper:
         the tables and just set a flag for that.
         :param text: the text as a python string
         """
-        import numpy as np
+        # for now, remove dependency on numpy and use simple python lists of integers
+        # import numpy as np
         cur_java_off = 0
         python2java_list = [0]
         java2python_list = []
@@ -35,8 +36,10 @@ class OffsetMapper:
             self.java2python = None
             self.bijective = len(text)
         else:
-            self.python2java = np.array(python2java_list, np.int32)
-            self.java2python = np.array(java2python_list, np.int32)
+            # self.python2java = np.array(python2java_list, np.int32)
+            self.python2java = python2java_list
+            # self.java2python = np.array(java2python_list, np.int32)
+            self.java2python = java2python_list
             self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
 
     def _convert_from(self, offsets, from_table=None):
