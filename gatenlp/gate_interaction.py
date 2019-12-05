@@ -38,6 +38,10 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+instream = sys.stdin
+ostream = sys.stdout
+sys.stdout = sys.stderr
+
 
 class _PrWrapper:
     def __init__(self):
@@ -263,9 +267,9 @@ def interact():
         #   - when we get the stop command, acknowledge and terminate
         #   - when we catch an exception: how to avoid deadlock?
         #   - process the commands by calling the appropriate function
-        instream = sys.stdin
-        ostream = sys.stdout
-        sys.stdout = sys.stderr
+        #instream = sys.stdin
+        #ostream = sys.stdout
+        #sys.stdout = sys.stderr
         for line in instream:
             request = loads(line)
             logger.debug("Got request object: {}".format(request))
