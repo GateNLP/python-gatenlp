@@ -148,6 +148,9 @@ def _pr_decorator(what):
 
     wrapper = _PrWrapper()
     if inspect.isclass(what):
+        what = what()   # create an instance
+        # TODO: instead of this we could just as well store the instance and 
+        # directly call the instance methods from the wrapper!
         execmethod = _has_method(what, "execute")
         if not execmethod:
             execmethod = _has_method(what, "__call__")
