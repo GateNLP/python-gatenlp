@@ -52,6 +52,7 @@ class AnnotationSet:
         text.
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
+        self.gatenlp_type = "AnnotationSet"
         self.changelog = changelog
         self.name = name
         self.owner_doc = owner_doc
@@ -479,7 +480,8 @@ class AnnotationSet:
         return {
             "annotations": [ann._json_repr(**kwargs) for ann in self._annotations.values()],
             "max_annid": self._max_annid,
-            "name": self.name
+            "name": self.name,
+            "gatenlp_type": self.gatenlp_type
         }
 
     @staticmethod

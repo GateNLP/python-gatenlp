@@ -50,6 +50,7 @@ class Document(FeatureBearer):
     """
     def __init__(self, text: str, features=None, changelog: ChangeLog = None):
         super().__init__(features)
+        self.gatenlp_type = "Document"
         self.changelog = changelog
         self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
@@ -209,7 +210,8 @@ class Document(FeatureBearer):
             "annotation_sets": {name: annset._json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
             "offset_type": offset_type,
             "document_type": self.document_type,
-            "repr_version": self.repr_version
+            "repr_version": self.repr_version,
+            "gatenlp_type": self.gatenlp_type
         }
 
     @staticmethod
@@ -222,8 +224,6 @@ class Document(FeatureBearer):
         """
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
-        ## DEBUG
-        logger.error("JSONMAP!!!!!!! :\n{}".format(jsonmap))
         for k, v in jsonmap.get("annotation_sets").items():
             # print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
             doc.annotation_sets[k] = v

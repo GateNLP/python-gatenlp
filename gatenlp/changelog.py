@@ -4,6 +4,7 @@ from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYT
 
 class ChangeLog:
     def __init__(self):
+        self.gatenlp_type = "ChangeLog"
         self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
 
@@ -66,7 +67,8 @@ class ChangeLog:
                 changes = self._fixup_changes(om.convert_to_python)
         return {
             "changes": changes,
-            "offset_type": offset_type
+            "offset_type": offset_type,
+            "gatenlp_type": self.gatenlp_type
         }
 
     @staticmethod

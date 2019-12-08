@@ -260,16 +260,6 @@ def interact():
 
     logger.debug("Starting interaction args={}".format(args))
     if args.mode == "pipe":
-        # save the current stdout, assign stderr to sys.stdout
-        # use saved stdout or internal stdout for pipe
-        # loop: read commands from the python plugin
-        #   - when we hit EOF, terminate
-        #   - when we get the stop command, acknowledge and terminate
-        #   - when we catch an exception: how to avoid deadlock?
-        #   - process the commands by calling the appropriate function
-        #instream = sys.stdin
-        #ostream = sys.stdout
-        #sys.stdout = sys.stderr
         for line in instream:
             try:
                 request = loads(line)

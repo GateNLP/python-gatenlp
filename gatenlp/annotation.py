@@ -37,6 +37,7 @@ class Annotation(FeatureBearer):
         :param features: an initial collection of features
         """
         super().__init__(features)
+        self.gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
         self.changelog = changelog
         self.type = annot_type
@@ -150,7 +151,8 @@ class Annotation(FeatureBearer):
             "end": end,
             "type": self.type,
             "id": self.id,
-            "features": self.features
+            "features": self.features,
+            "gatenlp_type": self.gatenlp_type
         }
 
     @staticmethod

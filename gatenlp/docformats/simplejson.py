@@ -34,16 +34,18 @@ def get_object_hook(**kwargs):
     :return: the object hook function
     """
     def object_hook(thedict):
-        # we use duck-typing here to guess the type of the object
-        if "command" in thedict or "change" in thedict:  # probably a request or change
+        # NOTE: we need to explicitly see the type, duck typing could get mislead
+        # by other objects that just happen to have similar fields!
+        if not "gatenlp_type" in thedict:
             return thedict
-        elif "text" in thedict:
+        ourtype = thedict.get("gatenlp_type")
+        if ourtype == "Document":
             return Document._from_json_map(thedict, **kwargs)
-        elif "start" in thedict and "id" in thedict:
+        elif ourtype == "Annotation":
             return Annotation._from_json_map(thedict, **kwargs)
-        elif "annotations" in thedict and "max_annid" in thedict:
+        elif ourtype == "AnnotationSet":
             return AnnotationSet._from_json_map(thedict, **kwargs)
-        elif "changes" in thedict:
+        elif ourtype == "ChangeLog":
             return ChangeLog._from_json_map(thedict, **kwargs)
         else:
             return thedict
