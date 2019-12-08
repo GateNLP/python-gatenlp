@@ -271,7 +271,11 @@ def interact():
         #ostream = sys.stdout
         #sys.stdout = sys.stderr
         for line in instream:
-            request = loads(line)
+            try:
+                request = loads(line)
+            except Exception as ex:
+                logger.error("Unable to load from JSON:\n{}".format(line))
+                raise ex
             logger.debug("Got request object: {}".format(request))
             cmd = request.get("command", None)
             stop_requested = False
