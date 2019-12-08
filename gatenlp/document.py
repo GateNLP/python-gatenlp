@@ -5,7 +5,11 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from .feature_bearer import FeatureBearer
+import logging
 
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class _AnnotationSetsDict(collections.defaultdict):
     """
