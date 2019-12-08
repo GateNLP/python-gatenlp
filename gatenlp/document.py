@@ -218,6 +218,9 @@ class Document(FeatureBearer):
         """
         doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
         doc.annotation_sets = _AnnotationSetsDict()
+        ## DEBUG
+        if "annotation_sets" not in jsonmap:
+            logger.error("Weird jsonmap, no annotation_sets:\n{}".format(jsonmap))
         for k, v in jsonmap.get("annotation_sets").items():
             # print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
             doc.annotation_sets[k] = v
