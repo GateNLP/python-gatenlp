@@ -2,6 +2,6 @@ gatenlp.docformats.gatexml module
 =================================
 
 .. automodule:: gatenlp.docformats.gatexml
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

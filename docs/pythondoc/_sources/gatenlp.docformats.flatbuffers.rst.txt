@@ -2,6 +2,6 @@ gatenlp.docformats.flatbuffers module
 =====================================
 
 .. automodule:: gatenlp.docformats.flatbuffers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

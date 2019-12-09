@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>gatenlp.docformats.flatbuffers module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,6 +12,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -50,6 +49,23 @@
 <span id="gatenlp-docformats-flatbuffers-module"></span><h1>gatenlp.docformats.flatbuffers module<a class="headerlink" href="#module-gatenlp.docformats.flatbuffers" title="Permalink to this headline">¶</a></h1>
 <p>For now, a placeholder to remind us looking into whether it makes sense to use flatbuffers as an additional
 storage/wire format. May be more compact and much faster than json or even bson.</p>
+<dl class="function">
+<dt id="gatenlp.docformats.flatbuffers.dump">
+<code class="sig-prename descclassname">gatenlp.docformats.flatbuffers.</code><code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param">fp</em>, <em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/flatbuffers.html#dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.flatbuffers.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save document to file in original GATE XML format.
+:param fp:
+:param obj:
+:return:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.docformats.flatbuffers.load">
+<code class="sig-prename descclassname">gatenlp.docformats.flatbuffers.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">fp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/flatbuffers.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.flatbuffers.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load gatedocument from the given file.
+:param fp: file-like object
+:return: the object</p>
+</dd></dl>
+
 </div>
 
 
@@ -72,13 +88,11 @@ storage/wire format. May be more compact and much faster than json or even bson.
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -109,7 +123,7 @@ storage/wire format. May be more compact and much faster than json or even bson.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
   </body>
 </html>

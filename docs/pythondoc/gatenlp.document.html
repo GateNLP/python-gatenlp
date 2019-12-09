@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>gatenlp.document module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,6 +12,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -49,79 +48,117 @@
 <span id="gatenlp-document-module"></span><h1>gatenlp.document module<a class="headerlink" href="#module-gatenlp.document" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="gatenlp.document.Document">
-<em class="property">class </em><code class="descclassname">gatenlp.document.</code><code class="descname">Document</code><span class="sig-paren">(</span><em>text: str</em>, <em>features=None</em>, <em>changelog: Optional[gatenlp.changelog.ChangeLog] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.document.</code><code class="sig-name descname">Document</code><span class="sig-paren">(</span><em class="sig-param">text: str</em>, <em class="sig-param">features=None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
-<p>Represent a GATE document. This is different from the original Java GATE representation in several ways:
-* the text is not mutable and can only be set at creation time, so there is no “edit” method
-* as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is</p>
-<blockquote>
-<div>no separate “FeatureMap” to store them</div></blockquote>
+<p>Represent a GATE document. This is different from the original Java GATE representation in several ways:</p>
 <ul class="simple">
-<li>does not support listener callbacks</li>
-<li>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
-that can be acessed with the “text()” method</li>
-<li>Spans of text can be directly accessed using doc[from:to]</li>
-<li>features are not stored in a separate feature map object, but are directly set on the document, e.g.
-doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</li>
-<li>Features may only have string keys and values which can be json-serialised</li>
-<li>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
-are UTF-16 Unicode code units</li>
-<li>Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
-of UTF-16 code unit and back)</li>
-<li>No part of the document has to be present, not even the text (this allows saving just the annotations separately
-from the text)</li>
-<li>Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)</li>
+<li><p>the text is not mutable and can only be set at creation time, so there is no “edit” method</p></li>
+<li><p>as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
+no separate “FeatureMap” to store them</p></li>
+<li><p>does not support listener callbacks</p></li>
+<li><p>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
+that can be acessed with the “text()” method</p></li>
+<li><p>Spans of text can be directly accessed using doc[from:to]</p></li>
+<li><p>features are not stored in a separate feature map object, but are directly set on the document, e.g.
+doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</p></li>
+<li><p>Features may only have string keys and values which can be json-serialised</p></li>
+<li><p>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
+are UTF-16 Unicode code units</p></li>
+<li><p>Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
+of UTF-16 code unit and back)</p></li>
+<li><p>No part of the document has to be present, not even the text (this allows saving just the annotations separately
+from the text)</p></li>
+<li><p>Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)</p></li>
 </ul>
-<dl class="staticmethod">
-<dt id="gatenlp.document.Document.from_json_map">
-<em class="property">static </em><code class="descname">from_json_map</code><span class="sig-paren">(</span><em>jsonmap</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; gatenlp.document.Document<a class="reference internal" href="_modules/gatenlp/document.html#Document.from_json_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.from_json_map" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – the text of the document. The text can be None to indicate that no initial text should be set. Once
+the text has been set for a document, it is immutable and cannot be changed.</p></li>
+<li><p><strong>features</strong> – the initial document features to set, a sequence of key/value tuples</p></li>
+<li><p><strong>changelog</strong> – a ChangeLog instance to use to log changes.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="gatenlp.document.Document.get_annotation_set_names">
-<code class="descname">get_annotation_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView[str]<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotation_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotation_set_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the set of known annotation set names.
-:return: annotation set names</p>
+<code class="sig-name descname">get_annotation_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView[str]<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotation_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotation_set_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of known annotation set names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>annotation set names</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.document.Document.get_annotations">
-<code class="descname">get_annotations</code><span class="sig-paren">(</span><em>name: str = ''</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_annotations</code><span class="sig-paren">(</span><em class="sig-param">name: str = ''</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
-If the annotation set does not already exist, it is created.
-:return: the specified annotation set.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="gatenlp.document.Document.json_repr">
-<code class="descname">json_repr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; Dict[KT, VT]<a class="reference internal" href="_modules/gatenlp/document.html#Document.json_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.json_repr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a JSON-representable version of this object
-:return: something JSON can serialise</p>
+If the annotation set does not already exist, it is created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – the annotation set name, the empty string is used for the “default annotation set”.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the specified annotation set.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.document.Document.set_changelog">
-<code class="descname">set_changelog</code><span class="sig-paren">(</span><em>chlog: gatenlp.changelog.ChangeLog</em><span class="sig-paren">)</span> &#x2192; gatenlp.changelog.ChangeLog<a class="reference internal" href="_modules/gatenlp/document.html#Document.set_changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.set_changelog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_changelog</code><span class="sig-paren">(</span><em class="sig-param">chlog: gatenlp.changelog.ChangeLog</em><span class="sig-paren">)</span> &#x2192; gatenlp.changelog.ChangeLog<a class="reference internal" href="_modules/gatenlp/document.html#Document.set_changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.set_changelog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make the document use the given changelog to record all changes
-from this moment on.
-:param chlog: the new changelog to use or None to not use any
-:return: the changelog used previously or None</p>
+from this moment on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chlog</strong> – the new changelog to use or None to not use any</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the changelog used previously or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.document.Document.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/document.html#Document.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/document.html#Document.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the size of the document text.
+Note: this will convert the type of the document to python!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>size of the document (length of the text)</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="gatenlp.document.Document.text">
-<code class="descname">text</code><a class="headerlink" href="#gatenlp.document.Document.text" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">property </em><code class="sig-name descname">text</code><a class="headerlink" href="#gatenlp.document.Document.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the text of the document. For a partial document, the text may be None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the text of the document</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.document.Document.to_type">
-<code class="descname">to_type</code><span class="sig-paren">(</span><em>offsettype: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/document.html#Document.to_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.to_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">to_type</code><span class="sig-paren">(</span><em class="sig-param">offsettype: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/document.html#Document.to_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.to_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all the offsets of all the annotations in this document to the
+required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
+are already of that type, this does nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>offsettype</strong> – either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -147,13 +184,11 @@ from this moment on.
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -183,7 +218,7 @@ from this moment on.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
   </body>
 </html>

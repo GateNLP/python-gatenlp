@@ -11,6 +11,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 class _AnnotationSetsDict(collections.defaultdict):
     """
     A dict name to annotationset which creates and stores an empty annotation
@@ -30,6 +31,7 @@ class _AnnotationSetsDict(collections.defaultdict):
 class Document(FeatureBearer):
     """
     Represent a GATE document. This is different from the original Java GATE representation in several ways:
+
     * the text is not mutable and can only be set at creation time, so there is no "edit" method
     * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
       no separate "FeatureMap" to store them
@@ -47,6 +49,11 @@ class Document(FeatureBearer):
     * No part of the document has to be present, not even the text (this allows saving just the annotations separately
       from the text)
     * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
+
+    :param text: the text of the document. The text can be None to indicate that no initial text should be set. Once
+      the text has been set for a document, it is immutable and cannot be changed.
+    :param features: the initial document features to set, a sequence of key/value tuples
+    :param changelog: a ChangeLog instance to use to log changes.
     """
     def __init__(self, text: str, features=None, changelog: ChangeLog = None):
         super().__init__(features)
@@ -75,6 +82,7 @@ class Document(FeatureBearer):
         Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
+
         :param offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
         :return:
         """
@@ -97,6 +105,7 @@ class Document(FeatureBearer):
         """
         Make the document use the given changelog to record all changes
         from this moment on.
+
         :param chlog: the new changelog to use or None to not use any
         :return: the changelog used previously or None
         """
@@ -112,6 +121,7 @@ class Document(FeatureBearer):
     def text(self) -> str:
         """
         Get the text of the document. For a partial document, the text may be None.
+
         :return: the text of the document
         """
         self._ensure_type_python()
@@ -122,6 +132,7 @@ class Document(FeatureBearer):
         """
         Set the text of the document. This is only possible as long as it has not been set
         yet, after that, the text is immutable.
+
         :param value: the text for the document
         :return:
         """
@@ -134,7 +145,8 @@ class Document(FeatureBearer):
         """
         Return the size of the document text.
         Note: this will convert the type of the document to python!
-        :return:
+
+        :return: size of the document (length of the text)
         """
         self._ensure_type_python()
         return int(len(self.text))
@@ -152,7 +164,8 @@ class Document(FeatureBearer):
         """
         Return the length of the text.
         Note: this will convert the type of the document to python!
-        :return:
+
+        :return: the length of the document text
         """
         self._ensure_type_python()
         return len(self._text)
@@ -160,6 +173,7 @@ class Document(FeatureBearer):
     def __getitem__(self, span) -> str:
         """
         Get the text for the given span.
+
         :param span: a single number, an offset range of the form from:to or an annotation.
         If annotation, uses the annotation's offset span.
         :return: the text of the span
@@ -173,6 +187,8 @@ class Document(FeatureBearer):
         """
         Get the named annotation set, if name is not given or the empty string, the default annotation set.
         If the annotation set does not already exist, it is created.
+
+        :param name: the annotation set name, the empty string is used for the "default annotation set".
         :return: the specified annotation set.
         """
         self._ensure_type_python()
@@ -181,6 +197,7 @@ class Document(FeatureBearer):
     def get_annotation_set_names(self) -> KeysView[str]:
         """
         Return the set of known annotation set names.
+
         :return: annotation set names
         """
         self._ensure_type_python()
@@ -189,6 +206,7 @@ class Document(FeatureBearer):
     def __repr__(self) -> str:
         """
         String representation of the document, showing all content.
+
         :return: string representation
         """
         return "Document({},features={},anns={})".format(self.text, self.features, self.annotation_sets)
@@ -196,6 +214,7 @@ class Document(FeatureBearer):
     def _json_repr(self, **kwargs) -> Dict:
         """
         Return a a simple map representation of this document for JSON to serialize.
+
         :return: something JSON can serialize
         """
         offset_type = self.offset_type
@@ -218,6 +237,7 @@ class Document(FeatureBearer):
     def _from_json_map(jsonmap: Dict[str, Any], **kwargs) -> "Document":
         """
         Construct a document instance from the JSON map representation we get.
+
         :param jsonmap: the map representation of a document used for JSON
         :param kwargs: any kwargs passed through from the load/loads method
         :return: a document instance

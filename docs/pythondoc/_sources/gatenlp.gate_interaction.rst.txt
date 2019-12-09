@@ -2,6 +2,6 @@ gatenlp.gate\_interaction module
 ================================
 
 .. automodule:: gatenlp.gate_interaction
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

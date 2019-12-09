@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>gatenlp.gate_interaction module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,10 +12,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="gatenlp.gateplugin_python module" href="gatenlp.gateplugin_python.html" />
+    <link rel="next" title="gatenlp.offsetmapper module" href="gatenlp.offsetmapper.html" />
     <link rel="prev" title="gatenlp.feature_bearer module" href="gatenlp.feature_bearer.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -30,7 +29,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.gateplugin_python.html" title="gatenlp.gateplugin_python module"
+          <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="gatenlp.feature_bearer.html" title="gatenlp.feature_bearer module"
@@ -47,49 +46,36 @@
             
   <div class="section" id="module-gatenlp.gate_interaction">
 <span id="gatenlp-gate-interaction-module"></span><h1>gatenlp.gate_interaction module<a class="headerlink" href="#module-gatenlp.gate_interaction" title="Permalink to this headline">¶</a></h1>
-<p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.
-Make this specifically work with gatelib-interaction!
-TODO: check if we can somehow do this: save the original stdout and
-create our own handle, then for transmitting data, use that handle
-so that any stdout from library calls does not interfere with the
-data interchange??
-It may be possible to this via
-# at this point we should have nothing on the stdout buffer, i.e.
-# initialisation should never write anything to stdout, so we should
-# do this before any more intensive initialisation!
-old_stdout = sys.stdout  # this is where we want to send the data
-# (actually this is always available as sys.__stdout__ )
-sys.stdout = some outher destination we want everything else to go to,</p>
-<blockquote>
-<div>maybe just sys.stderr? Or to io.StrinIO()?</div></blockquote>
-<p># before terminating: close the new stdout and do whatever needed with it
-# before terminating, flush and close the old stdout in a finally block
-# to make sure
-# the other side receives an end of file, also in the finally block, terminate</p>
+<p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.</p>
 <dl class="class">
 <dt id="gatenlp.gate_interaction.DefaultPr">
-<em class="property">class </em><code class="descclassname">gatenlp.gate_interaction.</code><code class="descname">DefaultPr</code><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.gate_interaction.</code><code class="sig-name descname">DefaultPr</code><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="gatenlp.gate_interaction.DefaultPr.finish">
-<code class="descname">finish</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.finish" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">finish</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.finish" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.gate_interaction.DefaultPr.reduce">
-<code class="descname">reduce</code><span class="sig-paren">(</span><em>resultlist</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.reduce" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reduce</code><span class="sig-paren">(</span><em class="sig-param">resultlist</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.reduce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.gate_interaction.DefaultPr.result">
+<code class="sig-name descname">result</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.result" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.gate_interaction.DefaultPr.start">
-<code class="descname">start</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="gatenlp.gate_interaction.interact">
-<code class="descclassname">gatenlp.gate_interaction.</code><code class="descname">interact</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#interact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.interact" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gatenlp.gate_interaction.</code><code class="sig-name descname">interact</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#interact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.interact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts and handles the interaction with a GATE python plugin process.
 This will get started by the GATE plugin if the interaction uses
 pipes, but can also be started separately for http/websockets.</p>
@@ -97,14 +83,11 @@ pipes, but can also be started separately for http/websockets.</p>
 The python file should also have one class or function decorated
 with the &#64;gatenlp.PR  decorator to identify it as the
 processing resource to the system.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -119,8 +102,8 @@ processing resource to the system.</p>
   <p class="topless"><a href="gatenlp.feature_bearer.html"
                         title="previous chapter">gatenlp.feature_bearer module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="gatenlp.gateplugin_python.html"
-                        title="next chapter">gatenlp.gateplugin_python module</a></p>
+  <p class="topless"><a href="gatenlp.offsetmapper.html"
+                        title="next chapter">gatenlp.offsetmapper module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -129,13 +112,11 @@ processing resource to the system.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -154,7 +135,7 @@ processing resource to the system.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.gateplugin_python.html" title="gatenlp.gateplugin_python module"
+          <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
              >next</a> |</li>
         <li class="right" >
           <a href="gatenlp.feature_bearer.html" title="gatenlp.feature_bearer module"
@@ -165,7 +146,7 @@ processing resource to the system.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
   </body>
 </html>

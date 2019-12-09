@@ -1,30 +1,6 @@
 """
 Support for interacting between a GATE (java) process and a gatenlp (Python) process.
-Make this specifically work with gatelib-interaction!
-TODO: check if we can somehow do this: save the original stdout and 
-create our own handle, then for transmitting data, use that handle 
-so that any stdout from library calls does not interfere with the 
-data interchange??
-It may be possible to this via
-# at this point we should have nothing on the stdout buffer, i.e.
-# initialisation should never write anything to stdout, so we should 
-# do this before any more intensive initialisation!
-old_stdout = sys.stdout  # this is where we want to send the data
-# (actually this is always available as sys.__stdout__ )
-sys.stdout = some outher destination we want everything else to go to, 
-  maybe just sys.stderr? Or to io.StrinIO()?
-# before terminating: close the new stdout and do whatever needed with it
-# before terminating, flush and close the old stdout in a finally block
-# to make sure
-# the other side receives an end of file, also in the finally block, terminate
-
-
 """
-
-# This provides the class and decorator for turning user-classes and
-# functions into PRs and a main that can be used to run the
-# user's code after importing it
-
 
 import sys
 import traceback
@@ -107,6 +83,7 @@ def _check_exec(func):
     Check the signature of the func to see if it is a proper
     execute function: must accept one (or more optional) args
     and can accept kwargs. This returns true of kwargs are accepted
+
     :param func: the function to check
     :return: true if the function accepts kwargs
     """
@@ -127,6 +104,7 @@ def _has_method(theobj, name):
     """
     Check if the object has a callable method with the given name,
     if yes return the method, otherwise return None
+
     :param theobj: the object that contains the method
     :param name: the name of the method
     :return: the method or None
@@ -147,6 +125,9 @@ def _pr_decorator(what):
     This creates an instance of PRWrapper and registers all the relevant
     functions of the decorated class or the decorated function in the
     wrapper.
+
+    :param what: the class or function to decorate.
+    :return: modified class or function
     """
     gatenlp.gate_python_plugin_pr = "The PR from here!!!"
 

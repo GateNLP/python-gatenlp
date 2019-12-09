@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>gatenlp.changelog &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,6 +12,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -38,18 +37,13 @@
           <div class="body" role="main">
             
   <h1>Source code for gatenlp.changelog</h1><div class="highlight"><pre>
-<span></span>
-
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">,</span> <span class="n">ValuesView</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Generator</span>
-<span class="kn">from</span> <span class="nn">loguru</span> <span class="k">import</span> <span class="n">logger</span>
-<span class="kn">from</span> <span class="nn">.document</span> <span class="k">import</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">,</span> <span class="n">OFFSET_TYPE_JAVA</span>
-<span class="kn">import</span> <span class="nn">gatenlp</span>
-<span class="kn">from</span> <span class="nn">.offsetmapper</span> <span class="k">import</span> <span class="n">OffsetMapper</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="k">import</span> <span class="n">OffsetMapper</span><span class="p">,</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">,</span> <span class="n">OFFSET_TYPE_PYTHON</span>
 
 
 <div class="viewcode-block" id="ChangeLog"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog">[docs]</a><span class="k">class</span> <span class="nc">ChangeLog</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span> <span class="o">=</span> <span class="s2">&quot;ChangeLog&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
 
@@ -74,6 +68,23 @@
                 <span class="n">change</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">change</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span>
 
+<div class="viewcode-block" id="ChangeLog.fixup_changes"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.fixup_changes">[docs]</a>    <span class="k">def</span> <span class="nf">fixup_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="p">,</span> <span class="n">offset_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In-place update the offsets of all annotations in this changelog to the desired</span>
+<span class="sd">        offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.</span>
+<span class="sd">        :param offset_mapper: a prepared offset mapper to use</span>
+<span class="sd">        :param offset_type: the desired offset type</span>
+<span class="sd">        :return: a reference to the modified changes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">offset_type</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_java</span>
+            <span class="k">elif</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_python</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a proper offset type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">offset_type</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_changes</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;ChangeLog([</span><span class="si">{}</span><span class="s2">])&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">]))</span>
 
@@ -81,7 +92,7 @@
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ChangeLog.json_repr"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.json_repr">[docs]</a>    <span class="k">def</span> <span class="nf">json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">offset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span>
         <span class="n">changes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span>
         <span class="k">if</span> <span class="s2">&quot;offset_type&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;offset_type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">offset_type</span><span class="p">:</span>
@@ -95,11 +106,12 @@
                 <span class="n">changes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_changes</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;changes&quot;</span><span class="p">:</span> <span class="n">changes</span><span class="p">,</span>
-            <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span>
-        <span class="p">}</span></div>
+            <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span><span class="p">,</span>
+            <span class="s2">&quot;gatenlp_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span>
+        <span class="p">}</span>
 
-<div class="viewcode-block" id="ChangeLog.from_json_map"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.from_json_map">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_json_map</span><span class="p">(</span><span class="n">jsonmap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChangeLog</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_from_json_map</span><span class="p">(</span><span class="n">jsonmap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ChangeLog&quot;</span><span class="p">:</span>
         <span class="n">cl</span> <span class="o">=</span> <span class="n">ChangeLog</span><span class="p">()</span>
         <span class="n">cl</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;changes&quot;</span><span class="p">)</span>
         <span class="n">cl</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset_type&quot;</span><span class="p">)</span>
@@ -112,7 +124,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&quot;</span><span class="p">)</span>
             <span class="n">cl</span><span class="o">.</span><span class="n">_fixup_changes</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">cl</span></div></div>
+        <span class="k">return</span> <span class="n">cl</span></div>
 </pre></div>
 
           </div>
@@ -121,13 +133,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -151,7 +161,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
   </body>
 </html>
