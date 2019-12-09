@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>gatenlp.impl.sortedintvls &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gatenlp.impl.sortedintvls</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A simple class that represents a collection of sorted intervals and allows for some basic interval-based</span>
+<span class="sd">operations. Internally this stores the intervals using standard sorted lists. This is not optimal and my</span>
+<span class="sd">incur a O(n) overhead on some operations depending on the result set. It also may incur a significant overhead</span>
+<span class="sd">for creating and maintaning the sorted lists.</span>
+<span class="sd">NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset</span>
+<span class="sd">for sorting.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">sortedcontainers</span> <span class="k">import</span> <span class="n">SortedKeyList</span>
+
+
+<div class="viewcode-block" id="SortedIntvls"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls">[docs]</a><span class="k">class</span> <span class="nc">SortedIntvls</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># NOTE: we sort by increasing start offset and decreasing end offset for this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span> <span class="o">=</span> <span class="n">SortedKeyList</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># for this we only sort by the end offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span> <span class="o">=</span> <span class="n">SortedKeyList</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<div class="viewcode-block" id="SortedIntvls.add"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.update"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tupleiterable</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tupleiterable</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tupleiterable</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.remove"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.discard"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SortedIntvls.starting_at"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.starting_at">[docs]</a>    <span class="k">def</span> <span class="nf">starting_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterable of (start, end, data) tuples where start==offset</span>
+<span class="sd">        :param offset: the starting offset</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.ending_at"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.ending_at">[docs]</a>    <span class="k">def</span> <span class="nf">ending_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterable of (start, end, data) tuples where end==offset</span>
+<span class="sd">        :param offset: the ending offset</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.at"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.at">[docs]</a>    <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return iterable of tuples where start==start and end==end</span>
+<span class="sd">        :param start:</span>
+<span class="sd">        :param end:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">start</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">intvl</span></div>
+
+    <span class="c1"># SAME as within</span>
+<div class="viewcode-block" id="SortedIntvls.within"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.within">[docs]</a>    <span class="k">def</span> <span class="nf">within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return intervals which are fully contained within start...end</span>
+<span class="sd">        :param start:</span>
+<span class="sd">        :param end:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get all the intervals that start within the range, then keep those which also end within the range</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">end</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">intvl</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.starting_from"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.starting_from">[docs]</a>    <span class="k">def</span> <span class="nf">starting_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals that start at or after offset.</span>
+<span class="sd">        :param offset:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.starting_before"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.starting_before">[docs]</a>    <span class="k">def</span> <span class="nf">starting_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals that start before offset</span>
+<span class="sd">        :param offset:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SortedIntvls.ending_to"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.ending_to">[docs]</a>    <span class="k">def</span> <span class="nf">ending_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals that end before or at the given end offset.</span>
+<span class="sd">        NOTE: the result is sorted by end offset, not start offset!</span>
+<span class="sd">        :param offset:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.ending_after"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.ending_after">[docs]</a>    <span class="k">def</span> <span class="nf">ending_after</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals the end after the given offset</span>
+<span class="sd">        NOTE: the result is sorted by end offset!</span>
+<span class="sd">        :param offset:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="c1"># SAME as covering</span>
+<div class="viewcode-block" id="SortedIntvls.covering"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.covering">[docs]</a>    <span class="k">def</span> <span class="nf">covering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals that contain the given range</span>
+<span class="sd">        :param start:</span>
+<span class="sd">        :param end:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># All intervals that start at or before the start and end at or after the end offset</span>
+        <span class="c1"># we do this by first getting the intervals the start before or atthe start</span>
+        <span class="c1"># then filtering by end</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">start</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">intvl</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.overlapping"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.overlapping">[docs]</a>    <span class="k">def</span> <span class="nf">overlapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intervals that overlap with the given range.</span>
+<span class="sd">        :param start:</span>
+<span class="sd">        :param end:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># All intervals where the start offset is before the end and the end offset is after the start</span>
+        <span class="c1"># plus all intervals where the start offset is after the start but before the end</span>
+        <span class="c1"># and the end offset is after the end</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">intvl</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.firsts"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.firsts">[docs]</a>    <span class="k">def</span> <span class="nf">firsts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator of all intervals at the minimum start offset that exists.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">laststart</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># logger.info(&quot;DEBUG: set laststart to None&quot;)</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">():</span>
+            <span class="c1"># logger.info(&quot;DEBUG: checking interval {}&quot;.format(intvl))</span>
+            <span class="k">if</span> <span class="n">laststart</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">laststart</span> <span class="o">=</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># logger.info(&quot;DEBUG: setting laststart to {} and yielding {}&quot;.format(intvl[0], intvl))</span>
+                <span class="k">yield</span> <span class="n">intvl</span>
+            <span class="k">elif</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">laststart</span><span class="p">:</span>
+                <span class="c1"># logger.info(&quot;DEBUG: yielding {}&quot;.format(intvl))</span>
+                <span class="k">yield</span> <span class="n">intvl</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># logger.info(&quot;DEBUG: returning since we got {}&quot;.format(intvl))</span>
+                <span class="k">return</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.lasts"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.lasts">[docs]</a>    <span class="k">def</span> <span class="nf">lasts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator of all intervals at the maximum start offset that exists.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">laststart</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">laststart</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">laststart</span> <span class="o">=</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">yield</span> <span class="n">intvl</span>
+            <span class="k">elif</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">laststart</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">intvl</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.min_start"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.min_start">[docs]</a>    <span class="k">def</span> <span class="nf">min_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the smallest start offset we have</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.max_end"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.max_end">[docs]</a>    <span class="k">def</span> <span class="nf">max_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the biggest end offset we have</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SortedIntvls.irange"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.irange">[docs]</a>    <span class="k">def</span> <span class="nf">irange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">minoff</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">maxoff</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;SortedIntvls(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

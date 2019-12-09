@@ -1,0 +1,17 @@
+gatenlp.impl package
+====================
+
+Submodules
+----------
+
+.. toctree::
+
+   gatenlp.impl.sortedintvls
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.impl
+   :members:
+   :undoc-members:
+   :show-inheritance:

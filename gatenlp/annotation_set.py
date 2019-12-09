@@ -11,6 +11,7 @@ from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 from gatenlp.impl import SortedIntvls
 import numbers
+from functools import wraps
 
 
 def support_annotation_or_set(method):
@@ -19,7 +20,7 @@ def support_annotation_or_set(method):
     offset to take an annotation or annotation set or a pair of offsets instead.
     It also allows to take a single offset instead which will then be used as both start and end offset.
     """
-
+    @wraps(method)
     def _support_annotation_or_set(self, *args):
         if len(args) == 1:
             if isinstance(args[0], Annotation):

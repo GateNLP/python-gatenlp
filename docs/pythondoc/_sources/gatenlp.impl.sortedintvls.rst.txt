@@ -1,0 +1,7 @@
+gatenlp.impl.sortedintvls module
+================================
+
+.. automodule:: gatenlp.impl.sortedintvls
+   :members:
+   :undoc-members:
+   :show-inheritance:
