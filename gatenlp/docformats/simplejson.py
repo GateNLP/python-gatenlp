@@ -95,3 +95,26 @@ def dumps(obj, indent=None, **kwargs):
     """
     return json.dumps(obj, indent=indent, default=get_object_encoder(**kwargs))
 
+
+def load_file(filename, **kwargs):
+    """
+    Shortcut for opening the file for reading and loading from the stream.
+    :param filename: file to load
+    :param kwargs:
+    :return: the loaded object
+    """
+    with open(filename, "rt", encoding="utf-8") as fp:
+        return load(fp, **kwargs)
+
+
+def dump_file(filename, obj, indent=None, **kwargs):
+    """
+    Shortcut for opening the file for writing and dumping to the stream.
+    :param filename: the file to write to
+    :param obj: the object to save
+    :param indent: passed on to json.dump
+    :param kwargs:
+    :return:
+    """
+    with open(filename, "wt", encoding="utf-8") as fp:
+        dump(fp, obj)
