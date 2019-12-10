@@ -1,4 +1,4 @@
-__version__ = "0.1"
+__version__ = "0.2"
 
 # this attribute globally holds the processing resource last defined
 # so it can be used for interacting with the GATE python plugin
