@@ -13,6 +13,12 @@ from gatenlp.impl import SortedIntvls
 import numbers
 from functools import wraps
 
+# TODO: add support for AnnotationGraphs: each set can contain no or more named annotation graphs.
+# Each annotation graph is implement as a AnnotationGraph instance which is essentially a set
+# of edges connecting annotations from this set, i.e. the annotations are the nodes.
+# (NOTE: the graph instances keeps a copy of the annotations it actually uses as nodes so that if the
+# annotation gets deleted in the set, the graph (which may be needed with some immutable annotation subset
+# that still contains the annotation) is still consistent.
 
 def support_annotation_or_set(method):
     """
@@ -66,6 +72,22 @@ class AnnotationSet:
         self._annotations = {}
         self._is_immutable = False
         self._max_annid = 0
+
+    def __setattr__(self, key, value):
+        """
+        Prevent immutable fields from getting overridden, once they have been
+        set.
+        :param key: attribute to set
+        :param value: value to set attribute to
+        :return:
+        """
+        if key == "gatenlp_type" or key == "name" or key == "owner_doc":
+            if self.__dict__.get(key, None) is None:
+                super().__setattr__(key, value)
+            else:
+                raise Exception("AnnotationSet attribute cannot get changed after being set")
+        else:
+            super().__setattr__(key, value)
 
     def restrict(self, restrict_to=None) -> "AnnotationSet":
         """
@@ -222,7 +244,7 @@ class AnnotationSet:
         if annid is None:
             self._max_annid = self._max_annid + 1
             annid = self._max_annid
-        ann = Annotation(start, end, anntype, annid, owner_setname=self.name,
+        ann = Annotation(start, end, anntype, annid, owner_set=self,
                          changelog=self.changelog, features=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
@@ -525,7 +547,11 @@ class AnnotationSet:
     @staticmethod
     def _from_json_map(jsonmap, **kwargs) -> "AnnotationSet":
         annset = AnnotationSet(name=jsonmap.get("name"))
-        annmap = {ann.id: ann for ann in jsonmap.get("annotations")}
+        annmap = {}
+        for ann in jsonmap.get("annotations"):
+            ann._owner_set = annset
+            annmap[ann.id] = ann
         annset._annotations = annmap
         annset._max_annid = jsonmap.get("max_annid")
         return annset
+

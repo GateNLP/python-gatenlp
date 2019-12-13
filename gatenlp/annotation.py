@@ -1,6 +1,7 @@
 """
 An annotation is immutable, but the features it contains are mutable.
 """
+import sys
 from typing import List, Union, Dict, Set
 from functools import total_ordering
 from gatenlp.feature_bearer import FeatureBearer
@@ -19,10 +20,11 @@ class Annotation(FeatureBearer):
     """
 
     # We use slots to avoid the dict and save memory if we have a large number of annotations
-    __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', 'owner_setname')
+    __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', '_owner_setname')
 
     def __init__(self, start: int, end: int, annot_type: str, annot_id: int,
-                 owner_setname: str = None, changelog: ChangeLog = None, features=None):
+                 owner_set: "AnnotationSet" = None,
+                 changelog: ChangeLog = None, features=None):
         """
         Create a new annotation instance. NOTE: this should almost never be done directly
         and instead the method annotation_set.add should be used!
@@ -32,7 +34,7 @@ class Annotation(FeatureBearer):
         :param end: end offset of the annotation
         :param annot_type: annotation type
         :param annot_id: the id of the annotation
-        :param owner_setname: the containing annotation set
+        :param owner_set: the containing annotation set
         :param changelog: a changelog, if changes to the features should get recorded
         :param features: an initial collection of features
         """
@@ -44,7 +46,7 @@ class Annotation(FeatureBearer):
         self.start = start
         self.end = end
         self.id = annot_id
-        self.owner_setname = owner_setname
+        self._owner_set = owner_set
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable with GATE.
@@ -58,7 +60,7 @@ class Annotation(FeatureBearer):
             return
         ch = {
             "command": command,
-            "set": self.owner_setname,
+            "set": self._owner_set.name,
             "id": self.id}
         if feature is not None:
             ch["feature"] = feature
@@ -68,12 +70,13 @@ class Annotation(FeatureBearer):
 
     def __eq__(self, other) -> bool:
         """
-        Equality of annotations is only based on the annotation ID! This means you should never compare annotations
-        from different sets directly!
+        Equality of annotations is only based on the annotation ID plus the owning set.
         :param other: the object to compare with
-        :return:
+        :return: if the annotations are equal
         """
         if not isinstance(other, Annotation):
+            return False
+        if self._owner_set != other._owner_set:
             return False
         if self.id != other.id:
             return False
@@ -82,11 +85,10 @@ class Annotation(FeatureBearer):
 
     def __hash__(self):
         """
-        The hash only depends on the annotation ID! This means you should never add annotations from different sets
-        directly to a map or other collection that depends on the hash.
-        :return:
+        The hash depends on the annotation ID and the owning set.
+        :return: hash
         """
-        return hash(self.id)
+        return hash((self.id, self._owner_set))
 
     def __lt__(self, other) -> bool:
         """
@@ -176,79 +178,3 @@ class Annotation(FeatureBearer):
                 raise Exception("Annotation attributes cannot get changed after being set")
         else:
             super().__setattr__(key, value)
-
-class AnnotationFromSet:
-    """
-    This class can be used to wrap Annotation objects such that they can be used for comparison and storing in
-    containers that require the hash method. This class stores a reference to an annotation plus the name of
-    the annotation set. NOTE: it is still possible to represent different annotations as identical
-    AnnotationFromSet object if they come from different, but identically named sets (e.g. from different documents).
-    It is the responsibility of the user to deal with this by using their own wrapping or other mechanism in
-    those cases!!
-    """
-    def __init__(self, annotation: Annotation, setname: str = None):
-        """
-        Tries to create an AnnotationFromSet from an annotation object and an optional annotation set name.
-        If the annotation set name is not given, we try to get the name from the featuremap of the annotation,
-        if the feature name does not know the name, an exception is thrown. If the annotation set name is given
-        and the featuremap knows the name, they must be identical, otherwise an exception is thrown.
-        If both are unspecified, an exception is thrown.
-        :param annotation: the annotation to wrap
-        :param setname: the name of the set where the annotation comes from
-        :return:
-        """
-        setfromfeats = annotation.features.owner_set
-        if setfromfeats is None and setname is None:
-            raise Exception("No setname specified and not known to annotation either")
-        if setfromfeats is not None and setname is not None and setfromfeats != setname:
-            raise Exception("Specified setname {} is different from known name {}".format(setname, setfromfeats))
-        if setname is None:
-            setname = setfromfeats
-        self.owner_set = setname
-        self.annotation = annotation
-
-    def __eq__(self, other) -> bool:
-        """
-        Compare if two annotations from potentially different sets are equal. They are only equal if they come from
-        the same set and have the same id.
-        :param other: the annotationfromset to compare with
-        :return:
-        """
-        if not isinstance(other, AnnotationFromSet):
-            return False
-        if self.owner_set != other.owner_set:
-            return False
-        if self.annotation != other.annotation:
-            return False
-        return True
-
-    @staticmethod
-    def from_anns(annotations: Union[Set, List], setname: str = None, astype=None) -> Union[List, Set]:
-        """
-        Create a list/set from the list/set of annotations. If the annotations are not a list or not a set, then
-        the collection type astype is used if specified, otherwise a set is returned.
-        :param annotations:
-        :param setname:
-        :param astype: the type to return (list, set)
-        :return:
-        """
-        if astype is None:
-            if isinstance(annotations, list):
-                ret = []
-            elif isinstance(annotations, set):
-                ret = set()
-            else:
-                ret = set()
-        else:
-            ret = astype()
-        if hasattr(ret, "append"):
-            for ann in annotations:
-                ret.append(AnnotationFromSet(ann, setname=setname))
-        elif hasattr(ret, "add"):
-            for ann in annotations:
-                ret.add(AnnotationFromSet(ann, setname=setname))
-        else:
-            raise Exception("Do not know how to handle type {}".format(astype))
-        return ret
-
-
