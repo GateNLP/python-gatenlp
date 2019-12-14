@@ -13,12 +13,6 @@ from gatenlp.impl import SortedIntvls
 import numbers
 from functools import wraps
 
-# TODO: add support for AnnotationGraphs: each set can contain no or more named annotation graphs.
-# Each annotation graph is implement as a AnnotationGraph instance which is essentially a set
-# of edges connecting annotations from this set, i.e. the annotations are the nodes.
-# (NOTE: the graph instances keeps a copy of the annotations it actually uses as nodes so that if the
-# annotation gets deleted in the set, the graph (which may be needed with some immutable annotation subset
-# that still contains the annotation) is still consistent.
 
 def support_annotation_or_set(method):
     """
