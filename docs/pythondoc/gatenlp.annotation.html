@@ -49,7 +49,7 @@
 <p>An annotation is immutable, but the features it contains are mutable.</p>
 <dl class="class">
 <dt id="gatenlp.annotation.Annotation">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_setname: str = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_set: AnnotationSet = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
 <p>NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
 in an annotation set.
@@ -77,11 +77,6 @@ to store annotations from different sets you need to use (annotationset, id) as 
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="gatenlp.annotation.Annotation.owner_setname">
-<code class="sig-name descname">owner_setname</code><a class="headerlink" href="#gatenlp.annotation.Annotation.owner_setname" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.start">
 <code class="sig-name descname">start</code><a class="headerlink" href="#gatenlp.annotation.Annotation.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -90,29 +85,6 @@ to store annotations from different sets you need to use (annotationset, id) as 
 <dt id="gatenlp.annotation.Annotation.type">
 <code class="sig-name descname">type</code><a class="headerlink" href="#gatenlp.annotation.Annotation.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="gatenlp.annotation.AnnotationFromSet">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">AnnotationFromSet</code><span class="sig-paren">(</span><em class="sig-param">annotation: gatenlp.annotation.Annotation</em>, <em class="sig-param">setname: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#AnnotationFromSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.AnnotationFromSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class can be used to wrap Annotation objects such that they can be used for comparison and storing in
-containers that require the hash method. This class stores a reference to an annotation plus the name of
-the annotation set. NOTE: it is still possible to represent different annotations as identical
-AnnotationFromSet object if they come from different, but identically named sets (e.g. from different documents).
-It is the responsibility of the user to deal with this by using their own wrapping or other mechanism in
-those cases!!</p>
-<dl class="method">
-<dt id="gatenlp.annotation.AnnotationFromSet.from_anns">
-<em class="property">static </em><code class="sig-name descname">from_anns</code><span class="sig-paren">(</span><em class="sig-param">annotations: Union[Set, List], setname: str = None, astype=None</em><span class="sig-paren">)</span> &#x2192; Union[List, Set]<a class="reference internal" href="_modules/gatenlp/annotation.html#AnnotationFromSet.from_anns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.AnnotationFromSet.from_anns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a list/set from the list/set of annotations. If the annotations are not a list or not a set, then
-the collection type astype is used if specified, otherwise a set is returned.
-:param annotations:
-:param setname:
-:param astype: the type to return (list, set)
-:return:</p>
-</dd></dl>
 
 </dd></dl>
 

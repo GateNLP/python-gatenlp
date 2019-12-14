@@ -40,6 +40,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">An annotation is immutable, but the features it contains are mutable.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
 <span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="k">import</span> <span class="n">FeatureBearer</span>
@@ -58,10 +59,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># We use slots to avoid the dict and save memory if we have a large number of annotations</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;changelog&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;owner_setname&#39;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;changelog&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;_owner_setname&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annot_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">annot_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                 <span class="n">owner_setname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">owner_set</span><span class="p">:</span> <span class="s2">&quot;AnnotationSet&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new annotation instance. NOTE: this should almost never be done directly</span>
 <span class="sd">        and instead the method annotation_set.add should be used!</span>
@@ -71,7 +73,7 @@
 <span class="sd">        :param end: end offset of the annotation</span>
 <span class="sd">        :param annot_type: annotation type</span>
 <span class="sd">        :param annot_id: the id of the annotation</span>
-<span class="sd">        :param owner_setname: the containing annotation set</span>
+<span class="sd">        :param owner_set: the containing annotation set</span>
 <span class="sd">        :param changelog: a changelog, if changes to the features should get recorded</span>
 <span class="sd">        :param features: an initial collection of features</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -83,7 +85,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">annot_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">owner_setname</span> <span class="o">=</span> <span class="n">owner_setname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="n">owner_set</span>
 
     <span class="c1"># TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT</span>
     <span class="c1"># allow any user specific types in order to make sure what we create is interchangeable with GATE.</span>
@@ -97,7 +99,7 @@
             <span class="k">return</span>
         <span class="n">ch</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
-            <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_setname</span><span class="p">,</span>
+            <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">feature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ch</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature</span>
@@ -107,12 +109,13 @@
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Equality of annotations is only based on the annotation ID! This means you should never compare annotations</span>
-<span class="sd">        from different sets directly!</span>
+<span class="sd">        Equality of annotations is only based on the annotation ID plus the owning set.</span>
 <span class="sd">        :param other: the object to compare with</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: if the annotations are equal</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_owner_set</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -121,11 +124,10 @@
 
     <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The hash only depends on the annotation ID! This means you should never add annotations from different sets</span>
-<span class="sd">        directly to a map or other collection that depends on the hash.</span>
-<span class="sd">        :return:</span>
+<span class="sd">        The hash depends on the annotation ID and the owning set.</span>
+<span class="sd">        :return: hash</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -215,82 +217,6 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Annotation attributes cannot get changed after being set&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AnnotationFromSet"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.AnnotationFromSet">[docs]</a><span class="k">class</span> <span class="nc">AnnotationFromSet</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class can be used to wrap Annotation objects such that they can be used for comparison and storing in</span>
-<span class="sd">    containers that require the hash method. This class stores a reference to an annotation plus the name of</span>
-<span class="sd">    the annotation set. NOTE: it is still possible to represent different annotations as identical</span>
-<span class="sd">    AnnotationFromSet object if they come from different, but identically named sets (e.g. from different documents).</span>
-<span class="sd">    It is the responsibility of the user to deal with this by using their own wrapping or other mechanism in</span>
-<span class="sd">    those cases!!</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">setname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Tries to create an AnnotationFromSet from an annotation object and an optional annotation set name.</span>
-<span class="sd">        If the annotation set name is not given, we try to get the name from the featuremap of the annotation,</span>
-<span class="sd">        if the feature name does not know the name, an exception is thrown. If the annotation set name is given</span>
-<span class="sd">        and the featuremap knows the name, they must be identical, otherwise an exception is thrown.</span>
-<span class="sd">        If both are unspecified, an exception is thrown.</span>
-<span class="sd">        :param annotation: the annotation to wrap</span>
-<span class="sd">        :param setname: the name of the set where the annotation comes from</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">setfromfeats</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">owner_set</span>
-        <span class="k">if</span> <span class="n">setfromfeats</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">setname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No setname specified and not known to annotation either&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">setfromfeats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">setname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">setfromfeats</span> <span class="o">!=</span> <span class="n">setname</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Specified setname </span><span class="si">{}</span><span class="s2"> is different from known name </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">setname</span><span class="p">,</span> <span class="n">setfromfeats</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">setname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">setname</span> <span class="o">=</span> <span class="n">setfromfeats</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">owner_set</span> <span class="o">=</span> <span class="n">setname</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">annotation</span> <span class="o">=</span> <span class="n">annotation</span>
-
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compare if two annotations from potentially different sets are equal. They are only equal if they come from</span>
-<span class="sd">        the same set and have the same id.</span>
-<span class="sd">        :param other: the annotationfromset to compare with</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">AnnotationFromSet</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_set</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">owner_set</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">annotation</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-<div class="viewcode-block" id="AnnotationFromSet.from_anns"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.AnnotationFromSet.from_anns">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_anns</span><span class="p">(</span><span class="n">annotations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="n">setname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">astype</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a list/set from the list/set of annotations. If the annotations are not a list or not a set, then</span>
-<span class="sd">        the collection type astype is used if specified, otherwise a set is returned.</span>
-<span class="sd">        :param annotations:</span>
-<span class="sd">        :param setname:</span>
-<span class="sd">        :param astype: the type to return (list, set)</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">astype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">astype</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="s2">&quot;append&quot;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AnnotationFromSet</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="n">setname</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
-                <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">AnnotationFromSet</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="n">setname</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Do not know how to handle type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">astype</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">ret</span></div></div>
-
-
 </pre></div>
 
           </div>

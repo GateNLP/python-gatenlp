@@ -51,8 +51,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.docformats.html">gatenlp.docformats package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="gatenlp.docformats.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.flatbuffers.html">gatenlp.docformats.flatbuffers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.gatexml.html">gatenlp.docformats.gatexml module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="gatenlp.docformats.simplejson.html">gatenlp.docformats.simplejson module</a></li>
 </ul>
 </li>
@@ -108,7 +106,7 @@ wrapper.</p>
 
 <dl class="class">
 <dt id="gatenlp.Annotation">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_setname: str = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_set: AnnotationSet = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
 <p>NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
 in an annotation set.
@@ -133,11 +131,6 @@ to store annotations from different sets you need to use (annotationset, id) as 
 <dl class="attribute">
 <dt id="gatenlp.Annotation.id">
 <code class="sig-name descname">id</code><a class="headerlink" href="#gatenlp.Annotation.id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="gatenlp.Annotation.owner_setname">
-<code class="sig-name descname">owner_setname</code><a class="headerlink" href="#gatenlp.Annotation.owner_setname" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -323,7 +316,7 @@ Creates the type index if necessary.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.coextensive">
-<code class="sig-name descname">coextensive</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; AnnotatioNSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.coextensive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">coextensive</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.coextensive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an immutable annotation set with all annotations that start and end at the given offsets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

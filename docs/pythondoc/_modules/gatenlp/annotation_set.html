@@ -37,13 +37,7 @@
           <div class="body" role="main">
             
   <h1>Source code for gatenlp.annotation_set</h1><div class="highlight"><pre>
-<span></span><span class="c1"># TODO: currently uses intervaltree, but this is not ideal, since intervaltree does not return sorted lists</span>
-<span class="c1"># Ideally, if we create an immutable subset of annotations, that subset should get a partial interval tree</span>
-<span class="c1"># for those annotations, if we already have the interval tree for the original set (which in most cases we have</span>
-<span class="c1"># since we need it for creating the subset in the first place). Then, if the intervaltree would allow ordered</span>
-<span class="c1"># lists, we could directly use it to get the annotations in document order!</span>
-
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Generator</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Generator</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="k">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">gatenlp.exceptions</span> <span class="k">import</span> <span class="n">InvalidOffsetException</span>
@@ -105,6 +99,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_max_annid</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prevent immutable fields from getting overridden, once they have been</span>
+<span class="sd">        set.</span>
+<span class="sd">        :param key: attribute to set</span>
+<span class="sd">        :param value: value to set attribute to</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;gatenlp_type&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;owner_doc&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;AnnotationSet attribute cannot get changed after being set&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AnnotationSet.restrict"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.restrict">[docs]</a>    <span class="k">def</span> <span class="nf">restrict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restrict_to</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -261,7 +271,7 @@
         <span class="k">if</span> <span class="n">annid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_max_annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_annid</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_annid</span>
-        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="p">,</span> <span class="n">owner_setname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="p">,</span> <span class="n">owner_set</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                          <span class="n">changelog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span> <span class="o">=</span> <span class="n">ann</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_indices</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
@@ -509,7 +519,7 @@
         <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">starting_before</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.coextensive"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.coextensive">[docs]</a>    <span class="k">def</span> <span class="nf">coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotatioNSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.coextensive"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.coextensive">[docs]</a>    <span class="k">def</span> <span class="nf">coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an immutable annotation set with all annotations that start and end at the given offsets.</span>
 
@@ -564,10 +574,14 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_from_json_map</span><span class="p">(</span><span class="n">jsonmap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
-        <span class="n">annmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">ann</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotations&quot;</span><span class="p">)}</span>
+        <span class="n">annmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotations&quot;</span><span class="p">):</span>
+            <span class="n">ann</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="n">annset</span>
+            <span class="n">annmap</span><span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">ann</span>
         <span class="n">annset</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="n">annmap</span>
         <span class="n">annset</span><span class="o">.</span><span class="n">_max_annid</span> <span class="o">=</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_annid&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">annset</span></div>
+
 </pre></div>
 
           </div>
