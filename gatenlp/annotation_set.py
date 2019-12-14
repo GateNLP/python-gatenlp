@@ -1,9 +1,3 @@
-# TODO: currently uses intervaltree, but this is not ideal, since intervaltree does not return sorted lists
-# Ideally, if we create an immutable subset of annotations, that subset should get a partial interval tree
-# for those annotations, if we already have the interval tree for the original set (which in most cases we have
-# since we need it for creating the subset in the first place). Then, if the intervaltree would allow ordered
-# lists, we could directly use it to get the annotations in document order!
-
 from typing import List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections import defaultdict
 from gatenlp.annotation import Annotation
@@ -486,7 +480,7 @@ class AnnotationSet:
         intvs = self._index_by_offset.starting_before(offset)
         return self._restrict_intvs(intvs)
 
-    def coextensive(self, start: int, end: int) -> "AnnotatioNSet":
+    def coextensive(self, start: int, end: int) -> "AnnotationSet":
         """
         Return an immutable annotation set with all annotations that start and end at the given offsets.
 
