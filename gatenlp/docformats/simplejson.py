@@ -3,6 +3,7 @@ GATE-specific (de)serialisation of documents. This is called "simplejson" to mak
 to keep it apart from the default JSON de/serialiser (which is used but extended).
 """
 import json
+import gzip
 from ..document import Document
 from ..annotation import Annotation
 from ..annotation_set import AnnotationSet
@@ -98,23 +99,41 @@ def dumps(obj, indent=None, **kwargs):
 
 def load_file(filename, **kwargs):
     """
-    Shortcut for opening the file for reading and loading from the stream.
+    Shortcut for opening the file for reading and loading from the stream. If the filename ends with
+    ".gz" the file is automatically uncompressed.
     :param filename: file to load
     :param kwargs:
     :return: the loaded object
     """
-    with open(filename, "rt", encoding="utf-8") as fp:
+    if filename.endswith(".gz"):
+        opener = gzip.open
+        mode = "rt"
+        encoding = "utf-8"
+    else:
+        opener = open
+        mode = "rt"
+        encoding = "utf-8"
+    with opener(filename, mode, encoding=encoding) as fp:
         return load(fp, **kwargs)
 
 
-def dump_file(filename, obj, indent=None, **kwargs):
+def dump_file(obj, filename, indent=None, **kwargs):
     """
     Shortcut for opening the file for writing and dumping to the stream.
-    :param filename: the file to write to
+    If the file name ends with .gz, automatically compresses the output file.
     :param obj: the object to save
+    :param filename: the file to write to
     :param indent: passed on to json.dump
     :param kwargs:
     :return:
     """
-    with open(filename, "wt", encoding="utf-8") as fp:
-        dump(fp, obj)
+    if filename.endswith(".gz"):
+        opener = gzip.open
+        mode = "wt"
+        encoding = "utf-8"
+    else:
+        opener = open
+        mode = "wt"
+        encoding = "utf-8"
+    with opener(filename, mode, encoding=encoding) as fp:
+        dump(obj, fp)

@@ -3,6 +3,7 @@ Support for interacting between a GATE (java) process and a gatenlp (Python) pro
 """
 
 import sys
+import os
 import traceback
 import gatenlp
 from argparse import ArgumentParser
@@ -212,7 +213,13 @@ def interact():
 
     :return:
     """
-    logger.info("Using gatenlp version {}".format(gatenlp.__version__))
+    loglvls = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None:
@@ -223,24 +230,35 @@ def interact():
 
     argparser = ArgumentParser()
     argparser.add_argument("--mode", default="pipe",
-                           help="Interaction mode: pipe|http|websockets")
+                           help="Interaction mode: pipe|http|websockets|file|dir")
     argparser.add_argument("--format", default="json",
-                           help="Exchange format: json|flatbuffers")
+                           help="Exchange format: json|json.gz|cjson")
+    argparser.add_argument("--path", help="File/directory path for modes file/dir")
+    argparser.add_argument("--out", help="Output file/directory path for modes file/dir")
     argparser.add_argument("-d", action="store_true",
                            help="Enable debugging: log to stderr")
+    argparser.add_argument("--log_lvl", type=str, help="Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL")
     args = argparser.parse_args()
 
     if args.d:
         logger.setLevel(logging.DEBUG)
+    if args.log_lvl:
+        if args.log_lvl not in loglvls:
+            raise Exception("Not a valid log level: {}".format(args.log_lvl))
+        logger.setLevel(loglvls[args.log_lvl])
+    logger.info("Using gatenlp version {}".format(gatenlp.__version__))
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
-    elif args.format == "flatbuffers":
+    elif args.format == "cjson":   # "compact json"
         raise Exception("Not implemented yet!")
     else:
         raise Exception("Not a supported interchange format: {}".format(args.format))
 
     logger.debug("Starting interaction args={}".format(args))
+
     if args.mode == "pipe":
+        if args.format != "json":
+            raise Exception("For interaction mode pipe, only format=json is supported")
         for line in instream:
             try:
                 request = loads(line)
@@ -299,6 +317,43 @@ def interact():
         raise Exception("Mode http not implemented yet")
     elif args.mode == "websockets":
         raise Exception("Mode websockets not implemented yet")
+    elif args.mode in ["file", "dir"]:
+        from gatenlp.docformats import simplejson
+        if not args.path:
+            raise Exception("Mode file or dir but no --path specified")
+        fileext = ".bdoc" + args.format
+        if args.mode == "file" and not os.path.isfile(args.path):
+            raise Exception("Mode file but path is not a file: {}".format(args.path))
+        elif args.mode == "dir" and not os.path.isdir(args.path):
+            raise Exception("Mode dir but path is not a directory: {}".format(args.path))
+        if args.mode == "file":
+            pr.start({})
+            logger.info("Loading file {}".args.path)
+            doc = simplejson.load_file(args.path)
+            pr.execute(doc)
+            pr.finish()
+            if args.out:
+                logger.info("Saving file to {}".args.out)
+                simplejson.dump_file(doc, args.out)
+            else:
+                logger.info("Saving file to {}".args.path)
+                simplejson.dump_file(doc, args.path)
+        else:
+            import glob
+            pr.start({})
+            files = glob.glob(args.path+os.path.sep+"*"+fileext)
+            for file in files:
+                logger.info("Loading file {}".format(file))
+                doc = simplejson.load_file(file)
+                pr.execute(doc)
+                if args.out:
+                    tofile = os.path.join(args.out, os.path.basename(file))
+                    logger.info("Saving to {}".format(tofile))
+                    simplejson.dump_file(doc, tofile)
+                else:
+                    logger.info("Saving to {}".format(file))
+                    simplejson.dump_file(doc, file)
+            pr.finish()
     else:
         raise Exception("Not a valid mode: {}".format(args.mode))
 

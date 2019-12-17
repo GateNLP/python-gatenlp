@@ -15,6 +15,6 @@ annset1.remove(ann2id)
 annset1.get(ann3id).set_feature("str", "simple")
 doc1.set_feature("docfeature1", "value1")
 doc1.set_feature("docfeature1", "value1b")
-with open("doc1.gsjson", "wt") as outf:
-    simplejson.dump(doc1, outf, indent=2, offset_type=OFFSET_TYPE_JAVA)
+simplejson.dump_file(doc1, "doc1.bdocjson")
+simplejson.dump_file(doc1, "doc1.bdocjson.gz")
 
