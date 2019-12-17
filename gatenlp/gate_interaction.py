@@ -33,6 +33,7 @@ class _PrWrapper:
         self.func_reduce = None    # function for combining results
         self.func_reduce_allowkws = False
         self.script_parms = {}   # Script parms to pass to each execute
+        self.logger = None
 
     def execute(self, doc):
         if self.func_execute_allowkws and self.script_parms:
@@ -246,6 +247,7 @@ def interact():
         if args.log_lvl not in loglvls:
             raise Exception("Not a valid log level: {}".format(args.log_lvl))
         logger.setLevel(loglvls[args.log_lvl])
+    pr.logger = logger
     logger.info("Using gatenlp version {}".format(gatenlp.__version__))
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
