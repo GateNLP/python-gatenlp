@@ -36,9 +36,11 @@ class OffsetMapper:
             self.java2python = None
             self.bijective = len(text)
         else:
+            python2java_list.append(python2java_list[-1]+1)
             # self.python2java = np.array(python2java_list, np.int32)
             self.python2java = python2java_list
             # self.java2python = np.array(java2python_list, np.int32)
+            java2python_list.append(java2python_list[-1]+1)
             self.java2python = java2python_list
             self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
 
