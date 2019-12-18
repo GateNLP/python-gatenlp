@@ -1,6 +1,9 @@
+#!/usr/bin/env python
 """
 Support for interacting between a GATE (java) process and a gatenlp (Python) process.
 """
+
+# TODO: add a __main__ section that can be used to show help about usage?
 
 import sys
 import os

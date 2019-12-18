@@ -219,9 +219,9 @@ class AnnotationSet:
         :param end: end offset
         :param anntype: the annotation type
         :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are
-          used to create a new feature map for this annotation.
+        used to create a new feature map for this annotation.
         :param annid: the annotation id, if not specified the next free one for this set is used.
-          NOTE: the id should normally left unspecified and get assigned automatically.
+        NOTE: the id should normally left unspecified and get assigned automatically.
         :return: the annotation id of the added annotation
         """
         if self._is_immutable:
@@ -246,6 +246,16 @@ class AnnotationSet:
                 "features": ann.features,
                 "id": ann.id})
         return ann.id
+
+    def add_ann(self, ann, annid: int = None):
+        """
+        Add a copy of the given ann to the annotation set, either with a new annotation id or
+        with the one given.
+        :param annid: the annotation id, if not specified the next free one for this set is used.
+        NOTE: the id should normally left unspecified and get assigned automatically.
+        :return: the annotation id of the added annotation
+        """
+        return self.add(ann.start, ann.end, ann.type, ann.features(), annid=annid)
 
     def remove(self, annotation: Union[int, Annotation]) -> None:
         """
