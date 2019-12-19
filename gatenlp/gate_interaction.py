@@ -247,11 +247,11 @@ def interact():
         if args.log_lvl not in loglvls:
             raise Exception("Not a valid log level: {}".format(args.log_lvl))
         logger.setLevel(loglvls[args.log_lvl])
-    logger.info("Using gatenlp version {}".format(gatenlp.__version__))
 
     if args.mode == "check":
         return
 
+    logger.info("Using gatenlp version {}".format(gatenlp.__version__))
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
     elif args.format == "cjson":   # "compact json"
