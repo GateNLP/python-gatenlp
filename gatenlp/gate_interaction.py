@@ -230,8 +230,8 @@ def interact():
     pr = gatenlp.gate_python_plugin_pr
 
     argparser = ArgumentParser()
-    argparser.add_argument("--mode", default="pipe",
-                           help="Interaction mode: pipe|http|websockets|file|dir")
+    argparser.add_argument("--mode", default="check",
+                           help="Interaction mode: pipe|http|websockets|file|dir|check")
     argparser.add_argument("--format", default="json",
                            help="Exchange format: json|json.gz|cjson")
     argparser.add_argument("--path", help="File/directory path for modes file/dir")
@@ -248,6 +248,10 @@ def interact():
             raise Exception("Not a valid log level: {}".format(args.log_lvl))
         logger.setLevel(loglvls[args.log_lvl])
     logger.info("Using gatenlp version {}".format(gatenlp.__version__))
+
+    if args.mode == "check":
+        return
+
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
     elif args.format == "cjson":   # "compact json"
