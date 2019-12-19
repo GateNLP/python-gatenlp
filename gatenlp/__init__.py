@@ -1,5 +1,10 @@
 __version__ = "0.2"
 import logging
+try:
+    import sortedcontainers
+except Exception as ex:
+    raise Exception("Required package sortedcontainers cannot be imported!")
+# TODO: check version of sortedcontainers (we have 2.1.0)
 logging.basicConfig()
 logger = logging.getLogger("gatenlp")
 logger.setLevel(logging.INFO)
