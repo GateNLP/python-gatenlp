@@ -1,4 +1,8 @@
 __version__ = "0.2"
+import logging
+logging.basicConfig()
+logger = logging.getLogger("gatenlp")
+logger.setLevel(logging.INFO)
 
 # this attribute globally holds the processing resource last defined
 # so it can be used for interacting with the GATE python plugin
@@ -11,7 +15,7 @@ from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 
 __all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
-           "InvalidOffsetException", "ChangeLog"]
+           "InvalidOffsetException", "ChangeLog", "logger"]
 
 gate_python_plugin_pr = None
 

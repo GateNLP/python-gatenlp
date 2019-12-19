@@ -13,10 +13,7 @@ from argparse import ArgumentParser
 import inspect
 import logging
 from gatenlp.changelog import ChangeLog
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from gatenlp import logger
 
 instream = sys.stdin
 ostream = sys.stdout
@@ -250,7 +247,6 @@ def interact():
         if args.log_lvl not in loglvls:
             raise Exception("Not a valid log level: {}".format(args.log_lvl))
         logger.setLevel(loglvls[args.log_lvl])
-    pr.logger = logger
     logger.info("Using gatenlp version {}".format(gatenlp.__version__))
     if args.format == "json":
         from gatenlp.docformats.simplejson import loads, dumps
