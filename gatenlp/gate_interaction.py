@@ -7,6 +7,7 @@ Support for interacting between a GATE (java) process and a gatenlp (Python) pro
 
 import sys
 import os
+import io
 import traceback
 import gatenlp
 from argparse import ArgumentParser
@@ -15,7 +16,10 @@ import logging
 from gatenlp.changelog import ChangeLog
 from gatenlp import logger
 
-instream = sys.stdin
+# We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
+# instream = sys.stdin
+# Instead use utf-8 explicitly:
+instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
 ostream = sys.stdout
 sys.stdout = sys.stderr
 
