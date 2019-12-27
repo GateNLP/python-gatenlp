@@ -202,6 +202,18 @@ class Document(FeatureBearer):
         """
         self._ensure_type_python()
         return self.annotation_sets.keys()
+    
+    def remove_annotation_set(self, name: str):
+        """
+        Completely remove the annotation set.
+        :param name: name of the annotation set to remove
+        :return:
+        """
+        del self.annotation_sets[name]
+        if self.changelog:
+            self.changelog.append({
+                "command": "annotations:remove",
+                "set": self.name})
 
     def __repr__(self) -> str:
         """
