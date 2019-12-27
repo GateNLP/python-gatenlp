@@ -32,8 +32,6 @@ class _PrWrapper:
         self.func_start_allowkws = False
         self.func_finish  = None   # called when processing finishes
         self.func_finish_allowkws = False
-        self.func_result = None    # function for returning any over-corpus result
-        self.func_result_allowkws = False
         self.func_reduce = None    # function for combining results
         self.func_reduce_allowkws = False
         self.script_parms = {}   # Script parms to pass to each execute
@@ -64,16 +62,9 @@ class _PrWrapper:
     def finish(self):
         if self.func_finish is not None:
             if self.func_finish_allowkws and self.script_parms:
-                self.func_finish(**self.script_parms)
+                return self.func_finish(**self.script_parms)
             else:
-                self.func_finish()
-
-    def result(self):
-        if self.func_result is not None:
-            if self.func_result_allowkws and self.script_parms:
-                return self.func_result(**self.script_parms)
-            else:
-                return self.func_result()
+                return self.func_finish()
 
     def reduce(self, resultslist):
         if self.func_reduce is not None:
@@ -142,11 +133,9 @@ def _pr_decorator(what):
         what = what()   # create an instance
         # TODO: instead of this we could just as well store the instance and 
         # directly call the instance methods from the wrapper!
-        execmethod = _has_method(what, "execute")
+        execmethod = _has_method(what, "__call__")
         if not execmethod:
-            execmethod = _has_method(what, "__call__")
-        if not execmethod:
-            raise Exception("PR does not have an execute(doc) or __call__(doc) method.")
+            raise Exception("PR does not have a __call__(doc) method.")
         allowkws = _check_exec(execmethod)
         wrapper.func_execute_allowkws = allowkws
         wrapper.func_execute = execmethod
@@ -160,11 +149,6 @@ def _pr_decorator(what):
             wrapper.func_finish = finishmethod
             if inspect.getfullargspec(finishmethod).varkw:
                 wrapper.func_finish_allowkws = True
-        resultmethod = _has_method(what, "result")
-        if resultmethod:
-            wrapper.func_result = resultmethod
-            if inspect.getfullargspec(resultmethod).varkw:
-                wrapper.func_result_allowkws = True
         reducemethod = _has_method(what, "reduce")
         if reducemethod:
             wrapper.func_reduce = reducemethod
@@ -195,9 +179,6 @@ class DefaultPr:
         logger.debug("DefaultPr: called finish() with kwargs={}".format(kwargs))
         logger.warning("Finished DefaultPr: did you define a @GateNlpPr class or function?")
         return None
-
-    def result(self, **kwargs):
-        logger.debug("DefaultPr: called result() with kwargs={}".format(kwargs))
 
     def reduce(self, resultlist, **kwargs):
         logger.debug("DefaultPr: called reduce() with results {} and kwargs={}".format(
@@ -291,7 +272,7 @@ def interact():
                     parms = request.get("data")
                     pr.start(parms)
                 elif cmd == "finish":
-                    pr.finish()
+                    ret = pr.finish()
                 elif cmd == "reduce":
                     results = request.get("results")
                     ret = pr.reduce(results)
