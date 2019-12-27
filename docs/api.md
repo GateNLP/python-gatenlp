@@ -12,6 +12,35 @@ to guess from just the parameter type how something gets retrieved.
 
 #### Documents:
 
+There is no support or equivalent implementation for the
+following GATE features and functionality in `gatenlp`:
+* listeners
+* editing: once the document text is set, it is immutable. In order achieve a document with modified text, a new document must be created
+* markup-aware/repositioning/preserveOriginalContent
+* sourceUrlOffsets
+* toXml: the GATE XML serialization format is not supported, use bdocjson instead
+* DocumentContent: not necessary since only text is supported
+
+The following should maybe get supported?
+* get/setSourceUrl(URL)
+* hide annotation set implementation as a default dict and provide API for removing a set? NOTE: if a user currently just removes a set from the dict, that event does not get added to the changelog!
+
+
+There is no support or equivalent for the following `gatenlp` functions in GATE:
+* `to_type`: to change offset type between java/python
+* `set_changelog`: to record changes to a changelog
+* `[span]`: where span is either an offset or offset range or an annotation
+
+<table>
+<tr><th>GATE</th><th>gatenlp</th><th>Comment</th></tr>
+<tr><td>getAnnotations()</td><td>get_annotations()</td><td></td></tr>
+<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
+<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
+<tr><td>removeAnnotationSet(name)</td><td>MISSING</td><td>probably should get added</td></tr>
+
+</table>
+
+
 
 #### Features:
 
