@@ -274,10 +274,8 @@ def interact():
                 elif cmd == "finish":
                     ret = pr.finish()
                 elif cmd == "reduce":
-                    results = request.get("results")
+                    results = request.get("data")
                     ret = pr.reduce(results)
-                elif cmd == "result":
-                    ret = pr.result()
                 elif cmd == "stop":
                     stop_requested = True
                 else:
