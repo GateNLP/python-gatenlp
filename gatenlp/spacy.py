@@ -3,7 +3,7 @@
 from gatenlp import interact, GateNlpPr, Document
 
 
-def nlp(nlp, gatenlpdoc):
+def apply_nlp(nlp, gatenlpdoc):
     """
     Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
@@ -13,7 +13,7 @@ def nlp(nlp, gatenlpdoc):
     :return: 
     """
     spacydoc = nlp(gatenlpdoc.text)
-    return spacy2gatenlp(spacydoc)
+    return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc)
 
 
 def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
