@@ -59,7 +59,7 @@ class AnnotationSet:
         # internally we represent the annotations as a map from annotation id (int) to Annotation
         self._annotations = {}
         self._is_immutable = False
-        self._max_annid = 0
+        self._next_annid = 0
 
     def __setattr__(self, key, value):
         """
@@ -88,7 +88,7 @@ class AnnotationSet:
         annset = AnnotationSet(name="", owner_doc=self.owner_doc)
         annset._is_immutable = True
         annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
-        annset._max_annid = self._max_annid
+        annset._next_annid = self._next_annid
         return annset
 
     def _create_index_by_offset(self) -> None:
@@ -230,8 +230,8 @@ class AnnotationSet:
         if annid and annid in self._annotations:
             raise Exception("Cannot add annotation with id {}, already in set".format(annid))
         if annid is None:
-            self._max_annid = self._max_annid + 1
-            annid = self._max_annid
+            annid = self._next_annid
+            self._next_annid = self._next_annid + 1
         ann = Annotation(start, end, anntype, annid, owner_set=self,
                          changelog=self.changelog, features=features)
         self._annotations[annid] = ann
@@ -537,7 +537,7 @@ class AnnotationSet:
     def _json_repr(self, **kwargs) -> Dict:
         return {
             "annotations": [ann._json_repr(**kwargs) for ann in self._annotations.values()],
-            "max_annid": self._max_annid,
+            "next_annid": self._next_annid,
             "name": self.name,
             "gatenlp_type": self.gatenlp_type
         }
@@ -550,6 +550,6 @@ class AnnotationSet:
             ann._owner_set = annset
             annmap[ann.id] = ann
         annset._annotations = annmap
-        annset._max_annid = jsonmap.get("max_annid")
+        annset._next_annid = jsonmap.get("next_annid")
         return annset
 
