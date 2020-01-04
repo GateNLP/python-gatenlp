@@ -13,6 +13,7 @@ def nlp(nlp, gatenlpdoc):
     :return: 
     """
     spacydoc = nlp(gatenlpdoc.text)
+    return spacy2gatenlp(spacydoc)
 
 
 def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
