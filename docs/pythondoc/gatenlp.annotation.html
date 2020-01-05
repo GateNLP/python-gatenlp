@@ -1,24 +1,36 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>gatenlp.annotation module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="gatenlp.annotation_set module" href="gatenlp.annotation_set.html" />
     <link rel="prev" title="gatenlp.impl.sortedintvls module" href="gatenlp.impl.sortedintvls.html" /> 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,13 +56,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-gatenlp.annotation">
-<span id="gatenlp-annotation-module"></span><h1>gatenlp.annotation module<a class="headerlink" href="#module-gatenlp.annotation" title="Permalink to this headline">¶</a></h1>
-<p>An annotation is immutable, but the features it contains are mutable.</p>
+  <div class="section" id="gatenlp-annotation-module">
+<h1>gatenlp.annotation module<a class="headerlink" href="#gatenlp-annotation-module" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-gatenlp.annotation"></span><p>An annotation is immutable, but the features it contains are mutable.</p>
 <dl class="class">
 <dt id="gatenlp.annotation.Annotation">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_set: AnnotationSet = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<em class="property">class </em><code class="descclassname">gatenlp.annotation.</code><code class="descname">Annotation</code><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
 <p>NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
 in an annotation set.
 !! This means that equality and hashing outside of an annotation set will not work as expected: the identify
@@ -58,32 +70,32 @@ of an annotation only depends on its annotation ID, relative to the set it is co
 to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</p>
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.changelog">
-<code class="sig-name descname">changelog</code><a class="headerlink" href="#gatenlp.annotation.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
+<code class="descname">changelog</code><a class="headerlink" href="#gatenlp.annotation.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.end">
-<code class="sig-name descname">end</code><a class="headerlink" href="#gatenlp.annotation.Annotation.end" title="Permalink to this definition">¶</a></dt>
+<code class="descname">end</code><a class="headerlink" href="#gatenlp.annotation.Annotation.end" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.features">
-<code class="sig-name descname">features</code><a class="headerlink" href="#gatenlp.annotation.Annotation.features" title="Permalink to this definition">¶</a></dt>
+<code class="descname">features</code><a class="headerlink" href="#gatenlp.annotation.Annotation.features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.id">
-<code class="sig-name descname">id</code><a class="headerlink" href="#gatenlp.annotation.Annotation.id" title="Permalink to this definition">¶</a></dt>
+<code class="descname">id</code><a class="headerlink" href="#gatenlp.annotation.Annotation.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.start">
-<code class="sig-name descname">start</code><a class="headerlink" href="#gatenlp.annotation.Annotation.start" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start</code><a class="headerlink" href="#gatenlp.annotation.Annotation.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.type">
-<code class="sig-name descname">type</code><a class="headerlink" href="#gatenlp.annotation.Annotation.type" title="Permalink to this definition">¶</a></dt>
+<code class="descname">type</code><a class="headerlink" href="#gatenlp.annotation.Annotation.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -110,13 +122,13 @@ to store annotations from different sets you need to use (annotationset, id) as 
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -144,7 +156,7 @@ to store annotations from different sets you need to use (annotationset, id) as 
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

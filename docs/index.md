@@ -16,4 +16,5 @@ Requirements:
 ## Overview of the documentation:
 
 * [Usage Examples](UsageExamples)
+* [API Overview and comparison with Java GATE](api)
 * [The Generated Python Documentation](pythondoc)

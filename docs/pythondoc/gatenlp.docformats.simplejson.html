@@ -1,24 +1,36 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>gatenlp.docformats.simplejson module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="gatenlp.impl package" href="gatenlp.impl.html" />
     <link rel="prev" title="gatenlp.docformats package" href="gatenlp.docformats.html" /> 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -51,7 +63,7 @@
 to keep it apart from the default JSON de/serialiser (which is used but extended).</p>
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.dump">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param">fp</em>, <em class="sig-param">obj</em>, <em class="sig-param">indent=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dump" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">dump</code><span class="sig-paren">(</span><em>fp</em>, <em>obj</em>, <em>indent=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the given gatenlp object to the file.
 :param fp: a file like object as required by json.dump
 :param obj: the object to save
@@ -62,10 +74,11 @@ to keep it apart from the default JSON de/serialiser (which is used but extended
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.dump_file">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">dump_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">obj</em>, <em class="sig-param">indent=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dump_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dump_file" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">dump_file</code><span class="sig-paren">(</span><em>obj</em>, <em>filename</em>, <em>indent=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dump_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dump_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shortcut for opening the file for writing and dumping to the stream.
-:param filename: the file to write to
+If the file name ends with .gz, automatically compresses the output file.
 :param obj: the object to save
+:param filename: the file to write to
 :param indent: passed on to json.dump
 :param kwargs:
 :return:</p>
@@ -73,7 +86,7 @@ to keep it apart from the default JSON de/serialiser (which is used but extended
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.dumps">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">dumps</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">indent=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dumps" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">dumps</code><span class="sig-paren">(</span><em>obj</em>, <em>indent=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#dumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.dumps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON string representing the given object.
 :param obj: the object
 :param indent: passed on to json.dumps
@@ -85,7 +98,7 @@ offset_mapper: if specified, used for the offset mapping if an offset mapper can
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.get_object_encoder">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">get_object_encoder</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#get_object_encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.get_object_encoder" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">get_object_encoder</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#get_object_encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.get_object_encoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a function for encoding our own objects. This simply checks if the object
 has the method “json_repr” and if yes, calls it with the kwargs we got.
 :return:</p>
@@ -93,7 +106,7 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.get_object_hook">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">get_object_hook</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#get_object_hook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.get_object_hook" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">get_object_hook</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#get_object_hook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.get_object_hook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a method that will try to convert the passed map into one of our objects
 :param kwargs: the kwargs to use for converting back.
 :return: the object hook function</p>
@@ -101,7 +114,7 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.load">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">fp</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.load" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">load</code><span class="sig-paren">(</span><em>fp</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load gatenlp object from fp, a file-like object and return it.
 :param fp: a file-like object, as required by json.load
 :return: the gatenlp object</p>
@@ -109,8 +122,9 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.load_file">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">load_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#load_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.load_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shortcut for opening the file for reading and loading from the stream.
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">load_file</code><span class="sig-paren">(</span><em>filename</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#load_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.load_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut for opening the file for reading and loading from the stream. If the filename ends with
+“.gz” the file is automatically uncompressed.
 :param filename: file to load
 :param kwargs:
 :return: the loaded object</p>
@@ -118,16 +132,18 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
 
 <dl class="function">
 <dt id="gatenlp.docformats.simplejson.loads">
-<code class="sig-prename descclassname">gatenlp.docformats.simplejson.</code><code class="sig-name descname">loads</code><span class="sig-paren">(</span><em class="sig-param">str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#loads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.loads" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gatenlp.docformats.simplejson.</code><code class="descname">loads</code><span class="sig-paren">(</span><em>str</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/simplejson.html#loads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.simplejson.loads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create gatenlp object from JSON string and return it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>str</strong> – JSON string</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the gatenlp object</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str</strong> – JSON string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the gatenlp object</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -152,13 +168,13 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -187,7 +203,7 @@ has the method “json_repr” and if yes, calls it with the kwargs we got.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

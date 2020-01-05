@@ -31,6 +31,11 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 * `set_changelog`: to record changes to a changelog
 * `[span]`: where span is either an offset or offset range or an annotation
 
+|GATE|gatenlp|Comment
+|---|---|---|
+|getAnnotations()|get_annotations()|  |
+
+
 <table>
 <tr><th>GATE</th><th>gatenlp</th><th>Comment</th></tr>
 <tr><td>getAnnotations()</td><td>get_annotations()</td><td></td></tr>

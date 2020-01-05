@@ -218,10 +218,10 @@ class AnnotationSet:
         :param start: start offset
         :param end: end offset
         :param anntype: the annotation type
-        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are
-        used to create a new feature map for this annotation.
-        :param annid: the annotation id, if not specified the next free one for this set is used.
-        NOTE: the id should normally left unspecified and get assigned automatically.
+        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used \
+        to create a new feature map for this annotation.
+        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\
+        normally left unspecified and get assigned automatically.
         :return: the annotation id of the added annotation
         """
         if self._is_immutable:
