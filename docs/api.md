@@ -21,10 +21,6 @@ following GATE features and functionality in `gatenlp`:
 * toXml: the GATE XML serialization format is not supported, use bdocjson instead
 * DocumentContent: not necessary since only text is supported
 
-The following should maybe get supported?
-* get/setSourceUrl(URL)
-* hide annotation set implementation as a default dict and provide API for removing a set? NOTE: if a user currently just removes a set from the dict, that event does not get added to the changelog!
-
 
 There is no support or equivalent for the following `gatenlp` functions in GATE:
 * `to_type`: to change offset type between java/python
@@ -35,15 +31,22 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 |---|---|---|
 |getAnnotations()|get_annotations()| - |
 |getAnnotations(name)|get_annotations(name)| - |
+|getAnnotationSetNames() | get_annotation_set_names() | - |
 |removeAnnotationSet(name)|remove_annotation_set(name)| - |
+|get/setContent() | - | not necessary, text can be accessed directly|
+|get/setSourceUrl() | ???? | ?????? |
 |add/removeDocumentListener(listener)| - | no listeners in gatenlp |
 |edit(...)| - | gatenlp are immutable |
-|getCollectRepositioningInfo()| - | not needed |
-|getMarkupAware() | - | not needed |
-|getPreserveOriginalContent() | - | not needed |
+|getEncoding()| - | not needed (1) | 
+|getCollectRepositioningInfo()| - | not needed(1) |
+|getMarkupAware() | - | not needed(1) |
+|getPreserveOriginalContent() | - | not needed(1) |
+|toXml| - | not implemented, use simplejson |
+|get/setSourceUrlStart/EndOffset| - | not needed |
 
-More TBD!
 
+Remarks:
+* (1): these Java GATE methods are only relevant during the original loading/parsing phase
 
 
 
