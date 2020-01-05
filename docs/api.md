@@ -33,17 +33,17 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 
 |GATE|gatenlp|Comment
 |---|---|---|
-|getAnnotations()|get_annotations()|  |
+|getAnnotations()|get_annotations()| - |
+|getAnnotations(name)|get_annotations(name)| - |
+|removeAnnotationSet(name)|remove_annotation_set(name)| - |
+|add/removeDocumentListener(listener)| - | no listeners in gatenlp |
+|edit(...)| - | gatenlp are immutable |
+|getCollectRepositioningInfo()| - | not needed |
+|getMarkupAware() | - | not needed |
+|getPreserveOriginalContent() | - | not needed |
 
+More TBD!
 
-<table>
-<tr><th>GATE</th><th>gatenlp</th><th>Comment</th></tr>
-<tr><td>getAnnotations()</td><td>get_annotations()</td><td></td></tr>
-<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
-<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
-<tr><td>removeAnnotationSet(name)</td><td>MISSING</td><td>probably should get added</td></tr>
-
-</table>
 
 
 
