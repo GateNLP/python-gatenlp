@@ -37,7 +37,10 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 |get/setSourceUrl() | ???? | ?????? |
 |add/removeDocumentListener(listener)| - | no listeners in gatenlp |
 |edit(...)| - | gatenlp are immutable |
-|getEncoding()| - | not needed (1) | 
+|getEncoding()| - | not needed (1) |
+|getMimeType() | - | not needed (1) |
+|getNextAnnotationId()|-| not needed, ids are allocated per set|
+|getNextNodeId()|-| implementation does not use Nodes |
 |getCollectRepositioningInfo()| - | not needed(1) |
 |getMarkupAware() | - | not needed(1) |
 |getPreserveOriginalContent() | - | not needed(1) |

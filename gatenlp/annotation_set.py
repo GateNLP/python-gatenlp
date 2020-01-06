@@ -1,39 +1,10 @@
-from typing import List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
+from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections import defaultdict
 from gatenlp.annotation import Annotation
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 from gatenlp.impl import SortedIntvls
-import numbers
-from functools import wraps
-
-
-def support_annotation_or_set(method):
-    """
-    Decorator to allow a method that normally takes a start and end
-    offset to take an annotation or annotation set or a pair of offsets instead.
-    It also allows to take a single offset instead which will then be used as both start and end offset.
-    """
-    @wraps(method)
-    def _support_annotation_or_set(self, *args):
-        if len(args) == 1:
-            if isinstance(args[0], Annotation):
-                left, right = args[0].start, args[0].end
-            elif isinstance(args[0], AnnotationSet):
-                left, right = args[0].span()
-            elif isinstance(args[0], (tuple, list)) and len(args[0]) == 2:
-                left, right = args[0]
-            elif isinstance(args[0], numbers.Integral):
-                left, right = args[0], args[0]+1
-            else:
-                raise Exception("Not an annotation or an annotation set or pair: {}".format(args[0]))
-        else:
-            assert len(args) == 2
-            left, right = args
-
-        return method(self, left, right)
-
-    return _support_annotation_or_set
+from gatenlp._utils import support_annotation_or_set
 
 
 class AnnotationSet:
@@ -188,7 +159,7 @@ class AnnotationSet:
     @support_annotation_or_set
     def _check_offsets(self, start: int, end: int) -> None:
         """
-        Checks the offsets for the given annotation against the document boundaries, if we know the owning
+        Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
         document and if the owning document has text.
         """
         if self.owner_doc is None:
@@ -382,12 +353,14 @@ class AnnotationSet:
         self._create_index_by_type()
         return self._index_by_type.keys()
 
-    def starting_at(self, start: int) -> "AnnotationSet":
+    @support_annotation_or_set
+    def starting_at(self, start: int, ignored: Any = None) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
         annotation set.
 
         :param start: the offset where annotations should start
+        :param ignored: dummy parameter to allow the use of annotations and annotation sets
         :return: annotation set of matching annotations
         """
         # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
@@ -396,12 +369,14 @@ class AnnotationSet:
         intvs = self._index_by_offset.starting_at(start)
         return self._restrict_intvs(intvs)
 
-    def first_from(self, offset: int) -> "AnnotationSet":
+    @support_annotation_or_set
+    def first_from(self, offset: int, ignored: Any = None) -> "AnnotationSet":
         """
         Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
         annotation set.
 
         :param offset: The offset
+        :param ignored: dummy parameter to allow the use of annotations and annotation sets
         :return: annotation set of matching annotations
         """
         self._create_index_by_offset()
@@ -467,29 +442,34 @@ class AnnotationSet:
             intvs = self._index_by_offset.within(start, end)
         return self._restrict_intvs(intvs)
 
-    def starting_from(self, start: int) -> "AnnotationSet":
+    @support_annotation_or_set
+    def starting_from(self, start: int, ignored: Any = None) -> "AnnotationSet":
         """
         Return the annotations that start at or after the given start offset.
 
         :param start: Start offset
+        :param ignored: dummy parameter to allow the use of annotations and annotation sets
         :return: an immutable annotation set of the matching annotations
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(start)
         return self._restrict_intvs(intvs)
 
+    @support_annotation_or_set
     def starting_before(self, offset: int) -> "AnnotationSet":
         """
         Return the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
 
         :param offset: offset before which the annotations should start
+        :param ignored: dummy parameter to allow the use of annotations and annotation sets
         :return: an immutable annotation set of the matching annotations
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_before(offset)
         return self._restrict_intvs(intvs)
 
+    @support_annotation_or_set
     def coextensive(self, start: int, end: int) -> "AnnotationSet":
         """
         Return an immutable annotation set with all annotations that start and end at the given offsets.

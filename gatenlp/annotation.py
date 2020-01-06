@@ -7,6 +7,7 @@ from functools import total_ordering
 from gatenlp.feature_bearer import FeatureBearer
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
 from gatenlp.changelog import ChangeLog
+from gatenlp._utils import support_annotation_or_set
 
 
 @total_ordering
@@ -134,6 +135,66 @@ class Annotation(FeatureBearer):
         :return:
         """
         return self.end - self.start - 1
+
+    def inside(self, offset: int) -> bool:
+        """
+        Check if the given offset falls somewhere inside the span of this annotation.
+        :param offset: the offset to check
+        :return: True if the offset is inside the span of this annotation
+        """
+        return self.start <= offset < self.end
+
+    @support_annotation_or_set
+    def is_overlapping(self, start: int, end: int) -> bool:
+        """
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set.
+        An annotation is overlapping with a span if the first or last character
+        is inside that span.
+
+        :param start: start offset of the span
+        :param end: end offset of the span
+        :return: True if overlapping, False otherwise
+        """
+        return self.inside(start) or self.inside(end-1)
+
+    @support_annotation_or_set
+    def is_coextensive(self, start: int, end: int) -> bool:
+        """
+        Checks if this annotation is coextensive with the given span, annotation or
+        annotation set, i.e. has exactly the same start and end offsets.
+
+        :param start: start offset of the span
+        :param end: end offset of the span
+        :return: True if coextensive, False otherwise
+        """
+        return self.start == start and self.end == end
+
+    @support_annotation_or_set
+    def is_within(self, start: int, end: int) -> bool:
+        """
+        Checks if this annotation is within the given span, annotation or
+        annotation set, i.e. both the start and end offsets of this annotation
+        are after the given start and before the given end.
+
+        :param start: start offset of the span
+        :param end: end offset of the span
+        :return: True if within, False otherwise
+        """
+        return start <= self.start and end >= self.end
+
+    @support_annotation_or_set
+    def is_covering(self, start: int, end: int) -> bool:
+        """
+        Checks if this annotation is covering the given span, annotation or
+        annotation set, i.e. both the given start and end offsets
+        are after the start of this annotation and before the end of this annotation.
+
+        :param start: start offset of the span
+        :param end: end offset of the span
+        :return: True if within, False otherwise
+        """
+        return self.start <= start and self.end >= end
 
     def _json_repr(self, **kwargs) -> Dict:
         if "offset_mapper" in kwargs:
