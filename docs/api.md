@@ -61,7 +61,21 @@ Remarks:
 * Features must have string keys and should have values that are JSON-serializable
   (otherwise, the document cannot get saved in bdocjson format)
 
-#### Annotation Sets:
-
 
 #### Annotations:
+
+The main differences and properties are:
+* no listeners
+* offsets are int not Long
+* no nodes
+* ! annotation ids are/have to be unique per set, not per document
+* as for documents, features are set directly on the annotation, not by retrieving a feature map first
+* the offsets and type of an annotation are immutable
+* ordering is based on increasing start offset, then increasing end offset, then increasing type name, then increasing annotation id. Features are not considered for ordering.
+* Equality is based on identity: annotations are only equal if the have the same id and come from the same set (which identifies them uniquely). The hash code corresponds to this definition. This allows to store several annotations over the same span, with the same type and features in a set.
+
+
+|GATE|gatenlp|Comment
+|---|---|---|
+|coextensive()|
+|getType()|type|-|
