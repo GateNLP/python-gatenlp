@@ -88,6 +88,106 @@ to store annotations from different sets you need to use (annotationset, id) as 
 <code class="descname">id</code><a class="headerlink" href="#gatenlp.annotation.Annotation.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="gatenlp.annotation.Annotation.inside">
+<code class="descname">inside</code><span class="sig-paren">(</span><em>offset: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.inside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the given offset falls somewhere inside the span of this annotation.
+:param offset: the offset to check
+:return: True if the offset is inside the span of this annotation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.annotation.Annotation.is_coextensive">
+<code class="descname">is_coextensive</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_coextensive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is coextensive with the given span, annotation or
+annotation set, i.e. has exactly the same start and end offsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if coextensive, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.annotation.Annotation.is_covering">
+<code class="descname">is_covering</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_covering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is covering the given span, annotation or
+annotation set, i.e. both the given start and end offsets
+are after the start of this annotation and before the end of this annotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if within, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.annotation.Annotation.is_overlapping">
+<code class="descname">is_overlapping</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_overlapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set.
+An annotation is overlapping with a span if the first or last character
+is inside that span.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if overlapping, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.annotation.Annotation.is_within">
+<code class="descname">is_within</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_within" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is within the given span, annotation or
+annotation set, i.e. both the start and end offsets of this annotation
+are after the given start and before the given end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if within, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="gatenlp.annotation.Annotation.start">
 <code class="descname">start</code><a class="headerlink" href="#gatenlp.annotation.Annotation.start" title="Permalink to this definition">¶</a></dt>

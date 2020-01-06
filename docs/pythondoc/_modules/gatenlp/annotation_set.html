@@ -49,42 +49,13 @@
           <div class="body" role="main">
             
   <h1>Source code for gatenlp.annotation_set</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Generator</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Generator</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="k">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">gatenlp.exceptions</span> <span class="k">import</span> <span class="n">InvalidOffsetException</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="k">import</span> <span class="n">ChangeLog</span>
 <span class="kn">from</span> <span class="nn">gatenlp.impl</span> <span class="k">import</span> <span class="n">SortedIntvls</span>
-<span class="kn">import</span> <span class="nn">numbers</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
-
-
-<div class="viewcode-block" id="support_annotation_or_set"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.support_annotation_or_set">[docs]</a><span class="k">def</span> <span class="nf">support_annotation_or_set</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator to allow a method that normally takes a start and end</span>
-<span class="sd">    offset to take an annotation or annotation set or a pair of offsets instead.</span>
-<span class="sd">    It also allows to take a single offset instead which will then be used as both start and end offset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_support_annotation_or_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Annotation</span><span class="p">):</span>
-                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">end</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">AnnotationSet</span><span class="p">):</span>
-                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">span</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Integral</span><span class="p">):</span>
-                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not an annotation or an annotation set or pair: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
-            <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">args</span>
-
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">_support_annotation_or_set</span></div>
+<span class="kn">from</span> <span class="nn">gatenlp._utils</span> <span class="k">import</span> <span class="n">support_annotation_or_set</span>
 
 
 <div class="viewcode-block" id="AnnotationSet"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet">[docs]</a><span class="k">class</span> <span class="nc">AnnotationSet</span><span class="p">:</span>
@@ -239,7 +210,7 @@
     <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">_check_offsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks the offsets for the given annotation against the document boundaries, if we know the owning</span>
+<span class="sd">        Checks the offsets for the given span/annotation against the document boundaries, if we know the owning</span>
 <span class="sd">        document and if the owning document has text.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -433,12 +404,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_type</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_type</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.starting_at"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_at">[docs]</a>    <span class="k">def</span> <span class="nf">starting_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.starting_at"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_at">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">starting_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ignored</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets all annotations starting at the given offset (empty if none) and returns them in an immutable</span>
 <span class="sd">        annotation set.</span>
 
 <span class="sd">        :param start: the offset where annotations should start</span>
+<span class="sd">        :param ignored: dummy parameter to allow the use of annotations and annotation sets</span>
 <span class="sd">        :return: annotation set of matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the</span>
@@ -447,12 +420,14 @@
         <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">starting_at</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.first_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.first_from">[docs]</a>    <span class="k">def</span> <span class="nf">first_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.first_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.first_from">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">first_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ignored</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets all annotations at the first valid position at or after the given offset and returns them in an immutable</span>
 <span class="sd">        annotation set.</span>
 
 <span class="sd">        :param offset: The offset</span>
+<span class="sd">        :param ignored: dummy parameter to allow the use of annotations and annotation sets</span>
 <span class="sd">        :return: annotation set of matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
@@ -518,30 +493,35 @@
             <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.starting_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_from">[docs]</a>    <span class="k">def</span> <span class="nf">starting_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.starting_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_from">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">starting_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ignored</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the annotations that start at or after the given start offset.</span>
 
 <span class="sd">        :param start: Start offset</span>
+<span class="sd">        :param ignored: dummy parameter to allow the use of annotations and annotation sets</span>
 <span class="sd">        :return: an immutable annotation set of the matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
         <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">starting_from</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.starting_before"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_before">[docs]</a>    <span class="k">def</span> <span class="nf">starting_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.starting_before"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.starting_before">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">starting_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the annotations that start before the given offset (or annotation). This also accepts an annotation</span>
 <span class="sd">        or set.</span>
 
 <span class="sd">        :param offset: offset before which the annotations should start</span>
+<span class="sd">        :param ignored: dummy parameter to allow the use of annotations and annotation sets</span>
 <span class="sd">        :return: an immutable annotation set of the matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
         <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">starting_before</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.coextensive"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.coextensive">[docs]</a>    <span class="k">def</span> <span class="nf">coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.coextensive"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.coextensive">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an immutable annotation set with all annotations that start and end at the given offsets.</span>
 

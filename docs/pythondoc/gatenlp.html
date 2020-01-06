@@ -148,6 +148,106 @@ to store annotations from different sets you need to use (annotationset, id) as 
 <code class="descname">id</code><a class="headerlink" href="#gatenlp.Annotation.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="gatenlp.Annotation.inside">
+<code class="descname">inside</code><span class="sig-paren">(</span><em>offset: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.inside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the given offset falls somewhere inside the span of this annotation.
+:param offset: the offset to check
+:return: True if the offset is inside the span of this annotation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.is_coextensive">
+<code class="descname">is_coextensive</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.is_coextensive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is coextensive with the given span, annotation or
+annotation set, i.e. has exactly the same start and end offsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if coextensive, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.is_covering">
+<code class="descname">is_covering</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.is_covering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is covering the given span, annotation or
+annotation set, i.e. both the given start and end offsets
+are after the start of this annotation and before the end of this annotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if within, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.is_overlapping">
+<code class="descname">is_overlapping</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.is_overlapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set.
+An annotation is overlapping with a span if the first or last character
+is inside that span.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if overlapping, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.Annotation.is_within">
+<code class="descname">is_within</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.is_within" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this annotation is within the given span, annotation or
+annotation set, i.e. both the start and end offsets of this annotation
+are after the given start and before the given end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – start offset of the span</li>
+<li><strong>end</strong> – end offset of the span</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if within, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="gatenlp.Annotation.start">
 <code class="descname">start</code><a class="headerlink" href="#gatenlp.Annotation.start" title="Permalink to this definition">¶</a></dt>
@@ -375,7 +475,7 @@ Creates the type index if necessary.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.coextensive">
-<code class="descname">coextensive</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.coextensive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">coextensive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.coextensive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an immutable annotation set with all annotations that start and end at the given offsets.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -412,7 +512,7 @@ Creates the type index if necessary.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.covering">
-<code class="descname">covering</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.covering" title="Permalink to this definition">¶</a></dt>
+<code class="descname">covering</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.covering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the annotations which contain the given offset range (or annotation/annotation set)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -433,16 +533,21 @@ Creates the type index if necessary.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.first_from">
-<code class="descname">first_from</code><span class="sig-paren">(</span><em>offset: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.first_from" title="Permalink to this definition">¶</a></dt>
+<code class="descname">first_from</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.first_from" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets all annotations at the first valid position at or after the given offset and returns them in an immutable
 annotation set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>offset</strong> – The offset</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>offset</strong> – The offset</li>
+<li><strong>ignored</strong> – dummy parameter to allow the use of annotations and annotation sets</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">annotation set of matching annotations</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">annotation set of matching annotations</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -513,7 +618,7 @@ from this annotation set.</li>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.overlapping">
-<code class="descname">overlapping</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.overlapping" title="Permalink to this definition">¶</a></dt>
+<code class="descname">overlapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.overlapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets annotations overlapping with the given span. Instead of the start and end offsets,
 also accepts an annotation or annotation set.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -598,16 +703,21 @@ and the largest end offset of any annotation.
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.starting_at">
-<code class="descname">starting_at</code><span class="sig-paren">(</span><em>start: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_at" title="Permalink to this definition">¶</a></dt>
+<code class="descname">starting_at</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
 annotation set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start</strong> – the offset where annotations should start</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – the offset where annotations should start</li>
+<li><strong>ignored</strong> – dummy parameter to allow the use of annotations and annotation sets</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">annotation set of matching annotations</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">annotation set of matching annotations</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -615,16 +725,21 @@ annotation set.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.starting_before">
-<code class="descname">starting_before</code><span class="sig-paren">(</span><em>offset: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_before" title="Permalink to this definition">¶</a></dt>
+<code class="descname">starting_before</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_before" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the annotations that start before the given offset (or annotation). This also accepts an annotation
 or set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>offset</strong> – offset before which the annotations should start</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>offset</strong> – offset before which the annotations should start</li>
+<li><strong>ignored</strong> – dummy parameter to allow the use of annotations and annotation sets</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an immutable annotation set of the matching annotations</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">an immutable annotation set of the matching annotations</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -632,15 +747,20 @@ or set.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.starting_from">
-<code class="descname">starting_from</code><span class="sig-paren">(</span><em>start: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_from" title="Permalink to this definition">¶</a></dt>
+<code class="descname">starting_from</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.starting_from" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the annotations that start at or after the given start offset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start</strong> – Start offset</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – Start offset</li>
+<li><strong>ignored</strong> – dummy parameter to allow the use of annotations and annotation sets</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an immutable annotation set of the matching annotations</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">an immutable annotation set of the matching annotations</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -662,7 +782,7 @@ or set.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.within">
-<code class="descname">within</code><span class="sig-paren">(</span><em>start: int</em>, <em>end: int</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.within" title="Permalink to this definition">¶</a></dt>
+<code class="descname">within</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets annotations that fall completely within the given offset range</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
