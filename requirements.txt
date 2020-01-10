@@ -1,1 +1,1 @@
-sortedcontainers
+sortedcontainers>=2.0.0

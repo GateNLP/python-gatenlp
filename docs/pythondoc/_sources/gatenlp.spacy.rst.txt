@@ -1,0 +1,7 @@
+gatenlp\.spacy module
+=====================
+
+.. automodule:: gatenlp.spacy
+    :members:
+    :undoc-members:
+    :show-inheritance:

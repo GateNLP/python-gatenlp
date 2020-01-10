@@ -21,24 +21,35 @@ following GATE features and functionality in `gatenlp`:
 * toXml: the GATE XML serialization format is not supported, use bdocjson instead
 * DocumentContent: not necessary since only text is supported
 
-The following should maybe get supported?
-* get/setSourceUrl(URL)
-* hide annotation set implementation as a default dict and provide API for removing a set? NOTE: if a user currently just removes a set from the dict, that event does not get added to the changelog!
-
 
 There is no support or equivalent for the following `gatenlp` functions in GATE:
 * `to_type`: to change offset type between java/python
 * `set_changelog`: to record changes to a changelog
 * `[span]`: where span is either an offset or offset range or an annotation
 
-<table>
-<tr><th>GATE</th><th>gatenlp</th><th>Comment</th></tr>
-<tr><td>getAnnotations()</td><td>get_annotations()</td><td></td></tr>
-<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
-<tr><td>getAnnotations(name)</td><td>get_annotations(name)</td><td></td></tr>
-<tr><td>removeAnnotationSet(name)</td><td>MISSING</td><td>probably should get added</td></tr>
+|GATE|gatenlp|Comment
+|---|---|---|
+|getAnnotations()|get_annotations()| - |
+|getAnnotations(name)|get_annotations(name)| - |
+|getAnnotationSetNames() | get_annotation_set_names() | - |
+|removeAnnotationSet(name)|remove_annotation_set(name)| - |
+|get/setContent() | - | not necessary, text can be accessed directly|
+|get/setSourceUrl() | ???? | ?????? |
+|add/removeDocumentListener(listener)| - | no listeners in gatenlp |
+|edit(...)| - | gatenlp are immutable |
+|getEncoding()| - | not needed (1) |
+|getMimeType() | - | not needed (1) |
+|getNextAnnotationId()|-| not needed, ids are allocated per set|
+|getNextNodeId()|-| implementation does not use Nodes |
+|getCollectRepositioningInfo()| - | not needed(1) |
+|getMarkupAware() | - | not needed(1) |
+|getPreserveOriginalContent() | - | not needed(1) |
+|toXml| - | not implemented, use simplejson |
+|get/setSourceUrlStart/EndOffset| - | not needed |
 
-</table>
+
+Remarks:
+* (1): these Java GATE methods are only relevant during the original loading/parsing phase
 
 
 
@@ -50,7 +61,21 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 * Features must have string keys and should have values that are JSON-serializable
   (otherwise, the document cannot get saved in bdocjson format)
 
-#### Annotation Sets:
-
 
 #### Annotations:
+
+The main differences and properties are:
+* no listeners
+* offsets are int not Long
+* no nodes
+* ! annotation ids are/have to be unique per set, not per document
+* as for documents, features are set directly on the annotation, not by retrieving a feature map first
+* the offsets and type of an annotation are immutable
+* ordering is based on increasing start offset, then increasing end offset, then increasing type name, then increasing annotation id. Features are not considered for ordering.
+* Equality is based on identity: annotations are only equal if the have the same id and come from the same set (which identifies them uniquely). The hash code corresponds to this definition. This allows to store several annotations over the same span, with the same type and features in a set.
+
+
+|GATE|gatenlp|Comment
+|---|---|---|
+|coextensive()|
+|getType()|type|-|

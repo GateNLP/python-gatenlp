@@ -1,23 +1,35 @@
 
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>Index &#8212; GATE NLP library (gatenlp)  documentation</title>
+    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -70,20 +82,26 @@
         <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.add">(gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
       </ul></li>
+      <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.add_ann">add_ann() (gatenlp.annotation_set.AnnotationSet method)</a>
+
+      <ul>
+        <li><a href="gatenlp.html#gatenlp.AnnotationSet.add_ann">(gatenlp.AnnotationSet method)</a>
+</li>
+      </ul></li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.all_by_type">all_by_type() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.all_by_type">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.html#gatenlp.Annotation">Annotation (class in gatenlp)</a>
 
       <ul>
         <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation">(class in gatenlp.annotation)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.html#gatenlp.AnnotationSet">AnnotationSet (class in gatenlp)</a>
 
       <ul>
@@ -96,6 +114,8 @@
         <li><a href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog.append">(gatenlp.changelog.ChangeLog method)</a>
 </li>
       </ul></li>
+      <li><a href="gatenlp.spacy.html#gatenlp.spacy.apply_nlp">apply_nlp() (in module gatenlp.spacy)</a>
+</li>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.at">at() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
   </ul></td>
@@ -270,9 +290,11 @@
 </li>
       <li><a href="gatenlp.impl.sortedintvls.html#module-gatenlp.impl.sortedintvls">gatenlp.impl.sortedintvls (module)</a>
 </li>
+      <li><a href="gatenlp.offsetmapper.html#module-gatenlp.offsetmapper">gatenlp.offsetmapper (module)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.offsetmapper.html#module-gatenlp.offsetmapper">gatenlp.offsetmapper (module)</a>
+      <li><a href="gatenlp.spacy.html#module-gatenlp.spacy">gatenlp.spacy (module)</a>
 </li>
       <li><a href="gatenlp.html#gatenlp.GateNlpPr">GateNlpPr() (in module gatenlp)</a>
 </li>
@@ -332,14 +354,44 @@
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.in_document_order">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gatenlp.html#gatenlp.Annotation.inside">inside() (gatenlp.Annotation method)</a>
+
+      <ul>
+        <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.inside">(gatenlp.annotation.Annotation method)</a>
+</li>
+      </ul></li>
       <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.interact">interact() (in module gatenlp.gate_interaction)</a>
 </li>
       <li><a href="gatenlp.exceptions.html#gatenlp.exceptions.InvalidOffsetException">InvalidOffsetException</a>, <a href="gatenlp.html#gatenlp.InvalidOffsetException">[1]</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.irange">irange() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
+      <li><a href="gatenlp.html#gatenlp.Annotation.is_coextensive">is_coextensive() (gatenlp.Annotation method)</a>
+
+      <ul>
+        <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.is_coextensive">(gatenlp.annotation.Annotation method)</a>
+</li>
+      </ul></li>
+      <li><a href="gatenlp.html#gatenlp.Annotation.is_covering">is_covering() (gatenlp.Annotation method)</a>
+
+      <ul>
+        <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.is_covering">(gatenlp.annotation.Annotation method)</a>
+</li>
+      </ul></li>
+      <li><a href="gatenlp.html#gatenlp.Annotation.is_overlapping">is_overlapping() (gatenlp.Annotation method)</a>
+
+      <ul>
+        <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.is_overlapping">(gatenlp.annotation.Annotation method)</a>
+</li>
+      </ul></li>
+      <li><a href="gatenlp.html#gatenlp.Annotation.is_within">is_within() (gatenlp.Annotation method)</a>
+
+      <ul>
+        <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.is_within">(gatenlp.annotation.Annotation method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -410,14 +462,18 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gatenlp.html#gatenlp.Document.remove_annotation_set">remove_annotation_set() (gatenlp.Document method)</a>
+
+      <ul>
+        <li><a href="gatenlp.document.html#gatenlp.document.Document.remove_annotation_set">(gatenlp.document.Document method)</a>
+</li>
+      </ul></li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.restrict">restrict() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.restrict">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.result">result() (gatenlp.gate_interaction.DefaultPr method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -444,20 +500,22 @@
       </ul></li>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls">SortedIntvls (class in gatenlp.impl.sortedintvls)</a>
 </li>
+      <li><a href="gatenlp.spacy.html#gatenlp.spacy.spacy2gatenlp">spacy2gatenlp() (in module gatenlp.spacy)</a>
+</li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.span">span() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.span">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.html#gatenlp.Annotation.start">start (gatenlp.Annotation attribute)</a>
 
       <ul>
         <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.start">(gatenlp.annotation.Annotation attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.start">start() (gatenlp.gate_interaction.DefaultPr method)</a>
 </li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.starting_at">starting_at() (gatenlp.annotation_set.AnnotationSet method)</a>
@@ -484,18 +542,16 @@
         <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.starting_from">(gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.support_annotation_or_set">support_annotation_or_set() (in module gatenlp.annotation_set)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.html#gatenlp.Document.text">text() (gatenlp.Document property)</a>
+      <li><a href="gatenlp.html#gatenlp.Document.text">text (gatenlp.Document attribute)</a>
 
       <ul>
-        <li><a href="gatenlp.document.html#gatenlp.document.Document.text">(gatenlp.document.Document property)</a>
+        <li><a href="gatenlp.document.html#gatenlp.document.Document.text">(gatenlp.document.Document attribute)</a>
 </li>
       </ul></li>
       <li><a href="gatenlp.html#gatenlp.Document.to_type">to_type() (gatenlp.Document method)</a>
@@ -554,14 +610,17 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+
+   
+
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -582,7 +641,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

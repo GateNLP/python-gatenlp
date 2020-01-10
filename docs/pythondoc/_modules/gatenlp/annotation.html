@@ -1,22 +1,34 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
     <title>gatenlp.annotation &#8212; GATE NLP library (gatenlp)  documentation</title>
+    
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,6 +58,7 @@
 <span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="k">import</span> <span class="n">FeatureBearer</span>
 <span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="k">import</span> <span class="n">OFFSET_TYPE_JAVA</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="k">import</span> <span class="n">ChangeLog</span>
+<span class="kn">from</span> <span class="nn">gatenlp._utils</span> <span class="k">import</span> <span class="n">support_annotation_or_set</span>
 
 
 <div class="viewcode-block" id="Annotation"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation">[docs]</a><span class="nd">@total_ordering</span>
@@ -174,6 +187,66 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span>
 
+<div class="viewcode-block" id="Annotation.inside"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.inside">[docs]</a>    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the given offset falls somewhere inside the span of this annotation.</span>
+<span class="sd">        :param offset: the offset to check</span>
+<span class="sd">        :return: True if the offset is inside the span of this annotation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span></div>
+
+<div class="viewcode-block" id="Annotation.is_overlapping"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_overlapping">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">is_overlapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this annotation is overlapping with the given span, annotation or</span>
+<span class="sd">        annotation set.</span>
+<span class="sd">        An annotation is overlapping with a span if the first or last character</span>
+<span class="sd">        is inside that span.</span>
+
+<span class="sd">        :param start: start offset of the span</span>
+<span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :return: True if overlapping, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inside</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">inside</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Annotation.is_coextensive"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_coextensive">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">is_coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this annotation is coextensive with the given span, annotation or</span>
+<span class="sd">        annotation set, i.e. has exactly the same start and end offsets.</span>
+
+<span class="sd">        :param start: start offset of the span</span>
+<span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :return: True if coextensive, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="n">end</span></div>
+
+<div class="viewcode-block" id="Annotation.is_within"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_within">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">is_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this annotation is within the given span, annotation or</span>
+<span class="sd">        annotation set, i.e. both the start and end offsets of this annotation</span>
+<span class="sd">        are after the given start and before the given end.</span>
+
+<span class="sd">        :param start: start offset of the span</span>
+<span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :return: True if within, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span></div>
+
+<div class="viewcode-block" id="Annotation.is_covering"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_covering">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+    <span class="k">def</span> <span class="nf">is_covering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this annotation is covering the given span, annotation or</span>
+<span class="sd">        annotation set, i.e. both the given start and end offsets</span>
+<span class="sd">        are after the start of this annotation and before the end of this annotation.</span>
+
+<span class="sd">        :param start: start offset of the span</span>
+<span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :return: True if within, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&gt;=</span> <span class="n">end</span></div>
+
     <span class="k">def</span> <span class="nf">_json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;offset_mapper&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">om</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;offset_mapper&quot;</span><span class="p">]</span>
@@ -225,13 +298,13 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -253,7 +326,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

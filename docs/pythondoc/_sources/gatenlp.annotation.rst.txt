@@ -1,7 +1,7 @@
-gatenlp.annotation module
-=========================
+gatenlp\.annotation module
+==========================
 
 .. automodule:: gatenlp.annotation
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:

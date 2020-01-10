@@ -3,13 +3,18 @@
 This python library allows to work with GATE NLP documents and supports
 the interaction between the Java GATE Python plugin and Python code.
 
+## Installation
+
+`pip install -U gatenlp`
+
 ## Requirements
 
 Requirements:
-* Python 3.7 or later
-* TBD: 
+* Python 3.6 or later
+* sortedcontainers 2.0.0 or later
 
 ## Overview of the documentation:
 
 * [Usage Examples](UsageExamples)
+* [API Overview and comparison with Java GATE](api)
 * [The Generated Python Documentation](pythondoc)

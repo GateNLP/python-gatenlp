@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>gatenlp.gate_interaction module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <title>gatenlp.spacy module &#8212; GATE NLP library (gatenlp)  documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="gatenlp.offsetmapper module" href="gatenlp.offsetmapper.html" />
-    <link rel="prev" title="gatenlp.feature_bearer module" href="gatenlp.feature_bearer.html" /> 
+    <link rel="prev" title="gatenlp.offsetmapper module" href="gatenlp.offsetmapper.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -42,9 +41,6 @@
              >modules</a> |</li>
         <li class="right" >
           <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="gatenlp.feature_bearer.html" title="gatenlp.feature_bearer module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
@@ -56,48 +52,55 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-gatenlp.gate_interaction">
-<span id="gatenlp-gate-interaction-module"></span><h1>gatenlp.gate_interaction module<a class="headerlink" href="#module-gatenlp.gate_interaction" title="Permalink to this headline">¶</a></h1>
-<p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.</p>
-<dl class="class">
-<dt id="gatenlp.gate_interaction.DefaultPr">
-<em class="property">class </em><code class="descclassname">gatenlp.gate_interaction.</code><code class="descname">DefaultPr</code><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="gatenlp.gate_interaction.DefaultPr.finish">
-<code class="descname">finish</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.finish" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="gatenlp.gate_interaction.DefaultPr.reduce">
-<code class="descname">reduce</code><span class="sig-paren">(</span><em>resultlist</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.reduce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="gatenlp.gate_interaction.DefaultPr.start">
-<code class="descname">start</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#DefaultPr.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.DefaultPr.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="module-gatenlp.spacy">
+<span id="gatenlp-spacy-module"></span><h1>gatenlp.spacy module<a class="headerlink" href="#module-gatenlp.spacy" title="Permalink to this headline">¶</a></h1>
+<p>Convert between gatenlp and spacy documents and annotations.</p>
 <dl class="function">
-<dt id="gatenlp.gate_interaction.interact">
-<code class="descclassname">gatenlp.gate_interaction.</code><code class="descname">interact</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gate_interaction.html#interact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gate_interaction.interact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Starts and handles the interaction with a GATE python plugin process.
-This will get started by the GATE plugin if the interaction uses
-pipes, but can also be started separately for http/websockets.</p>
-<p>This MUST be called in the user’s python file!
-The python file should also have one class or function decorated
-with the &#64;gatenlp.PR  decorator to identify it as the
-processing resource to the system.</p>
+<dt id="gatenlp.spacy.apply_nlp">
+<code class="descclassname">gatenlp.spacy.</code><code class="descname">apply_nlp</code><span class="sig-paren">(</span><em>nlp</em>, <em>gatenlpdoc</em>, <em>setname=’‘</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#apply_nlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.apply_nlp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
+This modifies the gatenlp document in place.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nlp</strong> – spacy pipeline</li>
+<li><strong>gatenlpdoc</strong> – gatenlp document</li>
+<li><strong>setname</strong> – set to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gatenlp.spacy.spacy2gatenlp">
+<code class="descclassname">gatenlp.spacy.</code><code class="descname">spacy2gatenlp</code><span class="sig-paren">(</span><em>spacydoc</em>, <em>gatenlpdoc=None</em>, <em>setname=’‘</em>, <em>token_type=’Token’</em>, <em>spacetoken_type=’SpaceToken’</em>, <em>sentence_type=’Sentence’</em>, <em>nounchunk_type=’NounChunk’</em>, <em>add_tokens=True</em>, <em>add_spacetokens=True</em>, <em>add_ents=True</em>, <em>add_sents=True</em>, <em>add_nounchunks=True</em>, <em>add_dep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
+provided, add the annotations from the spacy document to it. In this case the
+original gatenlpdoc is used and gets modified.
+:param spacydoc: a spacy document
+:param gatenlpdoc: if None, a new gatenlp document is created otherwise this
+document is added to.
+:param setname: the annotation set name to which the annotations get added, empty string
+for the default annotation set.
+:param token_type: the annotation type to use for tokens
+:param spacetoken_type: the annotation type to use for space tokens
+:param sentence_type: the annotation type to use for sentence anntoations
+:param nounchunk_type: the annotation type to use for noun chunk annotations
+:param add_tokens: should annotations for tokens get added? If not, dependency parser
+info cannot be added either.
+:param add_spacetokens: should annotations for space tokens get added
+:param add_ents: should annotations for entities get added
+:param add_sents: should sentence annotations get added
+:param add_nounchunks: should noun chunk annotations get added
+:param add_dep: should dependency parser information get added
+:return: the new or modified</p>
 </dd></dl>
 
 </div>
@@ -109,15 +112,12 @@ processing resource to the system.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gatenlp.feature_bearer.html"
-                        title="previous chapter">gatenlp.feature_bearer module</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="gatenlp.offsetmapper.html"
-                        title="next chapter">gatenlp.offsetmapper module</a></p>
+                        title="previous chapter">gatenlp.offsetmapper module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/gatenlp.gate_interaction.rst.txt"
+      <li><a href="_sources/gatenlp.spacy.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -146,9 +146,6 @@ processing resource to the system.</p>
              >modules</a> |</li>
         <li class="right" >
           <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="gatenlp.feature_bearer.html" title="gatenlp.feature_bearer module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 

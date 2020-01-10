@@ -1,5 +1,5 @@
-gatenlp.docformats package
-==========================
+gatenlp\.docformats package
+===========================
 
 Submodules
 ----------
@@ -12,6 +12,6 @@ Module contents
 ---------------
 
 .. automodule:: gatenlp.docformats
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
