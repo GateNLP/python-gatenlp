@@ -6,8 +6,8 @@ Subpackages
 
 .. toctree::
 
-    gatenlp.docformats
-    gatenlp.impl
+   gatenlp.docformats
+   gatenlp.impl
 
 Submodules
 ----------
@@ -28,6 +28,6 @@ Module contents
 ---------------
 
 .. automodule:: gatenlp
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

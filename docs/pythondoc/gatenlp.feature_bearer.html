@@ -1,36 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>gatenlp.feature_bearer module &#8212; GATE NLP library (gatenlp)  documentation</title>
-    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="gatenlp.gate_interaction module" href="gatenlp.gate_interaction.html" />
     <link rel="prev" title="gatenlp.exceptions module" href="gatenlp.exceptions.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -64,18 +52,18 @@ must implement _log_feature_change(command, feature=None, value=None) and must h
 changelog.</p>
 <dl class="class">
 <dt id="gatenlp.feature_bearer.FeatureBearer">
-<em class="property">class </em><code class="descclassname">gatenlp.feature_bearer.</code><code class="descname">FeatureBearer</code><span class="sig-paren">(</span><em>initialfeatures=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.feature_bearer.</code><code class="sig-name descname">FeatureBearer</code><span class="sig-paren">(</span><em class="sig-param">initialfeatures=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.clear_features">
-<code class="descname">clear_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.clear_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.clear_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clear_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.clear_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.clear_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all features.
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.del_feature">
-<code class="descname">del_feature</code><span class="sig-paren">(</span><em>featurename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">del_feature</code><span class="sig-paren">(</span><em class="sig-param">featurename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the feature with that name
 :param featurename: the feature to remove from the set
 :return:</p>
@@ -83,38 +71,38 @@ changelog.</p>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_names">
-<code class="descname">feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; typing.Union[typing.Set, typing.KeysView]<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_names" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[Set, KeysView]<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable with the feature names. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_values">
-<code class="descname">feature_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; typing.List<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">feature_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable with the feature values. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.features">
-<code class="descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; typing.Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.get_feature">
-<code class="descname">get_feature</code><span class="sig-paren">(</span><em>key: str</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.get_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.get_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.has_feature">
-<code class="descname">has_feature</code><span class="sig-paren">(</span><em>key: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.has_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.has_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.has_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.has_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.num_features">
-<code class="descname">num_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.num_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.num_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">num_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.num_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.num_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of features. We do not use “len” for this, since the feature bearing object may
 have its own useful len implementation.
 :return: number of features</p>
@@ -122,7 +110,7 @@ have its own useful len implementation.
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.set_feature">
-<code class="descname">set_feature</code><span class="sig-paren">(</span><em>key: str</em>, <em>value</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.set_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.set_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em>, <em class="sig-param">value</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.set_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.set_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set feature to the given value
 :param key: feature name
 :param value: value
@@ -131,7 +119,7 @@ have its own useful len implementation.
 
 <dl class="method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.update_features">
-<code class="descname">update_features</code><span class="sig-paren">(</span><em>*other</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.update_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.update_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_features</code><span class="sig-paren">(</span><em class="sig-param">*other</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.update_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.update_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the features from another map or an iterable of key value pairs or from keyword arguments
 :param other: another dictionary or an iterable of key,value pairs
 :param kwargs: used to update the features
@@ -162,13 +150,13 @@ have its own useful len implementation.
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -196,7 +184,7 @@ have its own useful len implementation.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

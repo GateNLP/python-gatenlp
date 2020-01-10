@@ -1,5 +1,5 @@
-gatenlp\.impl package
-=====================
+gatenlp.impl package
+====================
 
 Submodules
 ----------
@@ -12,6 +12,6 @@ Module contents
 ---------------
 
 .. automodule:: gatenlp.impl
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

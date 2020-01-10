@@ -1,35 +1,23 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>gatenlp.spacy module &#8212; GATE NLP library (gatenlp)  documentation</title>
-    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="gatenlp.offsetmapper module" href="gatenlp.offsetmapper.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -57,30 +45,26 @@
 <p>Convert between gatenlp and spacy documents and annotations.</p>
 <dl class="function">
 <dt id="gatenlp.spacy.apply_nlp">
-<code class="descclassname">gatenlp.spacy.</code><code class="descname">apply_nlp</code><span class="sig-paren">(</span><em>nlp</em>, <em>gatenlpdoc</em>, <em>setname=’‘</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#apply_nlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.apply_nlp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gatenlp.spacy.</code><code class="sig-name descname">apply_nlp</code><span class="sig-paren">(</span><em class="sig-param">nlp</em>, <em class="sig-param">gatenlpdoc</em>, <em class="sig-param">setname=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#apply_nlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.apply_nlp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
 This modifies the gatenlp document in place.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nlp</strong> – spacy pipeline</li>
-<li><strong>gatenlpdoc</strong> – gatenlp document</li>
-<li><strong>setname</strong> – set to use</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nlp</strong> – spacy pipeline</p></li>
+<li><p><strong>gatenlpdoc</strong> – gatenlp document</p></li>
+<li><p><strong>setname</strong> – set to use</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="gatenlp.spacy.spacy2gatenlp">
-<code class="descclassname">gatenlp.spacy.</code><code class="descname">spacy2gatenlp</code><span class="sig-paren">(</span><em>spacydoc</em>, <em>gatenlpdoc=None</em>, <em>setname=’‘</em>, <em>token_type=’Token’</em>, <em>spacetoken_type=’SpaceToken’</em>, <em>sentence_type=’Sentence’</em>, <em>nounchunk_type=’NounChunk’</em>, <em>add_tokens=True</em>, <em>add_spacetokens=True</em>, <em>add_ents=True</em>, <em>add_sents=True</em>, <em>add_nounchunks=True</em>, <em>add_dep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gatenlp.spacy.</code><code class="sig-name descname">spacy2gatenlp</code><span class="sig-paren">(</span><em class="sig-param">spacydoc</em>, <em class="sig-param">gatenlpdoc=None</em>, <em class="sig-param">setname=''</em>, <em class="sig-param">token_type='Token'</em>, <em class="sig-param">spacetoken_type='SpaceToken'</em>, <em class="sig-param">sentence_type='Sentence'</em>, <em class="sig-param">nounchunk_type='NounChunk'</em>, <em class="sig-param">add_tokens=True</em>, <em class="sig-param">add_spacetokens=True</em>, <em class="sig-param">add_ents=True</em>, <em class="sig-param">add_sents=True</em>, <em class="sig-param">add_nounchunks=True</em>, <em class="sig-param">add_dep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
 provided, add the annotations from the spacy document to it. In this case the
 original gatenlpdoc is used and gets modified.
@@ -122,13 +106,13 @@ info cannot be added either.
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -153,7 +137,7 @@ info cannot be added either.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

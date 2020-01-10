@@ -1,36 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>gatenlp.impl.sortedintvls module &#8212; GATE NLP library (gatenlp)  documentation</title>
-    
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="gatenlp.annotation module" href="gatenlp.annotation.html" />
     <link rel="prev" title="gatenlp.impl package" href="gatenlp.impl.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -67,16 +55,16 @@ NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key
 for sorting.</p>
 <dl class="class">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls">
-<em class="property">class </em><code class="descclassname">gatenlp.impl.sortedintvls.</code><code class="descname">SortedIntvls</code><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.impl.sortedintvls.</code><code class="sig-name descname">SortedIntvls</code><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.add">
-<code class="descname">add</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.at">
-<code class="descname">at</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">at</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return iterable of tuples where start==start and end==end
 :param start:
 :param end:
@@ -85,7 +73,7 @@ for sorting.</p>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.covering">
-<code class="descname">covering</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.covering" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">covering</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.covering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that contain the given range
 :param start:
 :param end:
@@ -94,12 +82,12 @@ for sorting.</p>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.discard">
-<code class="descname">discard</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.discard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.discard" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_after">
-<code class="descname">ending_after</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_after" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_after</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_after" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals the end after the given offset
 NOTE: the result is sorted by end offset!
 :param offset:
@@ -108,7 +96,7 @@ NOTE: the result is sorted by end offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_at">
-<code class="descname">ending_at</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_at</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable of (start, end, data) tuples where end==offset
 :param offset: the ending offset
 :return:</p>
@@ -116,7 +104,7 @@ NOTE: the result is sorted by end offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_to">
-<code class="descname">ending_to</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_to</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that end before or at the given end offset.
 NOTE: the result is sorted by end offset, not start offset!
 :param offset:
@@ -125,40 +113,40 @@ NOTE: the result is sorted by end offset, not start offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.firsts">
-<code class="descname">firsts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.firsts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.firsts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">firsts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.firsts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.firsts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator of all intervals at the minimum start offset that exists.
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.irange">
-<code class="descname">irange</code><span class="sig-paren">(</span><em>minoff=None</em>, <em>maxoff=None</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.irange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.irange" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irange</code><span class="sig-paren">(</span><em class="sig-param">minoff=None</em>, <em class="sig-param">maxoff=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.irange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.irange" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.lasts">
-<code class="descname">lasts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.lasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.lasts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lasts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.lasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.lasts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator of all intervals at the maximum start offset that exists.
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.max_end">
-<code class="descname">max_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.max_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.max_end" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">max_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.max_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.max_end" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the biggest end offset we have
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.min_start">
-<code class="descname">min_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.min_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.min_start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.min_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.min_start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the smallest start offset we have
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.overlapping">
-<code class="descname">overlapping</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.overlapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">overlapping</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.overlapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that overlap with the given range.
 :param start:
 :param end:
@@ -167,12 +155,12 @@ NOTE: the result is sorted by end offset, not start offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.remove">
-<code class="descname">remove</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.remove" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_at">
-<code class="descname">starting_at</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_at</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable of (start, end, data) tuples where start==offset
 :param offset: the starting offset
 :return:</p>
@@ -180,7 +168,7 @@ NOTE: the result is sorted by end offset, not start offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_before">
-<code class="descname">starting_before</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_before" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_before</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_before" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that start before offset
 :param offset:
 :return:</p>
@@ -188,7 +176,7 @@ NOTE: the result is sorted by end offset, not start offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_from">
-<code class="descname">starting_from</code><span class="sig-paren">(</span><em>offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_from" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_from</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_from" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that start at or after offset.
 :param offset:
 :return:</p>
@@ -196,12 +184,12 @@ NOTE: the result is sorted by end offset, not start offset!
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.update">
-<code class="descname">update</code><span class="sig-paren">(</span><em>tupleiterable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">tupleiterable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.within">
-<code class="descname">within</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.within" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">within</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return intervals which are fully contained within start…end
 :param start:
 :param end:
@@ -232,13 +220,13 @@ NOTE: the result is sorted by end offset, not start offset!
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -267,7 +255,7 @@ NOTE: the result is sorted by end offset, not start offset!
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>
