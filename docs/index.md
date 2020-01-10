@@ -30,6 +30,6 @@ Requirements:
 ## Overview of the documentation:
 
 * [Comparison to other Python NLP packages](comparison)
-* [Usage Examples](usage_examples)
+* [Usage Examples](usage-examples)
 * [API Overview and comparison with Java GATE](api)
 * [The Generated Python Documentation](pythondoc)

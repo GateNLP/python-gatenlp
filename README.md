@@ -4,16 +4,22 @@
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 
 
-Library for manipulating [GateNLP](https://gate.ac.uk/) documents and
+This is a package for representing the basic elements of text processing
+and NLP in a way that is very similar to the
+[Java GATE NLP](https://gate.ac.uk/)
+framework, 
+for manipulating GateNLP documents and
 for interacting with GATE Java and the GATE python plugin.
 
-**NOTE: This is in the planning/development stage for now**
+**NOTE: This package is still in an early development stage**
 
 **NOTE: The original Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab) **
 
 ## Overview
 
-This library can load GATE documents from their BdocJS (JSON) representation
+This package is a Python implementation of text processing and NLP similar to
+[Java GATE NLP](https://gate.ac.uk/).
+Currently it is possible to load GATE documents from their BdocJS (JSON) representation
 or create GATE documents from scratch. This creates an object of type
 `gatenlp.Document` which offers an API for adding, retrieving and changing
 stand-off annotations and document features
@@ -27,11 +33,11 @@ This library also implements the functionality for the interaction with
 a Java GATE process in two different ways:
 * The Java GATE Python plugin can invoke a python process to annotate GATE documents
   with python code
-* the python code can remote-control a Jave GATE instance (NOT YET IMPLEMENTED!)
+* the python code can remote-control a Jave GATE instance
 
 ## More information and documentation
 
 * [Documentation](https://gatenlp.github.io/python-gatenlp/) with
-  * [Usage Examples](https://gatenlp.github.io/python-gatenlp/UsageExamples)
-  * [Tutorial](https://gatenlp.github.io/python-gatenlp/Tutorial) TBD!
+  * [Usage Examples](https://gatenlp.github.io/python-gatenlp/usage-examples)
+  * [Tutorial](https://gatenlp.github.io/python-gatenlp/tutorial) 
   * [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/)
