@@ -10,8 +10,9 @@ the interaction between the Java GATE Python plugin and Python code.
 ## Requirements
 
 Requirements:
-* Python 3.6 or later
+* Python 3.5 or later, Python 3.4 may work
 * sortedcontainers 2.0.0 or later
+* For Python 3.4 the module "typing" must be installed
 
 ## Overview of the documentation:
 

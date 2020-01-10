@@ -5,7 +5,6 @@ class TestOffsetMapper01:
 
     def test_offsetmapper01m01(self):
         from gatenlp.document import OffsetMapper, Document
-        import numpy as np
         c_poo = "\U0001F4A9"
         c_bridge = "\U0001f309"
         doc1 = Document("01"+c_poo+"3"+c_bridge+c_bridge+c_bridge+"7")
@@ -13,12 +12,12 @@ class TestOffsetMapper01:
         assert doc1[2] == c_poo
         om1 = OffsetMapper(doc1)
         assert len(om1.java2python) == 13
-        p2j = np.array([0, 1, 2, 4, 5, 7, 9, 11, 12])
+        p2j = [0, 1, 2, 4, 5, 7, 9, 11, 12]
         # print("p2j={}".format(p2j), file=sys.stderr)
         # print("om1.p2j={}".format(om1.python2java), file=sys.stderr)
-        assert (om1.python2java == p2j).all()
-        j2p = np.array([0, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8])
-        assert (om1.java2python == j2p).all()
+        assert om1.python2java == p2j
+        j2p = [0, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8]
+        assert om1.java2python == j2p
         for i in om1.java2python:
             joff = om1.convert_to_java(i)
             poff = om1.convert_to_python(joff)
