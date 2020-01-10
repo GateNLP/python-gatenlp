@@ -54,7 +54,9 @@ class AnnotationSet:
         self.owner_doc = owner_doc
 
         # NOTE: the index is only created when we actually need it!
-        self._index_by_offset: SortedIntvls = None
+        # TODO: python 3.5
+        # self._index_by_offset: SortedIntvls = None
+        self._index_by_offset = None
         self._index_by_type = None
         # internally we represent the annotations as a map from annotation id (int) to Annotation
         self._annotations = {}

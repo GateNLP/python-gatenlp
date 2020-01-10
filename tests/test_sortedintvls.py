@@ -1,5 +1,8 @@
+import logging
 from gatenlp.impl import SortedIntvls
-from loguru import logger
+logging.basicConfig()
+logger = logging.getLogger("gatenlp")
+logger.setLevel(logging.INFO)
 
 # Simple simulation of the interaction: instead of calling interact() manually call
 # the methods from the created wrapper.
