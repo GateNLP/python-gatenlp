@@ -2,7 +2,7 @@
 
 [![PyPi version](https://img.shields.io/pypi/v/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
-
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp)
 
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
