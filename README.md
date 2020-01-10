@@ -13,7 +13,7 @@ for interacting with GATE Java and the GATE python plugin.
 
 **NOTE: This package is still in an early development stage**
 
-**NOTE: The original Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab) **
+**NOTE: The previous Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab) **
 
 ## Overview
 
