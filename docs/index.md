@@ -1,7 +1,20 @@
-# gatenlp - A Python package for working with GATE NLP documents
+# gatenlp - A package for NLP similar to the Java Gate NLP framework
 
-This python library allows to work with GATE NLP documents and supports
-the interaction between the Java GATE Python plugin and Python code.
+This is a package for representing the basic elements of text processing
+and NLP in a way that is very similar to the
+[Java GATE NLP](https://gate.ac.uk/)
+framework.
+
+Processed documents exported from Java GATE can be used and processed documents
+exported from this package can be used by Java GATE. In addition this package:
+* provides the code to allow using Python directly from GATE via the [GATE Python plugin](https://github.com/GateNLP/gateplugin-Python)
+* allows to execute Java GATE API calls directly from the Python call, e.g.
+  to run a Java GATE processing pipeline on a document and get back the Processed
+  document.
+
+NOTE: the current version provides mainly the means to represent and convert
+documents, annotations etc. Actual NLP processing will be added as
+development continues.
 
 ## Installation
 
@@ -10,12 +23,13 @@ the interaction between the Java GATE Python plugin and Python code.
 ## Requirements
 
 Requirements:
-* Python 3.5 or later, Python 3.4 may work
-* sortedcontainers 2.0.0 or later
-* For Python 3.4 the module "typing" must be installed
+* Python 3.4 or later
+* sortedcontainers
+* For Python 3.4 the module "typing" is required
 
 ## Overview of the documentation:
 
-* [Usage Examples](UsageExamples)
+* [Comparison to other Python NLP packages](comparison)
+* [Usage Examples](usage_examples)
 * [API Overview and comparison with Java GATE](api)
 * [The Generated Python Documentation](pythondoc)
