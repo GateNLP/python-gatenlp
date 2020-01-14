@@ -4,8 +4,8 @@ try:
     import sortedcontainers
 except Exception as ex:
     import sys
-    print("ERROR: required package sortedcontainers cannot imported!", file=sys.stderr)
-    print("Please install, using e.g. 'pip install -U sortedcontainers'", file=sys.stderr)
+    print("ERROR: required package sortedcontainers cannot be imported!", file=sys.stderr)
+    print("Please install it, using e.g. 'pip install -U sortedcontainers'", file=sys.stderr)
     sys.exit(1)
 # TODO: check version of sortedcontainers (we have 2.1.0)
 logging.basicConfig()
