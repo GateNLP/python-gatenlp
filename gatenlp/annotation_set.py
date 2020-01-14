@@ -280,7 +280,7 @@ class AnnotationSet:
         # return iter(self._annotations.values())
         return self.in_document_order()
 
-    def in_document_order(self, *annotations, from_offset: Union[int, None] = None,
+    def in_document_order(self, annotations=None, from_offset: Union[int, None] = None,
                           to_offset: Union[None, int] = None,
                           reverse: bool = False, anntype: str = None) -> Generator:
         """
@@ -289,8 +289,7 @@ class AnnotationSet:
         document order, otherwise, all annotations in the set are returned, otionally limited by the other
         parameters.
 
-        :param annotations: either missing or exactly one parameter which must be an iterable of annotations
-          from this annotation set.
+        :param annotations: an iterable of annotations from this annotation set.
         :param from_offset: the offset from where to start including annotations
         :param to_offset: the last offset to use as the starting offset of an annotation
         :param anntype: only annotations of this type
@@ -303,7 +302,7 @@ class AnnotationSet:
             assert to_offset >= 1
         if to_offset is not None and from_offset is not None:
             assert to_offset > from_offset
-        if len(annotations) == 0:  # no annotations given, we use the ones in the set
+        if annotations is None:  # no annotations given, we use the ones in the set
             self._create_index_by_offset()
             for _start, _end, annid in self._index_by_offset.irange(minoff=from_offset, maxoff=to_offset, reverse=reverse):
                 if anntype is not None and self._annotations[annid].type != anntype:
