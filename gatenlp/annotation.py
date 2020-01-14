@@ -37,7 +37,7 @@ class Annotation(FeatureBearer):
         :param annot_id: the id of the annotation
         :param owner_set: the containing annotation set
         :param changelog: a changelog, if changes to the features should get recorded
-        :param features: an initial collection of features
+        :param features: an initial collection of features, None for no features.
         """
         super().__init__(features)
         self.gatenlp_type = "Annotation"
