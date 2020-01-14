@@ -56,7 +56,7 @@ class TestDocument01:
         assert doc2.get_feature("docfeat1") == 33
         d2annset1 = doc2.get_annotations("")
         assert len(d2annset1) == 3
-        at8 = d2annset1.starting_at(8)
+        at8 = d2annset1.start_eq(8)
         # print("AT8: {}".format(at8), file=sys.stderr)
         assert len(at8) == 1
 

@@ -10,7 +10,7 @@ an IDE is used. E.g. avoid having method names like `get` where it is hard
 to guess from just the parameter type how something gets retrieved.
 
 
-#### Documents:
+### Documents:
 
 There is no support or equivalent implementation for the
 following GATE features and functionality in `gatenlp`:
@@ -53,7 +53,7 @@ Remarks:
 
 
 
-#### Features:
+### Features:
 
 * So far, only Annotations and Documents can have features
 * Manipulating features is done directly on the object that has features,
@@ -62,7 +62,7 @@ Remarks:
   (otherwise, the document cannot get saved in bdocjson format)
 
 
-#### Annotations:
+### Annotations:
 
 The main differences and properties are:
 * no listeners
