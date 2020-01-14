@@ -205,7 +205,7 @@ class AnnotationSet:
             raise InvalidOffsetException(
                 "Annotation ends after document ends: end={}, docsize={}".format(end, doc_size))
 
-    def add(self, start: int, end: int, anntype: str, features, annid: int = None):
+    def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
         """
         Add an annotation to the set. Once an annotation has been added, the start and end offsets,
         the type, and the annotation id are immutable.
@@ -214,7 +214,8 @@ class AnnotationSet:
         :param end: end offset
         :param anntype: the annotation type
         :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used \
-        to create a new feature map for this annotation.
+        to create a new feature map for this annotation. If the map is empty or this parameter is None, the \
+        annotation does not store any map at all.
         :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\
         normally left unspecified and get assigned automatically.
         :return: the annotation id of the added annotation
