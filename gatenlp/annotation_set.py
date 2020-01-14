@@ -7,6 +7,7 @@ from gatenlp.impl import SortedIntvls
 from gatenlp._utils import support_annotation_or_set
 from collections.abc import Iterable
 
+
 class AnnotationSet:
     def __init__(self, name: str = "", changelog: ChangeLog = None, owner_doc: "Document" = None):
         """
@@ -225,7 +226,7 @@ class AnnotationSet:
         Add a copy of the given ann to the annotation set, either with a new annotation id or
         with the one given.
 
-        :param annid: the annotation id, if not specified the next free one for this set is used.
+        :param annid: the annotation id, if not specified the next free one for this set is used.\
         NOTE: the id should normally left unspecified and get assigned automatically.
         :return: the annotation id of the added annotation
         """
@@ -342,7 +343,7 @@ class AnnotationSet:
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
 
-        :param anntype: one or more types or type lists. The union of all types specified that way
+        :param anntype: one or more types or type lists. The union of all types specified that way\
         is used to filter the annotations. If no type is specified, all annotations are selected.
         :return: an immutable annotation set with the matching annotations.
         """
