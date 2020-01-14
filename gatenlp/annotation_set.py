@@ -51,7 +51,7 @@ class AnnotationSet:
         else:
             super().__setattr__(key, value)
 
-    def restrict(self, restrict_to=None) -> "AnnotationSet":
+    def immutable(self, restrict_to=None) -> "AnnotationSet":
         """
         Create an immutable copy of this set, optionally restricted to the given annotation ids.
 
@@ -63,6 +63,27 @@ class AnnotationSet:
         annset._is_immutable = True
         annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
         annset._next_annid = self._next_annid
+        return annset
+
+    def immutable_from(self, anns: Iterable) -> "AnnotationSet":
+        """
+        Create an immutable annotation set from the annotations in anns which could by anything that
+        can be iterated over. The owning document is the same as for this set.
+        The next annotation id for the created set is the highest see annotation id from anns plus one.
+
+        :param anns: an iterable of annotations
+        :return: an immutable annotation set with all the annotations of this set or restricted to the ids
+          in restrict_to
+        """
+        annset = AnnotationSet(name="", owner_doc=self.owner_doc)
+        annset._is_immutable = True
+        annset._annotations = {}
+        nextid = -1
+        for ann in anns:
+            annset._annotations[id] = ann
+            if ann.id > nextid:
+                nextid = ann.id
+        annset._next_annid = nextid + 1
         return annset
 
     def _create_index_by_offset(self) -> None:
@@ -133,7 +154,7 @@ class AnnotationSet:
         return ret
 
     def _restrict_intvs(self, intvs) -> "AnnotationSet":
-        return self.restrict(AnnotationSet._intvs2idlist(intvs))
+        return self.immutable(AnnotationSet._intvs2idlist(intvs))
 
     def __len__(self) -> int:
         """
@@ -280,11 +301,13 @@ class AnnotationSet:
         :return: a generator for the annotations in document order
         """
         # return iter(self._annotations.values())
-        return self.in_document_order()
+        return self.iter()
 
-    def in_document_order(self, annotations=None, from_offset: Union[int, None] = None,
-                          to_offset: Union[None, int] = None,
-                          reverse: bool = False, anntype: str = None) -> Generator:
+    def iter(self,
+             start_ge: Union[int, None] = None,
+             start_lt: Union[None, int] = None,
+             with_type: str = None,
+             reverse: bool = False) -> Generator:
         """
         Returns a generator for going through annotations in document order. If an iterator of annotations
         is given, then those annotations, optionally limited by the other parameters are returned in
@@ -292,33 +315,39 @@ class AnnotationSet:
         parameters.
 
         :param annotations: an iterable of annotations from this annotation set.
-        :param from_offset: the offset from where to start including annotations
-        :param to_offset: the last offset to use as the starting offset of an annotation
-        :param anntype: only annotations of this type
+        :param start_ge: the offset from where to start including annotations
+        :param start_lt: the last offset to use as the starting offset of an annotation
+        :param with_type: only annotations of this type
         :param reverse: process in reverse document order
         :return: generator for annotations in document order
         """
-        if from_offset is not None:
-            assert from_offset >= 0
-        if to_offset is not None:
-            assert to_offset >= 1
-        if to_offset is not None and from_offset is not None:
-            assert to_offset > from_offset
-        if annotations is None:  # no annotations given, we use the ones in the set
+        allowedtypes = set()
+        if with_type is not None:
+            if isinstance(type, str):
+                allowedtypes.add(with_type)
+            else:
+                for atype in with_type:
+                    allowedtypes.add(atype)
+        if start_ge is not None:
+            assert start_ge >= 0
+        if start_lt is not None:
+            assert start_lt >= 1
+        if start_lt is not None and start_ge is not None:
+            assert start_lt > start_ge
             self._create_index_by_offset()
-            for _start, _end, annid in self._index_by_offset.irange(minoff=from_offset, maxoff=to_offset, reverse=reverse):
-                if anntype is not None and self._annotations[annid].type != anntype:
+            for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=start_lt+1, reverse=reverse):
+                if self._annotations[annid].type not in allowedtypes:
                     continue
                 yield self._annotations[annid]
-        elif len(annotations) == 1:
-            for ann in sorted(annotations, reverse=reverse, key=lambda x: (x.start, x.end)):
-                if anntype is not None and ann.type != anntype:
-                    continue
-                if from_offset is not None and ann.start < from_offset:
-                    continue
-                if to_offset is not None and ann.start > to_offset:
-                    continue
-                yield ann
+
+    def reverse_iter(self, **kwargs):
+        """
+        Same as iter, but with the reverse parameter set to true.
+
+        :param kwargs: Same as for iter(), with revers=True fixed.
+        :return: same result as iter()
+        """
+        return self.iter(reverse=True, **kwargs)
 
     def get(self, annid: int, default=None) -> Union[Annotation, None]:
         """
@@ -355,12 +384,12 @@ class AnnotationSet:
             else:
                 atypes.append(atype)
         if not atypes:
-            return self.restrict()
+            return self.immutable()
         self._create_index_by_type()
         annids = set()
         for t in atypes:
             annids.update(self._index_by_type.get(t, None))
-        return self.restrict(annids)
+        return self.immutable(annids)
 
     def type_names(self) -> KeysView[str]:
         """
@@ -411,7 +440,7 @@ class AnnotationSet:
                 retids.add(intv[2])
             else:
                 break
-        return self.restrict(retids)
+        return self.immutable(retids)
 
     @support_annotation_or_set
     def start_ge(self, start: int, ignored: Any = None) -> "AnnotationSet":
@@ -532,7 +561,7 @@ class AnnotationSet:
 
         :return: string representation.
         """
-        return "AnnotationSet({})".format(repr(list(self.in_document_order())))
+        return "AnnotationSet({})".format(repr(list(self.iter())))
 
     def _json_repr(self, **kwargs) -> Dict:
         return {

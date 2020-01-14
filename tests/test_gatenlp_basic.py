@@ -36,7 +36,7 @@ class TestDocument01:
         ann1 = annset1.get(ann1id)
         assert ann1.get_feature("f1") == 1
         ann2id = annset1.add(0, 4, "Type1", {"f1": 13, "f2": 12})
-        inorder = list(annset1.in_document_order())
+        inorder = list(annset1.iter())
         assert len(inorder) == 2
         assert inorder[0].get_feature("f1") == 13
         assert inorder[1].get_feature("f1") == 1

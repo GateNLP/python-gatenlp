@@ -79,3 +79,16 @@ The main differences and properties are:
 |---|---|---|
 |coextensive()|
 |getType()|type|-|
+
+### AnnotationSet
+
+|GATE|gatenlp|Comment
+|---|---|---|
+|add()|get_annotations()| one method instead of many overloaded ones |
+|add(Annotation) | add_ann | - |
+|inDocumentOrder()| (default iterator) | see 1) |
+
+1) All the methods that return selections of annotations in the set, return
+an immutable annotation set which can be directly iterated over. The
+methods `iter(...)` and `reverse_iter` can be used to generate annotations in
+document and apply some filters to them as well. 

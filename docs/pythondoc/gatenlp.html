@@ -482,8 +482,40 @@ with the one given.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="gatenlp.AnnotationSet.in_document_order">
-<code class="sig-name descname">in_document_order</code><span class="sig-paren">(</span><em class="sig-param">annotations=None</em>, <em class="sig-param">from_offset: Optional[int] = None</em>, <em class="sig-param">to_offset: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">reverse: bool = False</em>, <em class="sig-param">anntype: str = None</em><span class="sig-paren">)</span> &#x2192; Generator<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.in_document_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.in_document_order" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.AnnotationSet.immutable">
+<code class="sig-name descname">immutable</code><span class="sig-paren">(</span><em class="sig-param">restrict_to=None</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.immutable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.immutable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an immutable copy of this set, optionally restricted to the given annotation ids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restrict_to</strong> – an iterable of annotation ids</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an immutable annotation set with all the annotations of this set or restricted to the ids
+in restrict_to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.immutable_from">
+<code class="sig-name descname">immutable_from</code><span class="sig-paren">(</span><em class="sig-param">anns: collections.abc.Iterable</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.immutable_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.immutable_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an immutable annotation set from the annotations in anns which could by anything that
+can be iterated over. The owning document is the same as for this set.
+The next annotation id for the created set is the highest see annotation id from anns plus one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>anns</strong> – an iterable of annotations</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an immutable annotation set with all the annotations of this set or restricted to the ids
+in restrict_to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gatenlp.AnnotationSet.iter">
+<code class="sig-name descname">iter</code><span class="sig-paren">(</span><em class="sig-param">start_ge: Optional[int] = None</em>, <em class="sig-param">start_lt: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">with_type: str = None</em>, <em class="sig-param">reverse: bool = False</em><span class="sig-paren">)</span> &#x2192; Generator<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.iter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a generator for going through annotations in document order. If an iterator of annotations
 is given, then those annotations, optionally limited by the other parameters are returned in
 document order, otherwise, all annotations in the set are returned, otionally limited by the other
@@ -492,9 +524,9 @@ parameters.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>annotations</strong> – an iterable of annotations from this annotation set.</p></li>
-<li><p><strong>from_offset</strong> – the offset from where to start including annotations</p></li>
-<li><p><strong>to_offset</strong> – the last offset to use as the starting offset of an annotation</p></li>
-<li><p><strong>anntype</strong> – only annotations of this type</p></li>
+<li><p><strong>start_ge</strong> – the offset from where to start including annotations</p></li>
+<li><p><strong>start_lt</strong> – the last offset to use as the starting offset of an annotation</p></li>
+<li><p><strong>with_type</strong> – only annotations of this type</p></li>
 <li><p><strong>reverse</strong> – process in reverse document order</p></li>
 </ul>
 </dd>
@@ -537,16 +569,15 @@ also accepts an annotation or annotation set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="gatenlp.AnnotationSet.restrict">
-<code class="sig-name descname">restrict</code><span class="sig-paren">(</span><em class="sig-param">restrict_to=None</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.restrict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.restrict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an immutable copy of this set, optionally restricted to the given annotation ids.</p>
+<dt id="gatenlp.AnnotationSet.reverse_iter">
+<code class="sig-name descname">reverse_iter</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.reverse_iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.reverse_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as iter, but with the reverse parameter set to true.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>restrict_to</strong> – an iterable of annotation ids</p>
+<dd class="field-odd"><p><strong>kwargs</strong> – Same as for iter(), with revers=True fixed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>an immutable annotation set with all the annotations of this set or restricted to the ids
-in restrict_to</p>
+<dd class="field-even"><p>same result as iter()</p>
 </dd>
 </dl>
 </dd></dl>
