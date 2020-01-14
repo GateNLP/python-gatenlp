@@ -321,13 +321,16 @@ class AnnotationSet:
         :param reverse: process in reverse document order
         :return: generator for annotations in document order
         """
-        allowedtypes = set()
+
         if with_type is not None:
+            allowedtypes = set()
             if isinstance(type, str):
                 allowedtypes.add(with_type)
             else:
                 for atype in with_type:
                     allowedtypes.add(atype)
+        else:
+            allowedtypes = None
         if start_ge is not None:
             assert start_ge >= 0
         if start_lt is not None:
@@ -336,7 +339,7 @@ class AnnotationSet:
             assert start_lt > start_ge
             self._create_index_by_offset()
             for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=start_lt+1, reverse=reverse):
-                if self._annotations[annid].type not in allowedtypes:
+                if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
                     continue
                 yield self._annotations[annid]
 
