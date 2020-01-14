@@ -32,7 +32,7 @@ class TestSortedIntvls01:
         logger.info("lasts={}".format(ret2))
         assert len(ret2) == 1
         assert (9, 10, "int9") in ret2
-        ret3 = list(si1.start_eq(4))
+        ret3 = list(si1.starting_at(4))
         logger.info("starting at 4={}".format(ret3))
         assert len(ret3) == 3
         assert (4, 5, "int2") in ret3

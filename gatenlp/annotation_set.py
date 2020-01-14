@@ -331,17 +331,19 @@ class AnnotationSet:
                     allowedtypes.add(atype)
         else:
             allowedtypes = None
+        maxoff = None
         if start_ge is not None:
             assert start_ge >= 0
         if start_lt is not None:
             assert start_lt >= 1
+            maxoff = start_lt + 1
         if start_lt is not None and start_ge is not None:
             assert start_lt > start_ge
-            self._create_index_by_offset()
-            for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=start_lt+1, reverse=reverse):
-                if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
-                    continue
-                yield self._annotations[annid]
+        self._create_index_by_offset()
+        for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
+            if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+                continue
+            yield self._annotations[annid]
 
     def reverse_iter(self, **kwargs):
         """
@@ -416,7 +418,7 @@ class AnnotationSet:
         # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
         # point query
         self._create_index_by_offset()
-        intvs = self._index_by_offset.start_eq(start)
+        intvs = self._index_by_offset.starting_from(start)
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
