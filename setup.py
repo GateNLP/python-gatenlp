@@ -4,8 +4,15 @@
 """Packaging script for the gatenlp library."""
 
 import os
+import subprocess
 from setuptools import setup, find_packages
 import re
+from shutil import copyfile
+
+JARFILE = "gatetools-gatenlpslave-1.0.jar"
+JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compiling
+JARFILE_DIST = os.path.join("gatenlp", "slave", JARFILE) # where it is for distribution
+JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java")
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
@@ -21,6 +28,17 @@ def versionfromfile(*filepath):
             return version_match.group(1)
         raise RuntimeError("Unable to find version string in {}.".format(infile))
 
+def make_java():
+    if os.path.exists(JARFILE_DIST) and os.stat(JARFILE_DIST).st_mtime > os.stat(JAVAFILE_PATH).st_mtime:
+        return
+    os.chdir("java")
+    retcode = subprocess.call("mvn package", shell=True)
+    if retcode != 0:
+        raise Exception("Could not build jar, exit code is {}".format(retcode))
+    os.chdir("..")
+    copyfile(JARFILE_PATH, JARFILE_DIST)
+
+make_java()
 setup(
     name="gatenlp",
     version=versionfromfile("gatenlp/__init__.py"),
@@ -38,6 +56,8 @@ setup(
     keywords="",
     url="https://github.com/GateNLP/python-gatenlp",
     packages=find_packages(),
+    package_data = {"": [JARFILE]},  # wherever we store the jarfile, copy it into the installed package dir
+    # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite='tests',
     classifiers=[
         # "Development Status :: 6 - Mature",
