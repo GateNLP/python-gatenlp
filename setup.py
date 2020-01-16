@@ -11,7 +11,7 @@ from shutil import copyfile
 
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
 JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compiling
-JARFILE_DIST = os.path.join("gatenlp", "slave", JARFILE) # where it is for distribution
+JARFILE_DIST = os.path.join("gatenlp", "_jars", JARFILE) # where it is for distribution
 JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java")
 
 here = os.path.abspath(os.path.dirname(__file__))
