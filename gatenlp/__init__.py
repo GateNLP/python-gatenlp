@@ -21,7 +21,7 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
-from gatenlp.gateslave import GateSlave
+# from gatenlp.gateslave import GateSlave
 
 __all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
            "InvalidOffsetException", "ChangeLog", "logger"]
