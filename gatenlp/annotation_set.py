@@ -373,7 +373,7 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def with_type(self, *anntype: Union[str, None]) -> "AnnotationSet":
+    def with_type(self, *anntype: Union[str, Iterable]) -> "AnnotationSet":
         """
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
@@ -384,17 +384,19 @@ class AnnotationSet:
         """
         atypes = []
         for atype in anntype:
-            if isinstance(atype,Iterable):
+            if isinstance(atype, str):
+                atypes.append(atype)
+            else:
                 for t in atype:
                     atypes.append(t)
-            else:
-                atypes.append(atype)
         if not atypes:
             return self.immutable()
         self._create_index_by_type()
         annids = set()
         for t in atypes:
-            annids.update(self._index_by_type.get(t, None))
+            idxs = self._index_by_type.get(t)
+            if idxs:
+                annids.update(idxs)
         return self.immutable(annids)
 
     def type_names(self) -> KeysView[str]:
