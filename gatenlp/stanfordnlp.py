@@ -68,10 +68,10 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
                     # TODO: maybe try to detect and convert bool/int values
                     fm["feat_"+k] = v
             snlp_idx = int(word.index)
-            annid = annset.add(oinfo[0], oinfo[1], word_type, fm)
+            annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm)
             idx2annid[snlp_idx] = annid
         # create a sentence annotation from beginning of first word to end of last
-        sentid = annset.add(offsetinfos[0][0], offsetinfos[-1][1], sentence_type)
+        sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type)
         # now replace the governor index with the corresponding annid, the governor index is
         # mapped to the sentence annotation
         idx2annid[0] = sentid
@@ -80,6 +80,6 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
             gov = ann.get_feature("governor")
             if gov is not None:
                 ann.set_feature("governor", idx2annid[gov])
-        notmatchedidx = offsetinfos[-1][1] + 1
+        notmatchedidx = offsetinfos[-1][1]+notmatchedidx + 1
     return retdoc
 
