@@ -17,7 +17,10 @@ class FeatureBearer:
         :return:
         """
         if initialfeatures is not None:
-            self.features = dict(initialfeatures)
+            if isinstance(initialfeatures, dict) and len(initialfeatures) == 0:
+                self.features = None
+            else:
+                self.features = dict(initialfeatures)
         else:
             self.features = None
         self.changelog = None  # this must be set by the inheriting class!

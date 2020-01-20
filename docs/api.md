@@ -10,7 +10,7 @@ an IDE is used. E.g. avoid having method names like `get` where it is hard
 to guess from just the parameter type how something gets retrieved.
 
 
-#### Documents:
+### Documents:
 
 There is no support or equivalent implementation for the
 following GATE features and functionality in `gatenlp`:
@@ -53,7 +53,7 @@ Remarks:
 
 
 
-#### Features:
+### Features:
 
 * So far, only Annotations and Documents can have features
 * Manipulating features is done directly on the object that has features,
@@ -62,7 +62,7 @@ Remarks:
   (otherwise, the document cannot get saved in bdocjson format)
 
 
-#### Annotations:
+### Annotations:
 
 The main differences and properties are:
 * no listeners
@@ -79,3 +79,16 @@ The main differences and properties are:
 |---|---|---|
 |coextensive()|
 |getType()|type|-|
+
+### AnnotationSet
+
+|GATE|gatenlp|Comment
+|---|---|---|
+|add()|get_annotations()| one method instead of many overloaded ones |
+|add(Annotation) | add_ann | - |
+|inDocumentOrder()| (default iterator) | see 1) |
+
+1) All the methods that return selections of annotations in the set, return
+an immutable annotation set which can be directly iterated over. The
+methods `iter(...)` and `reverse_iter` can be used to generate annotations in
+document and apply some filters to them as well. 

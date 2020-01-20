@@ -1,9 +1,11 @@
-"""Convert between gatenlp and spacy documents and annotations."""
+"""
+Support for using spacy: convert from spacy to gatenlp documents and annotations.
+"""
 
 from gatenlp import interact, GateNlpPr, Document
 
 
-def apply_nlp(nlp, gatenlpdoc, setname=""):
+def apply_spacy(nlp, gatenlpdoc, setname=""):
     """
     Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
