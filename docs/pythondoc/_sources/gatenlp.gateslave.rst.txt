@@ -1,0 +1,7 @@
+gatenlp.gateslave module
+========================
+
+.. automodule:: gatenlp.gateslave
+   :members:
+   :undoc-members:
+   :show-inheritance:

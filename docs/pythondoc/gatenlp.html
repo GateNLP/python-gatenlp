@@ -79,8 +79,11 @@
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.exceptions.html">gatenlp.exceptions module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.feature_bearer.html">gatenlp.feature_bearer module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.gate_interaction.html">gatenlp.gate_interaction module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.gateslave.html">gatenlp.gateslave module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.offsetmapper.html">gatenlp.offsetmapper module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.spacy.html">gatenlp.spacy module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.stanfordnlp.html">gatenlp.stanfordnlp module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.utils.html">gatenlp.utils module</a></li>
 </ul>
 </div>
 </div>
@@ -360,7 +363,7 @@ are already of that type, this does nothing.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.add">
-<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">anntype: str</em>, <em class="sig-param">features</em>, <em class="sig-param">annid: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">anntype: str</em>, <em class="sig-param">features: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">annid: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an annotation to the set. Once an annotation has been added, the start and end offsets,
 the type, and the annotation id are immutable.</p>
 <dl class="field-list simple">
@@ -369,7 +372,7 @@ the type, and the annotation id are immutable.</p>
 <li><p><strong>start</strong> – start offset</p></li>
 <li><p><strong>end</strong> – end offset</p></li>
 <li><p><strong>anntype</strong> – the annotation type</p></li>
-<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used         to create a new feature map for this annotation.</p></li>
+<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used         to create a new feature map for this annotation. If the map is empty or this parameter is None, the         annotation does not store any map at all.</p></li>
 <li><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used. NOTE: the id should        normally left unspecified and get assigned automatically.</p></li>
 </ul>
 </dd>
@@ -691,7 +694,7 @@ annotation set.</p>
 
 <dl class="method">
 <dt id="gatenlp.AnnotationSet.with_type">
-<code class="sig-name descname">with_type</code><span class="sig-paren">(</span><em class="sig-param">*anntype: Optional[str]</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.with_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.with_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_type</code><span class="sig-paren">(</span><em class="sig-param">*anntype: Union[str, collections.abc.Iterable]</em><span class="sig-paren">)</span> &#x2192; gatenlp.annotation_set.AnnotationSet<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.with_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.with_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets annotations of the specified type(s).
 Creates the type index if necessary.</p>
 <dl class="field-list simple">
@@ -821,7 +824,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

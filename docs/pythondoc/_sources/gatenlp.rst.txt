@@ -21,8 +21,11 @@ Submodules
    gatenlp.exceptions
    gatenlp.feature_bearer
    gatenlp.gate_interaction
+   gatenlp.gateslave
    gatenlp.offsetmapper
    gatenlp.spacy
+   gatenlp.stanfordnlp
+   gatenlp.utils
 
 Module contents
 ---------------

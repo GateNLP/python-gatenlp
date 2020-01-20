@@ -244,7 +244,7 @@
             <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span>
                 <span class="s2">&quot;Annotation ends after document ends: end=</span><span class="si">{}</span><span class="s2">, docsize=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">doc_size</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AnnotationSet.add"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">anntype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AnnotationSet.add"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">anntype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an annotation to the set. Once an annotation has been added, the start and end offsets,</span>
 <span class="sd">        the type, and the annotation id are immutable.</span>
@@ -253,7 +253,8 @@
 <span class="sd">        :param end: end offset</span>
 <span class="sd">        :param anntype: the annotation type</span>
 <span class="sd">        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used \</span>
-<span class="sd">        to create a new feature map for this annotation.</span>
+<span class="sd">        to create a new feature map for this annotation. If the map is empty or this parameter is None, the \</span>
+<span class="sd">        annotation does not store any map at all.</span>
 <span class="sd">        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\</span>
 <span class="sd">        normally left unspecified and get assigned automatically.</span>
 <span class="sd">        :return: the annotation id of the added annotation</span>
@@ -360,24 +361,29 @@
 <span class="sd">        :param reverse: process in reverse document order</span>
 <span class="sd">        :return: generator for annotations in document order</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">allowedtypes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">with_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">allowedtypes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">allowedtypes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">with_type</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="n">with_type</span><span class="p">:</span>
                     <span class="n">allowedtypes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">atype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">allowedtypes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">maxoff</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">start_ge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">start_ge</span> <span class="o">&gt;=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">start_lt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">start_lt</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+            <span class="n">maxoff</span> <span class="o">=</span> <span class="n">start_lt</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">start_lt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start_ge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">start_lt</span> <span class="o">&gt;</span> <span class="n">start_ge</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">_start</span><span class="p">,</span> <span class="n">_end</span><span class="p">,</span> <span class="n">annid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">irange</span><span class="p">(</span><span class="n">minoff</span><span class="o">=</span><span class="n">start_ge</span><span class="p">,</span> <span class="n">maxoff</span><span class="o">=</span><span class="n">start_lt</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowedtypes</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_start</span><span class="p">,</span> <span class="n">_end</span><span class="p">,</span> <span class="n">annid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">irange</span><span class="p">(</span><span class="n">minoff</span><span class="o">=</span><span class="n">start_ge</span><span class="p">,</span> <span class="n">maxoff</span><span class="o">=</span><span class="n">maxoff</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">allowedtypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowedtypes</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.reverse_iter"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.reverse_iter">[docs]</a>    <span class="k">def</span> <span class="nf">reverse_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -406,7 +412,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span>
 
-<div class="viewcode-block" id="AnnotationSet.with_type"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.with_type">[docs]</a>    <span class="k">def</span> <span class="nf">with_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">anntype</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.with_type"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.with_type">[docs]</a>    <span class="k">def</span> <span class="nf">with_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">anntype</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets annotations of the specified type(s).</span>
 <span class="sd">        Creates the type index if necessary.</span>
@@ -417,17 +423,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">atypes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="n">anntype</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">atype</span><span class="p">,</span><span class="n">Iterable</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">atype</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atype</span><span class="p">:</span>
                     <span class="n">atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atype</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">atypes</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">immutable</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_type</span><span class="p">()</span>
         <span class="n">annids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atypes</span><span class="p">:</span>
-            <span class="n">annids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index_by_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idxs</span><span class="p">:</span>
+                <span class="n">annids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">immutable</span><span class="p">(</span><span class="n">annids</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.type_names"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.type_names">[docs]</a>    <span class="k">def</span> <span class="nf">type_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeysView</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -452,7 +460,7 @@
         <span class="c1"># NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the</span>
         <span class="c1"># point query</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
-        <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">start_eq</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">starting_from</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restrict_intvs</span><span class="p">(</span><span class="n">intvs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.start_min_ge"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.start_min_ge">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
@@ -657,7 +665,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

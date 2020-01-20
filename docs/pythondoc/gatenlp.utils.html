@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>gatenlp.docformats package &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <title>gatenlp.utils module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -16,8 +16,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="gatenlp.docformats.simplejson module" href="gatenlp.docformats.simplejson.html" />
-    <link rel="prev" title="gatenlp package" href="gatenlp.html" /> 
+    <link rel="prev" title="gatenlp.stanfordnlp module" href="gatenlp.stanfordnlp.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +28,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.docformats.simplejson.html" title="gatenlp.docformats.simplejson module"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="gatenlp.html" title="gatenlp package"
+          <a href="gatenlp.stanfordnlp.html" title="gatenlp.stanfordnlp module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
@@ -44,22 +40,35 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="gatenlp-docformats-package">
-<h1>gatenlp.docformats package<a class="headerlink" href="#gatenlp-docformats-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="gatenlp.docformats.simplejson.html">gatenlp.docformats.simplejson module</a></li>
+  <div class="section" id="module-gatenlp.utils">
+<span id="gatenlp-utils-module"></span><h1>gatenlp.utils module<a class="headerlink" href="#module-gatenlp.utils" title="Permalink to this headline">¶</a></h1>
+<p>Various utilities that could be useful in several modules.</p>
+<dl class="function">
+<dt id="gatenlp.utils.match_substrings">
+<code class="sig-prename descclassname">gatenlp.utils.</code><code class="sig-name descname">match_substrings</code><span class="sig-paren">(</span><em class="sig-param">text</em>, <em class="sig-param">items</em>, <em class="sig-param">getstr=None</em>, <em class="sig-param">cmp=None</em>, <em class="sig-param">unmatched=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/utils.html#match_substrings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.utils.match_substrings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches each item from the items sequence with sum substring of the text
+in a greedy fashion. An item is either already a string or getstr is used
+to retrieve a string from it. The text and substrings are normally
+compared with normal string equality but cmp can be replaced with
+a two-argument function that does the comparison instead.
+This function expects that all items are present in the text, in their order
+and without overlapping! If this is not the case, an exception is raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – the text to use for matching</p></li>
+<li><p><strong>items</strong> – items that are or contains substrings to match</p></li>
+<li><p><strong>getstr</strong> – a function that retrieves the text from an item</p></li>
+<li><p><strong>cmp</strong> – a function that compares to strings and returns a boolean     that indicates if they should be considered to be equal.</p></li>
+<li><p><strong>unmatched</strong> – if true returns two lists of tuples, where the second list    contains the offsets of text not matched by the items</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-gatenlp.docformats">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gatenlp.docformats" title="Permalink to this headline">¶</a></h2>
-<p>This package contains support for reading/writing documents in various formats
-and importing documents from various formats.
-At this point, only “simplejson” is implemented.</p>
-</div>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of tuples (start, end, item) where start and end are the    start and end offsets of a substring in the text and item is the item for that substring.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -68,25 +77,13 @@ At this point, only “simplejson” is implemented.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">gatenlp.docformats package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-gatenlp.docformats">Module contents</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gatenlp.html"
-                        title="previous chapter">gatenlp package</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="gatenlp.docformats.simplejson.html"
-                        title="next chapter">gatenlp.docformats.simplejson module</a></p>
+  <p class="topless"><a href="gatenlp.stanfordnlp.html"
+                        title="previous chapter">gatenlp.stanfordnlp module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/gatenlp.docformats.rst.txt"
+      <li><a href="_sources/gatenlp.utils.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -114,10 +111,7 @@ At this point, only “simplejson” is implemented.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.docformats.simplejson.html" title="gatenlp.docformats.simplejson module"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="gatenlp.html" title="gatenlp package"
+          <a href="gatenlp.stanfordnlp.html" title="gatenlp.stanfordnlp module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 

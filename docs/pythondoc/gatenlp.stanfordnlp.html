@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>gatenlp.spacy module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <title>gatenlp.stanfordnlp module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -16,8 +16,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="gatenlp.stanfordnlp module" href="gatenlp.stanfordnlp.html" />
-    <link rel="prev" title="gatenlp.offsetmapper module" href="gatenlp.offsetmapper.html" /> 
+    <link rel="next" title="gatenlp.utils module" href="gatenlp.utils.html" />
+    <link rel="prev" title="gatenlp.spacy module" href="gatenlp.spacy.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +29,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.stanfordnlp.html" title="gatenlp.stanfordnlp module"
+          <a href="gatenlp.utils.html" title="gatenlp.utils module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
+          <a href="gatenlp.spacy.html" title="gatenlp.spacy module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
@@ -44,18 +44,18 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-gatenlp.spacy">
-<span id="gatenlp-spacy-module"></span><h1>gatenlp.spacy module<a class="headerlink" href="#module-gatenlp.spacy" title="Permalink to this headline">¶</a></h1>
-<p>Support for using spacy: convert from spacy to gatenlp documents and annotations.</p>
+  <div class="section" id="module-gatenlp.stanfordnlp">
+<span id="gatenlp-stanfordnlp-module"></span><h1>gatenlp.stanfordnlp module<a class="headerlink" href="#module-gatenlp.stanfordnlp" title="Permalink to this headline">¶</a></h1>
+<p>Support for using stanfordnlp: convert from stanfordnlp output to gatenlp documents and annotations.</p>
 <dl class="function">
-<dt id="gatenlp.spacy.apply_spacy">
-<code class="sig-prename descclassname">gatenlp.spacy.</code><code class="sig-name descname">apply_spacy</code><span class="sig-paren">(</span><em class="sig-param">nlp</em>, <em class="sig-param">gatenlpdoc</em>, <em class="sig-param">setname=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#apply_spacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.apply_spacy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
+<dt id="gatenlp.stanfordnlp.apply_stanfordnlp">
+<code class="sig-prename descclassname">gatenlp.stanfordnlp.</code><code class="sig-name descname">apply_stanfordnlp</code><span class="sig-paren">(</span><em class="sig-param">nlp</em>, <em class="sig-param">gatenlpdoc</em>, <em class="sig-param">setname=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/stanfordnlp.html#apply_stanfordnlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.stanfordnlp.apply_stanfordnlp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the stanford nlp pipeline on the gatenlp document and transfer the annotations.
 This modifies the gatenlp document in place.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>nlp</strong> – spacy pipeline</p></li>
+<li><p><strong>nlp</strong> – StanfordNLP pipeline</p></li>
 <li><p><strong>gatenlpdoc</strong> – gatenlp document</p></li>
 <li><p><strong>setname</strong> – set to use</p></li>
 </ul>
@@ -67,27 +67,18 @@ This modifies the gatenlp document in place.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="gatenlp.spacy.spacy2gatenlp">
-<code class="sig-prename descclassname">gatenlp.spacy.</code><code class="sig-name descname">spacy2gatenlp</code><span class="sig-paren">(</span><em class="sig-param">spacydoc</em>, <em class="sig-param">gatenlpdoc=None</em>, <em class="sig-param">setname=''</em>, <em class="sig-param">token_type='Token'</em>, <em class="sig-param">spacetoken_type='SpaceToken'</em>, <em class="sig-param">sentence_type='Sentence'</em>, <em class="sig-param">nounchunk_type='NounChunk'</em>, <em class="sig-param">add_tokens=True</em>, <em class="sig-param">add_spacetokens=True</em>, <em class="sig-param">add_ents=True</em>, <em class="sig-param">add_sents=True</em>, <em class="sig-param">add_nounchunks=True</em>, <em class="sig-param">add_dep=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
+<dt id="gatenlp.stanfordnlp.stanfordnlp2gatenlp">
+<code class="sig-prename descclassname">gatenlp.stanfordnlp.</code><code class="sig-name descname">stanfordnlp2gatenlp</code><span class="sig-paren">(</span><em class="sig-param">stanfordnlpdoc</em>, <em class="sig-param">gatenlpdoc=None</em>, <em class="sig-param">setname=''</em>, <em class="sig-param">word_type='Word'</em>, <em class="sig-param">sentence_type='Sentence'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/stanfordnlp.html#stanfordnlp2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.stanfordnlp.stanfordnlp2gatenlp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already
 provided, add the annotations from the spacy document to it. In this case the
 original gatenlpdoc is used and gets modified.
-:param spacydoc: a spacy document
+:param stanfordnlpdoc: a spacy document
 :param gatenlpdoc: if None, a new gatenlp document is created otherwise this
 document is added to.
 :param setname: the annotation set name to which the annotations get added, empty string
 for the default annotation set.
 :param token_type: the annotation type to use for tokens
-:param spacetoken_type: the annotation type to use for space tokens
 :param sentence_type: the annotation type to use for sentence anntoations
-:param nounchunk_type: the annotation type to use for noun chunk annotations
-:param add_tokens: should annotations for tokens get added? If not, dependency parser
-info cannot be added either.
-:param add_spacetokens: should annotations for space tokens get added
-:param add_ents: should annotations for entities get added
-:param add_sents: should sentence annotations get added
-:param add_nounchunks: should noun chunk annotations get added
-:param add_dep: should dependency parser information get added
 :return: the new or modified</p>
 </dd></dl>
 
@@ -100,15 +91,15 @@ info cannot be added either.
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gatenlp.offsetmapper.html"
-                        title="previous chapter">gatenlp.offsetmapper module</a></p>
+  <p class="topless"><a href="gatenlp.spacy.html"
+                        title="previous chapter">gatenlp.spacy module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="gatenlp.stanfordnlp.html"
-                        title="next chapter">gatenlp.stanfordnlp module</a></p>
+  <p class="topless"><a href="gatenlp.utils.html"
+                        title="next chapter">gatenlp.utils module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/gatenlp.spacy.rst.txt"
+      <li><a href="_sources/gatenlp.stanfordnlp.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -136,10 +127,10 @@ info cannot be added either.
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.stanfordnlp.html" title="gatenlp.stanfordnlp module"
+          <a href="gatenlp.utils.html" title="gatenlp.utils module"
              >next</a> |</li>
         <li class="right" >
-          <a href="gatenlp.offsetmapper.html" title="gatenlp.offsetmapper module"
+          <a href="gatenlp.spacy.html" title="gatenlp.spacy module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 

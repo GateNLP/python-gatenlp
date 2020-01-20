@@ -96,7 +96,9 @@
         <li><a href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog.append">(gatenlp.changelog.ChangeLog method)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.spacy.html#gatenlp.spacy.apply_nlp">apply_nlp() (in module gatenlp.spacy)</a>
+      <li><a href="gatenlp.spacy.html#gatenlp.spacy.apply_spacy">apply_spacy() (in module gatenlp.spacy)</a>
+</li>
+      <li><a href="gatenlp.stanfordnlp.html#gatenlp.stanfordnlp.apply_stanfordnlp">apply_stanfordnlp() (in module gatenlp.stanfordnlp)</a>
 </li>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.at">at() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
@@ -118,6 +120,8 @@
         <li><a href="gatenlp.annotation.html#gatenlp.annotation.Annotation.changelog">(gatenlp.annotation.Annotation attribute)</a>
 </li>
       </ul></li>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.classpath_sep">classpath_sep() (in module gatenlp.gateslave)</a>
+</li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.clear">clear() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
@@ -126,14 +130,16 @@
       </ul></li>
       <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.clear_features">clear_features() (gatenlp.feature_bearer.FeatureBearer method)</a>
 </li>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.close">close() (gatenlp.gateslave.GateSlave method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.coextensive">coextensive() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.coextensive">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.contains">contains() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
@@ -242,6 +248,8 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.gate_classpath">gate_classpath() (in module gatenlp.gateslave)</a>
+</li>
       <li><a href="gatenlp.html#module-gatenlp">gatenlp (module)</a>
 </li>
       <li><a href="gatenlp.annotation.html#module-gatenlp.annotation">gatenlp.annotation (module)</a>
@@ -262,17 +270,27 @@
 </li>
       <li><a href="gatenlp.gate_interaction.html#module-gatenlp.gate_interaction">gatenlp.gate_interaction (module)</a>
 </li>
+      <li><a href="gatenlp.gateslave.html#module-gatenlp.gateslave">gatenlp.gateslave (module)</a>
+</li>
       <li><a href="gatenlp.impl.html#module-gatenlp.impl">gatenlp.impl (module)</a>
 </li>
       <li><a href="gatenlp.impl.sortedintvls.html#module-gatenlp.impl.sortedintvls">gatenlp.impl.sortedintvls (module)</a>
 </li>
       <li><a href="gatenlp.offsetmapper.html#module-gatenlp.offsetmapper">gatenlp.offsetmapper (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.spacy.html#module-gatenlp.spacy">gatenlp.spacy (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gatenlp.stanfordnlp.html#module-gatenlp.stanfordnlp">gatenlp.stanfordnlp (module)</a>
+</li>
+      <li><a href="gatenlp.utils.html#module-gatenlp.utils">gatenlp.utils (module)</a>
+</li>
       <li><a href="gatenlp.html#gatenlp.GateNlpPr">GateNlpPr() (in module gatenlp)</a>
+</li>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave">GateSlave (class in gatenlp.gateslave)</a>
+</li>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.gdoc2pdoc">gdoc2pdoc() (gatenlp.gateslave.GateSlave method)</a>
 </li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.get">get() (gatenlp.annotation_set.AnnotationSet method)</a>
 
@@ -390,9 +408,13 @@
 </li>
       <li><a href="gatenlp.docformats.simplejson.html#gatenlp.docformats.simplejson.load">load() (in module gatenlp.docformats.simplejson)</a>
 </li>
+      <li><a href="gatenlp.docformats.simplejson.html#gatenlp.docformats.simplejson.load_file">load_file() (in module gatenlp.docformats.simplejson)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.docformats.simplejson.html#gatenlp.docformats.simplejson.load_file">load_file() (in module gatenlp.docformats.simplejson)</a>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_gdoc">load_gdoc() (gatenlp.gateslave.GateSlave method)</a>
+</li>
+      <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_pdoc">load_pdoc() (gatenlp.gateslave.GateSlave method)</a>
 </li>
       <li><a href="gatenlp.docformats.simplejson.html#gatenlp.docformats.simplejson.loads">loads() (in module gatenlp.docformats.simplejson)</a>
 </li>
@@ -402,10 +424,12 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.max_end">max_end() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
+      <li><a href="gatenlp.utils.html#gatenlp.utils.match_substrings">match_substrings() (in module gatenlp.utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.max_end">max_end() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
+</li>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.min_start">min_start() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
   </ul></td>
@@ -496,6 +520,8 @@
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.span">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
+      <li><a href="gatenlp.stanfordnlp.html#gatenlp.stanfordnlp.stanfordnlp2gatenlp">stanfordnlp2gatenlp() (in module gatenlp.stanfordnlp)</a>
+</li>
       <li><a href="gatenlp.html#gatenlp.Annotation.start">start (gatenlp.Annotation attribute)</a>
 
       <ul>
@@ -640,7 +666,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

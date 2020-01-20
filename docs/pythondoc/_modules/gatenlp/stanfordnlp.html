@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>gatenlp.stanfordnlp &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gatenlp.stanfordnlp</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Support for using stanfordnlp: convert from stanfordnlp output to gatenlp documents and annotations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">gatenlp</span> <span class="k">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">gatenlp</span> <span class="k">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="apply_stanfordnlp"><a class="viewcode-back" href="../../gatenlp.stanfordnlp.html#gatenlp.stanfordnlp.apply_stanfordnlp">[docs]</a><span class="k">def</span> <span class="nf">apply_stanfordnlp</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the stanford nlp pipeline on the gatenlp document and transfer the annotations.</span>
+<span class="sd">    This modifies the gatenlp document in place.</span>
+
+<span class="sd">    :param nlp: StanfordNLP pipeline</span>
+<span class="sd">    :param gatenlpdoc: gatenlp document</span>
+<span class="sd">    :param setname: set to use</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spacydoc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">gatenlpdoc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stanfordnlp2gatenlp</span><span class="p">(</span><span class="n">spacydoc</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="o">=</span><span class="n">gatenlpdoc</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="n">setname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="stanfordnlp2gatenlp"><a class="viewcode-back" href="../../gatenlp.stanfordnlp.html#gatenlp.stanfordnlp.stanfordnlp2gatenlp">[docs]</a><span class="k">def</span> <span class="nf">stanfordnlp2gatenlp</span><span class="p">(</span><span class="n">stanfordnlpdoc</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">word_type</span><span class="o">=</span><span class="s2">&quot;Word&quot;</span><span class="p">,</span>
+                  <span class="n">sentence_type</span><span class="o">=</span><span class="s2">&quot;Sentence&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already</span>
+<span class="sd">    provided, add the annotations from the spacy document to it. In this case the</span>
+<span class="sd">    original gatenlpdoc is used and gets modified.</span>
+<span class="sd">    :param stanfordnlpdoc: a spacy document</span>
+<span class="sd">    :param gatenlpdoc: if None, a new gatenlp document is created otherwise this</span>
+<span class="sd">    document is added to.</span>
+<span class="sd">    :param setname: the annotation set name to which the annotations get added, empty string</span>
+<span class="sd">    for the default annotation set.</span>
+<span class="sd">    :param token_type: the annotation type to use for tokens</span>
+<span class="sd">    :param sentence_type: the annotation type to use for sentence anntoations</span>
+<span class="sd">    :return: the new or modified</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">gatenlpdoc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">retdoc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">stanfordnlpdoc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">retdoc</span> <span class="o">=</span> <span class="n">gatenlpdoc</span>
+    <span class="n">toki2annid</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">annset</span> <span class="o">=</span> <span class="n">retdoc</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">(</span><span class="n">setname</span><span class="p">)</span>
+    <span class="c1"># stanford nlp processes text in sentence chunks, so we do everything per sentence</span>
+    <span class="c1"># NOTE: the stanford elements do not contain any text offsets, so we have to match and find</span>
+    <span class="c1"># them ourselves. for this we keep an index to first character in the text which has not</span>
+    <span class="c1"># been matched yet</span>
+    <span class="n">notmatchedidx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">stanfordnlpdoc</span><span class="o">.</span><span class="n">sentences</span><span class="p">:</span>
+        <span class="c1"># a sentence is a list of tokens and a list of words. Some tokens consist of several words.</span>
+        <span class="c1"># dependency parsers are over words, so we create Word and Token annotations, but we only</span>
+        <span class="c1"># set the features per Word annotation for now.</span>
+        <span class="n">offsetinfos</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">match_substrings</span><span class="p">(</span><span class="n">stanfordnlpdoc</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">notmatchedidx</span><span class="p">:],</span>
+                                             <span class="n">sent</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">getstr</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">idx2annid</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">oinfo</span> <span class="ow">in</span> <span class="n">offsetinfos</span><span class="p">:</span>
+            <span class="n">word</span> <span class="o">=</span> <span class="n">oinfo</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">fm</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+                <span class="s2">&quot;lemma&quot;</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">lemma</span><span class="p">,</span>
+                <span class="s2">&quot;upos&quot;</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">upos</span><span class="p">,</span>
+                <span class="s2">&quot;xpos&quot;</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">xpos</span><span class="p">,</span>
+                <span class="s2">&quot;dependency_relation&quot;</span><span class="p">:</span> <span class="n">word</span><span class="o">.</span><span class="n">dependency_relation</span><span class="p">,</span>
+                <span class="s2">&quot;governor&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">governor</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">word</span><span class="o">.</span><span class="n">feats</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">feat</span> <span class="ow">and</span> <span class="n">feat</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+                    <span class="c1"># TODO: maybe try to detect and convert bool/int values</span>
+                    <span class="n">fm</span><span class="p">[</span><span class="s2">&quot;feat_&quot;</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">snlp_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">annid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">oinfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">notmatchedidx</span><span class="p">,</span> <span class="n">oinfo</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">notmatchedidx</span><span class="p">,</span> <span class="n">word_type</span><span class="p">,</span> <span class="n">fm</span><span class="p">)</span>
+            <span class="n">idx2annid</span><span class="p">[</span><span class="n">snlp_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">annid</span>
+        <span class="c1"># create a sentence annotation from beginning of first word to end of last</span>
+        <span class="n">sentid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">offsetinfos</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">notmatchedidx</span><span class="p">,</span> <span class="n">offsetinfos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">notmatchedidx</span><span class="p">,</span> <span class="n">sentence_type</span><span class="p">)</span>
+        <span class="c1"># now replace the governor index with the corresponding annid, the governor index is</span>
+        <span class="c1"># mapped to the sentence annotation</span>
+        <span class="n">idx2annid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentid</span>
+        <span class="k">for</span> <span class="n">annid</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">idx2annid</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">ann</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">annid</span><span class="p">)</span>
+            <span class="n">gov</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_feature</span><span class="p">(</span><span class="s2">&quot;governor&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ann</span><span class="o">.</span><span class="n">set_feature</span><span class="p">(</span><span class="s2">&quot;governor&quot;</span><span class="p">,</span> <span class="n">idx2annid</span><span class="p">[</span><span class="n">gov</span><span class="p">])</span>
+        <span class="n">notmatchedidx</span> <span class="o">=</span> <span class="n">offsetinfos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">notmatchedidx</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">retdoc</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

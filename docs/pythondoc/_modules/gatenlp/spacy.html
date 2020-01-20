@@ -37,12 +37,14 @@
           <div class="body" role="main">
             
   <h1>Source code for gatenlp.spacy</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Convert between gatenlp and spacy documents and annotations.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Support for using spacy: convert from spacy to gatenlp documents and annotations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">gatenlp</span> <span class="k">import</span> <span class="n">interact</span><span class="p">,</span> <span class="n">GateNlpPr</span><span class="p">,</span> <span class="n">Document</span>
 
 
-<div class="viewcode-block" id="apply_nlp"><a class="viewcode-back" href="../../gatenlp.spacy.html#gatenlp.spacy.apply_nlp">[docs]</a><span class="k">def</span> <span class="nf">apply_nlp</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="apply_spacy"><a class="viewcode-back" href="../../gatenlp.spacy.html#gatenlp.spacy.apply_spacy">[docs]</a><span class="k">def</span> <span class="nf">apply_spacy</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.</span>
 <span class="sd">    This modifies the gatenlp document in place.</span>
@@ -193,7 +195,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>
