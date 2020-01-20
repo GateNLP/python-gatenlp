@@ -21,6 +21,7 @@ def versionfromfile(*filepath):
             return version_match.group(1)
         raise RuntimeError("Unable to find version string in {}.".format(infile))
 
+#if __name__ == "__main__":
 setup(
     name="gatenlp",
     version=versionfromfile("gatenlp/__init__.py"),
@@ -30,8 +31,8 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     setup_requires=["pytest-runner"],
-    install_requires=["sortedcontainers", "typing"],
-    python_requires=">=3.4",
+    install_requires=["sortedcontainers"],
+    python_requires=">=3.5",
     tests_require=['pytest'],
     platforms='any',
     license="MIT",
@@ -47,7 +48,6 @@ setup(
         # "Development Status :: 2 - Pre-Alpha",
         # "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -59,5 +59,5 @@ setup(
         "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: MIT License",
       ],
-)
+    )
 
