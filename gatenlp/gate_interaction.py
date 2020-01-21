@@ -293,6 +293,7 @@ def interact():
 
                 st = [(f.filename, f.lineno, f.name, f.line) for f in st]
                 info = ["{}:{} ({}) {}".format(f.filename, f.lineno, f.name, f.line) for f in st]
+                info = "\n".join(info)
                 response = {
                     "data": None,
                     "status": "error",
