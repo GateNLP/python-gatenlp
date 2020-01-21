@@ -286,11 +286,13 @@ def interact():
                 }
             except Exception as ex:
                 error = repr(ex)
+                tb_str = traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)
+                logger.error("ERROR when running python code:")
+                logger.error(tb_str)
                 # old way we tried this:
-                tb = traceback.extract_stack(limit=20)
+                # tb = traceback.extract_stack(limit=20)
                 # new way:
-                # tb = traceback.extract_tb(ex.__traceback__)
-
+                tb = traceback.extract_tb(ex.__traceback__)
                 st = [(f.filename, f.lineno, f.name, f.line) for f in tb]
                 info = ["{}:{} in {}\n    {}".format(f.filename, f.lineno, f.name, f.line) for f in tb]
                 info = "\n".join(info)
@@ -301,9 +303,6 @@ def interact():
                     "info": info,
                     "stacktrace": st
                 }
-                print(dumps(response), file=ostream)
-                ostream.flush()
-                raise ex
             logger.debug("Sending back response: {}".format(response))
             print(dumps(response), file=ostream)
 
