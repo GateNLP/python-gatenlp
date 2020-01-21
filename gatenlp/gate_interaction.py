@@ -287,9 +287,9 @@ def interact():
             except Exception as ex:
                 error = repr(ex)
                 # old way we tried this:
-                # st = traceback.extract_stack(limit=20)
+                tb = traceback.extract_stack(limit=20)
                 # new way:
-                tb = traceback.extract_tb(ex.__traceback__)
+                # tb = traceback.extract_tb(ex.__traceback__)
 
                 st = [(f.filename, f.lineno, f.name, f.line) for f in tb]
                 info = ["{}:{} in {}\n    {}".format(f.filename, f.lineno, f.name, f.line) for f in tb]
