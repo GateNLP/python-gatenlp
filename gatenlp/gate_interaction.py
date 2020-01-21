@@ -285,9 +285,9 @@ def interact():
                     "status": "ok",
                 }
             except Exception as ex:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
                 error = repr(ex)
-                info = "\n".join(traceback.format_tb(exc_traceback))
+                st = traceback.extract_stack(limit=20)
+                info = [(f.filename, f.lineno, f.name, f.line) for f in st]
                 response = {
                     "data": None,
                     "status": "error",
