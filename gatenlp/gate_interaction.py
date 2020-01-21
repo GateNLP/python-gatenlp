@@ -288,14 +288,17 @@ def interact():
                 error = repr(ex)
                 tb_str = traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)
                 print("ERROR when running python code:", file=sys.stderr)
-                print(tb_str, file=sys.stderr)
+                for line in tb_str:
+                    print(line, file=sys.stderr)
                 # old way we tried this:
                 # tb = traceback.extract_stack(limit=20)
                 # new way:
-                tb = traceback.extract_tb(ex.__traceback__)
-                st = [(f.filename, f.lineno, f.name, f.line) for f in tb]
-                info = ["{}:{} in {}\n    {}".format(f.filename, f.lineno, f.name, f.line) for f in tb]
-                info = "\n".join(info)
+                # tb = traceback.extract_tb(ex.__traceback__)
+                # st = [(f.filename, f.lineno, f.name, f.line) for f in tb]
+                # info = ["{}:{} in {}\n    {}".format(f.filename, f.lineno, f.name, f.line) for f in tb]
+                # info = "\n".join(info)
+                info = tb_str
+                st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
                 response = {
                     "data": None,
                     "status": "error",
