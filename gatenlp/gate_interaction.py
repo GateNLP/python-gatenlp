@@ -287,8 +287,8 @@ def interact():
             except Exception as ex:
                 error = repr(ex)
                 tb_str = traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)
-                logger.error("ERROR when running python code:")
-                logger.error(tb_str)
+                print("ERROR when running python code:", file=sys.stderr)
+                print(tb_str, file=sys.stderr)
                 # old way we tried this:
                 # tb = traceback.extract_stack(limit=20)
                 # new way:
