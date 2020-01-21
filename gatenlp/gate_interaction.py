@@ -297,7 +297,7 @@ def interact():
                 # st = [(f.filename, f.lineno, f.name, f.line) for f in tb]
                 # info = ["{}:{} in {}\n    {}".format(f.filename, f.lineno, f.name, f.line) for f in tb]
                 # info = "\n".join(info)
-                info = tb_str
+                info = "".join(tb_str)
                 st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
                 response = {
                     "data": None,
