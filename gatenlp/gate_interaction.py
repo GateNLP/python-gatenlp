@@ -301,6 +301,9 @@ def interact():
                     "info": info,
                     "stacktrace": st
                 }
+                print(dumps(response), file=ostream)
+                ostream.flush()
+                raise ex
             logger.debug("Sending back response: {}".format(response))
             print(dumps(response), file=ostream)
 
