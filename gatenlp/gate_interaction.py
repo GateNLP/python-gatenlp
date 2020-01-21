@@ -286,16 +286,23 @@ def interact():
                 }
             except Exception as ex:
                 error = repr(ex)
-                st = traceback.extract_stack(limit=20)
-                info = [(f.filename, f.lineno, f.name, f.line) for f in st]
+                # old way we tried this:
+                # st = traceback.extract_stack(limit=20)
+                # new way:
+                st = traceback.extract_tb(ex.__traceback__)
+
+                st = [(f.filename, f.lineno, f.name, f.line) for f in st]
+                info = ["{}:{} ({}) {}".format(f.filename, f.lineno, f.name, f.line) for f in st]
                 response = {
                     "data": None,
                     "status": "error",
                     "error": error,
-                    "info": info
+                    "info": info,
+                    "stacktrace": st
                 }
             logger.debug("Sending back response: {}".format(response))
             print(dumps(response), file=ostream)
+
             ostream.flush()
             if stop_requested:
                 break
