@@ -292,13 +292,13 @@ def interact():
                     print(line, file=sys.stderr, end="")  # what we get from traceback already has new lines
                 info = "".join(tb_str)
                 # in case we want the actual stacktrace data as well:
-                # st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
+                st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
                 response = {
                     "data": None,
                     "status": "error",
                     "error": error,
                     "info": info,
-                    # "stacktrace": st
+                    "stacktrace": st
                 }
             logger.debug("Sending back response: {}".format(response))
             print(dumps(response), file=ostream)
