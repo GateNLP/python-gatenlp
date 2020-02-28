@@ -4,6 +4,7 @@ from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYT
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
+from gatenlp.utils import to_dict, to_list
 from .feature_bearer import FeatureBearer
 import logging
 
@@ -26,6 +27,15 @@ class _AnnotationSetsDict(collections.defaultdict):
         annset = AnnotationSet(name=key, changelog=self.changelog, owner_doc=self.owner_doc)
         self[key] = annset
         return annset
+
+    def to_dict(self):
+        return dict((key, to_dict(val)) for key, val in self.items())
+
+    @staticmethod
+    def from_dict(dictrepr: Dict, changelog: ChangeLog=None, owner_doc: "Document"=None):
+        asd = _AnnotationSetsDict(changelog=changelog, owner_doc=owner_doc)
+        asd.update(((key, AnnotationSet.from_dict(val)) for key, val in dictrepr.items()))
+        return asd
 
 
 class Document(FeatureBearer):
@@ -269,3 +279,49 @@ class Document(FeatureBearer):
         doc.repr_version = jsonmap.get("repr_version")
         doc.document_type = jsonmap.get("document_type")
         return doc
+
+    def to_dict(self):
+        """
+        Convert this instance to a dictionary that can be used to re-create the instance with
+        from_dict.
+        :return: the dictionary representation of this instance
+        """
+        return {
+            "changelog": to_dict(self.changelog),
+            "annotation_sets": to_dict(self.annotation_sets),
+            "text": self._text,
+            "features": self.features,
+            "offset_type": self.offset_type,
+            "doc_type": self.document_type,
+        }
+
+    def to_list(self):
+        return [
+            to_list(self.changelog),
+            to_list(self.annotation_sets),
+            self._text,
+            self.features,
+            self.offset_type,
+            self.document_type,
+        ]
+
+
+    @staticmethod
+    def from_dict(dictrepr):
+        """
+        Return a Document instance as represented by the dictionary dictrepr.
+        :param dictrepr:
+        :return: the initialized Document instance
+        """
+        doc = Document(dictrepr.get("text"))
+        doc.repr_version = dictrepr.get("repr_version")
+        doc.document_type = dictrepr.get("document_type")
+        doc.offset_type = dictrepr.get("offset_type")
+        doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
+        doc.features = dictrepr.get("features")
+        doc.gatenlp_type = dictrepr.get("gatenlp_type")
+        doc.annotation_sets = \
+            _AnnotationSetsDict.from_dict(dictrepr.get("annotation_sets"),
+                                          changelog=doc.changelog, owner_doc=doc)
+        return doc
+

@@ -239,3 +239,25 @@ class Annotation(FeatureBearer):
                 raise Exception("Annotation attributes cannot get changed after being set")
         else:
             super().__setattr__(key, value)
+
+    def to_dict(self):
+        return {
+            "type": self.type,
+            "start": self.start,
+            "end": self.end,
+            "id": self.id,
+            "features": self.features,
+        }
+
+    @staticmethod
+    def from_dict(dictrepr, owner_set=None, changelog=None):
+        ann = Annotation(
+            start=dictrepr.get("start"),
+            end=dictrepr.get("end"),
+            annot_type=dictrepr.get("type"),
+            annot_id=dictrepr.get("id"),
+            owner_set=owner_set,
+            changelog=changelog,
+            features=dictrepr.get("features")
+        )
+        return ann

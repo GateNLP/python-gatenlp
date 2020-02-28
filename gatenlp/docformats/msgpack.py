@@ -1,31 +1,7 @@
 """
-GATE-specific (de)serialisation of documents. This is called "simplejson" to make it easy
-to keep it apart from the default JSON de/serialiser (which is used but extended).
+GATE-specific (de)serialisation of documents using MsgPack
 """
-import json as json_orig
-
-# ujson would be fast, but does not support object_hook
-#try:
-#    import ujson as json_ujson
-#except:
-#    json_ujson = None
-
-# Too simplistic, does not support object_hook
-# Repo has been archived: https://github.com/rtyler/py-yajl
-# Not usable
-#try:
-#    import yajl as json_yajl
-#except:
-#    json_yajl = None
-
-# yajl-py: pip install requires a manual installation of the underlying yajl C library,
-# also seems to have trouble with Python 3 strings, unusuable here
-
-try:
-    import simplejson as json_simplejson
-except:
-    json_simplejson = None
-
+import json
 import gzip
 from ..document import Document
 from ..annotation import Annotation
@@ -76,37 +52,12 @@ def get_object_hook(**kwargs):
     return object_hook
 
 
-def choose_json_lib(**kwargs):
-    impl = kwargs.get("json_lib")
-    if impl is None:
-        return json_orig
-#    elif impl == "ujson":
-#        if json_ujson:
-#            return json_ujson
-#        else:
-#            raise Exception("Library ujson could not be imported")
-    elif impl == "json":
-        if json_orig:
-            return json_orig
-        else:
-            raise Exception("Library json could not be imported")
-    elif impl == "simplejson":
-        if json_simplejson:
-            return json_simplejson
-        else:
-            raise Exception("Library simplejson could not be imported")
-    else:
-        raise Exception("Not a known json library: {}".format(impl))
-
-
 def load(fp, **kwargs):
     """
     Load gatenlp object from fp, a file-like object and return it.
     :param fp: a file-like object, as required by json.load
-    :param kwargs: one of 'json_lib', ...???
     :return: the gatenlp object
     """
-    json = choose_json_lib(**kwargs)
     return json.load(fp, object_hook=get_object_hook(**kwargs))
 
 
@@ -117,7 +68,6 @@ def loads(str, **kwargs):
     :param str: JSON string
     :return: the gatenlp object
     """
-    json = choose_json_lib(**kwargs)
     return json.loads(str, object_hook=get_object_hook(**kwargs))
 
 
@@ -130,7 +80,6 @@ def dump(fp, obj, indent=None, **kwargs):
     :param kwargs:
     :return:
     """
-    json = choose_json_lib(**kwargs)
     json.dump(fp, obj, indent=indent, default=get_object_encoder(**kwargs))
 
 
@@ -144,7 +93,6 @@ def dumps(obj, indent=None, **kwargs):
     offset_mapper: if specified, used for the offset mapping if an offset mapper cannot otherwise be found
     :return: JSON string
     """
-    json = choose_json_lib(**kwargs)
     return json.dumps(obj, indent=indent, default=get_object_encoder(**kwargs))
 
 

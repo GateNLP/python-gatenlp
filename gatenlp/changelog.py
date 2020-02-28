@@ -86,3 +86,19 @@ class ChangeLog:
                 raise Exception("Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'")
             cl._fixup_changes(om.convert_to_python)
         return cl
+
+    def to_dict(self):
+        return {
+            "changes": self.changes,
+            "offset_type": self.offset_type
+        }
+
+    @staticmethod
+    def from_dict(dictrepr):
+        if dictrepr is None:
+            return None
+        else:
+            cl = ChangeLog()
+            cl.changes = dictrepr.get("changes")
+            cl.offset_type = dictrepr.get("offset_type")
+            return cl

@@ -5,6 +5,7 @@ from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 from gatenlp.impl import SortedIntvls
 from gatenlp._utils import support_annotation_or_set
+from gatenlp.utils import to_dict
 from collections.abc import Iterable
 
 
@@ -589,4 +590,29 @@ class AnnotationSet:
         annset._annotations = annmap
         annset._next_annid = jsonmap.get("next_annid")
         return annset
+
+    def to_dict(self):
+        return {
+            "changelog": self.changelog,
+            "name": self.name,
+            "_annotations": dict((key, to_dict(val)) for key, val in self._annotations.items()),
+            "_is_immutable": self._is_immutable,
+            "_next_annid": self._next_annid,
+        }
+
+    @staticmethod
+    def from_dict(dictrepr, owner_doc=None):
+        cl = ChangeLog.from_dict(dictrepr.get("changelog"))
+        annset = AnnotationSet(dictrepr.get("name"),
+                               owner_doc=owner_doc, changelog=cl)
+        annset._is_immutable = dictrepr.get("_is_immutable")
+        annset._next_annid = dictrepr.get("_next_annid")
+        if dictrepr.get("_annotations"):
+            annset._annotations = dict(
+                (key, Annotation.from_dict(val, changelog=cl, owner_set=annset))
+                for key, val in dictrepr.get("_annotations").items())
+        else:
+            annset._annotations = None
+        return annset
+
 

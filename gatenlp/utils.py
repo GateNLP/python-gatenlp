@@ -3,6 +3,30 @@ Various utilities that could be useful in several modules.
 """
 
 
+def to_dict(obj):
+    """
+    If obj is not None, call its to_dict method, otherwise return None
+    :param obj: the object on which to call to_dict
+    :return: the result of to_dict or None
+    """
+    if obj is None:
+        return None
+    else:
+        return obj.to_dict()
+
+
+def to_list(obj):
+    """
+    If obj is not None, call its to_list method, otherwise return None
+    :param obj: the object on which to call to_list
+    :return: the result of to_list or None
+    """
+    if obj is None:
+        return None
+    else:
+        return obj.to_list()
+
+
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     """
     Matches each item from the items sequence with sum substring of the text
