@@ -5,6 +5,8 @@ to keep it apart from the default JSON de/serialiser (which is used but extended
 import json as json_orig
 
 # ujson would be fast, but does not support object_hook
+# UPDATE: may be possible using the toDict method, see 
+# https://github.com/ultrajson/ultrajson/issues/358
 #try:
 #    import ujson as json_ujson
 #except:
