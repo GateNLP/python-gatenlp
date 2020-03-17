@@ -366,6 +366,34 @@ class AnnotationSet:
         """
         return self._annotations.get(annid, default)
 
+    def first(self):
+        """
+        Return the first annotation in the set or raise and exception if the set is empty.
+        :return: first annotation
+        """
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception("Empty set, there is no first annotation")
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=False))
+        return self._annotations[annid]
+
+    def last(self):
+        """
+        Return the last annotation in the set or raise and exception if the set is empty.
+        :return: first annotation
+        """
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception("Empty set, there is no last annotation")
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=True))
+        return self._annotations[annid]
+
     def __getitem__(self, annid):
         """
         Gets the annotation with the given annotation id or throws an exception.

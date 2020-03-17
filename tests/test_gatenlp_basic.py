@@ -76,6 +76,8 @@ class TestChangeLog01:
         ann3id = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
         ann4id = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
         ann5id = annset1.add(16, 24, "Token", {"n": 5})
+        assert annset1.first().id == ann1id
+        assert annset1.last().id == ann5id
         annset2 = doc1.get_annotations("Set2")
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2id)

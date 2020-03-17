@@ -136,7 +136,7 @@ class Annotation(FeatureBearer):
         """
         return self.end - self.start - 1
 
-    def inside(self, offset: int) -> bool:
+    def is_inside(self, offset: int) -> bool:
         """
         Check if the given offset falls somewhere inside the span of this annotation.
         :param offset: the offset to check
@@ -156,7 +156,7 @@ class Annotation(FeatureBearer):
         :param end: end offset of the span
         :return: True if overlapping, False otherwise
         """
-        return self.inside(start) or self.inside(end-1)
+        return self.is_inside(start) or self.is_inside(end - 1)
 
     @support_annotation_or_set
     def is_coextensive(self, start: int, end: int) -> bool:
