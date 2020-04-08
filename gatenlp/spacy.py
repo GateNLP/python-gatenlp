@@ -12,7 +12,8 @@ def apply_spacy(nlp, gatenlpdoc, setname=""):
 
     :param nlp: spacy pipeline
     :param gatenlpdoc: gatenlp document
-    :param setname: set to use
+    :param setname: annotation set to receive the annotations
+    :param tokens: an annotation set containing already known token annotations
     :return: 
     """
     spacydoc = nlp(gatenlpdoc.text)
