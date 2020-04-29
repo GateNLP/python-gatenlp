@@ -1,4 +1,4 @@
-from gatenlp.stanfordnlp import stanfordnlp2gatenlp
+from gatenlp.lib_stanfordnlp import stanfordnlp2gatenlp
 
 try:
     import stanfordnlp
