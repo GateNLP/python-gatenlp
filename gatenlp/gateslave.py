@@ -2,7 +2,6 @@
 """
 Module for interacting with a Java GATE process, running API commands on it and
 exchanging data with it.
-The main method allows to run some of this from the command line using command line arguments.
 """
 
 import sys
@@ -12,6 +11,7 @@ import platform as sysplatform
 import glob
 from py4j.java_gateway import JavaGateway, GatewayParameters
 import logging
+from gatenlp.docformats import  simplejson
 
 JARVERSION = "1.0"
 
@@ -121,28 +121,57 @@ class GateSlave:
         """
         self.gateway.close()
 
-    def load_gdoc(self):
+    def load_gdoc(self, path, mimetype=None):
         """
-        NOT IMPLEMENTED YET
-        :return:
+        Let GATE load a document from the given path and return a handle to it.
+
+        :param path: path to the gate document to load.
+        :param mimetype: a mimetype to use when loading.
+        :return: a handle to the GATE document
         """
-        # TODO: load GATE document and return handle to GATE document
-        pass
+        if mimetype is None:
+            mimetype = ""
+        return self.gateway.jvm.gate.plugin.python.PythonSlave.loadDocument(path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
         """
-        NOT IMPLEMENTED YET
-        :param gdoc:
-        :return:
-        """
-        # TODO: convert a gate document to a python document
-        pass
+        Convert the GATE document to a python document and return it.
 
-    def load_pdoc(self):
+        :param gdoc: the handle to a GATE document
+        :return: a gatenlp Document instance
         """
-        NOT IMPLEMENTED YET
+        bjs = self.gateway.jvm.gate.plugin.python.PythonSlave.getBdocJson(gdoc)
+        return simplejson.loads(bjs)
+
+    def pdoc2gdoc(self, pdoc):
+        """
+        Convert the Python gatenlp document to a GATE document and return a handle to it.
+
+        :param pdoc: python gatenlp Document
+        :return: handle to GATE document
+        """
+        json = simplejson.dumps(pdoc)
+        return self.gateway.jvm.gate.plugin.python.PythonSlave.getDocument4BdocJson(json)
+
+    def load_pdoc(self, path, mimetype=None):
+        """
+        Load a document from the given path, using GATE and convert and return as gatenlp Python document.
+
+        :param path: path to load document from
+        :param mimetype: mime type to use
+        :return: gatenlp document
+        """
+        gdoc = self.load_gdoc(path, mimetype)
+        return self.gdoc2pdoc(gdoc)
+
+    def del_gdoc(self, gdoc):
+        """
+        Delete/unload the GATE document from GATE.
+        This is necessary to do for each GATE document that is not used anymore, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+        GATE document does not delete/unload the document!
+
+        :param gdoc: the document to remove
         :return:
         """
-        # TODO: directly load a python document by loading the gate document on the java side,
-        # convert it to bdoc on the java side, convert to json, fetch json and convert to pdoc on python
-        pass
+        self.gateway.jvm.gate.Factory.deleteResource(gdoc)
