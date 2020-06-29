@@ -97,14 +97,14 @@ class GateSlave:
             doc = gs.slave.createDocument("Some document text")
             gs.slave.run4doc(pipeline,doc)
             pdoc = gs.gdoc2pdoc(doc)
-            gs.jvm.gate.Factory.deleteResource(doc)
+            gs.slave.deleteResource(doc)
             # process the gatenlp Document pdoc ...
 
         :param port: port to use
         :param java: path to the java binary to run or the java command to use from the PATH (for start=True)
         :param host: host an existing Java GATE process is running on (only relevant for start=False)
-        :param gatehome: where GATE is installed (only relevant if start=True). If None, expects\
-        environment variable GATE_HOME to be set.
+        :param gatehome: where GATE is installed (only relevant if start=True). If None, expects
+               environment variable GATE_HOME to be set.
         :param platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
         """
         self.gatehome = gatehome
@@ -172,7 +172,21 @@ class GateSlave:
         """
         if mimetype is None:
             mimetype = ""
-        return self.slave.loadDocument(path, mimetype)
+        return self.slave.loadDocumentFromFile(path, mimetype)
+
+    def save_gdoc(self, gdoc, path, mimetype=None):
+        """
+        Save GATE document to the given path.
+
+        :param gdoc: GATE document handle
+        :param path:  destination path
+        :param mimetype: mimtetype, only the following types are allowed: ""/None: GATE XML,
+               application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin.
+        :return:
+        """
+        if mimetype is None:
+            mimetype = ""
+        self.slave.saveDocumentToFile(path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
         """
