@@ -90,6 +90,14 @@ class GateSlave:
         stderr gets captured and used for communication between the Java and Python processes. At least
         part of the output to stderr may only be passed on after the GATE process has ended.
 
+        Example::
+          gs = GateSlave()
+          pipeline = gs.slave.loadPipeline("thePipeline.xgapp")
+          doc = gs.slave.createDocument("Some document text")
+          gs.slave.run4doc(pipeline,doc)
+          pdoc = gs.gdoc2pdoc(doc)
+          # process the gatenlp Document pdoc ...
+
         :param port: port to use
         :param java: path to the java binary to run or the java command to use from the PATH (for start=True)
         :param host: host an existing Java GATE process is running on (only relevant for start=False)

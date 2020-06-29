@@ -131,6 +131,14 @@
 <span class="sd">        stderr gets captured and used for communication between the Java and Python processes. At least</span>
 <span class="sd">        part of the output to stderr may only be passed on after the GATE process has ended.</span>
 
+<span class="sd">        Example::</span>
+<span class="sd">          gs = GateSlave()</span>
+<span class="sd">          pipeline = gs.slave.loadPipeline(&quot;thePipeline.xgapp&quot;)</span>
+<span class="sd">          doc = gs.slave.createDocument(&quot;Some document text&quot;)</span>
+<span class="sd">          gs.slave.run4doc(pipeline,doc)</span>
+<span class="sd">          pdoc = gs.gdoc2pdoc(doc)</span>
+<span class="sd">          # process the gatenlp Document pdoc ...</span>
+
 <span class="sd">        :param port: port to use</span>
 <span class="sd">        :param java: path to the java binary to run or the java command to use from the PATH (for start=True)</span>
 <span class="sd">        :param host: host an existing Java GATE process is running on (only relevant for start=False)</span>

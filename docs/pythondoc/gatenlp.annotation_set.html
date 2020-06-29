@@ -58,12 +58,12 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – the name of the annotation set. This is only really needed if the changelog is used.</p></li>
 <li><p><strong>changelog</strong> – if a changelog is used, then all changes to the set and its annotations are logged</p></li>
-<li><p><strong>owner_doc</strong> – if this is set, the set and all sets created from it can be queried for the</p></li>
+<li><p><strong>owner_doc</strong> – if this is set, the set and all sets created from it can be queried for the
+owning document and offsets get checked against the text of the owning document, if it has
+text.</p></li>
 </ul>
 </dd>
 </dl>
-<p>owning document and offsets get checked against the text of the owning document, if it has
-text.</p>
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.add">
 <code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">anntype</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">features</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">annid</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.add" title="Permalink to this definition">¶</a></dt>

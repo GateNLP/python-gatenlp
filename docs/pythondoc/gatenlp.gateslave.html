@@ -65,6 +65,15 @@ exchanging data with it.</p>
 <p>NOTE: the GATE process must not output anything important/big to stderr because everything from
 stderr gets captured and used for communication between the Java and Python processes. At least
 part of the output to stderr may only be passed on after the GATE process has ended.</p>
+<dl class="simple">
+<dt>Example::</dt><dd><p>gs = GateSlave()
+pipeline = gs.slave.loadPipeline(“thePipeline.xgapp”)
+doc = gs.slave.createDocument(“Some document text”)
+gs.slave.run4doc(pipeline,doc)
+pdoc = gs.gdoc2pdoc(doc)
+# process the gatenlp Document pdoc …</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

@@ -17,8 +17,8 @@ class AnnotationSet:
         :param name: the name of the annotation set. This is only really needed if the changelog is used.
         :param changelog: if a changelog is used, then all changes to the set and its annotations are logged
         :param owner_doc: if this is set, the set and all sets created from it can be queried for the
-        owning document and offsets get checked against the text of the owning document, if it has
-        text.
+               owning document and offsets get checked against the text of the owning document, if it has
+               text.
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self.gatenlp_type = "AnnotationSet"
