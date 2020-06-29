@@ -25,6 +25,7 @@ logger.setLevel(logging.INFO)
 def classpath_sep(platform=None):
     """
     Return the classpath separator character for the current operating system / platform.
+    
     :return: classpath separator character
     """
     if not platform:
