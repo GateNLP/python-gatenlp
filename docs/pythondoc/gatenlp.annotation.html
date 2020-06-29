@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.annotation module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.impl.sortedintvls.html" title="gatenlp.impl.sortedintvls module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.annotation module</a></li> 
       </ul>
     </div>  
 
@@ -47,46 +49,43 @@
   <div class="section" id="module-gatenlp.annotation">
 <span id="gatenlp-annotation-module"></span><h1>gatenlp.annotation module<a class="headerlink" href="#module-gatenlp.annotation" title="Permalink to this headline">¶</a></h1>
 <p>An annotation is immutable, but the features it contains are mutable.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="gatenlp.annotation.Annotation">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em>, <em class="sig-param">annot_type: str</em>, <em class="sig-param">annot_id: int</em>, <em class="sig-param">owner_set: AnnotationSet = None</em>, <em class="sig-param">changelog: gatenlp.changelog.ChangeLog = None</em>, <em class="sig-param">features=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.annotation.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">annot_type</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">annot_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">owner_set</span><span class="p">:</span> <span class="n">AnnotationSet</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
 <p>NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
 in an annotation set.
 !! This means that equality and hashing outside of an annotation set will not work as expected: the identify
 of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
 to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.changelog">
 <code class="sig-name descname">changelog</code><a class="headerlink" href="#gatenlp.annotation.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.end">
 <code class="sig-name descname">end</code><a class="headerlink" href="#gatenlp.annotation.Annotation.end" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.features">
 <code class="sig-name descname">features</code><a class="headerlink" href="#gatenlp.annotation.Annotation.features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
+<dt id="gatenlp.annotation.Annotation.from_dict">
+<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em>, <em class="sig-param"><span class="n">owner_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.id">
 <code class="sig-name descname">id</code><a class="headerlink" href="#gatenlp.annotation.Annotation.id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="gatenlp.annotation.Annotation.inside">
-<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param">offset: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.inside" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the given offset falls somewhere inside the span of this annotation.
-:param offset: the offset to check
-:return: True if the offset is inside the span of this annotation</p>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.annotation.Annotation.is_coextensive">
-<code class="sig-name descname">is_coextensive</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_coextensive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_coextensive</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_coextensive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is coextensive with the given span, annotation or
 annotation set, i.e. has exactly the same start and end offsets.</p>
 <dl class="field-list simple">
@@ -102,9 +101,9 @@ annotation set, i.e. has exactly the same start and end offsets.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.annotation.Annotation.is_covering">
-<code class="sig-name descname">is_covering</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_covering" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_covering</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_covering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is covering the given span, annotation or
 annotation set, i.e. both the given start and end offsets
 are after the start of this annotation and before the end of this annotation.</p>
@@ -121,9 +120,17 @@ are after the start of this annotation and before the end of this annotation.</p
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="gatenlp.annotation.Annotation.is_inside">
+<code class="sig-name descname">is_inside</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_inside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the given offset falls somewhere inside the span of this annotation.
+:param offset: the offset to check
+:return: True if the offset is inside the span of this annotation</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gatenlp.annotation.Annotation.is_overlapping">
-<code class="sig-name descname">is_overlapping</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_overlapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_overlapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_overlapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is overlapping with the given span, annotation or
 annotation set.
 An annotation is overlapping with a span if the first or last character
@@ -141,9 +148,9 @@ is inside that span.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.annotation.Annotation.is_within">
-<code class="sig-name descname">is_within</code><span class="sig-paren">(</span><em class="sig-param">start: int</em>, <em class="sig-param">end: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_within" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_within</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is within the given span, annotation or
 annotation set, i.e. both the start and end offsets of this annotation
 are after the given start and before the given end.</p>
@@ -160,12 +167,17 @@ are after the given start and before the given end.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.start">
 <code class="sig-name descname">start</code><a class="headerlink" href="#gatenlp.annotation.Annotation.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
+<dt id="gatenlp.annotation.Annotation.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.type">
 <code class="sig-name descname">type</code><a class="headerlink" href="#gatenlp.annotation.Annotation.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -175,6 +187,7 @@ are after the given start and before the given end.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -202,7 +215,7 @@ are after the given start and before the given end.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -223,12 +236,13 @@ are after the given start and before the given end.</p>
           <a href="gatenlp.impl.sortedintvls.html" title="gatenlp.impl.sortedintvls module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.annotation module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

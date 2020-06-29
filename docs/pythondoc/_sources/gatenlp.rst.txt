@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    gatenlp.docformats
    gatenlp.impl
@@ -13,6 +14,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    gatenlp.annotation
    gatenlp.annotation_set
@@ -22,9 +24,10 @@ Submodules
    gatenlp.feature_bearer
    gatenlp.gate_interaction
    gatenlp.gateslave
+   gatenlp.lib_stanfordnlp
+   gatenlp.lib_stanza
    gatenlp.offsetmapper
    gatenlp.spacy
-   gatenlp.stanfordnlp
    gatenlp.utils
 
 Module contents

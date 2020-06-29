@@ -1,23 +1,24 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.offsetmapper module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="gatenlp.spacy module" href="gatenlp.spacy.html" />
-    <link rel="prev" title="gatenlp.gateslave module" href="gatenlp.gateslave.html" /> 
+    <link rel="prev" title="gatenlp.lib_stanza module" href="gatenlp.lib_stanza.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -32,10 +33,11 @@
           <a href="gatenlp.spacy.html" title="gatenlp.spacy module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="gatenlp.gateslave.html" title="gatenlp.gateslave module"
+          <a href="gatenlp.lib_stanza.html" title="gatenlp.lib_stanza module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.offsetmapper module</a></li> 
       </ul>
     </div>  
 
@@ -46,21 +48,21 @@
             
   <div class="section" id="module-gatenlp.offsetmapper">
 <span id="gatenlp-offsetmapper-module"></span><h1>gatenlp.offsetmapper module<a class="headerlink" href="#module-gatenlp.offsetmapper" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="gatenlp.offsetmapper.OffsetMapper">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.offsetmapper.</code><code class="sig-name descname">OffsetMapper</code><span class="sig-paren">(</span><em class="sig-param">text: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.offsetmapper.</code><code class="sig-name descname">OffsetMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.offsetmapper.OffsetMapper.convert_to_java">
-<code class="sig-name descname">convert_to_java</code><span class="sig-paren">(</span><em class="sig-param">offsets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper.convert_to_java"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper.convert_to_java" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_to_java</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offsets</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper.convert_to_java"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper.convert_to_java" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert one python offset or an iterable of python offsets to java offset/s
 :param offsets: a single offset or an iterable of offsets
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.offsetmapper.OffsetMapper.convert_to_python">
-<code class="sig-name descname">convert_to_python</code><span class="sig-paren">(</span><em class="sig-param">offsets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper.convert_to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper.convert_to_python" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_to_python</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offsets</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper.convert_to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper.convert_to_python" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert one java offset or an iterable of java offsets to python offset/s
 :param offsets: a single offset or an iterable of offsets
 :return:</p>
@@ -71,14 +73,15 @@
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gatenlp.gateslave.html"
-                        title="previous chapter">gatenlp.gateslave module</a></p>
+  <p class="topless"><a href="gatenlp.lib_stanza.html"
+                        title="previous chapter">gatenlp.lib_stanza module</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="gatenlp.spacy.html"
                         title="next chapter">gatenlp.spacy module</a></p>
@@ -98,7 +101,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -116,15 +119,16 @@
           <a href="gatenlp.spacy.html" title="gatenlp.spacy module"
              >next</a> |</li>
         <li class="right" >
-          <a href="gatenlp.gateslave.html" title="gatenlp.gateslave module"
+          <a href="gatenlp.lib_stanza.html" title="gatenlp.lib_stanza module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.offsetmapper module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

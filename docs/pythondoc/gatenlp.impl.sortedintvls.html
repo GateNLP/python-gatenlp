@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.impl.sortedintvls module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +37,8 @@
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" accesskey="U">gatenlp.impl package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" accesskey="U">gatenlp.impl package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.impl.sortedintvls module</a></li> 
       </ul>
     </div>  
 
@@ -53,143 +55,143 @@ incur a O(n) overhead on some operations depending on the result set. It also ma
 for creating and maintaning the sorted lists.
 NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset
 for sorting.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.impl.sortedintvls.</code><code class="sig-name descname">SortedIntvls</code><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.add">
-<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.at">
-<code class="sig-name descname">at</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return iterable of tuples where start==start and end==end
 :param start:
 :param end:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.covering">
-<code class="sig-name descname">covering</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.covering" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">covering</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.covering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that contain the given range
 :param start:
 :param end:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.discard">
-<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.discard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.discard" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_after">
-<code class="sig-name descname">ending_after</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_after" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_after</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_after" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals the end after the given offset
 NOTE: the result is sorted by end offset!
 :param offset:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_at">
-<code class="sig-name descname">ending_at</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable of (start, end, data) tuples where end==offset
 :param offset: the ending offset
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.ending_to">
-<code class="sig-name descname">ending_to</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ending_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.ending_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.ending_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that end before or at the given end offset.
 NOTE: the result is sorted by end offset, not start offset!
 :param offset:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.firsts">
 <code class="sig-name descname">firsts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.firsts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.firsts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator of all intervals at the minimum start offset that exists.
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.irange">
-<code class="sig-name descname">irange</code><span class="sig-paren">(</span><em class="sig-param">minoff=None</em>, <em class="sig-param">maxoff=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.irange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.irange" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">irange</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minoff</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">maxoff</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.irange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.irange" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.lasts">
 <code class="sig-name descname">lasts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.lasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.lasts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator of all intervals at the maximum start offset that exists.
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.max_end">
 <code class="sig-name descname">max_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.max_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.max_end" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the biggest end offset we have
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.min_start">
 <code class="sig-name descname">min_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.min_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.min_start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the smallest start offset we have
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.overlapping">
-<code class="sig-name descname">overlapping</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.overlapping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">overlapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.overlapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that overlap with the given range.
 :param start:
 :param end:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.remove">
-<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.remove" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_at">
-<code class="sig-name descname">starting_at</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable of (start, end, data) tuples where start==offset
 :param offset: the starting offset
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_before">
-<code class="sig-name descname">starting_before</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_before" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_before</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_before" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that start before offset
 :param offset:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_from">
-<code class="sig-name descname">starting_from</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_from" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">starting_from</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.starting_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.starting_from" title="Permalink to this definition">¶</a></dt>
 <dd><p>Intervals that start at or after offset.
 :param offset:
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.update">
-<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">tupleiterable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tupleiterable</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.within">
-<code class="sig-name descname">within</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.within" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">within</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls.within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls.within" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return intervals which are fully contained within start…end
 :param start:
 :param end:
@@ -201,6 +203,7 @@ NOTE: the result is sorted by end offset, not start offset!
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -228,7 +231,7 @@ NOTE: the result is sorted by end offset, not start offset!
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -250,12 +253,13 @@ NOTE: the result is sorted by end offset, not start offset!
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" >gatenlp.impl package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" >gatenlp.impl package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.impl.sortedintvls module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

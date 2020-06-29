@@ -22,4 +22,11 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
+import os
+import sys
+current_dir = os.path.dirname(__file__)
+target_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.insert(0, target_dir)
+sys.path.insert(0, os.path.join(target_dir,"gatenlp"))
 
+print(target_dir)

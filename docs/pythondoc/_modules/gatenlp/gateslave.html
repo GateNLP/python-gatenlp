@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.gateslave &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -27,7 +28,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave</a></li> 
       </ul>
     </div>  
 
@@ -41,16 +43,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module for interacting with a Java GATE process, running API commands on it and</span>
 <span class="sd">exchanging data with it.</span>
-<span class="sd">The main method allows to run some of this from the command line using command line arguments.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">platform</span> <span class="k">as</span> <span class="nn">sysplatform</span>
 <span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="k">import</span> <span class="n">JavaGateway</span><span class="p">,</span> <span class="n">GatewayParameters</span>
+<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">JavaGateway</span><span class="p">,</span> <span class="n">GatewayParameters</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">gatenlp.docformats</span> <span class="kn">import</span>  <span class="n">simplejson</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
 
 <span class="n">JARVERSION</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 
@@ -87,36 +91,41 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GATE home directory does not exist: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gatehome</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">gatehome</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GATE home directory does not a directory: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gatehome</span><span class="p">))</span>
+    <span class="n">cpsep</span> <span class="o">=</span> <span class="n">classpath_sep</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
     <span class="n">cpfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gatehome</span><span class="p">,</span> <span class="s2">&quot;gate.classpath&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;DEBUG checking for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cpfile</span><span class="p">))</span>
+    <span class="n">bindir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gatehome</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span>
+    <span class="c1"># logger.info(&quot;DEBUG checking for {}&quot;.format(cpfile))</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cpfile</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cpfile</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;File not found </span><span class="si">{}</span><span class="s2">, distribution may need compiling&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cpfile</span><span class="p">))</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cpfile</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
             <span class="n">cp</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">cp</span>
+            <span class="k">return</span> <span class="n">cp</span> <span class="o">+</span> <span class="n">cpsep</span> <span class="o">+</span> <span class="n">bindir</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;DEBUG </span><span class="si">{}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cpfile</span><span class="p">))</span>
-        <span class="n">cpsep</span> <span class="o">=</span> <span class="n">classpath_sep</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="c1"># logger.info(&quot;DEBUG {} does not exist&quot;.format(cpfile))</span>
         <span class="n">libdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gatehome</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">)</span>
+        <span class="n">bindir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gatehome</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">libdir</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not determine class path from </span><span class="si">{}</span><span class="s2">, no lib directory&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gatehome</span><span class="p">))</span>
-        <span class="n">jars</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">libdir</span><span class="p">,</span><span class="s2">&quot;*.jar&quot;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">cpsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jars</span><span class="p">)</span></div>
+        <span class="c1"># jars = glob.glob(os.path.join(libdir,&quot;*.jar&quot;))</span>
+        <span class="c1"># return cpsep.join(jars)</span>
+        <span class="k">return</span> <span class="n">libdir</span> <span class="o">+</span> <span class="n">cpsep</span> <span class="o">+</span> <span class="n">bindir</span></div>
 
 
 <div class="viewcode-block" id="GateSlave"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave">[docs]</a><span class="k">class</span> <span class="nc">GateSlave</span><span class="p">:</span>
-    <span class="c1"># TODO: handle proper shutdown of the GATE process (only if we started, otherwise only if started=True)</span>
-    <span class="c1"># TODO: handle proper waiting for slave being ready!</span>
-    <span class="c1"># TODO: think of API</span>
-    <span class="c1"># TODO: make sure we have classloaders properly set up for the slave class (the LR)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">25333</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">java</span><span class="o">=</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">gatehome</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">25333</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">java</span><span class="o">=</span><span class="s2">&quot;java&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">gatehome</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an instance of the GateSlave and either start our own Java GATE process for it to use</span>
 <span class="sd">        (start=True) or connect to an existing one (start=False).</span>
 
-<span class="sd">        After initializing, the gateway attribute can be directly used or one of the convenience methods</span>
-<span class="sd">        of this object be used for more complex tasks.</span>
+<span class="sd">        After the GateSlave instance has been create successfully, it is possible to:</span>
+<span class="sd">        * Use one of the methods of the instance to perform operations on the Java side or exchange data</span>
+<span class="sd">        * use GateSlave.slave to invoke methods from the PythonSlave class on the Java side</span>
+<span class="sd">        * use GateSlave.jvm to directly construct objects or call instance or static methods</span>
+
+<span class="sd">        NOTE: the GATE process must not output anything important/big to stderr because everything from</span>
+<span class="sd">        stderr gets captured and used for communication between the Java and Python processes. At least</span>
+<span class="sd">        part of the output to stderr may only be passed on after the GATE process has ended.</span>
 
 <span class="sd">        :param port: port to use</span>
 <span class="sd">        :param java: path to the java binary to run or the java command to use from the PATH (for start=True)</span>
@@ -128,9 +137,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gatehome</span> <span class="o">=</span> <span class="n">gatehome</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gatehome</span> <span class="o">=</span> <span class="n">gatehome</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gateprocess</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">gatehome</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start</span><span class="p">:</span>
             <span class="n">gatehome</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GATE_HOME&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">gatehome</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -138,8 +151,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">gatehome</span> <span class="o">=</span> <span class="n">gatehome</span>
         <span class="k">if</span> <span class="n">start</span><span class="p">:</span>
             <span class="c1"># make sure we find the jar we need</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;DEBUG: file location: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-            <span class="n">jarloc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;_jars&quot;</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;gatetools-gatenlpslave-</span><span class="si">{JARVERSION}</span><span class="s2">.jar&quot;</span><span class="p">)</span>
+            <span class="c1"># logger.info(&quot;DEBUG: file location: {}&quot;.format(__file__))</span>
+            <span class="n">jarloc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;_jars&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;gatetools-gatenlpslave-</span><span class="si">{</span><span class="n">JARVERSION</span><span class="si">}</span><span class="s2">.jar&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">jarloc</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not find jar, </span><span class="si">{}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jarloc</span><span class="p">))</span>
             <span class="n">cmdandparms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -149,44 +162,90 @@
             <span class="n">cmdandparms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jarloc</span> <span class="o">+</span> <span class="n">cpsep</span> <span class="o">+</span> <span class="n">gate_classpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gatehome</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">platform</span><span class="p">))</span>
             <span class="n">cmdandparms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gate.tools.gatenlpslave.GatenlpSlave&quot;</span><span class="p">)</span>
             <span class="n">cmdandparms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
-            <span class="n">subproc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdandparms</span><span class="p">)</span>
+            <span class="n">cmdandparms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+            <span class="n">subproc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdandparms</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gateprocess</span> <span class="o">=</span> <span class="n">subproc</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">subproc</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;PYTHON SLAVE SERVER OK&quot;</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;PYTHON SLAVE SERVER NOT OK&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not start server, giving up&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span> <span class="o">=</span> <span class="n">JavaGateway</span><span class="p">(</span><span class="n">gateway_parameters</span><span class="o">=</span><span class="n">GatewayParameters</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jvm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span><span class="o">.</span><span class="n">entry_point</span>
 
 <div class="viewcode-block" id="GateSlave.close"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Terminate the processes.</span>
+<span class="sd">        Clean up: if the gate slave process was started by us, we will shut it down.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gateway</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gateprocess</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gateprocess</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GateSlave.load_gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">load_gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GateSlave.load_gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">load_gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOT IMPLEMENTED YET</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Let GATE load a document from the given path and return a handle to it.</span>
+
+<span class="sd">        :param path: path to the gate document to load.</span>
+<span class="sd">        :param mimetype: a mimetype to use when loading.</span>
+<span class="sd">        :return: a handle to the GATE document</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: load GATE document and return handle to GATE document</span>
-        <span class="k">pass</span></div>
+        <span class="k">if</span> <span class="n">mimetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mimetype</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadDocument</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GateSlave.gdoc2pdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.gdoc2pdoc">[docs]</a>    <span class="k">def</span> <span class="nf">gdoc2pdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOT IMPLEMENTED YET</span>
-<span class="sd">        :param gdoc:</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: convert a gate document to a python document</span>
-        <span class="k">pass</span></div>
+<span class="sd">        Convert the GATE document to a python document and return it.</span>
 
-<div class="viewcode-block" id="GateSlave.load_pdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_pdoc">[docs]</a>    <span class="k">def</span> <span class="nf">load_pdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">        :param gdoc: the handle to a GATE document</span>
+<span class="sd">        :return: a gatenlp Document instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bjs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">getBdocJson</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">bjs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GateSlave.pdoc2gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.pdoc2gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">pdoc2gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOT IMPLEMENTED YET</span>
+<span class="sd">        Convert the Python gatenlp document to a GATE document and return a handle to it.</span>
+
+<span class="sd">        :param pdoc: python gatenlp Document</span>
+<span class="sd">        :return: handle to GATE document</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">pdoc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">getDocument4BdocJson</span><span class="p">(</span><span class="n">json</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GateSlave.load_pdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_pdoc">[docs]</a>    <span class="k">def</span> <span class="nf">load_pdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a document from the given path, using GATE and convert and return as gatenlp Python document.</span>
+
+<span class="sd">        :param path: path to load document from</span>
+<span class="sd">        :param mimetype: mime type to use</span>
+<span class="sd">        :return: gatenlp document</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gdoc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_gdoc</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdoc2pdoc</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GateSlave.del_gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.del_gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">del_gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdoc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete/unload the GATE document from GATE.</span>
+<span class="sd">        This is necessary to do for each GATE document that is not used anymore, otherwise the documents</span>
+<span class="sd">        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the</span>
+<span class="sd">        GATE document does not delete/unload the document!</span>
+
+<span class="sd">        :param gdoc: the document to remove</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: directly load a python document by loading the gate document on the java side,</span>
-        <span class="c1"># convert it to bdoc on the java side, convert to json, fetch json and convert to pdoc on python</span>
-        <span class="k">pass</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate</span><span class="o">.</span><span class="n">Factory</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -201,7 +260,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -216,12 +275,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

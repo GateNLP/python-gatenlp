@@ -5,7 +5,9 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
+   gatenlp.docformats.msgpack
    gatenlp.docformats.simplejson
 
 Module contents

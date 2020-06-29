@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.changelog module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
       </ul>
     </div>  
 
@@ -46,18 +48,18 @@
             
   <div class="section" id="module-gatenlp.changelog">
 <span id="gatenlp-changelog-module"></span><h1>gatenlp.changelog module<a class="headerlink" href="#module-gatenlp.changelog" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="gatenlp.changelog.ChangeLog">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.changelog.</code><code class="sig-name descname">ChangeLog</code><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.append">
-<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">element: Dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.append" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element</span><span class="p">:</span> <span class="n">Dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.append" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.fixup_changes">
-<code class="sig-name descname">fixup_changes</code><span class="sig-paren">(</span><em class="sig-param">offset_mapper</em>, <em class="sig-param">offset_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.fixup_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.fixup_changes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fixup_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset_mapper</span></em>, <em class="sig-param"><span class="n">offset_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.fixup_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.fixup_changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>In-place update the offsets of all annotations in this changelog to the desired
 offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.
 :param offset_mapper: a prepared offset mapper to use
@@ -65,9 +67,19 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 :return: a reference to the modified changes</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.format_to">
-<code class="sig-name descname">format_to</code><span class="sig-paren">(</span><em class="sig-param">fp</em>, <em class="sig-param">prefix=''</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.format_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.format_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">format_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fp</span></em>, <em class="sig-param"><span class="n">prefix</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.format_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.format_to" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.from_dict">
+<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -75,6 +87,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -102,7 +115,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -123,12 +136,13 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

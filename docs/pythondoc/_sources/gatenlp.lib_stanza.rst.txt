@@ -1,0 +1,7 @@
+gatenlp.lib\_stanza module
+==========================
+
+.. automodule:: gatenlp.lib_stanza
+   :members:
+   :undoc-members:
+   :show-inheritance:

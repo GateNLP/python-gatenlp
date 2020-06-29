@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.feature_bearer module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.feature_bearer module</a></li> 
       </ul>
     </div>  
 
@@ -50,57 +52,57 @@
 that can be used much like a dict in addition to original methods of the class. The inheriting class
 must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
 changelog.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="gatenlp.feature_bearer.FeatureBearer">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.feature_bearer.</code><code class="sig-name descname">FeatureBearer</code><span class="sig-paren">(</span><em class="sig-param">initialfeatures=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.feature_bearer.</code><code class="sig-name descname">FeatureBearer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialfeatures</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.clear_features">
 <code class="sig-name descname">clear_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.clear_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.clear_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all features.
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.del_feature">
-<code class="sig-name descname">del_feature</code><span class="sig-paren">(</span><em class="sig-param">featurename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">del_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">featurename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the feature with that name
 :param featurename: the feature to remove from the set
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_names">
-<code class="sig-name descname">feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[Set, KeysView]<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_names" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>Set<span class="p">, </span>KeysView<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable with the feature names. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_values">
 <code class="sig-name descname">feature_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable with the feature values. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.features">
 <code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.get_feature">
-<code class="sig-name descname">get_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.get_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.get_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.has_feature">
-<code class="sig-name descname">has_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.has_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.has_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">has_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.has_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.has_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.num_features">
 <code class="sig-name descname">num_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.num_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.num_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of features. We do not use “len” for this, since the feature bearing object may
@@ -108,18 +110,18 @@ have its own useful len implementation.
 :return: number of features</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.set_feature">
-<code class="sig-name descname">set_feature</code><span class="sig-paren">(</span><em class="sig-param">key: str</em>, <em class="sig-param">value</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.set_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.set_feature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.set_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.set_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set feature to the given value
 :param key: feature name
 :param value: value
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.update_features">
-<code class="sig-name descname">update_features</code><span class="sig-paren">(</span><em class="sig-param">*other</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.update_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.update_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">other</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.update_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.update_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the features from another map or an iterable of key value pairs or from keyword arguments
 :param other: another dictionary or an iterable of key,value pairs
 :param kwargs: used to update the features
@@ -131,6 +133,7 @@ have its own useful len implementation.
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -158,7 +161,7 @@ have its own useful len implementation.
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -179,12 +182,13 @@ have its own useful len implementation.
           <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.feature_bearer module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

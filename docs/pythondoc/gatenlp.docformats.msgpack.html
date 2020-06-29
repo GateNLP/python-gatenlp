@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gatenlp.docformats.msgpack module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gatenlp.docformats.simplejson module" href="gatenlp.docformats.simplejson.html" />
+    <link rel="prev" title="gatenlp.docformats package" href="gatenlp.docformats.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.simplejson.html" title="gatenlp.docformats.simplejson module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.html" title="gatenlp.docformats package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.docformats.html" accesskey="U">gatenlp.docformats package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.docformats.msgpack module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gatenlp.docformats.msgpack">
+<span id="gatenlp-docformats-msgpack-module"></span><h1>gatenlp.docformats.msgpack module<a class="headerlink" href="#module-gatenlp.docformats.msgpack" title="Permalink to this headline">¶</a></h1>
+<p>GATE-specific (de)serialisation of documents using MsgPack</p>
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.dump">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">dump</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fp</span></em>, <em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the given gatenlp object to the file.
+:param fp: a file like object as required by json.dump
+:param obj: the object to save
+:param indent: passed on to jsom.dump
+:param kwargs:
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.dump_file">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">dump_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#dump_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.dump_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut for opening the file for writing and dumping to the stream.
+If the file name ends with .gz, automatically compresses the output file.
+:param obj: the object to save
+:param filename: the file to write to
+:param indent: passed on to json.dump
+:param kwargs:
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.dumps">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">dumps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#dumps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.dumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create JSON string representing the given object.
+:param obj: the object
+:param indent: passed on to json.dumps
+:param kwargs:
+offset_type: if specified and OFFSET_TYPE_JAVA, convert the offsets to java offsets in the JSON
+offset_mapper: if specified, used for the offset mapping if an offset mapper cannot otherwise be found
+:return: JSON string</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.get_object_encoder">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">get_object_encoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#get_object_encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.get_object_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a function for encoding our own objects. This simply checks if the object
+has the method “json_repr” and if yes, calls it with the kwargs we got.
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.get_object_hook">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">get_object_hook</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#get_object_hook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.get_object_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a method that will try to convert the passed map into one of our objects
+:param kwargs: the kwargs to use for converting back.
+:return: the object hook function</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.load">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load gatenlp object from fp, a file-like object and return it.
+:param fp: a file-like object, as required by json.load
+:return: the gatenlp object</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.load_file">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">load_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#load_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.load_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut for opening the file for reading and loading from the stream. If the filename ends with
+“.gz” the file is automatically uncompressed.
+:param filename: file to load
+:param kwargs:
+:return: the loaded object</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.docformats.msgpack.loads">
+<code class="sig-prename descclassname">gatenlp.docformats.msgpack.</code><code class="sig-name descname">loads</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/docformats/msgpack.html#loads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.docformats.msgpack.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create gatenlp object from JSON string and return it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>str</strong> – JSON string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the gatenlp object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gatenlp.docformats.html"
+                        title="previous chapter">gatenlp.docformats package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gatenlp.docformats.simplejson.html"
+                        title="next chapter">gatenlp.docformats.simplejson module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gatenlp.docformats.msgpack.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.simplejson.html" title="gatenlp.docformats.simplejson module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.docformats.html" title="gatenlp.docformats package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.docformats.html" >gatenlp.docformats package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.docformats.msgpack module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

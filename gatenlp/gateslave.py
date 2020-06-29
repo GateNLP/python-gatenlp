@@ -77,8 +77,10 @@ class GateSlave:
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
 
-        After initializing, the gateway attribute can be directly used or one of the convenience methods
-        of this object be used for more complex tasks.
+        After the GateSlave instance has been create successfully, it is possible to:
+        * Use one of the methods of the instance to perform operations on the Java side or exchange data
+        * use GateSlave.slave to invoke methods from the PythonSlave class on the Java side
+        * use GateSlave.jvm to directly construct objects or call instance or static methods
 
         NOTE: the GATE process must not output anything important/big to stderr because everything from
         stderr gets captured and used for communication between the Java and Python processes. At least
@@ -131,7 +133,7 @@ class GateSlave:
                 print(line, file=sys.stderr)
             atexit.register(self.close)
         self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port))
-        self.gate = self.gateway.jvm.gate
+        self.jvm = self.gateway.jvm
         self.slave = self.gateway.entry_point
 
     def close(self):
