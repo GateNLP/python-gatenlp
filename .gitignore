@@ -13,6 +13,7 @@ __pycache__/
 
 /tmp-doc-html
 /tmp-doc-sphinx
+/examples/tmp_*
 
 # Distribution / packaging
 .Python

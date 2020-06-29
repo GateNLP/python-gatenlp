@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# NOTE: run this script from the root of the repo!
+
 if [ "x${GATE_HOME}" == "x" ]
 then
   echo Environment variable GATE_HOME not set
