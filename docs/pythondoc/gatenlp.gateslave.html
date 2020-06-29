@@ -65,15 +65,16 @@ exchanging data with it.</p>
 <p>NOTE: the GATE process must not output anything important/big to stderr because everything from
 stderr gets captured and used for communication between the Java and Python processes. At least
 part of the output to stderr may only be passed on after the GATE process has ended.</p>
-<dl class="simple">
-<dt>Example::</dt><dd><p>gs = GateSlave()
-pipeline = gs.slave.loadPipeline(“thePipeline.xgapp”)
-doc = gs.slave.createDocument(“Some document text”)
-gs.slave.run4doc(pipeline,doc)
-pdoc = gs.gdoc2pdoc(doc)
-# process the gatenlp Document pdoc …</p>
-</dd>
-</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gs</span> <span class="o">=</span> <span class="n">GateSlave</span><span class="p">()</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadPipeline</span><span class="p">(</span><span class="s2">&quot;thePipeline.xgapp&quot;</span><span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">createDocument</span><span class="p">(</span><span class="s2">&quot;Some document text&quot;</span><span class="p">)</span>
+<span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">run4doc</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">pdoc</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gdoc2pdoc</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">gs</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">gate</span><span class="o">.</span><span class="n">Factory</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="c1"># process the gatenlp Document pdoc ...</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
