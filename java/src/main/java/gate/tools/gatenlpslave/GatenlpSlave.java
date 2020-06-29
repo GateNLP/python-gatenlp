@@ -24,28 +24,35 @@ import java.util.regex.Pattern;
 import gate.*;
 import gate.creole.Plugin;
 import gate.util.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import gate.gui.ResourceHelper;
 
 public class GatenlpSlave {
-  
-  public static org.apache.log4j.Logger logger = 
-          org.apache.log4j.Logger.getLogger(GatenlpSlave.class);
-    
+  static boolean DEBUG = false;
   public static void main(String[] args) {
+    if(args.length != 2) {
+      System.err.println("Need two parameters: the host and port number to bind to");
+      System.exit(1);
+    }
+    int port = Integer.parseInt(args[0]);
+    String host = args[1];
     GatenlpSlave runner = new GatenlpSlave();
     try {
-      logger.setLevel(Level.INFO);
-      logger.info("Initializing GATE");
+      if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
-      logger.info("Loading plugin python");
-      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","2.0-SNAPSHOT"));
+      if(DEBUG) System.err.println("Loading plugin python");
+      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","2.1-SNAPSHOT"));
       FeatureMap parms = Factory.newFeatureMap();
-      parms.put("port", 25333);
-      logger.info("Creating slave");
-      Resource lrslave = Factory.createResource("gate.plugin.python.PythonSlaveLr", parms);
+      parms.put("port", port);
+      parms.put("host", host);
+      if(DEBUG) System.err.println("Creating slave");
+      ResourceHelper slave = (ResourceHelper)Factory.createResource("gate.plugin.python.PythonSlaveRunner", parms);
+      if(DEBUG) System.err.println("Slave created");
+      if(DEBUG) System.err.println("Trying to start slave");
+      slave.call("start",null);
+      if(DEBUG) System.err.println("After starting slave");
     } catch(Exception e) {
       e.printStackTrace();
     }
+    if(DEBUG) System.err.println("Finishing main");
   }
 }
