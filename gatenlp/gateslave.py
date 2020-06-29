@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 def classpath_sep(platform=None):
     """
     Return the classpath separator character for the current operating system / platform.
-    
+
     :return: classpath separator character
     """
     if not platform:
@@ -79,8 +79,11 @@ class GateSlave:
         (start=True) or connect to an existing one (start=False).
 
         After the GateSlave instance has been create successfully, it is possible to:
+
         * Use one of the methods of the instance to perform operations on the Java side or exchange data
+
         * use GateSlave.slave to invoke methods from the PythonSlave class on the Java side
+
         * use GateSlave.jvm to directly construct objects or call instance or static methods
 
         NOTE: the GATE process must not output anything important/big to stderr because everything from

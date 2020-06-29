@@ -56,10 +56,12 @@ exchanging data with it.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Create an instance of the GateSlave and either start our own Java GATE process for it to use
 (start=True) or connect to an existing one (start=False).</p>
-<p>After the GateSlave instance has been create successfully, it is possible to:
-* Use one of the methods of the instance to perform operations on the Java side or exchange data
-* use GateSlave.slave to invoke methods from the PythonSlave class on the Java side
-* use GateSlave.jvm to directly construct objects or call instance or static methods</p>
+<p>After the GateSlave instance has been create successfully, it is possible to:</p>
+<ul class="simple">
+<li><p>Use one of the methods of the instance to perform operations on the Java side or exchange data</p></li>
+<li><p>use GateSlave.slave to invoke methods from the PythonSlave class on the Java side</p></li>
+<li><p>use GateSlave.jvm to directly construct objects or call instance or static methods</p></li>
+</ul>
 <p>NOTE: the GATE process must not output anything important/big to stderr because everything from
 stderr gets captured and used for communication between the Java and Python processes. At least
 part of the output to stderr may only be passed on after the GATE process has ended.</p>

@@ -84,8 +84,10 @@
 <span class="sd">    Represent a GATE document. This is different from the original Java GATE representation in several ways:</span>
 
 <span class="sd">    * the text is not mutable and can only be set at creation time, so there is no &quot;edit&quot; method</span>
+
 <span class="sd">    * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is</span>
 <span class="sd">      no separate &quot;FeatureMap&quot; to store them</span>
+
 <span class="sd">    * does not support listener callbacks</span>
 <span class="sd">    * there is no separate abstraction for &quot;content&quot;, the only content possible is text which is a unicode string</span>
 <span class="sd">      that can be acessed with the &quot;text()&quot; method</span>
