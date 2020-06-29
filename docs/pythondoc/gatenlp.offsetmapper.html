@@ -52,6 +52,11 @@
 <dt id="gatenlp.offsetmapper.OffsetMapper">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.offsetmapper.</code><code class="sig-name descname">OffsetMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calculate the tables for mapping unicode code points to utf16 code units.
+NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+if after creating the java2python table we find that all offsets are identical, we discard
+the tables and just set a flag for that.
+:param text: the text as a python string</p>
 <dl class="py method">
 <dt id="gatenlp.offsetmapper.OffsetMapper.convert_to_java">
 <code class="sig-name descname">convert_to_java</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offsets</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/offsetmapper.html#OffsetMapper.convert_to_java"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.offsetmapper.OffsetMapper.convert_to_java" title="Permalink to this definition">¶</a></dt>

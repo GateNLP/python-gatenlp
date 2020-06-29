@@ -102,6 +102,17 @@ in an annotation set.
 !! This means that equality and hashing outside of an annotation set will not work as expected: the identify
 of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
 to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</p>
+<p>Create a new annotation instance. NOTE: this should almost never be done directly
+and instead the method annotation_set.add should be used!
+Once an annotation has been created, the start, end, type and id fields must not
+be changed!
+:param start: start offset of the annotation
+:param end: end offset of the annotation
+:param annot_type: annotation type
+:param annot_id: the id of the annotation
+:param owner_set: the containing annotation set
+:param changelog: a changelog, if changes to the features should get recorded
+:param features: an initial collection of features, None for no features.</p>
 <dl class="py attribute">
 <dt id="gatenlp.Annotation.changelog">
 <code class="sig-name descname">changelog</code><a class="headerlink" href="#gatenlp.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
@@ -232,6 +243,18 @@ are after the given start and before the given end.</p>
 <dt id="gatenlp.AnnotationSet">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">AnnotationSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">owner_doc</span><span class="p">:</span> <span class="n">Document</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create a new annotation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the annotation set. This is only really needed if the changelog is used.</p></li>
+<li><p><strong>changelog</strong> – if a changelog is used, then all changes to the set and its annotations are logged</p></li>
+<li><p><strong>owner_doc</strong> – if this is set, the set and all sets created from it can be queried for the</p></li>
+</ul>
+</dd>
+</dl>
+<p>owning document and offsets get checked against the text of the owning document, if it has
+text.</p>
 <dl class="py method">
 <dt id="gatenlp.AnnotationSet.add">
 <code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">anntype</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">features</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">annid</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.add" title="Permalink to this definition">¶</a></dt>
@@ -691,6 +714,9 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 </ul>
 </dd>
 </dl>
+<p>Initialise any features, if necessary.
+:param initialfeatures: an iterable containing tuples of initial feature key/value pairs
+:return:</p>
 <dl class="py method">
 <dt id="gatenlp.Document.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.from_dict" title="Permalink to this definition">¶</a></dt>

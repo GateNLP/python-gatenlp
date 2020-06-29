@@ -58,6 +58,17 @@ in an annotation set.
 !! This means that equality and hashing outside of an annotation set will not work as expected: the identify
 of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
 to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</p>
+<p>Create a new annotation instance. NOTE: this should almost never be done directly
+and instead the method annotation_set.add should be used!
+Once an annotation has been created, the start, end, type and id fields must not
+be changed!
+:param start: start offset of the annotation
+:param end: end offset of the annotation
+:param annot_type: annotation type
+:param annot_id: the id of the annotation
+:param owner_set: the containing annotation set
+:param changelog: a changelog, if changes to the features should get recorded
+:param features: an initial collection of features, None for no features.</p>
 <dl class="py attribute">
 <dt id="gatenlp.annotation.Annotation.changelog">
 <code class="sig-name descname">changelog</code><a class="headerlink" href="#gatenlp.annotation.Annotation.changelog" title="Permalink to this definition">¶</a></dt>
