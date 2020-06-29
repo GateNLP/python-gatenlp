@@ -93,7 +93,7 @@ class GateSlave:
         Example: ::
 
             gs = GateSlave()
-            pipeline = gs.slave.loadPipeline("thePipeline.xgapp")
+            pipeline = gs.slave.loadPipelineFromFile("thePipeline.xgapp")
             doc = gs.slave.createDocument("Some document text")
             gs.slave.run4doc(pipeline,doc)
             pdoc = gs.gdoc2pdoc(doc)

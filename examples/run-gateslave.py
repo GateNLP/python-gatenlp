@@ -4,18 +4,27 @@ from gatenlp.gateslave import GateSlave
 
 gs = GateSlave()
 
-slave = gs.slave
-gate = gs.gate
-
-doc1 = slave.loadDocument("testdoc.bdocjson", "text/bdocsjson")
+doc1 = gs.slave.loadDocumentFromFile("testdoc.bdocjson", "text/bdocsjson")
 
 print("GATE Document:", doc1)
 
-slave.print2err("SOME MESSAGE TO ERR!!\n")
-slave.print2out("SOME MESSAGE TO OUT!!\n")
+gs.slave.print2err("SOME MESSAGE TO ERR!!\n")
+gs.slave.print2out("SOME MESSAGE TO OUT!!\n")
 
 pdoc = gs.gdoc2pdoc(doc1)
 
 print("Python Document:", pdoc)
+
+gs.slave.loadMavenPlugin("uk.ac.gate.plugins","annie","8.6")
+pipeline = gs.slave.loadPipelineFromPlugin("uk.ac.gate.plugins", "annie", "/resources/ANNIE_with_defaults.gapp")
+
+gs.slave.run4Document(pipeline, doc1)
+
+pdoc = gs.gdoc2pdoc(doc1)
+
+print("Python Document after ANNIE:", pdoc)
+
+gs.slave.saveDocumentToFile(doc1, "saveddoc.xml", "")
+
 
 gs.close()
