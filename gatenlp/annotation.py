@@ -21,9 +21,6 @@ class Annotation(FeatureBearer):
     only the features can be changed.
     """
 
-    # We use slots to avoid the dict and save memory if we have a large number of annotations
-    __slots__ = ('_type', '_start', '_end', '_id', '_owner_set', '_gatenlp_type')
-
     @property
     def type(self):
         return self._type

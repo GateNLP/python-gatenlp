@@ -10,8 +10,6 @@ from typing import List, Union, Dict, Set, KeysView
 
 class FeatureBearer:
 
-    __slots__ = ["_features", "changelog"]
-
     def __init__(self, initialfeatures=None):
         """
         Initialise any features, if necessary.

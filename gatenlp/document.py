@@ -68,8 +68,6 @@ class Document(FeatureBearer):
     :param changelog: a ChangeLog instance to use to log changes.
     """
 
-    __slots__ = ["_features", "changelog", "gatenlp_type", "annotation_sets", "_text", "offset_type"]
-
     def __init__(self, text: str, features=None, changelog: ChangeLog = None):
         super().__init__(features)
         self.gatenlp_type = "Document"
