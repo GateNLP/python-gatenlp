@@ -13,15 +13,40 @@ from gatenlp._utils import support_annotation_or_set
 @total_ordering
 class Annotation(FeatureBearer):
     """
-    NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation
-    in an annotation set.
-    !! This means that equality and hashing outside of an annotation set will not work as expected: the identify
-    of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want
-    to store annotations from different sets you need to use (annotationset, id) as the unique identifier!
+    An annotation represents information about a span of text. It contains the start and end
+    offsets of the span, an "annotation type" and it is a feature bearer.
+    In addition it contains an id which has no meaning for the annotation itself but is
+    used to uniquely identify an annotation within the set it is contained in.
+    All fields except the features are immutable, once the annotation has been created
+    only the features can be changed.
     """
 
     # We use slots to avoid the dict and save memory if we have a large number of annotations
-    __slots__ = ('changelog', 'type', 'start', 'end', 'features', 'id', '_owner_setname')
+    __slots__ = ('_type', '_start', '_end', '_id', '_owner_set', '_gatenlp_type')
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
+
+    # TODO: we should get rid of this attribute completely!
+    @property
+    def gatenlp_type(self):
+        return self._gatenlp_type
+
+    # NOTE: we deliberately do NOT expose _features as a propery features so that people do not
+    # do ann.features["x"]=1 but do ann.set_feature("x",1) instead!
+
+    @property
+    def id(self):
+        return self._id
 
     def __init__(self, start: int, end: int, annot_type: str, annot_id: int,
                  owner_set: "AnnotationSet" = None,
@@ -40,14 +65,19 @@ class Annotation(FeatureBearer):
         :param features: an initial collection of features, None for no features.
         """
         super().__init__(features)
-        self.gatenlp_type = "Annotation"
+        self._gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
         self.changelog = changelog
-        self.type = annot_type
-        self.start = start
-        self.end = end
-        self.id = annot_id
-        self._owner_set = owner_set
+        self._type = annot_type
+        self._start = start
+        self._end = end
+        self._id = annot_id
+        # the annotation set that "owns" this annotation, if any. This information is ONLY needed
+        # if a changelog is used to log the changes to the annotations feature set.  Note that an annotation
+        # can still exist after it has been deleted from a set, and if a feature gets changed then,
+        # the log will contain an entry for this. The receiver of the log has to silently ignore
+        # feature changes to non-existing annotations.
+        self._owner_set = None
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable with GATE.
@@ -61,6 +91,7 @@ class Annotation(FeatureBearer):
             return
         ch = {
             "command": command,
+            "type": "annotation",
             "set": self._owner_set.name,
             "id": self.id}
         if feature is not None:
@@ -71,18 +102,24 @@ class Annotation(FeatureBearer):
 
     def __eq__(self, other) -> bool:
         """
-        Equality of annotations is only based on the annotation ID plus the owning set.
+        Two annotations are identical if they are the same object or if all the fields
+        are equal.
         :param other: the object to compare with
         :return: if the annotations are equal
         """
         if not isinstance(other, Annotation):
             return False
-        if self._owner_set != other._owner_set:
-            return False
-        if self.id != other.id:
-            return False
-        else:
+        if self is other:
             return True
+        return self.start == other.start and self.end == other.end and \
+               self.type == other.type and self.id == other.id and self._features == other._features
+        # The old way to test for equality simply checked if owning set and id where identical
+        #if self._owner_set != other._owner_set:
+        #    return False
+        #if self.id != other.id:
+        #    return False
+        #else:
+        #    return True
 
     def __hash__(self):
         """
@@ -126,7 +163,7 @@ class Annotation(FeatureBearer):
         String representation of the annotation.
         :return: string representation
         """
-        return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self.features)
+        return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self._features)
 
     def __len__(self) -> int:
         """
@@ -214,8 +251,8 @@ class Annotation(FeatureBearer):
             "end": end,
             "type": self.type,
             "id": self.id,
-            "features": self.features,
-            "gatenlp_type": self.gatenlp_type
+            "features": self._features,
+            "gatenlp_type": self.gatenlp_type  # TODO: get rid of this!!
         }
 
     @staticmethod
@@ -224,21 +261,23 @@ class Annotation(FeatureBearer):
                          features=jsonmap.get("features"))
         return ann
 
-    def __setattr__(self, key, value):
-        """
-        Prevent start, stop, type and annotation id from getting overridden, once they have been
-        set.
-        :param key: attribute to set
-        :param value: value to set attribute to
-        :return:
-        """
-        if key == "start" or key == "end" or key == "type" or key == "id":
-            if self.__dict__.get(key, None) is None:
-                super().__setattr__(key, value)
-            else:
-                raise Exception("Annotation attributes cannot get changed after being set")
-        else:
-            super().__setattr__(key, value)
+    # def __setattr__(self, key, value):
+    #     """
+    #     Prevent start, stop, type and annotation id from getting overridden, once they have been
+    #     set.
+    #     :param key: attribute to set
+    #     :param value: value to set attribute to
+    #     :return:
+    #     """
+    #     print(f"Trying to set {key} to {value}")
+    #     if key == "start" or key == "end" or key == "type" or key == "id":
+    #         if self.__getattribute__(key) is None:
+    #             print("Seems this is Null")
+    #             super().__setattr__(key, value)
+    #         else:
+    #             raise Exception("Annotation attributes cannot get changed after being set")
+    #     else:
+    #         super().__setattr__(key, value)
 
     def to_dict(self):
         return {
@@ -246,7 +285,7 @@ class Annotation(FeatureBearer):
             "start": self.start,
             "end": self.end,
             "id": self.id,
-            "features": self.features,
+            "features": self._features,
         }
 
     @staticmethod

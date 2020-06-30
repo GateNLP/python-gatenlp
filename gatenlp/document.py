@@ -32,7 +32,7 @@ class _AnnotationSetsDict(collections.defaultdict):
         return dict((key, to_dict(val)) for key, val in self.items())
 
     @staticmethod
-    def from_dict(dictrepr: Dict, changelog: ChangeLog=None, owner_doc: "Document"=None):
+    def from_dict(dictrepr: Dict, changelog: ChangeLog = None, owner_doc: "Document" = None):
         asd = _AnnotationSetsDict(changelog=changelog, owner_doc=owner_doc)
         asd.update(((key, AnnotationSet.from_dict(val)) for key, val in dictrepr.items()))
         return asd
@@ -67,6 +67,9 @@ class Document(FeatureBearer):
     :param features: the initial document features to set, a sequence of key/value tuples
     :param changelog: a ChangeLog instance to use to log changes.
     """
+
+    __slots__ = ["_features", "changelog", "gatenlp_type", "annotation_sets", "_text", "offset_type"]
+
     def __init__(self, text: str, features=None, changelog: ChangeLog = None):
         super().__init__(features)
         self.gatenlp_type = "Document"
@@ -74,8 +77,6 @@ class Document(FeatureBearer):
         self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
-        self.document_type = "simple"
-        self.repr_version = '1.0'
 
     def _ensure_type_python(self) -> None:
         if self.offset_type != OFFSET_TYPE_PYTHON:
@@ -166,7 +167,7 @@ class Document(FeatureBearer):
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
-        ch = {"command": command}
+        ch = {"command": command, "type": "document"}
         if command == "feature:set":
             ch["feature"] = feature
             ch["value"] = value
@@ -225,7 +226,7 @@ class Document(FeatureBearer):
         if self.changelog:
             self.changelog.append({
                 "command": "annotations:remove",
-                "set": self.name})
+                "set": name})
 
     def __repr__(self) -> str:
         """
@@ -233,7 +234,7 @@ class Document(FeatureBearer):
 
         :return: string representation
         """
-        return "Document({},features={},anns={})".format(self.text, self.features, self.annotation_sets)
+        return "Document({},features={},anns={})".format(self.text, self._features, self.annotation_sets)
 
     def _json_repr(self, **kwargs) -> Dict:
         """
@@ -248,12 +249,10 @@ class Document(FeatureBearer):
             offset_type = kwargs["offset_type"]
         return {
             "text": self._text,
-            "features": self.features,
+            "features": self._features,
             # turn our special class into an ordinary map
             "annotation_sets": {name: annset._json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
             "offset_type": offset_type,
-            "document_type": self.document_type,
-            "repr_version": self.repr_version,
             "gatenlp_type": self.gatenlp_type
         }
 
@@ -278,8 +277,6 @@ class Document(FeatureBearer):
         if "with_changelog" in kwargs:
             chlog = ChangeLog()
             doc.set_changelog(chlog)
-        doc.repr_version = jsonmap.get("repr_version")
-        doc.document_type = jsonmap.get("document_type")
         return doc
 
     def to_dict(self):
@@ -292,9 +289,8 @@ class Document(FeatureBearer):
             "changelog": to_dict(self.changelog),
             "annotation_sets": to_dict(self.annotation_sets),
             "text": self._text,
-            "features": self.features,
+            "features": self._features,
             "offset_type": self.offset_type,
-            "doc_type": self.document_type,
         }
 
     def to_list(self):
@@ -302,11 +298,9 @@ class Document(FeatureBearer):
             to_list(self.changelog),
             to_list(self.annotation_sets),
             self._text,
-            self.features,
+            self._features,
             self.offset_type,
-            self.document_type,
         ]
-
 
     @staticmethod
     def from_dict(dictrepr):
@@ -316,11 +310,9 @@ class Document(FeatureBearer):
         :return: the initialized Document instance
         """
         doc = Document(dictrepr.get("text"))
-        doc.repr_version = dictrepr.get("repr_version")
-        doc.document_type = dictrepr.get("document_type")
         doc.offset_type = dictrepr.get("offset_type")
         doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
-        doc.features = dictrepr.get("features")
+        doc._features = dictrepr.get("features")
         doc.gatenlp_type = dictrepr.get("gatenlp_type")
         doc.annotation_sets = \
             _AnnotationSetsDict.from_dict(dictrepr.get("annotation_sets"),
