@@ -229,4 +229,14 @@ class GateSlave:
         :param gdoc: the document to remove
         :return:
         """
-        self.gate.Factory.deleteResource(gdoc)
+        self.jvm.gate.Factory.deleteResource(gdoc)
+
+    def show_gui(self):
+        """
+        Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
+        when closing down the GATE slave.
+
+        :return:
+        """
+        self.slave.showGui()
+
