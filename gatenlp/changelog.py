@@ -61,6 +61,8 @@ class ChangeLog:
                 method = offset_mapper.convert_to_python
             else:
                 raise Exception("Not a proper offset type: {}".format(offset_type))
+            if replace:
+                self.offset_type = offset_type
             return self._fixup_changes(method, replace=replace)
         else:
             return self.changes
@@ -120,7 +122,7 @@ class ChangeLog:
                 changes = self._fixup_changes(om.convert_to_python, replace=False)
         return {
             "changes": changes,
-            "offset_type": self.offset_type
+            "offset_type": offset_type
         }
 
     @staticmethod
