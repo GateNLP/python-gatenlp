@@ -18,7 +18,8 @@ class FeatureBearer:
         """
         if initialfeatures is not None:
             if isinstance(initialfeatures, FeatureViewer):
-                self._features = dict(initialfeatures._features)
+                if initialfeatures._features is not None:
+                    self._features = dict(initialfeatures._features)
             if isinstance(initialfeatures, dict) and len(initialfeatures) == 0:
                 self._features = None
             else:
