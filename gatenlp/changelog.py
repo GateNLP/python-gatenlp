@@ -25,7 +25,6 @@ class ChangeLog:
         :param replace: if True, modifies the original change objects in the changelog, otherwise, uses copies
         :return: the modified changes, a reference to the modified changes list of the instance
         """
-        print("!!!!!!DEBUG: CALLING FIXUP, ORIGINAL changes:", self.changes, file=sys.stderr)
         if not replace:
             newchanges = []
         for change in self.changes:
