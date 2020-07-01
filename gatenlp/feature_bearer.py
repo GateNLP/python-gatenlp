@@ -17,6 +17,8 @@ class FeatureBearer:
         :return:
         """
         if initialfeatures is not None:
+            if isinstance(initialfeatures, FeatureViewer):
+                self._features = dict(initialfeatures._features)
             if isinstance(initialfeatures, dict) and len(initialfeatures) == 0:
                 self._features = None
             else:
@@ -106,7 +108,7 @@ class FeatureBearer:
         else:
             return [set(self._features.values())]
 
-    def features(self) -> Dict:
+    def copy(self) -> Dict:
         """
         Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
         :return:
@@ -126,12 +128,13 @@ class FeatureBearer:
         if self._features is None:
             self._features = {}
         if other:
-            if hasattr(other, "keys"):
-                for k in other:
-                    self.set_feature(k, other[k])
-            else:
-                for k, v in other:
-                    self.set_feature(k, v)
+            for o in other:
+                if hasattr(o, "keys"):
+                    for k in o.keys():
+                        self.set_feature(k, o[k])
+                else:
+                    for k, v in o:
+                        self.set_feature(k, v)
         if kwargs:
             for k in kwargs:
                 self.set_feature(k, kwargs[k])
@@ -157,7 +160,7 @@ class FeatureViewer(FeatureBearer):
 
     def __repr__(self):
         if self._features is None:
-            return
+            return {}.__repr__()
         else:
             return self._features.__repr__()
 
@@ -171,4 +174,9 @@ class FeatureViewer(FeatureBearer):
 
     def __getitem__(self, key):
         return self.get_feature(key)
+
+    def __iter__(self):
+        if self._features:
+            for k, v in self._features.items():
+                yield k, v
 
