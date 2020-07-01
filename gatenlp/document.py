@@ -87,9 +87,10 @@ class Document(FeatureBearer):
         annset_names = self.annotation_sets.keys()
         for annset_name in annset_names:
             annset = self.annotation_sets[annset_name]
-            for ann in annset._annotations.values():
-                ann._start = method(ann._start)
-                ann._end = method(ann._end)
+            if annset._annotations is not None:
+                for ann in annset._annotations.values():
+                    ann._start = method(ann._start)
+                    ann._end = method(ann._end)
 
     def to_type(self, offsettype: str) -> None:
         """
