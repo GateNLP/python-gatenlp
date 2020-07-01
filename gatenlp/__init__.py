@@ -23,7 +23,9 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
-from gatenlp.gateslave import GateSlave
+# We do not by default import gateslave since it depends on py4j and for now
+# we do not want to force depending on py4j
+# from gatenlp.gateslave import GateSlave
 
 #__all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
 #           "InvalidOffsetException", "ChangeLog", "logger"]
