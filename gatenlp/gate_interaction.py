@@ -15,6 +15,7 @@ import inspect
 import logging
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
+from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp import logger
 import json
 
@@ -262,10 +263,15 @@ def interact(args=None):
             try:
                 if cmd == "execute":
                     doc = Document.from_dict(request.get("data"))
+                    om = doc.to_type(OFFSET_TYPE_PYTHON)
                     doc.set_changelog(ChangeLog())
                     pr.execute(doc)
                     # NOTE: for now we just discard what the method returns and always return
                     # the changelog instead!
+                    chlog = doc.changelog
+                    # if we got an offset mapper earlier, we had to convert, so we convert back to JAVA
+                    if om:
+                        chlog.fixup_changes(offset_mapper=om, offset_type=OFFSET_TYPE_JAVA)
                     ret = doc.changelog.to_dict()
                     logger.debug("Returning CHANGELOG: {}".format(ret))
                 elif cmd == "start":

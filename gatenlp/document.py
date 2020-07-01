@@ -97,23 +97,31 @@ class Document(FeatureBearer):
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
 
+        NOTE: if the document has a ChangeLog, it is NOT also converted!
+
+        The method returns the offset mapper if anything actually was converted,
+        otherwise None.
+
         :param offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
-        :return:
+        :return: offset mapper or None
         """
+        om = None
         if offsettype == self.offset_type:
             return
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
             # convert from currently python to java
-            om1 = OffsetMapper(self._text)
-            self._fixup_annotations(om1.convert_to_java)
+            om = OffsetMapper(self._text)
+            self._fixup_annotations(om.convert_to_java)
             self.offset_type = OFFSET_TYPE_JAVA
         elif offsettype == OFFSET_TYPE_PYTHON and self.offset_type == OFFSET_TYPE_JAVA:
             # convert from currently java to python
-            om1 = OffsetMapper(self._text)
-            self._fixup_annotations(om1.convert_to_python)
+            om = OffsetMapper(self._text)
+            self._fixup_annotations(om.convert_to_python)
             self.offset_type = OFFSET_TYPE_PYTHON
         else:
             raise Exception("Odd offset type")
+        return om
+
 
     def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
         """
