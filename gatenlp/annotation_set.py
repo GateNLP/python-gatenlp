@@ -209,6 +209,25 @@ class AnnotationSet:
             raise InvalidOffsetException(
                 "Annotation ends after document ends: end={}, docsize={}".format(end, doc_size))
 
+    def start(self):
+        """
+        Return the start offset of the annotation set, i.e. the smallest offset of any annotation.
+        This needs the index.
+
+        :return: smallest annotation offset
+        """
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start()
+
+    def end(self):
+        """
+        Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+
+        :return: largest end offset
+        """
+        self._create_index_by_offset()
+        return self._index_by_offset.max_end()
+
     def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
         """
         Add an annotation to the set. Once an annotation has been added, the start and end offsets,

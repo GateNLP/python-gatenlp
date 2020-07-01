@@ -209,6 +209,8 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         if isinstance(span, Annotation):
             return self.text[span._start:span._end]
+        if isinstance(span, AnnotationSet):
+            return self.text[span.start():span.end()]
         return self.text[span]
 
     def get_annotations(self, name: str = "") -> AnnotationSet:
