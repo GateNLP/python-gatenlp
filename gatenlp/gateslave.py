@@ -12,8 +12,8 @@ import platform as sysplatform
 import glob
 from py4j.java_gateway import JavaGateway, GatewayParameters
 import logging
-from gatenlp.docformats import  simplejson
 import atexit
+from gatenlp import Document
 
 JARVERSION = "1.0"
 
@@ -196,7 +196,7 @@ class GateSlave:
         :return: a gatenlp Document instance
         """
         bjs = self.slave.getBdocJson(gdoc)
-        return simplejson.loads(bjs)
+        return Document.load_string(bjs)
 
     def pdoc2gdoc(self, pdoc):
         """
@@ -205,7 +205,7 @@ class GateSlave:
         :param pdoc: python gatenlp Document
         :return: handle to GATE document
         """
-        json = simplejson.dumps(pdoc)
+        json = pdoc.save_string()
         return self.slave.getDocument4BdocJson(json)
 
     def load_pdoc(self, path, mimetype=None):

@@ -1,5 +1,7 @@
 from typing import List, Callable, Dict
+
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+import gatenlp.serialization.default
 
 
 class ChangeLog:
@@ -87,18 +89,105 @@ class ChangeLog:
             cl._fixup_changes(om.convert_to_python)
         return cl
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
+        offset_type = self.offset_type
+        changes = self.changes
+        if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
+            om = kwargs.get("offset_mapper")
+            if om is None:
+                raise Exception("Need to convert offsets, but no offset_mapper parameter given")
+            offset_type = kwargs["offset_type"]
+            if offset_type == OFFSET_TYPE_JAVA:
+                changes = self._fixup_changes(om.convert_to_java)
+            else:
+                changes = self._fixup_changes(om.convert_to_python)
         return {
             "changes": self.changes,
             "offset_type": self.offset_type
         }
 
     @staticmethod
-    def from_dict(dictrepr):
+    def from_dict(dictrepr, **kwargs):
         if dictrepr is None:
             return None
-        else:
-            cl = ChangeLog()
-            cl.changes = dictrepr.get("changes")
-            cl.offset_type = dictrepr.get("offset_type")
-            return cl
+        cl = ChangeLog()
+        cl.changes = dictrepr.get("changes")
+        cl.offset_type = dictrepr.get("offset_type")
+        if cl.offset_type == OFFSET_TYPE_JAVA:
+            # we need either an offset mapper or a document
+            if "offset_mapper" in kwargs:
+                om = kwargs.get("offset_mapper")
+            elif "document" in kwargs:
+                om = OffsetMapper(kwargs.get("document"))
+            else:
+                raise Exception("Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'")
+            cl._fixup_changes(om.convert_to_python)
+        return cl
+
+    def save(self, whereto, fmt="json", offset_type=None, offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+        """
+        Save the document in the given format.
+
+        Additional keyword parameters for format "json":
+        * as_array: boolean, if True stores as array instead of dictionary, using to
+
+
+        :param whereto: either a file name or something that has a write(string) method.
+        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param offset_type: store using the given offset type or keep the current if None
+        :param mod: module to use
+        :param **kwargs: additional parameters for the format
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        ser.save(ChangeLog, self, to_file=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+
+    def save_string(self, fmt="json", offset_type=None, offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+        """
+        Serialize and save to a string.
+
+        Additional keyword parameters for format "json":
+        * as_array: boolean, if True stores as array instead of dictionary, using to
+
+
+        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param offset_type: store using the given offset type or keep the current if None
+        :param mod: module to use
+        :param **kwargs: additional parameters for the format
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        return ser.save(ChangeLog, self, to_string=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+
+    @staticmethod
+    def load(wherefrom, fmt="json", offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+        """
+
+        :param wherefrom:
+        :param fmt:
+        :param offset_type: make sure to store using the given offset type
+        :param kwargs:
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        doc = ser.load(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        if doc.offset_type == OFFSET_TYPE_JAVA:
+            doc.to_type(OFFSET_TYPE_PYTHON)
+        return doc
+
+    @staticmethod
+    def load_string(wherefrom, fmt="json", offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+        """
+
+        Note: the offset type is always converted to PYTHON when loading!
+
+        :param wherefrom: the string to deserialize
+        :param fmt:
+        :param kwargs:
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        doc = ser.load(ChangeLog, from_string=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        if doc.offset_type == OFFSET_TYPE_JAVA:
+            doc.to_type(OFFSET_TYPE_PYTHON)
+        return doc

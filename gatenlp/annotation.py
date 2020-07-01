@@ -278,17 +278,27 @@ class Annotation(FeatureBearer):
     #     else:
     #         super().__setattr__(key, value)
 
-    def to_dict(self):
+    def to_dict(self, offset_mapper=None, offset_type=None):
+        if offset_mapper is not None:
+            if offset_type == OFFSET_TYPE_JAVA:
+                start = offset_mapper.convert_to_java(self._start)
+                end = offset_mapper.convert_to_java(self._end)
+            else:
+                start = offset_mapper.convert_to_python(self._start)
+                end = offset_mapper.convert_to_python(self._end)
+        else:
+            start = self._start
+            end = self._end
         return {
             "type": self.type,
-            "start": self.start,
-            "end": self.end,
+            "start": start,
+            "end": end,
             "id": self.id,
             "features": self._features,
         }
 
     @staticmethod
-    def from_dict(dictrepr, owner_set=None, changelog=None):
+    def from_dict(dictrepr, owner_set=None, **kwargs):
         ann = Annotation(
             start=dictrepr.get("start"),
             end=dictrepr.get("end"),

@@ -246,7 +246,6 @@ class AnnotationSet:
                     "features": ann._features,
                     "id": ann.id
                 }
-            print("DEBUG: adding:",entry)
             self.changelog.append(entry)
         return ann.id
 
@@ -625,21 +624,22 @@ class AnnotationSet:
         annset._next_annid = jsonmap.get("next_annid")
         return annset
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
             "name": self.name,
-            "annotations": list(to_dict(val) for val in self._annotations.values()),
+            "annotations": list(val.to_dict(**kwargs)
+                                for val in self._annotations.values()),
             "next_annid": self._next_annid,
         }
 
     @staticmethod
-    def from_dict(dictrepr, owner_doc=None):
+    def from_dict(dictrepr, owner_doc=None, **kwargs):
         annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
         annset._next_annid = dictrepr.get("next_annid")
         if dictrepr.get("annotations"):
             annset._annotations = dict(
-                (int(a["id"]), Annotation.from_dict(a, owner_set=annset))
+                (int(a["id"]), Annotation.from_dict(a, owner_set=annset, **kwargs))
                 for a in dictrepr.get("annotations"))
         else:
             annset._annotations = None

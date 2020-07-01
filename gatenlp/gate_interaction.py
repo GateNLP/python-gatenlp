@@ -14,7 +14,9 @@ from argparse import ArgumentParser
 import inspect
 import logging
 from gatenlp.changelog import ChangeLog
+from gatenlp.document import Document
 from gatenlp import logger
+import json
 
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
 # instream = sys.stdin
@@ -22,7 +24,6 @@ from gatenlp import logger
 instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
 ostream = sys.stdout
 sys.stdout = sys.stderr
-
 
 class _PrWrapper:
     def __init__(self):
@@ -160,7 +161,7 @@ def _pr_decorator(what):
         wrapper.func_execute = what
         wrapper.func_execute_allowkws = allowkws
     else:
-        raise Exception("Decorator applied to something that is not a function or class")
+        raise Exception(f"Decorator applied to something that is not a function or class: {what}")
     gatenlp.gate_python_plugin_pr = wrapper
     return wrapper
 
@@ -185,8 +186,24 @@ class DefaultPr:
             resultlist, kwargs))
         return None
 
+def get_arguments(from_main=False):
+    argparser = ArgumentParser()
+    argparser.add_argument("--mode", default="check",
+                           help="Interaction mode: pipe|http|websockets|file|dir|check (default: check)")
+    argparser.add_argument("--format", default="json",
+                           help="Exchange format: json|json.gz|cjson")
+    argparser.add_argument("--path", help="File/directory path for modes file/dir")
+    argparser.add_argument("--out", help="Output file/directory path for modes file/dir")
+    argparser.add_argument("-d", action="store_true",
+                           help="Enable debugging: log to stderr")
+    argparser.add_argument("--log_lvl", type=str, help="Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL")
+    if(from_main):
+        argparser.add_argument("pythonfile")
+    args = argparser.parse_args()
+    return args
 
-def interact():
+
+def interact(args=None):
     """
     Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
@@ -210,22 +227,12 @@ def interact():
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None:
         logger.warning("No processing resource defined with @GateNlpPr decorator, using default do-nothing")
-        _pr_decorator(DefaultPr())
+        _pr_decorator(DefaultPr)
 
     pr = gatenlp.gate_python_plugin_pr
 
-    argparser = ArgumentParser()
-    argparser.add_argument("--mode", default="check",
-                           help="Interaction mode: pipe|http|websockets|file|dir|check")
-    argparser.add_argument("--format", default="json",
-                           help="Exchange format: json|json.gz|cjson")
-    argparser.add_argument("--path", help="File/directory path for modes file/dir")
-    argparser.add_argument("--out", help="Output file/directory path for modes file/dir")
-    argparser.add_argument("-d", action="store_true",
-                           help="Enable debugging: log to stderr")
-    argparser.add_argument("--log_lvl", type=str, help="Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL")
-    args = argparser.parse_args()
-
+    if args is None:
+        args = get_arguments()
     if args.d:
         logger.setLevel(logging.DEBUG)
     if args.log_lvl:
@@ -237,21 +244,14 @@ def interact():
         return
 
     logger.info("Using gatenlp version {}".format(gatenlp.__version__))
-    if args.format == "json":
-        from gatenlp.docformats.simplejson import loads, dumps
-    elif args.format == "cjson":   # "compact json"
-        raise Exception("Not implemented yet!")
-    else:
-        raise Exception("Not a supported interchange format: {}".format(args.format))
 
     logger.debug("Starting interaction args={}".format(args))
-
     if args.mode == "pipe":
         if args.format != "json":
             raise Exception("For interaction mode pipe, only format=json is supported")
         for line in instream:
             try:
-                request = loads(line)
+                request = json.loads(line)
             except Exception as ex:
                 logger.error("Unable to load from JSON:\n{}".format(line))
                 raise ex
@@ -261,12 +261,12 @@ def interact():
             ret = None
             try:
                 if cmd == "execute":
-                    doc = request.get("data")
+                    doc = Document.from_dict(request.get("data"))
                     doc.set_changelog(ChangeLog())
                     pr.execute(doc)
                     # NOTE: for now we just discard what the method returns and always return
                     # the changelog instead!
-                    ret = doc.changelog
+                    ret = doc.changelog.to_dict()
                     logger.debug("Returning CHANGELOG: {}".format(ret))
                 elif cmd == "start":
                     parms = request.get("data")
@@ -301,7 +301,7 @@ def interact():
                     "stacktrace": st
                 }
             logger.debug("Sending back response: {}".format(response))
-            print(dumps(response), file=ostream)
+            print(json.dumps(response), file=ostream)
 
             ostream.flush()
             if stop_requested:
@@ -313,7 +313,6 @@ def interact():
     elif args.mode == "websockets":
         raise Exception("Mode websockets not implemented yet")
     elif args.mode in ["file", "dir"]:
-        from gatenlp.docformats import simplejson
         if not args.path:
             raise Exception("Mode file or dir but no --path specified")
         fileext = ".bdoc" + args.format
@@ -323,32 +322,41 @@ def interact():
             raise Exception("Mode dir but path is not a directory: {}".format(args.path))
         if args.mode == "file":
             pr.start({})
-            logger.info("Loading file {}".args.path)
-            doc = simplejson.load_file(args.path)
+            logger.info(f"Loading file {args.path}")
+            doc = Document.load(args.path)
             pr.execute(doc)
             pr.finish()
             if args.out:
-                logger.info("Saving file to {}".args.out)
-                simplejson.dump_file(doc, args.out)
+                logger.info(f"Saving file to {args.out}")
+                doc.save(args.out)
             else:
-                logger.info("Saving file to {}".args.path)
-                simplejson.dump_file(doc, args.path)
+                logger.info(f"Saving file to {args.path}")
+                doc.save(args.path)
         else:
             import glob
             pr.start({})
             files = glob.glob(args.path+os.path.sep+"*"+fileext)
             for file in files:
                 logger.info("Loading file {}".format(file))
-                doc = simplejson.load_file(file)
+                doc = Document.load(file)
                 pr.execute(doc)
                 if args.out:
                     tofile = os.path.join(args.out, os.path.basename(file))
                     logger.info("Saving to {}".format(tofile))
-                    simplejson.dump_file(doc, tofile)
+                    doc.save(tofile)
                 else:
                     logger.info("Saving to {}".format(file))
-                    simplejson.dump_file(doc, file)
+                    doc.save(file)
             pr.finish()
     else:
         raise Exception("Not a valid mode: {}".format(args.mode))
 
+
+if __name__ == "__main__":
+    # we run this from the command line so we need to also first load the PR code from the python file
+    args = get_arguments(from_main=True)
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("gateapp", args.pythonfile)
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
+    interact(args=args)
