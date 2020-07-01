@@ -10,7 +10,7 @@ from collections.abc import Iterable
 
 
 class AnnotationSet:
-    def __init__(self, name: str = "", changelog: ChangeLog = None, owner_doc: "Document" = None):
+    def __init__(self, name: str = "", owner_doc: "Document" = None):
         """
         Create a new annotation set.
 
@@ -22,7 +22,6 @@ class AnnotationSet:
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self.gatenlp_type = "AnnotationSet"
-        self.changelog = changelog
         self.name = name
         self.owner_doc = owner_doc
 
@@ -35,6 +34,10 @@ class AnnotationSet:
         self._annotations = {}
         self._is_immutable = False
         self._next_annid = 0
+
+    @property
+    def changelog(self):
+        return self.owner_doc.changelog
 
     def __setattr__(self, key, value):
         """
@@ -230,18 +233,21 @@ class AnnotationSet:
             annid = self._next_annid
             self._next_annid = self._next_annid + 1
         ann = Annotation(start, end, anntype, annid, owner_set=self,
-                         changelog=self.changelog, features=features)
+                         features=features)
         self._annotations[annid] = ann
         self._add_to_indices(ann)
         if self.changelog is not None:
-            self.changelog.append({
-                "command": "annotation:add",
-                "set": self.name,
-                "start": ann.start,
-                "end": ann.end,
-                "type": ann.type,
-                "features": ann.features,
-                "id": ann.id})
+            entry = {
+                    "command": "annotation:add",
+                    "set": self.name,
+                    "start": ann.start,
+                    "end": ann.end,
+                    "type": ann.type,
+                    "features": ann._features,
+                    "id": ann.id
+                }
+            print("DEBUG: adding:",entry)
+            self.changelog.append(entry)
         return ann.id
 
     def add_ann(self, ann, annid: int = None):
@@ -621,24 +627,20 @@ class AnnotationSet:
 
     def to_dict(self):
         return {
-            "changelog": self.changelog,
+            # NOTE: Changelog is not getting added as it is stored in the document part!
             "name": self.name,
-            "_annotations": dict((key, to_dict(val)) for key, val in self._annotations.items()),
-            "_is_immutable": self._is_immutable,
-            "_next_annid": self._next_annid,
+            "annotations": list(to_dict(val) for val in self._annotations.values()),
+            "next_annid": self._next_annid,
         }
 
     @staticmethod
     def from_dict(dictrepr, owner_doc=None):
-        cl = ChangeLog.from_dict(dictrepr.get("changelog"))
-        annset = AnnotationSet(dictrepr.get("name"),
-                               owner_doc=owner_doc, changelog=cl)
-        annset._is_immutable = dictrepr.get("_is_immutable")
-        annset._next_annid = dictrepr.get("_next_annid")
-        if dictrepr.get("_annotations"):
+        annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
+        annset._next_annid = dictrepr.get("next_annid")
+        if dictrepr.get("annotations"):
             annset._annotations = dict(
-                (key, Annotation.from_dict(val, changelog=cl, owner_set=annset))
-                for key, val in dictrepr.get("_annotations").items())
+                (int(a["id"]), Annotation.from_dict(a, owner_set=annset))
+                for a in dictrepr.get("annotations"))
         else:
             annset._annotations = None
         return annset

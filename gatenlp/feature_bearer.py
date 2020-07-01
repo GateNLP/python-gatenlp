@@ -146,3 +146,29 @@ class FeatureBearer:
             return 0
         else:
             return len(self._features)
+
+
+class FeatureViewer(FeatureBearer):
+
+    def __init__(self, features, changelog=None, logger=None):
+        self._features = features
+        self.changelog = changelog
+        self.logger = logger
+
+    def __repr__(self):
+        if self._features is None:
+            return
+        else:
+            return self._features.__repr__()
+
+    def _log_feature_change(self, command: str,
+                            feature: Union[str, None] = None, value: Union[str, None] = None):
+        if self.logger is not None and self.changelog is not None:
+            self.logger()
+
+    def __setitem__(self, key, value):
+        self.set_feature(key, value)
+
+    def __getitem__(self, key):
+        return self.get_feature(key)
+

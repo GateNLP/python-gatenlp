@@ -1,11 +1,13 @@
 import collections
 from typing import Callable, Dict, KeysView, Any
+import gatenlp
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.utils import to_dict, to_list
-from .feature_bearer import FeatureBearer
+from gatenlp.feature_bearer import FeatureBearer
+import gatenlp.serialization.default
 import logging
 
 logging.basicConfig()
@@ -18,13 +20,16 @@ class _AnnotationSetsDict(collections.defaultdict):
     A dict name to annotationset which creates and stores an empty annotation
     set on the fly when it is requested.
     """
-    def __init__(self, changelog: ChangeLog = None, owner_doc: "Document" = None):
+    def __init__(self, owner_doc: "Document" = None):
         super().__init__()
-        self.changelog = changelog
         self.owner_doc = owner_doc
 
+    @property
+    def changelog(self):
+        return self.owner_doc.changelog
+
     def __missing__(self, key: str):
-        annset = AnnotationSet(name=key, changelog=self.changelog, owner_doc=self.owner_doc)
+        annset = AnnotationSet(name=key, owner_doc=self.owner_doc)
         self[key] = annset
         return annset
 
@@ -32,8 +37,8 @@ class _AnnotationSetsDict(collections.defaultdict):
         return dict((key, to_dict(val)) for key, val in self.items())
 
     @staticmethod
-    def from_dict(dictrepr: Dict, changelog: ChangeLog = None, owner_doc: "Document" = None):
-        asd = _AnnotationSetsDict(changelog=changelog, owner_doc=owner_doc)
+    def from_dict(dictrepr: Dict, owner_doc: "Document" = None):
+        asd = _AnnotationSetsDict(owner_doc=owner_doc)
         asd.update(((key, AnnotationSet.from_dict(val)) for key, val in dictrepr.items()))
         return asd
 
@@ -72,7 +77,7 @@ class Document(FeatureBearer):
         super().__init__(features)
         self.gatenlp_type = "Document"
         self.changelog = changelog
-        self.annotation_sets = _AnnotationSetsDict(self.changelog, owner_doc=self)
+        self.annotation_sets = _AnnotationSetsDict(owner_doc=self)
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
 
@@ -85,8 +90,8 @@ class Document(FeatureBearer):
         for annset_name in annset_names:
             annset = self.annotation_sets[annset_name]
             for ann in annset:
-                ann.start = method(ann.start)
-                ann.end = method(ann.end)
+                ann._start = method(ann._start)
+                ann._end = method(ann._end)
 
     def to_type(self, offsettype: str) -> None:
         """
@@ -191,7 +196,7 @@ class Document(FeatureBearer):
         """
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span.start:span.end]
+            return self.text[span._start:span._end]
         return self.text[span]
 
     def get_annotations(self, name: str = "") -> AnnotationSet:
@@ -281,24 +286,17 @@ class Document(FeatureBearer):
         """
         Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
+        NOTE: if there is an active changelog, it is not included in the output as this
+        field is considered a transient field!
+
         :return: the dictionary representation of this instance
         """
         return {
-            "changelog": to_dict(self.changelog),
             "annotation_sets": to_dict(self.annotation_sets),
             "text": self._text,
             "features": self._features,
             "offset_type": self.offset_type,
         }
-
-    def to_list(self):
-        return [
-            to_list(self.changelog),
-            to_list(self.annotation_sets),
-            self._text,
-            self._features,
-            self.offset_type,
-        ]
 
     @staticmethod
     def from_dict(dictrepr):
@@ -309,11 +307,73 @@ class Document(FeatureBearer):
         """
         doc = Document(dictrepr.get("text"))
         doc.offset_type = dictrepr.get("offset_type")
-        doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
+        # doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
         doc._features = dictrepr.get("features")
-        doc.gatenlp_type = dictrepr.get("gatenlp_type")
         doc.annotation_sets = \
             _AnnotationSetsDict.from_dict(dictrepr.get("annotation_sets"),
-                                          changelog=doc.changelog, owner_doc=doc)
+                                          #changelog=doc.changelog,
+                                          owner_doc=doc)
         return doc
 
+    def save(self, whereto, fmt="json", mod=gatenlp.serialization.default, **kwargs):
+        """
+        Save the document in the given format.
+
+        Additional keyword parameters for format "json":
+        * as_array: boolean, if True stores as array instead of dictionary, using to
+
+
+        :param whereto: either a file name or something that has a write(string) method.
+        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param mod: module to use
+        :param **kwargs: additional parameters for the format
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        ser.save(Document, self, to_file=whereto, **kwargs)
+
+    def save_string(self, fmt="json", mod=gatenlp.serialization.default, **kwargs):
+        """
+        Serialize and save to a string.
+
+        Additional keyword parameters for format "json":
+        * as_array: boolean, if True stores as array instead of dictionary, using to
+
+
+        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param mod: module to use
+        :param **kwargs: additional parameters for the format
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        return ser.save(Document, self, to_string=True, **kwargs)
+
+    @staticmethod
+    def load(wherefrom, fmt="json", mod=gatenlp.serialization.default, **kwargs):
+        """
+
+        :param wherefrom:
+        :param fmt:
+        :param kwargs:
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        doc = ser.load(Document, from_file=wherefrom, **kwargs)
+        if doc.offset_type == OFFSET_TYPE_JAVA:
+            doc.to_type(OFFSET_TYPE_PYTHON)
+        return doc
+
+    @staticmethod
+    def load_string(wherefrom, fmt="json", mod=gatenlp.serialization.default, **kwargs):
+        """
+
+        :param wherefrom: the string to deserialize
+        :param fmt:
+        :param kwargs:
+        :return:
+        """
+        ser = mod.FORMATS[fmt]
+        doc = ser.load(Document, from_string=wherefrom, **kwargs)
+        if doc.offset_type == OFFSET_TYPE_JAVA:
+            doc.to_type(OFFSET_TYPE_PYTHON)
+        return doc

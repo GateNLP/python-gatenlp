@@ -4,9 +4,8 @@ An annotation is immutable, but the features it contains are mutable.
 import sys
 from typing import List, Union, Dict, Set
 from functools import total_ordering
-from gatenlp.feature_bearer import FeatureBearer
+from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
-from gatenlp.changelog import ChangeLog
 from gatenlp._utils import support_annotation_or_set
 
 
@@ -38,16 +37,18 @@ class Annotation(FeatureBearer):
     def gatenlp_type(self):
         return self._gatenlp_type
 
-    # NOTE: we deliberately do NOT expose _features as a propery features so that people do not
-    # do ann.features["x"]=1 but do ann.set_feature("x",1) instead!
+    @property
+    def features(self):
+        return FeatureViewer(self._features, changelog=self.changelog, logger=self._log_feature_change)
 
     @property
     def id(self):
         return self._id
 
-    def __init__(self, start: int, end: int, annot_type: str, annot_id: int,
+    def __init__(self, start: int, end: int, annot_type: str,
+                 annot_id: int = 0,
                  owner_set: "AnnotationSet" = None,
-                 changelog: ChangeLog = None, features=None):
+                 features=None):
         """
         Create a new annotation instance. NOTE: this should almost never be done directly
         and instead the method annotation_set.add should be used!
@@ -58,23 +59,24 @@ class Annotation(FeatureBearer):
         :param annot_type: annotation type
         :param annot_id: the id of the annotation
         :param owner_set: the containing annotation set
-        :param changelog: a changelog, if changes to the features should get recorded
         :param features: an initial collection of features, None for no features.
         """
         super().__init__(features)
         self._gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
-        self.changelog = changelog
         self._type = annot_type
         self._start = start
         self._end = end
         self._id = annot_id
-        # the annotation set that "owns" this annotation, if any. This information is ONLY needed
-        # if a changelog is used to log the changes to the annotations feature set.  Note that an annotation
-        # can still exist after it has been deleted from a set, and if a feature gets changed then,
-        # the log will contain an entry for this. The receiver of the log has to silently ignore
-        # feature changes to non-existing annotations.
         self._owner_set = None
+
+    def _changelog(self):
+        """
+        Return the changelog of the owning set, if there is one, or None.
+        :return: the changelog
+        """
+        if self._owner_set is not None:
+            return self._owner_set.changelog
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable with GATE.
@@ -84,7 +86,7 @@ class Annotation(FeatureBearer):
     # For performance reasons we check the feature name but not the value (maybe make checking optional
     # on by default but still optional?)
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
-        if self.changelog is None:
+        if self._changelog() is None:
             return
         ch = {
             "command": command,
@@ -293,7 +295,6 @@ class Annotation(FeatureBearer):
             annot_type=dictrepr.get("type"),
             annot_id=dictrepr.get("id"),
             owner_set=owner_set,
-            changelog=changelog,
             features=dictrepr.get("features")
         )
         return ann
