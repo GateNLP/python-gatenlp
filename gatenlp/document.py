@@ -40,6 +40,13 @@ class _AnnotationSetsDict(collections.defaultdict):
         asd.update(((key, AnnotationSet.from_dict(val, owner_doc=owner_doc, **kwargs)) for key, val in dictrepr.items()))
         return asd
 
+    def __repr__(self):
+        asets = ",".join([f"({k},{v.__repr__()})" for k, v in self.items()])
+        return "["+asets+"]"
+
+    def __str__(self):
+        asets = ",".join([f"{k}" for k in self.keys()])
+        return "["+asets+"]"
 
 class Document(FeatureBearer):
     """
@@ -242,6 +249,9 @@ class Document(FeatureBearer):
 
         :return: string representation
         """
+        return "Document({},features={},anns={})".format(self.text, self._features, self.annotation_sets.__repr__())
+
+    def __str__(self) -> str:
         return "Document({},features={},anns={})".format(self.text, self._features, self.annotation_sets)
 
     def _json_repr(self, **kwargs) -> Dict:

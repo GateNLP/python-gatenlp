@@ -7,12 +7,12 @@ exchanging data with it.
 import sys
 import subprocess
 import os
-import socket
 import platform as sysplatform
-import glob
-from py4j.java_gateway import JavaGateway, GatewayParameters
 import logging
 import atexit
+# NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
+# but does not force everyone to actually have py4j installed if they do not use the GateSlave
+# from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
 
 JARVERSION = "1.0"
@@ -107,6 +107,8 @@ class GateSlave:
                environment variable GATE_HOME to be set.
         :param platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
         """
+        from py4j.java_gateway import JavaGateway, GatewayParameters
+
         self.gatehome = gatehome
         self.port = port
         self.host = host

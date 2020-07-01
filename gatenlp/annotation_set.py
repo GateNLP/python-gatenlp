@@ -234,6 +234,8 @@ class AnnotationSet:
             self._next_annid = self._next_annid + 1
         ann = Annotation(start, end, anntype, annid, owner_set=self,
                          features=features)
+        if not self._annotations:
+            self._annotations = {}
         self._annotations[annid] = ann
         self._add_to_indices(ann)
         if self.changelog is not None:
@@ -305,10 +307,23 @@ class AnnotationSet:
         """
         Iterator for going through all the annotations of the set.
 
+        Important: using the iterator will always create the index if it is not already there!
+        For fast iteration use fastiter() which does not allow sorting or offset ranges.
+
         :return: a generator for the annotations in document order
         """
         # return iter(self._annotations.values())
         return self.iter()
+
+    def fast_iter(self) -> Generator:
+        """
+        Returns a generator for fast iteration over all annotations in arbitrary order.
+
+        :return:
+        """
+        if self._annotations:
+            for a in self._annotations:
+                yield a
 
     def iter(self,
              start_ge: Union[int, None] = None,
@@ -338,6 +353,8 @@ class AnnotationSet:
                     allowedtypes.add(atype)
         else:
             allowedtypes = None
+        if not self._annotations:
+            return
         maxoff = None
         if start_ge is not None:
             assert start_ge >= 0
@@ -642,7 +659,7 @@ class AnnotationSet:
                 (int(a["id"]), Annotation.from_dict(a, owner_set=annset, **kwargs))
                 for a in dictrepr.get("annotations"))
         else:
-            annset._annotations = None
+            annset._annotations = {}
         return annset
 
 

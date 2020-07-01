@@ -31,4 +31,6 @@ for ann in persons:
 
 gs.slave.saveDocumentToFile(doc1, "tmp_saveddoc.xml", "")
 
+pdoc.save("tmp_saveddoc.bdoc")
+
 gs.close()
