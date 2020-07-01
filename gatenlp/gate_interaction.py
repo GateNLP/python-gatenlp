@@ -271,7 +271,8 @@ def interact(args=None):
                     chlog = doc.changelog
                     # if we got an offset mapper earlier, we had to convert, so we convert back to JAVA
                     if om:
-                        chlog.fixup_changes(offset_mapper=om, offset_type=OFFSET_TYPE_JAVA)
+                        # replace True is faster, and we do not need the ChangeLog any more!
+                        chlog.fixup_changes(offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True)
                     ret = doc.changelog.to_dict()
                     logger.debug("Returning CHANGELOG: {}".format(ret))
                 elif cmd == "start":

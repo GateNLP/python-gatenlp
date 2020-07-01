@@ -1,5 +1,5 @@
 from typing import List, Callable, Dict
-
+import sys
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 import gatenlp.serialization.default
 
@@ -17,26 +17,41 @@ class ChangeLog:
     def __len__(self) -> int:
         return len(self.changes)
 
-    def _fixup_changes(self, method: Callable) -> List[Dict]:
+    def _fixup_changes(self, method: Callable, replace=False) -> List[Dict]:
         """
         In-place modify the annotation offsets of the changes according to
         the given method.
         :param method: an object method method for converting offsets from or to python.
+        :param replace: if True, modifies the original change objects in the changelog, otherwise, uses copies
         :return: the modified changes, a reference to the modified changes list of the instance
         """
+        print("!!!!!!DEBUG: CALLING FIXUP, ORIGINAL changes:", self.changes, file=sys.stderr)
+        if not replace:
+            newchanges = []
         for change in self.changes:
+            if not replace:
+                chg = dict(change)
+            else:
+                chg = change
             if "start" in change:
-                change["start"] = method(change["start"])
+                chg["start"] = method(change["start"])
             if "end" in change:
-                change["end"] = method(change["end"])
-        return self.changes
+                chg["end"] = method(change["end"])
+            if not replace:
+                newchanges.append(chg)
+        if replace:
+            return self.changes
+        else:
+            return newchanges
 
-    def fixup_changes(self, offset_mapper, offset_type):
+    def fixup_changes(self, offset_mapper, offset_type, replace=True):
         """
-        In-place update the offsets of all annotations in this changelog to the desired
+        Update the offsets of all annotations in this changelog to the desired
         offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.
         :param offset_mapper: a prepared offset mapper to use
         :param offset_type: the desired offset type
+        :param replace: if True, replaces the original offsets in the original change objects, otherwise creates
+               new change objects and a new changes list and returs it.
         :return: a reference to the modified changes
         """
         if offset_type != self.offset_type:
@@ -46,7 +61,9 @@ class ChangeLog:
                 method = offset_mapper.convert_to_python
             else:
                 raise Exception("Not a proper offset type: {}".format(offset_type))
-            return self._fixup_changes(method)
+            return self._fixup_changes(method, replace=replace)
+        else:
+            return self.changes
 
     def __repr__(self) -> str:
         return "ChangeLog([{}])".format(",".join([str(c) for c in self.changes]))
@@ -98,11 +115,11 @@ class ChangeLog:
                 raise Exception("Need to convert offsets, but no offset_mapper parameter given")
             offset_type = kwargs["offset_type"]
             if offset_type == OFFSET_TYPE_JAVA:
-                changes = self._fixup_changes(om.convert_to_java)
+                changes = self._fixup_changes(om.convert_to_java, replace=False)
             else:
-                changes = self._fixup_changes(om.convert_to_python)
+                changes = self._fixup_changes(om.convert_to_python, replace=False)
         return {
-            "changes": self.changes,
+            "changes": changes,
             "offset_type": self.offset_type
         }
 
@@ -135,6 +152,7 @@ class ChangeLog:
         :param whereto: either a file name or something that has a write(string) method.
         :param fmt: serialization format, one of "json", "msgpack" or "pickle"
         :param offset_type: store using the given offset type or keep the current if None
+        :param offset_mapper: nedded if the offset type should get changed
         :param mod: module to use
         :param **kwargs: additional parameters for the format
         :return:
@@ -152,6 +170,7 @@ class ChangeLog:
 
         :param fmt: serialization format, one of "json", "msgpack" or "pickle"
         :param offset_type: store using the given offset type or keep the current if None
+        :param offset_mapper: nedded if the offset type should get changed
         :param mod: module to use
         :param **kwargs: additional parameters for the format
         :return:
@@ -165,7 +184,7 @@ class ChangeLog:
 
         :param wherefrom:
         :param fmt:
-        :param offset_type: make sure to store using the given offset type
+        :param offset_mapper: offset mapper in case the offsets need to get converted
         :param kwargs:
         :return:
         """
@@ -183,6 +202,7 @@ class ChangeLog:
 
         :param wherefrom: the string to deserialize
         :param fmt:
+        :param offset_mapper: offset mapper in case the offsets need to get converted
         :param kwargs:
         :return:
         """

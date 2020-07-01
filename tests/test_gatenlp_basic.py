@@ -48,7 +48,7 @@ class TestDocument01:
         doc1.set_feature("docfeat1", 33)
         assert doc1.get_feature("docfeat1") == 33
         # print("DOC: {}".format(doc1), file=sys.stderr)
-        jsonstr = doc1.save_string(doc1, offset_type=OFFSET_TYPE_JAVA)
+        jsonstr = doc1.save_string(offset_type=OFFSET_TYPE_JAVA)
         # print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
         doc2 = Document.load_string(jsonstr)
         # print("DOC BACK: {}".format(doc2), file=sys.stderr)
@@ -83,15 +83,14 @@ class TestChangeLog01:
         doc1.set_feature("docfeature1", "value1")
         doc1.set_feature("docfeature1", "value1b")
         chlog1 = doc1.changelog
-        # print("Changelog:", chlog, file=sys.stderr)
-        # print("Changelog:", file=sys.stderr)
-        # chlog.format_to(sys.stderr)
+        assert chlog1.changes[4].get("end") == 24
+        assert chlog.changes[4].get("end") == 24
         om = OffsetMapper(doc1)
         jsonstr = chlog.save_string(offset_type=OFFSET_TYPE_JAVA, offset_mapper=om)
-        # print("JSON:", jsonstr, file=sys.stderr)
         chlog2 = ChangeLog.load_string(jsonstr, offset_mapper=om)
-        # print("Changelog from JSON:", chlog2, file=sys.stderr)
-        assert chlog2.changes[4].get("end") == 24
+        assert chlog.changes[4].get("end") == 24
+        assert chlog1.changes[4].get("end") == 24
+        assert chlog2.changes[4].get("end") == 25
 
         # check if adding the changelog later works
         chlog = ChangeLog()
