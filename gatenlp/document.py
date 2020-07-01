@@ -45,7 +45,7 @@ class _AnnotationSetsDict(collections.defaultdict):
         return "["+asets+"]"
 
     def __str__(self):
-        asets = ",".join([f"{k}" for k in self.keys()])
+        asets = ",".join([f"'{k}':{len(v)}" for k, v in self.items()])
         return "["+asets+"]"
 
 class Document(FeatureBearer):

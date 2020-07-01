@@ -232,8 +232,8 @@ class AnnotationSet:
         if annid is None:
             annid = self._next_annid
             self._next_annid = self._next_annid + 1
-        ann = Annotation(start, end, anntype, annid, owner_set=self,
-                         features=features)
+        ann = Annotation(start, end, anntype, annid, features=features)
+        ann._owner_set = self
         if not self._annotations:
             self._annotations = {}
         self._annotations[annid] = ann

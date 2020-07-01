@@ -46,8 +46,7 @@ class Annotation(FeatureBearer):
         return self._id
 
     def __init__(self, start: int, end: int, annot_type: str,
-                 annot_id: int = 0,
-                 owner_set: "AnnotationSet" = None,
+                 annid: int = 0,
                  features=None):
         """
         Create a new annotation instance. NOTE: this should almost never be done directly
@@ -67,7 +66,7 @@ class Annotation(FeatureBearer):
         self._type = annot_type
         self._start = start
         self._end = end
-        self._id = annot_id
+        self._id = annid
         self._owner_set = None
 
     def _changelog(self):
@@ -303,8 +302,8 @@ class Annotation(FeatureBearer):
             start=dictrepr.get("start"),
             end=dictrepr.get("end"),
             annot_type=dictrepr.get("type"),
-            annot_id=dictrepr.get("id"),
-            owner_set=owner_set,
+            annid=dictrepr.get("id"),
             features=dictrepr.get("features")
         )
+        ann._owner_set = owner_set
         return ann
