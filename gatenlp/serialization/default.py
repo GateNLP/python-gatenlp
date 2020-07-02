@@ -67,6 +67,7 @@ class MsgPackSerializer:
         doc._features = u.unpack()
         nsets = u.unpack()
         setsdict = _AnnotationSetsDict(owner_doc=doc)
+        doc.annotation_sets = setsdict
         for iset in range(nsets):
             sname = u.unpack()
             if sname is None:
@@ -81,7 +82,8 @@ class MsgPackSerializer:
                 aid = u.unpack()
                 afeatures = u.unpack()
                 ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
-                annset[aid] = ann
+                annset._annotations[aid] = ann
+            setsdict[sname] = annset
         return doc
 
     @staticmethod
