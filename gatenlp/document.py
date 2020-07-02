@@ -5,8 +5,8 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.feature_bearer import FeatureBearer
-import gatenlp.serialization.default
 import logging
+import importlib
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ class Document(FeatureBearer):
     :param changelog: a ChangeLog instance to use to log changes.
     """
 
-    def __init__(self, text: str, features=None, changelog: ChangeLog = None):
+    def __init__(self, text: str = None, features=None, changelog: ChangeLog = None):
         super().__init__(features)
         self.gatenlp_type = "Document"
         self.changelog = changelog
@@ -347,7 +347,7 @@ class Document(FeatureBearer):
                                           owner_doc=doc, **kwargs)
         return doc
 
-    def save(self, whereto, fmt="json", offset_type=None, mod=gatenlp.serialization.default, **kwargs):
+    def save(self, whereto, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
         Save the document in the given format.
 
@@ -362,10 +362,11 @@ class Document(FeatureBearer):
         :param **kwargs: additional parameters for the format
         :return:
         """
-        ser = mod.FORMATS[fmt]
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
         ser.save(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
 
-    def save_string(self, fmt="json", offset_type=None, mod=gatenlp.serialization.default, **kwargs):
+    def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
         Serialize and save to a string.
 
@@ -379,11 +380,12 @@ class Document(FeatureBearer):
         :param **kwargs: additional parameters for the format
         :return:
         """
-        ser = mod.FORMATS[fmt]
-        return ser.save(Document, self, to_string=True, offset_type=offset_type, **kwargs)
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
+        return ser.save(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
 
     @staticmethod
-    def load(wherefrom, fmt="json", offset_type=None, mod=gatenlp.serialization.default, **kwargs):
+    def load(wherefrom, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
 
         :param wherefrom:
@@ -392,14 +394,15 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
-        ser = mod.FORMATS[fmt]
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
         doc = ser.load(Document, from_file=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc
 
     @staticmethod
-    def load_string(wherefrom, fmt="json", mod=gatenlp.serialization.default, **kwargs):
+    def load_mem(wherefrom, fmt="json", mod="gatenlp.serialization.default", **kwargs):
         """
 
         Note: the offset type is always converted to PYTHON when loading!
@@ -409,8 +412,9 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
-        ser = mod.FORMATS[fmt]
-        doc = ser.load(Document, from_string=wherefrom, **kwargs)
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
+        doc = ser.load(Document, from_mem=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc

@@ -1,8 +1,7 @@
 from typing import List, Callable, Dict
 import sys
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-import gatenlp.serialization.default
-
+import importlib
 
 class ChangeLog:
     def __init__(self):
@@ -142,7 +141,7 @@ class ChangeLog:
             cl._fixup_changes(om.convert_to_python)
         return cl
 
-    def save(self, whereto, fmt="json", offset_type=None, offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+    def save(self, whereto, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
         Save the document in the given format.
 
@@ -158,10 +157,11 @@ class ChangeLog:
         :param **kwargs: additional parameters for the format
         :return:
         """
-        ser = mod.FORMATS[fmt]
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
         ser.save(ChangeLog, self, to_file=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
-    def save_string(self, fmt="json", offset_type=None, offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+    def save_mem(self, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
         Serialize and save to a string.
 
@@ -176,11 +176,12 @@ class ChangeLog:
         :param **kwargs: additional parameters for the format
         :return:
         """
-        ser = mod.FORMATS[fmt]
-        return ser.save(ChangeLog, self, to_string=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
+        return ser.save(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     @staticmethod
-    def load(wherefrom, fmt="json", offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+    def load(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
 
         :param wherefrom:
@@ -189,14 +190,15 @@ class ChangeLog:
         :param kwargs:
         :return:
         """
-        ser = mod.FORMATS[fmt]
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
         doc = ser.load(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc
 
     @staticmethod
-    def load_string(wherefrom, fmt="json", offset_mapper=None, mod=gatenlp.serialization.default, **kwargs):
+    def load_mem(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
 
         Note: the offset type is always converted to PYTHON when loading!
@@ -207,8 +209,9 @@ class ChangeLog:
         :param kwargs:
         :return:
         """
-        ser = mod.FORMATS[fmt]
-        doc = ser.load(ChangeLog, from_string=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        m = importlib.import_module(mod)
+        ser = m.FORMATS[fmt]
+        doc = ser.load(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc
