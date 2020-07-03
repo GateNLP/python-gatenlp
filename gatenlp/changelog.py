@@ -46,10 +46,11 @@ class ChangeLog:
         """
         Update the offsets of all annotations in this changelog to the desired
         offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.
+
         :param offset_mapper: a prepared offset mapper to use
         :param offset_type: the desired offset type
         :param replace: if True, replaces the original offsets in the original change objects, otherwise creates
-               new change objects and a new changes list and returs it.
+          new change objects and a new changes list and returs it.
         :return: a reference to the modified changes
         """
         if offset_type != self.offset_type:
@@ -154,7 +155,7 @@ class ChangeLog:
         :param offset_type: store using the given offset type or keep the current if None
         :param offset_mapper: nedded if the offset type should get changed
         :param mod: module to use
-        :param **kwargs: additional parameters for the format
+        :param kwargs: additional parameters for the format
         :return:
         """
         m = importlib.import_module(mod)
@@ -173,7 +174,7 @@ class ChangeLog:
         :param offset_type: store using the given offset type or keep the current if None
         :param offset_mapper: nedded if the offset type should get changed
         :param mod: module to use
-        :param **kwargs: additional parameters for the format
+        :param kwargs: additional parameters for the format
         :return:
         """
         m = importlib.import_module(mod)

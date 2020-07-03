@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.gate_interaction &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -28,8 +27,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gate_interaction</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,7 +53,10 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
+<span class="kn">from</span> <span class="nn">gatenlp.document</span> <span class="kn">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="kn">import</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">,</span> <span class="n">OFFSET_TYPE_PYTHON</span>
 <span class="kn">from</span> <span class="nn">gatenlp</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
 <span class="c1"># We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:</span>
 <span class="c1"># instream = sys.stdin</span>
@@ -63,7 +64,6 @@
 <span class="n">instream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 <span class="n">ostream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
-
 
 <span class="k">class</span> <span class="nc">_PrWrapper</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -201,33 +201,49 @@
         <span class="n">wrapper</span><span class="o">.</span><span class="n">func_execute</span> <span class="o">=</span> <span class="n">what</span>
         <span class="n">wrapper</span><span class="o">.</span><span class="n">func_execute_allowkws</span> <span class="o">=</span> <span class="n">allowkws</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Decorator applied to something that is not a function or class&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Decorator applied to something that is not a function or class: </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">gatenlp</span><span class="o">.</span><span class="n">gate_python_plugin_pr</span> <span class="o">=</span> <span class="n">wrapper</span>
     <span class="k">return</span> <span class="n">wrapper</span>
 
 
-<div class="viewcode-block" id="DefaultPr"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr">[docs]</a><span class="k">class</span> <span class="nc">DefaultPr</span><span class="p">:</span>
+<div class="viewcode-block" id="DefaultPr"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr">[docs]</a><span class="k">class</span> <span class="nc">DefaultPr</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called __call__() with doc=</span><span class="si">{}</span><span class="s2">, kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">doc</span>
 
-<div class="viewcode-block" id="DefaultPr.start"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.start"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called start() with kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Running DefaultPr: did you define a @GateNlpPr class or function?&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DefaultPr.finish"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.finish"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called finish() with kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Finished DefaultPr: did you define a @GateNlpPr class or function?&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DefaultPr.reduce"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.reduce"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called reduce() with results </span><span class="si">{}</span><span class="s2"> and kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">resultlist</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">None</span></div></div>
 
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.get_arguments">[docs]</a><span class="k">def</span> <span class="nf">get_arguments</span><span class="p">(</span><span class="n">from_main</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">argparser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--mode&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;check&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&quot;</span><span class="p">)</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exchange format: json|json.gz|cjson&quot;</span><span class="p">)</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--path&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File/directory path for modes file/dir&quot;</span><span class="p">)</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file/directory path for modes file/dir&quot;</span><span class="p">)</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable debugging: log to stderr&quot;</span><span class="p">)</span>
+    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--log_lvl&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&quot;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">from_main</span><span class="p">):</span>
+        <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;pythonfile&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">args</span></div>
 
-<div class="viewcode-block" id="interact"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.interact">[docs]</a><span class="k">def</span> <span class="nf">interact</span><span class="p">():</span>
+
+<div class="viewcode-block" id="interact"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.interact">[docs]</a><span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Starts and handles the interaction with a GATE python plugin process.</span>
 <span class="sd">    This will get started by the GATE plugin if the interaction uses</span>
@@ -251,22 +267,12 @@
     <span class="c1"># been defined. If not, use our own default debugging PR</span>
     <span class="k">if</span> <span class="n">gatenlp</span><span class="o">.</span><span class="n">gate_python_plugin_pr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No processing resource defined with @GateNlpPr decorator, using default do-nothing&quot;</span><span class="p">)</span>
-        <span class="n">_pr_decorator</span><span class="p">(</span><span class="n">DefaultPr</span><span class="p">())</span>
+        <span class="n">_pr_decorator</span><span class="p">(</span><span class="n">DefaultPr</span><span class="p">)</span>
 
     <span class="n">pr</span> <span class="o">=</span> <span class="n">gatenlp</span><span class="o">.</span><span class="n">gate_python_plugin_pr</span>
 
-    <span class="n">argparser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--mode&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;check&quot;</span><span class="p">,</span>
-                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Interaction mode: pipe|http|websockets|file|dir|check&quot;</span><span class="p">)</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
-                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exchange format: json|json.gz|cjson&quot;</span><span class="p">)</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--path&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File/directory path for modes file/dir&quot;</span><span class="p">)</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file/directory path for modes file/dir&quot;</span><span class="p">)</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable debugging: log to stderr&quot;</span><span class="p">)</span>
-    <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--log_lvl&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&quot;</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">d</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">log_lvl</span><span class="p">:</span>
@@ -278,21 +284,14 @@
         <span class="k">return</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using gatenlp version </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gatenlp</span><span class="o">.</span><span class="n">__version__</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">gatenlp.docformats.simplejson</span> <span class="kn">import</span> <span class="n">loads</span><span class="p">,</span> <span class="n">dumps</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;cjson&quot;</span><span class="p">:</span>   <span class="c1"># &quot;compact json&quot;</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented yet!&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a supported interchange format: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">))</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting interaction args=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
-
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;pipe&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">!=</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;For interaction mode pipe, only format=json is supported&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">instream</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">request</span> <span class="o">=</span> <span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to load from JSON:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="n">ex</span>
@@ -302,12 +301,18 @@
             <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s2">&quot;execute&quot;</span><span class="p">:</span>
-                    <span class="n">doc</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+                    <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))</span>
+                    <span class="n">om</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
                     <span class="n">doc</span><span class="o">.</span><span class="n">set_changelog</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">())</span>
                     <span class="n">pr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
                     <span class="c1"># NOTE: for now we just discard what the method returns and always return</span>
                     <span class="c1"># the changelog instead!</span>
-                    <span class="n">ret</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">changelog</span>
+                    <span class="n">chlog</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">changelog</span>
+                    <span class="c1"># if we got an offset mapper earlier, we had to convert, so we convert back to JAVA</span>
+                    <span class="k">if</span> <span class="n">om</span><span class="p">:</span>
+                        <span class="c1"># replace True is faster, and we do not need the ChangeLog any more!</span>
+                        <span class="n">chlog</span><span class="o">.</span><span class="n">fixup_changes</span><span class="p">(</span><span class="n">offset_mapper</span><span class="o">=</span><span class="n">om</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">OFFSET_TYPE_JAVA</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">ret</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">changelog</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returning CHANGELOG: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span>
                     <span class="n">parms</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
@@ -342,7 +347,7 @@
                     <span class="s2">&quot;stacktrace&quot;</span><span class="p">:</span> <span class="n">st</span>
                 <span class="p">}</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending back response: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">ostream</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">ostream</span><span class="p">)</span>
 
             <span class="n">ostream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">stop_requested</span><span class="p">:</span>
@@ -354,7 +359,6 @@
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;websockets&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mode websockets not implemented yet&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;dir&quot;</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">gatenlp.docformats</span> <span class="kn">import</span> <span class="n">simplejson</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mode file or dir but no --path specified&quot;</span><span class="p">)</span>
         <span class="n">fileext</span> <span class="o">=</span> <span class="s2">&quot;.bdoc&quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span>
@@ -364,38 +368,46 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mode dir but path is not a directory: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">start</span><span class="p">({})</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading file </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving file to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
-                <span class="n">simplejson</span><span class="o">.</span><span class="n">dump_file</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving file to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving file to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-                <span class="n">simplejson</span><span class="o">.</span><span class="n">dump_file</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving file to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">glob</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">start</span><span class="p">({})</span>
             <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="o">+</span><span class="n">fileext</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
-                <span class="n">doc</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
                 <span class="n">pr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">:</span>
                     <span class="n">tofile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tofile</span><span class="p">))</span>
-                    <span class="n">simplejson</span><span class="o">.</span><span class="n">dump_file</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">tofile</span><span class="p">)</span>
+                    <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tofile</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
-                    <span class="n">simplejson</span><span class="o">.</span><span class="n">dump_file</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="n">doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
             <span class="n">pr</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a valid mode: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="p">))</span></div>
 
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># we run this from the command line so we need to also first load the PR code from the python file</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_arguments</span><span class="p">(</span><span class="n">from_main</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">importlib.util</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;gateapp&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">pythonfile</span><span class="p">)</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+    <span class="n">interact</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
 </pre></div>
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -425,13 +437,12 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gate_interaction</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

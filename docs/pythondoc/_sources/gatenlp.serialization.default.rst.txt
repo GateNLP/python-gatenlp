@@ -1,0 +1,7 @@
+gatenlp.serialization.default module
+====================================
+
+.. automodule:: gatenlp.serialization.default
+   :members:
+   :undoc-members:
+   :show-inheritance:

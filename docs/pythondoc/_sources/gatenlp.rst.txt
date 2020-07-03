@@ -7,8 +7,8 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   gatenlp.docformats
    gatenlp.impl
+   gatenlp.serialization
 
 Submodules
 ----------

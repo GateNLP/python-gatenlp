@@ -359,7 +359,7 @@ class Document(FeatureBearer):
         :param fmt: serialization format, one of "json", "msgpack" or "pickle"
         :param offset_type: store using the given offset type or keep the current if None
         :param mod: module to use
-        :param **kwargs: additional parameters for the format
+        :param kwargs: additional parameters for the format
         :return:
         """
         m = importlib.import_module(mod)
@@ -377,7 +377,7 @@ class Document(FeatureBearer):
         :param fmt: serialization format, one of "json", "msgpack" or "pickle"
         :param offset_type: store using the given offset type or keep the current if None
         :param mod: module to use
-        :param **kwargs: additional parameters for the format
+        :param kwargs: additional parameters for the format
         :return:
         """
         m = importlib.import_module(mod)

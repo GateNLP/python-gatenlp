@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.gateslave &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -28,8 +27,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,13 +46,13 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">platform</span> <span class="k">as</span> <span class="nn">sysplatform</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">JavaGateway</span><span class="p">,</span> <span class="n">GatewayParameters</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">gatenlp.docformats</span> <span class="kn">import</span>  <span class="n">simplejson</span>
 <span class="kn">import</span> <span class="nn">atexit</span>
+<span class="c1"># NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp</span>
+<span class="c1"># but does not force everyone to actually have py4j installed if they do not use the GateSlave</span>
+<span class="c1"># from py4j.java_gateway import JavaGateway, GatewayParameters</span>
+<span class="kn">from</span> <span class="nn">gatenlp</span> <span class="kn">import</span> <span class="n">Document</span>
 
 <span class="n">JARVERSION</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 
@@ -134,20 +132,22 @@
 <span class="sd">        Example: ::</span>
 
 <span class="sd">            gs = GateSlave()</span>
-<span class="sd">            pipeline = gs.slave.loadPipeline(&quot;thePipeline.xgapp&quot;)</span>
+<span class="sd">            pipeline = gs.slave.loadPipelineFromFile(&quot;thePipeline.xgapp&quot;)</span>
 <span class="sd">            doc = gs.slave.createDocument(&quot;Some document text&quot;)</span>
 <span class="sd">            gs.slave.run4doc(pipeline,doc)</span>
 <span class="sd">            pdoc = gs.gdoc2pdoc(doc)</span>
-<span class="sd">            gs.jvm.gate.Factory.deleteResource(doc)</span>
+<span class="sd">            gs.slave.deleteResource(doc)</span>
 <span class="sd">            # process the gatenlp Document pdoc ...</span>
 
 <span class="sd">        :param port: port to use</span>
 <span class="sd">        :param java: path to the java binary to run or the java command to use from the PATH (for start=True)</span>
 <span class="sd">        :param host: host an existing Java GATE process is running on (only relevant for start=False)</span>
-<span class="sd">        :param gatehome: where GATE is installed (only relevant if start=True). If None, expects\</span>
-<span class="sd">        environment variable GATE_HOME to be set.</span>
+<span class="sd">        :param gatehome: where GATE is installed (only relevant if start=True). If None, expects</span>
+<span class="sd">               environment variable GATE_HOME to be set.</span>
 <span class="sd">        :param platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">JavaGateway</span><span class="p">,</span> <span class="n">GatewayParameters</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">gatehome</span> <span class="o">=</span> <span class="n">gatehome</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
@@ -213,7 +213,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mimetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mimetype</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadDocument</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadDocumentFromFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GateSlave.save_gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.save_gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">save_gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdoc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save GATE document to the given path.</span>
+
+<span class="sd">        :param gdoc: GATE document handle</span>
+<span class="sd">        :param path:  destination path</span>
+<span class="sd">        :param mimetype: mimtetype, only the following types are allowed: &quot;&quot;/None: GATE XML,</span>
+<span class="sd">               application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mimetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mimetype</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">saveDocumentToFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GateSlave.gdoc2pdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.gdoc2pdoc">[docs]</a>    <span class="k">def</span> <span class="nf">gdoc2pdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -223,7 +237,7 @@
 <span class="sd">        :return: a gatenlp Document instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bjs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">getBdocJson</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">bjs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Document</span><span class="o">.</span><span class="n">load_string</span><span class="p">(</span><span class="n">bjs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GateSlave.pdoc2gdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.pdoc2gdoc">[docs]</a>    <span class="k">def</span> <span class="nf">pdoc2gdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -232,7 +246,7 @@
 <span class="sd">        :param pdoc: python gatenlp Document</span>
 <span class="sd">        :return: handle to GATE document</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">json</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">pdoc</span><span class="p">)</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">pdoc</span><span class="o">.</span><span class="n">save_string</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">getDocument4BdocJson</span><span class="p">(</span><span class="n">json</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GateSlave.load_pdoc"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.load_pdoc">[docs]</a>    <span class="k">def</span> <span class="nf">load_pdoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mimetype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -256,10 +270,19 @@
 <span class="sd">        :param gdoc: the document to remove</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gate</span><span class="o">.</span><span class="n">Factory</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">gate</span><span class="o">.</span><span class="n">Factory</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">gdoc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GateSlave.show_gui"><a class="viewcode-back" href="../../gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.show_gui">[docs]</a>    <span class="k">def</span> <span class="nf">show_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems</span>
+<span class="sd">        when closing down the GATE slave.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">showGui</span><span class="p">()</span></div></div>
+
 </pre></div>
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -289,13 +312,12 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

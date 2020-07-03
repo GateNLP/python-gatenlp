@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.document &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -28,8 +27,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.document</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,9 +43,9 @@
 <span class="kn">from</span> <span class="nn">gatenlp.annotation_set</span> <span class="kn">import</span> <span class="n">AnnotationSet</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
-<span class="kn">from</span> <span class="nn">gatenlp.utils</span> <span class="kn">import</span> <span class="n">to_dict</span><span class="p">,</span> <span class="n">to_list</span>
-<span class="kn">from</span> <span class="nn">.feature_bearer</span> <span class="kn">import</span> <span class="n">FeatureBearer</span>
+<span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="kn">import</span> <span class="n">FeatureBearer</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -59,27 +57,37 @@
 <span class="sd">    A dict name to annotationset which creates and stores an empty annotation</span>
 <span class="sd">    set on the fly when it is requested.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner_doc</span><span class="p">:</span> <span class="s2">&quot;Document&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_doc</span><span class="p">:</span> <span class="s2">&quot;Document&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">changelog</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">owner_doc</span> <span class="o">=</span> <span class="n">owner_doc</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_doc</span><span class="o">.</span><span class="n">changelog</span>
+
     <span class="k">def</span> <span class="fm">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">owner_doc</span><span class="p">)</span>
+        <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">owner_doc</span><span class="p">)</span>
         <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">annset</span>
         <span class="k">return</span> <span class="n">annset</span>
 
-    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">to_dict</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">owner_doc</span><span class="p">:</span> <span class="s2">&quot;Document&quot;</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">asd</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="n">changelog</span><span class="o">=</span><span class="n">changelog</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="n">owner_doc</span><span class="p">)</span>
-        <span class="n">asd</span><span class="o">.</span><span class="n">update</span><span class="p">(((</span><span class="n">key</span><span class="p">,</span> <span class="n">AnnotationSet</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">owner_doc</span><span class="p">:</span> <span class="s2">&quot;Document&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">asd</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="n">owner_doc</span><span class="o">=</span><span class="n">owner_doc</span><span class="p">)</span>
+        <span class="n">asd</span><span class="o">.</span><span class="n">update</span><span class="p">(((</span><span class="n">key</span><span class="p">,</span> <span class="n">AnnotationSet</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="n">owner_doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
         <span class="k">return</span> <span class="n">asd</span>
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">asets</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="s2">&quot;[&quot;</span><span class="o">+</span><span class="n">asets</span><span class="o">+</span><span class="s2">&quot;]&quot;</span>
 
-<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">(</span><span class="n">FeatureBearer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">asets</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="s2">&quot;[&quot;</span><span class="o">+</span><span class="n">asets</span><span class="o">+</span><span class="s2">&quot;]&quot;</span>
+
+<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">(</span><span class="n">FeatureBearer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represent a GATE document. This is different from the original Java GATE representation in several ways:</span>
 
@@ -108,15 +116,14 @@
 <span class="sd">    :param features: the initial document features to set, a sequence of key/value tuples</span>
 <span class="sd">    :param changelog: a ChangeLog instance to use to log changes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span> <span class="o">=</span> <span class="s2">&quot;Document&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">changelog</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="n">owner_doc</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">repr_version</span> <span class="o">=</span> <span class="s1">&#39;1.0&#39;</span>
 
     <span class="k">def</span> <span class="nf">_ensure_type_python</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
@@ -126,35 +133,44 @@
         <span class="n">annset_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">annset_name</span> <span class="ow">in</span> <span class="n">annset_names</span><span class="p">:</span>
             <span class="n">annset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">[</span><span class="n">annset_name</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annset</span><span class="p">:</span>
-                <span class="n">ann</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-                <span class="n">ann</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">annset</span><span class="o">.</span><span class="n">_annotations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annset</span><span class="o">.</span><span class="n">_annotations</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">ann</span><span class="o">.</span><span class="n">_start</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">_start</span><span class="p">)</span>
+                    <span class="n">ann</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Document.to_type"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.to_type">[docs]</a>    <span class="k">def</span> <span class="nf">to_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offsettype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Document.to_type"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.to_type">[docs]</a>    <span class="k">def</span> <span class="nf">to_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offsettype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert all the offsets of all the annotations in this document to the</span>
 <span class="sd">        required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets</span>
 <span class="sd">        are already of that type, this does nothing.</span>
 
+<span class="sd">        NOTE: if the document has a ChangeLog, it is NOT also converted!</span>
+
+<span class="sd">        The method returns the offset mapper if anything actually was converted,</span>
+<span class="sd">        otherwise None.</span>
+
 <span class="sd">        :param offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON</span>
-<span class="sd">        :return:</span>
+<span class="sd">        :return: offset mapper or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">om</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">offsettype</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">offsettype</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
             <span class="c1"># convert from currently python to java</span>
-            <span class="n">om1</span> <span class="o">=</span> <span class="n">OffsetMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_annotations</span><span class="p">(</span><span class="n">om1</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">)</span>
+            <span class="n">om</span> <span class="o">=</span> <span class="n">OffsetMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_annotations</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_JAVA</span>
         <span class="k">elif</span> <span class="n">offsettype</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_PYTHON</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
             <span class="c1"># convert from currently java to python</span>
-            <span class="n">om1</span> <span class="o">=</span> <span class="n">OffsetMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_annotations</span><span class="p">(</span><span class="n">om1</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
+            <span class="n">om</span> <span class="o">=</span> <span class="n">OffsetMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fixup_annotations</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Odd offset type&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Odd offset type&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">om</span></div>
 
-<div class="viewcode-block" id="Document.set_changelog"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.set_changelog">[docs]</a>    <span class="k">def</span> <span class="nf">set_changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chlog</span><span class="p">:</span> <span class="n">ChangeLog</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChangeLog</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Document.set_changelog"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.set_changelog">[docs]</a>    <span class="k">def</span> <span class="nf">set_changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chlog</span><span class="p">:</span> <span class="n">ChangeLog</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChangeLog</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make the document use the given changelog to record all changes</span>
 <span class="sd">        from this moment on.</span>
@@ -164,10 +180,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">oldchlog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">chlog</span>
-        <span class="c1"># make sure all the inner data structures use that chlog as well:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">chlog</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">v</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">chlog</span>
+        <span class="c1"># the annotation sets access the changelog via the owning document fields and the annotations</span>
+        <span class="c1"># indirectly via the owning annotation set field</span>
         <span class="k">return</span> <span class="n">oldchlog</span></div>
 
     <span class="nd">@property</span>
@@ -194,7 +208,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Text cannot be modified&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Document.size"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="Document.size"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the size of the document text.</span>
 <span class="sd">        Note: this will convert the type of the document to python!</span>
@@ -207,7 +221,7 @@
     <span class="k">def</span> <span class="nf">_log_feature_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">ch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">}</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;document&quot;</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;feature:set&quot;</span><span class="p">:</span>
             <span class="n">ch</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature</span>
             <span class="n">ch</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -233,10 +247,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_type_python</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">start</span><span class="p">:</span><span class="n">span</span><span class="o">.</span><span class="n">end</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">_start</span><span class="p">:</span><span class="n">span</span><span class="o">.</span><span class="n">_end</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">AnnotationSet</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">start</span><span class="p">():</span><span class="n">span</span><span class="o">.</span><span class="n">end</span><span class="p">()]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">span</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Document.get_annotations"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.get_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotationSet</span><span class="p">:</span>
+<div class="viewcode-block" id="Document.get_annotations"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.get_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotationSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the named annotation set, if name is not given or the empty string, the default annotation set.</span>
 <span class="sd">        If the annotation set does not already exist, it is created.</span>
@@ -247,7 +263,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_type_python</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Document.get_annotation_set_names"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.get_annotation_set_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotation_set_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeysView</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="Document.get_annotation_set_names"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.get_annotation_set_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotation_set_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeysView</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the set of known annotation set names.</span>
 
@@ -256,7 +272,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_type_python</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Document.remove_annotation_set"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.remove_annotation_set">[docs]</a>    <span class="k">def</span> <span class="nf">remove_annotation_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.remove_annotation_set"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.remove_annotation_set">[docs]</a>    <span class="k">def</span> <span class="nf">remove_annotation_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Completely remove the annotation set.</span>
 <span class="sd">        :param name: name of the annotation set to remove</span>
@@ -266,7 +282,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
                 <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;annotations:remove&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">})</span></div>
+                <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -274,7 +290,10 @@
 
 <span class="sd">        :return: string representation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;Document(</span><span class="si">{}</span><span class="s2">,features=</span><span class="si">{}</span><span class="s2">,anns=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Document(</span><span class="si">{}</span><span class="s2">,features=</span><span class="si">{}</span><span class="s2">,anns=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Document(</span><span class="si">{}</span><span class="s2">,features=</span><span class="si">{}</span><span class="s2">,anns=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_json_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -289,12 +308,10 @@
             <span class="n">offset_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;offset_type&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span>
-            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
             <span class="c1"># turn our special class into an ordinary map</span>
             <span class="s2">&quot;annotation_sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">annset</span><span class="o">.</span><span class="n">_json_repr</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">annset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
             <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span><span class="p">,</span>
-            <span class="s2">&quot;document_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="p">,</span>
-            <span class="s2">&quot;repr_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">repr_version</span><span class="p">,</span>
             <span class="s2">&quot;gatenlp_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span>
         <span class="p">}</span>
 
@@ -319,58 +336,129 @@
         <span class="k">if</span> <span class="s2">&quot;with_changelog&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">chlog</span> <span class="o">=</span> <span class="n">ChangeLog</span><span class="p">()</span>
             <span class="n">doc</span><span class="o">.</span><span class="n">set_changelog</span><span class="p">(</span><span class="n">chlog</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">repr_version</span> <span class="o">=</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repr_version&quot;</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">document_type</span> <span class="o">=</span> <span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;document_type&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span>
 
-<div class="viewcode-block" id="Document.to_dict"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.to_dict"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert this instance to a dictionary that can be used to re-create the instance with</span>
 <span class="sd">        from_dict.</span>
+<span class="sd">        NOTE: if there is an active changelog, it is not included in the output as this</span>
+<span class="sd">        field is considered a transient field!</span>
+
+<span class="sd">        :param offset_type: convert to the given offset type on the fly</span>
+
 <span class="sd">        :return: the dictionary representation of this instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the specified offset type is equal to what we have, do nothing, otherwise</span>
+        <span class="c1"># create an offset mapper and pass it down to where we actually convert the annotations</span>
+
+        <span class="n">om</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">offset_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span> <span class="ow">or</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_PYTHON</span>
+            <span class="k">if</span> <span class="n">offset_type</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">om</span> <span class="o">=</span> <span class="n">OffsetMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">offset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;changelog&quot;</span><span class="p">:</span> <span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">),</span>
-            <span class="s2">&quot;annotation_sets&quot;</span><span class="p">:</span> <span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">),</span>
+            <span class="s2">&quot;annotation_sets&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
             <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span>
-            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
-            <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span><span class="p">,</span>
-            <span class="s2">&quot;doc_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
+            <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Document.to_list"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.to_list">[docs]</a>    <span class="k">def</span> <span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">to_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">),</span>
-            <span class="n">to_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="p">,</span>
-        <span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="Document.from_dict"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.from_dict"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a Document instance as represented by the dictionary dictrepr.</span>
 <span class="sd">        :param dictrepr:</span>
 <span class="sd">        :return: the initialized Document instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">))</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">repr_version</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repr_version&quot;</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">document_type</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;document_type&quot;</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset_type&quot;</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">ChangeLog</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;changelog&quot;</span><span class="p">))</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">gatenlp_type</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gatenlp_type&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_JAVA</span> <span class="ow">and</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid offset type, cannot load: &quot;</span><span class="p">,</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">)</span>
+        <span class="c1"># doc.changelog = ChangeLog.from_dict(dictrepr.get(&quot;changelog&quot;))</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span> <span class="o">=</span> \
             <span class="n">_AnnotationSetsDict</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_sets&quot;</span><span class="p">),</span>
-                                          <span class="n">changelog</span><span class="o">=</span><span class="n">doc</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">doc</span></div></div>
+                                          <span class="c1">#changelog=doc.changelog,</span>
+                                          <span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
 
+<div class="viewcode-block" id="Document.save"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the document in the given format.</span>
+
+<span class="sd">        Additional keyword parameters for format &quot;json&quot;:</span>
+<span class="sd">        * as_array: boolean, if True stores as array instead of dictionary, using to</span>
+
+
+<span class="sd">        :param whereto: either a file name or something that has a write(string) method.</span>
+<span class="sd">        :param fmt: serialization format, one of &quot;json&quot;, &quot;msgpack&quot; or &quot;pickle&quot;</span>
+<span class="sd">        :param offset_type: store using the given offset type or keep the current if None</span>
+<span class="sd">        :param mod: module to use</span>
+<span class="sd">        :param kwargs: additional parameters for the format</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+        <span class="n">ser</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="n">whereto</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Document.save_mem"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.save_mem">[docs]</a>    <span class="k">def</span> <span class="nf">save_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize and save to a string.</span>
+
+<span class="sd">        Additional keyword parameters for format &quot;json&quot;:</span>
+<span class="sd">        * as_array: boolean, if True stores as array instead of dictionary, using to</span>
+
+
+<span class="sd">        :param fmt: serialization format, one of &quot;json&quot;, &quot;msgpack&quot; or &quot;pickle&quot;</span>
+<span class="sd">        :param offset_type: store using the given offset type or keep the current if None</span>
+<span class="sd">        :param mod: module to use</span>
+<span class="sd">        :param kwargs: additional parameters for the format</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ser</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Document.load"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param wherefrom:</span>
+<span class="sd">        :param fmt:</span>
+<span class="sd">        :param offset_type: make sure to store using the given offset type</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
+
+<div class="viewcode-block" id="Document.load_mem"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.document.Document.load_mem">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_mem</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Note: the offset type is always converted to PYTHON when loading!</span>
+
+<span class="sd">        :param wherefrom: the string to deserialize</span>
+<span class="sd">        :param fmt:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div></div>
 </pre></div>
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -400,13 +488,12 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.document</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

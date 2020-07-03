@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.annotation &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -28,8 +27,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.annotation</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -45,28 +43,50 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">total_ordering</span>
-<span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="kn">import</span> <span class="n">FeatureBearer</span>
+<span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="kn">import</span> <span class="n">FeatureBearer</span><span class="p">,</span> <span class="n">FeatureViewer</span>
 <span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="kn">import</span> <span class="n">OFFSET_TYPE_JAVA</span>
-<span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
 <span class="kn">from</span> <span class="nn">gatenlp._utils</span> <span class="kn">import</span> <span class="n">support_annotation_or_set</span>
 
 
-<div class="viewcode-block" id="Annotation"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation">[docs]</a><span class="nd">@total_ordering</span>
+<div class="viewcode-block" id="Annotation"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation">[docs]</a><span class="nd">@total_ordering</span>
 <span class="k">class</span> <span class="nc">Annotation</span><span class="p">(</span><span class="n">FeatureBearer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    NOTE: the current way how annotations are implemented tries to minimize the effort for storing the annotation</span>
-<span class="sd">    in an annotation set.</span>
-<span class="sd">    !! This means that equality and hashing outside of an annotation set will not work as expected: the identify</span>
-<span class="sd">    of an annotation only depends on its annotation ID, relative to the set it is contained in. So if you want</span>
-<span class="sd">    to store annotations from different sets you need to use (annotationset, id) as the unique identifier!</span>
+<span class="sd">    An annotation represents information about a span of text. It contains the start and end</span>
+<span class="sd">    offsets of the span, an &quot;annotation type&quot; and it is a feature bearer.</span>
+<span class="sd">    In addition it contains an id which has no meaning for the annotation itself but is</span>
+<span class="sd">    used to uniquely identify an annotation within the set it is contained in.</span>
+<span class="sd">    All fields except the features are immutable, once the annotation has been created</span>
+<span class="sd">    only the features can be changed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># We use slots to avoid the dict and save memory if we have a large number of annotations</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;changelog&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;_owner_setname&#39;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annot_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">annot_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                 <span class="n">owner_set</span><span class="p">:</span> <span class="s2">&quot;AnnotationSet&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">changelog</span><span class="p">:</span> <span class="n">ChangeLog</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
+
+    <span class="c1"># TODO: we should get rid of this attribute completely!</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gatenlp_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gatenlp_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FeatureViewer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_feature_change</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annot_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new annotation instance. NOTE: this should almost never be done directly</span>
 <span class="sd">        and instead the method annotation_set.add should be used!</span>
@@ -77,18 +97,24 @@
 <span class="sd">        :param annot_type: annotation type</span>
 <span class="sd">        :param annot_id: the id of the annotation</span>
 <span class="sd">        :param owner_set: the containing annotation set</span>
-<span class="sd">        :param changelog: a changelog, if changes to the features should get recorded</span>
 <span class="sd">        :param features: an initial collection of features, None for no features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span> <span class="o">=</span> <span class="s2">&quot;Annotation&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gatenlp_type</span> <span class="o">=</span> <span class="s2">&quot;Annotation&quot;</span>
         <span class="c1"># print(&quot;Creating Ann with changelog {} &quot;.format(changelog), file=sys.stderr)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">changelog</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">annot_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">annot_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="n">owner_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">annot_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">annid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the changelog of the owning set, if there is one, or None.</span>
+<span class="sd">        :return: the changelog</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span><span class="o">.</span><span class="n">changelog</span>
 
     <span class="c1"># TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT</span>
     <span class="c1"># allow any user specific types in order to make sure what we create is interchangeable with GATE.</span>
@@ -98,10 +124,11 @@
     <span class="c1"># For performance reasons we check the feature name but not the value (maybe make checking optional</span>
     <span class="c1"># on by default but still optional?)</span>
     <span class="k">def</span> <span class="nf">_log_feature_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changelog</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">ch</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;annotation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">feature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -112,18 +139,24 @@
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Equality of annotations is only based on the annotation ID plus the owning set.</span>
+<span class="sd">        Two annotations are identical if they are the same object or if all the fields</span>
+<span class="sd">        are equal.</span>
 <span class="sd">        :param other: the object to compare with</span>
 <span class="sd">        :return: if the annotations are equal</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_owner_set</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span> <span class="ow">and</span> \
+               <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_features</span>
+        <span class="c1"># The old way to test for equality simply checked if owning set and id where identical</span>
+        <span class="c1">#if self._owner_set != other._owner_set:</span>
+        <span class="c1">#    return False</span>
+        <span class="c1">#if self.id != other.id:</span>
+        <span class="c1">#    return False</span>
+        <span class="c1">#else:</span>
+        <span class="c1">#    return True</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -167,7 +200,7 @@
 <span class="sd">        String representation of the annotation.</span>
 <span class="sd">        :return: string representation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;Annotation(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,id=</span><span class="si">{}</span><span class="s2">,features=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Annotation(</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">,id=</span><span class="si">{}</span><span class="s2">,features=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -177,7 +210,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="Annotation.is_inside"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_inside">[docs]</a>    <span class="k">def</span> <span class="nf">is_inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Annotation.is_inside"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.is_inside">[docs]</a>    <span class="k">def</span> <span class="nf">is_inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the given offset falls somewhere inside the span of this annotation.</span>
 <span class="sd">        :param offset: the offset to check</span>
@@ -185,7 +218,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span></div>
 
-<div class="viewcode-block" id="Annotation.is_overlapping"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_overlapping">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+<div class="viewcode-block" id="Annotation.is_overlapping"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.is_overlapping">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">is_overlapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if this annotation is overlapping with the given span, annotation or</span>
@@ -199,7 +232,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Annotation.is_coextensive"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_coextensive">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+<div class="viewcode-block" id="Annotation.is_coextensive"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.is_coextensive">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">is_coextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if this annotation is coextensive with the given span, annotation or</span>
@@ -211,7 +244,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="n">end</span></div>
 
-<div class="viewcode-block" id="Annotation.is_within"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_within">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+<div class="viewcode-block" id="Annotation.is_within"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.is_within">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">is_within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if this annotation is within the given span, annotation or</span>
@@ -224,7 +257,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span></div>
 
-<div class="viewcode-block" id="Annotation.is_covering"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.is_covering">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
+<div class="viewcode-block" id="Annotation.is_covering"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.is_covering">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">is_covering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if this annotation is covering the given span, annotation or</span>
@@ -255,8 +288,8 @@
             <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
             <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
-            <span class="s2">&quot;gatenlp_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
+            <span class="s2">&quot;gatenlp_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span>  <span class="c1"># TODO: get rid of this!!</span>
         <span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
@@ -265,46 +298,56 @@
                          <span class="n">features</span><span class="o">=</span><span class="n">jsonmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">ann</span>
 
-    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prevent start, stop, type and annotation id from getting overridden, once they have been</span>
-<span class="sd">        set.</span>
-<span class="sd">        :param key: attribute to set</span>
-<span class="sd">        :param value: value to set attribute to</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;end&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Annotation attributes cannot get changed after being set&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="c1"># def __setattr__(self, key, value):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Prevent start, stop, type and annotation id from getting overridden, once they have been</span>
+    <span class="c1">#     set.</span>
+    <span class="c1">#     :param key: attribute to set</span>
+    <span class="c1">#     :param value: value to set attribute to</span>
+    <span class="c1">#     :return:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     print(f&quot;Trying to set {key} to {value}&quot;)</span>
+    <span class="c1">#     if key == &quot;start&quot; or key == &quot;end&quot; or key == &quot;type&quot; or key == &quot;id&quot;:</span>
+    <span class="c1">#         if self.__getattribute__(key) is None:</span>
+    <span class="c1">#             print(&quot;Seems this is Null&quot;)</span>
+    <span class="c1">#             super().__setattr__(key, value)</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             raise Exception(&quot;Annotation attributes cannot get changed after being set&quot;)</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         super().__setattr__(key, value)</span>
 
-<div class="viewcode-block" id="Annotation.to_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Annotation.to_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">offset_mapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">)</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">)</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
-            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span>
+            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span>
             <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Annotation.from_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="n">owner_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Annotation.from_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.annotation.Annotation.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="n">owner_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span>
             <span class="n">start</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>
             <span class="n">end</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">),</span>
             <span class="n">annot_type</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">),</span>
-            <span class="n">annot_id</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
-            <span class="n">owner_set</span><span class="o">=</span><span class="n">owner_set</span><span class="p">,</span>
-            <span class="n">changelog</span><span class="o">=</span><span class="n">changelog</span><span class="p">,</span>
+            <span class="n">annid</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
             <span class="n">features</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">ann</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="n">owner_set</span>
         <span class="k">return</span> <span class="n">ann</span></div></div>
 </pre></div>
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -334,13 +377,12 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.annotation</a></li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

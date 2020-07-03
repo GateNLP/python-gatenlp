@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>gatenlp.serialization.default module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gatenlp.annotation module" href="gatenlp.annotation.html" />
+    <link rel="prev" title="gatenlp.serialization package" href="gatenlp.serialization.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.annotation.html" title="gatenlp.annotation module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.serialization.html" title="gatenlp.serialization package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.serialization.html" accesskey="U">gatenlp.serialization package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gatenlp.serialization.default">
+<span id="gatenlp-serialization-default-module"></span><h1>gatenlp.serialization.default module<a class="headerlink" href="#module-gatenlp.serialization.default" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gatenlp.serialization.default.JsonSerializer">
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">JsonSerializer</code><a class="reference internal" href="_modules/gatenlp/serialization/default.html#JsonSerializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.JsonSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="gatenlp.serialization.default.JsonSerializer.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#JsonSerializer.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.JsonSerializer.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.serialization.default.JsonSerializer.save">
+<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#JsonSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.JsonSerializer.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="gatenlp.serialization.default.MsgPackSerializer">
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">MsgPackSerializer</code><a class="reference internal" href="_modules/gatenlp/serialization/default.html#MsgPackSerializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.MsgPackSerializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="gatenlp.serialization.default.MsgPackSerializer.document2stream">
+<em class="property">static </em><code class="sig-name descname">document2stream</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">doc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.document.html#gatenlp.document.Document" title="gatenlp.document.Document">gatenlp.document.Document</a></span></em>, <em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#MsgPackSerializer.document2stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.MsgPackSerializer.document2stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.serialization.default.MsgPackSerializer.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#MsgPackSerializer.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.MsgPackSerializer.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.serialization.default.MsgPackSerializer.save">
+<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#MsgPackSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.MsgPackSerializer.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.serialization.default.MsgPackSerializer.stream2document">
+<em class="property">static </em><code class="sig-name descname">stream2document</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#MsgPackSerializer.stream2document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.MsgPackSerializer.stream2document" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gatenlp.serialization.html"
+                        title="previous chapter">gatenlp.serialization package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gatenlp.annotation.html"
+                        title="next chapter">gatenlp.annotation module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gatenlp.serialization.default.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.annotation.html" title="gatenlp.annotation module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.serialization.html" title="gatenlp.serialization package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.serialization.html" >gatenlp.serialization package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

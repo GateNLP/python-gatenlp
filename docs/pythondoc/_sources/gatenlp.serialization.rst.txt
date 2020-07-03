@@ -1,0 +1,18 @@
+gatenlp.serialization package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gatenlp.serialization.default
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.serialization
+   :members:
+   :undoc-members:
+   :show-inheritance:

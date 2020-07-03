@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.gateslave module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -36,8 +35,7 @@
           <a href="gatenlp.gate_interaction.html" title="gatenlp.gate_interaction module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave module</a></li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,11 +65,11 @@ stderr gets captured and used for communication between the Java and Python proc
 part of the output to stderr may only be passed on after the GATE process has ended.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gs</span> <span class="o">=</span> <span class="n">GateSlave</span><span class="p">()</span>
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadPipeline</span><span class="p">(</span><span class="s2">&quot;thePipeline.xgapp&quot;</span><span class="p">)</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">loadPipelineFromFile</span><span class="p">(</span><span class="s2">&quot;thePipeline.xgapp&quot;</span><span class="p">)</span>
 <span class="n">doc</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">createDocument</span><span class="p">(</span><span class="s2">&quot;Some document text&quot;</span><span class="p">)</span>
 <span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">run4doc</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span><span class="n">doc</span><span class="p">)</span>
 <span class="n">pdoc</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gdoc2pdoc</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-<span class="n">gs</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">gate</span><span class="o">.</span><span class="n">Factory</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="n">gs</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">deleteResource</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
 <span class="c1"># process the gatenlp Document pdoc ...</span>
 </pre></div>
 </div>
@@ -81,7 +79,8 @@ part of the output to stderr may only be passed on after the GATE process has en
 <li><p><strong>port</strong> – port to use</p></li>
 <li><p><strong>java</strong> – path to the java binary to run or the java command to use from the PATH (for start=True)</p></li>
 <li><p><strong>host</strong> – host an existing Java GATE process is running on (only relevant for start=False)</p></li>
-<li><p><strong>gatehome</strong> – where GATE is installed (only relevant if start=True). If None, expects        environment variable GATE_HOME to be set.</p></li>
+<li><p><strong>gatehome</strong> – where GATE is installed (only relevant if start=True). If None, expects
+environment variable GATE_HOME to be set.</p></li>
 <li><p><strong>platform</strong> – system platform we run on, one of Windows, Linux (also for MacOs) or Java</p></li>
 </ul>
 </dd>
@@ -172,6 +171,37 @@ GATE document does not delete/unload the document!</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt id="gatenlp.gateslave.GateSlave.save_gdoc">
+<code class="sig-name descname">save_gdoc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gdoc</span></em>, <em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">mimetype</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave.save_gdoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave.save_gdoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save GATE document to the given path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gdoc</strong> – GATE document handle</p></li>
+<li><p><strong>path</strong> – destination path</p></li>
+<li><p><strong>mimetype</strong> – mimtetype, only the following types are allowed: “”/None: GATE XML,
+application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.gateslave.GateSlave.show_gui">
+<code class="sig-name descname">show_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave.show_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave.show_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
+when closing down the GATE slave.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -197,7 +227,6 @@ for the operating system.
 </div>
 
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -246,13 +275,12 @@ for the operating system.
           <a href="gatenlp.gate_interaction.html" title="gatenlp.gate_interaction module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.gateslave module</a></li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

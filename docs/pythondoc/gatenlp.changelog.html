@@ -4,7 +4,6 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.changelog module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -36,8 +35,7 @@
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,12 +57,22 @@
 
 <dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.fixup_changes">
-<code class="sig-name descname">fixup_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset_mapper</span></em>, <em class="sig-param"><span class="n">offset_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.fixup_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.fixup_changes" title="Permalink to this definition">¶</a></dt>
-<dd><p>In-place update the offsets of all annotations in this changelog to the desired
-offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.
-:param offset_mapper: a prepared offset mapper to use
-:param offset_type: the desired offset type
-:return: a reference to the modified changes</p>
+<code class="sig-name descname">fixup_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset_mapper</span></em>, <em class="sig-param"><span class="n">offset_type</span></em>, <em class="sig-param"><span class="n">replace</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.fixup_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.fixup_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the offsets of all annotations in this changelog to the desired
+offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset_mapper</strong> – a prepared offset mapper to use</p></li>
+<li><p><strong>offset_type</strong> – the desired offset type</p></li>
+<li><p><strong>replace</strong> – if True, replaces the original offsets in the original change objects, otherwise creates
+new change objects and a new changes list and returs it.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a reference to the modified changes</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -74,12 +82,94 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 
 <dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.from_dict">
-<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.load">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wherefrom</strong> – </p></li>
+<li><p><strong>fmt</strong> – </p></li>
+<li><p><strong>offset_mapper</strong> – offset mapper in case the offsets need to get converted</p></li>
+<li><p><strong>kwargs</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.load_mem">
+<em class="property">static </em><code class="sig-name descname">load_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.load_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.load_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Note: the offset type is always converted to PYTHON when loading!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wherefrom</strong> – the string to deserialize</p></li>
+<li><p><strong>fmt</strong> – </p></li>
+<li><p><strong>offset_mapper</strong> – offset mapper in case the offsets need to get converted</p></li>
+<li><p><strong>kwargs</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">whereto</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the document in the given format.</p>
+<p>Additional keyword parameters for format “json”:
+* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>whereto</strong> – either a file name or something that has a write(string) method.</p></li>
+<li><p><strong>fmt</strong> – serialization format, one of “json”, “msgpack” or “pickle”</p></li>
+<li><p><strong>offset_type</strong> – store using the given offset type or keep the current if None</p></li>
+<li><p><strong>offset_mapper</strong> – nedded if the offset type should get changed</p></li>
+<li><p><strong>mod</strong> – module to use</p></li>
+<li><p><strong>kwargs</strong> – additional parameters for the format</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.save_mem">
+<code class="sig-name descname">save_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.save_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.save_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize and save to a string.</p>
+<p>Additional keyword parameters for format “json”:
+* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> – serialization format, one of “json”, “msgpack” or “pickle”</p></li>
+<li><p><strong>offset_type</strong> – store using the given offset type or keep the current if None</p></li>
+<li><p><strong>offset_mapper</strong> – nedded if the offset type should get changed</p></li>
+<li><p><strong>mod</strong> – module to use</p></li>
+<li><p><strong>kwargs</strong> – additional parameters for the format</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -87,7 +177,6 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 </div>
 
 
-            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -136,13 +225,12 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

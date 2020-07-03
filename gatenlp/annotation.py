@@ -60,6 +60,7 @@ class Annotation(FeatureBearer):
         :param owner_set: the containing annotation set
         :param features: an initial collection of features, None for no features.
         """
+        assert end > start
         super().__init__(features)
         self._gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
@@ -230,52 +231,6 @@ class Annotation(FeatureBearer):
         :return: True if within, False otherwise
         """
         return self.start <= start and self.end >= end
-
-    def _json_repr(self, **kwargs) -> Dict:
-        if "offset_mapper" in kwargs:
-            om = kwargs["offset_mapper"]
-            to_type = kwargs["offset_type"]
-            if to_type == OFFSET_TYPE_JAVA:
-                start = om.convert_to_java(self.start)
-                end = om.convert_to_java(self.end)
-            else:
-                start = om.convert_to_python(self.start)
-                end = om.convert_to_python(self.end)
-        else:
-            start = self.start
-            end = self.end
-        return {
-            "start": start,
-            "end": end,
-            "type": self.type,
-            "id": self.id,
-            "features": self._features,
-            "gatenlp_type": self.gatenlp_type  # TODO: get rid of this!!
-        }
-
-    @staticmethod
-    def _from_json_map(jsonmap, **kwargs) -> "Annotation":
-        ann = Annotation(jsonmap.get("start"), jsonmap.get("end"), jsonmap.get("type"), jsonmap.get("id"),
-                         features=jsonmap.get("features"))
-        return ann
-
-    # def __setattr__(self, key, value):
-    #     """
-    #     Prevent start, stop, type and annotation id from getting overridden, once they have been
-    #     set.
-    #     :param key: attribute to set
-    #     :param value: value to set attribute to
-    #     :return:
-    #     """
-    #     print(f"Trying to set {key} to {value}")
-    #     if key == "start" or key == "end" or key == "type" or key == "id":
-    #         if self.__getattribute__(key) is None:
-    #             print("Seems this is Null")
-    #             super().__setattr__(key, value)
-    #         else:
-    #             raise Exception("Annotation attributes cannot get changed after being set")
-    #     else:
-    #         super().__setattr__(key, value)
 
     def to_dict(self, offset_mapper=None, offset_type=None):
         if offset_mapper is not None:

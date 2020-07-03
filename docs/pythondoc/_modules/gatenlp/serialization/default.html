@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>gatenlp.serialization.default &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gatenlp.serialization.default</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">msgpack</span> <span class="kn">import</span> <span class="n">pack</span><span class="p">,</span> <span class="n">Unpacker</span>
+<span class="kn">from</span> <span class="nn">gatenlp.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">_AnnotationSetsDict</span>
+<span class="kn">from</span> <span class="nn">gatenlp.annotation_set</span> <span class="kn">import</span> <span class="n">AnnotationSet</span>
+<span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
+<span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
+
+
+<div class="viewcode-block" id="JsonSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer">[docs]</a><span class="k">class</span> <span class="nc">JsonSerializer</span><span class="p">:</span>
+
+<div class="viewcode-block" id="JsonSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="JsonSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">from_mem</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">)</span>
+                <span class="c1"># print(&quot;DEBUG: dict=&quot;, d)</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div></div>
+
+
+<span class="n">MSGPACK_VERSION_HDR</span> <span class="o">=</span> <span class="s2">&quot;sm1&quot;</span>
+
+
+<div class="viewcode-block" id="MsgPackSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer">[docs]</a><span class="k">class</span> <span class="nc">MsgPackSerializer</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MsgPackSerializer.document2stream"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer.document2stream">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">document2stream</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="n">Document</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">pack</span><span class="p">(</span><span class="n">MSGPACK_VERSION_HDR</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">annset</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">:</span>
+            <span class="n">pack</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+            <span class="n">pack</span><span class="p">(</span><span class="n">annset</span><span class="o">.</span><span class="n">next_annid</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+            <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">annset</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annset</span><span class="o">.</span><span class="n">fast_iter</span><span class="p">():</span>
+                <span class="n">pack</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+                <span class="n">pack</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+                <span class="n">pack</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+                <span class="n">pack</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+                <span class="n">pack</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MsgPackSerializer.stream2document"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer.stream2document">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">stream2document</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">Unpacker</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="n">MSGPACK_VERSION_HDR</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;MsgPack data starts with wrong version&quot;</span><span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">()</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="n">nsets</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="n">setsdict</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span> <span class="o">=</span> <span class="n">setsdict</span>
+        <span class="k">for</span> <span class="n">iset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsets</span><span class="p">):</span>
+            <span class="n">sname</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">sname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sname</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">sname</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
+            <span class="n">annset</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+            <span class="n">nanns</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">iann</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nanns</span><span class="p">):</span>
+                <span class="n">atype</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+                <span class="n">astart</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+                <span class="n">aend</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+                <span class="n">aid</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+                <span class="n">afeatures</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+                <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">astart</span><span class="p">,</span> <span class="n">aend</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="n">aid</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">afeatures</span><span class="p">)</span>
+                <span class="n">annset</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">aid</span><span class="p">]</span> <span class="o">=</span> <span class="n">ann</span>
+            <span class="n">setsdict</span><span class="p">[</span><span class="n">sname</span><span class="p">]</span> <span class="o">=</span> <span class="n">annset</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
+
+<div class="viewcode-block" id="MsgPackSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">document2stream</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">ChangeLog</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented yet&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Object not supported&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">writer</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MsgPackSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">clazz</span> <span class="o">==</span> <span class="n">Document</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">stream2document</span>
+        <span class="k">elif</span> <span class="n">clazz</span> <span class="o">==</span> <span class="n">ChangeLog</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented yet&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Object not supported&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">from_mem</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div></div>
+
+
+<span class="n">FORMATS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">json</span><span class="o">=</span><span class="n">JsonSerializer</span><span class="p">,</span> <span class="n">msgpack</span><span class="o">=</span><span class="n">MsgPackSerializer</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>
