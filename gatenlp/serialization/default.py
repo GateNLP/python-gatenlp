@@ -1,35 +1,55 @@
 
 import io
+import os
 import json
 from msgpack import pack, Unpacker
 from gatenlp.document import Document, _AnnotationSetsDict
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
-
+from gzip import open as gopen
 
 class JsonSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
+            if gzip:
+                raise Exception("GZip compression not supported for in-memory loading")
             return json.dumps(d)
         else:
-            with open(to_file, "wt") as outfp:
-                json.dump(d, outfp)
+            if gzip:
+                with gopen(to_file, "wt") as outfp:
+                    json.dump(d, outfp)
+            else:
+                with open(to_file, "wt") as outfp:
+                    json.dump(d, outfp)
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
+    def save_gzip(clazz, inst, **kwargs):
+        JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
+
+    @staticmethod
+    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
         if from_mem:
+            if gzip:
+                raise Exception("GZip compression not supported for in-memory loading")
             d = json.loads(from_mem)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
-            with open(from_file, "rt") as infp:
-                d = json.load(infp)
-                # print("DEBUG: dict=", d)
-                doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
+            if gzip:
+                with gopen(from_file, "rt") as infp:
+                    d = json.load(infp)
+            else:
+                with open(from_file, "rt") as infp:
+                    d = json.load(infp)
+            doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
+
+    @staticmethod
+    def load_gzip(clazz, **kwargs):
+        return JsonSerializer.load(clazz, gzip=True, **kwargs)
 
 
 MSGPACK_VERSION_HDR = "sm1"
@@ -120,4 +140,83 @@ class MsgPackSerializer:
         return doc
 
 
-FORMATS = dict(json=JsonSerializer, msgpack=MsgPackSerializer)
+DOCUMENT_SAVERS = {
+    "json": JsonSerializer.save,
+    "text/bdocjs": JsonSerializer.save,
+    "text/bdocjs+gzip": JsonSerializer.save_gzip,
+    "msgpack": MsgPackSerializer.save,
+    "application/msgpack": MsgPackSerializer.save,
+}
+DOCUMENT_LOADERS = {
+    "json": JsonSerializer.load,
+    "text/bdocjs": JsonSerializer.load,
+    "text/bdocjs+gzip": JsonSerializer.load_gzip,
+    "msgpack": MsgPackSerializer.load,
+    "application/msgpack": MsgPackSerializer.load,
+}
+CHANGELOG_SAVERS = {
+    "json": JsonSerializer.save,
+    "text/bdocjs+gzip": JsonSerializer.save_gzip,
+    "text/bdocjs": JsonSerializer.save,
+}
+CHANGELOG_LOADERS = {
+    "json": JsonSerializer.load,
+    "text/bdocjs+gzip": JsonSerializer.load_gzip,
+    "text/bdocjs": JsonSerializer.load,
+}
+
+EXTENSIONS = {
+    "bdocjs": "json",
+    "bdocjs.gz": "text/bdocjs+gzip",
+    "bdocjson": "json",
+    "bdocmp": "msgpack"
+}
+
+
+def get_handler(filespec, fmt, handlers, saveload, what):
+    msg = f"Could not determine how to {saveload} {what} for format {fmt} in module gatenlp.serialization.default"
+    if fmt:
+        handler = handlers.get(fmt)
+        if not handler:
+            raise Exception(msg)
+        return handler
+    else:
+        if not filespec: # in case of save_mem
+            raise Exception(msg)
+        if isinstance(filespec, os.PathLike):
+            wf = os.fspath(filespec)
+        elif isinstance(filespec, str):
+            wf = filespec
+        else:
+            raise Exception(msg)
+        name,ext = os.path.splitext(wf)
+        if ext == ".gz":
+            ext2 = os.path.splitext(name)[1]
+            if ext2:
+                ext2 = ext2[1:]
+            ext = ext2 + ext
+        elif ext:
+            ext = ext[1:]
+        fmt = EXTENSIONS.get(ext)
+        if not fmt:
+            raise Exception(msg)
+        handler = handlers.get(fmt)
+        if not handler:
+            raise Exception(msg)
+        return handler
+
+
+def get_document_saver(filespec, fmt):
+    return get_handler(filespec, fmt, DOCUMENT_SAVERS, "save", "document")
+
+
+def get_document_loader(filespec, fmt):
+    return get_handler(filespec, fmt, DOCUMENT_LOADERS, "load", "document")
+
+
+def get_changelog_saver(filespec, fmt):
+    return get_handler(filespec, fmt, CHANGELOG_SAVERS, "save", "changelog")
+
+
+def get_changelog_loader(filespec, fmt):
+    return get_handler(filespec, fmt, CHANGELOG_LOADERS, "load", "changelog")

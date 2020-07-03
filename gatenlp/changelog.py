@@ -159,8 +159,8 @@ class ChangeLog:
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        ser.save(ChangeLog, self, to_file=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        saver = m.get_changelog_saver(whereto, fmt)
+        saver(ChangeLog, self, to_file=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
@@ -178,8 +178,8 @@ class ChangeLog:
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        return ser.save(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        saver = m.get_changelog_saver(None, fmt)
+        return saver(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     @staticmethod
     def load(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
@@ -192,8 +192,8 @@ class ChangeLog:
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        chl = ser.load(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        loader = m.get_changelog_loader(wherefrom, fmt)
+        chl = loader(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
         if chl.offset_type == OFFSET_TYPE_JAVA:
             chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
         return chl
@@ -211,8 +211,8 @@ class ChangeLog:
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        chl = ser.load(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        loader = m.get_changelog_loader(None, fmt)
+        chl = loader(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
         if chl.offset_type == OFFSET_TYPE_JAVA:
             chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
         return chl

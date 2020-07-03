@@ -347,7 +347,7 @@ class Document(FeatureBearer):
                                           owner_doc=doc, **kwargs)
         return doc
 
-    def save(self, whereto, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+    def save(self, whereto, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
         Save the document in the given format.
 
@@ -363,8 +363,8 @@ class Document(FeatureBearer):
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        ser.save(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
+        saver = m.get_document_saver(whereto, fmt)
+        saver(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
@@ -381,11 +381,11 @@ class Document(FeatureBearer):
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        return ser.save(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
+        saver = m.get_document_saver(None, fmt)
+        return saver(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
 
     @staticmethod
-    def load(wherefrom, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+    def load(wherefrom, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
 
         :param wherefrom:
@@ -395,8 +395,8 @@ class Document(FeatureBearer):
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        doc = ser.load(Document, from_file=wherefrom, **kwargs)
+        loader = m.get_document_loader(wherefrom, fmt)
+        doc = loader(Document, from_file=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc
@@ -413,8 +413,8 @@ class Document(FeatureBearer):
         :return:
         """
         m = importlib.import_module(mod)
-        ser = m.FORMATS[fmt]
-        doc = ser.load(Document, from_mem=wherefrom, **kwargs)
+        loader = m.get_document_loader(None, fmt)
+        doc = loader(Document, from_mem=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc

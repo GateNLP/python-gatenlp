@@ -25,8 +25,7 @@ from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
 from gatenlp.gateslave import GateSlave
 
-#__all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
-#           "InvalidOffsetException", "ChangeLog", "logger"]
+__all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
+           "InvalidOffsetException", "ChangeLog", "logger"]
 
 gate_python_plugin_pr = None
-
