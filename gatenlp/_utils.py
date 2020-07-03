@@ -13,7 +13,9 @@ def support_annotation_or_set(method):
     It also allows to take a single offset instead which will then be used as both start and end offset.
     """
     @wraps(method)
-    def _support_annotation_or_set(self, *args):
+    def _support_annotation_or_set(self, *args, **kwargs):
+        from gatenlp.annotation import Annotation
+        annid = None
         if len(args) == 1:
             obj = args[0]
             if hasattr(obj, "start") and hasattr(obj, "end"):
@@ -24,11 +26,12 @@ def support_annotation_or_set(method):
                 left, right = obj, obj+1
             else:
                 raise Exception("Not an annotation or an annotation set or pair: {}".format(args[0]))
+            if isinstance(obj, Annotation):
+                annid = obj.id
         else:
             assert len(args) == 2
             left, right = args
-
-        return method(self, left, right)
+        return method(self, left, right, annid=annid, **kwargs)
 
     return _support_annotation_or_set
 

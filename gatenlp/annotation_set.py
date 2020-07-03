@@ -135,17 +135,21 @@ class AnnotationSet:
             self._index_by_type[annotation.type].remove(annotation.id)
 
     @staticmethod
-    def _intvs2idlist(intvs) -> List[int]:
+    def _intvs2idlist(intvs, ignore=None) -> List[int]:
         """
         Convert an iterable of interval tuples (start, end, id) to a list of ids
 
         :param intvs: iterable of interval tuples
+        :param ignore: an optional annotation id that should not get included in the result
         :return: list of ids
         """
-        return [i[2] for i in intvs]
+        if ignore is not None:
+            return [i[2] for i in intvs if i[2] != ignore]
+        else:
+            return [i[2] for i in intvs]
 
     @staticmethod
-    def _intvs2idset(intvs) -> Set[int]:
+    def _intvs2idset(intvs, ignore=None) -> Set[int]:
         """
         Convert an iterable of interval tuples (start, end, id) to a set of ids
 
@@ -153,12 +157,17 @@ class AnnotationSet:
         :return: set of ids
         """
         ret = set()
-        for i in intvs:
-            ret.add(i[2])
+        if ignore is not None:
+            for i in intvs:
+                if i[2] != ignore:
+                    ret.add(i[2])
+        else:
+            for i in intvs:
+                ret.add(i[2])
         return ret
 
-    def _restrict_intvs(self, intvs) -> "AnnotationSet":
-        return self.immutable(AnnotationSet._intvs2idlist(intvs))
+    def _restrict_intvs(self, intvs, ignore=None) -> "AnnotationSet":
+        return self.immutable(AnnotationSet._intvs2idlist(intvs, ignore=ignore))
 
     def __len__(self) -> int:
         """
@@ -185,7 +194,7 @@ class AnnotationSet:
         return self.owner_doc
 
     @support_annotation_or_set
-    def _check_offsets(self, start: int, end: int) -> None:
+    def _check_offsets(self, start: int, end: int, annid=None) -> None:
         """
         Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
         document and if the owning document has text.
@@ -492,7 +501,7 @@ class AnnotationSet:
         return self._index_by_type.keys()
 
     @support_annotation_or_set
-    def start_eq(self, start: int, ignored: Any = None) -> "AnnotationSet":
+    def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
         annotation set.
@@ -505,10 +514,14 @@ class AnnotationSet:
         # point query
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(start)
-        return self._restrict_intvs(intvs)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_min_ge(self, offset: int, ignored: Any = None) -> "AnnotationSet":
+    def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
         """
         Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
@@ -521,20 +534,32 @@ class AnnotationSet:
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(offset)
         # now select only those first ones which all have the same offset
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
         retids = set()
         startoff = None
         for intv in intvs:
             if startoff is None:
                 startoff = intv[0]
-                retids.add(intv[2])
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
             elif startoff == intv[0]:
-                retids.add(intv[2])
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
             else:
                 break
         return self.immutable(retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None) -> "AnnotationSet":
+    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
         """
         Return the annotations that start at or after the given start offset.
 
@@ -544,10 +569,14 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(start)
-        return self._restrict_intvs(intvs)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, ignored: Any = None) -> "AnnotationSet":
+    def start_lt(self, offset: int, ignored: Any = None, annid=None) -> "AnnotationSet":
         """
         Return the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
@@ -562,7 +591,7 @@ class AnnotationSet:
 
 
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int) -> "AnnotationSet":
+    def overlapping(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
         """
         Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
@@ -572,11 +601,15 @@ class AnnotationSet:
         :return: an immutable annotation set with the matching annotations
         """
         self._create_index_by_offset()
-        intvs = self._index_by_offset.overlap(start, end)
-        return self._restrict_intvs(intvs)
+        intvs = self._index_by_offset.overlapping(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int) -> "AnnotationSet":
+    def covering(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
         """
         Get the annotations which contain the given offset range (or annotation/annotation set)
 
@@ -589,10 +622,14 @@ class AnnotationSet:
         # This may not be optimal
         self._create_index_by_offset()
         intvs = self._index_by_offset.covering(start, end)
-        return self._restrict_intvs(intvs)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def within(self, start: int, end: int) -> "AnnotationSet":
+    def within(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
         """
         Gets annotations that fall completely within the given offset range
 
@@ -607,10 +644,14 @@ class AnnotationSet:
         else:
             self._create_index_by_offset()
             intvs = self._index_by_offset.within(start, end)
-        return self._restrict_intvs(intvs)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def coextensive(self, start: int, end: int) -> "AnnotationSet":
+    def coextensive(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
         """
         Return an immutable annotation set with all annotations that start and end at the given offsets.
 
@@ -620,7 +661,11 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.at(start, end)
-        return self._restrict_intvs(intvs)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
 
     def span(self) -> Tuple[int, int]:
         """
