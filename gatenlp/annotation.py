@@ -97,7 +97,7 @@ class Annotation(FeatureBearer):
             ch["feature"] = feature
         if value is not None:
             ch["value"] = value
-        self.changelog.append(ch)
+        self._changelog().append(ch)
 
     def __eq__(self, other) -> bool:
         """

@@ -193,10 +193,10 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         ser = m.FORMATS[fmt]
-        doc = ser.load(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
-        if doc.offset_type == OFFSET_TYPE_JAVA:
-            doc.to_type(OFFSET_TYPE_PYTHON)
-        return doc
+        chl = ser.load(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        if chl.offset_type == OFFSET_TYPE_JAVA:
+            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+        return chl
 
     @staticmethod
     def load_mem(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
@@ -212,7 +212,7 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         ser = m.FORMATS[fmt]
-        doc = ser.load(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
-        if doc.offset_type == OFFSET_TYPE_JAVA:
-            doc.to_type(OFFSET_TYPE_PYTHON)
-        return doc
+        chl = ser.load(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        if chl.offset_type == OFFSET_TYPE_JAVA:
+            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+        return chl

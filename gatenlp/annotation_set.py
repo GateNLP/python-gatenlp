@@ -241,7 +241,7 @@ class AnnotationSet:
         annotation does not store any map at all.
         :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\
         normally left unspecified and get assigned automatically.
-        :return: the annotation id of the added annotation
+        :return: the new annotation
         """
         if self._is_immutable:
             raise Exception("Cannot add an annotation to an immutable annotation set")
@@ -268,7 +268,7 @@ class AnnotationSet:
                     "id": ann.id
                 }
             self.changelog.append(entry)
-        return ann.id
+        return ann
 
     def add_ann(self, ann, annid: int = None):
         """
