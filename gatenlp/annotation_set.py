@@ -397,14 +397,27 @@ class AnnotationSet:
         """
         return self.iter(reverse=True, **kwargs)
 
-    def get(self, annid: int, default=None) -> Union[Annotation, None]:
+    def get(self, annid: Union[int, Annotation], default=None) -> Union[Annotation, None]:
         """
         Gets the annotation with the given annotation id or returns the given default.
+
+        NOTE: for handling cases where legacy code still expects the add method to return
+        an id and not the annotation, this will accept an annotation so the the frequent
+        pattern still works:
+
+           annid = annset.add(b,e,t)
+           ann = annset.get(annid)
+
+        If an annotation is passed the annotation from the set with the id of that annotation is
+        returned, if the annotation is from that set, this will return the same object, if it is
+        still in the set (or return the default value).
 
         :param annid: the annotation id of the annotation to retrieve.
         :param default: what to return if an annotation with the given id is not found.
         :return: the annotation or the default value.
         """
+        if isinstance(annid, Annotation):
+            annid = annid.id
         return self._annotations.get(annid, default)
 
     def first(self):
