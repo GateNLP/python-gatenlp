@@ -19,10 +19,12 @@ Once an annotation set has been created it can be used to create and
 add as many annotations as needed to it:
 
 ```python
-tok1 = annset.add(0,4,"Token")
-tok2 = annset.add(5,13,"Token")
+ann_tok1 = annset.add(0,4,"Token")
+ann_tok2 = annset.add(5,13,"Token")
+ann_all = annset.add(0,13,"Document")
+ann_vowel1 = annset.add(1,2,"Vowel")
+ann_vowel2 = annset.add(3,4,"Vowel")
 ```
 
-
-```
+Annotations can overlap arbitrarily and 
 
