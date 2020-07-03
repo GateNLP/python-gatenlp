@@ -16,6 +16,7 @@ class FeatureBearer:
         :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
         :return:
         """
+        print("DEBUG: initial features: ",initialfeatures)
         if initialfeatures is not None:
             if isinstance(initialfeatures, FeatureViewer):
                 if initialfeatures._features is not None:
