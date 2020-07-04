@@ -18,7 +18,7 @@ ACTION_ADD_ANN = "annotation:add"
 ACTION_DEL_ANN = "annotation:remove"
 ACTION_CLEAR_ANNS = "annotations:clear"
 
-ACTIONS = set(
+ACTIONS = {
     ACTION_DEL_DOC_FEATURE,
     ACTION_SET_DOC_FEATURE,
     ACTION_CLEAR_DOC_FEATURES,
@@ -29,8 +29,8 @@ ACTIONS = set(
     ACTION_ADD_ANNSET,
     ACTION_ADD_ANN,
     ACTION_DEL_ANN,
-    ACTION_CLEAR_ANNS,
-)
+    ACTION_CLEAR_ANNS
+}
 
 class ChangeLog:
     def __init__(self, store=True):
@@ -71,8 +71,6 @@ class ChangeLog:
         hndlr = self._handlers.get(action)
         if hndlr:
             hndlr()
-        if self._store:
-            self.changes.append(change)
 
     def __len__(self) -> int:
         return len(self.changes)
@@ -277,3 +275,18 @@ class ChangeLog:
         if chl.offset_type == OFFSET_TYPE_JAVA:
             chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
         return chl
+
+    def pprint(self, out=None):
+        """
+        Pretty print to the given output stream, sys.stdout if not given.
+        :return:
+        """
+        if out is None:
+            out = sys.stdout
+        print("ChangeLog(", file=out)
+        for i, c in enumerate(self.changes):
+            cmd = c.get("command")
+            parms = c.copy()
+            del parms["command"]
+            print(f"{i}: cmd={cmd} {parms}")
+        print(")")

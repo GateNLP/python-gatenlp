@@ -147,7 +147,8 @@ class Document(FeatureBearer):
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
-        ch = {"command": "doc-"+command}
+        command = "doc-"+command
+        ch = {"command": command}
         if command == "doc-feature:set":
             ch["feature"] = feature
             ch["value"] = value

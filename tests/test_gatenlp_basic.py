@@ -85,6 +85,7 @@ class TestChangeLog01:
         doc1.set_feature("docfeature1", "value1")
         doc1.set_feature("docfeature1", "value1b")
         chlog1 = doc1.changelog
+        print("!!!!!!!!!!!!!!DEBUG: ",chlog1.pprint())
         assert chlog1.changes[4].get("end") == 24
         assert chlog.changes[4].get("end") == 24
         om = OffsetMapper(doc1)

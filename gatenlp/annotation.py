@@ -88,8 +88,9 @@ class Annotation(FeatureBearer):
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self._changelog() is None:
             return
+        command = "ann-"+command
         ch = {
-            "command": "ann-"+command,
+            "command": command,
             "type": "annotation",
             "set": self._owner_set.name,
             "id": self.id}

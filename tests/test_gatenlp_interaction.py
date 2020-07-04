@@ -25,9 +25,9 @@ class TestInteraction01:
         mypr = gatenlp.gate_python_plugin_pr
         mypr.start({"k1": "v1"})  # set the script parms
         mypr.execute(doc1)
-        assert doc1.annotation_sets is not None
-        assert len(doc1.annotation_sets) == 1
-        assert "Set1" in doc1.annotation_sets
+        assert doc1._annotation_sets is not None
+        assert len(doc1._annotation_sets) == 1
+        assert "Set1" in doc1._annotation_sets
         myset = doc1.get_annotations("Set1")
         assert len(myset) == 1
         myanns = myset.start_ge(0)
