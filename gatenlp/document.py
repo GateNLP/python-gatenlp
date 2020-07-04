@@ -13,40 +13,40 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class _AnnotationSetsDict(collections.defaultdict):
-    """
-    A dict name to annotationset which creates and stores an empty annotation
-    set on the fly when it is requested.
-    """
-    def __init__(self, owner_doc: "Document" = None):
-        super().__init__()
-        self.owner_doc = owner_doc
-
-    @property
-    def changelog(self):
-        return self.owner_doc.changelog
-
-    def __missing__(self, key: str):
-        annset = AnnotationSet(name=key, owner_doc=self.owner_doc)
-        self[key] = annset
-        return annset
-
-    def to_dict(self, **kwargs):
-        return dict((key, val.to_dict(**kwargs)) for key, val in self.items())
-
-    @staticmethod
-    def from_dict(dictrepr: Dict, owner_doc: "Document" = None, **kwargs):
-        asd = _AnnotationSetsDict(owner_doc=owner_doc)
-        asd.update(((key, AnnotationSet.from_dict(val, owner_doc=owner_doc, **kwargs)) for key, val in dictrepr.items()))
-        return asd
-
-    def __repr__(self):
-        asets = ",".join([f"({k},{v.__repr__()})" for k, v in self.items()])
-        return "["+asets+"]"
-
-    def __str__(self):
-        asets = ",".join([f"'{k}':{len(v)}" for k, v in self.items()])
-        return "["+asets+"]"
+# class _AnnotationSetsDict(collections.defaultdict):
+#     """
+#     A dict name to annotationset which creates and stores an empty annotation
+#     set on the fly when it is requested.
+#     """
+#     def __init__(self, owner_doc: "Document" = None):
+#         super().__init__()
+#         self.owner_doc = owner_doc
+#
+#     @property
+#     def changelog(self):
+#         return self.owner_doc.changelog
+#
+#     def __missing__(self, key: str):
+#         annset = AnnotationSet(name=key, owner_doc=self.owner_doc)
+#         self[key] = annset
+#         return annset
+#
+#     def to_dict(self, **kwargs):
+#         return dict((key, val.to_dict(**kwargs)) for key, val in self.items())
+#
+    # @staticmethod
+    # def from_dict(dictrepr: Dict, owner_doc: "Document" = None, **kwargs):
+    #     asd = _AnnotationSetsDict(owner_doc=owner_doc)
+    #     asd.update(((key, AnnotationSet.from_dict(val, owner_doc=owner_doc, **kwargs)) for key, val in dictrepr.items()))
+    #     return asd
+    #
+    # def __repr__(self):
+    #     asets = ",".join([f"({k},{v.__repr__()})" for k, v in self.items()])
+    #     return "["+asets+"]"
+    #
+    # def __str__(self):
+    #     asets = ",".join([f"'{k}':{len(v)}" for k, v in self.items()])
+    #     return "["+asets+"]"
 
 class Document(FeatureBearer):
     """
@@ -82,7 +82,7 @@ class Document(FeatureBearer):
         super().__init__(features)
         self.gatenlp_type = "Document"
         self.changelog = changelog
-        self.annotation_sets = _AnnotationSetsDict(owner_doc=self)
+        self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
 
@@ -91,9 +91,9 @@ class Document(FeatureBearer):
             raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
 
     def _fixup_annotations(self, method: Callable) -> None:
-        annset_names = self.annotation_sets.keys()
+        annset_names = self._annotation_sets.keys()
         for annset_name in annset_names:
-            annset = self.annotation_sets[annset_name]
+            annset = self._annotation_sets[annset_name]
             if annset._annotations is not None:
                 for ann in annset._annotations.values():
                     ann._start = method(ann._start)
@@ -222,7 +222,11 @@ class Document(FeatureBearer):
         :return: the specified annotation set.
         """
         self._ensure_type_python()
-        return self.annotation_sets[name]
+        if name not in self._annotation_sets:
+            annset = AnnotationSet(owner_doc=self)
+            return annset
+        else:
+            return self._annotation_sets[name]
 
     def get_annotation_set_names(self) -> KeysView[str]:
         """
@@ -231,7 +235,7 @@ class Document(FeatureBearer):
         :return: annotation set names
         """
         self._ensure_type_python()
-        return self.annotation_sets.keys()
+        return list(self._annotation_sets.keys())
     
     def remove_annotation_set(self, name: str):
         """
@@ -239,7 +243,9 @@ class Document(FeatureBearer):
         :param name: name of the annotation set to remove
         :return:
         """
-        del self.annotation_sets[name]
+        if name not in self._annotation_sets:
+            raise Exception(f"AnnotationSet with name {name} does not exist")
+        del self._annotation_sets[name]
         if self.changelog:
             self.changelog.append({
                 "command": "annotations:remove",
@@ -251,53 +257,11 @@ class Document(FeatureBearer):
 
         :return: string representation
         """
-        return "Document({},features={},anns={})".format(self.text, self._features, self.annotation_sets.__repr__())
+        return "Document({},features={},anns={})".format(self.text, self._features, self._annotation_sets.__repr__())
 
     def __str__(self) -> str:
-        return "Document({},features={},anns={})".format(self.text, self._features, self.annotation_sets)
-
-    def _json_repr(self, **kwargs) -> Dict:
-        """
-        Return a a simple map representation of this document for JSON to serialize.
-
-        :return: something JSON can serialize
-        """
-        offset_type = self.offset_type
-        if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
-            om = OffsetMapper(self._text)
-            kwargs["offset_mapper"] = om
-            offset_type = kwargs["offset_type"]
-        return {
-            "text": self._text,
-            "features": self._features,
-            # turn our special class into an ordinary map
-            "annotation_sets": {name: annset._json_repr(**kwargs) for name, annset in self.annotation_sets.items()},
-            "offset_type": offset_type,
-            "gatenlp_type": self.gatenlp_type
-        }
-
-    @staticmethod
-    def _from_json_map(jsonmap: Dict[str, Any], **kwargs) -> "Document":
-        """
-        Construct a document instance from the JSON map representation we get.
-
-        :param jsonmap: the map representation of a document used for JSON
-        :param kwargs: any kwargs passed through from the load/loads method
-        :return: a document instance
-        """
-        doc = Document(jsonmap.get("text"), features=jsonmap.get("features"))
-        doc.annotation_sets = _AnnotationSetsDict()
-        for k, v in jsonmap.get("annotation_sets").items():
-            # print("Adding set {} of type {}".format(k, type(v)), file=sys.stderr)
-            doc.annotation_sets[k] = v
-        offset_type = jsonmap.get("offset_type")
-        doc.offset_type = offset_type
-        if offset_type == OFFSET_TYPE_JAVA:
-            doc.to_type(OFFSET_TYPE_PYTHON)
-        if "with_changelog" in kwargs:
-            chlog = ChangeLog()
-            doc.set_changelog(chlog)
-        return doc
+        asets = "["+",".join([f"'{k}':{len(v)}" for k, v in self._annotation_sets.items()])+"]"
+        return "Document({},features={},anns={})".format(self.text, self._features, asets)
 
     def to_dict(self, offset_type=None, **kwargs):
         """
@@ -322,7 +286,7 @@ class Document(FeatureBearer):
         else:
             offset_type = self.offset_type
         return {
-            "annotation_sets": self.annotation_sets.to_dict(offset_type=offset_type, **kwargs),
+            "annotation_sets": {name: aset.to_dict() for name, aset in self._annotation_sets.items() },
             "text": self._text,
             "features": self._features,
             "offset_type": offset_type,
@@ -341,10 +305,9 @@ class Document(FeatureBearer):
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
         # doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
         doc._features = dictrepr.get("features")
-        doc.annotation_sets = \
-            _AnnotationSetsDict.from_dict(dictrepr.get("annotation_sets"),
-                                          #changelog=doc.changelog,
-                                          owner_doc=doc, **kwargs)
+        annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
+                   for name, adict in dictrepr.get("annotation_sets").items()}
+        doc._annotation_sets = annsets
         return doc
 
     def save(self, whereto, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):

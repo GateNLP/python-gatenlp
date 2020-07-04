@@ -3,11 +3,12 @@ import io
 import os
 import json
 from msgpack import pack, Unpacker
-from gatenlp.document import Document, _AnnotationSetsDict
+from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gzip import open as gopen
+
 
 class JsonSerializer:
 
@@ -63,8 +64,8 @@ class MsgPackSerializer:
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
         pack(doc._features, stream)
-        pack(len(doc.annotation_sets), stream)
-        for name, annset in doc.annotation_sets:
+        pack(len(doc._annotation_sets), stream)
+        for name, annset in doc._annotation_sets:
             pack(name, stream)
             pack(annset.next_annid, stream)
             pack(len(annset), stream)
@@ -86,7 +87,7 @@ class MsgPackSerializer:
         doc._text = u.unpack()
         doc._features = u.unpack()
         nsets = u.unpack()
-        setsdict = _AnnotationSetsDict(owner_doc=doc)
+        setsdict = dict()
         doc.annotation_sets = setsdict
         for iset in range(nsets):
             sname = u.unpack()
@@ -140,6 +141,21 @@ class MsgPackSerializer:
         return doc
 
 
+def determine_loader(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    first = None
+    if from_mem:
+        first = from_mem[0]
+    else:
+        with open(from_file, "rt") as infp:
+            first = infp.read(1)
+    if first == "{":
+        return JsonSerializer.load(clazz, from_file=from_file, from_mem=from_mem, offset_mapper=offset_mapper,
+                            gzip=gzip, **kwargs)
+    else:
+        return MsgPackSerializer.load(clazz, from_file=from_file, from_mem=from_mem, offset_mapper=offset_mapper,
+                            gzip=gzip, **kwargs)
+
+
 DOCUMENT_SAVERS = {
     "json": JsonSerializer.save,
     "text/bdocjs": JsonSerializer.save,
@@ -149,6 +165,7 @@ DOCUMENT_SAVERS = {
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
+    "jsonormsgpack": determine_loader,
     "text/bdocjs": JsonSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
     "msgpack": MsgPackSerializer.load,
@@ -167,6 +184,7 @@ CHANGELOG_LOADERS = {
 
 EXTENSIONS = {
     "bdocjs": "json",
+    "bdoc": "jsonormsgpack",
     "bdocjs.gz": "text/bdocjs+gzip",
     "bdocjson": "json",
     "bdocmp": "msgpack"
@@ -198,6 +216,7 @@ def get_handler(filespec, fmt, handlers, saveload, what):
         elif ext:
             ext = ext[1:]
         fmt = EXTENSIONS.get(ext)
+        msg = f"Could not determine how to {saveload} {what} for format {fmt} and with extension {ext} in module gatenlp.serialization.default"
         if not fmt:
             raise Exception(msg)
         handler = handlers.get(fmt)
