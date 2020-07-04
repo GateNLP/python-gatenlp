@@ -13,41 +13,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-# class _AnnotationSetsDict(collections.defaultdict):
-#     """
-#     A dict name to annotationset which creates and stores an empty annotation
-#     set on the fly when it is requested.
-#     """
-#     def __init__(self, owner_doc: "Document" = None):
-#         super().__init__()
-#         self.owner_doc = owner_doc
-#
-#     @property
-#     def changelog(self):
-#         return self.owner_doc.changelog
-#
-#     def __missing__(self, key: str):
-#         annset = AnnotationSet(name=key, owner_doc=self.owner_doc)
-#         self[key] = annset
-#         return annset
-#
-#     def to_dict(self, **kwargs):
-#         return dict((key, val.to_dict(**kwargs)) for key, val in self.items())
-#
-    # @staticmethod
-    # def from_dict(dictrepr: Dict, owner_doc: "Document" = None, **kwargs):
-    #     asd = _AnnotationSetsDict(owner_doc=owner_doc)
-    #     asd.update(((key, AnnotationSet.from_dict(val, owner_doc=owner_doc, **kwargs)) for key, val in dictrepr.items()))
-    #     return asd
-    #
-    # def __repr__(self):
-    #     asets = ",".join([f"({k},{v.__repr__()})" for k, v in self.items()])
-    #     return "["+asets+"]"
-    #
-    # def __str__(self):
-    #     asets = ",".join([f"'{k}':{len(v)}" for k, v in self.items()])
-    #     return "["+asets+"]"
-
 class Document(FeatureBearer):
     """
     Represent a GATE document. This is different from the original Java GATE representation in several ways:
@@ -182,8 +147,8 @@ class Document(FeatureBearer):
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self.changelog is None:
             return
-        ch = {"command": command, "type": "document"}
-        if command == "feature:set":
+        ch = {"command": "doc-"+command}
+        if command == "doc-feature:set":
             ch["feature"] = feature
             ch["value"] = value
         self.changelog.append(ch)
@@ -224,6 +189,11 @@ class Document(FeatureBearer):
         self._ensure_type_python()
         if name not in self._annotation_sets:
             annset = AnnotationSet(owner_doc=self)
+            self._annotation_sets[name] = annset
+            if self.changelog:
+                self.changelog.append({
+                    "command": "annotations:add",
+                    "set": name})
             return annset
         else:
             return self._annotation_sets[name]
@@ -303,7 +273,6 @@ class Document(FeatureBearer):
         doc.offset_type = dictrepr.get("offset_type")
         if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
-        # doc.changelog = ChangeLog.from_dict(dictrepr.get("changelog"))
         doc._features = dictrepr.get("features")
         annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
                    for name, adict in dictrepr.get("annotation_sets").items()}

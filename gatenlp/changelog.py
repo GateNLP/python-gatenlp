@@ -3,15 +3,76 @@ import sys
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 import importlib
 
+# TODO: allow to add handlers for each action or a set or all actions
+# TODO: review actions, different action for set document feature and set annotation feature?
+
+ACTION_DEL_DOC_FEATURE = "doc-feature:remove"
+ACTION_SET_DOC_FEATURE = "doc-feature:set"
+ACTION_CLEAR_DOC_FEATURES = "doc-features:clear"
+ACTION_DEL_ANN_FEATURE = "ann-feature:remove"
+ACTION_SET_ANN_FEATURE = "ann-feature:set"
+ACTION_CLEAR_ANN_FEATURES = "ann-features:clear"
+ACTION_REMOVE_ANNSET = "annotations:remove"
+ACTION_ADD_ANNSET = "annotations:remove"
+ACTION_ADD_ANN = "annotation:add"
+ACTION_DEL_ANN = "annotation:remove"
+ACTION_CLEAR_ANNS = "annotations:clear"
+
+ACTIONS = set(
+    ACTION_DEL_DOC_FEATURE,
+    ACTION_SET_DOC_FEATURE,
+    ACTION_CLEAR_DOC_FEATURES,
+    ACTION_DEL_ANN_FEATURE,
+    ACTION_SET_ANN_FEATURE,
+    ACTION_CLEAR_ANN_FEATURES,
+    ACTION_REMOVE_ANNSET,
+    ACTION_ADD_ANNSET,
+    ACTION_ADD_ANN,
+    ACTION_DEL_ANN,
+    ACTION_CLEAR_ANNS,
+)
+
 class ChangeLog:
-    def __init__(self):
+    def __init__(self, store=True):
+        """
+
+        :param store: if True, the change log stores the actions it receives (default). This can be set
+          to false if only callbacks are needed.
+        """
         self.gatenlp_type = "ChangeLog"
         self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
+        self._handlers = dict()
+        self._store = store
 
-    def append(self, element: Dict):
-        assert isinstance(element, dict)
-        self.changes.append(element)
+    def add_handler(self, actions, handler):
+        """
+        Register a handler to get called back when any of the actions is added.
+        If any handler was already registered for one or more of the actions, the new handler overrides it.
+
+        :param actions: either a single action string or a collection of several action strings
+        :param handler: a callable that takes the change information
+        :return:
+        """
+        if isinstance(actions, str):
+            actions = [actions]
+        for a in actions:
+            if a not in ACTIONS:
+                raise Exception(f"Action {a} not known, cannot add handler")
+            self._handlers[a] = handler
+
+    def append(self, change: Dict):
+        assert isinstance(change, dict)
+        action = change.get("command",None)
+        if action is None:
+            raise Exception("Odd change, does not have 'command' key")
+        if self._store:
+            self.changes.append(change)
+        hndlr = self._handlers.get(action)
+        if hndlr:
+            hndlr()
+        if self._store:
+            self.changes.append(change)
 
     def __len__(self) -> int:
         return len(self.changes)

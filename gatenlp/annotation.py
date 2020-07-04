@@ -89,7 +89,7 @@ class Annotation(FeatureBearer):
         if self._changelog() is None:
             return
         ch = {
-            "command": command,
+            "command": "ann-"+command,
             "type": "annotation",
             "set": self._owner_set.name,
             "id": self.id}
