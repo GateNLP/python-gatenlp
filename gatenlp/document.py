@@ -189,7 +189,7 @@ class Document(FeatureBearer):
         """
         self._ensure_type_python()
         if name not in self._annotation_sets:
-            annset = AnnotationSet(owner_doc=self)
+            annset = AnnotationSet(owner_doc=self, name=name)
             self._annotation_sets[name] = annset
             if self.changelog:
                 self.changelog.append({
