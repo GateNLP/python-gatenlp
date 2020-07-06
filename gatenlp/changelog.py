@@ -32,6 +32,16 @@ ACTIONS = {
     ACTION_CLEAR_ANNS
 }
 
+# flags that describe how to handle adding an annotation to a document from a changelog if an annotation
+# with the same annotation id already exists in the set.
+ADDANN_REPLACE_ANNOTATION = "replace-annotation" # completely replace with the new one
+ADDANN_REPLACE_FEATURES = "replace-features" # just completely replace the features
+ADDANN_UPDATE_FEATURES = "update-features" # add new and update existing features, do not delete any
+ADDANN_ADD_NEW_FEATURES = "add-new-features" # only add new features
+ADDANN_IGNORE = "ignore" # ignore that annotation, do nothing
+ADDANN_ADD_WITH_NEW_ID = "add-with-new-id"  # add that annotation with a new id to the set
+
+
 class ChangeLog:
     def __init__(self, store=True):
         """

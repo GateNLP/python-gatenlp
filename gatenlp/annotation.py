@@ -3,6 +3,7 @@ An annotation is immutable, but the features it contains are mutable.
 """
 import sys
 from typing import List, Union, Dict, Set
+import copy
 from functools import total_ordering
 from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
@@ -61,6 +62,8 @@ class Annotation(FeatureBearer):
         :param features: an initial collection of features, None for no features.
         """
         assert end > start
+        assert isinstance(annid, int)
+        assert not isinstance(features, int)  # avoid mixing up the two parameters!
         super().__init__(features)
         self._gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
@@ -327,3 +330,19 @@ class Annotation(FeatureBearer):
         )
         ann._owner_set = owner_set
         return ann
+
+    def __copy__(self):
+        return Annotation(self._start, self._end, self._type, self._id, features=self._features)
+
+    def copy(self):
+        return self.__copy__()
+
+    def __deepcopy__(self, memo):
+        if self._features is not None:
+            fts = copy.deepcopy(self._features, memo)
+        else:
+            fts = None
+        return Annotation(self._start, self._end, self._type, self._id, features=fts)
+
+    def deepcopy(self):
+        return copy.deepcopy(self)

@@ -48,10 +48,16 @@ This behaviour can be changed by using `include_self=True`.
 
 ## Result Annotation Sets
 
-Many methods of the `AnnotationSet` class return an annotation set which contains a subset of the original set. But what happens if:
+There are three ways of how one can obtain an annotation set in `gatenlp`:
 
-* a)  Annotations are added to or removed from that result set? Will that add or remove those annotations to the original set?
-* b) Annotations included in that result set get their features changed? Will that modify the annotations in the original set? 
+* From the document, using `get_annotations()` or `get_annotations("name")`: this is how to get a handle to an annotation set that is stored with the document and known by some name (which can be the empty string) . Whenever annotations are added to or deleted from such a set, this modifies what is stored with the document.  Such sets are called "attached". 
+* As the result of many of the AnnotationSet methods, e.g. `annset.covering(span)`: such annotation sets are by default immutable: they do not allow to add or delete annotations, but they can be changed to be mutable. Once mutable, annotations can get added or deleted but none of these changes are visible in the document: the set returned from the method is a "*detached*" set. 
+* With the `AnnotationSet` constructor: such a set is empty and "detached". 
 
+A "detached" annotation set returned from an AnnotationSet method contains annotations from the original attached set, and while the list of annotations is separate, the annotations themselves are identical to the ones in the original attached set. So if you change features of those annotations, they will modify the annotations in the document. 
+
+In order to get a completely independent copy of all the annotations from a result set (which is a detached set), the method: `clone_anns()` can be used. After this, all the annotations are copies of the originals and can be modified without affecting the annotations in the original attached set. 
+
+In order to get a completely independent copy of all the annotations from an original attached set, the method `deepcopy()` can be used. 
 
 

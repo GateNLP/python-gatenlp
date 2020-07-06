@@ -3,7 +3,7 @@ from typing import Callable, Dict, KeysView, Any
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
-from gatenlp.changelog import ChangeLog
+from gatenlp.changelog import *
 from gatenlp.feature_bearer import FeatureBearer
 import logging
 import importlib
@@ -94,6 +94,100 @@ class Document(FeatureBearer):
         else:
             raise Exception("Odd offset type")
         return om
+
+    def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
+        """
+        Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
+        a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
+
+        The document is modified in-place.
+
+        :param changes: one or more changes
+        :param handle_existing_anns: what to do if the change from the changelog tries to add an annotation
+          with an annotation id that already exists in the target set.
+        :return:
+        """
+        if isinstance(changes, dict):
+            changes = [changes]
+        elif isinstance(changes, ChangeLog):
+            changes = changes.changes
+        for change in changes:
+            cmd = change.get("command")
+            fname = change.get("feature")
+            sname = change.get("set")
+            annid = change.get("id")
+            if cmd is None:
+                raise Exception("Change without field 'command'")
+            if cmd == ACTION_ADD_ANNSET:
+                assert sname is not None
+                self.get_annotations(sname)
+            elif cmd == ACTION_ADD_ANN:
+                assert sname is not None
+                assert annid is not None
+                anns = self.get_annotations(sname)
+                ann = anns.get(annid)
+                start = change.get("start")
+                end = change.get("end")
+                anntype = change.get("type")
+
+                if ann is None:
+                    anns.add(start, end, anntype, annid)
+                else:
+                    if handle_existing_anns == ADDANN_IGNORE:
+                        pass
+                    elif handle_existing_anns == ADDANN_ADD_WITH_NEW_ID:
+                        anns.add(start, end, anntype)
+                    elif handle_existing_anns == ADDANN_REPLACE_ANNOTATION:
+                        anns.remove(annid)
+                        anns.add(start, end, anntype, annid)
+                    elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
+                        features = change.get("features")
+                        ann.update_features(features)
+                    elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
+                        features = change.get("features")
+                        ann.clear_features()
+                        ann.update_features(features)
+                    elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
+                        features = change.get("features")
+                        fns = ann.feature_names()
+                        for f in features.keys():
+                            if f not in fns:
+                                ann.set_feature(f, features[f])
+
+            elif cmd == ACTION_CLEAR_ANNS:
+                assert sname is not None
+                anns = self.get_annotations(sname)
+                anns.clear()
+            elif cmd == ACTION_CLEAR_ANN_FEATURES:
+                assert sname is not None
+                assert annid is not None
+                anns = self.get_annotations(sname)
+                ann = anns.get(annid)
+                if ann is not None:
+                    ann.clear_features()
+                else:
+                    pass # ignore, could happen with a detached annotation
+            elif cmd == ACTION_CLEAR_DOC_FEATURES:
+                self.clear_features()
+            elif cmd == ACTION_DEL_ANN_FEATURE:
+                assert sname is not None
+                assert annid is not None
+                anns = self.get_annotations(sname)
+                ann = anns.get(annid)
+                if ann is not None:
+                    if fname is not None:
+                        ann.del_feature(fname)
+                else:
+                    pass  # ignore, could happen with a detached annotation
+            elif cmd == ACTION_DEL_DOC_FEATURE:
+                assert fname is not None
+                self.del_feature(fname)
+            elif cmd == ACTION_DEL_ANN:
+                assert sname is not None
+                assert annid is not None
+                anns = self.get_annotations(sname)
+                anns.remove(annid)
+
 
 
     def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
@@ -295,9 +389,13 @@ class Document(FeatureBearer):
         :param kwargs: additional parameters for the format
         :return:
         """
-        m = importlib.import_module(mod)
-        saver = m.get_document_saver(whereto, fmt)
-        saver(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
+        if isinstance(fmt, str):
+            m = importlib.import_module(mod)
+            saver = m.get_document_saver(whereto, fmt)
+            saver(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
+        else:
+            # assume fmt is a callable to get used directly
+            fmt(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
@@ -313,9 +411,12 @@ class Document(FeatureBearer):
         :param kwargs: additional parameters for the format
         :return:
         """
-        m = importlib.import_module(mod)
-        saver = m.get_document_saver(None, fmt)
-        return saver(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
+        if isinstance(fmt, str):
+            m = importlib.import_module(mod)
+            saver = m.get_document_saver(None, fmt)
+            return saver(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
+        else:
+            fmt(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
 
     @staticmethod
     def load(wherefrom, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
@@ -327,9 +428,12 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
-        m = importlib.import_module(mod)
-        loader = m.get_document_loader(wherefrom, fmt)
-        doc = loader(Document, from_file=wherefrom, **kwargs)
+        if isinstance(fmt, str):
+            m = importlib.import_module(mod)
+            loader = m.get_document_loader(wherefrom, fmt)
+            doc = loader(Document, from_file=wherefrom, **kwargs)
+        else:
+            doc = fmt(Document, from_file=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc
@@ -345,9 +449,12 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
-        m = importlib.import_module(mod)
-        loader = m.get_document_loader(None, fmt)
-        doc = loader(Document, from_mem=wherefrom, **kwargs)
+        if isinstance(fmt, str):
+            m = importlib.import_module(mod)
+            loader = m.get_document_loader(None, fmt)
+            doc = loader(Document, from_mem=wherefrom, **kwargs)
+        else:
+            doc = fmt(Document, from_mem=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_type(OFFSET_TYPE_PYTHON)
         return doc

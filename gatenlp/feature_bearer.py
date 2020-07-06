@@ -109,7 +109,7 @@ class FeatureBearer:
         else:
             return [set(self._features.values())]
 
-    def copy(self) -> Dict:
+    def features_copy(self) -> Dict:
         """
         Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
         :return:
@@ -180,4 +180,5 @@ class FeatureViewer(FeatureBearer):
         if self._features:
             for k, v in self._features.items():
                 yield k, v
+
 

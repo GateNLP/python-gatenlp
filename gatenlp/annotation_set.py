@@ -1,5 +1,6 @@
 from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections import defaultdict
+import copy
 from gatenlp.annotation import Annotation
 from gatenlp.exceptions import InvalidOffsetException
 from gatenlp.changelog import ChangeLog
@@ -22,8 +23,8 @@ class AnnotationSet:
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self.gatenlp_type = "AnnotationSet"
-        self.name = name
-        self.owner_doc = owner_doc
+        self._name = name
+        self._owner_doc = owner_doc
 
         # NOTE: the index is only created when we actually need it!
         # TODO: python 3.5
@@ -36,8 +37,16 @@ class AnnotationSet:
         self._next_annid = 0
 
     @property
+    def name(self):
+        """
+        Get the name of the annotation set.
+        :return: name of annotation set
+        """
+        return self._name
+
+    @property
     def changelog(self):
-        return self.owner_doc.changelog
+        return self._owner_doc.changelog
 
     def __setattr__(self, key, value):
         """
@@ -55,40 +64,66 @@ class AnnotationSet:
         else:
             super().__setattr__(key, value)
 
-    def immutable(self, restrict_to=None) -> "AnnotationSet":
+    def detached(self, restrict_to=None) -> "AnnotationSet":
         """
         Create an immutable copy of this set, optionally restricted to the given annotation ids.
 
-        :param restrict_to: an iterable of annotation ids
+        :param restrict_to: an iterable of annotation ids, if None, all the annotations from this set.
         :return: an immutable annotation set with all the annotations of this set or restricted to the ids
           in restrict_to
         """
-        annset = AnnotationSet(name="", owner_doc=self.owner_doc)
+        annset = AnnotationSet(name="detached-from:"+self.name, owner_doc=self._owner_doc)
         annset._is_immutable = True
-        annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+        if restrict_to is None:
+            annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+        else:
+            annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
         annset._next_annid = self._next_annid
         return annset
 
-    def immutable_from(self, anns: Iterable) -> "AnnotationSet":
+    def detached_from(self, anns: Iterable) -> "AnnotationSet":
         """
-        Create an immutable annotation set from the annotations in anns which could by anything that
-        can be iterated over. The owning document is the same as for this set.
-        The next annotation id for the created set is the highest see annotation id from anns plus one.
+        Create an immutable detached annotation set from the annotations in anns which could by
+        either a collection of annotations or annotation ids (int numbers) which are assumed to
+        be the annotation ids from this set.
+
+        The next annotation id for the created set is the highest seen annotation id from anns plus one.
 
         :param anns: an iterable of annotations
         :return: an immutable annotation set with all the annotations of this set or restricted to the ids
           in restrict_to
         """
-        annset = AnnotationSet(name="", owner_doc=self.owner_doc)
+        annset = AnnotationSet(name="detached-from:"+self.name)
         annset._is_immutable = True
         annset._annotations = {}
         nextid = -1
         for ann in anns:
-            annset._annotations[id] = ann
-            if ann.id > nextid:
-                nextid = ann.id
+            if isinstance(ann, int):
+                annset._annotations[ann] = self._annotations[ann]
+                annid = ann
+            else:
+                annset._annotations[id] = ann
+                annid = ann.id
+            if annid > nextid:
+                nextid = annid
         annset._next_annid = nextid + 1
         return annset
+
+    def set_immutable(self, val: bool):
+        """
+        Set the annotationset to mutable (False) or immutable (True)
+        :param val: boolean, True to set to immutable, False, otherwise.
+        :return:
+        """
+        self._is_immutable = val
+
+    @property
+    def is_immutable(self):
+        return self._is_immutable
+
+    @property
+    def is_detached(self):
+        return self._owner_doc is None
 
     def _create_index_by_offset(self) -> None:
         """
@@ -167,7 +202,7 @@ class AnnotationSet:
         return ret
 
     def _restrict_intvs(self, intvs, ignore=None) -> "AnnotationSet":
-        return self.immutable(AnnotationSet._intvs2idlist(intvs, ignore=ignore))
+        return self.detached(restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore))
 
     def __len__(self) -> int:
         """
@@ -185,13 +220,14 @@ class AnnotationSet:
         """
         return len(self._annotations)
 
-    def get_doc(self) -> Union["Document", None]:
+    @property
+    def document(self) -> Union["Document", None]:
         """
         Get the owning document, if known. If the owning document was not set, return None.
 
         :return: the document this annotation set belongs to or None if unknown.
         """
-        return self.owner_doc
+        return self._owner_doc
 
     @support_annotation_or_set
     def _check_offsets(self, start: int, end: int, annid=None) -> None:
@@ -199,11 +235,11 @@ class AnnotationSet:
         Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
         document and if the owning document has text.
         """
-        if self.owner_doc is None:
+        if self._owner_doc is None:
             return
-        if self.owner_doc.text is None:
+        if self._owner_doc.text is None:
             return
-        doc_size = self.owner_doc.size()
+        doc_size = self._owner_doc.size()
 
         if start < 0:
             raise InvalidOffsetException("Annotation starts before 0")
@@ -309,6 +345,10 @@ class AnnotationSet:
             annid = annotation.id
             if annid not in self._annotations:
                 raise Exception("Annotation with id {} does not belong to this set, cannot remove".format(annid))
+        # NOTE: once the annotation has been removed from the set, it could still be referenced
+        # somewhere else and its features could get modified. In order to prevent logging of such changes,
+        # the owning set gets cleared for the annotation
+        annotation._owner_set = None
         del self._annotations[annid]
         if self.changelog is not None:
             self.changelog.append({
@@ -330,6 +370,48 @@ class AnnotationSet:
             self.changelog.append({
                 "command": "annotations:clear",
                 "set": self.name})
+
+    def clone_anns(self, memo=None):
+        """
+        Replace the annotations in this set with copies of the originals. If this is a detached set,
+        then this makes sure that any modifications to the annotations do not affect the original annotations
+        in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
+        the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
+
+        :param memo: for internal use by our __deepcopy__ implementation.
+
+        :return:
+        """
+        tmpdict = {}
+        for annid, ann in self._annotations.items():
+            newann = copy.deepcopy(ann, memo=memo)
+            ann._owner_set = None
+            tmpdict[annid] = newann
+        for annid, ann in tmpdict.items():
+            self._annotations[annid] = ann
+
+    def __copy__(self):
+        """
+        NOTE: creating a copy always creates a detached set, but a mutable one.
+        :return:
+        """
+        c = self.detached()
+        c._is_immutable = False
+        return c
+
+    def copy(self):
+        return self.__copy__()
+
+    def __deepcopy__(self, memo=None):
+        if memo is None:
+            memo = {}
+        c = self.detached()
+        c._is_immutable = False
+        c.clone_anns(memo=memo)
+        return c
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
 
     def __iter__(self) -> Iterator:
         """
@@ -482,14 +564,14 @@ class AnnotationSet:
                 for t in atype:
                     atypes.append(t)
         if not atypes:
-            return self.immutable()
+            return self.detached()
         self._create_index_by_type()
         annids = set()
         for t in atypes:
             idxs = self._index_by_type.get(t)
             if idxs:
                 annids.update(idxs)
-        return self.immutable(annids)
+        return self.detached(restrict_to=annids)
 
     def type_names(self) -> KeysView[str]:
         """
@@ -556,7 +638,7 @@ class AnnotationSet:
                     retids.add(intv[2])
             else:
                 break
-        return self.immutable(retids)
+        return self.detached(restrict_to=retids)
 
     @support_annotation_or_set
     def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
