@@ -61,8 +61,8 @@ class Annotation(FeatureBearer):
         :param owner_set: the containing annotation set
         :param features: an initial collection of features, None for no features.
         """
-        if end <= start:
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: start >= end")
+        if end < start:
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: start > end")
         if not isinstance(annid, int):
             raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: annid is not an int")
         if isinstance(features, int):
@@ -177,10 +177,10 @@ class Annotation(FeatureBearer):
     def __len__(self) -> int:
         """
         The length of the annotation is the length of the offset span. Since the end offset is one after the last
-        element, we return end-start-1
+        element, we return end-start
         :return:
         """
-        return self.end - self.start - 1
+        return self.end - self.start
 
     def contains_offset(self, offset: int) -> bool:
         """
