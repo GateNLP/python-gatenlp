@@ -547,13 +547,18 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def with_type(self, *anntype: Union[str, Iterable]) -> "AnnotationSet":
+    def with_type(self, *anntype: Union[str, Iterable],
+                  non_overlapping: bool = False) -> "AnnotationSet":
         """
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
 
-        :param anntype: one or more types or type lists. The union of all types specified that way\
-        is used to filter the annotations. If no type is specified, all annotations are selected.
+        :param anntype: one or more types or type lists. The union of all types specified that way
+          is used to filter the annotations. If no type is specified, all annotations are selected.
+        :param non_overlapping: if True, only return annotations of any of the given types which
+          do not overlap with other annotations. If there are several annotations that start at
+          the same offset, use the type that comes first in the parameters, if there are more
+          than one of that type, use the one that would come first in the usual sort order.
         :return: an immutable annotation set with the matching annotations.
         """
         atypes = []
@@ -571,7 +576,85 @@ class AnnotationSet:
             idxs = self._index_by_type.get(t)
             if idxs:
                 annids.update(idxs)
+        if non_overlapping:
+            # need to get annotations grouped by start offset and sorted according to
+            # what the Annotation class defines
+            allanns = sorted(annids, key=lambda x: self._annotations[x])
+            allanns = [self._annotations[x] for x in allanns]
+            allannsgrouped = []
+            curstart = None
+            curset = None
+            for ann in allanns:
+                if curstart is None:
+                    curset = [ann]
+                    curstart = ann.start
+                elif curstart == ann.start:
+                    curset.append(ann)
+                else:
+                    allannsgrouped.append(curset)
+                    curset = [ann]
+                    curstart = ann.start
+            if curset:
+                allannsgrouped.append(curset)
+            retanns = []
+            # now go through all the grouped annoations and select the top priority one
+            # then skip to the next group that does not overlap with the one we just selected
+            typepriority = dict()
+            for i, atype in enumerate(atypes):
+                typepriority[atype] = len(atypes)-i
+            curminoffset = 0
+            for group in allannsgrouped:
+                # instead of sorting, go through the group and find the top priority one
+                topann = None
+                if len(group) == 1:
+                    if group[0].start >= curminoffset:
+                        topann = group[0]
+                elif len(group) == 0:
+                    raise Exception("We should never get a 0 size group here!")
+                else:
+                    for i, ann in enumerate(group):
+                        if ann.start >= curminoffset:
+                            topann = ann
+                            break
+                    for ann in group[i+1:]:
+                        if ann.start < curminoffset:
+                            continue
+                        if typepriority[ann.type] > typepriority[topann.type]:
+                            topann = ann
+                        elif typepriority[ann.type] == typepriority[topann.type]:
+                            if ann.end > topann.end:
+                                topann = ann
+                            elif ann.end == topann.end:
+                                if ann.id > topann.id:
+                                    topann = ann
+                if topann is not None:
+                    retanns.append(topann)
+                    curminoffset = topann.end
+            annids = [ann.id for ann in retanns]
         return self.detached(restrict_to=annids)
+
+    def by_offset(self):
+        """
+        NOT YET IMPLEMENTED
+
+        Return annotations as a collection of lists, where each list contains all
+        annotations that start at the same offset, sorted in their natural order.
+
+        :return:
+        """
+        raise("Not yet implemented")
+
+    def by_span(self):
+        """
+        NOT YET IMPLEMENTED
+
+        Return annotations as a collection of lists, where each list contains all
+        annotations with identical spans.
+
+        :return:
+        """
+        raise("Not yet implemented")
+
 
     def type_names(self) -> KeysView[str]:
         """

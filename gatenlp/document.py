@@ -44,6 +44,9 @@ class Document(FeatureBearer):
     """
 
     def __init__(self, text: str = None, features=None, changelog: ChangeLog = None):
+        assert isinstance(text, str)
+        if changelog is not None:
+            assert isinstance(changelog, ChangeLog)
         super().__init__(features)
         self.gatenlp_type = "Document"
         self.changelog = changelog

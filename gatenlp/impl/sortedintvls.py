@@ -5,6 +5,9 @@ incur a O(n) overhead on some operations depending on the result set. It also ma
 for creating and maintaning the sorted lists.
 NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset
 for sorting.
+
+!!!TODO: we should maybe implement a stricter and more stable sorting order here, where
+we use the sorting order defined in the annotation class itself.
 """
 
 from sortedcontainers import SortedKeyList

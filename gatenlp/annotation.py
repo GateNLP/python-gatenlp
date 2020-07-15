@@ -61,9 +61,12 @@ class Annotation(FeatureBearer):
         :param owner_set: the containing annotation set
         :param features: an initial collection of features, None for no features.
         """
-        assert end > start
-        assert isinstance(annid, int)
-        assert not isinstance(features, int)  # avoid mixing up the two parameters!
+        if end <= start:
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: start >= end")
+        if not isinstance(annid, int):
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: annid is not an int")
+        if isinstance(features, int):
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: features must not be an int")
         super().__init__(features)
         self._gatenlp_type = "Annotation"
         # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
