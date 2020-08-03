@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 """Packaging script for the gatenlp library."""
-
+import sys
 import os
 import subprocess
 from setuptools import setup, find_packages
@@ -43,6 +43,7 @@ def make_java():
     copyfile(JARFILE_PATH, JARFILE_DIST)
 
 def make_html_ann_viewer():
+    print("Copying HTML ann viewer files", file=sys.stderr)
     copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
     copyfile(HTML_ANN_VIEWER_JS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
         

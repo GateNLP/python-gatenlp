@@ -2,6 +2,8 @@
 import io
 import os
 import json
+from random import choice
+from string import ascii_uppercase
 from msgpack import pack, Unpacker
 from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
@@ -140,7 +142,7 @@ class MsgPackSerializer:
         return doc
 
 JS_JQUERY = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>'
-JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.1/gatenlp-ann-viewer.js"></script>'
+JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.5/gatenlp-ann-viewer.js"></script>'
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
 JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
@@ -164,6 +166,9 @@ class HtmlAnnViewerSerializer:
             idx1 = html.find(str_start) + len(str_start)
             idx2 = html.find(str_end)
             html = html[idx1:idx2]
+            # replace the prefix with a random one
+            rndpref = "".join(choice(ascii_uppercase) for i in range(10))
+            html = html.replace("GATENLPID-", rndpref)
         if offline:
             jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
             if not os.path.exists(jsloc):
@@ -206,6 +211,7 @@ DOCUMENT_SAVERS = {
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
+    "jsongz": JsonSerializer.load_gzip,
     "jsonormsgpack": determine_loader,
     "text/bdocjs": JsonSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
@@ -226,6 +232,7 @@ CHANGELOG_LOADERS = {
 # map extensions to document types
 EXTENSIONS = {
     "bdocjs": "json",
+    "bdoc.gz": "text/bdocjs+gzip", # lets assume it is compressed json
     "bdoc": "jsonormsgpack",
     "bdocjs.gz": "text/bdocjs+gzip",
     "bdocjson": "json",

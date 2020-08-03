@@ -88,18 +88,21 @@ class DocRep {
 
 // class to build the HTML for viewing the converted document
 class DocView {
-    constructor(docrep, contentid, chooserid, detailsid, featuresid, listid, config = null) {
-        // contentid: the id of the div that should show the doc content
-        // chooserid: the id of the div to show the annotation type chooser
-        // detailsid: the id of the div to show the annotation details
-        // featuresid: the id of the div to show the document features
-        // listid: the id of the div to show the annotation list
+    constructor(docrep, idprefix="GATENLPID-", config=undefined) {
+        // idprefix: the prefix to add to all ids and classes
         this.docrep = docrep;
-        this.contentid = contentid;
-        this.chooserid = chooserid;
-        this.detailsid = detailsid;
-        this.featuresid = featuresid;
-        this.listid = listid;
+        this.idprefix = idprefix;
+        this.id_text = "#" + idprefix + "text";
+        this.id_chooser = "#" + idprefix + "chooser";
+        this.id_details = "#" + idprefix + "details";
+        this.id_popup = "#" + idprefix + "popup";
+        this.id_hdr = "#" + idprefix + "hdr";
+        this.id_dochdr = "#" + idprefix + "dochdr";
+        this.class_selection = idprefix + "selection";
+        this.class_fname = idprefix + "fname";
+        this.class_fvalue = idprefix + "fvalue";
+        this.class_label = idprefix + "label";
+        this.class_input = idprefix + "input";
         this.chosen = [];
         this.anns4offset = undefined;
         // create default config here
@@ -154,8 +157,7 @@ class DocView {
     }
 
     init() {
-        // let divcontent = document.getElementById(this.contentid);
-        let divcontent = $("#" + this.contentid);
+        let divcontent = $(this.id_text);
         $(divcontent).empty();
         let text = this.docrep.text;
         let thehtml = $.parseHTML(this.htmlEntities(text));
@@ -164,7 +166,7 @@ class DocView {
         // First of all, create the annotation chooser
         // create a form which contains:
         // for each annotation set create an a tag. followed by a div that contains all the checkbox fields
-        let divchooser = $("#" + this.chooserid);
+        let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
         for (let setname of this.docrep.setnames()) {
@@ -174,10 +176,10 @@ class DocView {
                 setname2show = "[Default Set]"
             }
             // TODO: make what we show here configurable?
-            $(formchooser).append($(document.createElement('div')).attr("class", "hdr").append(setname2show))
+            $(formchooser).append($(document.createElement('div')).attr("class", this.id_hdr).append(setname2show))
             console.log("Setname:" + setname)
             let div4set = document.createElement("div")
-            $(div4set).attr("id", setname);
+            // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
             let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
@@ -185,10 +187,10 @@ class DocView {
                 let col = this.palette[colidx];
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
-                let lbl = $("<label>").attr({ "style": this.style4color(col) });
+                let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { DocView.annchosen(object, ev, setname, anntype) }
-                let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "data-anntype": anntype, "data-setname": setname }).on("click", annhandler)
+                let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
 
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
@@ -206,7 +208,7 @@ class DocView {
         let feats = this.docrep["features"];
         console.log("Doc features at init " + feats)
         DocView.showDocFeatures(obj, feats);
-        $('#docname').text("Document:").on("click", function(ev) { DocView.showDocFeatures(obj, feats) });
+        $(this.id_dochdr).text("Document:").on("click", function(ev) { DocView.showDocFeatures(obj, feats) });
 
         this.buildAnns4Offset()
         this.buildContent()
@@ -300,7 +302,7 @@ class DocView {
         span.append($.parseHTML(this.htmlEntities(txt)));
         spans.push(span);
         // Replace the content
-        let divcontent = $("#" + this.contentid);
+        let divcontent = $(this.id_text);
         $(divcontent).empty();
         $(divcontent).append(spans);
 
@@ -313,7 +315,7 @@ class DocView {
         // this gives us the setname, type and checkbox status of what has been clicked, but for now
         // we always get the complete list of selected types here:
         let seltypes = [];
-        let inputs = $("#" + rep.chooserid).find("input");
+        let inputs = $(rep.id_chooser).find("input");
         inputs.each(function(index) {
             let inputel = $(inputs.get(index));
             if (inputel.prop("checked")) {
@@ -328,37 +330,18 @@ class DocView {
     }
 
     static annsel(obj, ev, anns) {
-        // obj is the DocView object
-        // ev is the event
-        // anns is a list of [sname, id] pairs 
-        function showann(ann) {
-            $("#details").empty();
-            $("#anndetails").append("some text");
-            $("#anndetails").append(ann.toString());
-
-        }
         if (anns.length > 1) {
-            // show a dialog to choose annotation from, when clicking, hide and call showann
-            // for positioning relative to the cursor
-            //$("#popup").css({ left: ev.pageX });
-            //$("#popup").css({ top: ev.pageY });
-            $("#popup").empty();
-            // add the list of annotations and maybe some info about them and 
-            // some way to actually choose the annotation to view
-            // pass on the whole list to the viewer function, then show controls in 
-            // the viewer window to scroll from one annotation to the next (cycle)
-            // $("#popup").on("click", function(ev) { $("#popup").hide() });
+            $(obj.id_popup).empty();
             for (let [setname, annid] of anns) {
                 let ann = obj.docrep.ann4setnameannid(setname, annid);
                 let feats = ann.features;
-
-                $("<div class='selection'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
+                idpopup = obj.id_popup;
+                $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
                     DocView.showAnn(obj, ann);
-                    $("#popup").hide();
-                }).appendTo("#popup");
+                    $(idpopup).hide();
+                }).appendTo(obj.id_popup);
             }
-            // TODO: access the annotation and show the details, including all features
-            $("#popup").show();
+            $(obj.id_popup).show();
         } else if (anns.length == 1) {
             let ann = obj.docrep.ann4setnameannid(anns[0][0], anns[0][1]);
             DocView.showAnn(obj, ann);
@@ -370,25 +353,24 @@ class DocView {
     static showFeatures(obj, features) {
         console.log("Features in show: " + features);
 
-        let tbl = $("<table>").attr("class", "featuretable");
+        let tbl = $("<table>").attr("class", obj.idprefix+"featuretable");
         for (let fname in features) {
             let fval = features[fname];
             console.log("Feature name=" + fname + " val=" + fval);
-            tbl.append("<tr><td class='fname'>" + fname + "</td><td>" + fval + "</td></tr>");
+            tbl.append("<tr><td class='" + obj.class_fname + "'>" + fname + "</td><td class='" + obj.class_fvalue + "'>" + fval + "</td></tr>");
         }
-        $('#details').append(tbl);
+        $(obj.id_details).append(tbl);
     }
 
     static showAnn(obj, ann) {
-        $('#details').empty();
-        $('#details').append("<div class='hdr'>Annotation: " + ann.type + " from " + ann.start + " to " + ann.end + "</div>");
+        $(obj.id_details).empty();
+        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Annotation: " + ann.type + " from " + ann.start + " to " + ann.end + "</div>");
         DocView.showFeatures(obj, ann.features);
     }
 
     static showDocFeatures(obj, features) {
-        $('#details').empty();
-        $('#details').append("<div class='hdr'>Document features:</div>");
-        // let features = obj.docrep.features;
+        $(obj.id_details).empty();
+        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Document features:</div>");
         DocView.showFeatures(obj, features);
     }
 
@@ -397,18 +379,7 @@ class DocView {
     }
 } //class
 
-function gatenlp_run() {
-    bdocjson = document.getElementById("data").innerHTML;
-    let docrep = new DocRep(bdocjson);
-    let docview = new DocView(docrep, "text", "chooser", "details", "features", "list");
-    docview.init();
-    // debug: get the strings for all tokens and log
-    //let tokens = docrep.anns4settype("", "Token");
-    //for (let token of tokens) {
-    //    console.log("start=" + token.start + " end=" + token.end + ": " + docrep.text.substring(token.start, token.end));
-    // }
-    //let locs = docrep.anns4settype("", "Location");
-    //for (let loc of locs) {
-    //    console.log("start=" + loc.start + " end=" + loc.end + ": " + "'" + docrep.text.substring(loc.start, loc.end) + "'");
-    //}
+function gatenlp_run(prefix) {
+    bdocjson = document.getElementById(prefix+"data").innerHTML;
+    new DocView(new DocRep(bdocjson), prefix).init();
 }
