@@ -7,6 +7,7 @@ from gatenlp.changelog import *
 from gatenlp.feature_bearer import FeatureBearer
 import logging
 import importlib
+import copy
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -48,7 +49,6 @@ class Document(FeatureBearer):
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
         super().__init__(features)
-        self.gatenlp_type = "Document"
         self.changelog = changelog
         self._annotation_sets = dict()
         self._text = text
@@ -67,7 +67,7 @@ class Document(FeatureBearer):
                     ann._start = method(ann._start)
                     ann._end = method(ann._end)
 
-    def to_type(self, offsettype: str) -> None:
+    def to_offset_type(self, offsettype: str) -> OffsetMapper:
         """
         Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
@@ -392,7 +392,7 @@ class Document(FeatureBearer):
         :param kwargs: additional parameters for the format
         :return:
         """
-        if isinstance(fmt, str):
+        if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(whereto, fmt)
             saver(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
@@ -414,6 +414,8 @@ class Document(FeatureBearer):
         :param kwargs: additional parameters for the format
         :return:
         """
+        if not fmt:
+            raise Exception("Format required.")
         if isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(None, fmt)
@@ -431,14 +433,14 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
-        if isinstance(fmt, str):
+        if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             loader = m.get_document_loader(wherefrom, fmt)
             doc = loader(Document, from_file=wherefrom, **kwargs)
         else:
             doc = fmt(Document, from_file=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
-            doc.to_type(OFFSET_TYPE_PYTHON)
+            doc.to_offset_type(OFFSET_TYPE_PYTHON)
         return doc
 
     @staticmethod
@@ -452,6 +454,8 @@ class Document(FeatureBearer):
         :param kwargs:
         :return:
         """
+        if not fmt:
+            raise Exception("Format required.")
         if isinstance(fmt, str):
             m = importlib.import_module(mod)
             loader = m.get_document_loader(None, fmt)
@@ -459,5 +463,45 @@ class Document(FeatureBearer):
         else:
             doc = fmt(Document, from_mem=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
-            doc.to_type(OFFSET_TYPE_PYTHON)
+            doc.to_offset_type(OFFSET_TYPE_PYTHON)
         return doc
+
+    def __copy__(self):
+        """
+        Creates a shallow copy except the changelog which is set to None.
+        :return:
+        """
+        doc = Document(self._text)
+        doc._annotation_sets = self._annotation_sets
+        doc.offset_type = self.offset_type
+        doc._features = self._features
+        return doc
+
+    def copy(self):
+        return self.__copy__()
+
+    def __deepcopy__(self, memo):
+        """
+        Creates a deep copy, except the changelog which is set to None.
+        :param memo:
+        :return:
+        """
+        if self._features is not None:
+            fts = copy.deepcopy(self._features, memo)
+        else:
+            fts = None
+        doc = Document(self._text, features=fts)
+        doc.changelog = None
+        doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
+        doc.offset_type = self.offset_type
+        return doc
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
+
+    def _repr_html_(self):
+        """
+        Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
+        :return:
+        """
+        return self.save_mem(fmt="html-ann-viewer", notebook=True, offline=True)

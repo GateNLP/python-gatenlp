@@ -9,7 +9,6 @@ from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gzip import open as gopen
 
-
 class JsonSerializer:
 
     @staticmethod
@@ -140,6 +139,47 @@ class MsgPackSerializer:
         doc = reader(f)
         return doc
 
+JS_JQUERY = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>'
+JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.1/gatenlp-ann-viewer.js"></script>'
+HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
+JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
+
+class HtmlAnnViewerSerializer:
+
+    @staticmethod
+    def save(clazz, inst, to_file=None, to_mem=None, notebook=False, offline=False, **kwargs):
+        if not isinstance(inst, Document):
+            raise Exception("Not a document!")
+        doccopy = inst.deepcopy()
+        doccopy.to_offset_type("j")
+        json = doccopy.save_mem(fmt="json")
+        htmlloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", HTML_TEMPLATE_FILE_NAME)
+        if not os.path.exists(htmlloc):
+            raise Exception("Could not find HTML template, {} does not exist".format(htmlloc))
+        with open(htmlloc, "rt", encoding="utf-8") as infp:
+            html = infp.read();
+        if notebook:
+            str_start = "<!--STARTDIV-->"
+            str_end = "<!--ENDDIV-->"
+            idx1 = html.find(str_start) + len(str_start)
+            idx2 = html.find(str_end)
+            html = html[idx1:idx2]
+        if offline:
+            jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
+            if not os.path.exists(jsloc):
+                raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
+            with open(jsloc, "rt", encoding="utf-8") as infp:
+                js = infp.read();
+                js = """<script type="text/javascript">""" + js + "</script>"
+        else:
+            js = JS_JQUERY + JS_GATENLP
+        html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)
+        if to_mem:
+            return html
+        else:
+            with open(to_file, "wt", encoding="utf-8") as outfp:
+                outfp.write(html)
+
 
 def determine_loader(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
     first = None
@@ -162,6 +202,7 @@ DOCUMENT_SAVERS = {
     "text/bdocjs+gzip": JsonSerializer.save_gzip,
     "msgpack": MsgPackSerializer.save,
     "application/msgpack": MsgPackSerializer.save,
+    "html-ann-viewer": HtmlAnnViewerSerializer.save,
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
@@ -182,12 +223,13 @@ CHANGELOG_LOADERS = {
     "text/bdocjs": JsonSerializer.load,
 }
 
+# map extensions to document types
 EXTENSIONS = {
     "bdocjs": "json",
     "bdoc": "jsonormsgpack",
     "bdocjs.gz": "text/bdocjs+gzip",
     "bdocjson": "json",
-    "bdocmp": "msgpack"
+    "bdocmp": "msgpack",
 }
 
 

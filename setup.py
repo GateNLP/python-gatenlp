@@ -14,6 +14,10 @@ JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compil
 JARFILE_DIST = os.path.join("gatenlp", "_jars", JARFILE) # where it is for distribution
 JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java")
 
+HTML_ANN_VIEWER_HTML_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.html")
+HTML_ANN_VIEWER_JS_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer-merged.js")
+HTML_ANN_VIEWER_DIST_DIR = os.path.join("gatenlp", "serialization", "_htmlviewer")
+
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
     readme = f.read()
@@ -38,6 +42,11 @@ def make_java():
     os.chdir("..")
     copyfile(JARFILE_PATH, JARFILE_DIST)
 
+def make_html_ann_viewer():
+    copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
+    copyfile(HTML_ANN_VIEWER_JS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
+        
+make_html_ann_viewer()
 make_java()
 
 setup(
