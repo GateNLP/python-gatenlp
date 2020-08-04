@@ -186,6 +186,113 @@ class HtmlAnnViewerSerializer:
                 outfp.write(html)
 
 
+class HtmlLoader:
+
+    @staticmethod
+    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
+        # TODO: make sure from_file gets changed to "from" and can take URLs or Pathlike or string
+        pass
+
+
+class GateXmlLoader:
+
+    @staticmethod
+    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
+        # TODO: make sure from_file gets changed to "from" and can take URLs or Pathlike or string
+        # TODO: the code below is just an outline and needs work!
+        import xml.etree.ElementTree as ET
+
+        tree = ET.parse(from_file)
+        root = tree.getroot()
+
+        # or: root = ET.fromstring(xmlstring)
+
+        # check we do have a GATE document
+
+        assert root.tag == "GateDocument"
+        assert root.attrib == {"version": "3"}
+
+        def parsefeatures(feats):
+            features = {}
+            for feat in list(feats):
+                name = None
+                value = None
+                for el in list(feat):
+                    if el.tag == "Name":
+                        if el.get("className") == "java.lang.String":
+                            name = el.text
+                        else:
+                            raise Exception("Odd Feature Name type: " + el.get("className"))
+                    elif el.tag == "Value":
+                        if el.get("className") == "java.lang.String":
+                            value = el.text
+                        else:
+                            raise Exception("Odd Feature Value type: " + el.get("className"))
+                if name is not None and value is not None:
+                    features[name] = value
+            return features
+
+        # get the document features
+        docfeatures = {}
+        feats = root.findall("./GateDocumentFeatures/Feature")
+
+        docfeatures = parsefeatures(feats)
+
+        textwithnodes = root.findall("./TextWithNodes")
+        text = ""
+        node2offset = {}
+        curoff = 0
+        for item in textwithnodes:
+            if item.text:
+                print("Got item text: ", item.text)
+                text += item.text
+                # TODO HTML unescape item text
+                curoff += len(item.text)
+            for node in item:
+                nodeid = node.get("id")
+                node2offset[nodeid] = curoff
+                if node.tail:
+                    # TODO: unescape item.text?
+                    print("Gote node tail: ", node.tail)
+                    text += node.tail
+                    curoff += len(node.tail)
+
+        annsets = root.findall("./AnnotationSet")
+
+        annotation_sets = {}  # map name - set
+        for annset in annsets:
+            if annset.get("Name"):
+                setname = annset.get("Name")
+            else:
+                setname = ""
+            annots = annset.findall("./Annotation")
+            annotations = []
+            maxannid = 0
+            for ann in annots:
+                annid = int(ann.attrib["Id"])
+                maxannid = max(maxannid, annid)
+                anntype = ann.attrib["Type"]
+                startnode = ann.attrib["StartNode"]
+                endnode = ann.attrib["EndNode"]
+                startoff = node2offset[startnode]
+                endoff = node2offset[endnode]
+                feats = ann.findall("./Feature")
+                features = parsefeatures(feats)
+                if len(features) == 0:
+                    features = None
+                annotation = {"id": annid, "type": anntype, "start": startoff, "end": endoff,
+                              "features": features}
+                annotations.append(annotation)
+            annset = {"name": setname, "annotations": annotations, "next_annid": maxannid + 1}
+            annotation_sets[setname] = annset
+
+        docmap = {"text": text, "featires": docfeatures, "offset_type": "p",
+                  "annotation_sets": annotation_sets}
+
+        doc = Document.from_dict(docmap)
+        return doc
+
+
 def determine_loader(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
     first = None
     if from_mem:
@@ -217,6 +324,7 @@ DOCUMENT_LOADERS = {
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
     "msgpack": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
+    "text/html": HtmlLoader.load,
 }
 CHANGELOG_SAVERS = {
     "json": JsonSerializer.save,
