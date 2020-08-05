@@ -4,7 +4,7 @@ from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYT
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
-from gatenlp.feature_bearer import FeatureBearer
+from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 import logging
 import importlib
 import copy
@@ -191,6 +191,9 @@ class Document(FeatureBearer):
                 anns = self.get_annotations(sname)
                 anns.remove(annid)
 
+    @property
+    def features(self):
+        return FeatureViewer(self._features, changelog=self.changelog, logger=self._log_feature_change)
 
 
     def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
@@ -425,6 +428,9 @@ class Document(FeatureBearer):
 
     @staticmethod
     def load(wherefrom, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+        # TODO: add parameter source_type="url"|"file"|"auto", if "auto" guess from string/type
+
+        # (if type is pathlike object, use file, if the result of urllib.parse, use url, if
         """
 
         :param wherefrom:

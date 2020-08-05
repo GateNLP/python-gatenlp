@@ -197,9 +197,10 @@ class HtmlLoader:
 class GateXmlLoader:
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
+    def load(clazz, from_file=None, ignore_unknown_types=False):
         # TODO: make sure from_file gets changed to "from" and can take URLs or Pathlike or string
         # TODO: the code below is just an outline and needs work!
+        # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
 
         tree = ET.parse(from_file)
@@ -224,10 +225,22 @@ class GateXmlLoader:
                         else:
                             raise Exception("Odd Feature Name type: " + el.get("className"))
                     elif el.tag == "Value":
-                        if el.get("className") == "java.lang.String":
+                        cls_name = el.get("className")
+                        if cls_name == "java.lang.String":
                             value = el.text
+                        elif cls_name == "java.lang.Integer":
+                            value = int(el.text)
+                        elif cls_name == "java.lang.Long":
+                            value = int(el.text)
+                        elif cls_name == "java.math.BigDecimal":
+                            value = float(el.text)
+                        elif cls_name == "java.lang.Boolean":
+                            value = bool(el.text)
                         else:
-                            raise Exception("Odd Feature Value type: " + el.get("className"))
+                            if ignore_unknown_types:
+                                print(f"Warning: ignoring feature with type: {cls_name}")
+                            else:
+                                raise Exception("Odd Feature Value type: " + el.get("className"))
                 if name is not None and value is not None:
                     features[name] = value
             return features
@@ -286,7 +299,7 @@ class GateXmlLoader:
             annset = {"name": setname, "annotations": annotations, "next_annid": maxannid + 1}
             annotation_sets[setname] = annset
 
-        docmap = {"text": text, "featires": docfeatures, "offset_type": "p",
+        docmap = {"text": text, "features": docfeatures, "offset_type": "p",
                   "annotation_sets": annotation_sets}
 
         doc = Document.from_dict(docmap)
@@ -325,6 +338,7 @@ DOCUMENT_LOADERS = {
     "msgpack": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
     "text/html": HtmlLoader.load,
+    "gatexml": GateXmlLoader.load,
 }
 CHANGELOG_SAVERS = {
     "json": JsonSerializer.save,
