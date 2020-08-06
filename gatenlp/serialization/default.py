@@ -2,6 +2,7 @@
 import io
 import os
 import json
+import yaml
 from random import choice
 from string import ascii_uppercase
 from msgpack import pack, Unpacker
@@ -10,6 +11,7 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gzip import open as gopen
+
 
 class JsonSerializer:
 
@@ -52,6 +54,49 @@ class JsonSerializer:
     @staticmethod
     def load_gzip(clazz, **kwargs):
         return JsonSerializer.load(clazz, gzip=True, **kwargs)
+
+
+class YamlSerializer:
+
+    @staticmethod
+    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        if to_mem:
+            if gzip:
+                raise Exception("GZip compression not supported for in-memory loading")
+            return yaml.dump(d)
+        else:
+            if gzip:
+                with gopen(to_file, "wt") as outfp:
+                    yaml.dump(d, outfp)
+            else:
+                with open(to_file, "wt") as outfp:
+                    yaml.dump(d, outfp)
+
+    @staticmethod
+    def save_gzip(clazz, inst, **kwargs):
+        YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
+
+    @staticmethod
+    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        if from_mem:
+            if gzip:
+                raise Exception("GZip compression not supported for in-memory loading")
+            d = yaml.load(from_mem)
+            doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
+        else:
+            if gzip:
+                with gopen(from_file, "rt") as infp:
+                    d = yaml.load(infp)
+            else:
+                with open(from_file, "rt") as infp:
+                    d = yaml.load(infp)
+            doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
+        return doc
+
+    @staticmethod
+    def load_gzip(clazz, **kwargs):
+        return YamlSerializer.load(clazz, gzip=True, **kwargs)
 
 
 MSGPACK_VERSION_HDR = "sm1"
@@ -323,6 +368,10 @@ def determine_loader(clazz, from_file=None, from_mem=None, offset_mapper=None, g
 
 DOCUMENT_SAVERS = {
     "json": JsonSerializer.save,
+    "jsongz": JsonSerializer.save_gzip,
+    "yaml": YamlSerializer.save,
+    "text/bdocym": YamlSerializer.save,
+    "text/bdocym+gzip+": YamlSerializer.save,
     "text/bdocjs": JsonSerializer.save,
     "text/bdocjs+gzip": JsonSerializer.save_gzip,
     "msgpack": MsgPackSerializer.save,
@@ -331,7 +380,11 @@ DOCUMENT_SAVERS = {
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
+    "yaml": YamlSerializer.load,
+    "text/bdocym": YamlSerializer.load,
+    "text/bdocym+gzip": YamlSerializer.load_gzip,
     "jsongz": JsonSerializer.load_gzip,
+    "yamlgz": YamlSerializer.load_gzip,
     "jsonormsgpack": determine_loader,
     "text/bdocjs": JsonSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
@@ -354,6 +407,8 @@ CHANGELOG_LOADERS = {
 # map extensions to document types
 EXTENSIONS = {
     "bdocjs": "json",
+    "bdocym": "yaml",
+    "bdocym.gz": "text/bdocym+gzip",
     "bdoc.gz": "text/bdocjs+gzip", # lets assume it is compressed json
     "bdoc": "jsonormsgpack",
     "bdocjs.gz": "text/bdocjs+gzip",
