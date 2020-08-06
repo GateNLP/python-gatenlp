@@ -82,15 +82,15 @@ class YamlSerializer:
         if from_mem:
             if gzip:
                 raise Exception("GZip compression not supported for in-memory loading")
-            d = yaml.load(from_mem)
+            d = yaml.load(from_mem, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
                 with gopen(from_file, "rt") as infp:
-                    d = yaml.load(infp)
+                    d = yaml.load(infp, Loader=yaml.FullLoader)
             else:
                 with open(from_file, "rt") as infp:
-                    d = yaml.load(infp)
+                    d = yaml.load(infp, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
 
