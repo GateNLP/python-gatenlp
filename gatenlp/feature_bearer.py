@@ -14,6 +14,7 @@ class FeatureBearer:
     def __init__(self, initialfeatures=None):
         """
         Initialise any features, if necessary.
+
         :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
         :return:
         """
@@ -33,6 +34,7 @@ class FeatureBearer:
                             feature: Union[str, None] = None, value: Union[str, None] = None):
         """
         This should be overriden by the inheriting class!
+
         :param command: the command to log
         :param feature: the feature name involved. If the command is any that needds a feature name,
         the invoking method needs to make sure that the feature name is not None and also otherwise
@@ -46,6 +48,7 @@ class FeatureBearer:
     def clear_features(self) -> None:
         """
         Remove all features.
+
         :return:
         """
         # if we do not have features, this is a NOOP
@@ -58,6 +61,7 @@ class FeatureBearer:
     def set_feature(self, key: str, value) -> None:
         """
         Set feature to the given value
+
         :param key: feature name
         :param value: value
         :return:
@@ -72,6 +76,7 @@ class FeatureBearer:
     def del_feature(self, featurename: str) -> None:
         """
         Remove the feature with that name
+
         :param featurename: the feature to remove from the set
         :return:
         """
@@ -81,6 +86,13 @@ class FeatureBearer:
         del self._features[featurename]
 
     def get_feature(self, key: str, default=None):
+        """
+        Return the value of the feature or the default value if it does not exist.
+
+        :param key: name of the feature.
+        :param default: default value to use
+        :return: value of the feature or default value
+        """
         if self._features is None:
             return default
         return self._features.get(key, default)
@@ -92,7 +104,9 @@ class FeatureBearer:
 
     def feature_names(self) -> Union[Set, KeysView]:
         """
-        Return an iterable with the feature names. This is NOT a view and does not update when the features change!
+        Return an iterable with the feature names. This is NOT a view and does not update when
+        the features change!
+
         :return:
         """
         if self._features is None:
@@ -102,7 +116,9 @@ class FeatureBearer:
 
     def feature_values(self) -> List:
         """
-        Return an iterable with the feature values. This is NOT a view and does not update when the features change!
+        Return an iterable with the feature values. This is NOT a view and does not update when
+        the features change!
+
         :return:
         """
         if self._features is None:
@@ -112,8 +128,12 @@ class FeatureBearer:
 
     def features_copy(self, deep=False) -> Dict:
         """
-        Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
-        :return:
+        Return a shallow (or deep if deep=True) copy of the feature map. This is NOT a view and
+        does not update when the
+        features change!
+
+        :param deep: if True return a deep instead of a shallow copy of the features.
+        :return: a dictionary with the features
         """
         if self._features is None:
             return {}
@@ -126,6 +146,7 @@ class FeatureBearer:
     def update_features(self, *other, **kwargs):
         """
         Update the features from another map or an iterable of key value pairs or from keyword arguments
+
         :param other: another dictionary or an iterable of key,value pairs
         :param kwargs: used to update the features
         :return:
@@ -148,6 +169,7 @@ class FeatureBearer:
         """
         Return the number of features. We do not use "len" for this, since the feature bearing object may
         have its own useful len implementation.
+        
         :return: number of features
         """
         if self._features is None:
