@@ -10,27 +10,66 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
-from gzip import open as gopen
+from gzip import open as gopen, compress, decompress
+from pathlib import Path
+from urllib.parse import ParseResult
 import requests
+from bs4 import BeautifulSoup
+import bs4
 
+def is_url(ext):
+    """
+    Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.
+    :param ext: something that represents an external resource: string, url parse, pathlib path object ...
+    :return: True or False
+    """
+    if isinstance(ext, str):
+        if ext.startswith("http://") or ext.startswith("https://"):
+            return True
+        else:
+             return False
+    elif isinstance(ext, Path):
+        return False
+    elif isinstance(ext, ParseResult):
+        return True
 
+def get_str_from_url(url, encoding=None):
+    """
+    Read a string from the URL.
+    :param url: some URL
+    :param encoding: override the encoding that would have determined automatically
+    :return: the string
+    """
+    req = requests.get(url)
+    if encoding is not None:
+        req.encoding = encoding
+    return req.text
 
+def get_bytes_from_url(url):
+    """
+    Read bytes from url.
+    :param url: the URL
+    :return: the bytes
+    """
+    req = requests.get(url)
+    return req.content
 
 class JsonSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
-                raise Exception("GZip compression not supported for in-memory loading")
-            return json.dumps(d)
+                compress(json.dumps(d).encode("UTF-8"))
+            else:
+                return json.dumps(d)
         else:
             if gzip:
-                with gopen(to_file, "wt") as outfp:
+                with gopen(to_ext, "wt") as outfp:
                     json.dump(d, outfp)
             else:
-                with open(to_file, "wt") as outfp:
+                with open(to_ext, "wt") as outfp:
                     json.dump(d, outfp)
 
     @staticmethod
@@ -39,10 +78,20 @@ class JsonSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        print("RUNNING load with from_ext=",from_ext, " from_mem=", from_mem)
+        if from_ext is not None and is_url(from_ext):
+            print("DEBUG: we got a URL")
+            if gzip:
+                from_mem = get_bytes_from_url(from_ext)
+            else:
+                from_mem = get_str_from_url(from_ext, encoding="utf-8")
+        else:
+            print("DEBUG: not a URL !!!")
         if from_mem:
             if gzip:
-                raise Exception("GZip compression not supported for in-memory loading")
-            d = json.loads(from_mem)
+                d = json.loads(decompress(from_mem).decode("UTF-8"))
+            else:
+                d = json.loads(from_mem)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
@@ -62,18 +111,19 @@ class JsonSerializer:
 class YamlSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
-                raise Exception("GZip compression not supported for in-memory loading")
-            return yaml.dump(d)
+                compress(yaml.dump(d).encode("UTF-8"))
+            else:
+                return yaml.dump(d)
         else:
             if gzip:
-                with gopen(to_file, "wt") as outfp:
+                with gopen(to_ext, "wt") as outfp:
                     yaml.dump(d, outfp)
             else:
-                with open(to_file, "wt") as outfp:
+                with open(to_ext, "wt") as outfp:
                     yaml.dump(d, outfp)
 
     @staticmethod
@@ -81,18 +131,24 @@ class YamlSerializer:
         YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        if from_ext is not None and is_url(from_ext):
+            if gzip:
+                from_mem = get_bytes_from_url(from_ext)
+            else:
+                from_mem = get_str_from_url(from_ext, encoding="utf-8")
         if from_mem:
             if gzip:
-                raise Exception("GZip compression not supported for in-memory loading")
-            d = yaml.load(from_mem, Loader=yaml.FullLoader)
+                d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader)
+            else:
+                d = yaml.load(from_mem, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
-                with gopen(from_file, "rt") as infp:
+                with gopen(from_ext, "rt") as infp:
                     d = yaml.load(infp, Loader=yaml.FullLoader)
             else:
-                with open(from_file, "rt") as infp:
+                with open(from_ext, "rt") as infp:
                     d = yaml.load(infp, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -157,7 +213,7 @@ class MsgPackSerializer:
         return doc
 
     @staticmethod
-    def save(clazz, inst, to_file=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
         if isinstance(inst, Document):
             writer = MsgPackSerializer.document2stream
         elif isinstance(inst, ChangeLog):
@@ -167,7 +223,7 @@ class MsgPackSerializer:
         if to_mem:
             f = io.BytesIO()
         else:
-            f = open(to_file, "wb")
+            f = open(to_ext, "wb")
         writer(inst, f)
         if to_mem:
             return f.getvalue()
@@ -175,17 +231,19 @@ class MsgPackSerializer:
             f.close()
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
+    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
         if clazz == Document:
             reader = MsgPackSerializer.stream2document
         elif clazz == ChangeLog:
             raise Exception("Not implemented yet")
         else:
             raise Exception("Object not supported")
+        if from_ext is not None and is_url(from_ext):
+            from_mem = get_bytes_from_url(from_ext)
         if from_mem:
             f = io.BytesIO(from_mem)
         else:
-            f = open(from_file, "rb")
+            f = open(from_ext, "rb")
         doc = reader(f)
         return doc
 
@@ -197,7 +255,7 @@ JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 class HtmlAnnViewerSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_file=None, to_mem=None, notebook=False, offline=False, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, **kwargs):
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
         doccopy = inst.deepcopy()
@@ -230,29 +288,107 @@ class HtmlAnnViewerSerializer:
         if to_mem:
             return html
         else:
-            with open(to_file, "wt", encoding="utf-8") as outfp:
+            with open(to_ext, "wt", encoding="utf-8") as outfp:
                 outfp.write(html)
 
 
 class HtmlLoader:
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, **kwargs):
-        # TODO: make sure from_file gets changed to "from" and can take URLs or Pathlike or string
-        pass
+    def load(clazz, from_ext=None, from_mem=None, parser=None, offset_mapper=None, **kwargs):
+        """
+
+        :param clazz:
+        :param from_ext:
+        :param from_mem:
+        :param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml"
+        :param offset_mapper:
+        :param kwargs:
+        :return:
+        """
+        if from_ext is not None and is_url(from_ext):
+            from_mem = get_str_from_url(from_ext)
+        if from_mem:
+            bs = BeautifulSoup(from_mem)
+        else:
+            bs = BeautifulSoup(from_ext)
+        # we recursively iterate the tree depth first, going through the children
+        # and adding to a list that either contains the text or a dict with the information
+        # about annotations we want to add
+        nlels = {
+            "pre", "br", "p", "div", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "li",
+            "address", "article", "aside", "blockquote", "del", "figure", "figcaption",
+            "footer", "header", "hr", "ins", "main", "nav", "section", "summary", "input", "legend",
+            "option", "textarea", "bdi", "bdo", "center", "code", "dfn", "menu", "dir", "caption",
+        }
+        docinfo = {"anninfos": [], "curoffset": 0, "curid": 0, "text": ""}
+        def walktree(el):
+            if isinstance(el, str):
+                docinfo["text"] += el
+                docinfo["curoffset"] += len(el)
+            elif isinstance(el, bs4.element.Tag):
+                # for some tags we insert a new line before, but only if we do not already have one
+                if not docinfo["text"].endswith("\n") and \
+                        el.name in nlels:
+                    docinfo["text"] += "\n"
+                    docinfo["curoffset"] += 1
+                ann = {"type": el.name, "features": el.attrs,
+                       "id": docinfo["curid"], "event": "start", "start": docinfo["curoffset"]}
+                thisid = docinfo["curid"]
+                docinfo["anninfos"].append(ann)
+                docinfo["curid"] += 1
+                for child in el.children:
+                    walktree(child)
+                # for some tags we insert a new line after
+                if not docinfo["text"].endswith("\n") and \
+                        el.name in nlels:
+                    docinfo["text"] += "\n"
+                    docinfo["curoffset"] += 1
+                docinfo["anninfos"].append({"event": "end", "id": thisid, "end": docinfo["curoffset"]})
+            else:
+                print("WARNING: odd element type", type(el))
+        walktree(bs)
+        # need to add the end corresponding to bs
+        print("DEBUG: got docinfo:\n",docinfo)
+        id2anninfo = {}  # from id to anninfo
+        nstart = 0
+        for anninfo in docinfo["anninfos"]:
+            if anninfo["event"] == "start":
+                nstart += 1
+                id2anninfo[anninfo["id"]] = anninfo
+        nend = 0
+        for anninfo in docinfo["anninfos"]:
+            if anninfo["event"] == "end":
+                nend += 1
+                end = anninfo["end"]
+                annid = anninfo["id"]
+                anninfo = id2anninfo[annid]
+                anninfo["end"] = end
+        print("DEBUG: got nstart/nend", nstart, nend)
+        assert nstart == nend
+        print("DEBUG: got id2anninfo:\n", id2anninfo)
+        doc = Document(docinfo["text"])
+        annset = doc.get_annotations("Original markups")
+        for i in range(nstart):
+            anninfo = id2anninfo[i]
+            annset.add(start=anninfo["start"], end=anninfo["end"], anntype=anninfo["type"], features=anninfo["features"])
+        return doc
 
 
 class GateXmlLoader:
 
     @staticmethod
-    def load(clazz, from_file=None, ignore_unknown_types=False):
-        # TODO: make sure from_file gets changed to "from" and can take URLs or Pathlike or string
+    def load(clazz, from_ext=None, ignore_unknown_types=False):
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
 
-        tree = ET.parse(from_file)
-        root = tree.getroot()
+        if is_url(from_ext):
+            xmlstring = get_str_from_url(from_ext, encoding="utf-8")
+            root = ET.fromstring(xmlstring)
+        else:
+            tree = ET.parse(from_ext)
+            root = tree.getroot()
 
         # or: root = ET.fromstring(xmlstring)
 
@@ -354,18 +490,18 @@ class GateXmlLoader:
         return doc
 
 
-def determine_loader(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
     first = None
     if from_mem:
         first = from_mem[0]
     else:
-        with open(from_file, "rt") as infp:
+        with open(from_ext, "rt") as infp:
             first = infp.read(1)
     if first == "{":
-        return JsonSerializer.load(clazz, from_file=from_file, from_mem=from_mem, offset_mapper=offset_mapper,
+        return JsonSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
                             gzip=gzip, **kwargs)
     else:
-        return MsgPackSerializer.load(clazz, from_file=from_file, from_mem=from_mem, offset_mapper=offset_mapper,
+        return MsgPackSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
                             gzip=gzip, **kwargs)
 
 
@@ -394,6 +530,7 @@ DOCUMENT_LOADERS = {
     "msgpack": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
     "text/html": HtmlLoader.load,
+    "html": HtmlLoader.load,
     "gatexml": GateXmlLoader.load,
 }
 CHANGELOG_SAVERS = {

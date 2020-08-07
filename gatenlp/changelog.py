@@ -229,7 +229,7 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(whereto, fmt)
-        saver(ChangeLog, self, to_file=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
         """
@@ -262,7 +262,7 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(wherefrom, fmt)
-        chl = loader(ChangeLog, from_file=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        chl = loader(ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs)
         if chl.offset_type == OFFSET_TYPE_JAVA:
             chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
         return chl

@@ -399,10 +399,10 @@ class Document(FeatureBearer):
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(whereto, fmt)
-            saver(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
+            saver(Document, self, to_ext=whereto, offset_type=offset_type, **kwargs)
         else:
             # assume fmt is a callable to get used directly
-            fmt(Document, self, to_file=whereto, offset_type=offset_type, **kwargs)
+            fmt(Document, self, to_ext=whereto, offset_type=offset_type, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
@@ -443,9 +443,9 @@ class Document(FeatureBearer):
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             loader = m.get_document_loader(wherefrom, fmt)
-            doc = loader(Document, from_file=wherefrom, **kwargs)
+            doc = loader(Document, from_ext=wherefrom, **kwargs)
         else:
-            doc = fmt(Document, from_file=wherefrom, **kwargs)
+            doc = fmt(Document, from_ext=wherefrom, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_offset_type(OFFSET_TYPE_PYTHON)
         return doc
