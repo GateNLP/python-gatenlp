@@ -359,6 +359,7 @@
 <div class="viewcode-block" id="Document.remove_annotation_set"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.remove_annotation_set">[docs]</a>    <span class="k">def</span> <span class="nf">remove_annotation_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Completely remove the annotation set.</span>
+
 <span class="sd">        :param name: name of the annotation set to remove</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -415,6 +416,7 @@
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a Document instance as represented by the dictionary dictrepr.</span>
+
 <span class="sd">        :param dictrepr:</span>
 <span class="sd">        :return: the initialized Document instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -428,41 +430,33 @@
         <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="n">annsets</span>
         <span class="k">return</span> <span class="n">doc</span></div>
 
-<div class="viewcode-block" id="Document.save"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.save"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save the document in the given format.</span>
+<span class="sd">        Save the document to the destination file.</span>
 
-<span class="sd">        Additional keyword parameters for format &quot;json&quot;:</span>
-<span class="sd">        * as_array: boolean, if True stores as array instead of dictionary, using to</span>
-
-
-<span class="sd">        :param whereto: either a file name or something that has a write(string) method.</span>
-<span class="sd">        :param fmt: serialization format, one of &quot;json&quot;, &quot;msgpack&quot; or &quot;pickle&quot;</span>
+<span class="sd">        :param destination: either a file name or something that has a write(string) method.</span>
+<span class="sd">        :param fmt: serialization format, by default the format is inferred from the file extension.</span>
 <span class="sd">        :param offset_type: store using the given offset type or keep the current if None</span>
-<span class="sd">        :param mod: module to use</span>
-<span class="sd">        :param kwargs: additional parameters for the format</span>
+<span class="sd">        :param mod: module where the document saver is implemented.</span>
+<span class="sd">        :param kwargs: additional parameters for the document saver.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-            <span class="n">saver</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_document_saver</span><span class="p">(</span><span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
-            <span class="n">saver</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="n">whereto</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">saver</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_document_saver</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+            <span class="n">saver</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="n">destination</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># assume fmt is a callable to get used directly</span>
-            <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="n">whereto</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="n">destination</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Document.save_mem"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.save_mem">[docs]</a>    <span class="k">def</span> <span class="nf">save_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize and save to a string.</span>
+<span class="sd">        Serialize to a string or bytes in the given format.</span>
 
-<span class="sd">        Additional keyword parameters for format &quot;json&quot;:</span>
-<span class="sd">        * as_array: boolean, if True stores as array instead of dictionary, using to</span>
-
-
-<span class="sd">        :param fmt: serialization format, one of &quot;json&quot;, &quot;msgpack&quot; or &quot;pickle&quot;</span>
+<span class="sd">        :param fmt: serialization format to use.</span>
 <span class="sd">        :param offset_type: store using the given offset type or keep the current if None</span>
-<span class="sd">        :param mod: module to use</span>
-<span class="sd">        :param kwargs: additional parameters for the format</span>
+<span class="sd">        :param mod: module where the document saver is implemented.</span>
+<span class="sd">        :param kwargs: additional parameters for the format.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fmt</span><span class="p">:</span>
@@ -475,37 +469,44 @@
             <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Document.load"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.load">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># TODO: add parameter source_type=&quot;url&quot;|&quot;file&quot;|&quot;auto&quot;, if &quot;auto&quot; guess from string/type</span>
-
-        <span class="c1"># (if type is pathlike object, use file, if the result of urllib.parse, use url, if</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load or import a document from the given source. The source can be a file path or file name or</span>
+<span class="sd">        a URL. If the type of the source is str, then if it starts with &quot;http[s]://&quot; it will get treated</span>
+<span class="sd">        as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to</span>
+<span class="sd">        deliberately use URL instead of a file parse the URL using urllib.</span>
 
-<span class="sd">        :param wherefrom:</span>
-<span class="sd">        :param fmt:</span>
-<span class="sd">        :param offset_type: make sure to store using the given offset type</span>
-<span class="sd">        :param kwargs:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        NOTE: the offset type of the document is always converted to PYTHON when loading!</span>
+
+<span class="sd">        :param source: the URL or file path to load from.</span>
+<span class="sd">        :param fmt: the format of the source. By default the format is inferred by the file extension.</span>
+<span class="sd">          The format can be a format memnonic like &quot;json&quot;, &quot;html&quot;, or a known mime type like &quot;text/bdocjs&quot;.</span>
+<span class="sd">        :param mod: the name of a module where the document loader is implemented.</span>
+<span class="sd">        :param kwargs: additional format specific keyword arguments to pass to the loader</span>
+<span class="sd">        :return: the loaded document</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-            <span class="n">loader</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_document_loader</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_document_loader</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
             <span class="n">doc</span><span class="o">.</span><span class="n">to_offset_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span></div>
 
 <div class="viewcode-block" id="Document.load_mem"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.load_mem">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_mem</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_mem</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a document from the in-memory serialization in source. Source can be a string or</span>
+<span class="sd">        bytes, depending on the format.</span>
 
 <span class="sd">        Note: the offset type is always converted to PYTHON when loading!</span>
 
-<span class="sd">        :param wherefrom: the string to deserialize</span>
-<span class="sd">        :param fmt:</span>
-<span class="sd">        :param kwargs:</span>
+<span class="sd">        :param source: the string/bytes to deserialize</span>
+<span class="sd">        :param fmt: the format</span>
+<span class="sd">        :param mod: the name of the module where the loader is implemented</span>
+<span class="sd">        :param kwargs: additional arguments to pass to the loader</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fmt</span><span class="p">:</span>
@@ -513,9 +514,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
             <span class="n">loader</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_document_loader</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
             <span class="n">doc</span><span class="o">.</span><span class="n">to_offset_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span></div>
@@ -523,7 +524,8 @@
     <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a shallow copy except the changelog which is set to None.</span>
-<span class="sd">        :return:</span>
+
+<span class="sd">        :return: shallow copy of the document</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_sets</span>
@@ -532,13 +534,20 @@
         <span class="k">return</span> <span class="n">doc</span>
 
 <div class="viewcode-block" id="Document.copy"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a shallow copy except the changelog which is set to None.</span>
+
+<span class="sd">        :return: shallow copy of the document</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a deep copy, except the changelog which is set to None.</span>
-<span class="sd">        :param memo:</span>
-<span class="sd">        :return:</span>
+
+<span class="sd">        :param memo: the memoization dictionary to use.</span>
+
+<span class="sd">        :return: a deep copy of the document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span>
@@ -551,11 +560,19 @@
         <span class="k">return</span> <span class="n">doc</span>
 
 <div class="viewcode-block" id="Document.deepcopy"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.deepcopy">[docs]</a>    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a deep copy, except the changelog which is set to None.</span>
+
+<span class="sd">        :param memo: the memoization dictionary to use.</span>
+
+<span class="sd">        :return: a deep copy of the document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.</span>
+
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mem</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;html-ann-viewer&quot;</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>

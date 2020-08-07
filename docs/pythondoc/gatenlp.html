@@ -1085,12 +1085,27 @@ with an annotation id that already exists in the target set.</p></li>
 <dl class="py method">
 <dt id="gatenlp.Document.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a shallow copy except the changelog which is set to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>shallow copy of the document</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Document.deepcopy">
 <code class="sig-name descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.deepcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.deepcopy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a deep copy, except the changelog which is set to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>memo</strong> – the memoization dictionary to use.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a deep copy of the document.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Document.features">
@@ -1107,9 +1122,15 @@ reflected in the document and recorded in the change log, if there is one.</p>
 <dl class="py method">
 <dt id="gatenlp.Document.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a Document instance as represented by the dictionary dictrepr.
-:param dictrepr:
-:return: the initialized Document instance</p>
+<dd><p>Return a Document instance as represented by the dictionary dictrepr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dictrepr</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the initialized Document instance</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1140,32 +1161,41 @@ If the annotation set does not already exist, it is created.</p>
 
 <dl class="py method">
 <dt id="gatenlp.Document.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.load" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load or import a document from the given source. The source can be a file path or file name or
+a URL. If the type of the source is str, then if it starts with “http[s]://” it will get treated
+as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
+deliberately use URL instead of a file parse the URL using urllib.</p>
+<p>NOTE: the offset type of the document is always converted to PYTHON when loading!</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wherefrom</strong> – </p></li>
-<li><p><strong>fmt</strong> – </p></li>
-<li><p><strong>offset_type</strong> – make sure to store using the given offset type</p></li>
-<li><p><strong>kwargs</strong> – </p></li>
+<li><p><strong>source</strong> – the URL or file path to load from.</p></li>
+<li><p><strong>fmt</strong> – the format of the source. By default the format is inferred by the file extension.
+The format can be a format memnonic like “json”, “html”, or a known mime type like “text/bdocjs”.</p></li>
+<li><p><strong>mod</strong> – the name of a module where the document loader is implemented.</p></li>
+<li><p><strong>kwargs</strong> – additional format specific keyword arguments to pass to the loader</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-even"><p>the loaded document</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Document.load_mem">
-<em class="property">static </em><code class="sig-name descname">load_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.load_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Note: the offset type is always converted to PYTHON when loading!</p>
+<em class="property">static </em><code class="sig-name descname">load_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.load_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a document from the in-memory serialization in source. Source can be a string or
+bytes, depending on the format.</p>
+<p>Note: the offset type is always converted to PYTHON when loading!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wherefrom</strong> – the string to deserialize</p></li>
-<li><p><strong>fmt</strong> – </p></li>
-<li><p><strong>kwargs</strong> – </p></li>
+<li><p><strong>source</strong> – the string/bytes to deserialize</p></li>
+<li><p><strong>fmt</strong> – the format</p></li>
+<li><p><strong>mod</strong> – the name of the module where the loader is implemented</p></li>
+<li><p><strong>kwargs</strong> – additional arguments to pass to the loader</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1177,25 +1207,29 @@ If the annotation set does not already exist, it is created.</p>
 <dl class="py method">
 <dt id="gatenlp.Document.remove_annotation_set">
 <code class="sig-name descname">remove_annotation_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.remove_annotation_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.remove_annotation_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Completely remove the annotation set.
-:param name: name of the annotation set to remove
-:return:</p>
+<dd><p>Completely remove the annotation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – name of the annotation set to remove</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Document.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">whereto</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the document in the given format.</p>
-<p>Additional keyword parameters for format “json”:
-* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">destination</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the document to the destination file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>whereto</strong> – either a file name or something that has a write(string) method.</p></li>
-<li><p><strong>fmt</strong> – serialization format, one of “json”, “msgpack” or “pickle”</p></li>
+<li><p><strong>destination</strong> – either a file name or something that has a write(string) method.</p></li>
+<li><p><strong>fmt</strong> – serialization format, by default the format is inferred from the file extension.</p></li>
 <li><p><strong>offset_type</strong> – store using the given offset type or keep the current if None</p></li>
-<li><p><strong>mod</strong> – module to use</p></li>
-<li><p><strong>kwargs</strong> – additional parameters for the format</p></li>
+<li><p><strong>mod</strong> – module where the document saver is implemented.</p></li>
+<li><p><strong>kwargs</strong> – additional parameters for the document saver.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1207,16 +1241,14 @@ If the annotation set does not already exist, it is created.</p>
 <dl class="py method">
 <dt id="gatenlp.Document.save_mem">
 <code class="sig-name descname">save_mem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.save_mem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.save_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize and save to a string.</p>
-<p>Additional keyword parameters for format “json”:
-* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+<dd><p>Serialize to a string or bytes in the given format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmt</strong> – serialization format, one of “json”, “msgpack” or “pickle”</p></li>
+<li><p><strong>fmt</strong> – serialization format to use.</p></li>
 <li><p><strong>offset_type</strong> – store using the given offset type or keep the current if None</p></li>
-<li><p><strong>mod</strong> – module to use</p></li>
-<li><p><strong>kwargs</strong> – additional parameters for the format</p></li>
+<li><p><strong>mod</strong> – module where the document saver is implemented.</p></li>
+<li><p><strong>kwargs</strong> – additional parameters for the format.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
