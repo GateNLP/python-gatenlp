@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.feature_bearer module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.feature_bearer module</a></li> 
       </ul>
     </div>  
 
@@ -65,13 +67,6 @@ changelog.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.feature_bearer.FeatureBearer.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
-:return:</p>
-</dd></dl>
-
-<dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.del_feature">
 <code class="sig-name descname">del_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">featurename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the feature with that name
@@ -90,6 +85,13 @@ changelog.</p>
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_values">
 <code class="sig-name descname">feature_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterable with the feature values. This is NOT a view and does not update when the features change!
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.feature_bearer.FeatureBearer.features_copy">
+<code class="sig-name descname">features_copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features_copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features_copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
 
@@ -143,6 +145,7 @@ have its own useful len implementation.
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -191,12 +194,13 @@ have its own useful len implementation.
           <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.feature_bearer module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

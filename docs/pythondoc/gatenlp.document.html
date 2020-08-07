@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.document module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.changelog.html" title="gatenlp.changelog module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.document module</a></li> 
       </ul>
     </div>  
 
@@ -84,6 +86,41 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
 :return:</p>
 <dl class="py method">
+<dt id="gatenlp.document.Document.apply_changes">
+<code class="sig-name descname">apply_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">changes</span></em>, <em class="sig-param"><span class="n">handle_existing_anns</span><span class="o">=</span><span class="default_value">'add-with-new-id'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.apply_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.apply_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply changes from a ChangeLog to this document. <cite>changes</cite> can be a ChangeLog instance,
+a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.</p>
+<p>The document is modified in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>changes</strong> – one or more changes</p></li>
+<li><p><strong>handle_existing_anns</strong> – what to do if the change from the changelog tries to add an annotation
+with an annotation id that already exists in the target set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.document.Document.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.document.Document.deepcopy">
+<code class="sig-name descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.deepcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.deepcopy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.document.Document.features">
+<em class="property">property </em><code class="sig-name descname">features</code><a class="headerlink" href="#gatenlp.document.Document.features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="gatenlp.document.Document.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictrepr</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a Document instance as represented by the dictionary dictrepr.
@@ -119,7 +156,7 @@ If the annotation set does not already exist, it is created.</p>
 
 <dl class="py method">
 <dt id="gatenlp.document.Document.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wherefrom</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.load" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -163,7 +200,7 @@ If the annotation set does not already exist, it is created.</p>
 
 <dl class="py method">
 <dt id="gatenlp.document.Document.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">whereto</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">whereto</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the document in the given format.</p>
 <p>Additional keyword parameters for format “json”:
 * as_array: boolean, if True stores as array instead of dictionary, using to</p>
@@ -260,8 +297,8 @@ field is considered a transient field!</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.document.Document.to_type">
-<code class="sig-name descname">to_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offsettype</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/document.html#Document.to_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.to_type" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.document.Document.to_offset_type">
+<code class="sig-name descname">to_offset_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offsettype</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="gatenlp.offsetmapper.html#gatenlp.offsetmapper.OffsetMapper" title="gatenlp.offsetmapper.OffsetMapper">gatenlp.offsetmapper.OffsetMapper</a><a class="reference internal" href="_modules/gatenlp/document.html#Document.to_offset_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.to_offset_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert all the offsets of all the annotations in this document to the
 required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
 are already of that type, this does nothing.</p>
@@ -283,6 +320,7 @@ otherwise None.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -331,12 +369,13 @@ otherwise None.</p>
           <a href="gatenlp.changelog.html" title="gatenlp.changelog module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.document module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.gate_interaction &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -27,7 +28,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.gate_interaction</a></li> 
       </ul>
     </div>  
 
@@ -206,27 +208,27 @@
     <span class="k">return</span> <span class="n">wrapper</span>
 
 
-<div class="viewcode-block" id="DefaultPr"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr">[docs]</a><span class="k">class</span> <span class="nc">DefaultPr</span><span class="p">:</span>
+<div class="viewcode-block" id="DefaultPr"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr">[docs]</a><span class="k">class</span> <span class="nc">DefaultPr</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called __call__() with doc=</span><span class="si">{}</span><span class="s2">, kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">doc</span>
 
-<div class="viewcode-block" id="DefaultPr.start"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.start"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called start() with kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Running DefaultPr: did you define a @GateNlpPr class or function?&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DefaultPr.finish"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.finish"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called finish() with kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Finished DefaultPr: did you define a @GateNlpPr class or function?&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DefaultPr.reduce"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DefaultPr.reduce"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.DefaultPr.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DefaultPr: called reduce() with results </span><span class="si">{}</span><span class="s2"> and kwargs=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">resultlist</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">None</span></div></div>
 
-<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.get_arguments">[docs]</a><span class="k">def</span> <span class="nf">get_arguments</span><span class="p">(</span><span class="n">from_main</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_arguments"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.get_arguments">[docs]</a><span class="k">def</span> <span class="nf">get_arguments</span><span class="p">(</span><span class="n">from_main</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">argparser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--mode&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;check&quot;</span><span class="p">,</span>
                            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&quot;</span><span class="p">)</span>
@@ -243,7 +245,7 @@
     <span class="k">return</span> <span class="n">args</span></div>
 
 
-<div class="viewcode-block" id="interact"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.gate_interaction.interact">[docs]</a><span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="interact"><a class="viewcode-back" href="../../gatenlp.gate_interaction.html#gatenlp.interact">[docs]</a><span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Starts and handles the interaction with a GATE python plugin process.</span>
 <span class="sd">    This will get started by the GATE plugin if the interaction uses</span>
@@ -302,7 +304,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s2">&quot;execute&quot;</span><span class="p">:</span>
                     <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))</span>
-                    <span class="n">om</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
+                    <span class="n">om</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">to_offset_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
                     <span class="n">doc</span><span class="o">.</span><span class="n">set_changelog</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">())</span>
                     <span class="n">pr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
                     <span class="c1"># NOTE: for now we just discard what the method returns and always return</span>
@@ -408,6 +410,7 @@
     <span class="n">interact</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -437,12 +440,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.gate_interaction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

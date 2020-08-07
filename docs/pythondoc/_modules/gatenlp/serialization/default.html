@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.serialization.default &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -27,7 +28,8 @@
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.serialization.default</a></li> 
       </ul>
     </div>  
 
@@ -39,36 +41,106 @@
   <h1>Source code for gatenlp.serialization.default</h1><div class="highlight"><pre>
 <span></span>
 <span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_uppercase</span>
 <span class="kn">from</span> <span class="nn">msgpack</span> <span class="kn">import</span> <span class="n">pack</span><span class="p">,</span> <span class="n">Unpacker</span>
-<span class="kn">from</span> <span class="nn">gatenlp.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">_AnnotationSetsDict</span>
+<span class="kn">from</span> <span class="nn">gatenlp.document</span> <span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation_set</span> <span class="kn">import</span> <span class="n">AnnotationSet</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
+<span class="kn">from</span> <span class="nn">gzip</span> <span class="kn">import</span> <span class="nb">open</span> <span class="k">as</span> <span class="n">gopen</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+
 
 
 <div class="viewcode-block" id="JsonSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer">[docs]</a><span class="k">class</span> <span class="nc">JsonSerializer</span><span class="p">:</span>
 
 <div class="viewcode-block" id="JsonSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GZip compression not supported for in-memory loading&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
-                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="JsonSerializer.save_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.save_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_gzip</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="JsonSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GZip compression not supported for in-memory loading&quot;</span><span class="p">)</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">from_mem</span><span class="p">)</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">)</span>
-                <span class="c1"># print(&quot;DEBUG: dict=&quot;, d)</span>
-                <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">doc</span></div></div>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">from_ext</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_ext</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
+
+<div class="viewcode-block" id="JsonSerializer.load_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.load_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_gzip</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="YamlSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer">[docs]</a><span class="k">class</span> <span class="nc">YamlSerializer</span><span class="p">:</span>
+
+<div class="viewcode-block" id="YamlSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GZip compression not supported for in-memory loading&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                    <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                    <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">outfp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YamlSerializer.save_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer.save_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_gzip</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YamlSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;GZip compression not supported for in-memory loading&quot;</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">from_mem</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infp</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
+
+<div class="viewcode-block" id="YamlSerializer.load_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer.load_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_gzip</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <span class="n">MSGPACK_VERSION_HDR</span> <span class="o">=</span> <span class="s2">&quot;sm1&quot;</span>
@@ -82,8 +154,8 @@
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
-        <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">annset</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span><span class="p">:</span>
+        <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">annset</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span><span class="p">:</span>
             <span class="n">pack</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
             <span class="n">pack</span><span class="p">(</span><span class="n">annset</span><span class="o">.</span><span class="n">next_annid</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
             <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">annset</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
@@ -105,7 +177,7 @@
         <span class="n">doc</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">nsets</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
-        <span class="n">setsdict</span> <span class="o">=</span> <span class="n">_AnnotationSetsDict</span><span class="p">(</span><span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
+        <span class="n">setsdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">annotation_sets</span> <span class="o">=</span> <span class="n">setsdict</span>
         <span class="k">for</span> <span class="n">iset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsets</span><span class="p">):</span>
             <span class="n">sname</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
@@ -158,10 +230,288 @@
         <span class="n">doc</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span></div></div>
 
+<span class="n">JS_JQUERY</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;&#39;</span>
+<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.5/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
+<span class="n">HTML_TEMPLATE_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer.html&quot;</span>
+<span class="n">JS_GATENLP_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer-merged.js&quot;</span>
 
-<span class="n">FORMATS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">json</span><span class="o">=</span><span class="n">JsonSerializer</span><span class="p">,</span> <span class="n">msgpack</span><span class="o">=</span><span class="n">MsgPackSerializer</span><span class="p">)</span>
+<div class="viewcode-block" id="HtmlAnnViewerSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer">[docs]</a><span class="k">class</span> <span class="nc">HtmlAnnViewerSerializer</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HtmlAnnViewerSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a document!&quot;</span><span class="p">)</span>
+        <span class="n">doccopy</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
+        <span class="n">doccopy</span><span class="o">.</span><span class="n">to_offset_type</span><span class="p">(</span><span class="s2">&quot;j&quot;</span><span class="p">)</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">doccopy</span><span class="o">.</span><span class="n">save_mem</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+        <span class="n">htmlloc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;_htmlviewer&quot;</span><span class="p">,</span> <span class="n">HTML_TEMPLATE_FILE_NAME</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">htmlloc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not find HTML template, </span><span class="si">{}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">htmlloc</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">htmlloc</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">();</span>
+        <span class="k">if</span> <span class="n">notebook</span><span class="p">:</span>
+            <span class="n">str_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;!--STARTDIV--&gt;&quot;</span>
+            <span class="n">str_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;!--ENDDIV--&gt;&quot;</span>
+            <span class="n">idx1</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">str_start</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">str_start</span><span class="p">)</span>
+            <span class="n">idx2</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">str_end</span><span class="p">)</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="p">[</span><span class="n">idx1</span><span class="p">:</span><span class="n">idx2</span><span class="p">]</span>
+            <span class="c1"># replace the prefix with a random one</span>
+            <span class="n">rndpref</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choice</span><span class="p">(</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;GATENLPID-&quot;</span><span class="p">,</span> <span class="n">rndpref</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">offline</span><span class="p">:</span>
+            <span class="n">jsloc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;_htmlviewer&quot;</span><span class="p">,</span> <span class="n">JS_GATENLP_FILE_NAME</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">jsloc</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not find JavsScript file, </span><span class="si">{}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jsloc</span><span class="p">))</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jsloc</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                <span class="n">js</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">();</span>
+                <span class="n">js</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;script type=&quot;text/javascript&quot;&gt;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">js</span> <span class="o">+</span> <span class="s2">&quot;&lt;/script&gt;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">js</span> <span class="o">=</span> <span class="n">JS_JQUERY</span> <span class="o">+</span> <span class="n">JS_GATENLP</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$$JAVASCRIPT$$&quot;</span><span class="p">,</span> <span class="n">js</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$$JSONDATA$$&quot;</span><span class="p">,</span> <span class="n">json</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">html</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                <span class="n">outfp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="HtmlLoader"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlLoader">[docs]</a><span class="k">class</span> <span class="nc">HtmlLoader</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HtmlLoader.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlLoader.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># TODO: make sure from_file gets changed to &quot;from&quot; and can take URLs or Pathlike or string</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="GateXmlLoader"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.GateXmlLoader">[docs]</a><span class="k">class</span> <span class="nc">GateXmlLoader</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GateXmlLoader.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.GateXmlLoader.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_unknown_types</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># TODO: make sure from_file gets changed to &quot;from&quot; and can take URLs or Pathlike or string</span>
+        <span class="c1"># TODO: the code below is just an outline and needs work!</span>
+        <span class="c1"># TODO: make use of the test document created in repo project-python-gatenlp</span>
+        <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">from_file</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+        <span class="c1"># or: root = ET.fromstring(xmlstring)</span>
+
+        <span class="c1"># check we do have a GATE document</span>
+
+        <span class="k">assert</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;GateDocument&quot;</span>
+        <span class="k">assert</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">}</span>
+
+        <span class="k">def</span> <span class="nf">parsefeatures</span><span class="p">(</span><span class="n">feats</span><span class="p">):</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">feats</span><span class="p">):</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">feat</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;Name&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;className&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;java.lang.String&quot;</span><span class="p">:</span>
+                            <span class="n">name</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">text</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Odd Feature Name type: &quot;</span> <span class="o">+</span> <span class="n">el</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;className&quot;</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">el</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span>
+                        <span class="n">cls_name</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;className&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">cls_name</span> <span class="o">==</span> <span class="s2">&quot;java.lang.String&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">text</span>
+                        <span class="k">elif</span> <span class="n">cls_name</span> <span class="o">==</span> <span class="s2">&quot;java.lang.Integer&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">cls_name</span> <span class="o">==</span> <span class="s2">&quot;java.lang.Long&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">cls_name</span> <span class="o">==</span> <span class="s2">&quot;java.math.BigDecimal&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">cls_name</span> <span class="o">==</span> <span class="s2">&quot;java.lang.Boolean&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">ignore_unknown_types</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: ignoring feature with type: </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Odd Feature Value type: &quot;</span> <span class="o">+</span> <span class="n">el</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;className&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">features</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span> <span class="n">features</span>
+
+        <span class="c1"># get the document features</span>
+        <span class="n">docfeatures</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./GateDocumentFeatures/Feature&quot;</span><span class="p">)</span>
+
+        <span class="n">docfeatures</span> <span class="o">=</span> <span class="n">parsefeatures</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+
+        <span class="n">textwithnodes</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./TextWithNodes&quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">node2offset</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">curoff</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">textwithnodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got item text: &quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">text</span> <span class="o">+=</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span>
+                <span class="c1"># TODO HTML unescape item text</span>
+                <span class="n">curoff</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="n">nodeid</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+                <span class="n">node2offset</span><span class="p">[</span><span class="n">nodeid</span><span class="p">]</span> <span class="o">=</span> <span class="n">curoff</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tail</span><span class="p">:</span>
+                    <span class="c1"># TODO: unescape item.text?</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gote node tail: &quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span>
+                    <span class="n">text</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">tail</span>
+                    <span class="n">curoff</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span>
+
+        <span class="n">annsets</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./AnnotationSet&quot;</span><span class="p">)</span>
+
+        <span class="n">annotation_sets</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># map name - set</span>
+        <span class="k">for</span> <span class="n">annset</span> <span class="ow">in</span> <span class="n">annsets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">annset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">):</span>
+                <span class="n">setname</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">setname</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">annots</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./Annotation&quot;</span><span class="p">)</span>
+            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">maxannid</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annots</span><span class="p">:</span>
+                <span class="n">annid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;Id&quot;</span><span class="p">])</span>
+                <span class="n">maxannid</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">maxannid</span><span class="p">,</span> <span class="n">annid</span><span class="p">)</span>
+                <span class="n">anntype</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span>
+                <span class="n">startnode</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;StartNode&quot;</span><span class="p">]</span>
+                <span class="n">endnode</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;EndNode&quot;</span><span class="p">]</span>
+                <span class="n">startoff</span> <span class="o">=</span> <span class="n">node2offset</span><span class="p">[</span><span class="n">startnode</span><span class="p">]</span>
+                <span class="n">endoff</span> <span class="o">=</span> <span class="n">node2offset</span><span class="p">[</span><span class="n">endnode</span><span class="p">]</span>
+                <span class="n">feats</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./Feature&quot;</span><span class="p">)</span>
+                <span class="n">features</span> <span class="o">=</span> <span class="n">parsefeatures</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">features</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">annotation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">annid</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">anntype</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">startoff</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">endoff</span><span class="p">,</span>
+                              <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">}</span>
+                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+            <span class="n">annset</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">setname</span><span class="p">,</span> <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">annotations</span><span class="p">,</span> <span class="s2">&quot;next_annid&quot;</span><span class="p">:</span> <span class="n">maxannid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span>
+            <span class="n">annotation_sets</span><span class="p">[</span><span class="n">setname</span><span class="p">]</span> <span class="o">=</span> <span class="n">annset</span>
+
+        <span class="n">docmap</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">docfeatures</span><span class="p">,</span> <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;annotation_sets&quot;</span><span class="p">:</span> <span class="n">annotation_sets</span><span class="p">}</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">docmap</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div></div>
+
+
+<div class="viewcode-block" id="determine_loader"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.determine_loader">[docs]</a><span class="k">def</span> <span class="nf">determine_loader</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">from_mem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">from_file</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">first</span> <span class="o">==</span> <span class="s2">&quot;{&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="n">from_file</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">from_mem</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span>
+                            <span class="n">gzip</span><span class="o">=</span><span class="n">gzip</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="n">from_file</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">from_mem</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span>
+                            <span class="n">gzip</span><span class="o">=</span><span class="n">gzip</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="n">DOCUMENT_SAVERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;jsongz&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;yaml&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocym&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocym+gzip+&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;application/msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;html-ann-viewer&quot;</span><span class="p">:</span> <span class="n">HtmlAnnViewerSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">DOCUMENT_LOADERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;yaml&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocym&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocym+gzip&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;jsongz&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;yamlgz&quot;</span><span class="p">:</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;jsonormsgpack&quot;</span><span class="p">:</span> <span class="n">determine_loader</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;application/msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;text/html&quot;</span><span class="p">:</span> <span class="n">HtmlLoader</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;gatexml&quot;</span><span class="p">:</span> <span class="n">GateXmlLoader</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">CHANGELOG_SAVERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">CHANGELOG_LOADERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;text/bdocjs&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># map extensions to document types</span>
+<span class="n">EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bdocjs&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdocym&quot;</span><span class="p">:</span> <span class="s2">&quot;yaml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdocym.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;text/bdocym+gzip&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdoc.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">,</span> <span class="c1"># lets assume it is compressed json</span>
+    <span class="s2">&quot;bdoc&quot;</span><span class="p">:</span> <span class="s2">&quot;jsonormsgpack&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdocjs.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdocjson&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bdocmp&quot;</span><span class="p">:</span> <span class="s2">&quot;msgpack&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_handler"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_handler">[docs]</a><span class="k">def</span> <span class="nf">get_handler</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">handlers</span><span class="p">,</span> <span class="n">saveload</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not determine how to </span><span class="si">{</span><span class="n">saveload</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> for format </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> in module gatenlp.serialization.default&quot;</span>
+    <span class="k">if</span> <span class="n">fmt</span><span class="p">:</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">handlers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">handler</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">handler</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filespec</span><span class="p">:</span> <span class="c1"># in case of save_mem</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">):</span>
+            <span class="n">wf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">filespec</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">wf</span> <span class="o">=</span> <span class="n">filespec</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span><span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.gz&quot;</span><span class="p">:</span>
+            <span class="n">ext2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ext2</span><span class="p">:</span>
+                <span class="n">ext2</span> <span class="o">=</span> <span class="n">ext2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">ext2</span> <span class="o">+</span> <span class="n">ext</span>
+        <span class="k">elif</span> <span class="n">ext</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">ext</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">EXTENSIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not determine how to </span><span class="si">{</span><span class="n">saveload</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> for format </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> and with extension </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2"> in module gatenlp.serialization.default&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fmt</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">handlers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">handler</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">handler</span></div>
+
+
+<div class="viewcode-block" id="get_document_saver"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_document_saver">[docs]</a><span class="k">def</span> <span class="nf">get_document_saver</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_handler</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">DOCUMENT_SAVERS</span><span class="p">,</span> <span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_document_loader"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_document_loader">[docs]</a><span class="k">def</span> <span class="nf">get_document_loader</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_handler</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">DOCUMENT_LOADERS</span><span class="p">,</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_changelog_saver"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_changelog_saver">[docs]</a><span class="k">def</span> <span class="nf">get_changelog_saver</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_handler</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">CHANGELOG_SAVERS</span><span class="p">,</span> <span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;changelog&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_changelog_loader"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_changelog_loader">[docs]</a><span class="k">def</span> <span class="nf">get_changelog_loader</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">get_handler</span><span class="p">(</span><span class="n">filespec</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">CHANGELOG_LOADERS</span><span class="p">,</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="s2">&quot;changelog&quot;</span><span class="p">)</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -191,12 +541,13 @@
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.serialization.default</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

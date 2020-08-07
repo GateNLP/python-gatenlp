@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    gatenlp.serialization.default
+   gatenlp.serialization.srsly
 
 Module contents
 ---------------

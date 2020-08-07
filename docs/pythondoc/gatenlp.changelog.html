@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.changelog module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -35,7 +36,8 @@
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" accesskey="U">gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
       </ul>
     </div>  
 
@@ -48,11 +50,35 @@
 <span id="gatenlp-changelog-module"></span><h1>gatenlp.changelog module<a class="headerlink" href="#module-gatenlp.changelog" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="gatenlp.changelog.ChangeLog">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.changelog.</code><code class="sig-name descname">ChangeLog</code><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.changelog.</code><code class="sig-name descname">ChangeLog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">store</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>store</strong> – if True, the change log stores the actions it receives (default). This can be set
+to false if only callbacks are needed.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.add_handler">
+<code class="sig-name descname">add_handler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">actions</span></em>, <em class="sig-param"><span class="n">handler</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.add_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.add_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a handler to get called back when any of the actions is added.
+If any handler was already registered for one or more of the actions, the new handler overrides it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actions</strong> – either a single action string or a collection of several action strings</p></li>
+<li><p><strong>handler</strong> – a callable that takes the change information</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.append">
-<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element</span><span class="p">:</span> <span class="n">Dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.append" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">change</span><span class="p">:</span> <span class="n">Dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.append" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -123,6 +149,13 @@ new change objects and a new changes list and returs it.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt id="gatenlp.changelog.ChangeLog.pprint">
+<code class="sig-name descname">pprint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">out</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.pprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.pprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pretty print to the given output stream, sys.stdout if not given.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gatenlp.changelog.ChangeLog.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">whereto</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/changelog.html#ChangeLog.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.changelog.ChangeLog.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the document in the given format.</p>
@@ -177,6 +210,7 @@ new change objects and a new changes list and returs it.</p></li>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -225,12 +259,13 @@ new change objects and a new changes list and returs it.</p></li>
           <a href="gatenlp.annotation_set.html" title="gatenlp.annotation_set module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

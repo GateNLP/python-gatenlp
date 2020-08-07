@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.impl.sortedintvls module &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -36,7 +37,8 @@
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" accesskey="U">gatenlp.impl package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" accesskey="U">gatenlp.impl package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.impl.sortedintvls module</a></li> 
       </ul>
     </div>  
 
@@ -53,6 +55,8 @@ incur a O(n) overhead on some operations depending on the result set. It also ma
 for creating and maintaning the sorted lists.
 NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset
 for sorting.</p>
+<p>!!!TODO: we should maybe implement a stricter and more stable sorting order here, where
+we use the sorting order defined in the annotation class itself.</p>
 <dl class="py class">
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.impl.sortedintvls.</code><code class="sig-name descname">SortedIntvls</code><a class="reference internal" href="_modules/gatenlp/impl/sortedintvls.html#SortedIntvls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.impl.sortedintvls.SortedIntvls" title="Permalink to this definition">¶</a></dt>
@@ -201,6 +205,7 @@ NOTE: the result is sorted by end offset, not start offset!
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -250,12 +255,13 @@ NOTE: the result is sorted by end offset, not start offset!
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" >gatenlp.impl package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="gatenlp.impl.html" >gatenlp.impl package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.impl.sortedintvls module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

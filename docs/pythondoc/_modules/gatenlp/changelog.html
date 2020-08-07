@@ -4,6 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gatenlp.changelog &#8212; GATE NLP library (gatenlp)  documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -27,7 +28,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog</a></li> 
       </ul>
     </div>  
 
@@ -42,15 +44,84 @@
 <span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="kn">import</span> <span class="n">OffsetMapper</span><span class="p">,</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">,</span> <span class="n">OFFSET_TYPE_PYTHON</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 
-<div class="viewcode-block" id="ChangeLog"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog">[docs]</a><span class="k">class</span> <span class="nc">ChangeLog</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="c1"># TODO: allow to add handlers for each action or a set or all actions</span>
+<span class="c1"># TODO: review actions, different action for set document feature and set annotation feature?</span>
+
+<span class="n">ACTION_DEL_DOC_FEATURE</span> <span class="o">=</span> <span class="s2">&quot;doc-feature:remove&quot;</span>
+<span class="n">ACTION_SET_DOC_FEATURE</span> <span class="o">=</span> <span class="s2">&quot;doc-feature:set&quot;</span>
+<span class="n">ACTION_CLEAR_DOC_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;doc-features:clear&quot;</span>
+<span class="n">ACTION_DEL_ANN_FEATURE</span> <span class="o">=</span> <span class="s2">&quot;ann-feature:remove&quot;</span>
+<span class="n">ACTION_SET_ANN_FEATURE</span> <span class="o">=</span> <span class="s2">&quot;ann-feature:set&quot;</span>
+<span class="n">ACTION_CLEAR_ANN_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;ann-features:clear&quot;</span>
+<span class="n">ACTION_REMOVE_ANNSET</span> <span class="o">=</span> <span class="s2">&quot;annotations:remove&quot;</span>
+<span class="n">ACTION_ADD_ANNSET</span> <span class="o">=</span> <span class="s2">&quot;annotations:remove&quot;</span>
+<span class="n">ACTION_ADD_ANN</span> <span class="o">=</span> <span class="s2">&quot;annotation:add&quot;</span>
+<span class="n">ACTION_DEL_ANN</span> <span class="o">=</span> <span class="s2">&quot;annotation:remove&quot;</span>
+<span class="n">ACTION_CLEAR_ANNS</span> <span class="o">=</span> <span class="s2">&quot;annotations:clear&quot;</span>
+
+<span class="n">ACTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ACTION_DEL_DOC_FEATURE</span><span class="p">,</span>
+    <span class="n">ACTION_SET_DOC_FEATURE</span><span class="p">,</span>
+    <span class="n">ACTION_CLEAR_DOC_FEATURES</span><span class="p">,</span>
+    <span class="n">ACTION_DEL_ANN_FEATURE</span><span class="p">,</span>
+    <span class="n">ACTION_SET_ANN_FEATURE</span><span class="p">,</span>
+    <span class="n">ACTION_CLEAR_ANN_FEATURES</span><span class="p">,</span>
+    <span class="n">ACTION_REMOVE_ANNSET</span><span class="p">,</span>
+    <span class="n">ACTION_ADD_ANNSET</span><span class="p">,</span>
+    <span class="n">ACTION_ADD_ANN</span><span class="p">,</span>
+    <span class="n">ACTION_DEL_ANN</span><span class="p">,</span>
+    <span class="n">ACTION_CLEAR_ANNS</span>
+<span class="p">}</span>
+
+<span class="c1"># flags that describe how to handle adding an annotation to a document from a changelog if an annotation</span>
+<span class="c1"># with the same annotation id already exists in the set.</span>
+<span class="n">ADDANN_REPLACE_ANNOTATION</span> <span class="o">=</span> <span class="s2">&quot;replace-annotation&quot;</span> <span class="c1"># completely replace with the new one</span>
+<span class="n">ADDANN_REPLACE_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;replace-features&quot;</span> <span class="c1"># just completely replace the features</span>
+<span class="n">ADDANN_UPDATE_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;update-features&quot;</span> <span class="c1"># add new and update existing features, do not delete any</span>
+<span class="n">ADDANN_ADD_NEW_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;add-new-features&quot;</span> <span class="c1"># only add new features</span>
+<span class="n">ADDANN_IGNORE</span> <span class="o">=</span> <span class="s2">&quot;ignore&quot;</span> <span class="c1"># ignore that annotation, do nothing</span>
+<span class="n">ADDANN_ADD_WITH_NEW_ID</span> <span class="o">=</span> <span class="s2">&quot;add-with-new-id&quot;</span>  <span class="c1"># add that annotation with a new id to the set</span>
+
+
+<div class="viewcode-block" id="ChangeLog"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog">[docs]</a><span class="k">class</span> <span class="nc">ChangeLog</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param store: if True, the change log stores the actions it receives (default). This can be set</span>
+<span class="sd">          to false if only callbacks are needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gatenlp_type</span> <span class="o">=</span> <span class="s2">&quot;ChangeLog&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_store</span> <span class="o">=</span> <span class="n">store</span>
 
-<div class="viewcode-block" id="ChangeLog.append"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ChangeLog.add_handler"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.add_handler">[docs]</a>    <span class="k">def</span> <span class="nf">add_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a handler to get called back when any of the actions is added.</span>
+<span class="sd">        If any handler was already registered for one or more of the actions, the new handler overrides it.</span>
+
+<span class="sd">        :param actions: either a single action string or a collection of several action strings</span>
+<span class="sd">        :param handler: a callable that takes the change information</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">actions</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ACTIONS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Action </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2"> not known, cannot add handler&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span></div>
+
+<div class="viewcode-block" id="ChangeLog.append"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Odd change, does not have &#39;command&#39; key&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">change</span><span class="p">)</span>
+        <span class="n">hndlr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hndlr</span><span class="p">:</span>
+            <span class="n">hndlr</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">)</span>
@@ -81,7 +152,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">newchanges</span>
 
-<div class="viewcode-block" id="ChangeLog.fixup_changes"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.fixup_changes">[docs]</a>    <span class="k">def</span> <span class="nf">fixup_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="p">,</span> <span class="n">offset_type</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="ChangeLog.fixup_changes"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.fixup_changes">[docs]</a>    <span class="k">def</span> <span class="nf">fixup_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="p">,</span> <span class="n">offset_type</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the offsets of all annotations in this changelog to the desired</span>
 <span class="sd">        offset type, if necessary. If the ChangeLog already has that offset type, this does nothing.</span>
@@ -108,7 +179,7 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;ChangeLog([</span><span class="si">{}</span><span class="s2">])&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">]))</span>
 
-<div class="viewcode-block" id="ChangeLog.format_to"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.format_to">[docs]</a>    <span class="k">def</span> <span class="nf">format_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ChangeLog.format_to"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.format_to">[docs]</a>    <span class="k">def</span> <span class="nf">format_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fp</span><span class="p">)</span></div>
 
@@ -146,7 +217,7 @@
             <span class="n">cl</span><span class="o">.</span><span class="n">_fixup_changes</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cl</span>
 
-<div class="viewcode-block" id="ChangeLog.to_dict"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ChangeLog.to_dict"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">offset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span>
         <span class="n">changes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span>
         <span class="k">if</span> <span class="s2">&quot;offset_type&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;offset_type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">offset_type</span><span class="p">:</span>
@@ -163,7 +234,7 @@
             <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="ChangeLog.from_dict"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ChangeLog.from_dict"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">dictrepr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -181,7 +252,7 @@
             <span class="n">cl</span><span class="o">.</span><span class="n">_fixup_changes</span><span class="p">(</span><span class="n">om</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cl</span></div>
 
-<div class="viewcode-block" id="ChangeLog.save"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ChangeLog.save"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the document in the given format.</span>
 
@@ -198,10 +269,10 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
-        <span class="n">ser</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="n">whereto</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="n">saver</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_changelog_saver</span><span class="p">(</span><span class="n">whereto</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="n">saver</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="n">whereto</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ChangeLog.save_mem"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.save_mem">[docs]</a>    <span class="k">def</span> <span class="nf">save_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ChangeLog.save_mem"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.save_mem">[docs]</a>    <span class="k">def</span> <span class="nf">save_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize and save to a string.</span>
 
@@ -217,10 +288,10 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">ser</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="n">saver</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_changelog_saver</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">saver</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ChangeLog.load"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.load">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ChangeLog.load"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.load">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -231,13 +302,13 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
-            <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">doc</span></div>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_changelog_loader</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="n">chl</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="n">from_file</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chl</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+            <span class="n">chl</span><span class="o">.</span><span class="n">fixup_changes</span><span class="p">(</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chl</span></div>
 
-<div class="viewcode-block" id="ChangeLog.load_mem"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.changelog.ChangeLog.load_mem">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ChangeLog.load_mem"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.load_mem">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load_mem</span><span class="p">(</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="o">=</span><span class="s2">&quot;gatenlp.serialization.default&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -250,13 +321,29 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-        <span class="n">ser</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">FORMATS</span><span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
-            <span class="n">doc</span><span class="o">.</span><span class="n">to_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">doc</span></div></div>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_changelog_loader</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="n">chl</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="n">wherefrom</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chl</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
+            <span class="n">chl</span><span class="o">.</span><span class="n">fixup_changes</span><span class="p">(</span><span class="n">offset_mapper</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chl</span></div>
+
+<div class="viewcode-block" id="ChangeLog.pprint"><a class="viewcode-back" href="../../gatenlp.changelog.html#gatenlp.ChangeLog.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty print to the given output stream, sys.stdout if not given.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ChangeLog(&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">):</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">parms</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: cmd=</span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">parms</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -286,12 +373,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.changelog</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, University of Sheffield.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

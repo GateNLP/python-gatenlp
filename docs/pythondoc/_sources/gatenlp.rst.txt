@@ -24,10 +24,10 @@ Submodules
    gatenlp.feature_bearer
    gatenlp.gate_interaction
    gatenlp.gateslave
+   gatenlp.lib_spacy
    gatenlp.lib_stanfordnlp
    gatenlp.lib_stanza
    gatenlp.offsetmapper
-   gatenlp.spacy
    gatenlp.utils
 
 Module contents
