@@ -11,6 +11,9 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gzip import open as gopen
+import requests
+
+
 
 
 class JsonSerializer:
@@ -35,7 +38,7 @@ class JsonSerializer:
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_file=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
         if from_mem:
             if gzip:
                 raise Exception("GZip compression not supported for in-memory loading")
@@ -43,10 +46,10 @@ class JsonSerializer:
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
-                with gopen(from_file, "rt") as infp:
+                with gopen(from_ext, "rt") as infp:
                     d = json.load(infp)
             else:
-                with open(from_file, "rt") as infp:
+                with open(from_ext, "rt") as infp:
                     d = json.load(infp)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc

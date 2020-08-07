@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GateDocument version="3">
+<!-- The document's features-->
+
+<GateDocumentFeatures>
+<Feature>
+  <Name className="java.lang.String">gate.SourceURL</Name>
+  <Value className="java.lang.String">created from String</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><list><int>1</int><int>2</int><int>3</int></list></entry><entry><string>key2</string><linked-hash-map><entry><int>1</int><int>12</int></entry><entry><int>2</int><boolean>true</boolean></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fInt1</Name>
+  <Value className="java.lang.Integer">222</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><int>1</int><int>2</int><int>3</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fBoolean</Name>
+  <Value className="java.lang.Boolean">true</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2b</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fString1</Name>
+  <Value className="java.lang.String">Some string</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><string>asas</string><string>fdfdf</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fLong1</Name>
+  <Value className="java.lang.Long">123</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fMapStringInt</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><int>122</int></entry><entry><string>key2</string><int>-4</int></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fFloat1</Name>
+  <Value className="java.math.BigDecimal">3.4</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2a</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+</GateDocumentFeatures>
+<!-- The document content area with serialized nodes -->
+
+<TextWithNodes>This is the document text</TextWithNodes>
+<!-- The default annotation set -->
+
+<AnnotationSet>
+</AnnotationSet>
+
+</GateDocument>
