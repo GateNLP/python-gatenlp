@@ -23,20 +23,26 @@ class Annotation(FeatureBearer):
 
     @property
     def type(self):
+        """
+        :return: the type of the annotation, immutable.
+        """
         return self._type
 
     @property
     def start(self):
+        """
+        :return: the start offset of the annotation, immutable.
+        """
         return self._start
 
     @property
     def end(self):
-        return self._end
+        """
+        Returns the end offset of the annotation, immutable.
 
-    # TODO: we should get rid of this attribute completely!
-    @property
-    def gatenlp_type(self):
-        return self._gatenlp_type
+        :return:
+        """
+        return self._end
 
     @property
     def features(self):
@@ -68,8 +74,6 @@ class Annotation(FeatureBearer):
         if isinstance(features, int):
             raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: features must not be an int")
         super().__init__(features)
-        self._gatenlp_type = "Annotation"
-        # print("Creating Ann with changelog {} ".format(changelog), file=sys.stderr)
         self._type = annot_type
         self._start = start
         self._end = end

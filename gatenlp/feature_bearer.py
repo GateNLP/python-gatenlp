@@ -75,7 +75,7 @@ class FeatureBearer:
 
     def del_feature(self, featurename: str) -> None:
         """
-        Remove the feature with that name
+        Remove the feature with that name.
 
         :param featurename: the feature to remove from the set
         :return:
@@ -169,7 +169,7 @@ class FeatureBearer:
         """
         Return the number of features. We do not use "len" for this, since the feature bearing object may
         have its own useful len implementation.
-        
+
         :return: number of features
         """
         if self._features is None:

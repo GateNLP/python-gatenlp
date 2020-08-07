@@ -134,7 +134,13 @@ be changed!
 <dl class="py method">
 <dt id="gatenlp.Annotation.end">
 <em class="property">property </em><code class="sig-name descname">end</code><a class="headerlink" href="#gatenlp.Annotation.end" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the end offset of the annotation, immutable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Annotation.features">
@@ -165,11 +171,6 @@ sequence, so it is always independent of the order of the two annotations.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt id="gatenlp.Annotation.gatenlp_type">
-<em class="property">property </em><code class="sig-name descname">gatenlp_type</code><a class="headerlink" href="#gatenlp.Annotation.gatenlp_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Annotation.id">
@@ -293,7 +294,13 @@ are after the given start and before the given end.</p>
 <dl class="py method">
 <dt id="gatenlp.Annotation.start">
 <em class="property">property </em><code class="sig-name descname">start</code><a class="headerlink" href="#gatenlp.Annotation.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>the start offset of the annotation, immutable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.Annotation.to_dict">
@@ -303,7 +310,13 @@ are after the given start and before the given end.</p>
 <dl class="py method">
 <dt id="gatenlp.Annotation.type">
 <em class="property">property </em><code class="sig-name descname">type</code><a class="headerlink" href="#gatenlp.Annotation.type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>the type of the annotation, immutable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1040,9 +1053,15 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 </ul>
 </dd>
 </dl>
-<p>Initialise any features, if necessary.
-:param initialfeatures: an iterable containing tuples of initial feature key/value pairs
-:return:</p>
+<p>Initialise any features, if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>initialfeatures</strong> – an iterable containing tuples of initial feature key/value pairs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="gatenlp.Document.apply_changes">
 <code class="sig-name descname">apply_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">changes</span></em>, <em class="sig-param"><span class="n">handle_existing_anns</span><span class="o">=</span><span class="default_value">'add-with-new-id'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.apply_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document.apply_changes" title="Permalink to this definition">¶</a></dt>

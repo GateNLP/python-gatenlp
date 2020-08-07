@@ -22,7 +22,6 @@ class AnnotationSet:
                text.
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
-        self.gatenlp_type = "AnnotationSet"
         self._name = name
         self._owner_doc = owner_doc
 
@@ -56,7 +55,7 @@ class AnnotationSet:
         :param value: value to set attribute to
         :return:
         """
-        if key == "gatenlp_type" or key == "name" or key == "owner_doc":
+        if key == "name" or key == "owner_doc":
             if self.__dict__.get(key, None) is None:
                 super().__setattr__(key, value)
             else:
@@ -863,25 +862,6 @@ class AnnotationSet:
         :return: string representation.
         """
         return "AnnotationSet({})".format(repr(list(self.iter())))
-
-    def _json_repr(self, **kwargs) -> Dict:
-        return {
-            "annotations": [ann._json_repr(**kwargs) for ann in self._annotations.values()],
-            "next_annid": self._next_annid,
-            "name": self.name,
-            "gatenlp_type": self.gatenlp_type
-        }
-
-    @staticmethod
-    def _from_json_map(jsonmap, **kwargs) -> "AnnotationSet":
-        annset = AnnotationSet(name=jsonmap.get("name"))
-        annmap = {}
-        for ann in jsonmap.get("annotations"):
-            ann._owner_set = annset
-            annmap[ann.id] = ann
-        annset._annotations = annmap
-        annset._next_annid = jsonmap.get("next_annid")
-        return annset
 
     def to_dict(self, **kwargs):
         return {

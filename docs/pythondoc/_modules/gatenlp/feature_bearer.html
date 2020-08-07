@@ -55,6 +55,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialfeatures</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialise any features, if necessary.</span>
+
 <span class="sd">        :param initialfeatures: an iterable containing tuples of initial feature key/value pairs</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -74,6 +75,7 @@
                             <span class="n">feature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This should be overriden by the inheriting class!</span>
+
 <span class="sd">        :param command: the command to log</span>
 <span class="sd">        :param feature: the feature name involved. If the command is any that needds a feature name,</span>
 <span class="sd">        the invoking method needs to make sure that the feature name is not None and also otherwise</span>
@@ -87,6 +89,7 @@
 <div class="viewcode-block" id="FeatureBearer.clear_features"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.clear_features">[docs]</a>    <span class="k">def</span> <span class="nf">clear_features</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all features.</span>
+
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if we do not have features, this is a NOOP</span>
@@ -99,6 +102,7 @@
 <div class="viewcode-block" id="FeatureBearer.set_feature"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.set_feature">[docs]</a>    <span class="k">def</span> <span class="nf">set_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set feature to the given value</span>
+
 <span class="sd">        :param key: feature name</span>
 <span class="sd">        :param value: value</span>
 <span class="sd">        :return:</span>
@@ -112,7 +116,8 @@
 
 <div class="viewcode-block" id="FeatureBearer.del_feature"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.del_feature">[docs]</a>    <span class="k">def</span> <span class="nf">del_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featurename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove the feature with that name</span>
+<span class="sd">        Remove the feature with that name.</span>
+
 <span class="sd">        :param featurename: the feature to remove from the set</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -122,6 +127,13 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">featurename</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="FeatureBearer.get_feature"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.get_feature">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the value of the feature or the default value if it does not exist.</span>
+
+<span class="sd">        :param key: name of the feature.</span>
+<span class="sd">        :param default: default value to use</span>
+<span class="sd">        :return: value of the feature or default value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span></div>
@@ -133,7 +145,9 @@
 
 <div class="viewcode-block" id="FeatureBearer.feature_names"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.feature_names">[docs]</a>    <span class="k">def</span> <span class="nf">feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return an iterable with the feature names. This is NOT a view and does not update when the features change!</span>
+<span class="sd">        Return an iterable with the feature names. This is NOT a view and does not update when</span>
+<span class="sd">        the features change!</span>
+
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -143,7 +157,9 @@
 
 <div class="viewcode-block" id="FeatureBearer.feature_values"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.feature_values">[docs]</a>    <span class="k">def</span> <span class="nf">feature_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return an iterable with the feature values. This is NOT a view and does not update when the features change!</span>
+<span class="sd">        Return an iterable with the feature values. This is NOT a view and does not update when</span>
+<span class="sd">        the features change!</span>
+
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -153,8 +169,12 @@
 
 <div class="viewcode-block" id="FeatureBearer.features_copy"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.features_copy">[docs]</a>    <span class="k">def</span> <span class="nf">features_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Return a shallow (or deep if deep=True) copy of the feature map. This is NOT a view and</span>
+<span class="sd">        does not update when the</span>
+<span class="sd">        features change!</span>
+
+<span class="sd">        :param deep: if True return a deep instead of a shallow copy of the features.</span>
+<span class="sd">        :return: a dictionary with the features</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
@@ -167,6 +187,7 @@
 <div class="viewcode-block" id="FeatureBearer.update_features"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.update_features">[docs]</a>    <span class="k">def</span> <span class="nf">update_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the features from another map or an iterable of key value pairs or from keyword arguments</span>
+
 <span class="sd">        :param other: another dictionary or an iterable of key,value pairs</span>
 <span class="sd">        :param kwargs: used to update the features</span>
 <span class="sd">        :return:</span>
@@ -189,6 +210,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the number of features. We do not use &quot;len&quot; for this, since the feature bearing object may</span>
 <span class="sd">        have its own useful len implementation.</span>
+
 <span class="sd">        :return: number of features</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

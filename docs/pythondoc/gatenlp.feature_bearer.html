@@ -56,49 +56,96 @@
 that can be used much like a dict in addition to original methods of the class. The inheriting class
 must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
 changelog.</p>
-<p>Initialise any features, if necessary.
-:param initialfeatures: an iterable containing tuples of initial feature key/value pairs
-:return:</p>
+<p>Initialise any features, if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>initialfeatures</strong> – an iterable containing tuples of initial feature key/value pairs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.clear_features">
 <code class="sig-name descname">clear_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.clear_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.clear_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove all features.
-:return:</p>
+<dd><p>Remove all features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.del_feature">
 <code class="sig-name descname">del_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">featurename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.del_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.del_feature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove the feature with that name
-:param featurename: the feature to remove from the set
-:return:</p>
+<dd><p>Remove the feature with that name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>featurename</strong> – the feature to remove from the set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_names">
 <code class="sig-name descname">feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>Set<span class="p">, </span>KeysView<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an iterable with the feature names. This is NOT a view and does not update when the features change!
-:return:</p>
+<dd><p>Return an iterable with the feature names. This is NOT a view and does not update when
+the features change!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.feature_values">
 <code class="sig-name descname">feature_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.feature_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.feature_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an iterable with the feature values. This is NOT a view and does not update when the features change!
-:return:</p>
+<dd><p>Return an iterable with the feature values. This is NOT a view and does not update when
+the features change!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.features_copy">
 <code class="sig-name descname">features_copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features_copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features_copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
-:return:</p>
+<dd><p>Return a shallow (or deep if deep=True) copy of the feature map. This is NOT a view and
+does not update when the
+features change!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – if True return a deep instead of a shallow copy of the features.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary with the features</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.get_feature">
 <code class="sig-name descname">get_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.get_feature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the value of the feature or the default value if it does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – name of the feature.</p></li>
+<li><p><strong>default</strong> – default value to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>value of the feature or default value</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.has_feature">
@@ -109,26 +156,46 @@ changelog.</p>
 <dt id="gatenlp.feature_bearer.FeatureBearer.num_features">
 <code class="sig-name descname">num_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.num_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.num_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of features. We do not use “len” for this, since the feature bearing object may
-have its own useful len implementation.
-:return: number of features</p>
+have its own useful len implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of features</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.set_feature">
 <code class="sig-name descname">set_feature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.set_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.set_feature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set feature to the given value
-:param key: feature name
-:param value: value
-:return:</p>
+<dd><p>Set feature to the given value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – feature name</p></li>
+<li><p><strong>value</strong> – value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.update_features">
 <code class="sig-name descname">update_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">other</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.update_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.update_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the features from another map or an iterable of key value pairs or from keyword arguments
-:param other: another dictionary or an iterable of key,value pairs
-:param kwargs: used to update the features
-:return:</p>
+<dd><p>Update the features from another map or an iterable of key value pairs or from keyword arguments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – another dictionary or an iterable of key,value pairs</p></li>
+<li><p><strong>kwargs</strong> – used to update the features</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -141,9 +208,15 @@ have its own useful len implementation.
 as the feature bearer itself. All changes applied to an instance of a
 FeatureViewer are applied and added to the changelog of the featurebearer
 (if it has a changelog).</p>
-<p>Initialise any features, if necessary.
-:param initialfeatures: an iterable containing tuples of initial feature key/value pairs
-:return:</p>
+<p>Initialise any features, if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>initialfeatures</strong> – an iterable containing tuples of initial feature key/value pairs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

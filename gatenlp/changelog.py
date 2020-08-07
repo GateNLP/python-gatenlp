@@ -49,7 +49,6 @@ class ChangeLog:
         :param store: if True, the change log stores the actions it receives (default). This can be set
           to false if only callbacks are needed.
         """
-        self.gatenlp_type = "ChangeLog"
         self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
         self._handlers = dict()
