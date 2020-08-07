@@ -54,6 +54,23 @@ class Document(FeatureBearer):
         self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
+        self._name = ""
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, val):
+        if val is None:
+            val = ""
+        if not isinstance(val, str):
+            raise Exception("Name must be a string")
+        self._name = val
+        if self.changelog is not None:
+            ch = {"command": "name:set"}
+            ch["name"] = val
+            self.changelog.append(ch)
 
     def _ensure_type_python(self) -> None:
         if self.offset_type != OFFSET_TYPE_PYTHON:
@@ -369,6 +386,7 @@ class Document(FeatureBearer):
             "text": self._text,
             "features": self._features,
             "offset_type": offset_type,
+            "name": self.name,
         }
 
     @staticmethod
@@ -380,6 +398,7 @@ class Document(FeatureBearer):
         :return: the initialized Document instance
         """
         doc = Document(dictrepr.get("text"))
+        doc.name = dictrepr.get("name")
         doc.offset_type = dictrepr.get("offset_type")
         if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)

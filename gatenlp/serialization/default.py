@@ -158,7 +158,7 @@ class YamlSerializer:
         return YamlSerializer.load(clazz, gzip=True, **kwargs)
 
 
-MSGPACK_VERSION_HDR = "sm1"
+MSGPACK_VERSION_HDR = "sm2"
 
 
 class MsgPackSerializer:
@@ -168,6 +168,7 @@ class MsgPackSerializer:
         pack(MSGPACK_VERSION_HDR, stream)
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
+        pack(doc.name, stream)
         pack(doc._features, stream)
         pack(len(doc._annotation_sets), stream)
         for name, annset in doc._annotation_sets:
@@ -190,6 +191,7 @@ class MsgPackSerializer:
         doc = Document()
         doc.offset_type = u.unpack()
         doc._text = u.unpack()
+        doc.name = u.unpack()
         doc._features = u.unpack()
         nsets = u.unpack()
         setsdict = dict()
