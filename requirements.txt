@@ -1,4 +1,1 @@
 sortedcontainers>=2.0.0
-msgpack
-yaml
-bs4
