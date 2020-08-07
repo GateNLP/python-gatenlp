@@ -234,7 +234,13 @@
                 <span class="n">anns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">annid</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accesses the features as a FeatureViewer instance. Changes made on this object are</span>
+<span class="sd">        reflected in the document and recorded in the change log, if there is one.</span>
+
+<span class="sd">        :return: A FeatureViewer view of the document features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">FeatureViewer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_feature_change</span><span class="p">)</span>
 
 

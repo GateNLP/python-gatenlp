@@ -39,17 +39,18 @@
           <div class="body" role="main">
             
   <h1>Source code for gatenlp.feature_bearer</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A &quot;mixin&quot; class to use for classes which should have features. This turns the class into something</span>
-<span class="sd">that can be used much like a dict in addition to original methods of the class. The inheriting class</span>
-<span class="sd">must implement _log_feature_change(command, feature=None, value=None) and must have an attribute</span>
-<span class="sd">changelog.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
+<span></span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">KeysView</span>
-
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
 <div class="viewcode-block" id="FeatureBearer"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer">[docs]</a><span class="k">class</span> <span class="nc">FeatureBearer</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A &quot;mixin&quot; class to use for classes which should have features. This turns the class into something</span>
+<span class="sd">    that can be used much like a dict in addition to original methods of the class. The inheriting class</span>
+<span class="sd">    must implement _log_feature_change(command, feature=None, value=None) and must have an attribute</span>
+<span class="sd">    changelog.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialfeatures</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -150,7 +151,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span></div>
 
-<div class="viewcode-block" id="FeatureBearer.features_copy"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.features_copy">[docs]</a>    <span class="k">def</span> <span class="nf">features_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="FeatureBearer.features_copy"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.features_copy">[docs]</a>    <span class="k">def</span> <span class="nf">features_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!</span>
 <span class="sd">        :return:</span>
@@ -158,7 +159,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+            <span class="k">if</span> <span class="n">deep</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="FeatureBearer.update_features"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.update_features">[docs]</a>    <span class="k">def</span> <span class="nf">update_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -194,6 +198,13 @@
 
 
 <div class="viewcode-block" id="FeatureViewer"><a class="viewcode-back" href="../../gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureViewer">[docs]</a><span class="k">class</span> <span class="nc">FeatureViewer</span><span class="p">(</span><span class="n">FeatureBearer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent the features from a feature bearer and provides the same API</span>
+<span class="sd">    as the feature bearer itself. All changes applied to an instance of a</span>
+<span class="sd">    FeatureViewer are applied and added to the changelog of the featurebearer</span>
+<span class="sd">    (if it has a changelog).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">features</span>

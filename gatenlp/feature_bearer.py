@@ -1,14 +1,15 @@
-"""
-A "mixin" class to use for classes which should have features. This turns the class into something
-that can be used much like a dict in addition to original methods of the class. The inheriting class
-must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
-changelog.
-"""
 
 from typing import List, Union, Dict, Set, KeysView
-
+from copy import deepcopy
 
 class FeatureBearer:
+
+    """
+    A "mixin" class to use for classes which should have features. This turns the class into something
+    that can be used much like a dict in addition to original methods of the class. The inheriting class
+    must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
+    changelog.
+    """
 
     def __init__(self, initialfeatures=None):
         """
@@ -109,7 +110,7 @@ class FeatureBearer:
         else:
             return [set(self._features.values())]
 
-    def features_copy(self) -> Dict:
+    def features_copy(self, deep=False) -> Dict:
         """
         Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
         :return:
@@ -117,7 +118,10 @@ class FeatureBearer:
         if self._features is None:
             return {}
         else:
-            return self._features.copy()
+            if deep:
+                return deepcopy(self._features)
+            else:
+                return self._features.copy()
 
     def update_features(self, *other, **kwargs):
         """
@@ -153,6 +157,13 @@ class FeatureBearer:
 
 
 class FeatureViewer(FeatureBearer):
+
+    """
+    Represent the features from a feature bearer and provides the same API
+    as the feature bearer itself. All changes applied to an instance of a
+    FeatureViewer are applied and added to the changelog of the featurebearer
+    (if it has a changelog).
+    """
 
     def __init__(self, features, changelog=None, logger=None):
         self._features = features

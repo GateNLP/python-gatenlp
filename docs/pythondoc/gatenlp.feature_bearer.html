@@ -48,14 +48,14 @@
             
   <div class="section" id="module-gatenlp.feature_bearer">
 <span id="gatenlp-feature-bearer-module"></span><h1>gatenlp.feature_bearer module<a class="headerlink" href="#module-gatenlp.feature_bearer" title="Permalink to this headline">¶</a></h1>
-<p>A “mixin” class to use for classes which should have features. This turns the class into something
-that can be used much like a dict in addition to original methods of the class. The inheriting class
-must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
-changelog.</p>
 <dl class="py class">
 <dt id="gatenlp.feature_bearer.FeatureBearer">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.feature_bearer.</code><code class="sig-name descname">FeatureBearer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initialfeatures</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A “mixin” class to use for classes which should have features. This turns the class into something
+that can be used much like a dict in addition to original methods of the class. The inheriting class
+must implement _log_feature_change(command, feature=None, value=None) and must have an attribute
+changelog.</p>
 <p>Initialise any features, if necessary.
 :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
 :return:</p>
@@ -90,7 +90,7 @@ changelog.</p>
 
 <dl class="py method">
 <dt id="gatenlp.feature_bearer.FeatureBearer.features_copy">
-<code class="sig-name descname">features_copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features_copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features_copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">features_copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureBearer.features_copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureBearer.features_copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a shallow copy of the feature map. This is NOT a view and does not update when the features change!
 :return:</p>
 </dd></dl>
@@ -137,6 +137,10 @@ have its own useful len implementation.
 <dt id="gatenlp.feature_bearer.FeatureViewer">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.feature_bearer.</code><code class="sig-name descname">FeatureViewer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">features</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/feature_bearer.html#FeatureViewer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.feature_bearer.FeatureViewer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<p>Represent the features from a feature bearer and provides the same API
+as the feature bearer itself. All changes applied to an instance of a
+FeatureViewer are applied and added to the changelog of the featurebearer
+(if it has a changelog).</p>
 <p>Initialise any features, if necessary.
 :param initialfeatures: an iterable containing tuples of initial feature key/value pairs
 :return:</p>

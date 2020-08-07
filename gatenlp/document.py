@@ -193,7 +193,13 @@ class Document(FeatureBearer):
                 anns.remove(annid)
 
     @property
-    def features(self):
+    def features(self, as_dict=False):
+        """
+        Accesses the features as a FeatureViewer instance. Changes made on this object are
+        reflected in the document and recorded in the change log, if there is one.
+
+        :return: A FeatureViewer view of the document features.
+        """
         return FeatureViewer(self._features, changelog=self.changelog, logger=self._log_feature_change)
 
 
