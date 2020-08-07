@@ -318,6 +318,7 @@ class Document(FeatureBearer):
     def remove_annotation_set(self, name: str):
         """
         Completely remove the annotation set.
+
         :param name: name of the annotation set to remove
         :return:
         """
@@ -374,6 +375,7 @@ class Document(FeatureBearer):
     def from_dict(dictrepr, **kwargs):
         """
         Return a Document instance as represented by the dictionary dictrepr.
+
         :param dictrepr:
         :return: the initialized Document instance
         """
@@ -387,41 +389,33 @@ class Document(FeatureBearer):
         doc._annotation_sets = annsets
         return doc
 
-    def save(self, whereto, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+    def save(self, destination, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
-        Save the document in the given format.
+        Save the document to the destination file.
 
-        Additional keyword parameters for format "json":
-        * as_array: boolean, if True stores as array instead of dictionary, using to
-
-
-        :param whereto: either a file name or something that has a write(string) method.
-        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param destination: either a file name or something that has a write(string) method.
+        :param fmt: serialization format, by default the format is inferred from the file extension.
         :param offset_type: store using the given offset type or keep the current if None
-        :param mod: module to use
-        :param kwargs: additional parameters for the format
+        :param mod: module where the document saver is implemented.
+        :param kwargs: additional parameters for the document saver.
         :return:
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
-            saver = m.get_document_saver(whereto, fmt)
-            saver(Document, self, to_ext=whereto, offset_type=offset_type, **kwargs)
+            saver = m.get_document_saver(destination, fmt)
+            saver(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
         else:
             # assume fmt is a callable to get used directly
-            fmt(Document, self, to_ext=whereto, offset_type=offset_type, **kwargs)
+            fmt(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
         """
-        Serialize and save to a string.
+        Serialize to a string or bytes in the given format.
 
-        Additional keyword parameters for format "json":
-        * as_array: boolean, if True stores as array instead of dictionary, using to
-
-
-        :param fmt: serialization format, one of "json", "msgpack" or "pickle"
+        :param fmt: serialization format to use.
         :param offset_type: store using the given offset type or keep the current if None
-        :param mod: module to use
-        :param kwargs: additional parameters for the format
+        :param mod: module where the document saver is implemented.
+        :param kwargs: additional parameters for the format.
         :return:
         """
         if not fmt:
@@ -434,37 +428,44 @@ class Document(FeatureBearer):
             fmt(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
 
     @staticmethod
-    def load(wherefrom, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
-        # TODO: add parameter source_type="url"|"file"|"auto", if "auto" guess from string/type
-
-        # (if type is pathlike object, use file, if the result of urllib.parse, use url, if
+    def load(source, fmt=None, mod="gatenlp.serialization.default", **kwargs):
         """
+        Load or import a document from the given source. The source can be a file path or file name or
+        a URL. If the type of the source is str, then if it starts with "http[s]://" it will get treated
+        as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
+        deliberately use URL instead of a file parse the URL using urllib.
 
-        :param wherefrom:
-        :param fmt:
-        :param offset_type: make sure to store using the given offset type
-        :param kwargs:
-        :return:
+        NOTE: the offset type of the document is always converted to PYTHON when loading!
+
+        :param source: the URL or file path to load from.
+        :param fmt: the format of the source. By default the format is inferred by the file extension.
+          The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
+        :param mod: the name of a module where the document loader is implemented.
+        :param kwargs: additional format specific keyword arguments to pass to the loader
+        :return: the loaded document
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
-            loader = m.get_document_loader(wherefrom, fmt)
-            doc = loader(Document, from_ext=wherefrom, **kwargs)
+            loader = m.get_document_loader(source, fmt)
+            doc = loader(Document, from_ext=source, **kwargs)
         else:
-            doc = fmt(Document, from_ext=wherefrom, **kwargs)
+            doc = fmt(Document, from_ext=source, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_offset_type(OFFSET_TYPE_PYTHON)
         return doc
 
     @staticmethod
-    def load_mem(wherefrom, fmt="json", mod="gatenlp.serialization.default", **kwargs):
+    def load_mem(source, fmt="json", mod="gatenlp.serialization.default", **kwargs):
         """
+        Create a document from the in-memory serialization in source. Source can be a string or
+        bytes, depending on the format.
 
         Note: the offset type is always converted to PYTHON when loading!
 
-        :param wherefrom: the string to deserialize
-        :param fmt:
-        :param kwargs:
+        :param source: the string/bytes to deserialize
+        :param fmt: the format
+        :param mod: the name of the module where the loader is implemented
+        :param kwargs: additional arguments to pass to the loader
         :return:
         """
         if not fmt:
@@ -472,9 +473,9 @@ class Document(FeatureBearer):
         if isinstance(fmt, str):
             m = importlib.import_module(mod)
             loader = m.get_document_loader(None, fmt)
-            doc = loader(Document, from_mem=wherefrom, **kwargs)
+            doc = loader(Document, from_mem=source, **kwargs)
         else:
-            doc = fmt(Document, from_mem=wherefrom, **kwargs)
+            doc = fmt(Document, from_mem=source, **kwargs)
         if doc.offset_type == OFFSET_TYPE_JAVA:
             doc.to_offset_type(OFFSET_TYPE_PYTHON)
         return doc
@@ -482,7 +483,8 @@ class Document(FeatureBearer):
     def __copy__(self):
         """
         Creates a shallow copy except the changelog which is set to None.
-        :return:
+
+        :return: shallow copy of the document
         """
         doc = Document(self._text)
         doc._annotation_sets = self._annotation_sets
@@ -491,13 +493,20 @@ class Document(FeatureBearer):
         return doc
 
     def copy(self):
+        """
+        Creates a shallow copy except the changelog which is set to None.
+
+        :return: shallow copy of the document
+        """
         return self.__copy__()
 
     def __deepcopy__(self, memo):
         """
         Creates a deep copy, except the changelog which is set to None.
-        :param memo:
-        :return:
+
+        :param memo: the memoization dictionary to use.
+
+        :return: a deep copy of the document.
         """
         if self._features is not None:
             fts = copy.deepcopy(self._features, memo)
@@ -510,11 +519,19 @@ class Document(FeatureBearer):
         return doc
 
     def deepcopy(self):
+        """
+        Creates a deep copy, except the changelog which is set to None.
+
+        :param memo: the memoization dictionary to use.
+
+        :return: a deep copy of the document.
+        """
         return copy.deepcopy(self)
 
     def _repr_html_(self):
         """
         Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
+
         :return:
         """
         return self.save_mem(fmt="html-ann-viewer", notebook=True, offline=True)
