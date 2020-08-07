@@ -295,23 +295,35 @@ class HtmlAnnViewerSerializer:
 class HtmlLoader:
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, parser=None, offset_mapper=None, **kwargs):
+    def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
+             process_soup=None, offset_mapper=None, **kwargs):
+        raise Exception("Rendered html parser not yet implemented")
+
+    @staticmethod
+    def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
+             process_soup=None, offset_mapper=None, **kwargs):
         """
 
         :param clazz:
         :param from_ext:
         :param from_mem:
-        :param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml"
+        :param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
+        :param markup_set_name: the annotation set name for the set to contain the HTML annotations
+        :param process_soup: a function to run on the parsed HTML soup before converting
         :param offset_mapper:
         :param kwargs:
         :return:
         """
+        # NOTE: for now we have a simple heuristic for adding newlines to the text:
+        # before and after a block element, a newline is added unless there is already one
+        # NOTE: for now we use  multi_valued_attributes=None which prevents attributes of the
+        # form "class='val1 val2'" to get converted into features with a list of values.
         if from_ext is not None and is_url(from_ext):
             from_mem = get_str_from_url(from_ext)
         if from_mem:
-            bs = BeautifulSoup(from_mem)
+            bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(from_ext)
+            bs = BeautifulSoup(from_ext, parser,  multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
@@ -321,16 +333,28 @@ class HtmlLoader:
             "footer", "header", "hr", "ins", "main", "nav", "section", "summary", "input", "legend",
             "option", "textarea", "bdi", "bdo", "center", "code", "dfn", "menu", "dir", "caption",
         }
+        ignoreels = {
+            "script", "style"
+        }
         docinfo = {"anninfos": [], "curoffset": 0, "curid": 0, "text": ""}
         def walktree(el):
-            if isinstance(el, str):
-                docinfo["text"] += el
-                docinfo["curoffset"] += len(el)
+            print("DEBUG: type=", type(el))
+            if isinstance(el, bs4.element.Doctype):
+                print("DEBUG: got doctype", type(el))
+            elif isinstance(el, bs4.element.Comment):
+                print("DEBUG: got Comment", type(el))
+            elif isinstance(el, bs4.element.Script):
+                print("DEBUG: got Script", type(el))
             elif isinstance(el, bs4.element.Tag):
+                print("DEBUG: got tag: ", type(el), " name=",el.name)
+                # some tags we ignore completely:
+                if el.name in ignoreels:
+                    return
                 # for some tags we insert a new line before, but only if we do not already have one
                 if not docinfo["text"].endswith("\n") and \
                         el.name in nlels:
                     docinfo["text"] += "\n"
+                    print("DEBUG: adding newline before at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
                 ann = {"type": el.name, "features": el.attrs,
                        "id": docinfo["curid"], "event": "start", "start": docinfo["curoffset"]}
@@ -343,13 +367,21 @@ class HtmlLoader:
                 if not docinfo["text"].endswith("\n") and \
                         el.name in nlels:
                     docinfo["text"] += "\n"
+                    print("DEBUG: adding newline after at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
                 docinfo["anninfos"].append({"event": "end", "id": thisid, "end": docinfo["curoffset"]})
+            elif isinstance(el, bs4.element.NavigableString):
+                # print("DEBUG: got text: ", el)
+                text = str(el)
+                if text == "\n" and docinfo["text"].endswith("\n"):
+                    return
+                docinfo["text"] += text
+                docinfo["curoffset"] += len(el)
             else:
                 print("WARNING: odd element type", type(el))
         walktree(bs)
         # need to add the end corresponding to bs
-        print("DEBUG: got docinfo:\n",docinfo)
+        # print("DEBUG: got docinfo:\n",docinfo)
         id2anninfo = {}  # from id to anninfo
         nstart = 0
         for anninfo in docinfo["anninfos"]:
@@ -364,14 +396,15 @@ class HtmlLoader:
                 annid = anninfo["id"]
                 anninfo = id2anninfo[annid]
                 anninfo["end"] = end
-        print("DEBUG: got nstart/nend", nstart, nend)
+        # print("DEBUG: got nstart/nend", nstart, nend)
         assert nstart == nend
-        print("DEBUG: got id2anninfo:\n", id2anninfo)
+        # print("DEBUG: got id2anninfo:\n", id2anninfo)
         doc = Document(docinfo["text"])
-        annset = doc.get_annotations("Original markups")
+        annset = doc.get_annotations(markup_set_name)
         for i in range(nstart):
             anninfo = id2anninfo[i]
-            annset.add(start=anninfo["start"], end=anninfo["end"], anntype=anninfo["type"], features=anninfo["features"])
+            annset.add(start=anninfo["start"], end=anninfo["end"], anntype=anninfo["type"],
+                       features=anninfo["features"])
         return doc
 
 
@@ -531,6 +564,7 @@ DOCUMENT_LOADERS = {
     "application/msgpack": MsgPackSerializer.load,
     "text/html": HtmlLoader.load,
     "html": HtmlLoader.load,
+    "html-rendered": HtmlLoader.load_rendered,
     "gatexml": GateXmlLoader.load,
 }
 CHANGELOG_SAVERS = {
