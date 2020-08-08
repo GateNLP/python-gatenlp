@@ -512,7 +512,7 @@ class AnnotationSet:
 
     def first(self):
         """
-        Return the first annotation in the set or raise and exception if the set is empty.
+        Return the first annotation in the set or raise an exception if the set is empty.
         :return: first annotation
         """
         sz = len(self._annotations)

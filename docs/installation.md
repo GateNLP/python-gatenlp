@@ -71,11 +71,28 @@ To create a kernel for your conda environment run:
 python -m ipykernel install --user --name gatenlp --display-name "Python gatenlp"
 ```
 
+The available kernels can be listed with `jupyter kernelspec list`
+
 To run and show a notebook run the following and use "Kernel - Change Kernel" in the notebook to choose the gatenlp environment speicific kernel:
 
 ```
 jupyter notebook notebookname.ipynb
 ```
+
+If you prefer Jupyter lab:
+
+```
+python -m pip install jupyterlab
+```
+
+and then start Jupyter lab with:
+
+```
+jupyter lab
+```
+
+In Jupyter lab, you can work on Jupyter notebooks but also use an interactive console which is also able to visualize
+documents interactively. 
  
 #### Requirements for development:
 
