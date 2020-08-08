@@ -20,24 +20,11 @@ development continues.
 
 `pip install -U gatenlp`
 
-## Requirements
-
-Requirements:
-* Python 3.5 or later
-* sortedcontainers
-* msgpack
-
-Additional requirements only needed if certain functions are used:
-* py4j
-
-Additional requirements for supported interaction with other NLP 
-packages:
-* stanfordnlp
-* stanza
-* spacy
+For more details see [Installation](installation.md)
 
 ## Overview of the documentation:
 
+* [Installation](installation.md)
 * The Document class and classes related to components of a document:
   * [Document](documents)
   * [AnnotationSet](annotationsets)
