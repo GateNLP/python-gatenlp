@@ -333,7 +333,7 @@ class DocView {
             for (let [setname, annid] of anns) {
                 let ann = obj.docrep.ann4setnameannid(setname, annid);
                 let feats = ann.features;
-                idpopup = obj.id_popup;
+                let idpopup = obj.id_popup;
                 $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
                     DocView.showAnn(obj, ann);
                     $(idpopup).hide();
