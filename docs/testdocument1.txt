@@ -1,0 +1,19 @@
+This is a test document.
+
+It contains just a few sentences. 
+Here is a sentence that mentions a few named entities like 
+the persons Barack Obama or Ursula von der Leyen, locations
+like New York City, Vienna or Beijing or companies like 
+Google, UniCredit or Huawei. 
+
+Here we include a URL https://gatenlp.github.io/python-gatenlp/ 
+and a fake email address john.doe@hiscoolserver.com as well 
+as #some #cool #hastags and a bunch of emojis like 😽 (a kissing cat),
+👩‍🏫 (a woman teacher), 🧬 (DNA), 
+🧗 (a person climbing), 
+💩 (a pile of poo). 
+
+Here we test a few different scripts, e.g. Hangul 한글 or 
+simplified Hanzi 汉字 or Farsi فارسی which goes from right to left. 
+
+

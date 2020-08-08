@@ -54,6 +54,7 @@ def get_bytes_from_url(url):
     req = requests.get(url)
     return req.content
 
+
 class JsonSerializer:
 
     @staticmethod
@@ -106,6 +107,60 @@ class JsonSerializer:
     @staticmethod
     def load_gzip(clazz, **kwargs):
         return JsonSerializer.load(clazz, gzip=True, **kwargs)
+
+
+class PlainTextSerializer:
+
+    @staticmethod
+    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+        txt = inst.text
+        if txt is None:
+            txt = ""
+        if to_mem:
+            if gzip:
+                compress(txt.encode("UTF-8"))
+            else:
+                return txt
+        else:
+            if gzip:
+                with gopen(to_ext, "wt") as outfp:
+                    outfp.write(txt)
+            else:
+                with open(to_ext, "wt") as outfp:
+                    outfp.write(txt)
+
+    @staticmethod
+    def save_gzip(clazz, inst, **kwargs):
+        PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
+
+    @staticmethod
+    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        if from_ext is not None and is_url(from_ext):
+            if gzip:
+                from_mem = get_bytes_from_url(from_ext)
+            else:
+                from_mem = get_str_from_url(from_ext, encoding="utf-8")
+        if from_mem:
+            if gzip:
+                txt = decompress(from_mem).decode("UTF-8")
+            else:
+                txt = from_mem
+            doc = Document(txt)
+        else:
+            if gzip:
+                with gopen(from_ext, "rt") as infp:
+                    txt = infp.read()
+            else:
+                with open(from_ext, "rt") as infp:
+                    txt = infp.read()
+            doc = Document(txt)
+        return doc
+
+    @staticmethod
+    def load_gzip(clazz, **kwargs):
+        return PlainTextSerializer.load(clazz, gzip=True, **kwargs)
+
+
 
 
 class YamlSerializer:
@@ -541,6 +596,9 @@ def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gz
 
 
 DOCUMENT_SAVERS = {
+    "text/plain": PlainTextSerializer.save,
+    "text/plain+gzip": PlainTextSerializer.save_gzip,
+    "text": PlainTextSerializer.save,
     "json": JsonSerializer.save,
     "jsongz": JsonSerializer.save_gzip,
     "yaml": YamlSerializer.save,
@@ -561,6 +619,9 @@ DOCUMENT_LOADERS = {
     "yamlgz": YamlSerializer.load_gzip,
     "jsonormsgpack": determine_loader,
     "text/bdocjs": JsonSerializer.load,
+    "text/plain": PlainTextSerializer.load,
+    "text/plain+gzip": PlainTextSerializer.load_gzip,
+    "text": PlainTextSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
     "msgpack": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
@@ -590,6 +651,8 @@ EXTENSIONS = {
     "bdocjs.gz": "text/bdocjs+gzip",
     "bdocjson": "json",
     "bdocmp": "msgpack",
+    "txt": "text/plain",
+    "txt.gz": "text/plain+gzip",
 }
 
 
@@ -609,7 +672,7 @@ def get_handler(filespec, fmt, handlers, saveload, what):
             wf = filespec
         else:
             raise Exception(msg)
-        name,ext = os.path.splitext(wf)
+        name, ext = os.path.splitext(wf)
         if ext == ".gz":
             ext2 = os.path.splitext(name)[1]
             if ext2:
