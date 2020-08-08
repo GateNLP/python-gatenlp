@@ -1,4 +1,6 @@
 # Documents
+
+See also the Jupyter notebooks about documents: [documents.ipynb](documents.ipynb)
  
  Documents represent the text of the document plus an arbitrary number of annotations organized in an arbitrary number of named annotation sets plus an arbitrary number of document features. 
  
