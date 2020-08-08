@@ -19,6 +19,10 @@ To install `gatenlp` run:
 python -m pip install gatenlp 
 ```
 
+To install the latest `gatenlp` code from GitHub:
+* Clone the repository and change into it
+* Run `python -m pip -e .`
+
 
 ## Requirements
 
