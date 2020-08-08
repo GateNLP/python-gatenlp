@@ -95,6 +95,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Name must be a string&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ch</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;name:set&quot;</span><span class="p">}</span>
+            <span class="n">ch</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_ensure_type_python</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
@@ -410,6 +427,7 @@
             <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span>
             <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
             <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="Document.from_dict"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -421,6 +439,7 @@
 <span class="sd">        :return: the initialized Document instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">))</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset_type&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_JAVA</span> <span class="ow">and</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid offset type, cannot load: &quot;</span><span class="p">,</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">)</span>

@@ -199,7 +199,7 @@
         <span class="k">return</span> <span class="n">YamlSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<span class="n">MSGPACK_VERSION_HDR</span> <span class="o">=</span> <span class="s2">&quot;sm1&quot;</span>
+<span class="n">MSGPACK_VERSION_HDR</span> <span class="o">=</span> <span class="s2">&quot;sm2&quot;</span>
 
 
 <div class="viewcode-block" id="MsgPackSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.MsgPackSerializer">[docs]</a><span class="k">class</span> <span class="nc">MsgPackSerializer</span><span class="p">:</span>
@@ -209,6 +209,7 @@
         <span class="n">pack</span><span class="p">(</span><span class="n">MSGPACK_VERSION_HDR</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
         <span class="n">pack</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">annset</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span><span class="p">:</span>
@@ -231,6 +232,7 @@
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">()</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">nsets</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">unpack</span><span class="p">()</span>
         <span class="n">setsdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
