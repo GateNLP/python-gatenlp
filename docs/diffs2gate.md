@@ -38,6 +38,7 @@ There is no support or equivalent for the following `gatenlp` functions in GATE:
 
 Here is a comparison of the most important API methods related to documents, showing first the GATE method, then the corresponding Python method (if any) and/or remarks:
 
+* `getContent().size()`: `len(doc)`
 * `getAnnotations()`: `get_annotations()`
 * `getAnnotations(name)`: `get_annotations(name)`
 * `getAnnotationSetNames()`: `get_annotation_set_names()`

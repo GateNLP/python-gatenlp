@@ -266,16 +266,6 @@ class Document:
         else:
             raise NotImplementedError("Text cannot be modified")
 
-    def size(self) -> int:
-        """
-        Return the size of the document text.
-        Note: this will convert the type of the document to python!
-
-        :return: size of the document (length of the text)
-        """
-        self._ensure_type_python()
-        return int(len(self.text))
-
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         if self._changelog is None:
             return
@@ -294,7 +284,10 @@ class Document:
         :return: the length of the document text
         """
         self._ensure_type_python()
-        return len(self._text)
+        if self._text is None:
+            return 0
+        else:
+            return len(self._text)
 
     def __getitem__(self, span) -> str:
         """

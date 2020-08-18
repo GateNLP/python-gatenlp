@@ -242,7 +242,7 @@ class AnnotationSet:
             return
         if self._owner_doc.text is None:
             return
-        doc_size = self._owner_doc.size()
+        doc_size = len(self._owner_doc)
 
         if start < 0:
             raise InvalidOffsetError("Annotation starts before 0")

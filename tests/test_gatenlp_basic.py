@@ -8,7 +8,7 @@ class TestOffsetMapper01:
         c_poo = "\U0001F4A9"
         c_bridge = "\U0001f309"
         doc1 = Document("01"+c_poo+"3"+c_bridge+c_bridge+c_bridge+"7")
-        assert doc1.size() == 8
+        assert len(doc1) == 8
         assert doc1[2] == c_poo
         om1 = OffsetMapper(doc1)
         assert len(om1.java2python) == 13
