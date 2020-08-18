@@ -264,7 +264,7 @@ def interact(args=None):
                 if cmd == "execute":
                     doc = Document.from_dict(request.get("data"))
                     om = doc.to_offset_type(OFFSET_TYPE_PYTHON)
-                    doc.set_changelog(ChangeLog())
+                    doc.changelog = ChangeLog()
                     pr.execute(doc)
                     # NOTE: for now we just discard what the method returns and always return
                     # the changelog instead!

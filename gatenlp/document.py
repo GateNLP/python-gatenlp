@@ -49,7 +49,7 @@ class Document:
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
         # super().__init__(features)
-        self.changelog = changelog
+        self._changelog = changelog
         self._features = Features(features, logger=self._log_feature_change)
         self._annotation_sets = dict()
         self._text = text
@@ -67,10 +67,10 @@ class Document:
         if not isinstance(val, str):
             raise Exception("Name must be a string")
         self._name = val
-        if self.changelog is not None:
+        if self._changelog is not None:
             ch = {"command": "name:set"}
             ch["name"] = val
-            self.changelog.append(ch)
+            self._changelog.append(ch)
 
     def _ensure_type_python(self) -> None:
         if self.offset_type != OFFSET_TYPE_PYTHON:
@@ -210,7 +210,7 @@ class Document:
                 anns.remove(annid)
 
     @property
-    def features(self, as_dict=False):
+    def features(self):
         """
         Accesses the features as a FeatureViewer instance. Changes made on this object are
         reflected in the document and recorded in the change log, if there is one.
@@ -220,7 +220,17 @@ class Document:
         return self._features
 
 
-    def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
+    @property
+    def changelog(self):
+        """
+        Get the ChangeLog or None if no ChangeLog has been set.
+
+        :return: the changelog
+        """
+        return self._changelog
+
+    @changelog.setter
+    def changelog(self, chlog):
         """
         Make the document use the given changelog to record all changes
         from this moment on.
@@ -228,10 +238,8 @@ class Document:
         :param chlog: the new changelog to use or None to not use any
         :return: the changelog used previously or None
         """
-        oldchlog = self.changelog
-        self.changelog = chlog
-        # the annotation sets access the changelog via the owning document fields and the annotations
-        # indirectly via the owning annotation set field
+        oldchlog = self._changelog
+        self._changelog = chlog
         return oldchlog
 
     @property
@@ -269,14 +277,14 @@ class Document:
         return int(len(self.text))
 
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
-        if self.changelog is None:
+        if self._changelog is None:
             return
         command = "doc-"+command
         ch = {"command": command}
         if command == "doc-feature:set":
             ch["feature"] = feature
             ch["value"] = value
-        self.changelog.append(ch)
+        self._changelog.append(ch)
 
     def __len__(self) -> int:
         """
@@ -315,8 +323,8 @@ class Document:
         if name not in self._annotation_sets:
             annset = AnnotationSet(owner_doc=self, name=name)
             self._annotation_sets[name] = annset
-            if self.changelog:
-                self.changelog.append({
+            if self._changelog:
+                self._changelog.append({
                     "command": "annotations:add",
                     "set": name})
             return annset
@@ -342,8 +350,8 @@ class Document:
         if name not in self._annotation_sets:
             raise Exception(f"AnnotationSet with name {name} does not exist")
         del self._annotation_sets[name]
-        if self.changelog:
-            self.changelog.append({
+        if self._changelog:
+            self._changelog.append({
                 "command": "annotations:remove",
                 "set": name})
 
@@ -532,7 +540,7 @@ class Document:
         else:
             fts = None
         doc = Document(self._text, features=fts)
-        doc.changelog = None
+        doc._changelog = None
         doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
         return doc

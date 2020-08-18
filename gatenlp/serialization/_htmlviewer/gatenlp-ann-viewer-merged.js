@@ -177,6 +177,7 @@ class DocView {
             }
             // TODO: make what we show here configurable?
             $(formchooser).append($(document.createElement('div')).attr("class", this.id_hdr).append(setname2show))
+            console.log("Setname:" + setname)
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
@@ -205,6 +206,7 @@ class DocView {
 
         let obj = this;
         let feats = this.docrep["features"];
+        console.log("Doc features at init " + feats)
         DocView.showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { DocView.showDocFeatures(obj, feats) });
 
@@ -321,6 +323,7 @@ class DocView {
                 seltypes[seltypes.length] = [inputel.attr("data-setname"), inputel.attr("data-anntype")]
             }
         });
+        console.log("Checked: " + seltypes + " length: " + seltypes.length);
         rep.chosen = seltypes;
         rep.buildAnns4Offset();
         rep.buildContent();
@@ -348,9 +351,12 @@ class DocView {
     }
 
     static showFeatures(obj, features) {
+        console.log("Features in show: " + features);
+
         let tbl = $("<table>").attr("class", obj.idprefix+"featuretable");
         for (let fname in features) {
-            let fval = JSON.stringify(features[fname]);
+            let fval = features[fname];
+            console.log("Feature name=" + fname + " val=" + fval);
             tbl.append("<tr><td class='" + obj.class_fname + "'>" + fname + "</td><td class='" + obj.class_fvalue + "'>" + fval + "</td></tr>");
         }
         $(obj.id_details).append(tbl);

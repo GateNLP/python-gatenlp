@@ -21,7 +21,7 @@ class TestInteraction01:
             set1.add(2, 3, "test1", {"f1": "value1"})
             # return nothing
         doc1 = Document("Just a simple document")
-        doc1.set_changelog(ChangeLog())
+        doc1.changelog = ChangeLog()
         mypr = gatenlp.gate_python_plugin_pr
         mypr.start({"k1": "v1"})  # set the script parms
         mypr.execute(doc1)

@@ -98,7 +98,7 @@ class TestChangeLog01:
         # check if adding the changelog later works
         chlog = ChangeLog()
         doc1 = Document("Just a simple \U0001F4A9 document.")
-        doc1.set_changelog(chlog)
+        doc1.changelog = chlog
         annset1 = doc1.get_annotations("")
         ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
