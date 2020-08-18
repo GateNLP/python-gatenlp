@@ -7,7 +7,7 @@ from gatenlp._utils import support_annotation_or_set
 from collections.abc import Iterable
 
 
-class InvalidOffsetException(KeyError):
+class InvalidOffsetError(KeyError):
     pass
 
 
@@ -245,16 +245,16 @@ class AnnotationSet:
         doc_size = self._owner_doc.size()
 
         if start < 0:
-            raise InvalidOffsetException("Annotation starts before 0")
+            raise InvalidOffsetError("Annotation starts before 0")
         if end < 0:
-            raise InvalidOffsetException("Annotation ends before 0")
+            raise InvalidOffsetError("Annotation ends before 0")
         if start > end:
-            raise InvalidOffsetException("Annotation ends before it starts")
+            raise InvalidOffsetError("Annotation ends before it starts")
         if start > doc_size:
-            raise InvalidOffsetException(
+            raise InvalidOffsetError(
                 "Annotation starts after document ends: start={}, docsize={}".format(start, doc_size))
         if end > doc_size:
-            raise InvalidOffsetException(
+            raise InvalidOffsetError(
                 "Annotation ends after document ends: end={}, docsize={}".format(end, doc_size))
 
     def start(self):
@@ -546,7 +546,7 @@ class AnnotationSet:
     def __getitem__(self, annid):
         """
         Gets the annotation with the given annotation id or throws an exception.
-        
+
         :param item: the annotation id
         :return: annotation
         """

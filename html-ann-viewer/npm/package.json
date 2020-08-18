@@ -1,6 +1,6 @@
 {
   "name": "gatenlp-ann-viewer",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "View gatenlp document annotations as HTML.",
   "main": "gatenlp-ann-viewer.js",
   "scripts": {
