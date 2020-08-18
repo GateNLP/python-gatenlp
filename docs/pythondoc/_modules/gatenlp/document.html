@@ -45,7 +45,8 @@
 <span class="kn">from</span> <span class="nn">gatenlp.annotation_set</span> <span class="kn">import</span> <span class="n">AnnotationSet</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">gatenlp.feature_bearer</span> <span class="kn">import</span> <span class="n">FeatureBearer</span><span class="p">,</span> <span class="n">FeatureViewer</span>
+<span class="c1"># from gatenlp.feature_bearer import FeatureBearer, FeatureViewer</span>
+<span class="kn">from</span> <span class="nn">gatenlp.features</span> <span class="kn">import</span> <span class="n">Features</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
@@ -55,7 +56,7 @@
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">(</span><span class="n">FeatureBearer</span><span class="p">):</span>
+<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represent a GATE document. This is different from the original Java GATE representation in several ways:</span>
 
@@ -68,8 +69,6 @@
 <span class="sd">    * there is no separate abstraction for &quot;content&quot;, the only content possible is text which is a unicode string</span>
 <span class="sd">      that can be acessed with the &quot;text()&quot; method</span>
 <span class="sd">    * Spans of text can be directly accessed using doc[from:to]</span>
-<span class="sd">    * features are not stored in a separate feature map object, but are directly set on the document, e.g.</span>
-<span class="sd">      doc.set_feature(&quot;x&quot;,y) or doc.get_feature(&quot;x&quot;, defaultvalue)</span>
 <span class="sd">    * Features may only have string keys and values which can be json-serialised</span>
 <span class="sd">    * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets</span>
 <span class="sd">      are UTF-16 Unicode code units</span>
@@ -90,8 +89,9 @@
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">changelog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">changelog</span><span class="p">,</span> <span class="n">ChangeLog</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="c1"># super().__init__(features)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">changelog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">Features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_feature_change</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_text</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">OFFSET_TYPE_PYTHON</span>
@@ -204,17 +204,17 @@
                         <span class="n">anns</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">handle_existing_anns</span> <span class="o">==</span> <span class="n">ADDANN_UPDATE_FEATURES</span><span class="p">:</span>
                         <span class="n">features</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
-                        <span class="n">ann</span><span class="o">.</span><span class="n">update_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+                        <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">handle_existing_anns</span> <span class="o">==</span> <span class="n">ADDANN_REPLACE_FEATURES</span><span class="p">:</span>
                         <span class="n">features</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
-                        <span class="n">ann</span><span class="o">.</span><span class="n">clear_features</span><span class="p">()</span>
-                        <span class="n">ann</span><span class="o">.</span><span class="n">update_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+                        <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                        <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">handle_existing_anns</span> <span class="o">==</span> <span class="n">ADDANN_ADD_NEW_FEATURES</span><span class="p">:</span>
                         <span class="n">features</span> <span class="o">=</span> <span class="n">change</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
                         <span class="n">fns</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">feature_names</span><span class="p">()</span>
                         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
-                                <span class="n">ann</span><span class="o">.</span><span class="n">set_feature</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">features</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                                <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
 
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">ACTION_CLEAR_ANNS</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">sname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -226,11 +226,11 @@
                 <span class="n">anns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">(</span><span class="n">sname</span><span class="p">)</span>
                 <span class="n">ann</span> <span class="o">=</span> <span class="n">anns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">annid</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ann</span><span class="o">.</span><span class="n">clear_features</span><span class="p">()</span>
+                    <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span> <span class="c1"># ignore, could happen with a detached annotation</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">ACTION_CLEAR_DOC_FEATURES</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">clear_features</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">ACTION_DEL_ANN_FEATURE</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">sname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="k">assert</span> <span class="n">annid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -238,12 +238,12 @@
                 <span class="n">ann</span> <span class="o">=</span> <span class="n">anns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">annid</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ann</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">ann</span><span class="o">.</span><span class="n">del_feature</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                        <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span>  <span class="c1"># ignore, could happen with a detached annotation</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">ACTION_DEL_DOC_FEATURE</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">del_feature</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="n">ACTION_DEL_ANN</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">sname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="k">assert</span> <span class="n">annid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -258,7 +258,7 @@
 
 <span class="sd">        :return: A FeatureViewer view of the document features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">FeatureViewer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_feature_change</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span>
 
 
 <div class="viewcode-block" id="Document.set_changelog"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.set_changelog">[docs]</a>    <span class="k">def</span> <span class="nf">set_changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chlog</span><span class="p">:</span> <span class="n">ChangeLog</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChangeLog</span><span class="p">:</span>
@@ -425,7 +425,7 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;annotation_sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">aset</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">aset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_sets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">},</span>
             <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span>
-            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
             <span class="s2">&quot;offset_type&quot;</span><span class="p">:</span> <span class="n">offset_type</span><span class="p">,</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="p">}</span></div>
@@ -438,12 +438,12 @@
 <span class="sd">        :param dictrepr:</span>
 <span class="sd">        :return: the initialized Document instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">))</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">),</span> <span class="n">features</span><span class="o">=</span><span class="n">feats</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset_type&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_JAVA</span> <span class="ow">and</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">!=</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid offset type, cannot load: &quot;</span><span class="p">,</span> <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
         <span class="n">annsets</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">AnnotationSet</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">adict</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">adict</span> <span class="ow">in</span> <span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_sets&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="n">annsets</span>
@@ -549,7 +549,7 @@
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">_annotation_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotation_sets</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">offset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_type</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">doc</span>
 
 <div class="viewcode-block" id="Document.copy"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -569,7 +569,7 @@
 <span class="sd">        :return: a deep copy of the document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span>
+            <span class="n">fts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">memo</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fts</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">fts</span><span class="p">)</span>

@@ -143,10 +143,10 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
         idx2annid["0"] = sentid
         for annid in list(idx2annid.values()):
             ann = annset.get(annid)
-            hd = ann.get_feature("head")
+            hd = ann.features.get("head")
             if hd is not None:
                 hd = str(hd)
-                ann.set_feature("head", idx2annid[hd])
+                ann.features["head"] = idx2annid[hd]
 
         # add the entities
         if add_entities:

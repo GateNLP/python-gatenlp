@@ -20,6 +20,7 @@ import bs4
 def is_url(ext):
     """
     Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.
+
     :param ext: something that represents an external resource: string, url parse, pathlib path object ...
     :return: True or False
     """
@@ -36,6 +37,7 @@ def is_url(ext):
 def get_str_from_url(url, encoding=None):
     """
     Read a string from the URL.
+
     :param url: some URL
     :param encoding: override the encoding that would have determined automatically
     :return: the string
@@ -48,6 +50,7 @@ def get_str_from_url(url, encoding=None):
 def get_bytes_from_url(url):
     """
     Read bytes from url.
+
     :param url: the URL
     :return: the bytes
     """
@@ -360,6 +363,7 @@ class HtmlLoader:
     def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
              process_soup=None, offset_mapper=None, **kwargs):
         """
+        Load a HTML file.
 
         :param clazz:
         :param from_ext:

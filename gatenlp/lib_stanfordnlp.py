@@ -77,9 +77,9 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
         idx2annid[0] = sentid
         for annid in list(idx2annid.values()):
             ann = annset.get(annid)
-            gov = ann.get_feature("governor")
+            gov = ann.features.get("governor")
             if gov is not None:
-                ann.set_feature("governor", idx2annid[gov])
+                ann.features["governor"] = idx2annid[gov]
         notmatchedidx = offsetinfos[-1][1]+notmatchedidx + 1
     return retdoc
 

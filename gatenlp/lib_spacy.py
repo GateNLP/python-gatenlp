@@ -107,9 +107,9 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
             ann = annset.get(toki2annid[tok.i])
-            ann.set_feature("head", toki2annid[tok.head.i])
-            ann.set_feature("left_edge", toki2annid[tok.left_edge.i])
-            ann.set_feature("right_edge", toki2annid[tok.right_edge.i])
+            ann.features["head"] = toki2annid[tok.head.i]
+            ann.features["left_edge"] = toki2annid[tok.left_edge.i]
+            ann.features["right_edge"] = toki2annid[tok.right_edge.i]
     if spacydoc.ents and add_ents:
         for ent in spacydoc.ents:
             annset.add(ent.start_char, ent.end_char, ent.label_, {"lemma": ent.lemma_})

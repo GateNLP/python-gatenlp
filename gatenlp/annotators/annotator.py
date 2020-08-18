@@ -20,6 +20,7 @@ class Annotator:
         and annotation. It must accept a document and change the document annotations.
         The method must accept arbitrary keyword arguments which will be used for handling
         non-standard situations.
+
         :param doc: the document to process
         :param kwargs:
         :return:
@@ -28,16 +29,17 @@ class Annotator:
 
     def merge(self, doc, docsorlogs):
         """
-        A mthod that knows how to combine a collection of partial processing results into one document
+        A method that knows how to combine a collection of partial processing results into one document
         and returns that document. This is meant to be used in situations where parallelisation is
         done per document, so that several processes work on the same document in parallel. Each
         process creates their annotated document or changelog and this method should be able to combine
         all the partial results to create one result document.
         This should be implemented like a static method, not using any of the instance specific
         data.
+
         :param doc: the original input document
         :param docsorlogs: a collection of documents or changelogs where each element represents
-        partial annotations carried out on the original document
+          partial annotations carried out on the original document
         :return: the original document with the results from all the documents or changelogs combined
         """
 
@@ -45,6 +47,7 @@ class Annotator:
         """
         A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed.
+
         :return:
         """
         pass
@@ -53,6 +56,7 @@ class Annotator:
         """
         A mthod that gets called when processing ends, e.g. when all documents of a corpus
         have been processed.
+
         :return:
         """
         pass
@@ -63,6 +67,7 @@ class Annotator:
         of documents, should only be called after finish() has been called.
         This should return the same results every time when it is called repeatedly after finish
         and before start() is called again.
+
         :return: corpus-wide processing results
         """
 
@@ -73,6 +78,7 @@ class Annotator:
         data that is specific to the concrete instance.
         This can be used to combine corpus results obtained from several processes running on
         different parts of a corpus.
+
         :param resultlist:
         :return:
         """

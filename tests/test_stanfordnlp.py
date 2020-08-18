@@ -6,6 +6,7 @@ try:
 except:
     stanfordnlp = None
 
+
 class TestStanfordNlp01:
     def test_snlp01a(self):
         if stanfordnlp is None:

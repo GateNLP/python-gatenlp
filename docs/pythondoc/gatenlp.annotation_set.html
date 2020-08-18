@@ -75,8 +75,11 @@ the type, and the annotation id are immutable.</p>
 <li><p><strong>start</strong> – start offset</p></li>
 <li><p><strong>end</strong> – end offset</p></li>
 <li><p><strong>anntype</strong> – the annotation type</p></li>
-<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used         to create a new feature map for this annotation. If the map is empty or this parameter is None, the         annotation does not store any map at all.</p></li>
-<li><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used. NOTE: the id should        normally left unspecified and get assigned automatically.</p></li>
+<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used
+to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+annotation does not store any map at all.</p></li>
+<li><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+normally left unspecified and get assigned automatically.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -92,7 +95,8 @@ the type, and the annotation id are immutable.</p>
 with the one given.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used.        NOTE: the id should normally left unspecified and get assigned automatically.</p>
+<dd class="field-odd"><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used.
+NOTE: the id should normally left unspecified and get assigned automatically.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the annotation id of the added annotation</p>
@@ -286,8 +290,12 @@ in restrict_to</p>
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.first">
 <code class="sig-name descname">first</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.first" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first annotation in the set or raise and exception if the set is empty.
-:return: first annotation</p>
+<dd><p>Return the first annotation in the set or raise an exception if the set is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>first annotation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -358,15 +366,23 @@ parameters.</p>
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.last">
 <code class="sig-name descname">last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.last" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the last annotation in the set or raise and exception if the set is empty.
-:return: first annotation</p>
+<dd><p>Return the last annotation in the set or raise and exception if the set is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>first annotation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the name of the annotation set.
-:return: name of annotation set</p>
+<dd><p>Get the name of the annotation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of annotation set</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -418,9 +434,15 @@ also accepts an annotation or annotation set.</p>
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.set_immutable">
 <code class="sig-name descname">set_immutable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.set_immutable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.set_immutable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the annotationset to mutable (False) or immutable (True)
-:param val: boolean, True to set to immutable, False, otherwise.
-:return:</p>
+<dd><p>Set the annotationset to mutable (False) or immutable (True)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>val</strong> – boolean, True to set to immutable, False, otherwise.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -586,6 +608,12 @@ than one of that type, use the one that would come first in the usual sort order
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py exception">
+<dt id="gatenlp.annotation_set.InvalidOffsetException">
+<em class="property">exception </em><code class="sig-prename descclassname">gatenlp.annotation_set.</code><code class="sig-name descname">InvalidOffsetException</code><a class="reference internal" href="_modules/gatenlp/annotation_set.html#InvalidOffsetException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.InvalidOffsetException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code></p>
 </dd></dl>
 
 </div>

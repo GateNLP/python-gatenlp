@@ -33,12 +33,12 @@ class TestDocument01:
         ann1 = annset1.add(8, 9, "Type1", {"f1": 1, "f2": 2})
         ann1id = ann1.id
         assert len(annset1) == 1
-        assert ann1.get_feature("f1") == 1
+        assert ann1.features["f1"] == 1
         ann2id = annset1.add(0, 4, "Type1", {"f1": 13, "f2": 12})
         inorder = list(annset1.iter())
         assert len(inorder) == 2
-        assert inorder[0].get_feature("f1") == 13
-        assert inorder[1].get_feature("f1") == 1
+        assert inorder[0].features["f1"] == 13
+        assert inorder[1].features["f1"] == 1
         ann3 = annset1.add(0, 22, "Type2", {"feat1": True})
         ann3id = ann3.id
         assert ann3id in annset1
@@ -46,14 +46,14 @@ class TestDocument01:
         assert len(annset1.within(0, 10)) == 2
         assert len(annset1.within(1, 3)) == 0
         assert len(annset1.within(0, 22)) == 3
-        doc1.set_feature("docfeat1", 33)
-        assert doc1.get_feature("docfeat1") == 33
+        doc1.features["docfeat1"] = 33
+        assert doc1.features["docfeat1"] == 33
         # print("DOC: {}".format(doc1), file=sys.stderr)
         jsonstr = doc1.save_mem(offset_type=OFFSET_TYPE_JAVA)
         # print("JSON JAVA: {}".format(jsonstr), file=sys.stderr)
         doc2 = Document.load_mem(jsonstr)
         # print("DOC BACK: {}".format(doc2), file=sys.stderr)
-        assert doc2.get_feature("docfeat1") == 33
+        assert doc2.features["docfeat1"] == 33
         d2annset1 = doc2.get_annotations("")
         assert len(d2annset1) == 3
         at8 = d2annset1.start_eq(8)
@@ -81,9 +81,9 @@ class TestChangeLog01:
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2)
         ann3b = annset1.get(ann3.id)
-        ann3b.set_feature("str", "simple")
-        doc1.set_feature("docfeature1", "value1")
-        doc1.set_feature("docfeature1", "value1b")
+        ann3b.features["str"] = "simple"
+        doc1.features["docfeature1"] = "value1"
+        doc1.features["docfeature1"] = "value1b"
         chlog1 = doc1.changelog
         print("!!!!!!!!!!!!!!DEBUG: ",chlog1.pprint())
         assert chlog1.changes[4].get("end") == 24
@@ -109,9 +109,9 @@ class TestChangeLog01:
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2.id)
         ann3b = annset1.get(ann3.id)
-        ann3b.set_feature("str", "simple")
-        doc1.set_feature("docfeature1", "value1")
-        doc1.set_feature("docfeature1", "value1b")
+        ann3b.features["str"] = "simple"
+        doc1.features["docfeature1"] = "value1"
+        doc1.features["docfeature1"] = "value1b"
         assert len(doc1.changelog) == len(chlog1)
 
         # test removing all annotations

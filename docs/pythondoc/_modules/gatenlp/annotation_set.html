@@ -43,12 +43,13 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">gatenlp.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
-<span class="kn">from</span> <span class="nn">gatenlp.exceptions</span> <span class="kn">import</span> <span class="n">InvalidOffsetException</span>
-<span class="kn">from</span> <span class="nn">gatenlp.changelog</span> <span class="kn">import</span> <span class="n">ChangeLog</span>
 <span class="kn">from</span> <span class="nn">gatenlp.impl</span> <span class="kn">import</span> <span class="n">SortedIntvls</span>
 <span class="kn">from</span> <span class="nn">gatenlp._utils</span> <span class="kn">import</span> <span class="n">support_annotation_or_set</span>
-<span class="kn">from</span> <span class="nn">gatenlp.utils</span> <span class="kn">import</span> <span class="n">to_dict</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+
+<div class="viewcode-block" id="InvalidOffsetException"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.InvalidOffsetException">[docs]</a><span class="k">class</span> <span class="nc">InvalidOffsetException</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AnnotationSet"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet">[docs]</a><span class="k">class</span> <span class="nc">AnnotationSet</span><span class="p">:</span>
@@ -80,6 +81,7 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the name of the annotation set.</span>
+
 <span class="sd">        :return: name of annotation set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
@@ -92,6 +94,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prevent immutable fields from getting overridden, once they have been</span>
 <span class="sd">        set.</span>
+
 <span class="sd">        :param key: attribute to set</span>
 <span class="sd">        :param value: value to set attribute to</span>
 <span class="sd">        :return:</span>
@@ -152,6 +155,7 @@
 <div class="viewcode-block" id="AnnotationSet.set_immutable"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.set_immutable">[docs]</a>    <span class="k">def</span> <span class="nf">set_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the annotationset to mutable (False) or immutable (True)</span>
+
 <span class="sd">        :param val: boolean, True to set to immutable, False, otherwise.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -321,11 +325,11 @@
 <span class="sd">        :param start: start offset</span>
 <span class="sd">        :param end: end offset</span>
 <span class="sd">        :param anntype: the annotation type</span>
-<span class="sd">        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used \</span>
-<span class="sd">        to create a new feature map for this annotation. If the map is empty or this parameter is None, the \</span>
-<span class="sd">        annotation does not store any map at all.</span>
-<span class="sd">        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\</span>
-<span class="sd">        normally left unspecified and get assigned automatically.</span>
+<span class="sd">        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used</span>
+<span class="sd">          to create a new feature map for this annotation. If the map is empty or this parameter is None, the</span>
+<span class="sd">          annotation does not store any map at all.</span>
+<span class="sd">        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should</span>
+<span class="sd">          normally left unspecified and get assigned automatically.</span>
 <span class="sd">        :return: the new annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span><span class="p">:</span>
@@ -336,7 +340,7 @@
         <span class="k">if</span> <span class="n">annid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="n">annid</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
         <span class="n">ann</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="p">{}</span>
@@ -349,7 +353,7 @@
                     <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
                     <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
                     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-                    <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">_features</span><span class="p">,</span>
+                    <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">id</span>
                 <span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -360,11 +364,11 @@
 <span class="sd">        Add a copy of the given ann to the annotation set, either with a new annotation id or</span>
 <span class="sd">        with the one given.</span>
 
-<span class="sd">        :param annid: the annotation id, if not specified the next free one for this set is used.\</span>
-<span class="sd">        NOTE: the id should normally left unspecified and get assigned automatically.</span>
+<span class="sd">        :param annid: the annotation id, if not specified the next free one for this set is used.</span>
+<span class="sd">          NOTE: the id should normally left unspecified and get assigned automatically.</span>
 <span class="sd">        :return: the annotation id of the added annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">(),</span> <span class="n">annid</span><span class="o">=</span><span class="n">annid</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="n">annid</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.remove"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -419,7 +423,6 @@
 <span class="sd">        the annotations in this set any more. The owning set of the annotations that get cloned is cleared.</span>
 
 <span class="sd">        :param memo: for internal use by our __deepcopy__ implementation.</span>
-
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tmpdict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -553,7 +556,8 @@
 
 <div class="viewcode-block" id="AnnotationSet.first"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.first">[docs]</a>    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the first annotation in the set or raise and exception if the set is empty.</span>
+<span class="sd">        Return the first annotation in the set or raise an exception if the set is empty.</span>
+
 <span class="sd">        :return: first annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">)</span>
@@ -568,6 +572,7 @@
 <div class="viewcode-block" id="AnnotationSet.last"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.last">[docs]</a>    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the last annotation in the set or raise and exception if the set is empty.</span>
+
 <span class="sd">        :return: first annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">)</span>
@@ -582,6 +587,7 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the annotation with the given annotation id or throws an exception.</span>
+<span class="sd">        </span>
 <span class="sd">        :param item: the annotation id</span>
 <span class="sd">        :return: annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>

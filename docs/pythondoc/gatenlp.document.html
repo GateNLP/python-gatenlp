@@ -17,7 +17,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="gatenlp.exceptions module" href="gatenlp.exceptions.html" />
+    <link rel="next" title="gatenlp.features module" href="gatenlp.features.html" />
     <link rel="prev" title="gatenlp.changelog module" href="gatenlp.changelog.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -30,7 +30,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
+          <a href="gatenlp.features.html" title="gatenlp.features module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="gatenlp.changelog.html" title="gatenlp.changelog module"
@@ -51,7 +51,7 @@
 <dl class="py class">
 <dt id="gatenlp.document.Document">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.document.</code><code class="sig-name descname">Document</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represent a GATE document. This is different from the original Java GATE representation in several ways:</p>
 <ul class="simple">
 <li><p>the text is not mutable and can only be set at creation time, so there is no “edit” method</p></li>
@@ -61,8 +61,6 @@ no separate “FeatureMap” to store them</p></li>
 <li><p>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
 that can be acessed with the “text()” method</p></li>
 <li><p>Spans of text can be directly accessed using doc[from:to]</p></li>
-<li><p>features are not stored in a separate feature map object, but are directly set on the document, e.g.
-doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</p></li>
 <li><p>Features may only have string keys and values which can be json-serialised</p></li>
 <li><p>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
 are UTF-16 Unicode code units</p></li>
@@ -80,15 +78,6 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 <li><p><strong>features</strong> – the initial document features to set, a sequence of key/value tuples</p></li>
 <li><p><strong>changelog</strong> – a ChangeLog instance to use to log changes.</p></li>
 </ul>
-</dd>
-</dl>
-<p>Initialise any features, if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>initialfeatures</strong> – an iterable containing tuples of initial feature key/value pairs</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -380,8 +369,8 @@ otherwise None.</p>
   <p class="topless"><a href="gatenlp.changelog.html"
                         title="previous chapter">gatenlp.changelog module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="gatenlp.exceptions.html"
-                        title="next chapter">gatenlp.exceptions module</a></p>
+  <p class="topless"><a href="gatenlp.features.html"
+                        title="next chapter">gatenlp.features module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -413,7 +402,7 @@ otherwise None.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="gatenlp.exceptions.html" title="gatenlp.exceptions module"
+          <a href="gatenlp.features.html" title="gatenlp.features module"
              >next</a> |</li>
         <li class="right" >
           <a href="gatenlp.changelog.html" title="gatenlp.changelog module"

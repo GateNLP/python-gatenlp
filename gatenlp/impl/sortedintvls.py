@@ -42,6 +42,7 @@ class SortedIntvls:
     def starting_at(self, offset):
         """
         Return an iterable of (start, end, data) tuples where start==offset
+
         :param offset: the starting offset
         :return:
         """
@@ -50,6 +51,7 @@ class SortedIntvls:
     def ending_at(self, offset):
         """
         Return an iterable of (start, end, data) tuples where end==offset
+
         :param offset: the ending offset
         :return:
         """
@@ -58,6 +60,7 @@ class SortedIntvls:
     def at(self, start, end):
         """
         Return iterable of tuples where start==start and end==end
+
         :param start:
         :param end:
         :return:
@@ -70,6 +73,7 @@ class SortedIntvls:
     def within(self, start, end):
         """
         Return intervals which are fully contained within start...end
+
         :param start:
         :param end:
         :return:
@@ -82,6 +86,7 @@ class SortedIntvls:
     def starting_from(self, offset):
         """
         Intervals that start at or after offset.
+
         :param offset:
         :return:
         """
@@ -90,6 +95,7 @@ class SortedIntvls:
     def starting_before(self, offset):
         """
         Intervals that start before offset
+
         :param offset:
         :return:
         """
@@ -99,7 +105,9 @@ class SortedIntvls:
     def ending_to(self, offset):
         """
         Intervals that end before or at the given end offset.
+
         NOTE: the result is sorted by end offset, not start offset!
+
         :param offset:
         :return:
         """
@@ -108,7 +116,9 @@ class SortedIntvls:
     def ending_after(self, offset):
         """
         Intervals the end after the given offset
+
         NOTE: the result is sorted by end offset!
+
         :param offset:
         :return:
         """
@@ -118,6 +128,7 @@ class SortedIntvls:
     def covering(self, start, end):
         """
         Intervals that contain the given range
+
         :param start:
         :param end:
         :return:
@@ -132,6 +143,7 @@ class SortedIntvls:
     def overlapping(self, start, end):
         """
         Intervals that overlap with the given range.
+
         :param start:
         :param end:
         :return:
@@ -146,6 +158,7 @@ class SortedIntvls:
     def firsts(self):
         """
         Return an iterator of all intervals at the minimum start offset that exists.
+
         :return:
         """
         laststart = None
@@ -166,6 +179,7 @@ class SortedIntvls:
     def lasts(self):
         """
         Return an iterator of all intervals at the maximum start offset that exists.
+
         :return:
         """
         laststart = None
@@ -181,6 +195,7 @@ class SortedIntvls:
     def min_start(self):
         """
         Returns the smallest start offset we have
+
         :return:
         """
         return self._by_start[0][0]
@@ -188,6 +203,7 @@ class SortedIntvls:
     def max_end(self):
         """
         Returns the biggest end offset we have
+
         :return:
         """
         return self._by_end[-1][1]

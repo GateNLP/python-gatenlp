@@ -166,9 +166,9 @@
       <ul>
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.clear">(gatenlp.AnnotationSet method)</a>
 </li>
-      </ul></li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.clear_features">clear_features() (gatenlp.feature_bearer.FeatureBearer method)</a>
+        <li><a href="gatenlp.features.html#gatenlp.features.Features.clear">(gatenlp.features.Features method)</a>
 </li>
+      </ul></li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.clone_anns">clone_anns() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
@@ -214,6 +214,8 @@
 </li>
         <li><a href="gatenlp.document.html#gatenlp.document.Document.copy">(gatenlp.document.Document method)</a>
 </li>
+        <li><a href="gatenlp.features.html#gatenlp.features.Features.copy">(gatenlp.features.Features method)</a>
+</li>
       </ul></li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.covering">covering() (gatenlp.annotation_set.AnnotationSet method)</a>
 
@@ -244,8 +246,6 @@
 </li>
       </ul></li>
       <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr">DefaultPr (class in gatenlp.gate_interaction)</a>
-</li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.del_feature">del_feature() (gatenlp.feature_bearer.FeatureBearer method)</a>
 </li>
       <li><a href="gatenlp.gateslave.html#gatenlp.gateslave.GateSlave.del_gdoc">del_gdoc() (gatenlp.gateslave.GateSlave method)</a>
 </li>
@@ -317,11 +317,7 @@
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.fast_iter">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.feature_names">feature_names() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.feature_values">feature_values() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer">FeatureBearer (class in gatenlp.feature_bearer)</a>
+      <li><a href="gatenlp.features.html#gatenlp.features.Features">Features (class in gatenlp.features)</a>
 </li>
       <li><a href="gatenlp.html#gatenlp.Annotation.features">features() (gatenlp.Annotation property)</a>
 
@@ -333,10 +329,6 @@
         <li><a href="gatenlp.document.html#gatenlp.document.Document.features">(gatenlp.document.Document property)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.features_copy">features_copy() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureViewer">FeatureViewer (class in gatenlp.feature_bearer)</a>
-</li>
       <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.DefaultPr.finish">finish() (gatenlp.gate_interaction.DefaultPr method)</a>
 </li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.first">first() (gatenlp.annotation_set.AnnotationSet method)</a>
@@ -345,8 +337,6 @@
         <li><a href="gatenlp.html#gatenlp.AnnotationSet.first">(gatenlp.AnnotationSet method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.firsts">firsts() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
       <li><a href="gatenlp.html#gatenlp.ChangeLog.fixup_changes">fixup_changes() (gatenlp.ChangeLog method)</a>
@@ -355,6 +345,8 @@
         <li><a href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog.fixup_changes">(gatenlp.changelog.ChangeLog method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.html#gatenlp.ChangeLog.format_to">format_to() (gatenlp.ChangeLog method)</a>
 
       <ul>
@@ -377,6 +369,8 @@
         <li><a href="gatenlp.html#gatenlp.Document.from_dict">(gatenlp.Document static method)</a>
 </li>
         <li><a href="gatenlp.document.html#gatenlp.document.Document.from_dict">(gatenlp.document.Document static method)</a>
+</li>
+        <li><a href="gatenlp.features.html#gatenlp.features.Features.from_dict">(gatenlp.features.Features static method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -429,17 +423,10 @@
 </li>
       </ul></li>
       <li>
-    gatenlp.exceptions
+    gatenlp.features
 
       <ul>
-        <li><a href="gatenlp.exceptions.html#module-gatenlp.exceptions">module</a>
-</li>
-      </ul></li>
-      <li>
-    gatenlp.feature_bearer
-
-      <ul>
-        <li><a href="gatenlp.feature_bearer.html#module-gatenlp.feature_bearer">module</a>
+        <li><a href="gatenlp.features.html#module-gatenlp.features">module</a>
 </li>
       </ul></li>
       <li>
@@ -566,8 +553,6 @@
 </li>
       <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.get_document_saver">get_document_saver() (in module gatenlp.serialization.default)</a>
 </li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.get_feature">get_feature() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
       <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.get_handler">get_handler() (in module gatenlp.serialization.default)</a>
 </li>
       <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.get_str_from_url">get_str_from_url() (in module gatenlp.serialization.default)</a>
@@ -578,12 +563,10 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.has_feature">has_feature() (gatenlp.feature_bearer.FeatureBearer method)</a>
+      <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer">HtmlAnnViewerSerializer (class in gatenlp.serialization.default)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer">HtmlAnnViewerSerializer (class in gatenlp.serialization.default)</a>
-</li>
       <li><a href="gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlLoader">HtmlLoader (class in gatenlp.serialization.default)</a>
 </li>
   </ul></td>
@@ -600,7 +583,7 @@
       </ul></li>
       <li><a href="gatenlp.gate_interaction.html#gatenlp.gate_interaction.interact">interact() (in module gatenlp.gate_interaction)</a>
 </li>
-      <li><a href="gatenlp.exceptions.html#gatenlp.exceptions.InvalidOffsetException">InvalidOffsetException</a>, <a href="gatenlp.html#gatenlp.InvalidOffsetException">[1]</a>
+      <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.InvalidOffsetException">InvalidOffsetException</a>
 </li>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.irange">irange() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
 </li>
@@ -758,9 +741,7 @@
 </li>
         <li><a href="gatenlp.document.html#module-gatenlp.document">gatenlp.document</a>
 </li>
-        <li><a href="gatenlp.exceptions.html#module-gatenlp.exceptions">gatenlp.exceptions</a>
-</li>
-        <li><a href="gatenlp.feature_bearer.html#module-gatenlp.feature_bearer">gatenlp.feature_bearer</a>
+        <li><a href="gatenlp.features.html#module-gatenlp.features">gatenlp.features</a>
 </li>
         <li><a href="gatenlp.gate_interaction.html#module-gatenlp.gate_interaction">gatenlp.gate_interaction</a>
 </li>
@@ -807,10 +788,6 @@
         <li><a href="gatenlp.document.html#gatenlp.document.Document.name">(gatenlp.document.Document property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.num_features">num_features() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -927,8 +904,6 @@
         <li><a href="gatenlp.document.html#gatenlp.document.Document.set_changelog">(gatenlp.document.Document method)</a>
 </li>
       </ul></li>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.set_feature">set_feature() (gatenlp.feature_bearer.FeatureBearer method)</a>
-</li>
       <li><a href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet.set_immutable">set_immutable() (gatenlp.annotation_set.AnnotationSet method)</a>
 
       <ul>
@@ -1036,6 +1011,8 @@
 </li>
         <li><a href="gatenlp.document.html#gatenlp.document.Document.to_dict">(gatenlp.document.Document method)</a>
 </li>
+        <li><a href="gatenlp.features.html#gatenlp.features.Features.to_dict">(gatenlp.features.Features method)</a>
+</li>
         <li><a href="gatenlp.utils.html#gatenlp.utils.to_dict">(in module gatenlp.utils)</a>
 </li>
       </ul></li>
@@ -1070,10 +1047,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.update">update() (gatenlp.impl.sortedintvls.SortedIntvls method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer.update_features">update_features() (gatenlp.feature_bearer.FeatureBearer method)</a>
 </li>
   </ul></td>
 </tr></table>

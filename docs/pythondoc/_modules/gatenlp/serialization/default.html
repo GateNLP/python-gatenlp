@@ -61,6 +61,7 @@
 <div class="viewcode-block" id="is_url"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.is_url">[docs]</a><span class="k">def</span> <span class="nf">is_url</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.</span>
+
 <span class="sd">    :param ext: something that represents an external resource: string, url parse, pathlib path object ...</span>
 <span class="sd">    :return: True or False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -77,6 +78,7 @@
 <div class="viewcode-block" id="get_str_from_url"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_str_from_url">[docs]</a><span class="k">def</span> <span class="nf">get_str_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a string from the URL.</span>
+
 <span class="sd">    :param url: some URL</span>
 <span class="sd">    :param encoding: override the encoding that would have determined automatically</span>
 <span class="sd">    :return: the string</span>
@@ -89,6 +91,7 @@
 <div class="viewcode-block" id="get_bytes_from_url"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.get_bytes_from_url">[docs]</a><span class="k">def</span> <span class="nf">get_bytes_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read bytes from url.</span>
+
 <span class="sd">    :param url: the URL</span>
 <span class="sd">    :return: the bytes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -346,7 +349,7 @@
         <span class="k">return</span> <span class="n">doc</span></div></div>
 
 <span class="n">JS_JQUERY</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;&#39;</span>
-<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.5/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
+<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.6/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
 <span class="n">HTML_TEMPLATE_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer.html&quot;</span>
 <span class="n">JS_GATENLP_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer-merged.js&quot;</span>
 
@@ -401,6 +404,7 @@
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">markup_set_name</span><span class="o">=</span><span class="s2">&quot;Original markups&quot;</span><span class="p">,</span>
              <span class="n">process_soup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a HTML file.</span>
 
 <span class="sd">        :param clazz:</span>
 <span class="sd">        :param from_ext:</span>

@@ -20,8 +20,7 @@ Submodules
    gatenlp.annotation_set
    gatenlp.changelog
    gatenlp.document
-   gatenlp.exceptions
-   gatenlp.feature_bearer
+   gatenlp.features
    gatenlp.gate_interaction
    gatenlp.gateslave
    gatenlp.lib_spacy

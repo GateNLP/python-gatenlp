@@ -38,8 +38,8 @@ class TestInteraction01:
         assert myann.end == 3
         assert myann.type == "test1"
         # assert myann.id == 1
-        assert myann.has_feature("f1")
-        assert myann.get_feature("f1") == "value1"
+        assert "f1" in myann.features
+        assert myann.features["f1"] == "value1"
         mychlog = doc1.changelog
         assert mychlog is not None
         assert len(mychlog) == 1

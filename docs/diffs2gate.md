@@ -60,19 +60,19 @@ Here is a comparison of the most important API methods related to documents, sho
 ## Features:
 
 * So far, only Annotations and Documents can have features
-* Features are conceptually not a separate object stored with Annotations or Documents
-  but part of the object and directly handled through methods of the object,
-  e.g. `my_annotation.set_feature("name","value")`
+* Features behave much like a Python dict
+* Features are stored in a `Features` object
+* The `Features` object for a Document or Annotation cannot be replaced
 * Features *must* have string keys and should have values that are JSON-serializable
   (otherwise, the document cannot get saved in Bdoc JSPN format)
 
 Setting a feature:
 * GATE: `obj.getFeatures().put(name, value)`
-* Python: `obj.set_feature(name, value)`
+* Python: `obj.features[name] = value`
 
 Getting a feature:
 * GATE: `obj.getFeatures().get(name)`
-* Python: `obj.get_features(name [,defaulval])`
+* Python: `obj.features.get(name [,defaulval])`
 
 ## Annotations:
 

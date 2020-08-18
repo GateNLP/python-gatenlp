@@ -79,8 +79,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.annotation_set.html">gatenlp.annotation_set module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.changelog.html">gatenlp.changelog module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.document.html">gatenlp.document module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gatenlp.exceptions.html">gatenlp.exceptions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gatenlp.feature_bearer.html">gatenlp.feature_bearer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gatenlp.features.html">gatenlp.features module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.gate_interaction.html">gatenlp.gate_interaction module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.gateslave.html">gatenlp.gateslave module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gatenlp.lib_spacy.html">gatenlp.lib_spacy module</a></li>
@@ -95,8 +94,8 @@
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gatenlp" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="gatenlp.Annotation">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">annot_type</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">annid</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">Annotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">annot_type</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">annid</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An annotation represents information about a span of text. It contains the start and end
 offsets of the span, an “annotation type” and it is a feature bearer.
 In addition it contains an id which has no meaning for the annotation itself but is
@@ -106,19 +105,31 @@ only the features can be changed.</p>
 <p>Create a new annotation instance. NOTE: this should almost never be done directly
 and instead the method annotation_set.add should be used!
 Once an annotation has been created, the start, end, type and id fields must not
-be changed!
-:param start: start offset of the annotation
-:param end: end offset of the annotation
-:param annot_type: annotation type
-:param annot_id: the id of the annotation
-:param owner_set: the containing annotation set
-:param features: an initial collection of features, None for no features.</p>
+be changed!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – start offset of the annotation</p></li>
+<li><p><strong>end</strong> – end offset of the annotation</p></li>
+<li><p><strong>annot_type</strong> – annotation type</p></li>
+<li><p><strong>annot_id</strong> – the id of the annotation</p></li>
+<li><p><strong>owner_set</strong> – the containing annotation set</p></li>
+<li><p><strong>features</strong> – an initial collection of features, None for no features.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="gatenlp.Annotation.contains_offset">
 <code class="sig-name descname">contains_offset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.contains_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Annotation.contains_offset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the given offset falls somewhere inside the span of this annotation.
-:param offset: the offset to check
-:return: True if the offset is inside the span of this annotation</p>
+<dd><p>Check if the given offset falls somewhere inside the span of this annotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>offset</strong> – the offset to check</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the offset is inside the span of this annotation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -347,8 +358,11 @@ the type, and the annotation id are immutable.</p>
 <li><p><strong>start</strong> – start offset</p></li>
 <li><p><strong>end</strong> – end offset</p></li>
 <li><p><strong>anntype</strong> – the annotation type</p></li>
-<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used         to create a new feature map for this annotation. If the map is empty or this parameter is None, the         annotation does not store any map at all.</p></li>
-<li><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used. NOTE: the id should        normally left unspecified and get assigned automatically.</p></li>
+<li><p><strong>features</strong> – a map, an iterable of tuples or an existing feature map. In any case, the features are used
+to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+annotation does not store any map at all.</p></li>
+<li><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+normally left unspecified and get assigned automatically.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -364,7 +378,8 @@ the type, and the annotation id are immutable.</p>
 with the one given.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used.        NOTE: the id should normally left unspecified and get assigned automatically.</p>
+<dd class="field-odd"><p><strong>annid</strong> – the annotation id, if not specified the next free one for this set is used.
+NOTE: the id should normally left unspecified and get assigned automatically.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the annotation id of the added annotation</p>
@@ -558,8 +573,12 @@ in restrict_to</p>
 <dl class="py method">
 <dt id="gatenlp.AnnotationSet.first">
 <code class="sig-name descname">first</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.first" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first annotation in the set or raise and exception if the set is empty.
-:return: first annotation</p>
+<dd><p>Return the first annotation in the set or raise an exception if the set is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>first annotation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -630,15 +649,23 @@ parameters.</p>
 <dl class="py method">
 <dt id="gatenlp.AnnotationSet.last">
 <code class="sig-name descname">last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.last" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the last annotation in the set or raise and exception if the set is empty.
-:return: first annotation</p>
+<dd><p>Return the last annotation in the set or raise and exception if the set is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>first annotation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="gatenlp.AnnotationSet.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#gatenlp.AnnotationSet.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the name of the annotation set.
-:return: name of annotation set</p>
+<dd><p>Get the name of the annotation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>name of annotation set</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -690,9 +717,15 @@ also accepts an annotation or annotation set.</p>
 <dl class="py method">
 <dt id="gatenlp.AnnotationSet.set_immutable">
 <code class="sig-name descname">set_immutable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.set_immutable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.AnnotationSet.set_immutable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the annotationset to mutable (False) or immutable (True)
-:param val: boolean, True to set to immutable, False, otherwise.
-:return:</p>
+<dd><p>Set the annotationset to mutable (False) or immutable (True)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>val</strong> – boolean, True to set to immutable, False, otherwise.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1022,7 +1055,7 @@ new change objects and a new changes list and returs it.</p></li>
 <dl class="py class">
 <dt id="gatenlp.Document">
 <em class="property">class </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">Document</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">features</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">changelog</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.Document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="gatenlp.feature_bearer.html#gatenlp.feature_bearer.FeatureBearer" title="gatenlp.feature_bearer.FeatureBearer"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.feature_bearer.FeatureBearer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represent a GATE document. This is different from the original Java GATE representation in several ways:</p>
 <ul class="simple">
 <li><p>the text is not mutable and can only be set at creation time, so there is no “edit” method</p></li>
@@ -1032,8 +1065,6 @@ no separate “FeatureMap” to store them</p></li>
 <li><p>there is no separate abstraction for “content”, the only content possible is text which is a unicode string
 that can be acessed with the “text()” method</p></li>
 <li><p>Spans of text can be directly accessed using doc[from:to]</p></li>
-<li><p>features are not stored in a separate feature map object, but are directly set on the document, e.g.
-doc.set_feature(“x”,y) or doc.get_feature(“x”, defaultvalue)</p></li>
 <li><p>Features may only have string keys and values which can be json-serialised</p></li>
 <li><p>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
 are UTF-16 Unicode code units</p></li>
@@ -1051,15 +1082,6 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 <li><p><strong>features</strong> – the initial document features to set, a sequence of key/value tuples</p></li>
 <li><p><strong>changelog</strong> – a ChangeLog instance to use to log changes.</p></li>
 </ul>
-</dd>
-</dl>
-<p>Initialise any features, if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>initialfeatures</strong> – an iterable containing tuples of initial feature key/value pairs</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1355,12 +1377,6 @@ wrapper.</p>
 <dd class="field-even"><p>modified class or function</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="gatenlp.InvalidOffsetException">
-<em class="property">exception </em><code class="sig-prename descclassname">gatenlp.</code><code class="sig-name descname">InvalidOffsetException</code><a class="reference internal" href="_modules/gatenlp/exceptions.html#InvalidOffsetException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.InvalidOffsetException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code></p>
 </dd></dl>
 
 </div>

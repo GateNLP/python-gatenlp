@@ -2,12 +2,13 @@ from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Gener
 from collections import defaultdict
 import copy
 from gatenlp.annotation import Annotation
-from gatenlp.exceptions import InvalidOffsetException
-from gatenlp.changelog import ChangeLog
 from gatenlp.impl import SortedIntvls
 from gatenlp._utils import support_annotation_or_set
-from gatenlp.utils import to_dict
 from collections.abc import Iterable
+
+
+class InvalidOffsetException(KeyError):
+    pass
 
 
 class AnnotationSet:
@@ -39,6 +40,7 @@ class AnnotationSet:
     def name(self):
         """
         Get the name of the annotation set.
+
         :return: name of annotation set
         """
         return self._name
@@ -51,6 +53,7 @@ class AnnotationSet:
         """
         Prevent immutable fields from getting overridden, once they have been
         set.
+
         :param key: attribute to set
         :param value: value to set attribute to
         :return:
@@ -111,6 +114,7 @@ class AnnotationSet:
     def set_immutable(self, val: bool):
         """
         Set the annotationset to mutable (False) or immutable (True)
+
         :param val: boolean, True to set to immutable, False, otherwise.
         :return:
         """
@@ -280,11 +284,11 @@ class AnnotationSet:
         :param start: start offset
         :param end: end offset
         :param anntype: the annotation type
-        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used \
-        to create a new feature map for this annotation. If the map is empty or this parameter is None, the \
-        annotation does not store any map at all.
-        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should\
-        normally left unspecified and get assigned automatically.
+        :param features: a map, an iterable of tuples or an existing feature map. In any case, the features are used
+          to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+          annotation does not store any map at all.
+        :param annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+          normally left unspecified and get assigned automatically.
         :return: the new annotation
         """
         if self._is_immutable:
@@ -295,7 +299,7 @@ class AnnotationSet:
         if annid is None:
             annid = self._next_annid
             self._next_annid = self._next_annid + 1
-        ann = Annotation(start, end, anntype, annid, features=features)
+        ann = Annotation(start, end, anntype, annid=annid, features=features)
         ann._owner_set = self
         if not self._annotations:
             self._annotations = {}
@@ -308,7 +312,7 @@ class AnnotationSet:
                     "start": ann.start,
                     "end": ann.end,
                     "type": ann.type,
-                    "features": ann._features,
+                    "features": ann._features.to_dict(),
                     "id": ann.id
                 }
             self.changelog.append(entry)
@@ -319,11 +323,11 @@ class AnnotationSet:
         Add a copy of the given ann to the annotation set, either with a new annotation id or
         with the one given.
 
-        :param annid: the annotation id, if not specified the next free one for this set is used.\
-        NOTE: the id should normally left unspecified and get assigned automatically.
+        :param annid: the annotation id, if not specified the next free one for this set is used.
+          NOTE: the id should normally left unspecified and get assigned automatically.
         :return: the annotation id of the added annotation
         """
-        return self.add(ann.start, ann.end, ann.type, ann.features(), annid=annid)
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
     def remove(self, annotation: Union[int, Annotation]) -> None:
         """
@@ -378,7 +382,6 @@ class AnnotationSet:
         the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
 
         :param memo: for internal use by our __deepcopy__ implementation.
-
         :return:
         """
         tmpdict = {}
@@ -513,6 +516,7 @@ class AnnotationSet:
     def first(self):
         """
         Return the first annotation in the set or raise an exception if the set is empty.
+
         :return: first annotation
         """
         sz = len(self._annotations)
@@ -527,6 +531,7 @@ class AnnotationSet:
     def last(self):
         """
         Return the last annotation in the set or raise and exception if the set is empty.
+
         :return: first annotation
         """
         sz = len(self._annotations)
@@ -541,6 +546,7 @@ class AnnotationSet:
     def __getitem__(self, annid):
         """
         Gets the annotation with the given annotation id or throws an exception.
+        
         :param item: the annotation id
         :return: annotation
         """

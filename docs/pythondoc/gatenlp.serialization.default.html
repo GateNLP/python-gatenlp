@@ -78,7 +78,8 @@
 <dl class="py method">
 <dt id="gatenlp.serialization.default.HtmlLoader.load">
 <em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parser</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">markup_set_name</span><span class="o">=</span><span class="default_value">'Original markups'</span></em>, <em class="sig-param"><span class="n">process_soup</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#HtmlLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.HtmlLoader.load" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Load a HTML file.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>clazz</strong> – </p></li>
@@ -216,9 +217,15 @@
 <dl class="py function">
 <dt id="gatenlp.serialization.default.get_bytes_from_url">
 <code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">get_bytes_from_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#get_bytes_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.get_bytes_from_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read bytes from url.
-:param url: the URL
-:return: the bytes</p>
+<dd><p>Read bytes from url.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>url</strong> – the URL</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the bytes</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -249,18 +256,32 @@
 <dl class="py function">
 <dt id="gatenlp.serialization.default.get_str_from_url">
 <code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">get_str_from_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#get_str_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.get_str_from_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read a string from the URL.
-:param url: some URL
-:param encoding: override the encoding that would have determined automatically
-:return: the string</p>
+<dd><p>Read a string from the URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – some URL</p></li>
+<li><p><strong>encoding</strong> – override the encoding that would have determined automatically</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="gatenlp.serialization.default.is_url">
 <code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">is_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ext</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#is_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.is_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.
-:param ext: something that represents an external resource: string, url parse, pathlib path object …
-:return: True or False</p>
+<dd><p>Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ext</strong> – something that represents an external resource: string, url parse, pathlib path object …</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True or False</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

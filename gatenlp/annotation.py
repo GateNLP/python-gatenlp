@@ -5,13 +5,14 @@ import sys
 from typing import List, Union, Dict, Set
 import copy
 from functools import total_ordering
-from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
+# from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
+from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
 from gatenlp._utils import support_annotation_or_set
 
 
 @total_ordering
-class Annotation(FeatureBearer):
+class Annotation:
     """
     An annotation represents information about a span of text. It contains the start and end
     offsets of the span, an "annotation type" and it is a feature bearer.
@@ -46,20 +47,22 @@ class Annotation(FeatureBearer):
 
     @property
     def features(self):
-        return FeatureViewer(self._features, changelog=self.changelog, logger=self._log_feature_change)
+        return self._features
 
     @property
     def id(self):
         return self._id
 
     def __init__(self, start: int, end: int, annot_type: str,
+                 features=None,
                  annid: int = 0,
-                 features=None):
+                 ):
         """
         Create a new annotation instance. NOTE: this should almost never be done directly
         and instead the method annotation_set.add should be used!
         Once an annotation has been created, the start, end, type and id fields must not
         be changed!
+
         :param start: start offset of the annotation
         :param end: end offset of the annotation
         :param annot_type: annotation type
@@ -73,16 +76,18 @@ class Annotation(FeatureBearer):
             raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: annid is not an int")
         if isinstance(features, int):
             raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: features must not be an int")
-        super().__init__(features)
+        # super().__init__(features)
+        self._owner_set = None
+        self._features = Features(features, logger=self._log_feature_change)
         self._type = annot_type
         self._start = start
         self._end = end
         self._id = annid
-        self._owner_set = None
 
     def _changelog(self):
         """
         Return the changelog of the owning set, if there is one, or None.
+
         :return: the changelog
         """
         if self._owner_set is not None:
@@ -114,6 +119,7 @@ class Annotation(FeatureBearer):
         """
         Two annotations are identical if they are the same object or if all the fields
         are equal.
+
         :param other: the object to compare with
         :return: if the annotations are equal
         """
@@ -134,6 +140,7 @@ class Annotation(FeatureBearer):
     def __hash__(self):
         """
         The hash depends on the annotation ID and the owning set.
+
         :return: hash
         """
         return hash((self.id, self._owner_set))
@@ -143,6 +150,7 @@ class Annotation(FeatureBearer):
         Comparison for sorting: this sorts by increasing start offset, then increasing end offset, then increasing
         type name, then increasing annotation id.
         NOTE: for now the other object has to be an instance of Annotation, duck typing is not supported!
+
         :param other: another annotation
         :return:
         """
@@ -174,6 +182,7 @@ class Annotation(FeatureBearer):
     def __repr__(self) -> str:
         """
         String representation of the annotation.
+
         :return: string representation
         """
         return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self._features)
@@ -182,6 +191,7 @@ class Annotation(FeatureBearer):
         """
         The length of the annotation is the length of the offset span. Since the end offset is one after the last
         element, we return end-start
+
         :return:
         """
         return self.end - self.start
@@ -189,6 +199,7 @@ class Annotation(FeatureBearer):
     def contains_offset(self, offset: int) -> bool:
         """
         Check if the given offset falls somewhere inside the span of this annotation.
+
         :param offset: the offset to check
         :return: True if the offset is inside the span of this annotation
         """
@@ -323,7 +334,7 @@ class Annotation(FeatureBearer):
             "start": start,
             "end": end,
             "id": self.id,
-            "features": self._features,
+            "features": self._features.to_dict(),
         }
 
     @staticmethod
@@ -346,7 +357,7 @@ class Annotation(FeatureBearer):
 
     def __deepcopy__(self, memo):
         if self._features is not None:
-            fts = copy.deepcopy(self._features, memo)
+            fts = copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         return Annotation(self._start, self._end, self._type, self._id, features=fts)

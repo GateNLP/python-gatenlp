@@ -12,7 +12,7 @@ from gatenlp import Document
 # Create the document
 doc1 = Document("This is the text of the document.")
 # set a document feature
-doc1.set_feature("purpose", "simple illustration of gatenlp basics")
+doc1.features["purpose"] = "simple illustration of gatenlp basics"
 # get the default annotation set
 defset = doc1.get_annotations()
 # add an annotation that spans the whole document, no features
@@ -23,15 +23,14 @@ Now save the document in bdocjson format and load back from the saved
 document:
 
 ```python
-from gatenlp.docformats import simplejson
 
 # save the document in bdocjson format, this can be read into Java GATE
 # using the format-bdoc plugin.
-simepljson.dump_file(doc1, "testdoc.bdocjson")
+doc1.save("testdoc.bdocjs")
 # Read back the document
-doc2 = simplejson.load_file("testdoc.bdocjson")
+doc2 = Document.load("testdoc.bdocjs")
 # print the json representation of the loaded document
-print(simplejson.dumps(doc2))
+print(doc2.save_mem(fmt="json"))
 ```
 
 Tokenize and create annotations for the tokens:

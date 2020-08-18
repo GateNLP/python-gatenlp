@@ -4,7 +4,8 @@ from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYT
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
-from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
+# from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
+from gatenlp.features import Features
 import logging
 import importlib
 import copy
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Document(FeatureBearer):
+class Document:
     """
     Represent a GATE document. This is different from the original Java GATE representation in several ways:
 
@@ -27,8 +28,6 @@ class Document(FeatureBearer):
     * there is no separate abstraction for "content", the only content possible is text which is a unicode string
       that can be acessed with the "text()" method
     * Spans of text can be directly accessed using doc[from:to]
-    * features are not stored in a separate feature map object, but are directly set on the document, e.g.
-      doc.set_feature("x",y) or doc.get_feature("x", defaultvalue)
     * Features may only have string keys and values which can be json-serialised
     * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
       are UTF-16 Unicode code units
@@ -49,8 +48,9 @@ class Document(FeatureBearer):
             assert isinstance(text, str)
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
-        super().__init__(features)
+        # super().__init__(features)
         self.changelog = changelog
+        self._features = Features(features, logger=self._log_feature_change)
         self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
@@ -163,17 +163,17 @@ class Document(FeatureBearer):
                         anns.add(start, end, anntype, annid)
                     elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
                         features = change.get("features")
-                        ann.update_features(features)
+                        ann.features.update(features)
                     elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
                         features = change.get("features")
-                        ann.clear_features()
-                        ann.update_features(features)
+                        ann.features.clear()
+                        ann.features.update(features)
                     elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
                         features = change.get("features")
                         fns = ann.feature_names()
                         for f in features.keys():
                             if f not in fns:
-                                ann.set_feature(f, features[f])
+                                ann.features[f] = features[f]
 
             elif cmd == ACTION_CLEAR_ANNS:
                 assert sname is not None
@@ -185,11 +185,11 @@ class Document(FeatureBearer):
                 anns = self.get_annotations(sname)
                 ann = anns.get(annid)
                 if ann is not None:
-                    ann.clear_features()
+                    ann.features.clear()
                 else:
                     pass # ignore, could happen with a detached annotation
             elif cmd == ACTION_CLEAR_DOC_FEATURES:
-                self.clear_features()
+                self.features.clear()
             elif cmd == ACTION_DEL_ANN_FEATURE:
                 assert sname is not None
                 assert annid is not None
@@ -197,12 +197,12 @@ class Document(FeatureBearer):
                 ann = anns.get(annid)
                 if ann is not None:
                     if fname is not None:
-                        ann.del_feature(fname)
+                        ann.features.pop(fname, None)
                 else:
                     pass  # ignore, could happen with a detached annotation
             elif cmd == ACTION_DEL_DOC_FEATURE:
                 assert fname is not None
-                self.del_feature(fname)
+                self.features.pop(fname, None)
             elif cmd == ACTION_DEL_ANN:
                 assert sname is not None
                 assert annid is not None
@@ -217,7 +217,7 @@ class Document(FeatureBearer):
 
         :return: A FeatureViewer view of the document features.
         """
-        return FeatureViewer(self._features, changelog=self.changelog, logger=self._log_feature_change)
+        return self._features
 
 
     def set_changelog(self, chlog: ChangeLog) -> ChangeLog:
@@ -384,7 +384,7 @@ class Document(FeatureBearer):
         return {
             "annotation_sets": {name: aset.to_dict() for name, aset in self._annotation_sets.items() },
             "text": self._text,
-            "features": self._features,
+            "features": self._features.to_dict(),
             "offset_type": offset_type,
             "name": self.name,
         }
@@ -397,12 +397,12 @@ class Document(FeatureBearer):
         :param dictrepr:
         :return: the initialized Document instance
         """
-        doc = Document(dictrepr.get("text"))
+        feats = dictrepr.get("features")
+        doc = Document(dictrepr.get("text"), features=feats)
         doc.name = dictrepr.get("name")
         doc.offset_type = dictrepr.get("offset_type")
         if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
-        doc._features = dictrepr.get("features")
         annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
                    for name, adict in dictrepr.get("annotation_sets").items()}
         doc._annotation_sets = annsets
@@ -508,7 +508,7 @@ class Document(FeatureBearer):
         doc = Document(self._text)
         doc._annotation_sets = self._annotation_sets
         doc.offset_type = self.offset_type
-        doc._features = self._features
+        doc._features = self._features.copy()
         return doc
 
     def copy(self):
@@ -528,7 +528,7 @@ class Document(FeatureBearer):
         :return: a deep copy of the document.
         """
         if self._features is not None:
-            fts = copy.deepcopy(self._features, memo)
+            fts = copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         doc = Document(self._text, features=fts)
