@@ -68,7 +68,7 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
                     # TODO: maybe try to detect and convert bool/int values
                     fm["feat_"+k] = v
             snlp_idx = int(word.index)
-            annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm)
+            annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm).id
             idx2annid[snlp_idx] = annid
         # create a sentence annotation from beginning of first word to end of last
         sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type)
