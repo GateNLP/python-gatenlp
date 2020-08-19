@@ -312,6 +312,8 @@ JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.7/gatenlp-an
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
 JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
+html_ann_viewer_serializer_js_loaded = False
+
 class HtmlAnnViewerSerializer:
 
     @staticmethod
@@ -331,17 +333,22 @@ class HtmlAnnViewerSerializer:
             str_end = "<!--ENDDIV-->"
             idx1 = html.find(str_start) + len(str_start)
             idx2 = html.find(str_end)
-            html = html[idx1:idx2]
-            # replace the prefix with a random one
             rndpref = "".join(choice(ascii_uppercase) for i in range(10))
-            html = html.replace("GATENLPID-", rndpref)
+            html = html[idx1:idx2] + f"<div>ID: {rndpref}</div>"
+            # replace the prefix with a random one
+            html = html.replace("GATENLPID", rndpref)
         if offline:
-            jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
-            if not os.path.exists(jsloc):
-                raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
-            with open(jsloc, "rt", encoding="utf-8") as infp:
-                js = infp.read();
-                js = """<script type="text/javascript">""" + js + "</script>"
+            global html_ann_viewer_serializer_js_loaded
+            if not html_ann_viewer_serializer_js_loaded:
+                jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
+                if not os.path.exists(jsloc):
+                    raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
+                with open(jsloc, "rt", encoding="utf-8") as infp:
+                    js = infp.read();
+                    js = """<script type="text/javascript">""" + js + "</script>"
+                html_ann_viewer_serializer_js_loaded = True
+            else:
+                js = ""
         else:
             js = JS_JQUERY + JS_GATENLP
         html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)

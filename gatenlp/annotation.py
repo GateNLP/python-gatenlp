@@ -189,7 +189,7 @@ class Annotation:
 
         :return: string representation
         """
-        return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self._features)
+        return "Annotation({},{},{},features={},id={})".format(self.start, self.end, self.type, self._features, self.id)
 
     def length(self) -> int:
         """
@@ -357,7 +357,7 @@ class Annotation:
         return ann
 
     def __copy__(self):
-        return Annotation(self._start, self._end, self._type, self._id, features=self._features)
+        return Annotation(self._start, self._end, self._type, annid=self._id, features=self._features)
 
     def copy(self):
         return self.__copy__()
@@ -367,7 +367,7 @@ class Annotation:
             fts = copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
-        return Annotation(self._start, self._end, self._type, self._id, features=fts)
+        return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
 
     def deepcopy(self):
         return copy.deepcopy(self)
