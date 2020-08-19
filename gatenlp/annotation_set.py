@@ -518,7 +518,7 @@ class AnnotationSet:
         an id and not the annotation, this will accept an annotation so the the frequent
         pattern still works:
 
-           annid = annset.add(b,e,t)
+           annid = annset.add(b,e,t).id
            ann = annset.get(annid)
 
         If an annotation is passed the annotation from the set with the id of that annotation is

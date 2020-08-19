@@ -134,10 +134,10 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
             stanzaid = t["id"]
             starts.append(start)
             ends.append(end)
-            annid = annset.add(start, end, token_type, t["fm"])
+            annid = annset.add(start, end, token_type, t["fm"]).id
             idx2annid[stanzaid] = annid
         # create a sentence annotation from beginning of first word to end of last
-        sentid = annset.add(starts[0], ends[-1], sentence_type)
+        sentid = annset.add(starts[0], ends[-1], sentence_type).id
         # now replace the head index with the corresponding annid, the head index "0" is
         # mapped to the sentence annotation
         idx2annid["0"] = sentid

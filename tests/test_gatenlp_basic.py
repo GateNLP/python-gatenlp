@@ -34,7 +34,7 @@ class TestDocument01:
         ann1id = ann1.id
         assert len(annset1) == 1
         assert ann1.features["f1"] == 1
-        ann2id = annset1.add(0, 4, "Type1", {"f1": 13, "f2": 12})
+        ann2id = annset1.add(0, 4, "Type1", {"f1": 13, "f2": 12}).id
         inorder = list(annset1.iter())
         assert len(inorder) == 2
         assert inorder[0].features["f1"] == 13
@@ -79,7 +79,7 @@ class TestChangeLog01:
         ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
         ann3 = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
-        ann4id = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
+        ann4id = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True}).id
         ann5 = annset1.add(16, 24, "Token", {"n": 5})
         assert annset1.first().id == ann1.id
         assert annset1.last().id == ann5.id

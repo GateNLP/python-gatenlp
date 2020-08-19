@@ -97,7 +97,7 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
             anntype = spacetoken_type
         else:
             anntype = token_type
-        annid = annset.add(from_off, to_off, anntype, fm)
+        annid = annset.add(from_off, to_off, anntype, fm).id
         toki2annid[tok.i] = annid
         # print("Added annotation with id: {} for token {}".format(annid, tok.i))
         ws = tok.whitespace_

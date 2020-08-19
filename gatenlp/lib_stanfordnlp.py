@@ -71,7 +71,7 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
             annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm).id
             idx2annid[snlp_idx] = annid
         # create a sentence annotation from beginning of first word to end of last
-        sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type)
+        sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type).id
         # now replace the governor index with the corresponding annid, the governor index is
         # mapped to the sentence annotation
         idx2annid[0] = sentid
