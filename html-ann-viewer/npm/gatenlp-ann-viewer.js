@@ -1,6 +1,6 @@
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
-class DocRep {
+var gatenlpDocRep = class {
     constructor(jsonstring) {
             this.sep = "║"
             this.sname2types = new Map();
@@ -81,11 +81,72 @@ class DocRep {
         return anns;
     }
 
-}
+};
+
+function docview_annchosen(rep, ev, setname, anntype) {
+        let checked = $(ev.target).prop("checked");
+        // this gives us the setname, type and checkbox status of what has been clicked, but for now
+        // we always get the complete list of selected types here:
+        let seltypes = [];
+        let inputs = $(rep.id_chooser).find("input");
+        inputs.each(function(index) {
+            let inputel = $(inputs.get(index));
+            if (inputel.prop("checked")) {
+                // seltypes.push(([inputel.attr("data-setname"), inputel.attr("data-anntype")]));
+                seltypes[seltypes.length] = [inputel.attr("data-setname"), inputel.attr("data-anntype")]
+            }
+        });
+        rep.chosen = seltypes;
+        rep.buildAnns4Offset();
+        rep.buildContent();
+    }
+
+function docview_annsel(obj, ev, anns) {
+        if (anns.length > 1) {
+            $(obj.id_popup).empty();
+            for (let [setname, annid] of anns) {
+                let ann = obj.docrep.ann4setnameannid(setname, annid);
+                let feats = ann.features;
+                let idpopup = obj.id_popup;
+                $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
+                    docview_showAnn(obj, ann);
+                    $(idpopup).hide();
+                }).appendTo(obj.id_popup);
+            }
+            $(obj.id_popup).show();
+        } else if (anns.length == 1) {
+            let ann = obj.docrep.ann4setnameannid(anns[0][0], anns[0][1]);
+            docview_showAnn(obj, ann);
+        } else {
+            console.error("EMPTY ANNS???");
+        }
+    }
+
+function docview_showFeatures(obj, features) {
+        let tbl = $("<table>").attr("class", obj.idprefix+"featuretable");
+        for (let fname in features) {
+            let fval = JSON.stringify(features[fname]);
+            tbl.append("<tr><td class='" + obj.class_fname + "'>" + fname + "</td><td class='" + obj.class_fvalue + "'>" + fval + "</td></tr>");
+        }
+        $(obj.id_details).append(tbl);
+    }
+
+function docview_showAnn(obj, ann) {
+        $(obj.id_details).empty();
+        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Annotation: " + ann.type + " from " + ann.start + " to " + ann.end + "</div>");
+        docview_showFeatures(obj, ann.features);
+    }
+
+function docview_showDocFeatures(obj, features) {
+        $(obj.id_details).empty();
+        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Document features:</div>");
+        docview_showFeatures(obj, features);
+    }
+
 
 
 // class to build the HTML for viewing the converted document
-class DocView {
+var gatenlpDocView = class {
     constructor(docrep, idprefix="GATENLPID-", config=undefined) {
         // idprefix: the prefix to add to all ids and classes
         this.docrep = docrep;
@@ -186,7 +247,7 @@ class DocView {
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
-                let annhandler = function(ev) { DocView.annchosen(object, ev, setname, anntype) }
+                let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
 
                 $(lbl).append(inp);
@@ -203,8 +264,8 @@ class DocView {
 
         let obj = this;
         let feats = this.docrep["features"];
-        DocView.showDocFeatures(obj, feats);
-        $(this.id_dochdr).text("Document:").on("click", function(ev) { DocView.showDocFeatures(obj, feats) });
+        docview_showDocFeatures(obj, feats);
+        $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
 
         this.buildAnns4Offset()
         this.buildContent()
@@ -276,7 +337,7 @@ class DocView {
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
-                    let annhandler = function(ev) { DocView.annsel(object, ev, anns) }
+                    let annhandler = function(ev) { docview_annsel(object, ev, anns) }
                     span.on("click", annhandler);
                 } else {
                     span = $('<span>');
@@ -306,72 +367,14 @@ class DocView {
 
     }
 
-    static annchosen(rep, ev, setname, anntype) {
-        let checked = $(ev.target).prop("checked");
-        // this gives us the setname, type and checkbox status of what has been clicked, but for now
-        // we always get the complete list of selected types here:
-        let seltypes = [];
-        let inputs = $(rep.id_chooser).find("input");
-        inputs.each(function(index) {
-            let inputel = $(inputs.get(index));
-            if (inputel.prop("checked")) {
-                // seltypes.push(([inputel.attr("data-setname"), inputel.attr("data-anntype")]));
-                seltypes[seltypes.length] = [inputel.attr("data-setname"), inputel.attr("data-anntype")]
-            }
-        });
-        rep.chosen = seltypes;
-        rep.buildAnns4Offset();
-        rep.buildContent();
-    }
-
-    static annsel(obj, ev, anns) {
-        if (anns.length > 1) {
-            $(obj.id_popup).empty();
-            for (let [setname, annid] of anns) {
-                let ann = obj.docrep.ann4setnameannid(setname, annid);
-                let feats = ann.features;
-                let idpopup = obj.id_popup;
-                $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
-                    DocView.showAnn(obj, ann);
-                    $(idpopup).hide();
-                }).appendTo(obj.id_popup);
-            }
-            $(obj.id_popup).show();
-        } else if (anns.length == 1) {
-            let ann = obj.docrep.ann4setnameannid(anns[0][0], anns[0][1]);
-            DocView.showAnn(obj, ann);
-        } else {
-            console.error("EMPTY ANNS???");
-        }
-    }
-
-    static showFeatures(obj, features) {
-        let tbl = $("<table>").attr("class", obj.idprefix+"featuretable");
-        for (let fname in features) {
-            let fval = JSON.stringify(features[fname]);
-            tbl.append("<tr><td class='" + obj.class_fname + "'>" + fname + "</td><td class='" + obj.class_fvalue + "'>" + fval + "</td></tr>");
-        }
-        $(obj.id_details).append(tbl);
-    }
-
-    static showAnn(obj, ann) {
-        $(obj.id_details).empty();
-        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Annotation: " + ann.type + " from " + ann.start + " to " + ann.end + "</div>");
-        DocView.showFeatures(obj, ann.features);
-    }
-
-    static showDocFeatures(obj, features) {
-        $(obj.id_details).empty();
-        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Document features:</div>");
-        DocView.showFeatures(obj, features);
-    }
 
     htmlEntities(str) {
-        return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replace('"', '&quot;').replaceAll("\n", "<br>");
+        return str.replace(/&/, '&amp;').replace(/</, '&lt;').replace(/>/, '&gt;').replace(/"/, '&quot;').replace(/\n/, "<br>");
     }
-} //class
-
+};
+console.log("Classes defined");
 function gatenlp_run(prefix) {
     bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new DocView(new DocRep(bdocjson), prefix).init();
+    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
 }
+console.log("Function defined");
