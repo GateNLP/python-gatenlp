@@ -19,12 +19,12 @@ print("GATE Document after ANNIE:", doc1)
 pdoc = gs.gdoc2pdoc(doc1)
 print("Python gatenlp document after ANNIE:", pdoc)
 
-anns = pdoc.get_annotations()
+anns = pdoc.annset()
 
-tokens = anns.with_type("Token")
+tokens = anns.type("Token")
 print(f"Got {len(tokens)} tokens")
 
-persons = anns.with_type("Person")
+persons = anns.type("Person")
 print(f"Got {len(persons)} Person annotations:")
 for ann in persons:
     print(f"- {pdoc[ann]} from {ann.start} to {ann.end}")

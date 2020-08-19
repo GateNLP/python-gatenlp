@@ -17,7 +17,7 @@ The normal way to create an annotation is by using the `AnnotationSet` method `a
 ```python
 from gatenlp import Document, Annotation
 doc = Document("Some test document")
-annset = doc.get_annotations()
+annset = doc.annset()
 ann = annset.add(2,4,"Token",{"lemma": "is"})
 ann
 # Out: Annotation(2,4,Token,id=1,features={'lemma': 'is'})

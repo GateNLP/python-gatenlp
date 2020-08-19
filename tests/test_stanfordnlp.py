@@ -14,10 +14,10 @@ class TestStanfordNlp01:
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
         sdoc = nlp(txt)
         gdoc = stanfordnlp2gatenlp(sdoc)
-        anns = gdoc.get_annotations()
-        sents = anns.with_type("Sentence")
+        anns = gdoc.annset()
+        sents = anns.type("Sentence")
         assert len(sents) == 2
-        words = anns.with_type("Word")
+        words = anns.type("Word")
         assert len(words) == 14
 
 

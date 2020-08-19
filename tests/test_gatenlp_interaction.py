@@ -17,7 +17,7 @@ class TestInteraction01:
     def test_interaction01_01(self):
         @GateNlpPr
         def do_it(doc: Document, **kwargs):
-            set1 = doc.get_annotations("Set1")
+            set1 = doc.annset("Set1")
             set1.add(2, 3, "test1", {"f1": "value1"})
             # return nothing
         doc1 = Document("Just a simple document")
@@ -28,7 +28,7 @@ class TestInteraction01:
         assert doc1._annotation_sets is not None
         assert len(doc1._annotation_sets) == 1
         assert "Set1" in doc1._annotation_sets
-        myset = doc1.get_annotations("Set1")
+        myset = doc1.annset("Set1")
         assert len(myset) == 1
         myanns = myset.start_ge(0)
         assert len(myanns) == 1

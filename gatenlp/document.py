@@ -141,11 +141,11 @@ class Document:
                 raise Exception("Change without field 'command'")
             if cmd == ACTION_ADD_ANNSET:
                 assert sname is not None
-                self.get_annotations(sname)
+                self.annset(sname)
             elif cmd == ACTION_ADD_ANN:
                 assert sname is not None
                 assert annid is not None
-                anns = self.get_annotations(sname)
+                anns = self.annset(sname)
                 ann = anns.get(annid)
                 start = change.get("start")
                 end = change.get("end")
@@ -177,12 +177,12 @@ class Document:
 
             elif cmd == ACTION_CLEAR_ANNS:
                 assert sname is not None
-                anns = self.get_annotations(sname)
+                anns = self.annset(sname)
                 anns.clear()
             elif cmd == ACTION_CLEAR_ANN_FEATURES:
                 assert sname is not None
                 assert annid is not None
-                anns = self.get_annotations(sname)
+                anns = self.annset(sname)
                 ann = anns.get(annid)
                 if ann is not None:
                     ann.features.clear()
@@ -193,7 +193,7 @@ class Document:
             elif cmd == ACTION_DEL_ANN_FEATURE:
                 assert sname is not None
                 assert annid is not None
-                anns = self.get_annotations(sname)
+                anns = self.annset(sname)
                 ann = anns.get(annid)
                 if ann is not None:
                     if fname is not None:
@@ -206,7 +206,7 @@ class Document:
             elif cmd == ACTION_DEL_ANN:
                 assert sname is not None
                 assert annid is not None
-                anns = self.get_annotations(sname)
+                anns = self.annset(sname)
                 anns.remove(annid)
 
     @property
@@ -304,7 +304,7 @@ class Document:
             return self.text[span.start():span.end()]
         return self.text[span]
 
-    def get_annotations(self, name: str = "") -> AnnotationSet:
+    def annset(self, name: str = "") -> AnnotationSet:
         """
         Get the named annotation set, if name is not given or the empty string, the default annotation set.
         If the annotation set does not already exist, it is created.
@@ -324,7 +324,7 @@ class Document:
         else:
             return self._annotation_sets[name]
 
-    def get_annotation_set_names(self) -> KeysView[str]:
+    def annset_names(self) -> KeysView[str]:
         """
         Return the set of known annotation set names.
 
@@ -333,7 +333,7 @@ class Document:
         self._ensure_type_python()
         return list(self._annotation_sets.keys())
     
-    def remove_annotation_set(self, name: str):
+    def remove_annset(self, name: str):
         """
         Completely remove the annotation set.
 

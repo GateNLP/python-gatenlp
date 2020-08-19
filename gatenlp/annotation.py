@@ -191,7 +191,7 @@ class Annotation:
         """
         return "Annotation({},{},{},id={},features={})".format(self.start, self.end, self.type, self.id, self._features)
 
-    def __len__(self) -> int:
+    def length(self) -> int:
         """
         The length of the annotation is the length of the offset span. Since the end offset is one after the last
         element, we return end-start

@@ -74,7 +74,7 @@ class AnnotationSet:
         :return: an immutable annotation set with all the annotations of this set or restricted to the ids
           in restrict_to
         """
-        annset = AnnotationSet(name="detached-from:"+self.name, owner_doc=self._owner_doc)
+        annset = AnnotationSet(name="detached-from:"+self.name)
         annset._is_immutable = True
         if restrict_to is None:
             annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
@@ -83,7 +83,7 @@ class AnnotationSet:
         annset._next_annid = self._next_annid
         return annset
 
-    def detached_from(self, anns: Iterable) -> "AnnotationSet":
+    def detach_from(self, anns: Iterable) -> "AnnotationSet":
         """
         Create an immutable detached annotation set from the annotations in anns which could by
         either a collection of annotations or annotation ids (int numbers) which are assumed to
@@ -283,7 +283,7 @@ class AnnotationSet:
         self._create_index_by_offset()
         return self._index_by_offset.max_end()
 
-    def __len__(self):
+    def length(self):
         """
         Return the length of the span covered by to first to last annotation.
         This needs the index and creates it if necessary.
@@ -572,7 +572,7 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def with_type(self, *anntype: Union[str, Iterable],
+    def type(self, *anntype: Union[str, Iterable],
                   non_overlapping: bool = False) -> "AnnotationSet":
         """
         Gets annotations of the specified type(s).
@@ -679,7 +679,6 @@ class AnnotationSet:
         :return:
         """
         raise("Not yet implemented")
-
 
     def type_names(self) -> KeysView[str]:
         """

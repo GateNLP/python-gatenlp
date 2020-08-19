@@ -39,7 +39,7 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="
     else:
         retdoc = gatenlpdoc
     toki2annid = {}
-    annset = retdoc.get_annotations(setname)
+    annset = retdoc.annset(setname)
     # stanford nlp processes text in sentence chunks, so we do everything per sentence
     # NOTE: the stanford elements do not contain any text offsets, so we have to match and find
     # them ourselves. for this we keep an index to first character in the text which has not

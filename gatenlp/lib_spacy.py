@@ -52,7 +52,7 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
     else:
         retdoc = gatenlpdoc
     toki2annid = {}
-    annset = retdoc.get_annotations(setname)
+    annset = retdoc.annset(setname)
     for tok in spacydoc:
         from_off = tok.idx
         to_off = tok.idx + len(tok)

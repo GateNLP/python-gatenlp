@@ -29,7 +29,7 @@ class TestDocument01:
     def test_document01m01(self):
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
         doc1 = Document("This is a \U0001F4A9 document.\n이것은 문서입니다 \U0001F4A9\nЭто \U0001F4A9 документ\nاین یک سند \U0001F4A9 است")
-        annset1 = doc1.get_annotations("")
+        annset1 = doc1.annset("")
         ann1 = annset1.add(8, 9, "Type1", {"f1": 1, "f2": 2})
         ann1id = ann1.id
         assert len(annset1) == 1
@@ -43,6 +43,12 @@ class TestDocument01:
         ann3id = ann3.id
         assert ann3id in annset1
         assert annset1.span() == (0, 22)
+        retset1 = annset1.within(0,10)
+        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG: ", retset1)
+        assert retset1.detached
+        assert retset1.immutable
+        assert retset1.size() == 2
+        assert len(retset1) == 2
         assert len(annset1.within(0, 10)) == 2
         assert len(annset1.within(1, 3)) == 0
         assert len(annset1.within(0, 22)) == 3
@@ -54,7 +60,7 @@ class TestDocument01:
         doc2 = Document.load_mem(jsonstr)
         # print("DOC BACK: {}".format(doc2), file=sys.stderr)
         assert doc2.features["docfeat1"] == 33
-        d2annset1 = doc2.get_annotations("")
+        d2annset1 = doc2.annset("")
         assert len(d2annset1) == 3
         at8 = d2annset1.start_eq(8)
         # print("AT8: {}".format(at8), file=sys.stderr)
@@ -69,7 +75,7 @@ class TestChangeLog01:
         from gatenlp.offsetmapper import OffsetMapper
         chlog = ChangeLog()
         doc1 = Document("Just a simple \U0001F4A9 document.", changelog=chlog)
-        annset1 = doc1.get_annotations("")
+        annset1 = doc1.annset("")
         ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
         ann3 = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
@@ -77,7 +83,7 @@ class TestChangeLog01:
         ann5 = annset1.add(16, 24, "Token", {"n": 5})
         assert annset1.first().id == ann1.id
         assert annset1.last().id == ann5.id
-        annset2 = doc1.get_annotations("Set2")
+        annset2 = doc1.annset("Set2")
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2)
         ann3b = annset1.get(ann3.id)
@@ -99,13 +105,13 @@ class TestChangeLog01:
         chlog = ChangeLog()
         doc1 = Document("Just a simple \U0001F4A9 document.")
         doc1.changelog = chlog
-        annset1 = doc1.get_annotations("")
+        annset1 = doc1.annset("")
         ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
         ann3 = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
         ann4 = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
         ann5 = annset1.add(16, 24, "Token", {"n": 5})
-        annset2 = doc1.get_annotations("Set2")
+        annset2 = doc1.annset("Set2")
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2.id)
         ann3b = annset1.get(ann3.id)
@@ -126,7 +132,7 @@ class TestAnnotationSet01:
         from gatenlp.document import Document
         txt = " ".join([f"word{i:02d}" for i in range(10)])
         doc = Document(txt)
-        annset = doc.get_annotations()
+        annset = doc.annset()
         # create a Token annotation for each word
         # create "At3_1" annotations for a single token whenever i is a multiple of 3
         # create "At3_2" annotations for two tokens whenever i is a multiple of 3
@@ -138,27 +144,27 @@ class TestAnnotationSet01:
                 if i < 9:
                     annset.add(i * 7, i * 7 + 6 + 7, "At3_2", features={"i": i})
         # check: get all Token annotations
-        ret = annset.with_type("Token")
+        ret = annset.type("Token")
         assert len(ret) == 10
         # check get all At3_1 annotations
-        ret = annset.with_type("At3_1")
+        ret = annset.type("At3_1")
         assert len(ret) == 4
-        ret = annset.with_type("At3_2")
+        ret = annset.type("At3_2")
         assert len(ret) == 3
-        ret = annset.with_type("Token", "At3_1")
+        ret = annset.type("Token", "At3_1")
         assert len(ret) == 14
-        ret = annset.with_type("At3_1", "Token")
+        ret = annset.type("At3_1", "Token")
         assert len(ret) == 14
-        ret = annset.with_type("Token", "At3_1", non_overlapping=True)
+        ret = annset.type("Token", "At3_1", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_1={ret}")
         assert len(ret) == 10
-        ret = annset.with_type("Token", "At3_2", non_overlapping=True)
+        ret = annset.type("Token", "At3_2", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_2={ret}")
         assert len(ret) == 10
-        ret = annset.with_type("At3_1", "Token", non_overlapping=True)
+        ret = annset.type("At3_1", "Token", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_1/Token={ret}")
         assert len(ret) == 10
-        ret = annset.with_type("At3_2", "Token", non_overlapping=True)
+        ret = annset.type("At3_2", "Token", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_2/Token={ret}")
         assert len(ret) == 7
         # TODO: check other kinds of overlap in the original set!

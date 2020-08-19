@@ -12,7 +12,7 @@ Annotation sets are represented by the `AnnotationSet` class and created by fetc
 from gatenlp import Document
 
 doc = Document("some document")
-annset = doc.get_annotations("MySet")
+annset = doc.annset("MySet")
 ```
 
 Once an annotation set has been created it can be used to create and

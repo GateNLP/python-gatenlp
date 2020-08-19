@@ -461,7 +461,7 @@ class HtmlLoader:
         assert nstart == nend
         # print("DEBUG: got id2anninfo:\n", id2anninfo)
         doc = Document(docinfo["text"])
-        annset = doc.get_annotations(markup_set_name)
+        annset = doc.annset(markup_set_name)
         for i in range(nstart):
             anninfo = id2anninfo[i]
             annset.add(start=anninfo["start"], end=anninfo["end"], anntype=anninfo["type"],

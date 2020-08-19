@@ -90,7 +90,7 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
     else:
         retdoc = gatenlpdoc
     toki2annid = {}
-    annset = retdoc.get_annotations(setname)
+    annset = retdoc.annset(setname)
     # stanford nlp processes text in sentence chunks, so we do everything per sentence
     notmatchedidx = 0
     for sent in stanzadoc.sentences:
