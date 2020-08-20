@@ -3,6 +3,7 @@ Support for using stanford stanza (see https://stanfordnlp.github.io/stanza/):
 convert from stanford Stanza output to gatenlp documents and annotations.
 """
 from gatenlp import Document
+from gatenlp import logger
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=""):
@@ -124,6 +125,7 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
                     else:
                         tok["end"] = os+1
                     newtokens.append(tok)
+        # print(f"\n!!!!!!DEBUG: newtokens={newtokens}")
         # now go through the new token list and create annotations
         idx2annid = {}  # map stanza word id to annotation id
         starts = []
@@ -135,7 +137,8 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
             starts.append(start)
             ends.append(end)
             annid = annset.add(start, end, token_type, t["fm"]).id
-            idx2annid[stanzaid] = annid
+            idx2annid[str(stanzaid)] = annid
+        # print(f"\n!!!!!!DEBUG: idx2annid={idx2annid}")
         # create a sentence annotation from beginning of first word to end of last
         sentid = annset.add(starts[0], ends[-1], sentence_type).id
         # now replace the head index with the corresponding annid, the head index "0" is
@@ -146,7 +149,11 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
             hd = ann.features.get("head")
             if hd is not None:
                 hd = str(hd)
-                ann.features["head"] = idx2annid[hd]
+                headId = idx2annid.get(hd)
+                if headId is None:
+                    logger.error(f"Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}")
+                else:
+                    ann.features["head"] = idx2annid[hd]
 
         # add the entities
         if add_entities:
