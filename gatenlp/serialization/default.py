@@ -17,6 +17,12 @@ import requests
 from bs4 import BeautifulSoup
 import bs4
 
+# TODO: when loading from a URL, allow for deciding on the format based on the mime type!
+# So if we do not have the format, we should get the header for the file, check the mime type and see
+# if  we have a loder registered for that and then let the loader do the rest of the work. This may
+# need loaders to be able to use an already open stream. 
+
+
 def is_url(ext):
     """
     Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.
