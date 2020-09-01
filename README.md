@@ -12,7 +12,7 @@ framework,
 for manipulating GateNLP documents and
 for interacting with GATE Java and the GATE python plugin.
 
-**NOTE: This package is still in an early development stage**
+**NOTE: This package is still in pre-release development**
 
 **NOTE: The previous Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab) **
 
