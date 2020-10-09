@@ -455,6 +455,10 @@ class Document:
         as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
         deliberately use URL instead of a file parse the URL using urllib.
 
+        Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
+
+        Example: `Document.load(pathlib.Path(somepath), fmt=theformat)
+
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
         :param source: the URL or file path to load from.

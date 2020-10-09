@@ -26,20 +26,23 @@ import bs4
 
 def is_url(ext):
     """
-    Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.
+    Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    If ext is None, returns None, None.
 
     :param ext: something that represents an external resource: string, url parse, pathlib path object ...
-    :return: True or False
+    :return: True, usrlstring or False, pathstring
     """
     if isinstance(ext, str):
         if ext.startswith("http://") or ext.startswith("https://"):
-            return True
+            return True, ext
         else:
-             return False
+            return False, ext
     elif isinstance(ext, Path):
-        return False
+        return False, str(ext)
     elif isinstance(ext, ParseResult):
-        return True
+        return True, ext.geturl()
+
+
 
 def get_str_from_url(url, encoding=None):
     """
@@ -89,27 +92,35 @@ class JsonSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
-        print("RUNNING load with from_ext=",from_ext, " from_mem=", from_mem)
-        if from_ext is not None and is_url(from_ext):
-            print("DEBUG: we got a URL")
-            if gzip:
-                from_mem = get_bytes_from_url(from_ext)
+        print("RUNNING load with from_ext=", from_ext, " from_mem=", from_mem)
+
+        if from_ext is not None and from_mem is not None:
+            raise Exception("Exactly one of from_ext and from_mem must be specified ")
+        if from_ext is None and from_mem is None:
+            raise Exception("Exactly one of from_ext and from_mem must be specified ")
+
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                print("DEBUG: we got a URL")
+                if gzip:
+                    from_mem = get_bytes_from_url(extstr)
+                else:
+                    from_mem = get_str_from_url(extstr, encoding="utf-8")
             else:
-                from_mem = get_str_from_url(from_ext, encoding="utf-8")
-        else:
-            print("DEBUG: not a URL !!!")
+                print("DEBUG: not a URL !!!")
         if from_mem:
             if gzip:
                 d = json.loads(decompress(from_mem).decode("UTF-8"))
             else:
                 d = json.loads(from_mem)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
-        else:
+        else:  # from_ext must have been not None and a path
             if gzip:
-                with gopen(from_ext, "rt") as infp:
+                with gopen(extstr, "rt") as infp:
                     d = json.load(infp)
             else:
-                with open(from_ext, "rt") as infp:
+                with open(extstr, "rt") as infp:
                     d = json.load(infp)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -145,11 +156,13 @@ class PlainTextSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
-        if from_ext is not None and is_url(from_ext):
-            if gzip:
-                from_mem = get_bytes_from_url(from_ext)
-            else:
-                from_mem = get_str_from_url(from_ext, encoding="utf-8")
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                if gzip:
+                    from_mem = get_bytes_from_url(extstr)
+                else:
+                    from_mem = get_str_from_url(extstr, encoding="utf-8")
         if from_mem:
             if gzip:
                 txt = decompress(from_mem).decode("UTF-8")
@@ -158,10 +171,10 @@ class PlainTextSerializer:
             doc = Document(txt)
         else:
             if gzip:
-                with gopen(from_ext, "rt") as infp:
+                with gopen(extstr, "rt") as infp:
                     txt = infp.read()
             else:
-                with open(from_ext, "rt") as infp:
+                with open(extstr, "rt") as infp:
                     txt = infp.read()
             doc = Document(txt)
         return doc
@@ -197,11 +210,13 @@ class YamlSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
-        if from_ext is not None and is_url(from_ext):
-            if gzip:
-                from_mem = get_bytes_from_url(from_ext)
-            else:
-                from_mem = get_str_from_url(from_ext, encoding="utf-8")
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                if gzip:
+                    from_mem = get_bytes_from_url(extstr)
+                else:
+                    from_mem = get_str_from_url(extstr, encoding="utf-8")
         if from_mem:
             if gzip:
                 d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader)
@@ -210,10 +225,10 @@ class YamlSerializer:
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
-                with gopen(from_ext, "rt") as infp:
+                with gopen(extstr, "rt") as infp:
                     d = yaml.load(infp, Loader=yaml.FullLoader)
             else:
-                with open(from_ext, "rt") as infp:
+                with open(extstr, "rt") as infp:
                     d = yaml.load(infp, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -305,12 +320,15 @@ class MsgPackSerializer:
             raise Exception("Not implemented yet")
         else:
             raise Exception("Object not supported")
-        if from_ext is not None and is_url(from_ext):
-            from_mem = get_bytes_from_url(from_ext)
+
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                from_mem = get_bytes_from_url(extstr)
         if from_mem:
             f = io.BytesIO(from_mem)
         else:
-            f = open(from_ext, "rb")
+            f = open(extstr, "rb")
         doc = reader(f)
         return doc
 
@@ -393,12 +411,14 @@ class HtmlLoader:
         # before and after a block element, a newline is added unless there is already one
         # NOTE: for now we use  multi_valued_attributes=None which prevents attributes of the
         # form "class='val1 val2'" to get converted into features with a list of values.
-        if from_ext is not None and is_url(from_ext):
-            from_mem = get_str_from_url(from_ext)
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                from_mem = get_str_from_url(extstr)
         if from_mem:
             bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(from_ext, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(extstr, parser,  multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
@@ -500,11 +520,12 @@ class GateXmlLoader:
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
-        if is_url(from_ext):
-            xmlstring = get_str_from_url(from_ext, encoding="utf-8")
+        isurl, extstr = is_url(from_ext)
+        if isurl:
+            xmlstring = get_str_from_url(extstr, encoding="utf-8")
             root = ET.fromstring(xmlstring)
         else:
-            tree = ET.parse(from_ext)
+            tree = ET.parse(extstr)
             root = tree.getroot()
 
         # or: root = ET.fromstring(xmlstring)
@@ -628,6 +649,7 @@ DOCUMENT_SAVERS = {
     "text/plain": PlainTextSerializer.save,
     "text/plain+gzip": PlainTextSerializer.save_gzip,
     "text": PlainTextSerializer.save,
+    "bdocjs": JsonSerializer.save,
     "json": JsonSerializer.save,
     "jsongz": JsonSerializer.save_gzip,
     "yaml": YamlSerializer.save,
@@ -641,6 +663,7 @@ DOCUMENT_SAVERS = {
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
+    "bdocjs": JsonSerializer.load,
     "yaml": YamlSerializer.load,
     "text/bdocym": YamlSerializer.load,
     "text/bdocym+gzip": YamlSerializer.load_gzip,
@@ -682,6 +705,8 @@ EXTENSIONS = {
     "bdocmp": "msgpack",
     "txt": "text/plain",
     "txt.gz": "text/plain+gzip",
+    "html": "text/html",
+    "htm": "text/html",
 }
 
 
