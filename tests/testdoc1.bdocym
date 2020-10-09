@@ -1,0 +1,62 @@
+annotation_sets:
+  ? ''
+  : annotations:
+    - end: 4
+      features:
+        shared2: &id002
+        - SomeString
+        - 0
+        - true
+        - 3.3
+        fComplex2a: &id003
+          k1: somevalue
+          k2: &id001
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          k3: *id001
+      id: 0
+      start: 0
+      type: Type1
+    - end: 8
+      features:
+        shared2: *id002
+      id: 1
+      start: 5
+      type: Type1
+    name: ''
+    next_annid: 2
+features:
+  gate.SourceURL: created from String
+  fComplex1:
+    key1:
+    - 1
+    - 2
+    - 3
+    key2:
+      1: 12
+      2: true
+  fInt1: 222
+  fListInt1:
+  - 1
+  - 2
+  - 3
+  fBoolean: true
+  fComplex2b:
+    feat1: *id003
+  fString1: Some string
+  fListString1:
+  - asas
+  - fdfdf
+  fLong1: 123
+  fMapStringInt:
+    key1: 122
+    key2: -4
+  fFloat1: 3.4
+  fComplex2a:
+    feat1: *id003
+name: GATE Document_00008
+offset_type: j
+text: This is the document text

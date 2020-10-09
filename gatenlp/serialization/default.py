@@ -1,6 +1,7 @@
 
 import io
 import os
+import sys
 import json
 import yaml
 from random import choice
@@ -485,11 +486,20 @@ class HtmlLoader:
 class GateXmlLoader:
 
     @staticmethod
+    def value4objectwrapper(text):
+        """
+        This may one day convert things like lists, maps, shared objects to Python, but for
+        now we always throw an exeption.
+        :param text:
+        :return:
+        """
+        raise Exception("Cannot load GATE XML which contains gate.corpora.ObjectWrapper data")
+
+    @staticmethod
     def load(clazz, from_ext=None, ignore_unknown_types=False):
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
-
         if is_url(from_ext):
             xmlstring = get_str_from_url(from_ext, encoding="utf-8")
             root = ET.fromstring(xmlstring)
@@ -527,11 +537,13 @@ class GateXmlLoader:
                             value = float(el.text)
                         elif cls_name == "java.lang.Boolean":
                             value = bool(el.text)
+                        #elif cls_name == "gate.corpora.ObjectWrapper":
+                        #    value = GateXmlLoader.value4objectwrapper(el.text)
                         else:
                             if ignore_unknown_types:
-                                print(f"Warning: ignoring feature with type: {cls_name}")
+                                print(f"Warning: ignoring feature with serialization type: {cls_name}", file=sys.stderr)
                             else:
-                                raise Exception("Odd Feature Value type: " + el.get("className"))
+                                raise Exception("Unsupported serialization type: " + el.get("className"))
                 if name is not None and value is not None:
                     features[name] = value
             return features
