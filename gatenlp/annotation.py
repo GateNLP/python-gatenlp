@@ -7,7 +7,7 @@ import copy
 from functools import total_ordering
 # from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.features import Features
-from gatenlp.offsetmapper import OFFSET_TYPE_JAVA
+from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp._utils import support_annotation_or_set
 
 
@@ -47,16 +47,27 @@ class Annotation:
 
     @property
     def features(self):
+        """
+        Get the features for the annotation.
+
+        :return: the Features object.
+        """
         return self._features
 
     @property
     def id(self):
+        """
+        Return the annotation id of the annotation.
+
+        :return:
+        """
         return self._id
 
-    def __init__(self, start: int, end: int, annot_type: str,
-                 features=None,
-                 annid: int = 0,
-                 ):
+    def __init__(
+            self, start: int, end: int, anntype: str,
+            features=None,
+            annid: int = 0
+    ):
         """
         Create a new annotation instance. NOTE: this should almost never be done directly
         and instead the method annotation_set.add should be used!
@@ -65,17 +76,16 @@ class Annotation:
 
         :param start: start offset of the annotation
         :param end: end offset of the annotation
-        :param annot_type: annotation type
-        :param annot_id: the id of the annotation
-        :param owner_set: the containing annotation set
+        :param anntype: annotation type
         :param features: an initial collection of features, None for no features.
+        :param annid: the id of the annotation
         """
         if end < start:
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: start > end")
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start > end")
         if not isinstance(annid, int):
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: annid is not an int")
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int")
         if isinstance(features, int):
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={annot_type}, id={annid}, features={features}: features must not be an int")
+            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int")
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
             raise Exception("Parameter annid must be an int, mixed up with features?")
@@ -83,7 +93,7 @@ class Annotation:
             raise Exception("Parameter features must not be an int: mixed up with annid?")
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
-        self._type = annot_type
+        self._type = anntype
         self._start = start
         self._end = end
         self._id = annid
@@ -133,13 +143,6 @@ class Annotation:
             return True
         return self.start == other.start and self.end == other.end and \
                self.type == other.type and self.id == other.id and self._features == other._features
-        # The old way to test for equality simply checked if owning set and id where identical
-        #if self._owner_set != other._owner_set:
-        #    return False
-        #if self.id != other.id:
-        #    return False
-        #else:
-        #    return True
 
     def __hash__(self):
         """
@@ -151,8 +154,9 @@ class Annotation:
 
     def __lt__(self, other) -> bool:
         """
-        Comparison for sorting: this sorts by increasing start offset, then increasing end offset, then increasing
-        type name, then increasing annotation id.
+        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
+        Since annotation ids within a set are unique, this guarantees a unique order of annotations that
+        come from an annotation set.
         NOTE: for now the other object has to be an instance of Annotation, duck typing is not supported!
 
         :param other: another annotation
@@ -165,23 +169,7 @@ class Annotation:
         elif self.start > other.start:
             return False
         else:
-            # start offset same, check end offset
-            if self.end < other.end:
-                return True
-            elif self.end > other.end:
-                return False
-            else:
-                # end offset also same, check type
-                if self.type < other.type:
-                    return True
-                elif self.type > other.type:
-                    return False
-                else:
-                    # type also same check id
-                    if self.id < other.id:
-                        return True
-                    else:
-                        return False
+            return self.id < other.id
 
     def __repr__(self) -> str:
         """
@@ -216,7 +204,7 @@ class Annotation:
         :param end: end offset of the span
         :return: True if overlapping, False otherwise
         """
-        return self.covering(start) or self.covering(end - 1)
+        return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -> bool:
@@ -251,6 +239,7 @@ class Annotation:
 
         :param start: start offset of the span
         :param end: end offset of the span
+        :param immediately: if true checks if this annotation ends immediately before the other one
         :return: True if before, False otherwise
         """
         if immediately:
@@ -266,6 +255,7 @@ class Annotation:
 
         :param start: start offset of the span
         :param end: end offset of the span
+        :param immediately: if true checks if this annotation starts immediately after the other one
         :return: True if after, False otherwise
         """
         if immediately:
@@ -279,7 +269,7 @@ class Annotation:
         Return the gep between this annotation and the other annotation. This is the distance between
         the last character of the first annotation and the first character of the second annotation in
         sequence, so it is always independent of the order of the two annotations.
-
+H
         This is negative if the annotations overlap.
 
         :param start: start offset of span
@@ -317,15 +307,26 @@ class Annotation:
         else:
             return self.start <= start and self.end >= end
 
-
     def to_dict(self, offset_mapper=None, offset_type=None):
+        """
+        Return a representation of this annotation as a nested map. This representation is
+        used for several serialization methods.
+
+        :param offset_mapper: used if an offset_type is also specified.
+        :param offset_type:
+        :return:
+        """
+        if (offset_mapper and not offset_type) or (not offset_mapper and offset_type):
+            raise Exception("offset_mapper and offset_type must be specified both or none")
         if offset_mapper is not None:
             if offset_type == OFFSET_TYPE_JAVA:
                 start = offset_mapper.convert_to_java(self._start)
                 end = offset_mapper.convert_to_java(self._end)
-            else:
+            elif offset_type == OFFSET_TYPE_PYTHON:
                 start = offset_mapper.convert_to_python(self._start)
                 end = offset_mapper.convert_to_python(self._end)
+            else:
+                raise Exception(f"Not a valid offset type: {offset_type}, must be 'p' or 'j'")
         else:
             start = self._start
             end = self._end
@@ -339,10 +340,18 @@ class Annotation:
 
     @staticmethod
     def from_dict(dictrepr, owner_set=None, **kwargs):
+        """
+        Construct an annotation object from the dictionary representation.
+
+        :param dictrepr: dictionary representation
+        :param owner_set: the owning set the annotation should have
+        :param kwargs: ignored
+        :return:
+        """
         ann = Annotation(
             start=dictrepr.get("start"),
             end=dictrepr.get("end"),
-            annot_type=dictrepr.get("type"),
+            anntype=dictrepr.get("type"),
             annid=dictrepr.get("id"),
             features=dictrepr.get("features")
         )
@@ -353,14 +362,24 @@ class Annotation:
         return Annotation(self._start, self._end, self._type, annid=self._id, features=self._features)
 
     def copy(self):
+        """
+        Return a shallow copy of the annotation.
+
+        :return: shallow copy
+        """
         return self.__copy__()
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo=None):
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo)
+            fts = copy.deepcopy(self._features.to_dict(), memo=memo)
         else:
             fts = None
         return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
 
     def deepcopy(self):
+        """
+        Return a deep copy of the annotation.
+
+        :return: deep copy
+        """
         return copy.deepcopy(self)

@@ -10,6 +10,7 @@ for sorting.
 we use the sorting order defined in the annotation class itself.
 """
 
+import sys
 from sortedcontainers import SortedKeyList
 
 
@@ -46,7 +47,7 @@ class SortedIntvls:
         :param offset: the starting offset
         :return:
         """
-        return self._by_start.irange_key(min_key=offset, max_key=offset)
+        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset,sys.maxsize))
 
     def ending_at(self, offset):
         """
@@ -65,7 +66,7 @@ class SortedIntvls:
         :param end:
         :return:
         """
-        for intvl in self._by_start.irange_key(min_key=start, max_key=start):
+        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(start, sys.maxsize)):
             if intvl[1] == end:
                 yield intvl
 
@@ -79,7 +80,7 @@ class SortedIntvls:
         :return:
         """
         # get all the intervals that start within the range, then keep those which also end within the range
-        for intvl in self._by_start.irange_key(min_key=start, max_key=end):
+        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(end, sys.maxsize)):
             if intvl[1] <= end:
                 yield intvl
 
@@ -90,7 +91,7 @@ class SortedIntvls:
         :param offset:
         :return:
         """
-        return self._by_start.irange_key(min_key=offset)
+        return self._by_start.irange_key(min_key=(offset,0))
 
     def starting_before(self, offset):
         """
@@ -99,8 +100,7 @@ class SortedIntvls:
         :param offset:
         :return:
         """
-        return self._by_start.irange_key(max_key=offset-1)
-
+        return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
     def ending_to(self, offset):
         """
@@ -124,7 +124,6 @@ class SortedIntvls:
         """
         return self._by_end.irange_key(min_key=offset+1)
 
-    # SAME as covering
     def covering(self, start, end):
         """
         Intervals that contain the given range
@@ -136,7 +135,7 @@ class SortedIntvls:
         # All intervals that start at or before the start and end at or after the end offset
         # we do this by first getting the intervals the start before or atthe start
         # then filtering by end
-        for intvl in self._by_start.irange_key(max_key=start):
+        for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
             if intvl[1] >= end:
                 yield intvl
 
@@ -148,10 +147,13 @@ class SortedIntvls:
         :param end:
         :return:
         """
-        # All intervals where the start offset is before the end and the end offset is after the start
-        # plus all intervals where the start offset is after the start but before the end
-        # and the end offset is after the end
-        for intvl in self._by_start.irange_key(max_key=end-1):
+        # All intervals where the start or end offset lies within the given range.
+        # This excludes the ones where the end offset is before the start or
+        # where the start offset is after the end of the range.
+        # Here we do this by looking at all intervals where the start offset is before the
+        # end of the range. This still includes those which also end before the start of the range
+        # so we check in addition that the end is larger than the start of the range.
+        for intvl in self._by_start.irange_key(max_key=(end-1, sys.maxsize)):
             if intvl[1] > start+1:
                 yield intvl
 

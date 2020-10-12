@@ -32,6 +32,8 @@ def is_url(ext):
     :param ext: something that represents an external resource: string, url parse, pathlib path object ...
     :return: True, usrlstring or False, pathstring
     """
+    if ext is None:
+        return None, None
     if isinstance(ext, str):
         if ext.startswith("http://") or ext.startswith("https://"):
             return True, ext
@@ -41,6 +43,8 @@ def is_url(ext):
         return False, str(ext)
     elif isinstance(ext, ParseResult):
         return True, ext.geturl()
+    else:
+        raise Exception(f"Odd type: {ext}")
 
 
 

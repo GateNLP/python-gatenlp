@@ -31,7 +31,11 @@ def support_annotation_or_set(method):
         else:
             assert len(args) == 2
             left, right = args
-        return method(self, left, right, annid=annid, **kwargs)
+        # if the called method/function does have an annid keyword, pass it, otherwise omit
+        if "annid" in method.__code__.co_varnames:
+            return method(self, left, right, annid=annid, **kwargs)
+        else:
+            return method(self, left, right, **kwargs)
 
     return _support_annotation_or_set
 

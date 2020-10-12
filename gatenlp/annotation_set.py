@@ -130,7 +130,6 @@ class AnnotationSet:
         """
         self._is_immutable = val
 
-    @property
     def isdetached(self) -> bool:
         return self._owner_doc is None
 

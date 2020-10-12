@@ -15,9 +15,9 @@ class TestStanfordNlp01:
         sdoc = nlp(txt)
         gdoc = stanfordnlp2gatenlp(sdoc)
         anns = gdoc.annset()
-        sents = anns.type("Sentence")
+        sents = anns.with_type("Sentence")
         assert len(sents) == 2
-        words = anns.type("Word")
+        words = anns.with_type("Word")
         assert len(words) == 14
 
 

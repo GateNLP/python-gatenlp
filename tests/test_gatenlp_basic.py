@@ -45,9 +45,9 @@ class TestDocument01:
         assert annset1.span() == (0, 22)
         retset1 = annset1.within(0,10)
         print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG: ", retset1)
-        assert retset1.detached
+        assert retset1.isdetached()
         assert retset1.immutable
-        assert retset1.size() == 2
+        assert retset1.size == 2
         assert len(retset1) == 2
         assert len(annset1.within(0, 10)) == 2
         assert len(annset1.within(1, 3)) == 0
@@ -144,27 +144,27 @@ class TestAnnotationSet01:
                 if i < 9:
                     annset.add(i * 7, i * 7 + 6 + 7, "At3_2", features={"i": i})
         # check: get all Token annotations
-        ret = annset.type("Token")
+        ret = annset.with_type("Token")
         assert len(ret) == 10
         # check get all At3_1 annotations
-        ret = annset.type("At3_1")
+        ret = annset.with_type("At3_1")
         assert len(ret) == 4
-        ret = annset.type("At3_2")
+        ret = annset.with_type("At3_2")
         assert len(ret) == 3
-        ret = annset.type("Token", "At3_1")
+        ret = annset.with_type("Token", "At3_1")
         assert len(ret) == 14
-        ret = annset.type("At3_1", "Token")
+        ret = annset.with_type("At3_1", "Token")
         assert len(ret) == 14
-        ret = annset.type("Token", "At3_1", non_overlapping=True)
+        ret = annset.with_type("Token", "At3_1", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_1={ret}")
         assert len(ret) == 10
-        ret = annset.type("Token", "At3_2", non_overlapping=True)
+        ret = annset.with_type("Token", "At3_2", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_2={ret}")
         assert len(ret) == 10
-        ret = annset.type("At3_1", "Token", non_overlapping=True)
+        ret = annset.with_type("At3_1", "Token", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_1/Token={ret}")
         assert len(ret) == 10
-        ret = annset.type("At3_2", "Token", non_overlapping=True)
+        ret = annset.with_type("At3_2", "Token", non_overlapping=True)
         #print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_2/Token={ret}")
         assert len(ret) == 7
         # TODO: check other kinds of overlap in the original set!
