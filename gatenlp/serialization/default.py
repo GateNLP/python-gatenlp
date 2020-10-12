@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import ParseResult
 import requests
 from bs4 import BeautifulSoup
+from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
 
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
@@ -371,6 +372,7 @@ class HtmlAnnViewerSerializer:
             raise Exception("Could not find HTML template, {} does not exist".format(htmlloc))
         with open(htmlloc, "rt", encoding="utf-8") as infp:
             html = infp.read();
+        txtcolor = gatenlpconfig.doc_html_repr_txtcolor
         if notebook:
             str_start = "<!--STARTDIV-->"
             str_end = "<!--ENDDIV-->"
@@ -381,7 +383,7 @@ class HtmlAnnViewerSerializer:
             else:
                 rndpref = "".join(choice(ascii_uppercase) for i in range(10))
             html = html[idx1:idx2]
-            html = f"""<div><style>#{rndpref}-wrapper {{ color: yellow !important; }}</style>
+            html = f"""<div><style>#{rndpref}-wrapper {{ color: {txtcolor} !important; }}</style>
 <div id="{rndpref}-wrapper">
 {html}
 </div></div>"""

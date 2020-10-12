@@ -54,25 +54,25 @@ display(doc)
 ```
 
 
-<div><style>div#GLCLZGFGOU-wrapper: { color: black: !important; }</style>
-<div id="GLCLZGFGOU-wrapper">
+<div><style>#LFOANXQWNS-wrapper { color: black !important; }</style>
+<div id="LFOANXQWNS-wrapper">
 
 <div>
 <style>
-#GLCLZGFGOU-content {
+#LFOANXQWNS-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.GLCLZGFGOU-row {
+.LFOANXQWNS-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.GLCLZGFGOU-col {
+.LFOANXQWNS-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -82,25 +82,25 @@ display(doc)
     overflow-y: auto;
 }
 
-.GLCLZGFGOU-hdr {
+.LFOANXQWNS-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.GLCLZGFGOU-label {
+.LFOANXQWNS-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.GLCLZGFGOU-input {
+.LFOANXQWNS-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#GLCLZGFGOU-popup {
+#LFOANXQWNS-popup {
     display: none;
-    colour: white;
+    color: white;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
@@ -113,45 +113,45 @@ display(doc)
     overflow: auto;
 }
 
-.GLCLZGFGOU-selection {
+.LFOANXQWNS-selection {
     margin-bottom: 5px;
 }
 
-.GLCLZGFGOU-featuretable {
+.LFOANXQWNS-featuretable {
     margin-top: 10px;
 }
 
-.GLCLZGFGOU-fname {
+.LFOANXQWNS-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.GLCLZGFGOU-fvalue {
+.LFOANXQWNS-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="GLCLZGFGOU-content">
-        <div id="GLCLZGFGOU-popup" style="display: none;">
+  <div id="LFOANXQWNS-content">
+        <div id="LFOANXQWNS-popup" style="display: none;">
         </div>
-        <div class="GLCLZGFGOU-row" id="GLCLZGFGOU-row1" style="height:67vh; min-height:100px;">
-            <div id="GLCLZGFGOU-text-wrapper" class="GLCLZGFGOU-col" style="width:70%;">
-                <div class="GLCLZGFGOU-hdr" id="GLCLZGFGOU-dochdr"></div>
-                <div id="GLCLZGFGOU-text">
+        <div class="LFOANXQWNS-row" id="LFOANXQWNS-row1" style="height:67vh; min-height:100px;">
+            <div id="LFOANXQWNS-text-wrapper" class="LFOANXQWNS-col" style="width:70%;">
+                <div class="LFOANXQWNS-hdr" id="LFOANXQWNS-dochdr"></div>
+                <div id="LFOANXQWNS-text">
                 </div>
             </div>
-            <div id="GLCLZGFGOU-chooser" class="GLCLZGFGOU-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="LFOANXQWNS-chooser" class="LFOANXQWNS-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="GLCLZGFGOU-row" id="GLCLZGFGOU-row2" style="height:30vh; min-height: 100px;">
-            <div id="GLCLZGFGOU-details" class="GLCLZGFGOU-col" style="width:100%; border-top-width: 0px;">
+        <div class="LFOANXQWNS-row" id="LFOANXQWNS-row2" style="height:30vh; min-height: 100px;">
+            <div id="LFOANXQWNS-details" class="LFOANXQWNS-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="GLCLZGFGOU-data">
+    <script type="application/json" id="LFOANXQWNS-data">
     {"annotation_sets": {}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("GLCLZGFGOU-");
+        gatenlp_run("LFOANXQWNS-");
     </script>
   </div>
 
@@ -188,25 +188,25 @@ doc
 
 
 
-<div><style>div#HZQSZICKRN-wrapper: { color: black: !important; }</style>
-<div id="HZQSZICKRN-wrapper">
+<div><style>#MSZZXWFYHU-wrapper { color: black !important; }</style>
+<div id="MSZZXWFYHU-wrapper">
 
 <div>
 <style>
-#HZQSZICKRN-content {
+#MSZZXWFYHU-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HZQSZICKRN-row {
+.MSZZXWFYHU-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HZQSZICKRN-col {
+.MSZZXWFYHU-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -216,25 +216,25 @@ doc
     overflow-y: auto;
 }
 
-.HZQSZICKRN-hdr {
+.MSZZXWFYHU-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HZQSZICKRN-label {
+.MSZZXWFYHU-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HZQSZICKRN-input {
+.MSZZXWFYHU-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HZQSZICKRN-popup {
+#MSZZXWFYHU-popup {
     display: none;
-    colour: white;
+    color: white;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
@@ -247,45 +247,45 @@ doc
     overflow: auto;
 }
 
-.HZQSZICKRN-selection {
+.MSZZXWFYHU-selection {
     margin-bottom: 5px;
 }
 
-.HZQSZICKRN-featuretable {
+.MSZZXWFYHU-featuretable {
     margin-top: 10px;
 }
 
-.HZQSZICKRN-fname {
+.MSZZXWFYHU-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HZQSZICKRN-fvalue {
+.MSZZXWFYHU-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HZQSZICKRN-content">
-        <div id="HZQSZICKRN-popup" style="display: none;">
+  <div id="MSZZXWFYHU-content">
+        <div id="MSZZXWFYHU-popup" style="display: none;">
         </div>
-        <div class="HZQSZICKRN-row" id="HZQSZICKRN-row1" style="height:67vh; min-height:100px;">
-            <div id="HZQSZICKRN-text-wrapper" class="HZQSZICKRN-col" style="width:70%;">
-                <div class="HZQSZICKRN-hdr" id="HZQSZICKRN-dochdr"></div>
-                <div id="HZQSZICKRN-text">
+        <div class="MSZZXWFYHU-row" id="MSZZXWFYHU-row1" style="height:67vh; min-height:100px;">
+            <div id="MSZZXWFYHU-text-wrapper" class="MSZZXWFYHU-col" style="width:70%;">
+                <div class="MSZZXWFYHU-hdr" id="MSZZXWFYHU-dochdr"></div>
+                <div id="MSZZXWFYHU-text">
                 </div>
             </div>
-            <div id="HZQSZICKRN-chooser" class="HZQSZICKRN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MSZZXWFYHU-chooser" class="MSZZXWFYHU-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HZQSZICKRN-row" id="HZQSZICKRN-row2" style="height:30vh; min-height: 100px;">
-            <div id="HZQSZICKRN-details" class="HZQSZICKRN-col" style="width:100%; border-top-width: 0px;">
+        <div class="MSZZXWFYHU-row" id="MSZZXWFYHU-row2" style="height:30vh; min-height: 100px;">
+            <div id="MSZZXWFYHU-details" class="MSZZXWFYHU-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="HZQSZICKRN-data">
+    <script type="application/json" id="MSZZXWFYHU-data">
     {"annotation_sets": {}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {"loaded-from": "https://gatenlp.github.io/python-gatenlp/testdocument1.txt", "purpose": "test document for gatenlp", "someotherfeature": 22, "andanother": {"what": "a dict", "alist": [1, 2, 3, 4, 5]}}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("HZQSZICKRN-");
+        gatenlp_run("MSZZXWFYHU-");
     </script>
   </div>
 
@@ -391,25 +391,25 @@ doc
 
 
 
-<div><style>div#ZGOVNILQTB-wrapper: { color: black: !important; }</style>
-<div id="ZGOVNILQTB-wrapper">
+<div><style>#JVBUAGDMPS-wrapper { color: black !important; }</style>
+<div id="JVBUAGDMPS-wrapper">
 
 <div>
 <style>
-#ZGOVNILQTB-content {
+#JVBUAGDMPS-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.ZGOVNILQTB-row {
+.JVBUAGDMPS-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.ZGOVNILQTB-col {
+.JVBUAGDMPS-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -419,25 +419,25 @@ doc
     overflow-y: auto;
 }
 
-.ZGOVNILQTB-hdr {
+.JVBUAGDMPS-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.ZGOVNILQTB-label {
+.JVBUAGDMPS-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.ZGOVNILQTB-input {
+.JVBUAGDMPS-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#ZGOVNILQTB-popup {
+#JVBUAGDMPS-popup {
     display: none;
-    colour: white;
+    color: white;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
@@ -450,45 +450,45 @@ doc
     overflow: auto;
 }
 
-.ZGOVNILQTB-selection {
+.JVBUAGDMPS-selection {
     margin-bottom: 5px;
 }
 
-.ZGOVNILQTB-featuretable {
+.JVBUAGDMPS-featuretable {
     margin-top: 10px;
 }
 
-.ZGOVNILQTB-fname {
+.JVBUAGDMPS-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.ZGOVNILQTB-fvalue {
+.JVBUAGDMPS-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="ZGOVNILQTB-content">
-        <div id="ZGOVNILQTB-popup" style="display: none;">
+  <div id="JVBUAGDMPS-content">
+        <div id="JVBUAGDMPS-popup" style="display: none;">
         </div>
-        <div class="ZGOVNILQTB-row" id="ZGOVNILQTB-row1" style="height:67vh; min-height:100px;">
-            <div id="ZGOVNILQTB-text-wrapper" class="ZGOVNILQTB-col" style="width:70%;">
-                <div class="ZGOVNILQTB-hdr" id="ZGOVNILQTB-dochdr"></div>
-                <div id="ZGOVNILQTB-text">
+        <div class="JVBUAGDMPS-row" id="JVBUAGDMPS-row1" style="height:67vh; min-height:100px;">
+            <div id="JVBUAGDMPS-text-wrapper" class="JVBUAGDMPS-col" style="width:70%;">
+                <div class="JVBUAGDMPS-hdr" id="JVBUAGDMPS-dochdr"></div>
+                <div id="JVBUAGDMPS-text">
                 </div>
             </div>
-            <div id="ZGOVNILQTB-chooser" class="ZGOVNILQTB-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="JVBUAGDMPS-chooser" class="JVBUAGDMPS-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="ZGOVNILQTB-row" id="ZGOVNILQTB-row2" style="height:30vh; min-height: 100px;">
-            <div id="ZGOVNILQTB-details" class="ZGOVNILQTB-col" style="width:100%; border-top-width: 0px;">
+        <div class="JVBUAGDMPS-row" id="JVBUAGDMPS-row2" style="height:30vh; min-height: 100px;">
+            <div id="JVBUAGDMPS-details" class="JVBUAGDMPS-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="ZGOVNILQTB-data">
+    <script type="application/json" id="JVBUAGDMPS-data">
     {"annotation_sets": {"Set1": {"name": "detached-from:Set1", "annotations": [{"type": "Word", "start": 0, "end": 4, "id": 0, "features": {"what": "our first annotation"}}, {"type": "Word", "start": 5, "end": 7, "id": 1, "features": {"what": "our second annotation"}}, {"type": "Sentence", "start": 0, "end": 24, "id": 2, "features": {"what": "our first sentence annotation"}}], "next_annid": 3}}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {"loaded-from": "https://gatenlp.github.io/python-gatenlp/testdocument1.txt", "purpose": "test document for gatenlp", "someotherfeature": 22, "andanother": {"what": "a dict", "alist": [1, 2, 3, 4, 5]}}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("ZGOVNILQTB-");
+        gatenlp_run("JVBUAGDMPS-");
     </script>
   </div>
 
