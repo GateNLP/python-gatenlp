@@ -76,20 +76,6 @@ be changed!</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.contains_offset">
-<code class="sig-name descname">contains_offset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.contains_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.contains_offset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the given offset falls somewhere inside the span of this annotation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>offset</strong> – the offset to check</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if the offset is inside the span of this annotation</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="gatenlp.annotation.Annotation.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -146,8 +132,8 @@ sequence, so it is always independent of the order of the two annotations.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_after">
-<code class="sig-name descname">is_after</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_after" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.isafter">
+<code class="sig-name descname">isafter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.isafter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.isafter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is after the other span, i.e. the start of this annotation
 is after the end of the other annotation or span.</p>
 <dl class="field-list simple">
@@ -164,8 +150,8 @@ is after the end of the other annotation or span.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_before">
-<code class="sig-name descname">is_before</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_before"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_before" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.isbefore">
+<code class="sig-name descname">isbefore</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.isbefore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.isbefore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is before the other span, i.e. the end of this annotation
 is before the start of the other annotation or span.</p>
 <dl class="field-list simple">
@@ -182,8 +168,8 @@ is before the start of the other annotation or span.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_coextensive">
-<code class="sig-name descname">is_coextensive</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_coextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_coextensive" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.iscoextensive">
+<code class="sig-name descname">iscoextensive</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.iscoextensive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.iscoextensive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is coextensive with the given span, annotation or
 annotation set, i.e. has exactly the same start and end offsets.</p>
 <dl class="field-list simple">
@@ -200,8 +186,8 @@ annotation set, i.e. has exactly the same start and end offsets.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_covering">
-<code class="sig-name descname">is_covering</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_covering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_covering" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.iscovering">
+<code class="sig-name descname">iscovering</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.iscovering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.iscovering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is covering the given span, annotation or
 annotation set, i.e. both the given start and end offsets
 are after the start of this annotation and before the end of this annotation.</p>
@@ -215,14 +201,14 @@ contained in the span.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if within, False otherwise</p>
+<dd class="field-even"><p>True if covering, False otherwise</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_overlapping">
-<code class="sig-name descname">is_overlapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_overlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_overlapping" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.isoverlapping">
+<code class="sig-name descname">isoverlapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.isoverlapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.isoverlapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is overlapping with the given span, annotation or
 annotation set.
 An annotation is overlapping with a span if the first or last character
@@ -241,8 +227,8 @@ is inside that span.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.annotation.Annotation.is_within">
-<code class="sig-name descname">is_within</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.is_within"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.is_within" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.annotation.Annotation.iswithin">
+<code class="sig-name descname">iswithin</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation.html#Annotation.iswithin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation.Annotation.iswithin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this annotation is within the given span, annotation or
 annotation set, i.e. both the start and end offsets of this annotation
 are after the given start and before the given end.</p>
@@ -255,6 +241,21 @@ are after the given start and before the given end.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if within, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.annotation.Annotation.length">
+<em class="property">property </em><code class="sig-name descname">length</code><a class="headerlink" href="#gatenlp.annotation.Annotation.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The length of the annotation is the length of the offset span. Since the end offset is one after the last
+element, we return end-start. Note: this is deliberately not implemented as len(ann), as
+len(annset) returns the number of annotations in the set but annset.length() also returns the
+span length of the annotation set, so the method name for this is identical between annotations
+and annotation sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
 </dd>
 </dl>
 </dd></dl>

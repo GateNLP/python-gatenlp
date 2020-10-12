@@ -44,6 +44,7 @@
 <span class="sd">convert from stanford Stanza output to gatenlp documents and annotations.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">gatenlp</span> <span class="kn">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">gatenlp</span> <span class="kn">import</span> <span class="n">logger</span>
 
 
 <div class="viewcode-block" id="apply_stanza"><a class="viewcode-back" href="../../gatenlp.lib_stanza.html#gatenlp.lib_stanza.apply_stanza">[docs]</a><span class="k">def</span> <span class="nf">apply_stanza</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">gatenlpdoc</span><span class="p">,</span> <span class="n">setname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
@@ -131,7 +132,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">retdoc</span> <span class="o">=</span> <span class="n">gatenlpdoc</span>
     <span class="n">toki2annid</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">annset</span> <span class="o">=</span> <span class="n">retdoc</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">(</span><span class="n">setname</span><span class="p">)</span>
+    <span class="n">annset</span> <span class="o">=</span> <span class="n">retdoc</span><span class="o">.</span><span class="n">annset</span><span class="p">(</span><span class="n">setname</span><span class="p">)</span>
     <span class="c1"># stanford nlp processes text in sentence chunks, so we do everything per sentence</span>
     <span class="n">notmatchedidx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">stanzadoc</span><span class="o">.</span><span class="n">sentences</span><span class="p">:</span>
@@ -165,6 +166,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tok</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">+</span><span class="mi">1</span>
                     <span class="n">newtokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span>
+        <span class="c1"># print(f&quot;\n!!!!!!DEBUG: newtokens={newtokens}&quot;)</span>
         <span class="c1"># now go through the new token list and create annotations</span>
         <span class="n">idx2annid</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># map stanza word id to annotation id</span>
         <span class="n">starts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -175,10 +177,11 @@
             <span class="n">stanzaid</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
             <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
             <span class="n">ends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
-            <span class="n">annid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">token_type</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;fm&quot;</span><span class="p">])</span>
-            <span class="n">idx2annid</span><span class="p">[</span><span class="n">stanzaid</span><span class="p">]</span> <span class="o">=</span> <span class="n">annid</span>
+            <span class="n">annid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">token_type</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;fm&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">idx2annid</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">stanzaid</span><span class="p">)]</span> <span class="o">=</span> <span class="n">annid</span>
+        <span class="c1"># print(f&quot;\n!!!!!!DEBUG: idx2annid={idx2annid}&quot;)</span>
         <span class="c1"># create a sentence annotation from beginning of first word to end of last</span>
-        <span class="n">sentid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sentence_type</span><span class="p">)</span>
+        <span class="n">sentid</span> <span class="o">=</span> <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sentence_type</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
         <span class="c1"># now replace the head index with the corresponding annid, the head index &quot;0&quot; is</span>
         <span class="c1"># mapped to the sentence annotation</span>
         <span class="n">idx2annid</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sentid</span>
@@ -187,7 +190,11 @@
             <span class="n">hd</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;head&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">hd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">hd</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hd</span><span class="p">)</span>
-                <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx2annid</span><span class="p">[</span><span class="n">hd</span><span class="p">]</span>
+                <span class="n">headId</span> <span class="o">=</span> <span class="n">idx2annid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hd</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">headId</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find head id: </span><span class="si">{</span><span class="n">hd</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">ann</span><span class="si">}</span><span class="s2"> in document </span><span class="si">{</span><span class="n">gatenlpdoc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ann</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx2annid</span><span class="p">[</span><span class="n">hd</span><span class="p">]</span>
 
         <span class="c1"># add the entities</span>
         <span class="k">if</span> <span class="n">add_entities</span><span class="p">:</span>

@@ -48,7 +48,7 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 
-<div class="viewcode-block" id="InvalidOffsetException"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.InvalidOffsetException">[docs]</a><span class="k">class</span> <span class="nc">InvalidOffsetException</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidOffsetError"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.InvalidOffsetError">[docs]</a><span class="k">class</span> <span class="nc">InvalidOffsetError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
@@ -80,7 +80,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the name of the annotation set.</span>
+<span class="sd">        Get the name of the annotation set. NOTE: the name of a set cannot be changed.</span>
 
 <span class="sd">        :return: name of annotation set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -107,7 +107,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AnnotationSet.detached"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.detached">[docs]</a>    <span class="k">def</span> <span class="nf">detached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restrict_to</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.detach"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.detach">[docs]</a>    <span class="k">def</span> <span class="nf">detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restrict_to</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an immutable copy of this set, optionally restricted to the given annotation ids.</span>
 
@@ -115,7 +115,7 @@
 <span class="sd">        :return: an immutable annotation set with all the annotations of this set or restricted to the ids</span>
 <span class="sd">          in restrict_to</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;detached-from:&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">owner_doc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner_doc</span><span class="p">)</span>
+        <span class="n">annset</span> <span class="o">=</span> <span class="n">AnnotationSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;detached-from:&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">annset</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">restrict_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">annset</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="p">{</span><span class="n">annid</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">annid</span><span class="p">]</span> <span class="k">for</span> <span class="n">annid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
@@ -124,7 +124,7 @@
         <span class="n">annset</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span>
         <span class="k">return</span> <span class="n">annset</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.detached_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.detached_from">[docs]</a>    <span class="k">def</span> <span class="nf">detached_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anns</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="AnnotationSet.detach_from"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.detach_from">[docs]</a>    <span class="k">def</span> <span class="nf">detach_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anns</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an immutable detached annotation set from the annotations in anns which could by</span>
 <span class="sd">        either a collection of annotations or annotation ids (int numbers) which are assumed to</span>
@@ -152,21 +152,27 @@
         <span class="n">annset</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">=</span> <span class="n">nextid</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">annset</span></div>
 
-<div class="viewcode-block" id="AnnotationSet.set_immutable"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.set_immutable">[docs]</a>    <span class="k">def</span> <span class="nf">set_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return if the annotation set is immutable.</span>
+
+<span class="sd">        :return: True if immutable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span>
+
+    <span class="nd">@immutable</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the annotationset to mutable (False) or immutable (True)</span>
 
 <span class="sd">        :param val: boolean, True to set to immutable, False, otherwise.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="n">val</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="n">val</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_detached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">isdetached</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_doc</span> <span class="ow">is</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_create_index_by_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -246,7 +252,7 @@
         <span class="k">return</span> <span class="n">ret</span>
 
     <span class="k">def</span> <span class="nf">_restrict_intvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intvs</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">AnnotationSet</span><span class="o">.</span><span class="n">_intvs2idlist</span><span class="p">(</span><span class="n">intvs</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">ignore</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">AnnotationSet</span><span class="o">.</span><span class="n">_intvs2idlist</span><span class="p">(</span><span class="n">intvs</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">ignore</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -256,13 +262,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AnnotationSet.size"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return number of annotations in the set.</span>
 
 <span class="sd">        :return: number of annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">document</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
@@ -283,39 +290,52 @@
             <span class="k">return</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_doc</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">doc_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_doc</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">doc_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner_doc</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span><span class="s2">&quot;Annotation starts before 0&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidOffsetError</span><span class="p">(</span><span class="s2">&quot;Annotation starts before 0&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span><span class="s2">&quot;Annotation ends before 0&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidOffsetError</span><span class="p">(</span><span class="s2">&quot;Annotation ends before 0&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span><span class="s2">&quot;Annotation ends before it starts&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidOffsetError</span><span class="p">(</span><span class="s2">&quot;Annotation ends before it starts&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">doc_size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">InvalidOffsetError</span><span class="p">(</span>
                 <span class="s2">&quot;Annotation starts after document ends: start=</span><span class="si">{}</span><span class="s2">, docsize=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">doc_size</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">doc_size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidOffsetException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">InvalidOffsetError</span><span class="p">(</span>
                 <span class="s2">&quot;Annotation ends after document ends: end=</span><span class="si">{}</span><span class="s2">, docsize=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">doc_size</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AnnotationSet.start"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the start offset of the annotation set, i.e. the smallest offset of any annotation.</span>
-<span class="sd">        This needs the index.</span>
+<span class="sd">        This needs the index and creates it if necessary.</span>
 
 <span class="sd">        :return: smallest annotation offset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">min_start</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">min_start</span><span class="p">()</span>
 
-<div class="viewcode-block" id="AnnotationSet.end"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.</span>
+<span class="sd">        This needs the index and creates it if necessary.</span>
 
 <span class="sd">        :return: largest end offset</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">max_end</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">max_end</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the length of the span covered by to first to last annotation.</span>
+<span class="sd">        This needs the index and creates it if necessary.</span>
+
+<span class="sd">        :return: length of the annotation set span</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotationSet.add"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">anntype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -332,6 +352,10 @@
 <span class="sd">          normally left unspecified and get assigned automatically.</span>
 <span class="sd">        :return: the new annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">annid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annid</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Parameter annid must be an int, mixed up with features?&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Parameter features must not be an int: mixed up with annid?&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_immutable</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Cannot add an annotation to an immutable annotation set&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_offsets</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
@@ -340,7 +364,7 @@
         <span class="k">if</span> <span class="n">annid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_annid</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="n">annid</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">anntype</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="n">annid</span><span class="p">)</span>
         <span class="n">ann</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="p">{}</span>
@@ -438,7 +462,7 @@
 <span class="sd">        NOTE: creating a copy always creates a detached set, but a mutable one.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">c</span>
 
@@ -448,7 +472,7 @@
     <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">memo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">memo</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">_is_immutable</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">c</span><span class="o">.</span><span class="n">clone_anns</span><span class="p">(</span><span class="n">memo</span><span class="o">=</span><span class="n">memo</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">c</span>
@@ -484,10 +508,9 @@
              <span class="n">with_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
              <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a generator for going through annotations in document order. If an iterator of annotations</span>
-<span class="sd">        is given, then those annotations, optionally limited by the other parameters are returned in</span>
-<span class="sd">        document order, otherwise, all annotations in the set are returned, otionally limited by the other</span>
-<span class="sd">        parameters.</span>
+<span class="sd">        Returns a generator for going through annotations in document order, otionally limited</span>
+<span class="sd">        by the other parameters. If two annoations start at the same offset, they are always</span>
+<span class="sd">        ordered by increasing annotation id.</span>
 
 <span class="sd">        :param annotations: an iterable of annotations from this annotation set.</span>
 <span class="sd">        :param start_ge: the offset from where to start including annotations</span>
@@ -539,7 +562,7 @@
 <span class="sd">        an id and not the annotation, this will accept an annotation so the the frequent</span>
 <span class="sd">        pattern still works:</span>
 
-<span class="sd">           annid = annset.add(b,e,t)</span>
+<span class="sd">           annid = annset.add(b,e,t).id</span>
 <span class="sd">           ann = annset.get(annid)</span>
 
 <span class="sd">        If an annotation is passed the annotation from the set with the id of that annotation is</span>
@@ -587,7 +610,7 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the annotation with the given annotation id or throws an exception.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :param item: the annotation id</span>
 <span class="sd">        :return: annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -615,7 +638,7 @@
                 <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atype</span><span class="p">:</span>
                     <span class="n">atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">atypes</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_type</span><span class="p">()</span>
         <span class="n">annids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atypes</span><span class="p">:</span>
@@ -677,30 +700,56 @@
                     <span class="n">retanns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topann</span><span class="p">)</span>
                     <span class="n">curminoffset</span> <span class="o">=</span> <span class="n">topann</span><span class="o">.</span><span class="n">end</span>
             <span class="n">annids</span> <span class="o">=</span> <span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">retanns</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">annids</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">annids</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.by_offset"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.by_offset">[docs]</a>    <span class="k">def</span> <span class="nf">by_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOT YET IMPLEMENTED</span>
-
 <span class="sd">        Return annotations as a collection of lists, where each list contains all</span>
 <span class="sd">        annotations that start at the same offset, sorted in their natural order.</span>
 
-<span class="sd">        :return:</span>
+<span class="sd">        NOTE: creates the index!</span>
+
+<span class="sd">        :return: a generator for lists of annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;Not yet implemented&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
+        <span class="n">lastoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">curlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">start</span> <span class="o">!=</span> <span class="n">lastoff</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">lastoff</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">curlist</span>
+                <span class="n">lastoff</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">start</span>
+                <span class="n">curlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">ann</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">curlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lastoff</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">curlist</span></div>
+
 
 <div class="viewcode-block" id="AnnotationSet.by_span"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.by_span">[docs]</a>    <span class="k">def</span> <span class="nf">by_span</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        NOT YET IMPLEMENTED</span>
-
 <span class="sd">        Return annotations as a collection of lists, where each list contains all</span>
 <span class="sd">        annotations with identical spans.</span>
 
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;Not yet implemented&quot;</span><span class="p">)</span></div>
+<span class="sd">        NOTE: creates the index!</span>
 
+<span class="sd">        :return: a generator for lists of annotations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
+        <span class="n">lastsoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">lasteoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">curlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">start</span> <span class="o">!=</span> <span class="n">lastsoff</span> <span class="ow">or</span> <span class="n">ann</span><span class="o">.</span><span class="n">end</span> <span class="o">!=</span> <span class="n">lasteoff</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">lastsoff</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">curlist</span>
+                <span class="n">lastsoff</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">start</span>
+                <span class="n">lasteoff</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">end</span>
+                <span class="n">curlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">ann</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">curlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lastsoff</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">curlist</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.type_names"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.type_names">[docs]</a>    <span class="k">def</span> <span class="nf">type_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KeysView</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -767,7 +816,7 @@
                     <span class="n">retids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">intv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detached</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">retids</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="n">restrict_to</span><span class="o">=</span><span class="n">retids</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AnnotationSet.start_ge"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.start_ge">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">start_ge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ignored</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
@@ -807,8 +856,13 @@
 <span class="sd">        Gets annotations overlapping with the given span. Instead of the start and end offsets,</span>
 <span class="sd">        also accepts an annotation or annotation set.</span>
 
+<span class="sd">        For each annotation ann in the result set, ann.overlapping(span) is True</span>
+
 <span class="sd">        :param start: start offset of the span</span>
 <span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :param annid: the annotation id of the annotation representing the span.</span>
+<span class="sd">        :param include_self: if True and the annotation id for the span is given, do not include that</span>
+<span class="sd">          annotation in the result set.</span>
 <span class="sd">        :return: an immutable annotation set with the matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
@@ -822,15 +876,18 @@
 <div class="viewcode-block" id="AnnotationSet.covering"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.covering">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">covering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the annotations which contain the given offset range (or annotation/annotation set)</span>
+<span class="sd">        Get the annotations which contain the given offset range (or annotation/annotation set),</span>
+<span class="sd">        i.e. annotations such that the given offset range is within the annotation.</span>
+
+<span class="sd">        For each annotation ann in the result set, ann.covering(span) is True.</span>
 
 <span class="sd">        :param start: the start offset of the span</span>
 <span class="sd">        :param end: the end offset of the span</span>
+<span class="sd">        :param annid: the annotation id of the annotation representing the span.</span>
+<span class="sd">        :param include_self: if True and the annotation id for the span is given, do not include that</span>
+<span class="sd">          annotation in the result set.</span>
 <span class="sd">        :return: an immutable annotation set with the matching annotations, if any</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># This is not directly supported so we find the overlapping ones and then filter those where the</span>
-        <span class="c1"># start and end fits</span>
-        <span class="c1"># This may not be optimal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>
         <span class="n">intvs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_by_offset</span><span class="o">.</span><span class="n">covering</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">include_self</span> <span class="ow">and</span> <span class="n">annid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -842,10 +899,16 @@
 <div class="viewcode-block" id="AnnotationSet.within"><a class="viewcode-back" href="../../gatenlp.annotation_set.html#gatenlp.AnnotationSet.within">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">within</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AnnotationSet&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Gets annotations that fall completely within the given offset range</span>
+<span class="sd">        Gets annotations that fall completely within the given offset range, i.e. annotations</span>
+<span class="sd">        such that the offset range is covering each of the annotation.</span>
+
+<span class="sd">        For each annotation ann in the result set, ann.within(span) is True.</span>
 
 <span class="sd">        :param start: start offset of the range</span>
 <span class="sd">        :param end: end offset of the range</span>
+<span class="sd">        :param annid: the annotation id of the annotation representing the span.</span>
+<span class="sd">        :param include_self: if True and the annotation id for the span is given, do not include that</span>
+<span class="sd">          annotation in the result set.</span>
 <span class="sd">        :return: an immutable annotation set with the matching annotations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
@@ -866,8 +929,13 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an immutable annotation set with all annotations that start and end at the given offsets.</span>
 
+<span class="sd">        For each annotation ann in the result set, ann.coextensive(span) is True.</span>
+
 <span class="sd">        :param start: start offset of the span</span>
 <span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :param annid: the annotation id of the annotation representing the span.</span>
+<span class="sd">        :param include_self: if True and the annotation id for the span is given, do not include that</span>
+<span class="sd">          annotation in the result set.</span>
 <span class="sd">        :return: annotation set with all annotations that have the same start and end offsets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_index_by_offset</span><span class="p">()</span>

@@ -8,6 +8,8 @@ Subpackages
    :maxdepth: 4
 
    gatenlp.impl
+   gatenlp.lang
+   gatenlp.processing
    gatenlp.serialization
 
 Submodules

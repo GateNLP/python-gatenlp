@@ -305,7 +305,7 @@
                 <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s2">&quot;execute&quot;</span><span class="p">:</span>
                     <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))</span>
                     <span class="n">om</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">to_offset_type</span><span class="p">(</span><span class="n">OFFSET_TYPE_PYTHON</span><span class="p">)</span>
-                    <span class="n">doc</span><span class="o">.</span><span class="n">set_changelog</span><span class="p">(</span><span class="n">ChangeLog</span><span class="p">())</span>
+                    <span class="n">doc</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="n">ChangeLog</span><span class="p">()</span>
                     <span class="n">pr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
                     <span class="c1"># NOTE: for now we just discard what the method returns and always return</span>
                     <span class="c1"># the changelog instead!</span>

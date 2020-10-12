@@ -457,7 +457,7 @@ class Document:
 
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
 
-        Example: `Document.load(pathlib.Path(somepath), fmt=theformat)
+        Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
 
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 

@@ -81,6 +81,32 @@ the text has been set for a document, it is immutable and cannot be changed.</p>
 </dd>
 </dl>
 <dl class="py method">
+<dt id="gatenlp.document.Document.annset">
+<code class="sig-name descname">annset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet" title="gatenlp.annotation_set.AnnotationSet">gatenlp.annotation_set.AnnotationSet</a><a class="reference internal" href="_modules/gatenlp/document.html#Document.annset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.annset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
+If the annotation set does not already exist, it is created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – the annotation set name, the empty string is used for the “default annotation set”.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the specified annotation set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.document.Document.annset_names">
+<code class="sig-name descname">annset_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.annset_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.annset_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of known annotation set names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>annotation set names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="gatenlp.document.Document.apply_changes">
 <code class="sig-name descname">apply_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">changes</span></em>, <em class="sig-param"><span class="n">handle_existing_anns</span><span class="o">=</span><span class="default_value">'add-with-new-id'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.apply_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.apply_changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply changes from a ChangeLog to this document. <cite>changes</cite> can be a ChangeLog instance,
@@ -96,6 +122,17 @@ with an annotation id that already exists in the target set.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.document.Document.changelog">
+<em class="property">property </em><code class="sig-name descname">changelog</code><a class="headerlink" href="#gatenlp.document.Document.changelog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ChangeLog or None if no ChangeLog has been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the changelog</p>
 </dd>
 </dl>
 </dd></dl>
@@ -152,38 +189,14 @@ reflected in the document and recorded in the change log, if there is one.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.document.Document.get_annotation_set_names">
-<code class="sig-name descname">get_annotation_set_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotation_set_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotation_set_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the set of known annotation set names.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>annotation set names</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="gatenlp.document.Document.get_annotations">
-<code class="sig-name descname">get_annotations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="gatenlp.annotation_set.html#gatenlp.annotation_set.AnnotationSet" title="gatenlp.annotation_set.AnnotationSet">gatenlp.annotation_set.AnnotationSet</a><a class="reference internal" href="_modules/gatenlp/document.html#Document.get_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.get_annotations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
-If the annotation set does not already exist, it is created.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> – the annotation set name, the empty string is used for the “default annotation set”.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the specified annotation set.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="gatenlp.document.Document.load">
 <em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mod</span><span class="o">=</span><span class="default_value">'gatenlp.serialization.default'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load or import a document from the given source. The source can be a file path or file name or
 a URL. If the type of the source is str, then if it starts with “http[s]://” it will get treated
 as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
 deliberately use URL instead of a file parse the URL using urllib.</p>
+<p>Example: <cite>Document.load(urllib.parse.urlparse(someurl), fmt=theformat)</cite></p>
+<p>Example: <cite>Document.load(pathlib.Path(somepath), fmt=theformat)</cite></p>
 <p>NOTE: the offset type of the document is always converted to PYTHON when loading!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -228,8 +241,8 @@ bytes, depending on the format.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="gatenlp.document.Document.remove_annotation_set">
-<code class="sig-name descname">remove_annotation_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.remove_annotation_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.remove_annotation_set" title="Permalink to this definition">¶</a></dt>
+<dt id="gatenlp.document.Document.remove_annset">
+<code class="sig-name descname">remove_annset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/document.html#Document.remove_annset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.remove_annset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Completely remove the annotation set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,33 +289,6 @@ bytes, depending on the format.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="gatenlp.document.Document.set_changelog">
-<code class="sig-name descname">set_changelog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chlog</span><span class="p">:</span> <span class="n"><a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="gatenlp.changelog.html#gatenlp.changelog.ChangeLog" title="gatenlp.changelog.ChangeLog">gatenlp.changelog.ChangeLog</a><a class="reference internal" href="_modules/gatenlp/document.html#Document.set_changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.set_changelog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make the document use the given changelog to record all changes
-from this moment on.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>chlog</strong> – the new changelog to use or None to not use any</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the changelog used previously or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="gatenlp.document.Document.size">
-<code class="sig-name descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/gatenlp/document.html#Document.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.document.Document.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the size of the document text.
-Note: this will convert the type of the document to python!</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>size of the document (length of the text)</p>
 </dd>
 </dl>
 </dd></dl>

@@ -70,7 +70,7 @@ def get_install_extras_require():
     extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})
     return extras_require
 
-    
+
 setup(
     name="gatenlp",
     version=versionfromfile("gatenlp/__init__.py"),

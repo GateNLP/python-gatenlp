@@ -58,6 +58,15 @@
 <em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ignore_unknown_types</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#GateXmlLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.GateXmlLoader.load" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt id="gatenlp.serialization.default.GateXmlLoader.value4objectwrapper">
+<em class="property">static </em><code class="sig-name descname">value4objectwrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#GateXmlLoader.value4objectwrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.GateXmlLoader.value4objectwrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>This may one day convert things like lists, maps, shared objects to Python, but for
+now we always throw an exeption.
+:param text:
+:return:</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -273,13 +282,14 @@
 <dl class="py function">
 <dt id="gatenlp.serialization.default.is_url">
 <code class="sig-prename descclassname">gatenlp.serialization.default.</code><code class="sig-name descname">is_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ext</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#is_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.is_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True if ext should be interpreted as a (HTTP(s)) URL, otherwise false.</p>
+<dd><p>Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+If ext is None, returns None, None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>ext</strong> – something that represents an external resource: string, url parse, pathlib path object …</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True or False</p>
+<dd class="field-even"><p>True, usrlstring or False, pathstring</p>
 </dd>
 </dl>
 </dd></dl>
