@@ -22,6 +22,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
     readme = f.read()
 
+
 def versionfromfile(*filepath):
     here = os.path.abspath(os.path.dirname(__file__))
     infile = os.path.join(here, *filepath)
@@ -31,6 +32,7 @@ def versionfromfile(*filepath):
         if version_match:
             return version_match.group(1)
         raise RuntimeError("Unable to find version string in {}.".format(infile))
+
 
 def make_java():
     if os.path.exists(JARFILE_DIST) and os.stat(JARFILE_DIST).st_mtime > os.stat(JAVAFILE_PATH).st_mtime:
@@ -42,13 +44,17 @@ def make_java():
     os.chdir("..")
     copyfile(JARFILE_PATH, JARFILE_DIST)
 
+
 def make_html_ann_viewer():
     print("Copying HTML ann viewer files", file=sys.stderr)
     copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
     copyfile(HTML_ANN_VIEWER_JS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
-        
+
+
 make_html_ann_viewer()
+
 make_java()
+
 
 def get_install_extras_require():
     extras_require = {
@@ -58,11 +64,12 @@ def get_install_extras_require():
         'spacy': ['spacy'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov'],  # for development
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner'],  # for development
     }
     # Add automatically the 'all' target
     extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})
     return extras_require
+
     
 setup(
     name="gatenlp",
@@ -83,10 +90,8 @@ setup(
     tests_require=['pytest'],
     platforms='any',
     license="MIT",
-    keywords="",
-    url="https://github.com/GateNLP/python-gatenlp",
     packages=find_packages(),
-    package_data = {"": [JARFILE]},  # wherever we store the jarfile, copy it into the installed package dir
+    package_data={"": [JARFILE]},  # wherever we store the jarfile, copy it into the installed package dir
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite='tests',
     classifiers=[
