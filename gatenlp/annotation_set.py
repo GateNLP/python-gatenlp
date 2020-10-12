@@ -47,6 +47,8 @@ class AnnotationSet:
 
     @property
     def changelog(self):
+        if self._owner_doc is None:
+            return None
         return self._owner_doc.changelog
 
     def __setattr__(self, key, value):
@@ -269,8 +271,12 @@ class AnnotationSet:
         Return the start offset of the annotation set, i.e. the smallest offset of any annotation.
         This needs the index and creates it if necessary.
 
+        Throws an exception if there are no annotations in the set.
+
         :return: smallest annotation offset
         """
+        if self.size == 0:
+            raise Exception("Annotation set is empty, cannot determine start offset")
         self._create_index_by_offset()
         return self._index_by_offset.min_start()
 
@@ -282,6 +288,8 @@ class AnnotationSet:
 
         :return: largest end offset
         """
+        if self.size == 0:
+            raise Exception("Annotation set is empty, cannot determine end offset")
         self._create_index_by_offset()
         return self._index_by_offset.max_end()
 
@@ -443,7 +451,7 @@ class AnnotationSet:
         Iterator for going through all the annotations of the set.
 
         Important: using the iterator will always create the index if it is not already there!
-        For fast iteration use fastiter() which does not allow sorting or offset ranges.
+        For fast iteration use fast_iter() which does not allow sorting or offset ranges.
 
         :return: a generator for the annotations in document order
         """
@@ -457,8 +465,8 @@ class AnnotationSet:
         :return:
         """
         if self._annotations:
-            for a in self._annotations:
-                yield a
+            for annid, ann in self._annotations.items():
+                yield ann
 
     def iter(self,
              start_ge: Union[int, None] = None,
@@ -683,7 +691,6 @@ class AnnotationSet:
         if lastoff != -1:
             yield curlist
 
-
     def by_span(self):
         """
         Return annotations as a collection of lists, where each list contains all
@@ -709,6 +716,7 @@ class AnnotationSet:
         if lastsoff != -1:
             yield curlist
 
+    @property
     def type_names(self) -> KeysView[str]:
         """
         Gets the names of all types in this set. Creates the type index if necessary.
@@ -904,6 +912,7 @@ class AnnotationSet:
             ignore = None
         return self._restrict_intvs(intvs, ignore=ignore)
 
+    @property
     def span(self) -> Tuple[int, int]:
         """
         Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation

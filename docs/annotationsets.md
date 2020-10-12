@@ -6,9 +6,10 @@ Annotation sets group annotations that belong together in some way. How to group
 
 Annotation sets are identified by names and there can be as many different sets as needed. The annotation set with the empty string as name is called the "default annotation set". There are no strict limitations to annotation set names, but it is recommended that apart from the default set, all names should follow Java or python name conventions. 
 
-Annotation sets are represented by the `AnnotationSet` class and created by fetching a set from the document. 
+Annotation sets are represented by the `AnnotationSet` class and created by fetching a set from the document.
 
-```python
+
+```
 from gatenlp import Document
 
 doc = Document("some document")
@@ -18,7 +19,8 @@ annset = doc.annset("MySet")
 Once an annotation set has been created it can be used to create and
 add as many annotations as needed to it:
 
-```python
+
+```
 ann_tok1 = annset.add(0,4,"Token")
 ann_tok2 = annset.add(5,13,"Token")
 ann_all = annset.add(0,13,"Document")
@@ -30,7 +32,8 @@ Annotations can overlap arbitrarily and there are methods to check the overlappi
 
 The AnnotationSet instance has methods to retrieve annotations which relate to an annotation span or offset span in some specific way, e.g. are contained in the annotation span, overlap the annotation span or contain the annotation span:
 
-```python
+
+```
 anns_intok1 = annset.within(ann_tok1)
 print(anns_intok1)
 # AnnotationSet([
@@ -61,6 +64,4 @@ A "detached" annotation set returned from an AnnotationSet method contains annot
 
 In order to get a completely independent copy of all the annotations from a result set (which is a detached set), the method: `clone_anns()` can be used. After this, all the annotations are deep copies of the originals and can be modified without affecting the annotations in the original attached set. 
 
-In order to get a completely independent copy of all the annotations from an original attached set, the method `deepcopy()` can be used. 
-
-
+In order to get a completely independent copy of all the annotations from an original attached set, the method `deepcopy()` can be used.

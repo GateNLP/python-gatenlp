@@ -2,7 +2,7 @@
 An annotation is immutable, but the features it contains are mutable.
 """
 import sys
-from typing import List, Union, Dict, Set
+from typing import List, Union, Dict, Set, Tuple
 import copy
 from functools import total_ordering
 # from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
@@ -62,6 +62,15 @@ class Annotation:
         :return:
         """
         return self._id
+
+    @property
+    def span(self) -> Tuple[int, int]:
+        """
+        Returns a tuple with the start and end offset of the annotation.
+
+        :return: tuple of start and end offsets
+        """
+        return self.start, self.end
 
     def __init__(
             self, start: int, end: int, anntype: str,
