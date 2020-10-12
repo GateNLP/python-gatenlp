@@ -50,16 +50,36 @@ def make_html_ann_viewer():
 make_html_ann_viewer()
 make_java()
 
+def get_install_extras_require():
+    extras_require = {
+        'msgpack': ['msgpack'],
+        'java': ['py4j'],
+        'stanza': ['stanza'],
+        'spacy': ['spacy'],
+        'docker': ['docker>=2.0.0'],
+        'yaml': ['pyyaml'],
+        'html': ['bs4'], 
+        'gazetteers': ['matchtext'],
+    }
+    # Add automatically the 'all' target
+    extras_require.update({'all': [i[0] for i in extras_require.values()]})
+    return extras_require
+    
 setup(
     name="gatenlp",
     version=versionfromfile("gatenlp/__init__.py"),
     author="Johann Petrak",
     author_email="johann.petrak@gmail.com",
+    url='https://github.com/GateNLP/python-gatenlp',
+    keywords=['nlp', 'text processing'],
     description='GATE NLP implementation in Python.',
     long_description=readme,
     long_description_content_type='text/markdown',
     setup_requires=["pytest-runner"],
-    install_requires=["sortedcontainers"],
+    install_requires=[
+      "sortedcontainers"
+    ],
+    extras_require=get_install_extras_require(),
     python_requires=">=3.5",
     tests_require=['pytest'],
     platforms='any',
