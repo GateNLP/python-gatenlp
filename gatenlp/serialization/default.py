@@ -381,14 +381,10 @@ class HtmlAnnViewerSerializer:
             else:
                 rndpref = "".join(choice(ascii_uppercase) for i in range(10))
             html = html[idx1:idx2]
-            html = f"""
-            <style>
-              div#{rndpref}-wrapper: {{ color: black: !important; }}
-            </style>
-            <div id="{rndpref}-wrapper">
-            {html}
-            </div>
-            """
+            html = f"""<div><style>div#{rndpref}-wrapper: {{ color: black: !important; }}</style>
+<div id="{rndpref}-wrapper">
+{html}
+</div></div>"""
             # replace the prefix with a random one
             html = html.replace("GATENLPID", rndpref)
         if offline:
