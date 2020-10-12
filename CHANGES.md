@@ -1,5 +1,12 @@
 # CHANGES
 
+## Version 0.9
+
+* Several renames of API methods again:
+  * Annotation: boolean methods renamed to isxxx(), e.g. `ann1.within(ann2)` renamed to `ann1.iswithin(ann2)`
+  * AnnotationSet: some methods are now properties: `size`, `length` 
+  * AnnotationSet: method `type(...)` renamed to `with_type(...)`
+
 ## Version 0.8
 
 * Breaking change: `annset.add(..)` now returns the annotation, not just 
