@@ -188,8 +188,6 @@ class PlainTextSerializer:
         return PlainTextSerializer.load(clazz, gzip=True, **kwargs)
 
 
-
-
 class YamlSerializer:
 
     @staticmethod
@@ -343,10 +341,26 @@ JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
 html_ann_viewer_serializer_js_loaded = False
 
+
 class HtmlAnnViewerSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False,
+             htmlid=None, **kwargs):
+        """
+        Convert a document to HTML for visualizing it.
+
+        :param clazz:
+        :param inst:
+        :param to_ext:
+        :param to_mem:
+        :param notebook:
+        :param offline:
+        :param htmlid: the id to use for HTML ids so it is possible to style the output
+           from a separate notebook cell.
+        :param kwargs:
+        :return:
+        """
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
         doccopy = inst.deepcopy()
@@ -362,8 +376,19 @@ class HtmlAnnViewerSerializer:
             str_end = "<!--ENDDIV-->"
             idx1 = html.find(str_start) + len(str_start)
             idx2 = html.find(str_end)
-            rndpref = "".join(choice(ascii_uppercase) for i in range(10))
-            html = html[idx1:idx2] + f"<div>ID: {rndpref}</div>"
+            if htmlid:
+                rndpref = str(htmlid)
+            else:
+                rndpref = "".join(choice(ascii_uppercase) for i in range(10))
+            html = html[idx1:idx2]
+            html = f"""
+            <style>
+              div#{rndpref}-wrapper: {{ color: black: !important; }}
+            </style>
+            <div id="{rndpref}-wrapper">
+            {html}
+            </div>
+            """
             # replace the prefix with a random one
             html = html.replace("GATENLPID", rndpref)
         if offline:

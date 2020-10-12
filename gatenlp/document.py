@@ -559,5 +559,19 @@ class Document:
 
         :return:
         """
+        return self.repr_html()
+
+    def repr_html(self, notebook=True, offline=None, htmlid=None):
+        """
+        Return a
+        :param notebook:
+        :param offline:
+        :param htmlid:
+        :return:
+        """
+        if offline is None:
+            offline = gatenlpconfig.doc_html_repr_offline
         return self.save_mem(fmt="html-ann-viewer",
-                             notebook=True, offline=gatenlpconfig.doc_html_repr_offline)
+                             notebook=notebook,
+                             offline=gatenlpconfig.doc_html_repr_offline,
+                             htmlid=htmlid)
