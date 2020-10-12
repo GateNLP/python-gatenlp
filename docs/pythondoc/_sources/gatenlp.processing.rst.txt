@@ -1,0 +1,23 @@
+gatenlp.processing package
+==========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gatenlp.processing.annotator
+   gatenlp.processing.executor
+   gatenlp.processing.matcher
+   gatenlp.processing.normalizer
+   gatenlp.processing.pipeline
+   gatenlp.processing.tokenizer
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.processing
+   :members:
+   :undoc-members:
+   :show-inheritance:

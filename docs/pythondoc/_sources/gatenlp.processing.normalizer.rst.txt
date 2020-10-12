@@ -1,0 +1,7 @@
+gatenlp.processing.normalizer module
+====================================
+
+.. automodule:: gatenlp.processing.normalizer
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+gatenlp.processing.annotator module
+===================================
+
+.. automodule:: gatenlp.processing.annotator
+   :members:
+   :undoc-members:
+   :show-inheritance:

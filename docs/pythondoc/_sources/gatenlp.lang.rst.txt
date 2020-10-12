@@ -1,0 +1,19 @@
+gatenlp.lang package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gatenlp.lang.de
+   gatenlp.lang.en
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.lang
+   :members:
+   :undoc-members:
+   :show-inheritance:

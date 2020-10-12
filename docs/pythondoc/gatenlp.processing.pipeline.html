@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gatenlp.processing.pipeline module &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gatenlp.processing.tokenizer module" href="gatenlp.processing.tokenizer.html" />
+    <link rel="prev" title="gatenlp.processing.normalizer module" href="gatenlp.processing.normalizer.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.processing.tokenizer.html" title="gatenlp.processing.tokenizer module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.processing.normalizer.html" title="gatenlp.processing.normalizer module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.processing.html" accesskey="U">gatenlp.processing package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.processing.pipeline module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-gatenlp.processing.pipeline">
+<span id="gatenlp-processing-pipeline-module"></span><h1>gatenlp.processing.pipeline module<a class="headerlink" href="#module-gatenlp.processing.pipeline" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="gatenlp.processing.pipeline.Pipeline">
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.processing.pipeline.</code><code class="sig-name descname">Pipeline</code><a class="reference internal" href="_modules/gatenlp/processing/pipeline.html#Pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.processing.pipeline.Pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.processing.annotator.html#gatenlp.processing.annotator.Annotator" title="gatenlp.processing.annotator.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.processing.annotator.Annotator</span></code></a></p>
+<p>A pipeline is an annotator which runs several other annotators in sequence on a document
+and returns the result. Since annotators can return no or more than one result document
+in a list, the pipeline can return no or more than one document for each input document
+as well.</p>
+<dl class="py method">
+<dt id="gatenlp.processing.pipeline.Pipeline.finish">
+<code class="sig-name descname">finish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/processing/pipeline.html#Pipeline.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.processing.pipeline.Pipeline.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoke finish on all annotators and return their results as a list with as many
+elements as there are annotators (annotators which did not return anything have None).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of annotator results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.processing.pipeline.Pipeline.reduce">
+<code class="sig-name descname">reduce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">results</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/processing/pipeline.html#Pipeline.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.processing.pipeline.Pipeline.reduce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoke reduce on all annotators using the list of result lists. <cite>results</cite> is a list with
+as many elements as there are annotators. Each element is a list of results from different
+processes or different batches.</p>
+<p>Returns a list with as many elements as there are annotators, each element the combined result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>results</strong> – a list of result lists</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of combined results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.processing.pipeline.Pipeline.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/processing/pipeline.html#Pipeline.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.processing.pipeline.Pipeline.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoke start on all annotators to prepare them for a corpus of documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gatenlp.processing.normalizer.html"
+                        title="previous chapter">gatenlp.processing.normalizer module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gatenlp.processing.tokenizer.html"
+                        title="next chapter">gatenlp.processing.tokenizer module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gatenlp.processing.pipeline.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.processing.tokenizer.html" title="gatenlp.processing.tokenizer module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gatenlp.processing.normalizer.html" title="gatenlp.processing.normalizer module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="gatenlp.html" >gatenlp package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="gatenlp.processing.html" >gatenlp.processing package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.processing.pipeline module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

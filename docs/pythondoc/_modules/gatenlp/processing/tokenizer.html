@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gatenlp.processing.tokenizer &#8212; GATE NLP library (gatenlp)  documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.processing.tokenizer</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gatenlp.processing.tokenizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">gatenlp.processing.annotator</span> <span class="kn">import</span> <span class="n">Annotator</span>
+<span class="c1"># NOTE we use NLTK&#39;s own aligner, but there is also get_original_spans(tk, s) from package tokenizations</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize.util</span> <span class="kn">import</span> <span class="n">align_tokens</span>
+
+<span class="c1"># Generate token and optionally space token annotations in the given output annotation set.</span>
+<span class="c1"># Optionally give non-default type names to the annotations.</span>
+<span class="c1"># Some tokenizers may also add additional overlapping annotations (e.g. URL, EMAIL) for some tokens</span>
+<span class="c1"># Tokenizers may have means like lookup tables and patterns for language specific tokenization.</span>
+<span class="c1"># Tokenizers may have default patterns which work for several languages but should get initialized</span>
+<span class="c1"># with the language-specific resources in the per-language package.</span>
+
+<span class="c1"># in here we could also include pos taggers and lemmatizers as these are related to token features?</span>
+
+
+<div class="viewcode-block" id="NLTKTokenizer"><a class="viewcode-back" href="../../../gatenlp.processing.tokenizer.html#gatenlp.processing.tokenizer.NLTKTokenizer">[docs]</a><span class="k">class</span> <span class="nc">NLTKTokenizer</span><span class="p">(</span><span class="n">Annotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses a NLTK Tokenizer to perform tokenization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nltk_tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_set</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">token_type</span><span class="o">=</span><span class="s2">&quot;Token&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the tokenizer. NOTE: this tokenizer does NOT create space tokens</span>
+
+<span class="sd">        :param nltk_tokenizer: either a class or instance of an nltk tokenizer</span>
+<span class="sd">        :param out_set: annotation set to put the Token annotations in</span>
+<span class="sd">        :param token_type: annotation type of the Token annotations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">nltk_tokenizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">nltk_tokenizer</span><span class="p">):</span>
+            <span class="n">nltk_tokenizer</span> <span class="o">=</span> <span class="n">nltk_tokenizer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">nltk_tokenizer</span>
+        <span class="c1"># good idea but the method actually exists so instead we call it and if we get</span>
+        <span class="c1"># an exception (which is a NotImplementedError) we set this to false</span>
+        <span class="c1">#self.has_span_tokenize = hasattr(nltk_tokenizer, &quot;span_tokenize&quot;) and \</span>
+        <span class="c1">#                         callable(getattr(nltk_tokenizer, &quot;span_tokenize&quot;))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_span_tokenize</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">span_tokenize</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_span_tokenize</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_set</span><span class="o">=</span><span class="n">out_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_type</span> <span class="o">=</span> <span class="n">token_type</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">doc</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_span_tokenize</span><span class="p">:</span>
+            <span class="n">spans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">span_tokenize</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">spans</span> <span class="o">=</span> <span class="n">align_tokens</span><span class="p">(</span><span class="n">tks</span><span class="p">,</span> <span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">annset</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">annset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_set</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+            <span class="n">annset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">span</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">span</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">GATE NLP library (gatenlp)  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">gatenlp.processing.tokenizer</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, University of Sheffield.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+    </div>
+  </body>
+</html>

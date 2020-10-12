@@ -1,0 +1,10 @@
+gatenlp.lang.en package
+=======================
+
+Module contents
+---------------
+
+.. automodule:: gatenlp.lang.en
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+gatenlp.processing.pipeline module
+==================================
+
+.. automodule:: gatenlp.processing.pipeline
+   :members:
+   :undoc-members:
+   :show-inheritance:
