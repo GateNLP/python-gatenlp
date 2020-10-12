@@ -28,3 +28,5 @@ __all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
            "ChangeLog", "logger"]
 
 gate_python_plugin_pr = None
+
+

@@ -9,6 +9,7 @@ from gatenlp.features import Features
 import logging
 import importlib
 import copy
+from gatenlp.gatenlpconfig import gatenlpconfig
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -558,4 +559,5 @@ class Document:
 
         :return:
         """
-        return self.save_mem(fmt="html-ann-viewer", notebook=True, offline=True)
+        return self.save_mem(fmt="html-ann-viewer",
+                             notebook=True, offline=gatenlpconfig.doc_html_repr_offline)
