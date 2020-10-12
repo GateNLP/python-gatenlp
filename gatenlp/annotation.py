@@ -191,17 +191,21 @@ class Annotation:
         """
         return "Annotation({},{},{},features={},id={})".format(self.start, self.end, self.type, self._features, self.id)
 
+    @property
     def length(self) -> int:
         """
         The length of the annotation is the length of the offset span. Since the end offset is one after the last
-        element, we return end-start
+        element, we return end-start. Note: this is deliberately not implemented as len(ann), as
+        len(annset) returns the number of annotations in the set but annset.length() also returns the
+        span length of the annotation set, so the method name for this is identical between annotations
+        and annotation sets.
 
         :return:
         """
         return self.end - self.start
 
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int) -> bool:
+    def isoverlapping(self, start: int, end: int) -> bool:
         """
         Checks if this annotation is overlapping with the given span, annotation or
         annotation set.
@@ -215,7 +219,7 @@ class Annotation:
         return self.covering(start) or self.covering(end - 1)
 
     @support_annotation_or_set
-    def coextensive(self, start: int, end: int) -> bool:
+    def iscoextensive(self, start: int, end: int) -> bool:
         """
         Checks if this annotation is coextensive with the given span, annotation or
         annotation set, i.e. has exactly the same start and end offsets.
@@ -227,7 +231,7 @@ class Annotation:
         return self.start == start and self.end == end
 
     @support_annotation_or_set
-    def within(self, start: int, end: int) -> bool:
+    def iswithin(self, start: int, end: int) -> bool:
         """
         Checks if this annotation is within the given span, annotation or
         annotation set, i.e. both the start and end offsets of this annotation
@@ -240,7 +244,7 @@ class Annotation:
         return start <= self.start and end >= self.end
 
     @support_annotation_or_set
-    def before(self, start: int, end: int, immediately=False) -> bool:
+    def isbefore(self, start: int, end: int, immediately=False) -> bool:
         """
         Checks if this annotation is before the other span, i.e. the end of this annotation
         is before the start of the other annotation or span.
@@ -255,7 +259,7 @@ class Annotation:
             return self.end <= start
 
     @support_annotation_or_set
-    def after(self, start: int, end: int, immediately=False) -> bool:
+    def isafter(self, start: int, end: int, immediately=False) -> bool:
         """
         Checks if this annotation is after the other span, i.e. the start of this annotation
         is after the end of the other annotation or span.
@@ -295,7 +299,7 @@ class Annotation:
         return ann2start - ann1end
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int = None) -> bool:
+    def iscovering(self, start: int, end: int = None) -> bool:
         """
         Checks if this annotation is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
@@ -312,17 +316,6 @@ class Annotation:
             return self.start <= start < self.end
         else:
             return self.start <= start and self.end >= end
-
-    @support_annotation_or_set
-    def within(self, start: int, end: int) -> bool:
-        """
-        Checks if this annotation is within the given span.
-
-        :param start: start offset of the span
-        :param end: end offset of the span
-        :return: True if within, False otherwise
-        """
-        return self.start >= start and self.end <= end
 
 
     def to_dict(self, offset_mapper=None, offset_type=None):

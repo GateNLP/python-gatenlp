@@ -52,17 +52,16 @@ make_java()
 
 def get_install_extras_require():
     extras_require = {
-        'msgpack': ['msgpack'],
+        'formats': ['msgpack', 'pyyaml', 'bs4', 'requests'],
         'java': ['py4j'],
         'stanza': ['stanza'],
         'spacy': ['spacy'],
-        'docker': ['docker>=2.0.0'],
-        'yaml': ['pyyaml'],
-        'html': ['bs4'], 
         'gazetteers': ['matchtext'],
+        # the following are not included in all:
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov'],  # for development
     }
     # Add automatically the 'all' target
-    extras_require.update({'all': [i[0] for i in extras_require.values()]})
+    extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})
     return extras_require
     
 setup(
@@ -77,7 +76,7 @@ setup(
     long_description_content_type='text/markdown',
     setup_requires=["pytest-runner"],
     install_requires=[
-      "sortedcontainers"
+      'sortedcontainers>=2.0.0',
     ],
     extras_require=get_install_extras_require(),
     python_requires=">=3.5",

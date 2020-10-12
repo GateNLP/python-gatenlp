@@ -15,9 +15,9 @@ from sortedcontainers import SortedKeyList
 
 class SortedIntvls:
     def __init__(self):
-        # NOTE: we sort by increasing start offset and decreasing end offset for this
-        self._by_start = SortedKeyList(key=lambda x: x[0])
-        # for this we only sort by the end offset
+        # NOTE: we sort by increasing start offset then increasing annotation id for this
+        self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
+        # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
     def add(self, start, end, data):

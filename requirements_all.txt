@@ -1,4 +1,0 @@
-msgpack
-py4j
-pyyaml
-bs4

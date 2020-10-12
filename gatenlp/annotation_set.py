@@ -131,7 +131,7 @@ class AnnotationSet:
         self._is_immutable = val
 
     @property
-    def detached(self) -> bool:
+    def isdetached(self) -> bool:
         return self._owner_doc is None
 
     def _create_index_by_offset(self) -> None:
@@ -221,6 +221,7 @@ class AnnotationSet:
         """
         return len(self._annotations)
 
+    @property
     def size(self) -> int:
         """
         Return number of annotations in the set.
@@ -263,6 +264,7 @@ class AnnotationSet:
             raise InvalidOffsetError(
                 "Annotation ends after document ends: end={}, docsize={}".format(end, doc_size))
 
+    @property
     def start(self):
         """
         Return the start offset of the annotation set, i.e. the smallest offset of any annotation.
@@ -273,6 +275,7 @@ class AnnotationSet:
         self._create_index_by_offset()
         return self._index_by_offset.min_start()
 
+    @property
     def end(self):
         """
         Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
@@ -283,6 +286,7 @@ class AnnotationSet:
         self._create_index_by_offset()
         return self._index_by_offset.max_end()
 
+    @property
     def length(self):
         """
         Return the length of the span covered by to first to last annotation.
@@ -463,10 +467,9 @@ class AnnotationSet:
              with_type: str = None,
              reverse: bool = False) -> Generator:
         """
-        Returns a generator for going through annotations in document order. If an iterator of annotations
-        is given, then those annotations, optionally limited by the other parameters are returned in
-        document order, otherwise, all annotations in the set are returned, otionally limited by the other
-        parameters.
+        Returns a generator for going through annotations in document order, otionally limited
+        by the other parameters. If two annoations start at the same offset, they are always
+        ordered by increasing annotation id.
 
         :param annotations: an iterable of annotations from this annotation set.
         :param start_ge: the offset from where to start including annotations
@@ -572,7 +575,7 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def type(self, *anntype: Union[str, Iterable],
+    def with_type(self, *anntype: Union[str, Iterable],
                   non_overlapping: bool = False) -> "AnnotationSet":
         """
         Gets annotations of the specified type(s).
@@ -660,25 +663,52 @@ class AnnotationSet:
 
     def by_offset(self):
         """
-        NOT YET IMPLEMENTED
-
         Return annotations as a collection of lists, where each list contains all
         annotations that start at the same offset, sorted in their natural order.
 
-        :return:
+        NOTE: creates the index!
+
+        :return: a generator for lists of annotations
         """
-        raise("Not yet implemented")
+        self._create_index_by_offset()
+        lastoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastoff:
+                if lastoff != -1:
+                    yield curlist
+                lastoff = ann.start
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastoff != -1:
+            yield curlist
+
 
     def by_span(self):
         """
-        NOT YET IMPLEMENTED
-
         Return annotations as a collection of lists, where each list contains all
         annotations with identical spans.
 
-        :return:
+        NOTE: creates the index!
+
+        :return: a generator for lists of annotations
         """
-        raise("Not yet implemented")
+        self._create_index_by_offset()
+        lastsoff = -1
+        lasteoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastsoff or ann.end != lasteoff:
+                if lastsoff != -1:
+                    yield curlist
+                lastsoff = ann.start
+                lasteoff = ann.end
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastsoff != -1:
+            yield curlist
 
     def type_names(self) -> KeysView[str]:
         """
