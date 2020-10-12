@@ -18,7 +18,9 @@ development continues.
 
 ## Installation
 
-`pip install -U gatenlp`
+Install gatenlp with all optional dependencies: 
+
+`pip install -U gatenlpi[all]`
 
 For more details see [Installation](installation.md)
 
@@ -26,9 +28,9 @@ For more details see [Installation](installation.md)
 
 * [Installation](installation.md)
 * The Document class and classes related to components of a document:
-  * [Document](documents)
-  * [AnnotationSet](annotationsets)
-  * [Annotation](annotations)
+  * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
+  * [AnnotationSet](annotationsets) / [AnnotationSet Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [Notebook Download](annotationsets.ipynb)
+  * [Document](documents) / [Document Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [Notebook Download](documents.ipynb)
 * The Changelog class for recording changes to a document
   * [ChangeLog](changelogs)
 * [Usage examples](usage-examples)  
