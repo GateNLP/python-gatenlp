@@ -37,6 +37,12 @@ The following specific dependencies can be chosen:
 * `gazetteers`: to support gazetteers
 * `dev`: dependencies needed for developing gatenlp 
 
+To install gatenlp with support for stanza and spacy and serialization:
+
+```
+python -m pip install gatenlp[stanza,spacy,formats]
+```
+
 To install the latest `gatenlp` code from GitHub with all dependencies:
 * Clone the repository and change into it
 * Run `python -m pip -e .[all]`
