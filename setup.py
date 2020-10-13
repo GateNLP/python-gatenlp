@@ -17,7 +17,7 @@ JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "ga
 HTML_ANN_VIEWER_HTML_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.html")
 HTML_ANN_VIEWER_MERGEDJS_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer-merged.js")
 HTML_ANN_VIEWER_GATEJS_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.js")
-HTML_ANN_VIEWER_LIBJS_FILE = os.path.join("html-ann-viewer", "jquery-3.5.1.min.js.js")
+HTML_ANN_VIEWER_LIBJS_FILE = os.path.join("html-ann-viewer", "jquery-3.5.1.min.js")
 HTML_ANN_VIEWER_DIST_DIR = os.path.join("gatenlp", "serialization", "_htmlviewer")
 
 here = os.path.abspath(os.path.dirname(__file__))

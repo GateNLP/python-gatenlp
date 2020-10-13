@@ -141,7 +141,7 @@ function docview_showFeatures(obj, features) {
 
 function docview_showAnn(obj, ann) {
         $(obj.id_details).empty();
-        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Annotation: " + ann.type + " from " + ann.start + " to " + ann.end + "</div>");
+        $(obj.id_details).append("<div class='" + obj.id_hdr + "'>Annotation: " + ann.type + ", id:" + ann.id + " offsets:" + ann.start + ".." + ann.end + " (" + (ann.end-ann.start) + ")</div>");
         docview_showFeatures(obj, ann.features);
     }
 
@@ -302,17 +302,6 @@ var gatenlpDocView = class {
         //this.anns4offset = new Array(this.docrep.text.length + 1);
         this.anns4offset = new Array()
         
-        // Initialize the data structure: there is one element for each offset and we store the 
-        // Setname/Typename array in snatypes and the Setname/Annid in anns for each offset
-        //for (let i = 0; i < this.anns4offset.length; i++) {
-        //    this.anns4offset[i] = {
-        //        "snatypes": [],
-        //        "anns": [],
-        //        "offset": i,
-        //    };
-        //}
-        
-        
         // for all the set/type combinations that have been selected ... 
         for (let [sname, atype] of this.chosen) {
             //console.log("sname/type: " + sname + "/" + atype);
@@ -422,6 +411,7 @@ var gatenlpDocView = class {
         }
         let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
         let span = undefined;
+        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
         if (last["anns"].length != 0) {
             let col = this.color4types(last.anns);
             let sty = this.style4color(col);
@@ -438,15 +428,12 @@ var gatenlpDocView = class {
         }
         span.append($.parseHTML(this.htmlEntities(txt)));
         spans.push(span);
+        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
         $(divcontent).append(spans);
-
-
-
     }
-
 
     htmlEntities(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, "<br>");
