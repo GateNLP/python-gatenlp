@@ -4,8 +4,8 @@ var gatenlpDocRep = class {
     constructor(jsonstring) {
             this.sep = "║"
             this.sname2types = new Map();
-            this.snametype2ids = new Map();
             this.snameid2ann = new Map();
+            this.snametype2ids = new Map();
             let bdoc = JSON.parse(jsonstring);
             this.text = bdoc["text"];
             this.features = bdoc["features"];
@@ -102,10 +102,15 @@ function docview_annchosen(rep, ev, setname, anntype) {
     }
 
 function docview_annsel(obj, ev, anns) {
-        if (anns.length > 1) {
+        if (anns.size > 1) {
+            // if there are several annotation, show the popup
             $(obj.id_popup).empty();
-            for (let [setname, annid] of anns) {
+            for (let info of anns.values()) {
+                let fields = info.split("║")
+                let setname = fields[0]
+                let annid = fields[2]                
                 let ann = obj.docrep.ann4setnameannid(setname, annid);
+                // console.log("Looking up setname="+setname+",annid="+annid+" gave: "+ann)
                 let feats = ann.features;
                 let idpopup = obj.id_popup;
                 $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
@@ -113,9 +118,12 @@ function docview_annsel(obj, ev, anns) {
                     $(idpopup).hide();
                 }).appendTo(obj.id_popup);
             }
-            $(obj.id_popup).show();
-        } else if (anns.length == 1) {
-            let ann = obj.docrep.ann4setnameannid(anns[0][0], anns[0][1]);
+            $(obj.id_popup).show();            
+        } else if (anns.size == 1) {
+            // if there is just one annotation, show features immediately, without the popup
+            let a = anns.values().next()["value"]
+            let fields = a.split("║")            
+            let ann = obj.docrep.ann4setnameannid(fields[0], fields[2]);
             docview_showAnn(obj, ann);
         } else {
             console.error("EMPTY ANNS???");
@@ -149,6 +157,7 @@ function docview_showDocFeatures(obj, features) {
 var gatenlpDocView = class {
     constructor(docrep, idprefix="GATENLPID-", config=undefined) {
         // idprefix: the prefix to add to all ids and classes
+        this.sep = "║"
         this.docrep = docrep;
         this.idprefix = idprefix;
         this.id_text = "#" + idprefix + "text";
@@ -195,23 +204,26 @@ var gatenlpDocView = class {
     }
 
     color4types(atypes) {
-        // atypes is a list of [setname,type] lists
+        // atypes is a list of set┼type┼annid strings
         let r = 0;
         let g = 0;
         let b = 0;
         let a = 0;
-        for (let snametyp of atypes) {
-            let typ = snametyp[0] + this.sep + snametyp[1];
+        for (let info of atypes.values()) {
+            let fields = info.split(this.sep)
+            let typ = fields[0] + this.sep + fields[1];
             let col = this.type2colour.get(typ);
+            // console.log("Looked up color for "+typ+" got "+col)
             r += col[0];
             g += col[1];
             b += col[2];
             a += col[3];
         }
-        r = Math.floor(r / atypes.length);
-        g = Math.floor(g / atypes.length);
-        b = Math.floor(b / atypes.length);
-        a = a / atypes.length;
+        r = Math.floor(r / atypes.size);
+        g = Math.floor(g / atypes.size);
+        b = Math.floor(b / atypes.size);
+        a = a / atypes.size;
+        // console.log("Final colors for len "+atypes.size+" r="+r+" g="+g)
         return [r, g, b, 1.0];
     }
 
@@ -271,43 +283,103 @@ var gatenlpDocView = class {
         this.buildContent()
     }
 
-    buildAnns4Offset() {
-        //console.log("Running buildAnns4Offset")
-        this.anns4offset = new Array(this.docrep.text.length + 1);
-        for (let i = 0; i < this.anns4offset.length; i++) {
-            this.anns4offset[i] = {
-                "snatypes": [],
-                "anns": [],
-                "offset": i,
-            };
+        set2list(theset) {
+            let arr = new Array()
+            for (var el of theset.values()) {
+               arr[arr.length] = el
+            }
+            return arr
         }
+
+        setsequal(set1, set2) {
+            if (set1.size !== set2.size) return false;
+            for (var el of set1) if (!set2.has(el)) return false;
+            return true;
+        }
+
+    buildAnns4Offset() {
+        // console.log("Running buildAnns4Offset")
+        //this.anns4offset = new Array(this.docrep.text.length + 1);
+        this.anns4offset = new Array()
+        
+        // Initialize the data structure: there is one element for each offset and we store the 
+        // Setname/Typename array in snatypes and the Setname/Annid in anns for each offset
+        //for (let i = 0; i < this.anns4offset.length; i++) {
+        //    this.anns4offset[i] = {
+        //        "snatypes": [],
+        //        "anns": [],
+        //        "offset": i,
+        //    };
+        //}
+        
+        
+        // for all the set/type combinations that have been selected ... 
         for (let [sname, atype] of this.chosen) {
             //console.log("sname/type: " + sname + "/" + atype);
-            // get the annotations 
+            // get the list of annotations that match the given Setname and annotation type
             let anns = this.docrep.anns4settype(sname, atype);
             for (let ann of anns) {
                 // console.log("processing ann: " + ann + " start=" + ann.start + " end=" + ann.end + " type=" + ann.type)
+                // store the annotation setname/typename/annid for each offset of each annotation
+                // to indicate the end of the annotation also store an empty list for the offset after the annotation 
+                // unless we already have something there
                 for (let i = ann.start; i < ann.end; i++) {
                     let have = this.anns4offset[i]
-                    let tmp = this.anns4offset[i]["snatypes"];
-                    tmp[tmp.length] = [sname, atype];
-                    tmp = this.anns4offset[i]["anns"];
-                    tmp[tmp.length] = [sname, ann.id];
-                    // console.log("entry for start is now " + tmp);
+                    if (have == undefined) {
+                      have = { "offset": i, "anns": new Set()}
+                      this.anns4offset[i] = have
+                    }
+                    // append a new set/type tuple to the list of set/types at this offset
+                    let tmp = this.anns4offset[i]["anns"];
+                    let toadd = sname + this.sep + atype + this.sep + ann.id
+                    // console.log("Trying to add "+toadd+" to "+this.set2list(tmp))
+                    tmp = tmp.add(toadd); 
+                    //console.log("is now "+this.set2list(tmp))
+                    //console.log("entry for offset "+i+" is now " + this.set2list(this.anns4offset[i]["anns"]));
+                }
+                let have = this.anns4offset[ann.end]
+                if (have == undefined) {
+                    this.anns4offset[ann.end] = { "offset": ann.end, "anns": new Set()}
+                    // this.anns4offset[ann.end] = undefined
                 }
             }
         }
-        // now all offsets have a list of annotations 
-        // compress the list to only contain the list where it changes 
+        // console.log("initial anns4Offset:")
+        // console.log(this.anns4offset)
+        // now all offsets have a list of set/type and set/annid tuples
+        // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
         for (let i = 1; i < this.anns4offset.length; i++) {
-            if (last["snatypes"] == this.anns4offset[i]["snatypes"]) {
-                this.anns4offset[i]["snatypes"] = [];
-                this.anns4offset[i]["anns"] = [];
+            let cur = this.anns4offset[i]
+            if (last == undefined && cur == undefined) {
+                // console.log("Offset "+i+" both undefined")
+                // nothing to do
+            } else if (last == undefined && cur != undefined) {
+                // we have a new list of annotations, keep it: nothing to do
+                //console.log("Offset "+i+" last undefined, this one not")
+            } else if (last != undefined && cur == undefined) {
+                // we switch from some list of annotations to the empty list: 
+                // add an empty entry
+                //console.log("Offset "+i+" last one not undefined, this undefined, inserting empty list")
+                this.anns4offset[i] = { "anns": new Set(), "offset": i}
             } else {
-                last = this.anns4offset[i];
-            }
+                // both offsets have annotations, but do the differ? we need to compare the types and annids
+                // For now we do this by comparing the stringified representations
+                let s1 = last["anns"]
+                let s2 = cur["anns"]
+                // console.log("Offset "+i+" Cur: "+this.set2list(s2)+" last: "+this.set2list(s1))
+                if (this.setsequal(s1,s2)) {
+                   // console.log("Detected equal")
+                   this.anns4offset[i] = undefined
+                }
+            } 
+            last = cur
         }
+        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+
+        // console.log("compressed anns4Offset:")
+        // console.log(this.anns4offset)
+        
     }
 
     buildContent() {
@@ -323,23 +395,24 @@ var gatenlpDocView = class {
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
-            last = { "snatypes": [], "offset": 0 };
+            last = { "anns": new Set(), "offset": 0 };
         }
         for (let i = 1; i < this.anns4offset.length; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
                 let span = undefined;
-                if (last["snatypes"].length != 0) {
-                    //console.log("last-anns:" + last.anns);
-                    let col = this.color4types(last.snatypes);
+                if (last["anns"].size != 0) {
+                    let col = this.color4types(last.anns);
                     let sty = this.style4color(col);
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
                     let annhandler = function(ev) { docview_annsel(object, ev, anns) }
                     span.on("click", annhandler);
+                    // console.log("Adding styled text for "+col+"/"+sty+" : "+txt)
                 } else {
+                    // console.log("Adding non-styled text "+txt)
                     span = $('<span>');
                 }
                 span.append($.parseHTML(this.htmlEntities(txt)));
@@ -349,12 +422,19 @@ var gatenlpDocView = class {
         }
         let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
         let span = undefined;
-        if (last["snatypes"].length != 0) {
-            let col = this.color4types(last.snatypes);
+        if (last["anns"].length != 0) {
+            let col = this.color4types(last.anns);
             let sty = this.style4color(col);
-            span = $('<span>').attr("style", sty).attr("data-anns", last.snatypes.join(","));
+            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
+            span = $('<span>').attr("style", sty)
+            let object = this;
+            let anns = last.anns;
+            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
+            span.on("click", annhandler);
+            // console.log("Adding styled text for "+col+" : "+txt)
         } else {
-            span = $('<span>').attr("data-anns", "");
+            // console.log("Adding non-styled text "+txt)
+            span = $('<span>');
         }
         span.append($.parseHTML(this.htmlEntities(txt)));
         spans.push(span);
@@ -369,12 +449,12 @@ var gatenlpDocView = class {
 
 
     htmlEntities(str) {
-        return str.replace(/&/, '&amp;').replace(/</, '&lt;').replace(/>/, '&gt;').replace(/"/, '&quot;').replace(/\n/, "<br>");
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, "<br>");
     }
 };
-console.log("Classes defined");
+// console.log("Classes defined, defining gatenlp_run");
 function gatenlp_run(prefix) {
     bdocjson = document.getElementById(prefix+"data").innerHTML;
     new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
 }
-console.log("Function defined");
+// console.log("Function defined");

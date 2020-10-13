@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html" charset="utf-8">
+    <title>GateNLP Annotation Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+</head>
+
+<body>
+<!--STARTDIV-->
+<div>
+<style>
+#GATENLPID-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GATENLPID-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GATENLPID-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GATENLPID-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GATENLPID-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GATENLPID-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GATENLPID-popup {
+    display: none;
+    colour: white;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #ff88ff;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GATENLPID-selection {
+    margin-bottom: 5px;
+}
+
+.GATENLPID-featuretable {
+    margin-top: 10px;
+}
+
+.GATENLPID-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GATENLPID-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GATENLPID-content">
+        <div id="GATENLPID-popup" style="display: none;">
+        </div>
+        <div class="GATENLPID-row" style="height:67vh; min-height:100px;">
+            <div id="GATENLPID-text-wrapper" class="GATENLPID-col" style="width:70%;">
+                <div class="GATENLPID-hdr" id="GATENLPID-dochdr"></div>
+                <div id="GATENLPID-text">
+                </div>
+            </div>
+            <div id="GATENLPID-chooser" class="GATENLPID-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GATENLPID-row" style="height:30vh; min-height: 100px;">
+            <div id="GATENLPID-details" class="GATENLPID-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="jquery-3.5.1.min.js"></script>
+    
+    <script type="text/javascript" src="gatenlp-ann-viewer.js"> </script>
+    
+    <script type="application/json" id="GATENLPID-data">
+    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 1, "id": 0, "features": {"orth": "upperInitial", "string": "A", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 1, "end": 2, "id": 1, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 2, "end": 8, "id": 2, "features": {"orth": "lowercase", "string": "simple", "kind": "word", "length": "6", "category": "JJ"}}, {"type": "SpaceToken", "start": 8, "end": 9, "id": 3, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 9, "end": 13, "id": 4, "features": {"orth": "lowercase", "string": "test", "kind": "word", "length": "4", "category": "NN"}}, {"type": "SpaceToken", "start": 13, "end": 14, "id": 5, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 14, "end": 22, "id": 6, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 22, "end": 23, "id": 7, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Token", "start": 24, "end": 26, "id": 9, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 10, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 27, "end": 35, "id": 11, "features": {"orth": "lowercase", "string": "contains", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 35, "end": 36, "id": 12, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 36, "end": 40, "id": 13, "features": {"orth": "lowercase", "string": "some", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 40, "end": 41, "id": 14, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 41, "end": 47, "id": 15, "features": {"orth": "lowercase", "string": "emojis", "kind": "word", "length": "6", "category": "NNS"}}, {"type": "Token", "start": 47, "end": 48, "id": 16, "features": {"string": ":", "kind": "punctuation", "length": "1", "category": ":"}}, {"type": "SpaceToken", "start": 48, "end": 49, "id": 17, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 49, "end": 51, "id": 18, "features": {"string": "\ud83d\udca9", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "SpaceToken", "start": 51, "end": 52, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 52, "end": 55, "id": 20, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 55, "end": 56, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 56, "end": 58, "id": 22, "features": {"string": "\ud83d\udc35", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "Token", "start": 59, "end": 62, "id": 24, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 62, "end": 63, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 63, "end": 67, "id": 26, "features": {"orth": "lowercase", "string": "also", "kind": "word", "length": "4", "category": "RB"}}, {"type": "SpaceToken", "start": 67, "end": 68, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 68, "end": 72, "id": 28, "features": {"orth": "lowercase", "string": "some", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 72, "end": 73, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 73, "end": 76, "id": 30, "features": {"orth": "lowercase", "string": "non", "kind": "word", "length": "3", "category": "NN"}}, {"type": "SpaceToken", "start": 76, "end": 77, "id": 31, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 77, "end": 84, "id": 32, "features": {"orth": "upperInitial", "string": "English", "kind": "word", "length": "7", "category": "NNP"}}, {"type": "SpaceToken", "start": 84, "end": 85, "id": 33, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 85, "end": 89, "id": 34, "features": {"orth": "lowercase", "string": "text", "kind": "word", "length": "4", "category": "NN"}}, {"type": "Token", "start": 89, "end": 90, "id": 35, "features": {"string": ":", "kind": "punctuation", "length": "1", "category": ":"}}, {"type": "SpaceToken", "start": 90, "end": 91, "id": 36, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 92, "end": 98, "id": 38, "features": {"orth": "upperInitial", "string": "Korean", "kind": "word", "length": "6", "category": "JJ"}}, {"type": "SpaceToken", "start": 98, "end": 99, "id": 39, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 99, "end": 101, "id": 40, "features": {"string": "\ud55c\uae00", "kind": "word", "length": "2", "type": "other", "category": "NN"}}, {"type": "SpaceToken", "start": 101, "end": 102, "id": 41, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 102, "end": 105, "id": 42, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 105, "end": 106, "id": 43, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 106, "end": 111, "id": 44, "features": {"orth": "upperInitial", "string": "Farsi", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "Token", "start": 111, "end": 112, "id": 45, "features": {"string": ":", "kind": "punctuation", "length": "1", "category": ":"}}, {"type": "SpaceToken", "start": 112, "end": 113, "id": 46, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 113, "end": 118, "id": 47, "features": {"string": "\u0641\u0627\u0631\u0633\u06cc", "kind": "word", "length": "5", "type": "other", "category": "NN"}}, {"type": "Token", "start": 119, "end": 120, "id": 49, "features": {"orth": "upperInitial", "string": "A", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 120, "end": 121, "id": 50, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 121, "end": 128, "id": 51, "features": {"orth": "lowercase", "string": "sentece", "kind": "word", "length": "7", "category": "NN"}}, {"type": "SpaceToken", "start": 128, "end": 129, "id": 52, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 129, "end": 133, "id": 53, "features": {"orth": "lowercase", "string": "that", "kind": "word", "length": "4", "category": "WDT"}}, {"type": "SpaceToken", "start": 133, "end": 134, "id": 54, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 134, "end": 142, "id": 55, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 142, "end": 143, "id": 56, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 143, "end": 149, "id": 57, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 149, "end": 150, "id": 58, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 150, "end": 155, "id": 59, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "SpaceToken", "start": 155, "end": 156, "id": 60, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 156, "end": 159, "id": 61, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 159, "end": 160, "id": 62, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 160, "end": 163, "id": 63, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 163, "end": 164, "id": 64, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 164, "end": 168, "id": 65, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 168, "end": 169, "id": 66, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 169, "end": 173, "id": 67, "features": {"orth": "upperInitial", "string": "City", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 173, "end": 174, "id": 68, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 174, "end": 177, "id": 69, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 177, "end": 178, "id": 70, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 178, "end": 187, "id": 71, "features": {"orth": "upperInitial", "string": "Microsoft", "kind": "word", "length": "9", "category": "NNP"}}, {"type": "Token", "start": 187, "end": 188, "id": 72, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 23, "end": 24, "id": 73, "features": {"string": "\n", "kind": "control", "length": "1"}}, {"type": "SpaceToken", "start": 58, "end": 59, "id": 74, "features": {"string": "\n", "kind": "control", "length": "1"}}, {"type": "SpaceToken", "start": 91, "end": 92, "id": 75, "features": {"string": "\n", "kind": "control", "length": "1"}}, {"type": "SpaceToken", "start": 118, "end": 119, "id": 76, "features": {"string": "\n", "kind": "control", "length": "1"}}, {"type": "Lookup", "start": 24, "end": 26, "id": 77, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 77, "end": 84, "id": 78, "features": {"majorType": "country_adj", "country": "England", "minorType": "COUNTRYADJ"}}, {"type": "Lookup", "start": 92, "end": 98, "id": 79, "features": {"majorType": "country_adj", "minorType": "COUNTRYADJ"}}, {"type": "Lookup", "start": 143, "end": 155, "id": 80, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 150, "end": 155, "id": 81, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 160, "end": 173, "id": 82, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 164, "end": 168, "id": 83, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 169, "end": 173, "id": 84, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 169, "end": 173, "id": 85, "features": {"majorType": "loc_key", "minorType": "post"}}, {"type": "Lookup", "start": 178, "end": 187, "id": 86, "features": {"majorType": "organization", "minorType": "company"}}, {"type": "Split", "start": 22, "end": 23, "id": 87, "features": {"kind": "internal"}}, {"type": "Split", "start": 23, "end": 24, "id": 88, "features": {"kind": "external"}}, {"type": "Split", "start": 58, "end": 59, "id": 89, "features": {"kind": "external"}}, {"type": "Split", "start": 91, "end": 92, "id": 90, "features": {"kind": "external"}}, {"type": "Split", "start": 118, "end": 119, "id": 91, "features": {"kind": "external"}}, {"type": "Split", "start": 187, "end": 188, "id": 92, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 23, "id": 93, "features": null}, {"type": "Sentence", "start": 24, "end": 58, "id": 94, "features": null}, {"type": "Sentence", "start": 59, "end": 90, "id": 95, "features": null}, {"type": "Sentence", "start": 92, "end": 118, "id": 96, "features": null}, {"type": "Sentence", "start": 119, "end": 188, "id": 97, "features": null}, {"type": "Person", "start": 143, "end": 155, "id": 116, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Location", "start": 160, "end": 173, "id": 117, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Organization", "start": 178, "end": 187, "id": 118, "features": {"orgType": "company", "ruleFinal": "OrgFinal", "rule": "GazOrganization"}}, {"type": "Unknown", "start": 106, "end": 111, "id": 119, "features": {"kind": "PN", "rule": "Unknown"}}, {"type": "Weird", "start": 100, "end": 116, "id": 120, "features": {"feature": "value"}}, {"type": "Weird", "start": 105, "end": 125, "id": 121, "features": {"nr": "2"}}], "next_annid": 122}, "Set2": {"name": "detached-from:Set2", "annotations": [{"type": "Type1", "start": 5, "end": 35, "id": 122, "features": null}, {"type": "Type1", "start": 39, "end": 47, "id": 123, "features": null}, {"type": "Type2", "start": 2, "end": 74, "id": 124, "features": null}], "next_annid": 125}}, "text": "A simple test document.\nIt contains some emojis: \ud83d\udca9 and \ud83d\udc35\nand also some non English text: \nKorean \ud55c\uae00 and Farsi: \u0641\u0627\u0631\u0633\u06cc\nA sentece that mentions Barack Obama and New York City and Microsoft.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""}
+    </script>
+    <script type="text/javascript">
+        gatenlp_run("GATENLPID-");
+    </script>
+  </div>
+<!--ENDDIV-->
+</body>
+
+</html>
