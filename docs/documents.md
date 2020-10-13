@@ -54,25 +54,25 @@ display(doc)
 ```
 
 
-<div><style>#LFOANXQWNS-wrapper { color: black !important; }</style>
-<div id="LFOANXQWNS-wrapper">
+<div><style>#TJPQPAYAMP-wrapper { color: black !important; }</style>
+<div id="TJPQPAYAMP-wrapper">
 
 <div>
 <style>
-#LFOANXQWNS-content {
+#TJPQPAYAMP-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.LFOANXQWNS-row {
+.TJPQPAYAMP-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.LFOANXQWNS-col {
+.TJPQPAYAMP-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -82,29 +82,29 @@ display(doc)
     overflow-y: auto;
 }
 
-.LFOANXQWNS-hdr {
+.TJPQPAYAMP-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.LFOANXQWNS-label {
+.TJPQPAYAMP-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.LFOANXQWNS-input {
+.TJPQPAYAMP-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#LFOANXQWNS-popup {
+#TJPQPAYAMP-popup {
     display: none;
-    color: white;
+    color: black;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
-    background: #ff88ff;
+    background: #aaaaaa;
     width: 60%;
     height: 60%;
     z-index: 50;
@@ -113,45 +113,45 @@ display(doc)
     overflow: auto;
 }
 
-.LFOANXQWNS-selection {
+.TJPQPAYAMP-selection {
     margin-bottom: 5px;
 }
 
-.LFOANXQWNS-featuretable {
+.TJPQPAYAMP-featuretable {
     margin-top: 10px;
 }
 
-.LFOANXQWNS-fname {
+.TJPQPAYAMP-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.LFOANXQWNS-fvalue {
+.TJPQPAYAMP-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="LFOANXQWNS-content">
-        <div id="LFOANXQWNS-popup" style="display: none;">
+  <div id="TJPQPAYAMP-content">
+        <div id="TJPQPAYAMP-popup" style="display: none;">
         </div>
-        <div class="LFOANXQWNS-row" id="LFOANXQWNS-row1" style="height:67vh; min-height:100px;">
-            <div id="LFOANXQWNS-text-wrapper" class="LFOANXQWNS-col" style="width:70%;">
-                <div class="LFOANXQWNS-hdr" id="LFOANXQWNS-dochdr"></div>
-                <div id="LFOANXQWNS-text">
+        <div class="TJPQPAYAMP-row" id="TJPQPAYAMP-row1" style="height:67vh; min-height:100px;">
+            <div id="TJPQPAYAMP-text-wrapper" class="TJPQPAYAMP-col" style="width:70%;">
+                <div class="TJPQPAYAMP-hdr" id="TJPQPAYAMP-dochdr"></div>
+                <div id="TJPQPAYAMP-text">
                 </div>
             </div>
-            <div id="LFOANXQWNS-chooser" class="LFOANXQWNS-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="TJPQPAYAMP-chooser" class="TJPQPAYAMP-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="LFOANXQWNS-row" id="LFOANXQWNS-row2" style="height:30vh; min-height: 100px;">
-            <div id="LFOANXQWNS-details" class="LFOANXQWNS-col" style="width:100%; border-top-width: 0px;">
+        <div class="TJPQPAYAMP-row" id="TJPQPAYAMP-row2" style="height:30vh; min-height: 100px;">
+            <div id="TJPQPAYAMP-details" class="TJPQPAYAMP-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="LFOANXQWNS-data">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.9/gatenlp-ann-viewer.js"></script>
+    <script type="application/json" id="TJPQPAYAMP-data">
     {"annotation_sets": {}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("LFOANXQWNS-");
+        gatenlp_run("TJPQPAYAMP-");
     </script>
   </div>
 
@@ -188,25 +188,25 @@ doc
 
 
 
-<div><style>#MSZZXWFYHU-wrapper { color: black !important; }</style>
-<div id="MSZZXWFYHU-wrapper">
+<div><style>#XNXLGEVFWJ-wrapper { color: black !important; }</style>
+<div id="XNXLGEVFWJ-wrapper">
 
 <div>
 <style>
-#MSZZXWFYHU-content {
+#XNXLGEVFWJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MSZZXWFYHU-row {
+.XNXLGEVFWJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MSZZXWFYHU-col {
+.XNXLGEVFWJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -216,29 +216,29 @@ doc
     overflow-y: auto;
 }
 
-.MSZZXWFYHU-hdr {
+.XNXLGEVFWJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MSZZXWFYHU-label {
+.XNXLGEVFWJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MSZZXWFYHU-input {
+.XNXLGEVFWJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MSZZXWFYHU-popup {
+#XNXLGEVFWJ-popup {
     display: none;
-    color: white;
+    color: black;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
-    background: #ff88ff;
+    background: #aaaaaa;
     width: 60%;
     height: 60%;
     z-index: 50;
@@ -247,45 +247,45 @@ doc
     overflow: auto;
 }
 
-.MSZZXWFYHU-selection {
+.XNXLGEVFWJ-selection {
     margin-bottom: 5px;
 }
 
-.MSZZXWFYHU-featuretable {
+.XNXLGEVFWJ-featuretable {
     margin-top: 10px;
 }
 
-.MSZZXWFYHU-fname {
+.XNXLGEVFWJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MSZZXWFYHU-fvalue {
+.XNXLGEVFWJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MSZZXWFYHU-content">
-        <div id="MSZZXWFYHU-popup" style="display: none;">
+  <div id="XNXLGEVFWJ-content">
+        <div id="XNXLGEVFWJ-popup" style="display: none;">
         </div>
-        <div class="MSZZXWFYHU-row" id="MSZZXWFYHU-row1" style="height:67vh; min-height:100px;">
-            <div id="MSZZXWFYHU-text-wrapper" class="MSZZXWFYHU-col" style="width:70%;">
-                <div class="MSZZXWFYHU-hdr" id="MSZZXWFYHU-dochdr"></div>
-                <div id="MSZZXWFYHU-text">
+        <div class="XNXLGEVFWJ-row" id="XNXLGEVFWJ-row1" style="height:67vh; min-height:100px;">
+            <div id="XNXLGEVFWJ-text-wrapper" class="XNXLGEVFWJ-col" style="width:70%;">
+                <div class="XNXLGEVFWJ-hdr" id="XNXLGEVFWJ-dochdr"></div>
+                <div id="XNXLGEVFWJ-text">
                 </div>
             </div>
-            <div id="MSZZXWFYHU-chooser" class="MSZZXWFYHU-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="XNXLGEVFWJ-chooser" class="XNXLGEVFWJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MSZZXWFYHU-row" id="MSZZXWFYHU-row2" style="height:30vh; min-height: 100px;">
-            <div id="MSZZXWFYHU-details" class="MSZZXWFYHU-col" style="width:100%; border-top-width: 0px;">
+        <div class="XNXLGEVFWJ-row" id="XNXLGEVFWJ-row2" style="height:30vh; min-height: 100px;">
+            <div id="XNXLGEVFWJ-details" class="XNXLGEVFWJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="MSZZXWFYHU-data">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.9/gatenlp-ann-viewer.js"></script>
+    <script type="application/json" id="XNXLGEVFWJ-data">
     {"annotation_sets": {}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {"loaded-from": "https://gatenlp.github.io/python-gatenlp/testdocument1.txt", "purpose": "test document for gatenlp", "someotherfeature": 22, "andanother": {"what": "a dict", "alist": [1, 2, 3, 4, 5]}}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("MSZZXWFYHU-");
+        gatenlp_run("XNXLGEVFWJ-");
     </script>
   </div>
 
@@ -391,25 +391,25 @@ doc
 
 
 
-<div><style>#JVBUAGDMPS-wrapper { color: black !important; }</style>
-<div id="JVBUAGDMPS-wrapper">
+<div><style>#VSDCHYNOID-wrapper { color: black !important; }</style>
+<div id="VSDCHYNOID-wrapper">
 
 <div>
 <style>
-#JVBUAGDMPS-content {
+#VSDCHYNOID-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.JVBUAGDMPS-row {
+.VSDCHYNOID-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.JVBUAGDMPS-col {
+.VSDCHYNOID-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -419,29 +419,29 @@ doc
     overflow-y: auto;
 }
 
-.JVBUAGDMPS-hdr {
+.VSDCHYNOID-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.JVBUAGDMPS-label {
+.VSDCHYNOID-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.JVBUAGDMPS-input {
+.VSDCHYNOID-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#JVBUAGDMPS-popup {
+#VSDCHYNOID-popup {
     display: none;
-    color: white;
+    color: black;
     position: absolute;
     margin-top: 10%;
     margin-left: 10%;
-    background: #ff88ff;
+    background: #aaaaaa;
     width: 60%;
     height: 60%;
     z-index: 50;
@@ -450,45 +450,45 @@ doc
     overflow: auto;
 }
 
-.JVBUAGDMPS-selection {
+.VSDCHYNOID-selection {
     margin-bottom: 5px;
 }
 
-.JVBUAGDMPS-featuretable {
+.VSDCHYNOID-featuretable {
     margin-top: 10px;
 }
 
-.JVBUAGDMPS-fname {
+.VSDCHYNOID-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.JVBUAGDMPS-fvalue {
+.VSDCHYNOID-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="JVBUAGDMPS-content">
-        <div id="JVBUAGDMPS-popup" style="display: none;">
+  <div id="VSDCHYNOID-content">
+        <div id="VSDCHYNOID-popup" style="display: none;">
         </div>
-        <div class="JVBUAGDMPS-row" id="JVBUAGDMPS-row1" style="height:67vh; min-height:100px;">
-            <div id="JVBUAGDMPS-text-wrapper" class="JVBUAGDMPS-col" style="width:70%;">
-                <div class="JVBUAGDMPS-hdr" id="JVBUAGDMPS-dochdr"></div>
-                <div id="JVBUAGDMPS-text">
+        <div class="VSDCHYNOID-row" id="VSDCHYNOID-row1" style="height:67vh; min-height:100px;">
+            <div id="VSDCHYNOID-text-wrapper" class="VSDCHYNOID-col" style="width:70%;">
+                <div class="VSDCHYNOID-hdr" id="VSDCHYNOID-dochdr"></div>
+                <div id="VSDCHYNOID-text">
                 </div>
             </div>
-            <div id="JVBUAGDMPS-chooser" class="JVBUAGDMPS-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="VSDCHYNOID-chooser" class="VSDCHYNOID-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="JVBUAGDMPS-row" id="JVBUAGDMPS-row2" style="height:30vh; min-height: 100px;">
-            <div id="JVBUAGDMPS-details" class="JVBUAGDMPS-col" style="width:100%; border-top-width: 0px;">
+        <div class="VSDCHYNOID-row" id="VSDCHYNOID-row2" style="height:30vh; min-height: 100px;">
+            <div id="VSDCHYNOID-details" class="VSDCHYNOID-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="JVBUAGDMPS-data">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.9/gatenlp-ann-viewer.js"></script>
+    <script type="application/json" id="VSDCHYNOID-data">
     {"annotation_sets": {"Set1": {"name": "detached-from:Set1", "annotations": [{"type": "Word", "start": 0, "end": 4, "id": 0, "features": {"what": "our first annotation"}}, {"type": "Word", "start": 5, "end": 7, "id": 1, "features": {"what": "our second annotation"}}, {"type": "Sentence", "start": 0, "end": 24, "id": 2, "features": {"what": "our first sentence annotation"}}], "next_annid": 3}}, "text": "This is a test document.\n\nIt contains just a few sentences. \nHere is a sentence that mentions a few named entities like \nthe persons Barack Obama or Ursula von der Leyen, locations\nlike New York City, Vienna or Beijing or companies like \nGoogle, UniCredit or Huawei. \n\nHere we include a URL https://gatenlp.github.io/python-gatenlp/ \nand a fake email address john.doe@hiscoolserver.com as well \nas #some #cool #hastags and a bunch of emojis like \ud83d\ude3d (a kissing cat),\n\ud83d\udc69\u200d\ud83c\udfeb (a woman teacher), \ud83e\uddec (DNA), \n\ud83e\uddd7 (a person climbing), \n\ud83d\udca9 (a pile of poo). \n\nHere we test a few different scripts, e.g. Hangul \ud55c\uae00 or \nsimplified Hanzi \u6c49\u5b57 or Farsi \u0641\u0627\u0631\u0633\u06cc which goes from right to left. \n\n\n", "features": {"loaded-from": "https://gatenlp.github.io/python-gatenlp/testdocument1.txt", "purpose": "test document for gatenlp", "someotherfeature": 22, "andanother": {"what": "a dict", "alist": [1, 2, 3, 4, 5]}}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("JVBUAGDMPS-");
+        gatenlp_run("VSDCHYNOID-");
     </script>
   </div>
 
