@@ -1,4 +1,5 @@
-# gatenlp - A package for NLP similar to the Java Gate NLP framework
+# GateNLP 
+## A package for NLP similar to the Java GATE NLP framework
 
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
@@ -7,18 +8,21 @@ framework.
 
 Processed documents exported from Java GATE can be used and processed documents
 exported from this package can be used by Java GATE. In addition this package:
+* can be used as a Python library to perform NLP tasks
+* run other NLP libraries like Stanford Stanza or Spacy and represent their processing results as 
+  GateNLP annotations. 
+* load GateNLP documents from various formats, including HTML, GATE XML, Bdoc Json, Bdoc Yaml, Bdoc MessagePack, Text and others and save
+  to most of these formats
+* Generate HTML that allows to view a document and selectively display annotations from certain annotation sets and with certain types and show
+  their features 
 * provides the code to allow using Python directly from GATE via the [GATE Python plugin](https://github.com/GateNLP/gateplugin-Python)
 * allows to execute Java GATE API calls directly from the Python call, e.g.
   to run a Java GATE processing pipeline on a document and get back 
   the Processed document via the `GateSlave` class.
 
-NOTE: the current version provides mainly the means to represent and convert
-documents, annotations etc. Actual NLP processing will be added as
-development continues.
-
 ## Installation
 
-Install gatenlp with all optional dependencies: 
+Install GateNLP with all optional dependencies: 
 
 `pip install -U gatenlpi[all]`
 
