@@ -1,5 +1,5 @@
 # GateNLP 
-## A package for NLP similar to the Java GATE NLP framework
+## A Python package for NLP similar to the Java GATE NLP framework
 
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
