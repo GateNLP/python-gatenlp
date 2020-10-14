@@ -353,7 +353,7 @@ still in the set (or return the default value).</p>
 
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.isdetached">
-<em class="property">property </em><code class="sig-name descname">isdetached</code><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.isdetached" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">isdetached</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.isdetached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.isdetached" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -478,7 +478,7 @@ annotation in the result set.</p></li>
 
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.span">
-<code class="sig-name descname">span</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>int<span class="p">, </span>int<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.span" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">span</code><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.span" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
 and the largest end offset of any annotation.
 (Builds the offset index)</p>
@@ -494,6 +494,7 @@ and the largest end offset of any annotation.
 <em class="property">property </em><code class="sig-name descname">start</code><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the start offset of the annotation set, i.e. the smallest offset of any annotation.
 This needs the index and creates it if necessary.</p>
+<p>Throws an exception if there are no annotations in the set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>smallest annotation offset</p>
@@ -580,7 +581,7 @@ annotation set.</p>
 
 <dl class="py method">
 <dt id="gatenlp.annotation_set.AnnotationSet.type_names">
-<code class="sig-name descname">type_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; KeysView<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="_modules/gatenlp/annotation_set.html#AnnotationSet.type_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.type_names" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">type_names</code><a class="headerlink" href="#gatenlp.annotation_set.AnnotationSet.type_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the names of all types in this set. Creates the type index if necessary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

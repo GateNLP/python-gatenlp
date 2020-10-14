@@ -278,7 +278,7 @@ class Annotation:
         Return the gep between this annotation and the other annotation. This is the distance between
         the last character of the first annotation and the first character of the second annotation in
         sequence, so it is always independent of the order of the two annotations.
-H
+
         This is negative if the annotations overlap.
 
         :param start: start offset of span

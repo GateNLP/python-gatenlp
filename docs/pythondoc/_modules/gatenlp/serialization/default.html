@@ -57,7 +57,12 @@
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">ParseResult</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">gatenlp.gatenlpconfig</span> <span class="kn">import</span> <span class="n">gatenlpconfig</span>
 <span class="kn">import</span> <span class="nn">bs4</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">GuessedAtParserWarning</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">GuessedAtParserWarning</span><span class="p">)</span>
 
 <span class="c1"># TODO: when loading from a URL, allow for deciding on the format based on the mime type!</span>
 <span class="c1"># So if we do not have the format, we should get the header for the file, check the mime type and see</span>
@@ -73,6 +78,8 @@
 <span class="sd">    :param ext: something that represents an external resource: string, url parse, pathlib path object ...</span>
 <span class="sd">    :return: True, usrlstring or False, pathstring</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ext</span>
@@ -81,7 +88,9 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="n">ParseResult</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">geturl</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Odd type: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 
@@ -174,21 +183,24 @@
 <div class="viewcode-block" id="PlainTextSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.PlainTextSerializer">[docs]</a><span class="k">class</span> <span class="nc">PlainTextSerializer</span><span class="p">:</span>
 
 <div class="viewcode-block" id="PlainTextSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.PlainTextSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
+             <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">txt</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">text</span>
         <span class="k">if</span> <span class="n">txt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">to_mem</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
-                <span class="n">compress</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
+                <span class="n">compress</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">txt</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">to_ext</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">to_ext</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
                     <span class="n">outfp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_ext</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">to_ext</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfp</span><span class="p">:</span>
                     <span class="n">outfp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PlainTextSerializer.save_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.PlainTextSerializer.save_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -196,26 +208,28 @@
         <span class="n">PlainTextSerializer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PlainTextSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.PlainTextSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
+             <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">isurl</span><span class="p">,</span> <span class="n">extstr</span> <span class="o">=</span> <span class="n">is_url</span><span class="p">(</span><span class="n">from_ext</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">from_ext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">isurl</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
                     <span class="n">from_mem</span> <span class="o">=</span> <span class="n">get_bytes_from_url</span><span class="p">(</span><span class="n">extstr</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">from_mem</span> <span class="o">=</span> <span class="n">get_str_from_url</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                    <span class="n">from_mem</span> <span class="o">=</span> <span class="n">get_str_from_url</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">from_mem</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
-                <span class="n">txt</span> <span class="o">=</span> <span class="n">decompress</span><span class="p">(</span><span class="n">from_mem</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">decompress</span><span class="p">(</span><span class="n">from_mem</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">txt</span> <span class="o">=</span> <span class="n">from_mem</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">gzip</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gopen</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
                     <span class="n">txt</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">extstr</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
                     <span class="n">txt</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span></div>
@@ -223,8 +237,6 @@
 <div class="viewcode-block" id="PlainTextSerializer.load_gzip"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.PlainTextSerializer.load_gzip">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load_gzip</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PlainTextSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
-
-
 
 
 <div class="viewcode-block" id="YamlSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.YamlSerializer">[docs]</a><span class="k">class</span> <span class="nc">YamlSerializer</span><span class="p">:</span>
@@ -374,16 +386,32 @@
         <span class="k">return</span> <span class="n">doc</span></div></div>
 
 <span class="n">JS_JQUERY</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;&#39;</span>
-<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.8/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
+<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.9/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
 <span class="n">HTML_TEMPLATE_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer.html&quot;</span>
 <span class="n">JS_GATENLP_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer-merged.js&quot;</span>
 
 <span class="n">html_ann_viewer_serializer_js_loaded</span> <span class="o">=</span> <span class="kc">False</span>
 
+
 <div class="viewcode-block" id="HtmlAnnViewerSerializer"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer">[docs]</a><span class="k">class</span> <span class="nc">HtmlAnnViewerSerializer</span><span class="p">:</span>
 
 <div class="viewcode-block" id="HtmlAnnViewerSerializer.save"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.HtmlAnnViewerSerializer.save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">to_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">htmlid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a document to HTML for visualizing it.</span>
+
+<span class="sd">        :param clazz:</span>
+<span class="sd">        :param inst:</span>
+<span class="sd">        :param to_ext:</span>
+<span class="sd">        :param to_mem:</span>
+<span class="sd">        :param notebook:</span>
+<span class="sd">        :param offline:</span>
+<span class="sd">        :param htmlid: the id to use for HTML ids so it is possible to style the output</span>
+<span class="sd">           from a separate notebook cell.</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not a document!&quot;</span><span class="p">)</span>
         <span class="n">doccopy</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
@@ -394,13 +422,21 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not find HTML template, </span><span class="si">{}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">htmlloc</span><span class="p">))</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">htmlloc</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infp</span><span class="p">:</span>
             <span class="n">html</span> <span class="o">=</span> <span class="n">infp</span><span class="o">.</span><span class="n">read</span><span class="p">();</span>
+        <span class="n">txtcolor</span> <span class="o">=</span> <span class="n">gatenlpconfig</span><span class="o">.</span><span class="n">doc_html_repr_txtcolor</span>
         <span class="k">if</span> <span class="n">notebook</span><span class="p">:</span>
             <span class="n">str_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;!--STARTDIV--&gt;&quot;</span>
             <span class="n">str_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;!--ENDDIV--&gt;&quot;</span>
             <span class="n">idx1</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">str_start</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">str_start</span><span class="p">)</span>
             <span class="n">idx2</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">str_end</span><span class="p">)</span>
-            <span class="n">rndpref</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choice</span><span class="p">(</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
-            <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="p">[</span><span class="n">idx1</span><span class="p">:</span><span class="n">idx2</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;&lt;div&gt;ID: </span><span class="si">{</span><span class="n">rndpref</span><span class="si">}</span><span class="s2">&lt;/div&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">htmlid</span><span class="p">:</span>
+                <span class="n">rndpref</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">htmlid</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rndpref</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choice</span><span class="p">(</span><span class="n">ascii_uppercase</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="p">[</span><span class="n">idx1</span><span class="p">:</span><span class="n">idx2</span><span class="p">]</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;div&gt;&lt;style&gt;#</span><span class="si">{</span><span class="n">rndpref</span><span class="si">}</span><span class="s2">-wrapper </span><span class="se">{{</span><span class="s2"> color: </span><span class="si">{</span><span class="n">txtcolor</span><span class="si">}</span><span class="s2"> !important; </span><span class="se">}}</span><span class="s2">&lt;/style&gt;</span>
+<span class="s2">&lt;div id=&quot;</span><span class="si">{</span><span class="n">rndpref</span><span class="si">}</span><span class="s2">-wrapper&quot;&gt;</span>
+<span class="si">{</span><span class="n">html</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">&lt;/div&gt;&lt;/div&gt;&quot;&quot;&quot;</span>
             <span class="c1"># replace the prefix with a random one</span>
             <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;GATENLPID&quot;</span><span class="p">,</span> <span class="n">rndpref</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">offline</span><span class="p">:</span>
@@ -474,15 +510,18 @@
         <span class="p">}</span>
         <span class="n">docinfo</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;anninfos&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;curoffset&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;curid&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
         <span class="k">def</span> <span class="nf">walktree</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: type=&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+            <span class="c1">#print(&quot;DEBUG: type=&quot;, type(el))</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Doctype</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: got doctype&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+                <span class="c1"># print(&quot;DEBUG: got doctype&quot;, type(el))</span>
+                <span class="k">pass</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Comment</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: got Comment&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+                <span class="c1"># print(&quot;DEBUG: got Comment&quot;, type(el))</span>
+                <span class="k">pass</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Script</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: got Script&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+                <span class="c1"># print(&quot;DEBUG: got Script&quot;, type(el))</span>
+                <span class="k">pass</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Tag</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: got tag: &quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">el</span><span class="p">),</span> <span class="s2">&quot; name=&quot;</span><span class="p">,</span><span class="n">el</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="c1"># print(&quot;DEBUG: got tag: &quot;, type(el), &quot; name=&quot;,el.name)</span>
                 <span class="c1"># some tags we ignore completely:</span>
                 <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ignoreels</span><span class="p">:</span>
                     <span class="k">return</span>
@@ -490,7 +529,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> \
                         <span class="n">el</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">nlels</span><span class="p">:</span>
                     <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: adding newline before at &quot;</span><span class="p">,</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">])</span>
+                    <span class="c1"># print(&quot;DEBUG: adding newline before at &quot;, docinfo[&quot;curoffset&quot;])</span>
                     <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">ann</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span>
                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curid&quot;</span><span class="p">],</span> <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">]}</span>
@@ -503,7 +542,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> \
                         <span class="n">el</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">nlels</span><span class="p">:</span>
                     <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEBUG: adding newline after at &quot;</span><span class="p">,</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">])</span>
+                    <span class="c1"># print(&quot;DEBUG: adding newline after at &quot;, docinfo[&quot;curoffset&quot;])</span>
                     <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;anninfos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">thisid</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">docinfo</span><span class="p">[</span><span class="s2">&quot;curoffset&quot;</span><span class="p">]})</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">NavigableString</span><span class="p">):</span>
@@ -716,6 +755,7 @@
     <span class="s2">&quot;text/plain+gzip&quot;</span><span class="p">:</span> <span class="n">PlainTextSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
     <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">PlainTextSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
     <span class="s2">&quot;text/bdocjs+gzip&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
+    <span class="s2">&quot;bdocjsgz&quot;</span><span class="p">:</span> <span class="n">JsonSerializer</span><span class="o">.</span><span class="n">load_gzip</span><span class="p">,</span>
     <span class="s2">&quot;msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
     <span class="s2">&quot;application/msgpack&quot;</span><span class="p">:</span> <span class="n">MsgPackSerializer</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>
     <span class="s2">&quot;text/html&quot;</span><span class="p">:</span> <span class="n">HtmlLoader</span><span class="o">.</span><span class="n">load</span><span class="p">,</span>

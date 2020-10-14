@@ -50,6 +50,27 @@
 <span id="gatenlp-lib-stanza-module"></span><h1>gatenlp.lib_stanza module<a class="headerlink" href="#module-gatenlp.lib_stanza" title="Permalink to this headline">¶</a></h1>
 <p>Support for using stanford stanza (see <a class="reference external" href="https://stanfordnlp.github.io/stanza/">https://stanfordnlp.github.io/stanza/</a>):
 convert from stanford Stanza output to gatenlp documents and annotations.</p>
+<dl class="py class">
+<dt id="gatenlp.lib_stanza.AnnStanza">
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.lib_stanza.</code><code class="sig-name descname">AnnStanza</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pipeline</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outsetname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">token_type</span><span class="o">=</span><span class="default_value">'Token'</span></em>, <em class="sig-param"><span class="n">sentence_type</span><span class="o">=</span><span class="default_value">'Sentence'</span></em>, <em class="sig-param"><span class="n">add_entities</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ent_prefix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_stanza.html#AnnStanza"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_stanza.AnnStanza" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.processing.annotator.html#gatenlp.processing.annotator.Annotator" title="gatenlp.processing.annotator.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.processing.annotator.Annotator</span></code></a></p>
+<p>Create a processing resources for running a stanza pipeline on documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline</strong> – if this is specified, use a pre-configured pipeline</p></li>
+<li><p><strong>outsetname</strong> – the annotation set name where to put the annotations</p></li>
+<li><p><strong>token_type</strong> – the annotation type for the token annotations</p></li>
+<li><p><strong>sentence_type</strong> – the annotation type for the sentence annotations</p></li>
+<li><p><strong>add_entities</strong> – if true, add entity annotations</p></li>
+<li><p><strong>ent_prefix</strong> – the prefix to add to all entity annotation types</p></li>
+<li><p><strong>kwargs</strong> – if no preconfigured pipeline is specified, pass these arguments to
+the stanza.Pipeline() constructor see <a class="reference external" href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt id="gatenlp.lib_stanza.apply_stanza">
 <code class="sig-prename descclassname">gatenlp.lib_stanza.</code><code class="sig-name descname">apply_stanza</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nlp</span></em>, <em class="sig-param"><span class="n">gatenlpdoc</span></em>, <em class="sig-param"><span class="n">setname</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_stanza.html#apply_stanza"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_stanza.apply_stanza" title="Permalink to this definition">¶</a></dt>

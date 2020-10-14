@@ -75,8 +75,27 @@ now we always throw an exeption.
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="gatenlp.serialization.default.HtmlAnnViewerSerializer.save">
-<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">notebook</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">offline</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#HtmlAnnViewerSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.HtmlAnnViewerSerializer.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">notebook</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">offline</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">htmlid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#HtmlAnnViewerSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.HtmlAnnViewerSerializer.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a document to HTML for visualizing it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clazz</strong> – </p></li>
+<li><p><strong>inst</strong> – </p></li>
+<li><p><strong>to_ext</strong> – </p></li>
+<li><p><strong>to_mem</strong> – </p></li>
+<li><p><strong>notebook</strong> – </p></li>
+<li><p><strong>offline</strong> – </p></li>
+<li><p><strong>htmlid</strong> – the id to use for HTML ids so it is possible to style the output
+from a separate notebook cell.</p></li>
+<li><p><strong>kwargs</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -172,7 +191,7 @@ now we always throw an exeption.
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="gatenlp.serialization.default.PlainTextSerializer.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gzip</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#PlainTextSerializer.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.PlainTextSerializer.load" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">from_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">from_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">'UTF-8'</span></em>, <em class="sig-param"><span class="n">gzip</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#PlainTextSerializer.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.PlainTextSerializer.load" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -182,7 +201,7 @@ now we always throw an exeption.
 
 <dl class="py method">
 <dt id="gatenlp.serialization.default.PlainTextSerializer.save">
-<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gzip</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#PlainTextSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.PlainTextSerializer.save" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clazz</span></em>, <em class="sig-param"><span class="n">inst</span></em>, <em class="sig-param"><span class="n">to_ext</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_mem</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">offset_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">encoding</span><span class="o">=</span><span class="default_value">'UTF-8'</span></em>, <em class="sig-param"><span class="n">gzip</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/serialization/default.html#PlainTextSerializer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.serialization.default.PlainTextSerializer.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

@@ -51,6 +51,7 @@
 <span class="sd">we use the sorting order defined in the annotation class itself.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">sortedcontainers</span> <span class="kn">import</span> <span class="n">SortedKeyList</span>
 
 
@@ -87,7 +88,7 @@
 <span class="sd">        :param offset: the starting offset</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SortedIntvls.ending_at"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.ending_at">[docs]</a>    <span class="k">def</span> <span class="nf">ending_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -106,7 +107,7 @@
 <span class="sd">        :param end:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">start</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">intvl</span></div>
 
@@ -120,7 +121,7 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># get all the intervals that start within the range, then keep those which also end within the range</span>
-        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">max_key</span><span class="o">=</span><span class="n">end</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">intvl</span></div>
 
@@ -131,7 +132,7 @@
 <span class="sd">        :param offset:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SortedIntvls.starting_before"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.starting_before">[docs]</a>    <span class="k">def</span> <span class="nf">starting_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -140,8 +141,7 @@
 <span class="sd">        :param offset:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">offset</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">offset</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SortedIntvls.ending_to"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.ending_to">[docs]</a>    <span class="k">def</span> <span class="nf">ending_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -165,7 +165,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_end</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">min_key</span><span class="o">=</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
 
-    <span class="c1"># SAME as covering</span>
 <div class="viewcode-block" id="SortedIntvls.covering"><a class="viewcode-back" href="../../../gatenlp.impl.sortedintvls.html#gatenlp.impl.sortedintvls.SortedIntvls.covering">[docs]</a>    <span class="k">def</span> <span class="nf">covering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Intervals that contain the given range</span>
@@ -177,7 +176,7 @@
         <span class="c1"># All intervals that start at or before the start and end at or after the end offset</span>
         <span class="c1"># we do this by first getting the intervals the start before or atthe start</span>
         <span class="c1"># then filtering by end</span>
-        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">start</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">intvl</span></div>
 
@@ -189,10 +188,13 @@
 <span class="sd">        :param end:</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># All intervals where the start offset is before the end and the end offset is after the start</span>
-        <span class="c1"># plus all intervals where the start offset is after the start but before the end</span>
-        <span class="c1"># and the end offset is after the end</span>
-        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># All intervals where the start or end offset lies within the given range.</span>
+        <span class="c1"># This excludes the ones where the end offset is before the start or</span>
+        <span class="c1"># where the start offset is after the end of the range.</span>
+        <span class="c1"># Here we do this by looking at all intervals where the start offset is before the</span>
+        <span class="c1"># end of the range. This still includes those which also end before the start of the range</span>
+        <span class="c1"># so we check in addition that the end is larger than the start of the range.</span>
+        <span class="k">for</span> <span class="n">intvl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_start</span><span class="o">.</span><span class="n">irange_key</span><span class="p">(</span><span class="n">max_key</span><span class="o">=</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">intvl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">intvl</span></div>
 

@@ -43,12 +43,12 @@
 <span class="sd">An annotation is immutable, but the features it contains are mutable.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">total_ordering</span>
 <span class="c1"># from gatenlp.feature_bearer import FeatureBearer, FeatureViewer</span>
 <span class="kn">from</span> <span class="nn">gatenlp.features</span> <span class="kn">import</span> <span class="n">Features</span>
-<span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="kn">import</span> <span class="n">OFFSET_TYPE_JAVA</span>
+<span class="kn">from</span> <span class="nn">gatenlp.offsetmapper</span> <span class="kn">import</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">,</span> <span class="n">OFFSET_TYPE_PYTHON</span>
 <span class="kn">from</span> <span class="nn">gatenlp._utils</span> <span class="kn">import</span> <span class="n">support_annotation_or_set</span>
 
 
@@ -88,16 +88,36 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the features for the annotation.</span>
+
+<span class="sd">        :return: the Features object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the annotation id of the annotation.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">annot_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                 <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                 <span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">span</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a tuple with the start and end offset of the annotation.</span>
+
+<span class="sd">        :return: tuple of start and end offsets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">anntype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">annid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new annotation instance. NOTE: this should almost never be done directly</span>
 <span class="sd">        and instead the method annotation_set.add should be used!</span>
@@ -106,17 +126,16 @@
 
 <span class="sd">        :param start: start offset of the annotation</span>
 <span class="sd">        :param end: end offset of the annotation</span>
-<span class="sd">        :param annot_type: annotation type</span>
-<span class="sd">        :param annot_id: the id of the annotation</span>
-<span class="sd">        :param owner_set: the containing annotation set</span>
+<span class="sd">        :param anntype: annotation type</span>
 <span class="sd">        :param features: an initial collection of features, None for no features.</span>
+<span class="sd">        :param annid: the id of the annotation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">annot_type</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: start &gt; end&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">anntype</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: start &gt; end&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annid</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">annot_type</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: annid is not an int&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">anntype</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: annid is not an int&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">annot_type</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: features must not be an int&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot create annotation start=</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, end=</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">, type=</span><span class="si">{</span><span class="n">anntype</span><span class="si">}</span><span class="s2">, id=</span><span class="si">{</span><span class="n">annid</span><span class="si">}</span><span class="s2">, features=</span><span class="si">{</span><span class="n">features</span><span class="si">}</span><span class="s2">: features must not be an int&quot;</span><span class="p">)</span>
         <span class="c1"># super().__init__(features)</span>
         <span class="k">if</span> <span class="n">annid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annid</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Parameter annid must be an int, mixed up with features?&quot;</span><span class="p">)</span>
@@ -124,7 +143,7 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Parameter features must not be an int: mixed up with annid?&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owner_set</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">Features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_feature_change</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">annot_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">anntype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start</span> <span class="o">=</span> <span class="n">start</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="o">=</span> <span class="n">end</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">annid</span>
@@ -174,13 +193,6 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span> <span class="ow">and</span> \
                <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_features</span>
-        <span class="c1"># The old way to test for equality simply checked if owning set and id where identical</span>
-        <span class="c1">#if self._owner_set != other._owner_set:</span>
-        <span class="c1">#    return False</span>
-        <span class="c1">#if self.id != other.id:</span>
-        <span class="c1">#    return False</span>
-        <span class="c1">#else:</span>
-        <span class="c1">#    return True</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -192,8 +204,9 @@
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Comparison for sorting: this sorts by increasing start offset, then increasing end offset, then increasing</span>
-<span class="sd">        type name, then increasing annotation id.</span>
+<span class="sd">        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.</span>
+<span class="sd">        Since annotation ids within a set are unique, this guarantees a unique order of annotations that</span>
+<span class="sd">        come from an annotation set.</span>
 <span class="sd">        NOTE: for now the other object has to be an instance of Annotation, duck typing is not supported!</span>
 
 <span class="sd">        :param other: another annotation</span>
@@ -206,23 +219,7 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># start offset same, check end offset</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># end offset also same, check type</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">False</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># type also same check id</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="kc">True</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">id</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -257,7 +254,7 @@
 <span class="sd">        :param end: end offset of the span</span>
 <span class="sd">        :return: True if overlapping, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">covering</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">covering</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscovering</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscovering</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Annotation.iscoextensive"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.iscoextensive">[docs]</a>    <span class="nd">@support_annotation_or_set</span>
     <span class="k">def</span> <span class="nf">iscoextensive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -292,6 +289,7 @@
 
 <span class="sd">        :param start: start offset of the span</span>
 <span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :param immediately: if true checks if this annotation ends immediately before the other one</span>
 <span class="sd">        :return: True if before, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">immediately</span><span class="p">:</span>
@@ -307,6 +305,7 @@
 
 <span class="sd">        :param start: start offset of the span</span>
 <span class="sd">        :param end: end offset of the span</span>
+<span class="sd">        :param immediately: if true checks if this annotation starts immediately after the other one</span>
 <span class="sd">        :return: True if after, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">immediately</span><span class="p">:</span>
@@ -358,15 +357,26 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">start</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&gt;=</span> <span class="n">end</span></div>
 
-
 <div class="viewcode-block" id="Annotation.to_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a representation of this annotation as a nested map. This representation is</span>
+<span class="sd">        used for several serialization methods.</span>
+
+<span class="sd">        :param offset_mapper: used if an offset_type is also specified.</span>
+<span class="sd">        :param offset_type:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">offset_mapper</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">offset_type</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">offset_mapper</span> <span class="ow">and</span> <span class="n">offset_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;offset_mapper and offset_type must be specified both or none&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">offset_mapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_JAVA</span><span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">)</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_java</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">offset_type</span> <span class="o">==</span> <span class="n">OFFSET_TYPE_PYTHON</span><span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">)</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="n">offset_mapper</span><span class="o">.</span><span class="n">convert_to_python</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not a valid offset type: </span><span class="si">{</span><span class="n">offset_type</span><span class="si">}</span><span class="s2">, must be &#39;p&#39; or &#39;j&#39;&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start</span>
             <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span>
@@ -380,10 +390,18 @@
 
 <div class="viewcode-block" id="Annotation.from_dict"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">dictrepr</span><span class="p">,</span> <span class="n">owner_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct an annotation object from the dictionary representation.</span>
+
+<span class="sd">        :param dictrepr: dictionary representation</span>
+<span class="sd">        :param owner_set: the owning set the annotation should have</span>
+<span class="sd">        :param kwargs: ignored</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span>
             <span class="n">start</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">),</span>
             <span class="n">end</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">),</span>
-            <span class="n">annot_type</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">),</span>
+            <span class="n">anntype</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">),</span>
             <span class="n">annid</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
             <span class="n">features</span><span class="o">=</span><span class="n">dictrepr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
         <span class="p">)</span>
@@ -394,16 +412,26 @@
         <span class="k">return</span> <span class="n">Annotation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Annotation.copy"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a shallow copy of the annotation.</span>
+
+<span class="sd">        :return: shallow copy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">memo</span><span class="p">)</span>
+            <span class="n">fts</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">memo</span><span class="o">=</span><span class="n">memo</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fts</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">Annotation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="n">annid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">fts</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Annotation.deepcopy"><a class="viewcode-back" href="../../gatenlp.annotation.html#gatenlp.Annotation.deepcopy">[docs]</a>    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a deep copy of the annotation.</span>
+
+<span class="sd">        :return: deep copy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 </pre></div>
 

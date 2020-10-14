@@ -50,6 +50,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">gatenlp.gatenlpconfig</span> <span class="kn">import</span> <span class="n">gatenlpconfig</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -599,7 +600,22 @@
 
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mem</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;html-ann-viewer&quot;</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repr_html</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Document.repr_html"><a class="viewcode-back" href="../../gatenlp.document.html#gatenlp.Document.repr_html">[docs]</a>    <span class="k">def</span> <span class="nf">repr_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">htmlid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a</span>
+<span class="sd">        :param notebook:</span>
+<span class="sd">        :param offline:</span>
+<span class="sd">        :param htmlid:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">offline</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">offline</span> <span class="o">=</span> <span class="n">gatenlpconfig</span><span class="o">.</span><span class="n">doc_html_repr_offline</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mem</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;html-ann-viewer&quot;</span><span class="p">,</span>
+                             <span class="n">notebook</span><span class="o">=</span><span class="n">notebook</span><span class="p">,</span>
+                             <span class="n">offline</span><span class="o">=</span><span class="n">gatenlpconfig</span><span class="o">.</span><span class="n">doc_html_repr_offline</span><span class="p">,</span>
+                             <span class="n">htmlid</span><span class="o">=</span><span class="n">htmlid</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>

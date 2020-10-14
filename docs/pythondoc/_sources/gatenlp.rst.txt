@@ -24,6 +24,7 @@ Submodules
    gatenlp.document
    gatenlp.features
    gatenlp.gate_interaction
+   gatenlp.gatenlpconfig
    gatenlp.gateslave
    gatenlp.lib_spacy
    gatenlp.lib_stanfordnlp

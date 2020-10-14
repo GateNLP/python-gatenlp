@@ -49,6 +49,34 @@
   <div class="section" id="module-gatenlp.lib_spacy">
 <span id="gatenlp-lib-spacy-module"></span><h1>gatenlp.lib_spacy module<a class="headerlink" href="#module-gatenlp.lib_spacy" title="Permalink to this headline">¶</a></h1>
 <p>Support for using spacy: convert from spacy to gatenlp documents and annotations.</p>
+<dl class="py class">
+<dt id="gatenlp.lib_spacy.AnnSpacy">
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.lib_spacy.</code><code class="sig-name descname">AnnSpacy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pipeline</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outsetname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">token_type</span><span class="o">=</span><span class="default_value">'Token'</span></em>, <em class="sig-param"><span class="n">spacetoken_type</span><span class="o">=</span><span class="default_value">'SpaceToken'</span></em>, <em class="sig-param"><span class="n">sentence_type</span><span class="o">=</span><span class="default_value">'Sentence'</span></em>, <em class="sig-param"><span class="n">nounchunk_type</span><span class="o">=</span><span class="default_value">'NounChunk'</span></em>, <em class="sig-param"><span class="n">add_tokens</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_entities</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_sentences</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_nounchunks</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_deps</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ent_prefix</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_spacy.html#AnnSpacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_spacy.AnnSpacy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gatenlp.processing.annotator.html#gatenlp.processing.annotator.Annotator" title="gatenlp.processing.annotator.Annotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gatenlp.processing.annotator.Annotator</span></code></a></p>
+<p>Create an annotator for running a spacy pipeline on documents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline</strong> – if this is specified, a pre-configured spacy pipeline (default: “en_core_web_sm”
+pipeline)</p></li>
+<li><p><strong>outsetname</strong> – the annotation set name where to put the annotations</p></li>
+<li><p><strong>token_type</strong> – the annotation type for the token annotations</p></li>
+<li><p><strong>spacetoken_type</strong> – type of any space token annotations</p></li>
+<li><p><strong>sentence_type</strong> – the annotation type for the sentence annotations</p></li>
+<li><p><strong>nounchunk_type</strong> – annotation type for noun chunks</p></li>
+<li><p><strong>add_tokens</strong> – if token annotations should be added</p></li>
+<li><p><strong>add_entities</strong> – if true, add entity annotations</p></li>
+<li><p><strong>add_sentences</strong> – if sentence annotations should be added</p></li>
+<li><p><strong>add_nounchunks</strong> – if nounchunks should be added</p></li>
+<li><p><strong>add_deps</strong> – if dependencies should be added</p></li>
+<li><p><strong>ent_prefix</strong> – the prefix to add to all entity annotation types</p></li>
+<li><p><strong>kwargs</strong> – if no preconfigured pipeline is specified, pass these arguments to
+the stanza.Pipeline() constructor see <a class="reference external" href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt id="gatenlp.lib_spacy.apply_spacy">
 <code class="sig-prename descclassname">gatenlp.lib_spacy.</code><code class="sig-name descname">apply_spacy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nlp</span></em>, <em class="sig-param"><span class="n">gatenlpdoc</span></em>, <em class="sig-param"><span class="n">setname</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_spacy.html#apply_spacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_spacy.apply_spacy" title="Permalink to this definition">¶</a></dt>
@@ -71,7 +99,7 @@ This modifies the gatenlp document in place.</p>
 
 <dl class="py function">
 <dt id="gatenlp.lib_spacy.spacy2gatenlp">
-<code class="sig-prename descclassname">gatenlp.lib_spacy.</code><code class="sig-name descname">spacy2gatenlp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spacydoc</span></em>, <em class="sig-param"><span class="n">gatenlpdoc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">setname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">token_type</span><span class="o">=</span><span class="default_value">'Token'</span></em>, <em class="sig-param"><span class="n">spacetoken_type</span><span class="o">=</span><span class="default_value">'SpaceToken'</span></em>, <em class="sig-param"><span class="n">sentence_type</span><span class="o">=</span><span class="default_value">'Sentence'</span></em>, <em class="sig-param"><span class="n">nounchunk_type</span><span class="o">=</span><span class="default_value">'NounChunk'</span></em>, <em class="sig-param"><span class="n">add_tokens</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_spacetokens</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_ents</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_sents</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_nounchunks</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_dep</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gatenlp.lib_spacy.</code><code class="sig-name descname">spacy2gatenlp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spacydoc</span></em>, <em class="sig-param"><span class="n">gatenlpdoc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">setname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">token_type</span><span class="o">=</span><span class="default_value">'Token'</span></em>, <em class="sig-param"><span class="n">spacetoken_type</span><span class="o">=</span><span class="default_value">'SpaceToken'</span></em>, <em class="sig-param"><span class="n">sentence_type</span><span class="o">=</span><span class="default_value">'Sentence'</span></em>, <em class="sig-param"><span class="n">nounchunk_type</span><span class="o">=</span><span class="default_value">'NounChunk'</span></em>, <em class="sig-param"><span class="n">add_tokens</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_ents</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_sents</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_nounchunks</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">add_dep</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ent_prefix</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/lib_spacy.html#spacy2gatenlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.lib_spacy.spacy2gatenlp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
 provided, add the annotations from the spacy document to it. In this case the
 original gatenlpdoc is used and gets modified.
@@ -86,7 +114,6 @@ for the default annotation set.
 :param nounchunk_type: the annotation type to use for noun chunk annotations
 :param add_tokens: should annotations for tokens get added? If not, dependency parser
 info cannot be added either.
-:param add_spacetokens: should annotations for space tokens get added
 :param add_ents: should annotations for entities get added
 :param add_sents: should sentence annotations get added
 :param add_nounchunks: should noun chunk annotations get added
