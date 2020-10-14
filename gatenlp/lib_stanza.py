@@ -40,7 +40,10 @@ class AnnStanza(Annotator):
 
     def __call__(self, doc, **kwargs):
         stanza_doc = self.pipeline(doc.text)
-        stanza2gatenlp(stanza_doc, doc, token_type=self.token_type,
+        stanza2gatenlp(stanza_doc,
+                       doc,
+                       setname=self.outsetname,
+                       token_type=self.token_type,
                        sentence_type=self.sentence_type,
                        add_entities=self.add_entities,
                        ent_prefix=self.ent_prefix

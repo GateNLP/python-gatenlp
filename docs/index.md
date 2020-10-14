@@ -40,8 +40,8 @@ For more details see [Installation](installation.md)
 * The module for running Java GATE code from python
   * [GateSlave](gateslave)
 * Modules for interaction with other NLP packages and converting their documents
-  * [`lib_spacy`](lib_spacy) for interacting with [Spacy](spacy.io/)
-  * [`lib_stanza`](lib_stanza) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
+  * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
+  * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
   * [`lib_stanfordnlp`](lib_stanfordnlp) for interacting with [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/)
 * Modules for basic NLP processing (in development):
   * [Gazetteers](gazetteers) NOT YET
