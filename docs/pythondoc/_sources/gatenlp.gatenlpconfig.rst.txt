@@ -1,0 +1,7 @@
+gatenlp.gatenlpconfig module
+============================
+
+.. automodule:: gatenlp.gatenlpconfig
+   :members:
+   :undoc-members:
+   :show-inheritance:
