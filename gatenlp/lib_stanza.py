@@ -4,6 +4,48 @@ convert from stanford Stanza output to gatenlp documents and annotations.
 """
 from gatenlp import Document
 from gatenlp import logger
+from gatenlp.processing.annotator import Annotator
+import stanza
+
+
+class AnnStanza(Annotator):
+    def __init__(self, pipeline=None, outsetname="",
+                 token_type="Token",
+                 sentence_type="Sentence",
+                 add_entities=True,
+                 ent_prefix=None,
+                 **kwargs):
+        """
+        Create a processing resources for running a stanza pipeline on documents.
+
+        :param pipeline: if this is specified, use a pre-configured pipeline
+        :param outsetname: the annotation set name where to put the annotations
+        :param token_type: the annotation type for the token annotations
+        :param sentence_type: the annotation type for the sentence annotations
+        :param add_entities: if true, add entity annotations
+        :param ent_prefix: the prefix to add to all entity annotation types
+        :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
+           the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+        """
+        self.outsetname = outsetname
+        self.token_type = token_type
+        self.sentence_type = sentence_type
+        self.add_entities = add_entities
+        self.ent_prefix = ent_prefix
+        [kwargs.pop(a, None) for a in ["token_type", "sentence_type", "add_entities", "ent_prefix"]]
+        if pipeline:
+            self.pipeline = pipeline
+        else:
+            self.pipeline = stanza.Pipeline(**kwargs)
+
+    def __call__(self, doc, **kwargs):
+        stanza_doc = self.pipeline(doc.text)
+        stanza2gatenlp(stanza_doc, doc, token_type=self.token_type,
+                       sentence_type=self.sentence_type,
+                       add_entities=self.add_entities,
+                       ent_prefix=self.ent_prefix
+                       )
+        return doc
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=""):
@@ -62,6 +104,7 @@ def tok2tok(tok):
                 k, v = ms.split("=")
                 fm[k] = v
     return newtok
+
 
 def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
                    setname="",
@@ -155,12 +198,12 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
                 else:
                     ann.features["head"] = idx2annid[hd]
 
-        # add the entities
-        if add_entities:
-            for e in stanzadoc.entities:
-                if ent_prefix:
-                    anntype = ent_prefix + e.type
-                else:
-                    anntype = e.type
-                annset.add(e.start_char, e.end_char, anntype)
+    # add the entities
+    if add_entities:
+        for e in stanzadoc.entities:
+            if ent_prefix:
+                anntype = ent_prefix + e.type
+            else:
+                anntype = e.type
+            annset.add(e.start_char, e.end_char, anntype)
     return retdoc

@@ -1,0 +1,12 @@
+This is just a sample document for experimenting with gatenlp. 
+It mentions a few named entities like the persons Barack Obama, 
+Albert Einstein and Wolfgang Amadeus Mozart and the geographical 
+locations and countries America, United States of America, 
+Hungary, the Atlantic Ocean, and Helskinki. 
+
+It also contains mentions of various numbers and amounts like 
+12 degrees, 12.83$, 25 km/h or fortytwo kilos and mentions
+organizations and companies like the UNO, Microsoft, Apple, which
+has an apple as it's logo, or Google. 
+
+

@@ -18,6 +18,10 @@ import requests
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
+from bs4 import GuessedAtParserWarning
+import warnings
+
+warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
 
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see
@@ -138,21 +142,24 @@ class JsonSerializer:
 class PlainTextSerializer:
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(clazz, inst, to_ext=None, to_mem=None,
+             offset_type=None, offset_mapper=None,
+             encoding="UTF-8",
+             gzip=False, **kwargs):
         txt = inst.text
         if txt is None:
             txt = ""
         if to_mem:
             if gzip:
-                compress(txt.encode("UTF-8"))
+                compress(txt.encode(encoding))
             else:
                 return txt
         else:
             if gzip:
-                with gopen(to_ext, "wt") as outfp:
+                with gopen(to_ext, "wt", encoding=encoding) as outfp:
                     outfp.write(txt)
             else:
-                with open(to_ext, "wt") as outfp:
+                with open(to_ext, "wt", encoding=encoding) as outfp:
                     outfp.write(txt)
 
     @staticmethod
@@ -160,26 +167,28 @@ class PlainTextSerializer:
         PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
+             encoding="UTF-8",
+             gzip=False, **kwargs):
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
                 if gzip:
                     from_mem = get_bytes_from_url(extstr)
                 else:
-                    from_mem = get_str_from_url(extstr, encoding="utf-8")
+                    from_mem = get_str_from_url(extstr, encoding=encoding)
         if from_mem:
             if gzip:
-                txt = decompress(from_mem).decode("UTF-8")
+                txt = decompress(from_mem).decode(encoding)
             else:
                 txt = from_mem
             doc = Document(txt)
         else:
             if gzip:
-                with gopen(extstr, "rt") as infp:
+                with gopen(extstr, "rt", encoding=encoding) as infp:
                     txt = infp.read()
             else:
-                with open(extstr, "rt") as infp:
+                with open(extstr, "rt", encoding=encoding) as infp:
                     txt = infp.read()
             doc = Document(txt)
         return doc
@@ -460,15 +469,18 @@ class HtmlLoader:
         }
         docinfo = {"anninfos": [], "curoffset": 0, "curid": 0, "text": ""}
         def walktree(el):
-            print("DEBUG: type=", type(el))
+            #print("DEBUG: type=", type(el))
             if isinstance(el, bs4.element.Doctype):
-                print("DEBUG: got doctype", type(el))
+                # print("DEBUG: got doctype", type(el))
+                pass
             elif isinstance(el, bs4.element.Comment):
-                print("DEBUG: got Comment", type(el))
+                # print("DEBUG: got Comment", type(el))
+                pass
             elif isinstance(el, bs4.element.Script):
-                print("DEBUG: got Script", type(el))
+                # print("DEBUG: got Script", type(el))
+                pass
             elif isinstance(el, bs4.element.Tag):
-                print("DEBUG: got tag: ", type(el), " name=",el.name)
+                # print("DEBUG: got tag: ", type(el), " name=",el.name)
                 # some tags we ignore completely:
                 if el.name in ignoreels:
                     return
@@ -476,7 +488,7 @@ class HtmlLoader:
                 if not docinfo["text"].endswith("\n") and \
                         el.name in nlels:
                     docinfo["text"] += "\n"
-                    print("DEBUG: adding newline before at ", docinfo["curoffset"])
+                    # print("DEBUG: adding newline before at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
                 ann = {"type": el.name, "features": el.attrs,
                        "id": docinfo["curid"], "event": "start", "start": docinfo["curoffset"]}
@@ -489,7 +501,7 @@ class HtmlLoader:
                 if not docinfo["text"].endswith("\n") and \
                         el.name in nlels:
                     docinfo["text"] += "\n"
-                    print("DEBUG: adding newline after at ", docinfo["curoffset"])
+                    # print("DEBUG: adding newline after at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
                 docinfo["anninfos"].append({"event": "end", "id": thisid, "end": docinfo["curoffset"]})
             elif isinstance(el, bs4.element.NavigableString):
@@ -702,6 +714,7 @@ DOCUMENT_LOADERS = {
     "text/plain+gzip": PlainTextSerializer.load_gzip,
     "text": PlainTextSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
+    "bdocjsgz": JsonSerializer.load_gzip,
     "msgpack": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
     "text/html": HtmlLoader.load,

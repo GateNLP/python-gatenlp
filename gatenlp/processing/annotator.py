@@ -1,6 +1,6 @@
 """
 Base class and supporting functions for all annotators.
-Any callable that cann be called by passing a document can be used as an annotator,
+Any callable that can be called by passing a document can be used as an annotator,
 but the base class "Annotator" defined in here is designed to allow for a more
 flexible approach to do things.
 
