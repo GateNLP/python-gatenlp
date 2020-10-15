@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="JsonSerializer.load"><a class="viewcode-back" href="../../../gatenlp.serialization.default.html#gatenlp.serialization.default.JsonSerializer.load">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">from_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">from_mem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset_mapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RUNNING load with from_ext=&quot;</span><span class="p">,</span> <span class="n">from_ext</span><span class="p">,</span> <span class="s2">&quot; from_mem=&quot;</span><span class="p">,</span> <span class="n">from_mem</span><span class="p">)</span>
+        <span class="c1"># print(&quot;RUNNING load with from_ext=&quot;, from_ext, &quot; from_mem=&quot;, from_mem)</span>
 
         <span class="k">if</span> <span class="n">from_ext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">from_mem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Exactly one of from_ext and from_mem must be specified &quot;</span><span class="p">)</span>
@@ -386,7 +386,7 @@
         <span class="k">return</span> <span class="n">doc</span></div></div>
 
 <span class="n">JS_JQUERY</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&quot;&gt;&lt;/script&gt;&#39;</span>
-<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.9/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
+<span class="n">JS_GATENLP</span> <span class="o">=</span> <span class="s1">&#39;&lt;script src=&quot;https://unpkg.com/gatenlp-ann-viewer@1.0.10/gatenlp-ann-viewer.js&quot;&gt;&lt;/script&gt;&#39;</span>
 <span class="n">HTML_TEMPLATE_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer.html&quot;</span>
 <span class="n">JS_GATENLP_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;gatenlp-ann-viewer-merged.js&quot;</span>
 

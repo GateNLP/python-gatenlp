@@ -52,7 +52,7 @@
 exchanging data with it.</p>
 <dl class="py class">
 <dt id="gatenlp.gateslave.GateSlave">
-<em class="property">class </em><code class="sig-prename descclassname">gatenlp.gateslave.</code><code class="sig-name descname">GateSlave</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">25333</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">java</span><span class="o">=</span><span class="default_value">'java'</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'127.0.0.1'</span></em>, <em class="sig-param"><span class="n">gatehome</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">gatenlp.gateslave.</code><code class="sig-name descname">GateSlave</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">25333</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">java</span><span class="o">=</span><span class="default_value">'java'</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'127.0.0.1'</span></em>, <em class="sig-param"><span class="n">gatehome</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">auth_token</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_auth_token</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_actions</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keep</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Create an instance of the GateSlave and either start our own Java GATE process for it to use
 (start=True) or connect to an existing one (start=False).</p>
@@ -79,11 +79,21 @@ part of the output to stderr may only be passed on after the GATE process has en
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>port</strong> – port to use</p></li>
+<li><p><strong>start</strong> – if True, try to start our own GATE process, otherwise expect an already started
+process at the host/port address</p></li>
 <li><p><strong>java</strong> – path to the java binary to run or the java command to use from the PATH (for start=True)</p></li>
 <li><p><strong>host</strong> – host an existing Java GATE process is running on (only relevant for start=False)</p></li>
 <li><p><strong>gatehome</strong> – where GATE is installed (only relevant if start=True). If None, expects
 environment variable GATE_HOME to be set.</p></li>
 <li><p><strong>platform</strong> – system platform we run on, one of Windows, Linux (also for MacOs) or Java</p></li>
+<li><p><strong>auth_token</strong> – if None or “” and use_auth_token is True, generate a random token which
+is then accessible via the auth_token attribute, otherwise use the given auth token.</p></li>
+<li><p><strong>use_auth_token</strong> – if False, do not use an auth token, otherwise either use the one specified
+via auth_token or generate a random one.</p></li>
+<li><p><strong>log_actions</strong> – if the gate slave should log the actions it is doing</p></li>
+<li><p><strong>keep</strong> – normally if gs.close() is called and we are not connected to the PythonSlaveLr,
+the slave will be shut down. If this is True, the gs.close() method does not shut down
+the slave.</p></li>
 </ul>
 </dd>
 </dl>
@@ -91,7 +101,13 @@ environment variable GATE_HOME to be set.</p></li>
 <dt id="gatenlp.gateslave.GateSlave.close">
 <code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean up: if the gate slave process was started by us, we will shut it down.
-:return:</p>
+Otherwise we can still close it if it was started by the slaverunner, not the Lr
+Note: if it was started by us, it was started via the slaverunner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -155,6 +171,20 @@ GATE document does not delete/unload the document!</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>gatenlp document</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="gatenlp.gateslave.GateSlave.log_actions">
+<code class="sig-name descname">log_actions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">onoff</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#GateSlave.log_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.GateSlave.log_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Swith logging actions at the slave on or off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>onoff</strong> – True to log actions, False to not log them</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -225,6 +255,16 @@ for the operating system.
 :param gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
 :return: GATE classpath</p>
 </dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.gateslave.main">
+<code class="sig-prename descclassname">gatenlp.gateslave.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="gatenlp.gateslave.start_gate_slave">
+<code class="sig-prename descclassname">gatenlp.gateslave.</code><code class="sig-name descname">start_gate_slave</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">25333</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'127.0.0.1'</span></em>, <em class="sig-param"><span class="n">auth_token</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_auth_token</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">java</span><span class="o">=</span><span class="default_value">'java'</span></em>, <em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gatehome</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_actions</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keep</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gatenlp/gateslave.html#start_gate_slave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gatenlp.gateslave.start_gate_slave" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 
