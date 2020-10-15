@@ -2,8 +2,10 @@
 
 from gatenlp.gateslave import GateSlave
 
-#gs = GateSlave(use_auth_token=True, port=25666, start=False, auth_token="geheim")
-gs = GateSlave(use_auth_token=True, port=25335, auth_token="c281f5a8-977d-4bc6-9018-d62e39af4d53", start=True)
+gs = GateSlave(use_auth_token=True, port=25333, start=False, auth_token="geheim")
+#gs = GateSlave(use_auth_token=True, port=25335, auth_token="c281f5a8-977d-4bc6-9018-d62e39af4d53", start=True)
+
+# gs.slave.logActions(True)
 
 doc1 = gs.slave.createDocument("This is a 💩 document. It mentions Barack Obama and George Bush and New York.")
 print("GATE Document:", doc1)
@@ -33,5 +35,7 @@ for ann in persons:
 gs.slave.saveDocumentToFile(doc1, "tmp_saveddoc.xml", "")
 
 pdoc.save("tmp_saveddoc.bdocjs")
+
+# gs.slave.kill()
 
 gs.close()

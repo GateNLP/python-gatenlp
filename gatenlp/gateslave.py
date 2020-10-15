@@ -12,6 +12,7 @@ import logging
 import atexit
 import secrets
 import argparse
+import signal
 
 # NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
@@ -82,7 +83,10 @@ def start_gate_slave(
         use_auth_token=True,
         java="java",
         platform=None,
-        gatehome=None):
+        gatehome=None,
+        log_actions=False,
+        keep=False,
+):
     if gatehome is None:
         gatehome = os.environ.get("GATE_HOME")
         if gatehome is None:
@@ -94,6 +98,14 @@ def start_gate_slave(
             auth_token = auth_token
     else:
         auth_token = ""
+    if log_actions:
+        log_actions = "1"
+    else:
+        log_actions = "0"
+    if keep:
+        keep = "1"
+    else:
+        keep = "0"
     jarloc = os.path.join(os.path.dirname(__file__), "_jars", f"gatetools-gatenlpslave-{JARVERSION}.jar")
     if not os.path.exists(jarloc):
         raise Exception("Could not find jar, {} does not exist".format(jarloc))
@@ -103,14 +115,18 @@ def start_gate_slave(
     cmdandparms.append("gate.tools.gatenlpslave.GatenlpSlave")
     cmdandparms.append(str(port))
     cmdandparms.append(host)
+    cmdandparms.append(log_actions)
+    cmdandparms.append(keep)
     os.environ["GATENLP_SLAVE_TOKEN_" + str(port)] = auth_token
-    logger.info(f"Running cmd: {cmdandparms}")
+    # logger.info(f"DEBUG: running slave with port={port}, host={host},auth={auth_token},log={log_actions},keep={keep}")
     subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
 
     def shutdown():
+        subproc.send_signal(signal.SIGINT)
         for line in subproc.stderr:
             print(line, file=sys.stderr, end="")
-        subproc.wait()
+
+    atexit.register(shutdown)
     while True:
         line = subproc.stderr.readline().strip()
         if line == "PythonSlaveRunner.java: server start OK":
@@ -118,7 +134,11 @@ def start_gate_slave(
         if line == "PythonSlaveRunner.java: server start NOT OK":
             raise Exception("Could not start server, giving up")
         print(line, file=sys.stderr)
-    atexit.register(shutdown)
+    try:
+        subproc.wait()
+    except KeyboardInterrupt:
+        print("Received keyboard interrupt, shutting down server...")
+        shutdown()
 
 
 class GateSlave:
@@ -130,6 +150,8 @@ class GateSlave:
                  platform=None,
                  auth_token=None,
                  use_auth_token=True,
+                 log_actions=False,
+                 keep=False,
                  ):
         """
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
@@ -169,6 +191,10 @@ class GateSlave:
                is then accessible via the auth_token attribute, otherwise use the given auth token.
         :param use_auth_token: if False, do not use an auth token, otherwise either use the one specified
                via auth_token or generate a random one.
+        :param log_actions: if the gate slave should log the actions it is doing
+        :param keep: normally if gs.close() is called and we are not connected to the PythonSlaveLr,
+               the slave will be shut down. If this is True, the gs.close() method does not shut down
+               the slave.
         """
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
@@ -182,6 +208,8 @@ class GateSlave:
         self.gateway = None
         self.slave = None
         self.closed = False
+        self.keep = keep
+        self.log_actions = log_actions
         if use_auth_token:
             if not auth_token:
                 self.auth_token = secrets.token_urlsafe(20)
@@ -206,8 +234,16 @@ class GateSlave:
             cmdandparms.append("gate.tools.gatenlpslave.GatenlpSlave")
             cmdandparms.append(str(port))
             cmdandparms.append(host)
+            if log_actions:
+                cmdandparms.append("1")
+            else:
+                cmdandparms.append("0")
+            if keep:
+                cmdandparms.append("1")
+            else:
+                cmdandparms.append("0")
             os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
-            logger.info(f"Running cmd: {cmdandparms}")
+            # logger.info(f"Running cmd: {cmdandparms}")
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
@@ -226,14 +262,27 @@ class GateSlave:
     def close(self):
         """
         Clean up: if the gate slave process was started by us, we will shut it down.
+        Otherwise we can still close it if it was started by the slaverunner, not the Lr
+        Note: if it was started by us, it was started via the slaverunner.
+
         :return:
         """
-        if self.start and not self.closed:
+        canclose = self.slave.isClosable()
+        if canclose and not self.closed:
             self.closed = True
             self.gateway.shutdown()
             for line in self.gateprocess.stderr:
                 print(line, file=sys.stderr, end="")
             self.gateprocess.wait()
+
+    def log_actions(self, onoff):
+        """
+        Swith logging actions at the slave on or off.
+
+        :param onoff: True to log actions, False to not log them
+        :return:
+        """
+        self.slave.logActions(onoff)
 
     def load_gdoc(self, path, mimetype=None):
         """
@@ -322,6 +371,8 @@ def main():
     ap.add_argument("--noauth", action="store_true", help="Do not use auth token")
     ap.add_argument("--gatehome", default=None, type=str, help="Location of GATE (environment variable GATE_HOME)")
     ap.add_argument("--platform", default=None, type=str, help="OS/Platform: windows or linux (autodetect)")
+    ap.add_argument("--log_actions", action="store_true", help="If slave actions should be logged")
+    ap.add_argument("--keep", action="store_true", help="Prevent shutting down the slave")
     args = ap.parse_args()
     start_gate_slave(
         port=args.port,
@@ -329,7 +380,9 @@ def main():
         auth_token=args.auth,
         use_auth_token=not args.noauth,
         gatehome=args.gatehome,
-        platform=args.platform
+        platform=args.platform,
+        log_actions=args.log_actions,
+        keep=args.keep,
     )
 
 
