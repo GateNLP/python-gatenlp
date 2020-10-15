@@ -4,7 +4,7 @@ from gatenlp.gateslave import GateSlave
 
 gs = GateSlave()
 
-doc1 = gs.slave.loadDocumentFromFile("testdoc.bdocjson", "text/bdocsjson")
+doc1 = gs.slave.loadDocumentFromFile("testdoc.bdocjson", "text/bdocjs")
 
 print("GATE Document:", doc1)
 

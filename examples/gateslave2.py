@@ -21,16 +21,16 @@ print("Python gatenlp document after ANNIE:", pdoc)
 
 anns = pdoc.annset()
 
-tokens = anns.type("Token")
+tokens = anns.with_type("Token")
 print(f"Got {len(tokens)} tokens")
 
-persons = anns.type("Person")
+persons = anns.with_type("Person")
 print(f"Got {len(persons)} Person annotations:")
 for ann in persons:
     print(f"- {pdoc[ann]} from {ann.start} to {ann.end}")
 
 gs.slave.saveDocumentToFile(doc1, "tmp_saveddoc.xml", "")
 
-pdoc.save("tmp_saveddoc.bdoc")
+pdoc.save("tmp_saveddoc.bdocjs")
 
 gs.close()

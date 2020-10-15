@@ -10,6 +10,8 @@ import os
 import platform as sysplatform
 import logging
 import atexit
+import secrets
+
 # NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
 # from py4j.java_gateway import JavaGateway, GatewayParameters
@@ -73,7 +75,15 @@ def gate_classpath(gatehome, platform=None):
 
 
 class GateSlave:
-    def __init__(self, port=25333, start=True, java="java", host="127.0.0.1", gatehome=None, platform=None):
+    def __init__(self, port=25333,
+                 start=True,
+                 java="java",
+                 host="127.0.0.1",
+                 gatehome=None,
+                 platform=None,
+                 auth_token=None,
+                 use_auth_token=True,
+                 ):
         """
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -101,11 +111,17 @@ class GateSlave:
             # process the gatenlp Document pdoc ...
 
         :param port: port to use
+        :param start: if True, try to start our own GATE process, otherwise expect an already started
+           process at the host/port address
         :param java: path to the java binary to run or the java command to use from the PATH (for start=True)
         :param host: host an existing Java GATE process is running on (only relevant for start=False)
         :param gatehome: where GATE is installed (only relevant if start=True). If None, expects
                environment variable GATE_HOME to be set.
         :param platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
+        :param auth_token: if None or "" and use_auth_token is True, generate a random token which
+               is then accessible via the auth_token attribute, otherwise use the given auth token.
+        :param use_auth_token: if False, do not use an auth token, otherwise either use the one specified
+               via auth_token or generate a random one.
         """
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
@@ -119,6 +135,13 @@ class GateSlave:
         self.gateway = None
         self.slave = None
         self.closed = False
+        if use_auth_token:
+            if not auth_token:
+                self.auth_token = secrets.token_urlsafe(20)
+            else:
+                self.auth_token = auth_token
+        else:
+            self.auth_token = ""
         if gatehome is None and start:
             gatehome = os.environ.get("GATE_HOME")
             if gatehome is None:
@@ -138,6 +161,9 @@ class GateSlave:
             cmdandparms.append("gate.tools.gatenlpslave.GatenlpSlave")
             cmdandparms.append(str(port))
             cmdandparms.append(host)
+            os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
+            logger.info("\n!!!! DEBUG: set environment variable: {}".
+                        format("GATENLP_SLAVE_TOKEN_"+str(self.port)))
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
@@ -148,7 +174,9 @@ class GateSlave:
                     raise Exception("Could not start server, giving up")
                 print(line, file=sys.stderr)
             atexit.register(self.close)
-        self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port))
+        logger.info("\n!!!! DEBUG: using auth token: {}".format(self.auth_token))
+        self.gateway = JavaGateway(
+            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token))
         self.jvm = self.gateway.jvm
         self.slave = self.gateway.entry_point
 
@@ -198,7 +226,7 @@ class GateSlave:
         :return: a gatenlp Document instance
         """
         bjs = self.slave.getBdocJson(gdoc)
-        return Document.load_string(bjs)
+        return Document.load_mem(bjs, fmt="bdocjs")
 
     def pdoc2gdoc(self, pdoc):
         """
@@ -207,7 +235,7 @@ class GateSlave:
         :param pdoc: python gatenlp Document
         :return: handle to GATE document
         """
-        json = pdoc.save_string()
+        json = pdoc.save_mem(fmt="bdocjs")
         return self.slave.getDocument4BdocJson(json)
 
     def load_pdoc(self, path, mimetype=None):
