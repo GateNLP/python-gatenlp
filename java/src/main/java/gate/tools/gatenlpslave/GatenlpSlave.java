@@ -30,7 +30,7 @@ public class GatenlpSlave {
   static boolean DEBUG = false;
   public static void main(String[] args) {
     if(args.length != 2) {
-      System.err.println("Need two parameters: the host and port number to bind to");
+      System.err.println("Need two parameters: the port number and host to bind to");
       System.exit(1);
     }
     int port = Integer.parseInt(args[0]);
@@ -40,7 +40,7 @@ public class GatenlpSlave {
       if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
       if(DEBUG) System.err.println("Loading plugin python");
-      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","2.1.1-SNAPSHOT"));
+      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","2.4-SNAPSHOT"));
       FeatureMap parms = Factory.newFeatureMap();
       parms.put("port", port);
       parms.put("host", host);
