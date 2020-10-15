@@ -11,7 +11,8 @@ from shutil import copyfile
 
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
 JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compiling
-JARFILE_DIST = os.path.join("gatenlp", "_jars", JARFILE) # where it is for distribution
+JARFILE_DIST = os.path.join("gatenlp", "_jars", JARFILE) # where to put the jarfile prior before running setup
+JARFILE_DEST = os.path.join("_jars", JARFILE) # where it should be relative to the gatenlp package
 JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java")
 
 HTML_ANN_VIEWER_HTML_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.html")
@@ -101,9 +102,11 @@ setup(
     platforms='any',
     license="MIT",
     packages=find_packages(),
-    package_data={"": [JARFILE]},  # wherever we store the jarfile, copy it into the installed package dir
+    package_data={"gatenlp": [JARFILE_DEST]},  
+    # include_package_data=True,
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite='tests',
+    entry_points={"console_scripts": ["gatenlp-gate-slave=gatenlp.gateslave:main"]},
     classifiers=[
         # "Development Status :: 6 - Mature",
         # "Development Status :: 5 - Production/Stable",

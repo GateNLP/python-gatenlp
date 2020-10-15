@@ -11,6 +11,7 @@ import platform as sysplatform
 import logging
 import atexit
 import secrets
+import argparse
 
 # NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
@@ -35,7 +36,7 @@ def classpath_sep(platform=None):
         if not myplatform:
             raise Exception("Could not determine operating system, please use platform parameter")
         platform = myplatform
-    if platform.lower() == "windows":
+    if platform.lower() == "windows" or platform.lower() == "win":
         return ";"
     else:
         return ":"
@@ -72,6 +73,52 @@ def gate_classpath(gatehome, platform=None):
         # jars = glob.glob(os.path.join(libdir,"*.jar"))
         # return cpsep.join(jars)
         return libdir + cpsep + bindir
+
+
+def start_gate_slave(
+        port=25333,
+        host="127.0.0.1",
+        auth_token=None,
+        use_auth_token=True,
+        java="java",
+        platform=None,
+        gatehome=None):
+    if gatehome is None:
+        gatehome = os.environ.get("GATE_HOME")
+        if gatehome is None:
+            raise Exception("Parameter gatehome is None and environment var GATE_HOME not set")
+    if use_auth_token:
+        if not auth_token:
+            auth_token = secrets.token_urlsafe(20)
+        else:
+            auth_token = auth_token
+    else:
+        auth_token = ""
+    jarloc = os.path.join(os.path.dirname(__file__), "_jars", f"gatetools-gatenlpslave-{JARVERSION}.jar")
+    if not os.path.exists(jarloc):
+        raise Exception("Could not find jar, {} does not exist".format(jarloc))
+    cmdandparms = [java, "-cp"]
+    cpsep = classpath_sep(platform=platform)
+    cmdandparms.append(jarloc + cpsep + gate_classpath(gatehome, platform=platform))
+    cmdandparms.append("gate.tools.gatenlpslave.GatenlpSlave")
+    cmdandparms.append(str(port))
+    cmdandparms.append(host)
+    os.environ["GATENLP_SLAVE_TOKEN_" + str(port)] = auth_token
+    logger.info(f"Running cmd: {cmdandparms}")
+    subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
+
+    def shutdown():
+        for line in subproc.stderr:
+            print(line, file=sys.stderr, end="")
+        subproc.wait()
+    while True:
+        line = subproc.stderr.readline().strip()
+        if line == "PythonSlaveRunner.java: server start OK":
+            break
+        if line == "PythonSlaveRunner.java: server start NOT OK":
+            raise Exception("Could not start server, giving up")
+        print(line, file=sys.stderr)
+    atexit.register(shutdown)
 
 
 class GateSlave:
@@ -153,28 +200,24 @@ class GateSlave:
             jarloc = os.path.join(os.path.dirname(__file__), "_jars", f"gatetools-gatenlpslave-{JARVERSION}.jar")
             if not os.path.exists(jarloc):
                 raise Exception("Could not find jar, {} does not exist".format(jarloc))
-            cmdandparms = []
-            cmdandparms.append(java)
-            cmdandparms.append("-cp")
+            cmdandparms = [java, "-cp"]
             cpsep = classpath_sep(platform=platform)
             cmdandparms.append(jarloc + cpsep + gate_classpath(self.gatehome, platform=platform))
             cmdandparms.append("gate.tools.gatenlpslave.GatenlpSlave")
             cmdandparms.append(str(port))
             cmdandparms.append(host)
             os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
-            logger.info("\n!!!! DEBUG: set environment variable: {}".
-                        format("GATENLP_SLAVE_TOKEN_"+str(self.port)))
+            logger.info(f"Running cmd: {cmdandparms}")
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
                 line = subproc.stderr.readline().strip()
-                if line == "PYTHON SLAVE SERVER OK":
+                if line == "PythonSlaveRunner.java: server start OK":
                     break
-                if line == "PYTHON SLAVE SERVER NOT OK":
+                if line == "PythonSlaveRunner.java: server start NOT OK":
                     raise Exception("Could not start server, giving up")
                 print(line, file=sys.stderr)
             atexit.register(self.close)
-        logger.info("\n!!!! DEBUG: using auth token: {}".format(self.auth_token))
         self.gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token))
         self.jvm = self.gateway.jvm
@@ -270,3 +313,25 @@ class GateSlave:
         """
         self.slave.showGui()
 
+
+def main():
+    ap = argparse.ArgumentParser(description="Start Java GATE Slave")
+    ap.add_argument("--port", default=25333, type=int, help="Port (25333)")
+    ap.add_argument("--host", default="127.0.0.1", type=str, help="Host to bind to (127.0.0.1)")
+    ap.add_argument("--auth", default=None, type=str, help="Auth token to use (generate random)")
+    ap.add_argument("--noauth", action="store_true", help="Do not use auth token")
+    ap.add_argument("--gatehome", default=None, type=str, help="Location of GATE (environment variable GATE_HOME)")
+    ap.add_argument("--platform", default=None, type=str, help="OS/Platform: windows or linux (autodetect)")
+    args = ap.parse_args()
+    start_gate_slave(
+        port=args.port,
+        host=args.host,
+        auth_token=args.auth,
+        use_auth_token=not args.noauth,
+        gatehome=args.gatehome,
+        platform=args.platform
+    )
+
+
+if __name__ == "__main__":
+    main()

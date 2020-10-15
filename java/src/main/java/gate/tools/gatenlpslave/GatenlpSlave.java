@@ -29,13 +29,24 @@ import gate.gui.ResourceHelper;
 public class GatenlpSlave {
   static boolean DEBUG = false;
   public static void main(String[] args) {
-    if(args.length != 2) {
-      System.err.println("Need two parameters: the port number and host to bind to");
+    if(args.length > 3) {
+      System.err.println("Need up to three parameters: port number, host address, auth token");
       System.exit(1);
     }
-    int port = Integer.parseInt(args[0]);
-    String host = args[1];
+    int port = 25333;
+    String host = "127.0.0.1";
+    String authToken = "";
+    if(args.length > 0) {
+      port = Integer.parseInt(args[0]);
+    }
+    if(args.length > 1) {
+      host = args[1];
+    }
+    if(args.length > 2) {
+      authToken = args[2];
+    }
     GatenlpSlave runner = new GatenlpSlave();
+    System.err.println("Trying to start GATE Slave on port="+port+" host="+host+" auth token="+authToken);
     try {
       if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
@@ -44,6 +55,7 @@ public class GatenlpSlave {
       FeatureMap parms = Factory.newFeatureMap();
       parms.put("port", port);
       parms.put("host", host);
+      parms.put("authToken", authToken);
       if(DEBUG) System.err.println("Creating slave");
       ResourceHelper slave = (ResourceHelper)Factory.createResource("gate.plugin.python.PythonSlaveRunner", parms);
       if(DEBUG) System.err.println("Slave created");
