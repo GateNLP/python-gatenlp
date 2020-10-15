@@ -34,13 +34,13 @@ NOTE: most of the documentation pages below can be viewed as HTML, as a Jupyter 
 for running on your own computer.
 
 * [Installation](installation.md)
+* [Getting Started](getting-started) / [Getting Started Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/getting-started.ipynb) / [Notebook Download](getting-started.ipynb)
 * The Document class and classes related to components of a document:
   * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
   * [AnnotationSet](annotationsets) / [AnnotationSet Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [Notebook Download](annotationsets.ipynb)
   * [Document](documents) / [Document Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [Notebook Download](documents.ipynb)
 * The Changelog class for recording changes to a document
   * [ChangeLog](changelogs)
-* [Usage examples](usage-examples)  
 * A [comparison with the Java GATE API](diffs2gate)
 * The module for running python code from the GATE Python plugin
   * [GateInteraction](gateinteraction)

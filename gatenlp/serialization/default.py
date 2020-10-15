@@ -111,13 +111,14 @@ class JsonSerializer:
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
-                print("DEBUG: we got a URL")
+                # print("DEBUG: we got a URL")
                 if gzip:
                     from_mem = get_bytes_from_url(extstr)
                 else:
                     from_mem = get_str_from_url(extstr, encoding="utf-8")
             else:
-                print("DEBUG: not a URL !!!")
+                # print("DEBUG: not a URL !!!")
+                pass
         if from_mem:
             if gzip:
                 d = json.loads(decompress(from_mem).decode("UTF-8"))
