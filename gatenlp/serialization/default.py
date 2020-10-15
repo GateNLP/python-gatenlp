@@ -101,7 +101,7 @@ class JsonSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
-        print("RUNNING load with from_ext=", from_ext, " from_mem=", from_mem)
+        # print("RUNNING load with from_ext=", from_ext, " from_mem=", from_mem)
 
         if from_ext is not None and from_mem is not None:
             raise Exception("Exactly one of from_ext and from_mem must be specified ")

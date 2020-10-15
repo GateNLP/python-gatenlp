@@ -271,9 +271,10 @@ class GateSlave:
         if canclose and not self.closed:
             self.closed = True
             self.gateway.shutdown()
-            for line in self.gateprocess.stderr:
-                print(line, file=sys.stderr, end="")
-            self.gateprocess.wait()
+            if self.gateprocess is not None:
+                for line in self.gateprocess.stderr:
+                    print(line, file=sys.stderr, end="")
+                self.gateprocess.wait()
 
     def log_actions(self, onoff):
         """

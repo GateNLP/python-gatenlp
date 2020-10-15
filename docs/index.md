@@ -30,6 +30,9 @@ For more details see [Installation](installation.md)
 
 ## Overview of the documentation:
 
+NOTE: most of the documentation pages below can be viewed as HTML, as a Jupyter notebook, and the Jupyter notebook can be downloaded 
+for running on your own computer.
+
 * [Installation](installation.md)
 * The Document class and classes related to components of a document:
   * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
@@ -42,7 +45,7 @@ For more details see [Installation](installation.md)
 * The module for running python code from the GATE Python plugin
   * [GateInteraction](gateinteraction)
 * The module for running Java GATE code from python
-  * [GateSlave](gateslave)
+  * [GateSlave](gateslave) / [GateSlave Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateslave.ipynb)) / [Notebook Download](gateslave.ipynb)
 * Modules for interaction with other NLP packages and converting their documents
   * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
   * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
