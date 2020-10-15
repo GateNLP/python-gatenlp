@@ -85,7 +85,7 @@ gdoc1
 
 
 
-    JavaObject id=o10
+    JavaObject id=o0
 
 
 
@@ -96,7 +96,7 @@ print(gdoc1.getName())
 print(gdoc1.getFeatures())
 ```
 
-    GATE Document_00015
+    GATE Document_00014
     {'gate.SourceURL': 'created from String'}
 
 
@@ -147,25 +147,25 @@ pdoc1
 
 
 
-<div><style>#WLNWPUIYIB-wrapper { color: black !important; }</style>
-<div id="WLNWPUIYIB-wrapper">
+<div><style>#IPRLVTERZZ-wrapper { color: black !important; }</style>
+<div id="IPRLVTERZZ-wrapper">
 
 <div>
 <style>
-#WLNWPUIYIB-content {
+#IPRLVTERZZ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.WLNWPUIYIB-row {
+.IPRLVTERZZ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.WLNWPUIYIB-col {
+.IPRLVTERZZ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -175,23 +175,23 @@ pdoc1
     overflow-y: auto;
 }
 
-.WLNWPUIYIB-hdr {
+.IPRLVTERZZ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.WLNWPUIYIB-label {
+.IPRLVTERZZ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.WLNWPUIYIB-input {
+.IPRLVTERZZ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#WLNWPUIYIB-popup {
+#IPRLVTERZZ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -206,45 +206,45 @@ pdoc1
     overflow: auto;
 }
 
-.WLNWPUIYIB-selection {
+.IPRLVTERZZ-selection {
     margin-bottom: 5px;
 }
 
-.WLNWPUIYIB-featuretable {
+.IPRLVTERZZ-featuretable {
     margin-top: 10px;
 }
 
-.WLNWPUIYIB-fname {
+.IPRLVTERZZ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.WLNWPUIYIB-fvalue {
+.IPRLVTERZZ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="WLNWPUIYIB-content">
-        <div id="WLNWPUIYIB-popup" style="display: none;">
+  <div id="IPRLVTERZZ-content">
+        <div id="IPRLVTERZZ-popup" style="display: none;">
         </div>
-        <div class="WLNWPUIYIB-row" id="WLNWPUIYIB-row1" style="height:67vh; min-height:100px;">
-            <div id="WLNWPUIYIB-text-wrapper" class="WLNWPUIYIB-col" style="width:70%;">
-                <div class="WLNWPUIYIB-hdr" id="WLNWPUIYIB-dochdr"></div>
-                <div id="WLNWPUIYIB-text">
+        <div class="IPRLVTERZZ-row" id="IPRLVTERZZ-row1" style="height:67vh; min-height:100px;">
+            <div id="IPRLVTERZZ-text-wrapper" class="IPRLVTERZZ-col" style="width:70%;">
+                <div class="IPRLVTERZZ-hdr" id="IPRLVTERZZ-dochdr"></div>
+                <div id="IPRLVTERZZ-text">
                 </div>
             </div>
-            <div id="WLNWPUIYIB-chooser" class="WLNWPUIYIB-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="IPRLVTERZZ-chooser" class="IPRLVTERZZ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="WLNWPUIYIB-row" id="WLNWPUIYIB-row2" style="height:30vh; min-height: 100px;">
-            <div id="WLNWPUIYIB-details" class="WLNWPUIYIB-col" style="width:100%; border-top-width: 0px;">
+        <div class="IPRLVTERZZ-row" id="IPRLVTERZZ-row2" style="height:30vh; min-height: 100px;">
+            <div id="IPRLVTERZZ-details" class="IPRLVTERZZ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.10/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="WLNWPUIYIB-data">
+    <script type="application/json" id="IPRLVTERZZ-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {"orth": "upperInitial", "string": "This", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 4, "end": 5, "id": 1, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 5, "end": 7, "id": 2, "features": {"orth": "lowercase", "string": "is", "kind": "word", "length": "2", "category": "VBZ"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 3, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 9, "id": 4, "features": {"orth": "lowercase", "string": "a", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 9, "end": 10, "id": 5, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 10, "end": 12, "id": 6, "features": {"string": "\ud83d\udca9", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 7, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 13, "end": 21, "id": 8, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 21, "end": 22, "id": 9, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 10, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 25, "id": 11, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 25, "end": 26, "id": 12, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 26, "end": 34, "id": 13, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 34, "end": 35, "id": 14, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 35, "end": 41, "id": 15, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 41, "end": 42, "id": 16, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 42, "end": 47, "id": 17, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 18, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 48, "end": 51, "id": 19, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 51, "end": 52, "id": 20, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 52, "end": 58, "id": 21, "features": {"orth": "upperInitial", "string": "George", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 58, "end": 59, "id": 22, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 59, "end": 63, "id": 23, "features": {"orth": "upperInitial", "string": "Bush", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 24, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 67, "id": 25, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 67, "end": 68, "id": 26, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 68, "end": 71, "id": 27, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 71, "end": 72, "id": 28, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 72, "end": 76, "id": 29, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "Token", "start": 76, "end": 77, "id": 30, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 0, "end": 4, "id": 31, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 5, "end": 7, "id": 32, "features": {"majorType": "country_code"}}, {"type": "Lookup", "start": 23, "end": 25, "id": 33, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 35, "end": 47, "id": 34, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 42, "end": 47, "id": 35, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 52, "end": 63, "id": 36, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 68, "end": 76, "id": 37, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Split", "start": 21, "end": 22, "id": 39, "features": {"kind": "internal"}}, {"type": "Split", "start": 76, "end": 77, "id": 40, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 22, "id": 41, "features": {}}, {"type": "Sentence", "start": 23, "end": 77, "id": 42, "features": {}}, {"type": "Person", "start": 35, "end": 47, "id": 55, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Person", "start": 52, "end": 63, "id": 56, "features": {"firstName": "George", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Bush", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Location", "start": 68, "end": 76, "id": 57, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}], "next_annid": 58}}, "text": "This is a \ud83d\udca9 document. It mentions Barack Obama and George Bush and New York.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("WLNWPUIYIB-");
+        gatenlp_run("IPRLVTERZZ-");
     </script>
   </div>
 
@@ -296,7 +296,7 @@ gs
 
 
 
-    <gatenlp.gateslave.GateSlave at 0x7efce69e5450>
+    <gatenlp.gateslave.GateSlave at 0x7f987fabcf50>
 
 
 
@@ -307,26 +307,6 @@ until the GATE slave sends the "close" request:
 ```python
 gs.close()
 ```
-
-
-    ---------------------------------------------------------------------------
-
-    AttributeError                            Traceback (most recent call last)
-
-    <ipython-input-18-efe4dc7b04a9> in <module>
-    ----> 1 gs.close()
-    
-
-    /data/johann/work-git/python-gatenlp/gatenlp/gateslave.py in close(self)
-        272             self.closed = True
-        273             self.gateway.shutdown()
-    --> 274             if self.gateprocess is not None:
-        275                 for line in self.gateprocess.stderr:
-        276                     print(line, file=sys.stderr, end="")
-
-
-    AttributeError: 'NoneType' object has no attribute 'stderr'
-
 
 
 ```python
