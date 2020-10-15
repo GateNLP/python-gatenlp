@@ -438,7 +438,7 @@ var gatenlpDocView = class {
     }
 
     htmlEntities(str) {
-        return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replace('"', '&quot;').replace("\n", '<br>');
+        return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
 // console.log("Classes defined, defining gatenlp_run");
