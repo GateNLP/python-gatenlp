@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html" charset="utf-8">
+    <title>GateNLP Annotation Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+</head>
+
+<body>
+<!--STARTDIV-->
+<div>
+<style>
+#GATENLPID-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GATENLPID-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GATENLPID-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GATENLPID-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GATENLPID-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GATENLPID-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GATENLPID-popup {
+    display: none;
+    colour: white;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #ff88ff;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GATENLPID-selection {
+    margin-bottom: 5px;
+}
+
+.GATENLPID-featuretable {
+    margin-top: 10px;
+}
+
+.GATENLPID-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GATENLPID-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GATENLPID-content">
+        <div id="GATENLPID-popup" style="display: none;">
+        </div>
+        <div class="GATENLPID-row" style="height:67vh; min-height:100px;">
+            <div id="GATENLPID-text-wrapper" class="GATENLPID-col" style="width:70%;">
+                <div class="GATENLPID-hdr" id="GATENLPID-dochdr"></div>
+                <div id="GATENLPID-text">
+                </div>
+            </div>
+            <div id="GATENLPID-chooser" class="GATENLPID-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GATENLPID-row" style="height:30vh; min-height: 100px;">
+            <div id="GATENLPID-details" class="GATENLPID-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="jquery-3.5.1.min.js"></script>
+    
+    <script type="text/javascript" src="gatenlp-ann-viewer.js"> </script>
+    
+    <script type="application/json" id="GATENLPID-data">
+{"annotation_sets": {"": {"name": "", "annotations": [{"type": "ANN1", "start": 6, "end": 13, "id": 0, "features": {}}, {"type": "ZERO1", "start": 6, "end": 6, "id": 1, "features": {}}, {"type": "ZERO2a", "start": 13, "end": 13, "id": 2, "features": {}}, {"type": "ZERO2b", "start": 13, "end": 13, "id": 3, "features": {}}], "next_annid": 4}}, "text": "Small document for testing zero-length annotations.", "features": {}, "offset_type": "p", "name": ""}
+    </script>
+    <script type="text/javascript">
+        gatenlp_run("GATENLPID-");
+    </script>
+  </div>
+<!--ENDDIV-->
+</body>
+
+</html>

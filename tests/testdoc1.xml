@@ -54,7 +54,7 @@
 </GateDocumentFeatures>
 <!-- The document content area with serialized nodes -->
 
-<TextWithNodes><Node id="0"/>This<Node id="4"/> <Node id="5"/>is <Node id="8"/>the document text</TextWithNodes>
+<TextWithNodes><Node id="0"/>This<Node id="4"/> <Node id="5"/>is<Node id="7"/> <Node id="8"/>th<Node id="10"/>e document<Node id="20"/> text</TextWithNodes>
 <!-- The default annotation set -->
 
 <AnnotationSet>
@@ -73,6 +73,21 @@
   <Name className="java.lang.String">shared2</Name>
   <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="object-array"><string>SomeString</string><int>0</int><boolean>true</boolean><big-decimal>3.3</big-decimal></value></gate.corpora.ObjectWrapper>]]></Value>
 </Feature>
+</Annotation>
+</AnnotationSet>
+
+<!-- Named annotation set -->
+
+<AnnotationSet Name="Set2">
+<Annotation Id="2" Type="LONG" StartNode="0" EndNode="20">
+</Annotation>
+<Annotation Id="3" Type="SHORT" StartNode="5" EndNode="10">
+</Annotation>
+<Annotation Id="4" Type="ZERO1" StartNode="5" EndNode="5">
+</Annotation>
+<Annotation Id="5" Type="ZERO2a" StartNode="7" EndNode="7">
+</Annotation>
+<Annotation Id="6" Type="ZERO2b" StartNode="7" EndNode="7">
 </Annotation>
 </AnnotationSet>
 

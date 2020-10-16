@@ -28,6 +28,35 @@ annotation_sets:
       type: Type1
     name: ''
     next_annid: 2
+  Set2:
+    annotations:
+    - end: 20
+      features: {}
+      id: 2
+      start: 0
+      type: LONG
+    - end: 10
+      features: {}
+      id: 3
+      start: 5
+      type: SHORT
+    - end: 5
+      features: {}
+      id: 4
+      start: 5
+      type: ZERO1
+    - end: 7
+      features: {}
+      id: 5
+      start: 7
+      type: ZERO2a
+    - end: 7
+      features: {}
+      id: 6
+      start: 7
+      type: ZERO2b
+    name: Set2
+    next_annid: 7
 features:
   gate.SourceURL: created from String
   fComplex1:

@@ -67,6 +67,15 @@ fm3 = Factory.newFeatureMap()
 fm3.put("shared2", arr2)
 anns.add(1, 5L, 8L, "Type1", fm3)
 
+// set "Set2" with a few overlapping annotations including zero length annotations
+
+anns2 = doc.getAnnotations("Set2")
+anns2.add(0,20, "LONG", Factory.newFeatureMap())
+anns2.add(5,10, "SHORT", Factory.newFeatureMap())
+anns2.add(5,5, "ZERO1", Factory.newFeatureMap())
+anns2.add(7,7, "ZERO2a", Factory.newFeatureMap())
+anns2.add(7,7, "ZERO2b", Factory.newFeatureMap())
+
 gate.corpora.DocumentStaxUtils.writeDocument(doc,docFileXml)
 
 // Also store as bdoc
