@@ -115,7 +115,7 @@ function docview_annsel(obj, ev, anns) {
                 // console.log("Looking up setname="+setname+",annid="+annid+" gave: "+ann)
                 let feats = ann.features;
                 let idpopup = obj.id_popup;
-                $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + "</div>").on("click", function(x) {
+                $("<div class='" + obj.class_selection + "'>" + ann.type + ": id=" + annid + " offsets=" + ann.start + ".." + ann.end + " (" + (ann.end-ann.start) + ")" + "</div>").on("click", function(x) {
                     docview_showAnn(obj, ann);
                     $(idpopup).hide();
                 }).appendTo(obj.id_popup);
@@ -314,29 +314,30 @@ var gatenlpDocView = class {
                 // store the annotation setname/typename/annid for each offset of each annotation
                 // to indicate the end of the annotation also store an empty list for the offset after the annotation 
                 // unless we already have something there
-                for (let i = ann.start; i < ann.end; i++) {
+                
+                // trick for zero length annotations: show them as length one annotations for now
+                var endoff = ann.end
+                if (ann.start == ann.end) endoff = endoff+1
+                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
-                    if (have == undefined) {
+                    if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
                       this.anns4offset[i] = have
                     }
-                    // append a new set/type tuple to the list of set/types at this offset
-                    let tmp = this.anns4offset[i]["anns"];
-                    let toadd = sname + this.sep + atype + this.sep + ann.id
-                    // console.log("Trying to add "+toadd+" to "+this.set2list(tmp))
-                    tmp = tmp.add(toadd); 
-                    //console.log("is now "+this.set2list(tmp))
-                    //console.log("entry for offset "+i+" is now " + this.set2list(this.anns4offset[i]["anns"]));
-                }
-                let have = this.anns4offset[ann.end]
-                if (have == undefined) {
-                    this.anns4offset[ann.end] = { "offset": ann.end, "anns": new Set()}
-                    // this.anns4offset[ann.end] = undefined
+                    if (i < endoff) {
+                        // append a new set/type tuple to the list of set/types at this offset
+                        let tmp = this.anns4offset[i]["anns"];
+                        let toadd = sname + this.sep + atype + this.sep + ann.id
+                        // console.log("Trying to add "+toadd+" to "+this.set2list(tmp))
+                        tmp = tmp.add(toadd); 
+                        //console.log("is now "+this.set2list(tmp))
+                        //console.log("entry for offset "+i+" is now " + this.set2list(this.anns4offset[i]["anns"]));
+                    }
                 }
             }
         }
-        // console.log("initial anns4Offset:")
-        // console.log(this.anns4offset)
+        console.log("initial anns4Offset:")
+        console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
@@ -392,6 +393,7 @@ var gatenlpDocView = class {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
+                console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
@@ -401,7 +403,7 @@ var gatenlpDocView = class {
                     let anns = last.anns;
                     let annhandler = function(ev) { docview_annsel(object, ev, anns) }
                     span.on("click", annhandler);
-                    // console.log("Adding styled text for "+col+"/"+sty+" : "+txt)
+                    // console.log("Adding styled text for "+col+"/"+sty+" : "+txt)                    
                 } else {
                     // console.log("Adding non-styled text "+txt)
                     span = $('<span>');
