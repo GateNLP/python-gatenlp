@@ -1,5 +1,9 @@
 from gatenlp.processing.pipeline import _has_method
 
+__pdoc__ = {
+    "Annotator.__call__": True
+}
+
 
 class SerialCorpusExecutor:
     """

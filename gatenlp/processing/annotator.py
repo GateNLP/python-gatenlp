@@ -12,6 +12,9 @@ returned (functions like segmenting). However this clashes with the idea of
 using this also to combine partial per-document results with merge.
 """
 
+__pdoc__ = {
+    "Annotator.__call__": True
+}
 
 class Annotator:
     def __call__(self, doc, **kwargs):
