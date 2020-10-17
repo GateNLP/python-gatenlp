@@ -9,6 +9,7 @@ import stanza
 
 
 class AnnStanza(Annotator):
+    """ """
     def __init__(self, pipeline=None, outsetname="",
                  token_type="Token",
                  sentence_type="Sentence",
@@ -52,25 +53,31 @@ class AnnStanza(Annotator):
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=""):
-    """
-    Run the stanford stanza pipeline on the gatenlp document and transfer the annotations.
+    """Run the stanford stanza pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
-    :param nlp: StanfordNLP pipeline
-    :param gatenlpdoc: gatenlp document
-    :param setname: set to use
-    :return:
+    Args:
+      nlp: StanfordNLP pipeline
+      gatenlpdoc: gatenlp document
+      setname: set to use (Default value = "")
+
+    Returns:
+
     """
     doc = nlp(gatenlpdoc.text)
     return stanza2gatenlp(doc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
 def tok2tok(tok):
-    """
-    Create a copy of a Stanza token, prepared for creating an annotation: this is a dict that has
+    """Create a copy of a Stanza token, prepared for creating an annotation: this is a dict that has
     start, end and id keys and everything else in a nested dict "fm".
-    :param tok: original stanza token
-    :return: what we use to create a Token annotation
+
+    Args:
+      tok: original stanza token
+
+    Returns:
+      what we use to create a Token annotation
+
     """
     newtok = {}
     newtok["id"] = tok["id"]
@@ -116,21 +123,25 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
                    add_entities=True,
                    ent_prefix=None,
                    ):
-    """
-    Convert a Stanford Stanza document to a gatenlp document. If a gatenlp document is already
+    """Convert a Stanford Stanza document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the Stanford Stanza document to it. In this case the
     original gatenlpdoc is used and gets modified.
-    :param stanzadoc: a Stanford Stanza document
-    :param gatenlpdoc: if None, a new gatenlp document is created otherwise this
-    document is added to.
-    :param setname: the annotation set name to which the annotations get added, empty string
+
+    Args:
+      stanzadoc: a Stanford Stanza document
+      gatenlpdoc: if None, a new gatenlp document is created otherwise this
+    document is added to. (Default value = None)
+      setname: the annotation set name to which the annotations get added, empty string
     for the default annotation set.
-    :param token_type: the annotation type to use for tokens, if needed
-    :param sentence_type: the annotation type to use for sentence anntoations
-    :param add_entities: if True, add any entities as well
-    :param ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
-    to the annotation type as a prefix.
-    :return: the new or modified gatenlp document
+      token_type: the annotation type to use for tokens, if needed (Default value = "Token")
+      sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
+      add_entities: if True, add any entities as well (Default value = True)
+      ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
+    to the annotation type as a prefix. (Default value = None)
+
+    Returns:
+      the new or modified gatenlp document
+
     """
     if gatenlpdoc is None:
         retdoc = Document(stanzadoc.text)

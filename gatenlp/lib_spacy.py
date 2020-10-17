@@ -8,6 +8,7 @@ import spacy
 
 
 class AnnSpacy(Annotator):
+    """ """
     def __init__(self, pipeline=None,
                  outsetname="",
                  token_type="Token",
@@ -77,15 +78,17 @@ class AnnSpacy(Annotator):
 
 
 def apply_spacy(nlp, gatenlpdoc, setname=""):
-    """
-    Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
+    """Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
-    :param nlp: spacy pipeline
-    :param gatenlpdoc: gatenlp document
-    :param setname: annotation set to receive the annotations
-    :param tokens: an annotation set containing already known token annotations
-    :return: 
+    Args:
+      nlp: spacy pipeline
+      gatenlpdoc: gatenlp document
+      setname: annotation set to receive the annotations (Default value = "")
+      tokens: an annotation set containing already known token annotations
+
+    Returns:
+
     """
     spacydoc = nlp(gatenlpdoc.text)
     return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
@@ -102,26 +105,33 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname="", token_type="Token",
                   add_dep=True,
                   ent_prefix=None,
                   ):
-    """
-    Convert a spacy document to a gatenlp document. If a gatenlp document is already
+    """Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
     original gatenlpdoc is used and gets modified.
-    :param spacydoc: a spacy document
-    :param gatenlpdoc: if None, a new gatenlp document is created otherwise this
-    document is added to.
-    :param setname: the annotation set name to which the annotations get added, empty string
+
+    Args:
+      spacydoc: a spacy document
+      gatenlpdoc: if None, a new gatenlp document is created otherwise this
+    document is added to. (Default value = None)
+      setname: the annotation set name to which the annotations get added, empty string
     for the default annotation set.
-    :param token_type: the annotation type to use for tokens
-    :param spacetoken_type: the annotation type to use for space tokens
-    :param sentence_type: the annotation type to use for sentence anntoations
-    :param nounchunk_type: the annotation type to use for noun chunk annotations
-    :param add_tokens: should annotations for tokens get added? If not, dependency parser
-    info cannot be added either.
-    :param add_ents: should annotations for entities get added
-    :param add_sents: should sentence annotations get added
-    :param add_nounchunks: should noun chunk annotations get added
-    :param add_dep: should dependency parser information get added
-    :return: the new or modified
+      token_type: the annotation type to use for tokens (Default value = "Token")
+      spacetoken_type: the annotation type to use for space tokens (Default value = "SpaceToken")
+      sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
+      nounchunk_type: the annotation type to use for noun chunk annotations (Default value = "NounChunk")
+      add_tokens: should annotations for tokens get added? If not, dependency parser
+    info cannot be added either. (Default value = True)
+      add_ents: should annotations for entities get added
+      add_sents: should sentence annotations get added (Default value = True)
+      add_nounchunks: should noun chunk annotations get added (Default value = True)
+      add_dep: should dependency parser information get added (Default value = True)
+      # add_spacetokens:  (Default value = True)
+      # not sure how to do this yetadd_ents:  (Default value = True)
+      ent_prefix:  (Default value = None)
+
+    Returns:
+      the new or modified
+
     """
     if gatenlpdoc is None:
         retdoc = Document(spacydoc.text)

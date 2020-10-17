@@ -4,12 +4,16 @@ from gatenlp.processing.annotator import Annotator
 
 
 def _check_and_ret_callable(a, **kwargs):
-    """
-    Make sure a is either a callable or a class that can be instatiated to a callable.
+    """Make sure a is either a callable or a class that can be instatiated to a callable.
 
-    :param a: a class or instantiated callable
-    :param kwargs: arguments to pass on to the initializer
-    :return: an instantiated callable or throws an exception if not a callable
+    Args:
+      a: a class or instantiated callable
+      kwargs: arguments to pass on to the initializer
+      **kwargs: 
+
+    Returns:
+      : an instantiated callable or throws an exception if not a callable
+
     """
     if inspect.isclass(a):
         a = a(**kwargs)
@@ -18,12 +22,15 @@ def _check_and_ret_callable(a, **kwargs):
     return a
 
 def _has_method(obj, name):
-    """
-    Check if the object has a method with that name
+    """Check if the object has a method with that name
 
-    :param obj: the object
-    :param name: the name of the method
-    :return: True if the object has a callable method with that name, otherwise False
+    Args:
+      obj: the object
+      name: the name of the method
+
+    Returns:
+      : True if the object has a callable method with that name, otherwise False
+
     """
     mth = getattr(obj, name, None)
     if mth is None:
@@ -35,11 +42,15 @@ def _has_method(obj, name):
 
 
 class Pipeline(Annotator):
-    """
-    A pipeline is an annotator which runs several other annotators in sequence on a document
+    """A pipeline is an annotator which runs several other annotators in sequence on a document
     and returns the result. Since annotators can return no or more than one result document
     in a list, the pipeline can return no or more than one document for each input document
     as well.
+
+    Args:
+
+    Returns:
+
     """
 
     def __init(self, *annotators, **kwargs):
@@ -88,21 +99,29 @@ class Pipeline(Annotator):
             return results
 
     def start(self):
-        """
-        Invoke start on all annotators to prepare them for a corpus of documents.
-
+        """Invoke start on all annotators to prepare them for a corpus of documents.
+        
         :return:
+
+        Args:
+
+        Returns:
+
         """
         for annotator in self.annotators:
             if _has_method(annotator, "start"):
                 annotator.start()
 
     def finish(self):
-        """
-        Invoke finish on all annotators and return their results as a list with as many
+        """Invoke finish on all annotators and return their results as a list with as many
         elements as there are annotators (annotators which did not return anything have None).
-
+        
         :return: list of annotator results
+
+        Args:
+
+        Returns:
+
         """
         results = []
         for annotator in self.annotators:
@@ -113,15 +132,18 @@ class Pipeline(Annotator):
         return results
 
     def reduce(self, results):
-        """
-        Invoke reduce on all annotators using the list of result lists. `results` is a list with
+        """Invoke reduce on all annotators using the list of result lists. `results` is a list with
         as many elements as there are annotators. Each element is a list of results from different
         processes or different batches.
-
+        
         Returns a list with as many elements as there are annotators, each element the combined result.
 
-        :param results: a list of result lists
-        :return: a list of combined results
+        Args:
+          results: a list of result lists
+
+        Returns:
+          : a list of combined results
+
         """
         results = []
         assert len(results) == len(self.annotators)

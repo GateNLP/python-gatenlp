@@ -1,7 +1,0 @@
-gatenlp.serialization.srsly module
-==================================
-
-.. automodule:: gatenlp.serialization.srsly
-   :members:
-   :undoc-members:
-   :show-inheritance:

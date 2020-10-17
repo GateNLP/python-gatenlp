@@ -1,7 +1,0 @@
-gatenlp.annotation\_set module
-==============================
-
-.. automodule:: gatenlp.annotation_set
-   :members:
-   :undoc-members:
-   :show-inheritance:

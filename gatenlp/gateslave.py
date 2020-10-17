@@ -28,9 +28,13 @@ logger.setLevel(logging.INFO)
 
 def classpath_sep(platform=None):
     """
-    Return the classpath separator character for the current operating system / platform.
 
-    :return: classpath separator character
+    Args:
+      platform:  (Default value = None)
+
+    Returns:
+      :return: classpath separator character
+
     """
     if not platform:
         myplatform = sysplatform.system()
@@ -44,11 +48,16 @@ def classpath_sep(platform=None):
 
 
 def gate_classpath(gatehome, platform=None):
-    """
-    Return the GATE classpath components as a string, with the element seperator characters appropriate
+    """Return the GATE classpath components as a string, with the element seperator characters appropriate
     for the operating system.
-    :param gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
-    :return: GATE classpath
+
+    Args:
+      gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
+      platform:  (Default value = None)
+
+    Returns:
+      GATE classpath
+
     """
     # check which kind of GATE home we have: if there is a distro subdirectory, assume cloned git repo
     if not os.path.exists(gatehome):
@@ -87,6 +96,22 @@ def start_gate_slave(
         log_actions=False,
         keep=False,
 ):
+    """
+
+    Args:
+      port:  (Default value = 25333)
+      host:  (Default value = "127.0.0.1")
+      auth_token:  (Default value = None)
+      use_auth_token:  (Default value = True)
+      java:  (Default value = "java")
+      platform:  (Default value = None)
+      gatehome:  (Default value = None)
+      log_actions:  (Default value = False)
+      keep:  (Default value = False)
+
+    Returns:
+
+    """
     if gatehome is None:
         gatehome = os.environ.get("GATE_HOME")
         if gatehome is None:
@@ -122,6 +147,7 @@ def start_gate_slave(
     subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
 
     def shutdown():
+        """ """
         subproc.send_signal(signal.SIGINT)
         for line in subproc.stderr:
             print(line, file=sys.stderr, end="")
@@ -142,6 +168,7 @@ def start_gate_slave(
 
 
 class GateSlave:
+    """ """
     def __init__(self, port=25333,
                  start=True,
                  java="java",
@@ -260,12 +287,16 @@ class GateSlave:
         self.slave = self.gateway.entry_point
 
     def close(self):
-        """
-        Clean up: if the gate slave process was started by us, we will shut it down.
+        """Clean up: if the gate slave process was started by us, we will shut it down.
         Otherwise we can still close it if it was started by the slaverunner, not the Lr
         Note: if it was started by us, it was started via the slaverunner.
-
+        
         :return:
+
+        Args:
+
+        Returns:
+
         """
         canclose = self.slave.isClosable()
         if canclose and not self.closed:
@@ -277,94 +308,117 @@ class GateSlave:
                 self.gateprocess.wait()
 
     def log_actions(self, onoff):
-        """
-        Swith logging actions at the slave on or off.
+        """Swith logging actions at the slave on or off.
 
-        :param onoff: True to log actions, False to not log them
-        :return:
+        Args:
+          onoff: True to log actions, False to not log them
+
+        Returns:
+
         """
         self.slave.logActions(onoff)
 
     def load_gdoc(self, path, mimetype=None):
-        """
-        Let GATE load a document from the given path and return a handle to it.
+        """Let GATE load a document from the given path and return a handle to it.
 
-        :param path: path to the gate document to load.
-        :param mimetype: a mimetype to use when loading.
-        :return: a handle to the GATE document
+        Args:
+          path: path to the gate document to load.
+          mimetype: a mimetype to use when loading. (Default value = None)
+
+        Returns:
+          a handle to the GATE document
+
         """
         if mimetype is None:
             mimetype = ""
         return self.slave.loadDocumentFromFile(path, mimetype)
 
     def save_gdoc(self, gdoc, path, mimetype=None):
-        """
-        Save GATE document to the given path.
+        """Save GATE document to the given path.
 
-        :param gdoc: GATE document handle
-        :param path:  destination path
-        :param mimetype: mimtetype, only the following types are allowed: ""/None: GATE XML,
-               application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin.
-        :return:
+        Args:
+          gdoc: GATE document handle
+          path: destination path
+          mimetype: mimtetype, only the following types are allowed: ""/None: GATE XML,
+        application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin. (Default value = None)
+
+        Returns:
+
         """
         if mimetype is None:
             mimetype = ""
         self.slave.saveDocumentToFile(path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
-        """
-        Convert the GATE document to a python document and return it.
+        """Convert the GATE document to a python document and return it.
 
-        :param gdoc: the handle to a GATE document
-        :return: a gatenlp Document instance
+        Args:
+          gdoc: the handle to a GATE document
+
+        Returns:
+          a gatenlp Document instance
+
         """
         bjs = self.slave.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt="bdocjs")
 
     def pdoc2gdoc(self, pdoc):
-        """
-        Convert the Python gatenlp document to a GATE document and return a handle to it.
+        """Convert the Python gatenlp document to a GATE document and return a handle to it.
 
-        :param pdoc: python gatenlp Document
-        :return: handle to GATE document
+        Args:
+          pdoc: python gatenlp Document
+
+        Returns:
+          handle to GATE document
+
         """
         json = pdoc.save_mem(fmt="bdocjs")
         return self.slave.getDocument4BdocJson(json)
 
     def load_pdoc(self, path, mimetype=None):
-        """
-        Load a document from the given path, using GATE and convert and return as gatenlp Python document.
+        """Load a document from the given path, using GATE and convert and return as gatenlp Python document.
 
-        :param path: path to load document from
-        :param mimetype: mime type to use
-        :return: gatenlp document
+        Args:
+          path: path to load document from
+          mimetype: mime type to use (Default value = None)
+
+        Returns:
+          gatenlp document
+
         """
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
     def del_gdoc(self, gdoc):
-        """
-        Delete/unload the GATE document from GATE.
+        """Delete/unload the GATE document from GATE.
         This is necessary to do for each GATE document that is not used anymore, otherwise the documents
         will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
         GATE document does not delete/unload the document!
 
-        :param gdoc: the document to remove
-        :return:
+        Args:
+          gdoc: the document to remove
+
+        Returns:
+
         """
         self.jvm.gate.Factory.deleteResource(gdoc)
 
     def show_gui(self):
-        """
-        Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
+        """Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
         when closing down the GATE slave.
-
+        
         :return:
+
+        Args:
+
+        Returns:
+
         """
         self.slave.showGui()
 
 
 def main():
+    """ """
     ap = argparse.ArgumentParser(description="Start Java GATE Slave")
     ap.add_argument("--port", default=25333, type=int, help="Port (25333)")
     ap.add_argument("--host", default="127.0.0.1", type=str, help="Host to bind to (127.0.0.1)")

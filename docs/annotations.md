@@ -1,6 +1,6 @@
 # Annotations
 
-See also:  [Python Documentation](pythondoc/gatenlp.annotation.html)
+See also:  [Python Documentation](pythondoc/gatenlp/annotation.html)
 
 Annotations are objects that provide information about a span of text. In `gatenlp` annotations are used to identify tokens, entities, sentences, paragraphs, and other things: unlike in other NLP libraries, the same abstraction is used for everything that is about offset spans in a document. This abstraction is identical to what is used in Java GATE.
 
@@ -28,7 +28,7 @@ This creates an annotation of type "Token" starting with the character at offset
 Once an annotation has been created, everything but the features is immutable. Trying to e.g. do `ann.start = 12` will raise an exception.
 
 To change or set or remove a feature use the methods provided
-by [Features](docs/pythondoc/gatenlp.features.html)
+by [Features](docs/pythondoc/gatenlp/features.html)
 
 An annotation can also be directly created:
 ```python

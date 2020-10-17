@@ -30,12 +30,15 @@ warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
 
 
 def is_url(ext):
-    """
-    Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    """Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
 
-    :param ext: something that represents an external resource: string, url parse, pathlib path object ...
-    :return: True, usrlstring or False, pathstring
+    Args:
+      ext: something that represents an external resource: string, url parse, pathlib path object ...
+
+    Returns:
+      : True, usrlstring or False, pathstring
+
     """
     if ext is None:
         return None, None
@@ -54,12 +57,15 @@ def is_url(ext):
 
 
 def get_str_from_url(url, encoding=None):
-    """
-    Read a string from the URL.
+    """Read a string from the URL.
 
-    :param url: some URL
-    :param encoding: override the encoding that would have determined automatically
-    :return: the string
+    Args:
+      url: some URL
+      encoding: override the encoding that would have determined automatically (Default value = None)
+
+    Returns:
+      : the string
+
     """
     req = requests.get(url)
     if encoding is not None:
@@ -67,20 +73,39 @@ def get_str_from_url(url, encoding=None):
     return req.text
 
 def get_bytes_from_url(url):
-    """
-    Read bytes from url.
+    """Read bytes from url.
 
-    :param url: the URL
-    :return: the bytes
+    Args:
+      url: the URL
+
+    Returns:
+      : the bytes
+
     """
     req = requests.get(url)
     return req.content
 
 
 class JsonSerializer:
+    """ """
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          to_ext: (Default value = None)
+          to_mem: (Default value = None)
+          offset_type: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
@@ -97,10 +122,33 @@ class JsonSerializer:
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          **kwargs: 
+
+        Returns:
+
+        """
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         # print("RUNNING load with from_ext=", from_ext, " from_mem=", from_mem)
 
         if from_ext is not None and from_mem is not None:
@@ -137,16 +185,42 @@ class JsonSerializer:
 
     @staticmethod
     def load_gzip(clazz, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          **kwargs: 
+
+        Returns:
+
+        """
         return JsonSerializer.load(clazz, gzip=True, **kwargs)
 
 
 class PlainTextSerializer:
+    """ """
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None,
              offset_type=None, offset_mapper=None,
              encoding="UTF-8",
              gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          to_ext: (Default value = None)
+          to_mem: (Default value = None)
+          offset_type: (Default value = None)
+          offset_mapper: (Default value = None)
+          encoding: (Default value = "UTF-8")
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         txt = inst.text
         if txt is None:
             txt = ""
@@ -165,12 +239,36 @@ class PlainTextSerializer:
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          **kwargs: 
+
+        Returns:
+
+        """
         PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
              encoding="UTF-8",
              gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          encoding: (Default value = "UTF-8")
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
@@ -196,13 +294,38 @@ class PlainTextSerializer:
 
     @staticmethod
     def load_gzip(clazz, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          **kwargs: 
+
+        Returns:
+
+        """
         return PlainTextSerializer.load(clazz, gzip=True, **kwargs)
 
 
 class YamlSerializer:
+    """ """
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          to_ext: (Default value = None)
+          to_mem: (Default value = None)
+          offset_type: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
@@ -219,10 +342,33 @@ class YamlSerializer:
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          **kwargs: 
+
+        Returns:
+
+        """
         YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
+        """
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
@@ -248,6 +394,15 @@ class YamlSerializer:
 
     @staticmethod
     def load_gzip(clazz, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          **kwargs: 
+
+        Returns:
+
+        """
         return YamlSerializer.load(clazz, gzip=True, **kwargs)
 
 
@@ -255,9 +410,20 @@ MSGPACK_VERSION_HDR = "sm2"
 
 
 class MsgPackSerializer:
+    """ """
 
     @staticmethod
     def document2stream(doc: Document, stream):
+        """
+
+        Args:
+          doc: Document:
+          stream: 
+          doc: Document: 
+
+        Returns:
+
+        """
         pack(MSGPACK_VERSION_HDR, stream)
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
@@ -277,6 +443,14 @@ class MsgPackSerializer:
 
     @staticmethod
     def stream2document(stream):
+        """
+
+        Args:
+          stream: 
+
+        Returns:
+
+        """
         u = Unpacker(stream)
         version = u.unpack()
         if version != MSGPACK_VERSION_HDR:
@@ -309,6 +483,20 @@ class MsgPackSerializer:
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          inst: 
+          to_ext: (Default value = None)
+          to_mem: (Default value = None)
+          offset_type: (Default value = None)
+          offset_mapper: (Default value = None)
+          **kwargs: 
+
+        Returns:
+
+        """
         if isinstance(inst, Document):
             writer = MsgPackSerializer.document2stream
         elif isinstance(inst, ChangeLog):
@@ -327,6 +515,18 @@ class MsgPackSerializer:
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          **kwargs: 
+
+        Returns:
+
+        """
         if clazz == Document:
             reader = MsgPackSerializer.stream2document
         elif clazz == ChangeLog:
@@ -354,23 +554,27 @@ html_ann_viewer_serializer_js_loaded = False
 
 
 class HtmlAnnViewerSerializer:
+    """ """
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False,
              htmlid=None, **kwargs):
-        """
-        Convert a document to HTML for visualizing it.
+        """Convert a document to HTML for visualizing it.
 
-        :param clazz:
-        :param inst:
-        :param to_ext:
-        :param to_mem:
-        :param notebook:
-        :param offline:
-        :param htmlid: the id to use for HTML ids so it is possible to style the output
-           from a separate notebook cell.
-        :param kwargs:
-        :return:
+        Args:
+          clazz: param inst:
+          to_ext: param to_mem: (Default value = None)
+          notebook: param offline: (Default value = False)
+          htmlid: the id to use for HTML ids so it is possible to style the output
+        from a separate notebook cell. (Default value = None)
+          kwargs: return:
+          inst: 
+          to_mem: (Default value = None)
+          offline: (Default value = False)
+          **kwargs: 
+
+        Returns:
+
         """
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
@@ -422,27 +626,45 @@ class HtmlAnnViewerSerializer:
 
 
 class HtmlLoader:
+    """ """
 
     @staticmethod
     def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
              process_soup=None, offset_mapper=None, **kwargs):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          parser: (Default value = None)
+          markup_set_name: (Default value = "Original markups")
+          process_soup: (Default value = None)
+          offset_mapper: (Default value = None)
+          **kwargs: 
+
+        Returns:
+
+        """
         raise Exception("Rendered html parser not yet implemented")
 
     @staticmethod
     def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
              process_soup=None, offset_mapper=None, **kwargs):
-        """
-        Load a HTML file.
+        """Load a HTML file.
 
-        :param clazz:
-        :param from_ext:
-        :param from_mem:
-        :param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
-        :param markup_set_name: the annotation set name for the set to contain the HTML annotations
-        :param process_soup: a function to run on the parsed HTML soup before converting
-        :param offset_mapper:
-        :param kwargs:
-        :return:
+        Args:
+          clazz: param from_ext:
+          from_mem: param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
+          markup_set_name: the annotation set name for the set to contain the HTML annotations (Default value = "Original markups")
+          process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
+          offset_mapper: param kwargs: (Default value = None)
+          from_ext: (Default value = None)
+          parser: (Default value = None)
+          **kwargs: 
+
+        Returns:
+
         """
         # NOTE: for now we have a simple heuristic for adding newlines to the text:
         # before and after a block element, a newline is added unless there is already one
@@ -470,6 +692,14 @@ class HtmlLoader:
         }
         docinfo = {"anninfos": [], "curoffset": 0, "curid": 0, "text": ""}
         def walktree(el):
+            """
+
+            Args:
+              el: 
+
+            Returns:
+
+            """
             #print("DEBUG: type=", type(el))
             if isinstance(el, bs4.element.Doctype):
                 # print("DEBUG: got doctype", type(el))
@@ -544,19 +774,33 @@ class HtmlLoader:
 
 
 class GateXmlLoader:
+    """ """
 
     @staticmethod
     def value4objectwrapper(text):
-        """
-        This may one day convert things like lists, maps, shared objects to Python, but for
+        """This may one day convert things like lists, maps, shared objects to Python, but for
         now we always throw an exeption.
-        :param text:
-        :return:
+
+        Args:
+          text: return:
+
+        Returns:
+
         """
         raise Exception("Cannot load GATE XML which contains gate.corpora.ObjectWrapper data")
 
     @staticmethod
     def load(clazz, from_ext=None, ignore_unknown_types=False):
+        """
+
+        Args:
+          clazz: 
+          from_ext: (Default value = None)
+          ignore_unknown_types: (Default value = False)
+
+        Returns:
+
+        """
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
@@ -576,6 +820,14 @@ class GateXmlLoader:
         assert root.attrib == {"version": "3"}
 
         def parsefeatures(feats):
+            """
+
+            Args:
+              feats: 
+
+            Returns:
+
+            """
             features = {}
             for feat in list(feats):
                 name = None
@@ -671,6 +923,19 @@ class GateXmlLoader:
 
 
 def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    """
+
+    Args:
+      clazz: 
+      from_ext: (Default value = None)
+      from_mem: (Default value = None)
+      offset_mapper: (Default value = None)
+      gzip: (Default value = False)
+      **kwargs: 
+
+    Returns:
+
+    """
     first = None
     if from_mem:
         first = from_mem[0]
@@ -752,6 +1017,18 @@ EXTENSIONS = {
 
 
 def get_handler(filespec, fmt, handlers, saveload, what):
+    """
+
+    Args:
+      filespec: 
+      fmt: 
+      handlers: 
+      saveload: 
+      what: 
+
+    Returns:
+
+    """
     msg = f"Could not determine how to {saveload} {what} for format {fmt} in module gatenlp.serialization.default"
     if fmt:
         handler = handlers.get(fmt)
@@ -786,16 +1063,52 @@ def get_handler(filespec, fmt, handlers, saveload, what):
 
 
 def get_document_saver(filespec, fmt):
+    """
+
+    Args:
+      filespec: 
+      fmt: 
+
+    Returns:
+
+    """
     return get_handler(filespec, fmt, DOCUMENT_SAVERS, "save", "document")
 
 
 def get_document_loader(filespec, fmt):
+    """
+
+    Args:
+      filespec: 
+      fmt: 
+
+    Returns:
+
+    """
     return get_handler(filespec, fmt, DOCUMENT_LOADERS, "load", "document")
 
 
 def get_changelog_saver(filespec, fmt):
+    """
+
+    Args:
+      filespec: 
+      fmt: 
+
+    Returns:
+
+    """
     return get_handler(filespec, fmt, CHANGELOG_SAVERS, "save", "changelog")
 
 
 def get_changelog_loader(filespec, fmt):
+    """
+
+    Args:
+      filespec: 
+      fmt: 
+
+    Returns:
+
+    """
     return get_handler(filespec, fmt, CHANGELOG_LOADERS, "load", "changelog")

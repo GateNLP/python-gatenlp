@@ -7,4 +7,5 @@
 # feature values instead of the text.
 
 class Normalizer:
+    """ """
     pass

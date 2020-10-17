@@ -1,7 +1,0 @@
-gatenlp.processing.executor module
-==================================
-
-.. automodule:: gatenlp.processing.executor
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -1,6 +1,6 @@
 # Annotation Sets
 
-See also: [Python Documentation](pythondoc/gatenlp.annotation_set.html)
+See also: [Python Documentation](pythondoc/gatenlp/annotation_set.html)
 
 Annotation sets group annotations that belong together in some way. How to group annotations is entirely up to the user. 
 

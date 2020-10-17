@@ -75,7 +75,7 @@ def get_install_extras_require():
         'stanfordnlp': ['stanfordnlp'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx'],  # for development
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3'],  # for development
     }
     # Add automatically the 'all' target
     extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})

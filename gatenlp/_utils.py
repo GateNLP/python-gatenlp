@@ -6,14 +6,28 @@ import numbers
 from functools import wraps
 
 def support_annotation_or_set(method):
-    """
-    Decorator to allow a method that normally takes a start and end
+    """Decorator to allow a method that normally takes a start and end
     offset to take an annotation or annotation set, or any other object that has
     "start" and "end" attributes, or a pair of offsets instead.
     It also allows to take a single offset instead which will then be used as both start and end offset.
+
+    Args:
+      method: 
+
+    Returns:
+
     """
     @wraps(method)
     def _support_annotation_or_set(self, *args, **kwargs):
+        """
+
+        Args:
+          *args: 
+          **kwargs: 
+
+        Returns:
+
+        """
         from gatenlp.annotation import Annotation
         annid = None
         if len(args) == 1:

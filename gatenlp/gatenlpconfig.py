@@ -1,6 +1,7 @@
 
 
 class GatenlpConfig:
+    """ """
     def __init__(self):
         # If True, add the javascript to the generated HTML so we do not depend on an
         # internet connection for the HTML to work.

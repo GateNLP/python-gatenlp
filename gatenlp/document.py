@@ -17,14 +17,13 @@ logger.setLevel(logging.INFO)
 
 
 class Document:
-    """
-    Represent a GATE document. This is different from the original Java GATE representation in several ways:
-
+    """Represent a GATE document. This is different from the original Java GATE representation in several ways:
+    
     * the text is not mutable and can only be set at creation time, so there is no "edit" method
-
+    
     * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
       no separate "FeatureMap" to store them
-
+    
     * does not support listener callbacks
     * there is no separate abstraction for "content", the only content possible is text which is a unicode string
       that can be acessed with the "text()" method
@@ -38,10 +37,14 @@ class Document:
       from the text)
     * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
 
-    :param text: the text of the document. The text can be None to indicate that no initial text should be set. Once
-      the text has been set for a document, it is immutable and cannot be changed.
-    :param features: the initial document features to set, a sequence of key/value tuples
-    :param changelog: a ChangeLog instance to use to log changes.
+    Args:
+      text: the text of the document. The text can be None to indicate that no initial text should be set. Once
+    the text has been set for a document, it is immutable and cannot be changed.
+      features: the initial document features to set, a sequence of key/value tuples
+      changelog: a ChangeLog instance to use to log changes.
+
+    Returns:
+
     """
 
     def __init__(self, text: str = None, features=None, changelog: ChangeLog = None):
@@ -59,10 +62,19 @@ class Document:
 
     @property
     def name(self):
+        """ """
         return self._name
 
     @name.setter
     def name(self, val):
+        """
+
+        Args:
+          val: 
+
+        Returns:
+
+        """
         if val is None:
             val = ""
         if not isinstance(val, str):
@@ -74,10 +86,19 @@ class Document:
             self._changelog.append(ch)
 
     def _ensure_type_python(self) -> None:
+        """ """
         if self.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
 
     def _fixup_annotations(self, method: Callable) -> None:
+        """
+
+        Args:
+          method: Callable: 
+
+        Returns:
+
+        """
         annset_names = self._annotation_sets.keys()
         for annset_name in annset_names:
             annset = self._annotation_sets[annset_name]
@@ -87,18 +108,22 @@ class Document:
                     ann._end = method(ann._end)
 
     def to_offset_type(self, offsettype: str) -> OffsetMapper:
-        """
-        Convert all the offsets of all the annotations in this document to the
+        """Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
-
+        
         NOTE: if the document has a ChangeLog, it is NOT also converted!
-
+        
         The method returns the offset mapper if anything actually was converted,
         otherwise None.
 
-        :param offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
-        :return: offset mapper or None
+        Args:
+          offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
+          offsettype: str: 
+
+        Returns:
+          offset mapper or None
+
         """
         om = None
         if offsettype == self.offset_type:
@@ -118,16 +143,18 @@ class Document:
         return om
 
     def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
-        """
-        Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
+        """Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
         a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
-
+        
         The document is modified in-place.
 
-        :param changes: one or more changes
-        :param handle_existing_anns: what to do if the change from the changelog tries to add an annotation
-          with an annotation id that already exists in the target set.
-        :return:
+        Args:
+          changes: one or more changes
+          handle_existing_anns: what to do if the change from the changelog tries to add an annotation
+        with an annotation id that already exists in the target set. (Default value = ADDANN_ADD_WITH_NEW_ID)
+
+        Returns:
+
         """
         if isinstance(changes, dict):
             changes = [changes]
@@ -212,32 +239,43 @@ class Document:
 
     @property
     def features(self):
-        """
-        Accesses the features as a FeatureViewer instance. Changes made on this object are
+        """Accesses the features as a FeatureViewer instance. Changes made on this object are
         reflected in the document and recorded in the change log, if there is one.
-
+        
         :return: A FeatureViewer view of the document features.
+
+        Args:
+
+        Returns:
+
         """
         return self._features
 
 
     @property
     def changelog(self):
-        """
-        Get the ChangeLog or None if no ChangeLog has been set.
-
+        """Get the ChangeLog or None if no ChangeLog has been set.
+        
         :return: the changelog
+
+        Args:
+
+        Returns:
+
         """
         return self._changelog
 
     @changelog.setter
     def changelog(self, chlog):
-        """
-        Make the document use the given changelog to record all changes
+        """Make the document use the given changelog to record all changes
         from this moment on.
 
-        :param chlog: the new changelog to use or None to not use any
-        :return: the changelog used previously or None
+        Args:
+          chlog: the new changelog to use or None to not use any
+
+        Returns:
+          the changelog used previously or None
+
         """
         oldchlog = self._changelog
         self._changelog = chlog
@@ -245,22 +283,29 @@ class Document:
 
     @property
     def text(self) -> str:
-        """
-        Get the text of the document. For a partial document, the text may be None.
-
+        """Get the text of the document. For a partial document, the text may be None.
+        
         :return: the text of the document
+
+        Args:
+
+        Returns:
+
         """
         self._ensure_type_python()
         return self._text
 
     @text.setter
     def text(self, value: str) -> None:
-        """
-        Set the text of the document. This is only possible as long as it has not been set
+        """Set the text of the document. This is only possible as long as it has not been set
         yet, after that, the text is immutable.
 
-        :param value: the text for the document
-        :return:
+        Args:
+          value: the text for the document
+          value: str: 
+
+        Returns:
+
         """
         if self._text is None:
             self._text = value
@@ -268,6 +313,16 @@ class Document:
             raise NotImplementedError("Text cannot be modified")
 
     def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
+        """
+
+        Args:
+          command: str: 
+          feature: str:  (Default value = None)
+          value:  (Default value = None)
+
+        Returns:
+
+        """
         if self._changelog is None:
             return
         command = "doc-"+command
@@ -306,12 +361,16 @@ class Document:
         return self.text[span]
 
     def annset(self, name: str = "") -> AnnotationSet:
-        """
-        Get the named annotation set, if name is not given or the empty string, the default annotation set.
+        """Get the named annotation set, if name is not given or the empty string, the default annotation set.
         If the annotation set does not already exist, it is created.
 
-        :param name: the annotation set name, the empty string is used for the "default annotation set".
-        :return: the specified annotation set.
+        Args:
+          name: the annotation set name, the empty string is used for the "default annotation set".
+          name: str:  (Default value = "")
+
+        Returns:
+          the specified annotation set.
+
         """
         self._ensure_type_python()
         if name not in self._annotation_sets:
@@ -327,19 +386,25 @@ class Document:
 
     def annset_names(self) -> KeysView[str]:
         """
-        Return the set of known annotation set names.
 
-        :return: annotation set names
+        Args:
+
+        Returns:
+          :return: annotation set names
+
         """
         self._ensure_type_python()
         return list(self._annotation_sets.keys())
     
     def remove_annset(self, name: str):
-        """
-        Completely remove the annotation set.
+        """Completely remove the annotation set.
 
-        :param name: name of the annotation set to remove
-        :return:
+        Args:
+          name: name of the annotation set to remove
+          name: str: 
+
+        Returns:
+
         """
         if name not in self._annotation_sets:
             raise Exception(f"AnnotationSet with name {name} does not exist")
@@ -362,15 +427,18 @@ class Document:
         return "Document({},features={},anns={})".format(self.text, self._features, asets)
 
     def to_dict(self, offset_type=None, **kwargs):
-        """
-        Convert this instance to a dictionary that can be used to re-create the instance with
+        """Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
         field is considered a transient field!
 
-        :param offset_type: convert to the given offset type on the fly
+        Args:
+          offset_type: convert to the given offset type on the fly (Default value = None)
+          **kwargs: 
 
-        :return: the dictionary representation of this instance
+        Returns:
+          the dictionary representation of this instance
+
         """
         # if the specified offset type is equal to what we have, do nothing, otherwise
         # create an offset mapper and pass it down to where we actually convert the annotations
@@ -393,11 +461,15 @@ class Document:
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
-        """
-        Return a Document instance as represented by the dictionary dictrepr.
+        """Return a Document instance as represented by the dictionary dictrepr.
 
-        :param dictrepr:
-        :return: the initialized Document instance
+        Args:
+          dictrepr: return: the initialized Document instance
+          **kwargs: 
+
+        Returns:
+          the initialized Document instance
+
         """
         feats = dictrepr.get("features")
         doc = Document(dictrepr.get("text"), features=feats)
@@ -411,15 +483,18 @@ class Document:
         return doc
 
     def save(self, destination, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
-        """
-        Save the document to the destination file.
+        """Save the document to the destination file.
 
-        :param destination: either a file name or something that has a write(string) method.
-        :param fmt: serialization format, by default the format is inferred from the file extension.
-        :param offset_type: store using the given offset type or keep the current if None
-        :param mod: module where the document saver is implemented.
-        :param kwargs: additional parameters for the document saver.
-        :return:
+        Args:
+          destination: either a file name or something that has a write(string) method.
+          fmt: serialization format, by default the format is inferred from the file extension.
+          offset_type: store using the given offset type or keep the current if None (Default value = None)
+          mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
+          kwargs: additional parameters for the document saver.
+          **kwargs: 
+
+        Returns:
+
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
@@ -430,14 +505,17 @@ class Document:
             fmt(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
 
     def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
-        """
-        Serialize to a string or bytes in the given format.
+        """Serialize to a string or bytes in the given format.
 
-        :param fmt: serialization format to use.
-        :param offset_type: store using the given offset type or keep the current if None
-        :param mod: module where the document saver is implemented.
-        :param kwargs: additional parameters for the format.
-        :return:
+        Args:
+          fmt: serialization format to use. (Default value = "json")
+          offset_type: store using the given offset type or keep the current if None (Default value = None)
+          mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
+          kwargs: additional parameters for the format.
+          **kwargs: 
+
+        Returns:
+
         """
         if not fmt:
             raise Exception("Format required.")
@@ -450,24 +528,28 @@ class Document:
 
     @staticmethod
     def load(source, fmt=None, mod="gatenlp.serialization.default", **kwargs):
-        """
-        Load or import a document from the given source. The source can be a file path or file name or
+        """Load or import a document from the given source. The source can be a file path or file name or
         a URL. If the type of the source is str, then if it starts with "http[s]://" it will get treated
         as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
         deliberately use URL instead of a file parse the URL using urllib.
-
+        
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
-
+        
         Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
-
+        
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
-        :param source: the URL or file path to load from.
-        :param fmt: the format of the source. By default the format is inferred by the file extension.
-          The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
-        :param mod: the name of a module where the document loader is implemented.
-        :param kwargs: additional format specific keyword arguments to pass to the loader
-        :return: the loaded document
+        Args:
+          source: the URL or file path to load from.
+          fmt: the format of the source. By default the format is inferred by the file extension.
+        The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
+          mod: the name of a module where the document loader is implemented. (Default value = "gatenlp.serialization.default")
+          kwargs: additional format specific keyword arguments to pass to the loader
+          **kwargs: 
+
+        Returns:
+          the loaded document
+
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
@@ -481,17 +563,20 @@ class Document:
 
     @staticmethod
     def load_mem(source, fmt="json", mod="gatenlp.serialization.default", **kwargs):
-        """
-        Create a document from the in-memory serialization in source. Source can be a string or
+        """Create a document from the in-memory serialization in source. Source can be a string or
         bytes, depending on the format.
-
+        
         Note: the offset type is always converted to PYTHON when loading!
 
-        :param source: the string/bytes to deserialize
-        :param fmt: the format
-        :param mod: the name of the module where the loader is implemented
-        :param kwargs: additional arguments to pass to the loader
-        :return:
+        Args:
+          source: the string/bytes to deserialize
+          fmt: the format (Default value = "json")
+          mod: the name of the module where the loader is implemented (Default value = "gatenlp.serialization.default")
+          kwargs: additional arguments to pass to the loader
+          **kwargs: 
+
+        Returns:
+
         """
         if not fmt:
             raise Exception("Format required.")
@@ -518,10 +603,14 @@ class Document:
         return doc
 
     def copy(self):
-        """
-        Creates a shallow copy except the changelog which is set to None.
-
+        """Creates a shallow copy except the changelog which is set to None.
+        
         :return: shallow copy of the document
+
+        Args:
+
+        Returns:
+
         """
         return self.__copy__()
 
@@ -544,30 +633,39 @@ class Document:
         return doc
 
     def deepcopy(self):
-        """
-        Creates a deep copy, except the changelog which is set to None.
+        """Creates a deep copy, except the changelog which is set to None.
 
-        :param memo: the memoization dictionary to use.
+        Args:
+          memo: the memoization dictionary to use.
 
-        :return: a deep copy of the document.
+        Returns:
+          a deep copy of the document.
+
         """
         return copy.deepcopy(self)
 
     def _repr_html_(self):
-        """
-        Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
-
+        """Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
+        
         :return:
+
+        Args:
+
+        Returns:
+
         """
         return self.repr_html()
 
     def repr_html(self, notebook=True, offline=None, htmlid=None):
-        """
-        Return a
-        :param notebook:
-        :param offline:
-        :param htmlid:
-        :return:
+        """Return a
+
+        Args:
+          notebook: param offline: (Default value = True)
+          htmlid: return: (Default value = None)
+          offline:  (Default value = None)
+
+        Returns:
+
         """
         if offline is None:
             offline = gatenlpconfig.doc_html_repr_offline

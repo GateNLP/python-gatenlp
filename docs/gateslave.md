@@ -53,7 +53,7 @@ gs = GateSlave(start=False, auth_token="841e634a-d1f0-4768-b763-a7738ddee003")
 ```
 
 The gate slave instance can now be used to run arbitrary Java methods on the Java side. 
-The gate slave instance provides a number of useful methods directly (see [PythonDoc for gateslave](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp.gateslave.html) )
+The gate slave instance provides a number of useful methods directly (see [PythonDoc for gateslave](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/gateslave.html) )
 * `gs.load_gdoc(filepath, mimetype=None`: load a GATE document on the Java side and return it to Python
 * `gs.save_gdoc(gatedocument, filepath, mimetype=None)`: save a GATE document on the Java side
 * `gs.gdoc2pdoc(gatedocument)`: convert the Java GATE document as a Python GateNLP document and return it

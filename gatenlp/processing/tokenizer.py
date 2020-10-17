@@ -14,9 +14,7 @@ from nltk.tokenize.util import align_tokens
 
 
 class NLTKTokenizer(Annotator):
-    """
-    Uses a NLTK Tokenizer to perform tokenization.
-    """
+    """Uses a NLTK Tokenizer to perform tokenization."""
     def __init__(self, nltk_tokenizer=None, out_set="", token_type="Token"):
         """
         Create the tokenizer. NOTE: this tokenizer does NOT create space tokens

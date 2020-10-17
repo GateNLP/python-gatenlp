@@ -1,7 +1,0 @@
-gatenlp.processing.tokenizer module
-===================================
-
-.. automodule:: gatenlp.processing.tokenizer
-   :members:
-   :undoc-members:
-   :show-inheritance:

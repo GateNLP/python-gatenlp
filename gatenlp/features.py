@@ -17,13 +17,17 @@ from collections.abc import Iterable
 
 
 class Features(UserDict):
-    """
-    A dict-like class for storing features, which are mappings from string feature names to
+    """A dict-like class for storing features, which are mappings from string feature names to
     arbitrary feature values. If the Features instance is a field in another object where
     changes are getting logged in a change log, it should pass on the logger, a method for
     logging feature changes. Any copy of an instance of Features will not receive the logger,
     in order to make sure that logging happens, the instance stored in the original owning
     object must be used.
+
+    Args:
+
+    Returns:
+
     """
 
     def __init__(self, *args, logger=None, **kwargs):
@@ -80,25 +84,32 @@ class Features(UserDict):
         self.data[featurename] = featurevalue
 
     def clear(self):
-        """
-        Remove all features.
-
+        """Remove all features.
+        
         :return:
+
+        Args:
+
+        Returns:
+
         """
         if self._logger:
             self._logger("features:clear")
         self.data.clear()
 
     def copy(self, deep=False):
-        """
-        Return a shallow (or deep if deep=True) copy of the features. The result is another
+        """Return a shallow (or deep if deep=True) copy of the features. The result is another
         instance of Features which is detached from the owner and which does not log
         the changes. However, if the copy is shallow and feature values are references
         to mutable objects, they can still get modified in the original set (without
         any logging!).
 
-        :param deep: if True return a deep instead of a shallow copy of the features.
-        :return: a dictionary with the features
+        Args:
+          deep: if True return a deep instead of a shallow copy of the features. (Default value = False)
+
+        Returns:
+          a dictionary with the features
+
         """
         ret = Features()
         if deep:
@@ -109,15 +120,18 @@ class Features(UserDict):
         return ret
 
     def to_dict(self, copy=True, deepcopy=False):
-        """
-        Return a dictionary representation of the features.
+        """Return a dictionary representation of the features.
 
-        :param copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
-          object. This should always be done except it is known that no modifications are made to the
-          dictionary or the modifications do not matter in the original Features object.
-        :param deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-          in the original are unaffected if they get modified in the copy.
-        :return: the dict
+        Args:
+          copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
+        object. This should always be done except it is known that no modifications are made to the
+        dictionary or the modifications do not matter in the original Features object. (Default value = True)
+          deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
+        in the original are unaffected if they get modified in the copy. (Default value = False)
+
+        Returns:
+          the dict
+
         """
         if copy:
             if deepcopy:
@@ -129,16 +143,19 @@ class Features(UserDict):
 
     @staticmethod
     def from_dict(thedict, copy=True, deepcopy=False):
-        """
-        Create a Features instance from a dictionary. If copy is True, a shallow copy of the
+        """Create a Features instance from a dictionary. If copy is True, a shallow copy of the
         dictionary is used, if deepcopy is True as well, a deepcopy is created instead.
-
+        
         NOTE: no checks are done to make sure that feature names are string only!
 
-        :param thedict: the dictionary from which to create the Features.
-        :param copy: if True use a shallow copy of the dictionary
-        :param deepcopy: if True and copy is True, use a deep copy of the dictionary
-        :return: the Features instance
+        Args:
+          thedict: the dictionary from which to create the Features.
+          copy: if True use a shallow copy of the dictionary (Default value = True)
+          deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+
+        Returns:
+          the Features instance
+
         """
         ret = Features()
         if copy:

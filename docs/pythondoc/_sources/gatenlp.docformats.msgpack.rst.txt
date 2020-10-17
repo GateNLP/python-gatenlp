@@ -1,7 +1,0 @@
-gatenlp.docformats.msgpack module
-=================================
-
-.. automodule:: gatenlp.docformats.msgpack
-   :members:
-   :undoc-members:
-   :show-inheritance:

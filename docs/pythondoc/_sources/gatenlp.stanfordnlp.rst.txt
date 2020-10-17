@@ -1,7 +1,0 @@
-gatenlp.stanfordnlp module
-==========================
-
-.. automodule:: gatenlp.stanfordnlp
-   :members:
-   :undoc-members:
-   :show-inheritance:

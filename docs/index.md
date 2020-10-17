@@ -56,4 +56,4 @@ for running on your own computer.
   * [Machine Learning](ml) NOT YET
 * [Comparison to other Python NLP packages](comparison)
 
-* [The Generated Python Documentation](pythondoc)
+* [The Generated Python Documentation](pythondoc/gatenlp)

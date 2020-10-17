@@ -6,11 +6,14 @@ __pdoc__ = {
 
 
 class SerialCorpusExecutor:
-    """
-    Runs a pipeline on an iterable of documents and creates another iterable of documents.
+    """Runs a pipeline on an iterable of documents and creates another iterable of documents.
     If inplace=True, the original iterable must be an object that can be enumerated and where
     each element can be accessed and replaced by its enumeration number: `doc=corpus[i]`
     `corpus[i] = doc`.
+
+    Args:
+
+    Returns:
 
     """
     def __init__(self, input_corpus, annotator, output_corpus=None,):

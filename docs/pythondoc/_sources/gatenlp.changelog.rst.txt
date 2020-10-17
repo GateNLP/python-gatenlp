@@ -1,7 +1,0 @@
-gatenlp.changelog module
-========================
-
-.. automodule:: gatenlp.changelog
-   :members:
-   :undoc-members:
-   :show-inheritance:

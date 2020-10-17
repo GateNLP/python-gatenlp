@@ -1,0 +1,4194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>gatenlp.annotation_set API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.annotation_set</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
+from collections import defaultdict
+import copy
+from gatenlp.annotation import Annotation
+from gatenlp.impl import SortedIntvls
+from gatenlp._utils import support_annotation_or_set
+from collections.abc import Iterable
+
+
+class InvalidOffsetError(KeyError):
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    pass
+
+
+class AnnotationSet:
+    def __init__(self, name: str = &#34;&#34;, owner_doc: &#34;Document&#34; = None):
+        &#34;&#34;&#34;Create a new annotation set.
+
+        Args:
+          name: the name of the annotation set. This is only really needed if the changelog is used.
+          changelog: if a changelog is used, then all changes to the set and its annotations are logged
+          owner_doc: if this is set, the set and all sets created from it can be queried for the
+        owning document and offsets get checked against the text of the owning document, if it has
+        text.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # print(&#34;CREATING annotation set {} with changelog {} &#34;.format(name, changelog), file=sys.stderr)
+        self._name = name
+        self._owner_doc = owner_doc
+
+        # NOTE: the index is only created when we actually need it!
+        # TODO: python 3.5
+        # self._index_by_offset: SortedIntvls = None
+        self._index_by_offset = None
+        self._index_by_type = None
+        # internally we represent the annotations as a map from annotation id (int) to Annotation
+        self._annotations = {}
+        self._is_immutable = False
+        self._next_annid = 0
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;Get the name of the annotation set. NOTE: the name of a set cannot be changed.
+        
+        :return: name of annotation set
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self._name
+
+    @property
+    def changelog(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        if self._owner_doc is None:
+            return None
+        return self._owner_doc.changelog
+
+    def __setattr__(self, key, value):
+        &#34;&#34;&#34;
+        Prevent immutable fields from getting overridden, once they have been
+        set.
+
+        :param key: attribute to set
+        :param value: value to set attribute to
+        :return:
+        &#34;&#34;&#34;
+        if key == &#34;name&#34; or key == &#34;owner_doc&#34;:
+            if self.__dict__.get(key, None) is None:
+                super().__setattr__(key, value)
+            else:
+                raise Exception(&#34;AnnotationSet attribute cannot get changed after being set&#34;)
+        else:
+            super().__setattr__(key, value)
+
+    def detach(self, restrict_to=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Create an immutable copy of this set, optionally restricted to the given annotation ids.
+
+        Args:
+          restrict_to: an iterable of annotation ids, if None, all the annotations from this set. (Default value = None)
+
+        Returns:
+          an immutable annotation set with all the annotations of this set or restricted to the ids
+          in restrict_to
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset._is_immutable = True
+        if restrict_to is None:
+            annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+        else:
+            annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+        annset._next_annid = self._next_annid
+        return annset
+
+    def detach_from(self, anns: Iterable) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Create an immutable detached annotation set from the annotations in anns which could by
+        either a collection of annotations or annotation ids (int numbers) which are assumed to
+        be the annotation ids from this set.
+        
+        The next annotation id for the created set is the highest seen annotation id from anns plus one.
+
+        Args:
+          anns: an iterable of annotations
+          anns: Iterable: 
+
+        Returns:
+          an immutable annotation set with all the annotations of this set or restricted to the ids
+          in restrict_to
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset._is_immutable = True
+        annset._annotations = {}
+        nextid = -1
+        for ann in anns:
+            if isinstance(ann, int):
+                annset._annotations[ann] = self._annotations[ann]
+                annid = ann
+            else:
+                annset._annotations[id] = ann
+                annid = ann.id
+            if annid &gt; nextid:
+                nextid = annid
+        annset._next_annid = nextid + 1
+        return annset
+
+    @property
+    def immutable(self) -&gt; bool:
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: True if immutable
+
+        &#34;&#34;&#34;
+        return self._is_immutable
+
+    @immutable.setter
+    def immutable(self, val: bool) -&gt; None:
+        &#34;&#34;&#34;Set the annotationset to mutable (False) or immutable (True)
+
+        Args:
+          val: boolean, True to set to immutable, False, otherwise.
+          val: bool: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._is_immutable = val
+
+    def isdetached(self) -&gt; bool:
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return self._owner_doc is None
+
+    def _create_index_by_offset(self) -&gt; None:
+        &#34;&#34;&#34;Generates the offset index, if it does not already exist.
+        The offset index is an interval tree that stores the annotation ids for the offset interval of the annotation.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_offset is None:
+            self._index_by_offset = SortedIntvls()
+            for ann in self._annotations.values():
+                self._index_by_offset.add(ann.start, ann.end, ann.id)
+
+    def _create_index_by_type(self) -&gt; None:
+        &#34;&#34;&#34;Generates the type index, if it does not already exist. The type index is a map from
+        annotation type to a set of all annotation ids with that type.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_type is None:
+            self._index_by_type = defaultdict(set)
+            for ann in self._annotations.values():
+                self._index_by_type[ann.type].add(ann.id)
+
+    def _add_to_indices(self, annotation: Annotation) -&gt; None:
+        &#34;&#34;&#34;If we have created the indices, add the annotation to them.
+
+        Args:
+          annotation: the annotation to add to the indices.
+          annotation: Annotation: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_type is not None:
+            self._index_by_type[annotation.type].add(annotation.id)
+        if self._index_by_offset is not None:
+            self._index_by_offset.add(annotation.start, annotation.end, annotation.id)
+
+    def _remove_from_indices(self, annotation: Annotation) -&gt; None:
+        &#34;&#34;&#34;Remove an annotation from the indices.
+
+        Args:
+          annotation: the annotation to remove.
+          annotation: Annotation: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_offset is not None:
+            self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
+        if self._index_by_type is not None:
+            self._index_by_type[annotation.type].remove(annotation.id)
+
+    @staticmethod
+    def _intvs2idlist(intvs, ignore=None) -&gt; List[int]:
+        &#34;&#34;&#34;Convert an iterable of interval tuples (start, end, id) to a list of ids
+
+        Args:
+          intvs: iterable of interval tuples
+          ignore: an optional annotation id that should not get included in the result (Default value = None)
+
+        Returns:
+          list of ids
+
+        &#34;&#34;&#34;
+        if ignore is not None:
+            return [i[2] for i in intvs if i[2] != ignore]
+        else:
+            return [i[2] for i in intvs]
+
+    @staticmethod
+    def _intvs2idset(intvs, ignore=None) -&gt; Set[int]:
+        &#34;&#34;&#34;Convert an iterable of interval tuples (start, end, id) to a set of ids
+
+        Args:
+          intvs: iterable of interval tuples
+          ignore:  (Default value = None)
+
+        Returns:
+          set of ids
+
+        &#34;&#34;&#34;
+        ret = set()
+        if ignore is not None:
+            for i in intvs:
+                if i[2] != ignore:
+                    ret.add(i[2])
+        else:
+            for i in intvs:
+                ret.add(i[2])
+        return ret
+
+    def _restrict_intvs(self, intvs, ignore=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;
+
+        Args:
+          intvs: 
+          ignore:  (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self.detach(restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore))
+
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return number of annotations in the set.
+
+        :return: number of annotations
+        &#34;&#34;&#34;
+        return len(self._annotations)
+
+    @property
+    def size(self) -&gt; int:
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: number of annotations
+
+        &#34;&#34;&#34;
+        return len(self._annotations)
+
+    @property
+    def document(self) -&gt; Union[&#34;Document&#34;, None]:
+        &#34;&#34;&#34;Get the owning document, if known. If the owning document was not set, return None.
+        
+        :return: the document this annotation set belongs to or None if unknown.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self._owner_doc
+
+    @support_annotation_or_set
+    def _check_offsets(self, start: int, end: int, annid=None) -&gt; None:
+        &#34;&#34;&#34;Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
+        document and if the owning document has text.
+
+        Args:
+          start: int: 
+          end: int: 
+          annid:  (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._owner_doc is None:
+            return
+        if self._owner_doc.text is None:
+            return
+        doc_size = len(self._owner_doc)
+
+        if start &lt; 0:
+            raise InvalidOffsetError(&#34;Annotation starts before 0&#34;)
+        if end &lt; 0:
+            raise InvalidOffsetError(&#34;Annotation ends before 0&#34;)
+        if start &gt; end:
+            raise InvalidOffsetError(&#34;Annotation ends before it starts&#34;)
+        if start &gt; doc_size:
+            raise InvalidOffsetError(
+                &#34;Annotation starts after document ends: start={}, docsize={}&#34;.format(start, doc_size))
+        if end &gt; doc_size:
+            raise InvalidOffsetError(
+                &#34;Annotation ends after document ends: end={}, docsize={}&#34;.format(end, doc_size))
+
+    @property
+    def start(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          This needs the index and creates it if necessary.
+          
+          Throws an exception if there are no annotations in the set.
+          
+          :return: smallest annotation offset
+
+        &#34;&#34;&#34;
+        if self.size == 0:
+            raise Exception(&#34;Annotation set is empty, cannot determine start offset&#34;)
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start()
+
+    @property
+    def end(self):
+        &#34;&#34;&#34;Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+        This needs the index and creates it if necessary.
+        
+        :return: largest end offset
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self.size == 0:
+            raise Exception(&#34;Annotation set is empty, cannot determine end offset&#34;)
+        self._create_index_by_offset()
+        return self._index_by_offset.max_end()
+
+    @property
+    def length(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          This needs the index and creates it if necessary.
+          
+          :return: length of the annotation set span
+
+        &#34;&#34;&#34;
+        return self.end() - self.start()
+
+    def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+        &#34;&#34;&#34;Add an annotation to the set. Once an annotation has been added, the start and end offsets,
+        the type, and the annotation id are immutable.
+
+        Args:
+          start: start offset
+          end: end offset
+          anntype: the annotation type
+          features: a map, an iterable of tuples or an existing feature map. In any case, the features are used
+        to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+        annotation does not store any map at all.
+          annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+        normally left unspecified and get assigned automatically.
+          start: int: 
+          end: int: 
+          anntype: str: 
+          features: Dict[str: 
+          Any]:  (Default value = None)
+          annid: int:  (Default value = None)
+
+        Returns:
+          the new annotation
+
+        &#34;&#34;&#34;
+        if annid is not None and not isinstance(annid, int):
+            raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
+        if features is not None and isinstance(features, int):
+            raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+        if self._is_immutable:
+            raise Exception(&#34;Cannot add an annotation to an immutable annotation set&#34;)
+        self._check_offsets(start, end)
+        if annid and annid in self._annotations:
+            raise Exception(&#34;Cannot add annotation with id {}, already in set&#34;.format(annid))
+        if annid is None:
+            annid = self._next_annid
+            self._next_annid = self._next_annid + 1
+        ann = Annotation(start, end, anntype, features=features, annid=annid)
+        ann._owner_set = self
+        if not self._annotations:
+            self._annotations = {}
+        self._annotations[annid] = ann
+        self._add_to_indices(ann)
+        if self.changelog is not None:
+            entry = {
+                    &#34;command&#34;: &#34;annotation:add&#34;,
+                    &#34;set&#34;: self.name,
+                    &#34;start&#34;: ann.start,
+                    &#34;end&#34;: ann.end,
+                    &#34;type&#34;: ann.type,
+                    &#34;features&#34;: ann._features.to_dict(),
+                    &#34;id&#34;: ann.id
+                }
+            self.changelog.append(entry)
+        return ann
+
+    def add_ann(self, ann, annid: int = None):
+        &#34;&#34;&#34;Add a copy of the given ann to the annotation set, either with a new annotation id or
+        with the one given.
+
+        Args:
+          annid: the annotation id, if not specified the next free one for this set is used.
+        NOTE: the id should normally left unspecified and get assigned automatically.
+          ann: 
+          annid: int:  (Default value = None)
+
+        Returns:
+          the annotation id of the added annotation
+
+        &#34;&#34;&#34;
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def remove(self, annotation: Union[int, Annotation]) -&gt; None:
+        &#34;&#34;&#34;Remove the given annotation which is either the id or the annotation instance.
+
+        Args:
+          annotation: either the id (int) or the annotation instance (Annotation)
+          annotation: Union[int: 
+          Annotation]: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        annid = None  # make pycharm happy
+        if self._is_immutable:
+            raise Exception(&#34;Cannot remove an annotation from an immutable annotation set&#34;)
+        if isinstance(annotation, int):
+            annid = annotation
+            if annid not in self._annotations:
+                raise Exception(&#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(annid))
+            annotation = self._annotations[annid]
+        elif isinstance(annotation, Annotation):
+            annid = annotation.id
+            if annid not in self._annotations:
+                raise Exception(&#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(annid))
+        # NOTE: once the annotation has been removed from the set, it could still be referenced
+        # somewhere else and its features could get modified. In order to prevent logging of such changes,
+        # the owning set gets cleared for the annotation
+        annotation._owner_set = None
+        del self._annotations[annid]
+        if self.changelog is not None:
+            self.changelog.append({
+                &#34;command&#34;: &#34;annotation:remove&#34;,
+                &#34;set&#34;: self.name,
+                &#34;id&#34;: annid})
+        self._remove_from_indices(annotation)
+
+    def clear(self) -&gt; None:
+        &#34;&#34;&#34;Remove all annotations from the set.
+        
+        :return:
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._annotations.clear()
+        self._index_by_offset = None
+        self._index_by_type = None
+        if self.changelog is not None:
+            self.changelog.append({
+                &#34;command&#34;: &#34;annotations:clear&#34;,
+                &#34;set&#34;: self.name})
+
+    def clone_anns(self, memo=None):
+        &#34;&#34;&#34;Replace the annotations in this set with copies of the originals. If this is a detached set,
+        then this makes sure that any modifications to the annotations do not affect the original annotations
+        in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
+        the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
+
+        Args:
+          memo: for internal use by our __deepcopy__ implementation. (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        tmpdict = {}
+        for annid, ann in self._annotations.items():
+            newann = copy.deepcopy(ann, memo=memo)
+            ann._owner_set = None
+            tmpdict[annid] = newann
+        for annid, ann in tmpdict.items():
+            self._annotations[annid] = ann
+
+    def __copy__(self):
+        &#34;&#34;&#34;
+        NOTE: creating a copy always creates a detached set, but a mutable one.
+        :return:
+        &#34;&#34;&#34;
+        c = self.detach()
+        c._is_immutable = False
+        return c
+
+    def copy(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return self.__copy__()
+
+    def __deepcopy__(self, memo=None):
+        if memo is None:
+            memo = {}
+        c = self.detach()
+        c._is_immutable = False
+        c.clone_anns(memo=memo)
+        return c
+
+    def deepcopy(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return copy.deepcopy(self)
+
+    def __iter__(self) -&gt; Iterator:
+        &#34;&#34;&#34;
+        Iterator for going through all the annotations of the set.
+
+        Important: using the iterator will always create the index if it is not already there!
+        For fast iteration use fast_iter() which does not allow sorting or offset ranges.
+
+        :return: a generator for the annotations in document order
+        &#34;&#34;&#34;
+        # return iter(self._annotations.values())
+        return self.iter()
+
+    def fast_iter(self) -&gt; Generator:
+        &#34;&#34;&#34;Returns a generator for fast iteration over all annotations in arbitrary order.
+        
+        :return:
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._annotations:
+            for annid, ann in self._annotations.items():
+                yield ann
+
+    def iter(self,
+             start_ge: Union[int, None] = None,
+             start_lt: Union[None, int] = None,
+             with_type: str = None,
+             reverse: bool = False) -&gt; Generator:
+        &#34;&#34;&#34;Returns a generator for going through annotations in document order, otionally limited
+        by the other parameters. If two annoations start at the same offset, they are always
+        ordered by increasing annotation id.
+
+        Args:
+          annotations: an iterable of annotations from this annotation set.
+          start_ge: the offset from where to start including annotations
+          start_lt: the last offset to use as the starting offset of an annotation
+          with_type: only annotations of this type
+          reverse: process in reverse document order
+          start_ge: Union[int: 
+          None]:  (Default value = None)
+          start_lt: Union[None: 
+          int]:  (Default value = None)
+          with_type: str:  (Default value = None)
+          reverse: bool:  (Default value = False)
+
+        Returns:
+          generator for annotations in document order
+
+        &#34;&#34;&#34;
+
+        if with_type is not None:
+            allowedtypes = set()
+            if isinstance(type, str):
+                allowedtypes.add(with_type)
+            else:
+                for atype in with_type:
+                    allowedtypes.add(atype)
+        else:
+            allowedtypes = None
+        if not self._annotations:
+            return
+        maxoff = None
+        if start_ge is not None:
+            assert start_ge &gt;= 0
+        if start_lt is not None:
+            assert start_lt &gt;= 1
+            maxoff = start_lt + 1
+        if start_lt is not None and start_ge is not None:
+            assert start_lt &gt; start_ge
+        self._create_index_by_offset()
+        for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
+            if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+                continue
+            yield self._annotations[annid]
+
+    def reverse_iter(self, **kwargs):
+        &#34;&#34;&#34;Same as iter, but with the reverse parameter set to true.
+
+        Args:
+          kwargs: Same as for iter(), with revers=True fixed.
+          **kwargs: 
+
+        Returns:
+          same result as iter()
+
+        &#34;&#34;&#34;
+        return self.iter(reverse=True, **kwargs)
+
+    def get(self, annid: Union[int, Annotation], default=None) -&gt; Union[Annotation, None]:
+        &#34;&#34;&#34;Gets the annotation with the given annotation id or returns the given default.
+        
+        NOTE: for handling cases where legacy code still expects the add method to return
+        an id and not the annotation, this will accept an annotation so the the frequent
+        pattern still works:
+        
+           annid = annset.add(b,e,t).id
+           ann = annset.get(annid)
+        
+        If an annotation is passed the annotation from the set with the id of that annotation is
+        returned, if the annotation is from that set, this will return the same object, if it is
+        still in the set (or return the default value).
+
+        Args:
+          annid: the annotation id of the annotation to retrieve.
+          default: what to return if an annotation with the given id is not found. (Default value = None)
+          annid: Union[int: 
+          Annotation]: 
+
+        Returns:
+          the annotation or the default value.
+
+        &#34;&#34;&#34;
+        if isinstance(annid, Annotation):
+            annid = annid.id
+        return self._annotations.get(annid, default)
+
+    def first(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: first annotation
+
+        &#34;&#34;&#34;
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception(&#34;Empty set, there is no first annotation&#34;)
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=False))
+        return self._annotations[annid]
+
+    def last(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: first annotation
+
+        &#34;&#34;&#34;
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception(&#34;Empty set, there is no last annotation&#34;)
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=True))
+        return self._annotations[annid]
+
+    def __getitem__(self, annid):
+        &#34;&#34;&#34;
+        Gets the annotation with the given annotation id or throws an exception.
+
+        :param item: the annotation id
+        :return: annotation
+        &#34;&#34;&#34;
+        return self._annotations[annid]
+
+    def with_type(self, *anntype: Union[str, Iterable],
+                  non_overlapping: bool = False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations of the specified type(s).
+        Creates the type index if necessary.
+
+        Args:
+          anntype: one or more types or type lists. The union of all types specified that way
+        is used to filter the annotations. If no type is specified, all annotations are selected.
+          non_overlapping: if True, only return annotations of any of the given types which
+        do not overlap with other annotations. If there are several annotations that start at
+        the same offset, use the type that comes first in the parameters, if there are more
+        than one of that type, use the one that would come first in the usual sort order.
+          *anntype: Union[str: 
+          Iterable]: 
+          non_overlapping: bool:  (Default value = False)
+
+        Returns:
+          an immutable annotation set with the matching annotations.
+
+        &#34;&#34;&#34;
+        atypes = []
+        for atype in anntype:
+            if isinstance(atype, str):
+                atypes.append(atype)
+            else:
+                for t in atype:
+                    atypes.append(t)
+        if not atypes:
+            return self.detach()
+        self._create_index_by_type()
+        annids = set()
+        for t in atypes:
+            idxs = self._index_by_type.get(t)
+            if idxs:
+                annids.update(idxs)
+        if non_overlapping:
+            # need to get annotations grouped by start offset and sorted according to
+            # what the Annotation class defines
+            allanns = sorted(annids, key=lambda x: self._annotations[x])
+            allanns = [self._annotations[x] for x in allanns]
+            allannsgrouped = []
+            curstart = None
+            curset = None
+            for ann in allanns:
+                if curstart is None:
+                    curset = [ann]
+                    curstart = ann.start
+                elif curstart == ann.start:
+                    curset.append(ann)
+                else:
+                    allannsgrouped.append(curset)
+                    curset = [ann]
+                    curstart = ann.start
+            if curset:
+                allannsgrouped.append(curset)
+            retanns = []
+            # now go through all the grouped annoations and select the top priority one
+            # then skip to the next group that does not overlap with the one we just selected
+            typepriority = dict()
+            for i, atype in enumerate(atypes):
+                typepriority[atype] = len(atypes)-i
+            curminoffset = 0
+            for group in allannsgrouped:
+                # instead of sorting, go through the group and find the top priority one
+                topann = None
+                if len(group) == 1:
+                    if group[0].start &gt;= curminoffset:
+                        topann = group[0]
+                elif len(group) == 0:
+                    raise Exception(&#34;We should never get a 0 size group here!&#34;)
+                else:
+                    for i, ann in enumerate(group):
+                        if ann.start &gt;= curminoffset:
+                            topann = ann
+                            break
+                    for ann in group[i+1:]:
+                        if ann.start &lt; curminoffset:
+                            continue
+                        if typepriority[ann.type] &gt; typepriority[topann.type]:
+                            topann = ann
+                        elif typepriority[ann.type] == typepriority[topann.type]:
+                            if ann.end &gt; topann.end:
+                                topann = ann
+                            elif ann.end == topann.end:
+                                if ann.id &gt; topann.id:
+                                    topann = ann
+                if topann is not None:
+                    retanns.append(topann)
+                    curminoffset = topann.end
+            annids = [ann.id for ann in retanns]
+        return self.detach(restrict_to=annids)
+
+    def by_offset(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          annotations that start at the same offset, sorted in their natural order.
+          
+          NOTE: creates the index!
+          
+          :return: a generator for lists of annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        lastoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastoff:
+                if lastoff != -1:
+                    yield curlist
+                lastoff = ann.start
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastoff != -1:
+            yield curlist
+
+    def by_span(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          annotations with identical spans.
+          
+          NOTE: creates the index!
+          
+          :return: a generator for lists of annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        lastsoff = -1
+        lasteoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastsoff or ann.end != lasteoff:
+                if lastsoff != -1:
+                    yield curlist
+                lastsoff = ann.start
+                lasteoff = ann.end
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastsoff != -1:
+            yield curlist
+
+    @property
+    def type_names(self) -&gt; KeysView[str]:
+        &#34;&#34;&#34;Gets the names of all types in this set. Creates the type index if necessary.
+        
+        :return: the set of known annotation type names.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._create_index_by_type()
+        return self._index_by_type.keys()
+
+    @support_annotation_or_set
+    def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
+        annotation set.
+
+        Args:
+          start: the offset where annotations should start
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          start: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          annotation set of matching annotations
+
+        &#34;&#34;&#34;
+        # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
+        # point query
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(start)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets all annotations starting at the first possible offset
+        at or after the given offset and returns them in an immutable
+        annotation set.
+
+        Args:
+          offset: The offset
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          offset: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          annotation set of matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(offset)
+        # now select only those first ones which all have the same offset
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        retids = set()
+        startoff = None
+        for intv in intvs:
+            if startoff is None:
+                startoff = intv[0]
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
+            elif startoff == intv[0]:
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
+            else:
+                break
+        return self.detach(restrict_to=retids)
+
+    @support_annotation_or_set
+    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return the annotations that start at or after the given start offset.
+
+        Args:
+          start: Start offset
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          start: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          an immutable annotation set of the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(start)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def start_lt(self, offset: int, ignored: Any = None, annid=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return the annotations that start before the given offset (or annotation). This also accepts an annotation
+        or set.
+
+        Args:
+          offset: offset before which the annotations should start
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          offset: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+
+        Returns:
+          an immutable annotation set of the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_before(offset)
+        return self._restrict_intvs(intvs)
+
+
+    @support_annotation_or_set
+    def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations overlapping with the given span. Instead of the start and end offsets,
+        also accepts an annotation or annotation set.
+        
+        For each annotation ann in the result set, ann.overlapping(span) is True
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.overlapping(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def covering(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Get the annotations which contain the given offset range (or annotation/annotation set),
+        i.e. annotations such that the given offset range is within the annotation.
+        
+        For each annotation ann in the result set, ann.covering(span) is True.
+
+        Args:
+          start: the start offset of the span
+          end: the end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations, if any
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.covering(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations that fall completely within the given offset range, i.e. annotations
+        such that the offset range is covering each of the annotation.
+        
+        For each annotation ann in the result set, ann.within(span) is True.
+
+        Args:
+          start: start offset of the range
+          end: end offset of the range
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations
+
+        &#34;&#34;&#34;
+        if start == end:
+            intvs = []
+        elif start &gt; end:
+            raise Exception(&#34;Invalid offset range: {},{}&#34;.format(start, end))
+        else:
+            self._create_index_by_offset()
+            intvs = self._index_by_offset.within(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return an immutable annotation set with all annotations that start and end at the given offsets.
+        
+        For each annotation ann in the result set, ann.coextensive(span) is True.
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          annotation set with all annotations that have the same start and end offsets.
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.at(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @property
+    def span(self) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34;Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+        and the largest end offset of any annotation.
+        (Builds the offset index)
+        
+        :return: tuple of minimum start offset and maximum end offset
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start(), self._index_by_offset.max_end()
+
+    def __contains__(self, annorannid: Union[int, Annotation]) -&gt; bool:
+        &#34;&#34;&#34;
+        Provides &#39;annotation in annotation_set&#39; functionality
+
+        :param annorannid: the annotation instance or annotation id to check
+        :return: true if the annotation exists in the set, false otherwise
+        &#34;&#34;&#34;
+        if isinstance(annorannid, Annotation):
+            return annorannid.id in self._annotations
+        return annorannid in self._annotations  # On the off chance someone passed an ID in directly
+
+    contains = __contains__
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;
+        String representation of the set.
+
+        :return: string representation.
+        &#34;&#34;&#34;
+        return &#34;AnnotationSet({})&#34;.format(repr(list(self.iter())))
+
+    def to_dict(self, **kwargs):
+        &#34;&#34;&#34;
+
+        Args:
+          **kwargs: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return {
+            # NOTE: Changelog is not getting added as it is stored in the document part!
+            &#34;name&#34;: self.name,
+            &#34;annotations&#34;: list(val.to_dict(**kwargs)
+                                for val in self._annotations.values()),
+            &#34;next_annid&#34;: self._next_annid,
+        }
+
+    @staticmethod
+    def from_dict(dictrepr, owner_doc=None, **kwargs):
+        &#34;&#34;&#34;
+
+        Args:
+          dictrepr: 
+          owner_doc:  (Default value = None)
+          **kwargs: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(dictrepr.get(&#34;name&#34;), owner_doc=owner_doc)
+        annset._next_annid = dictrepr.get(&#34;next_annid&#34;)
+        if dictrepr.get(&#34;annotations&#34;):
+            annset._annotations = dict(
+                (int(a[&#34;id&#34;]), Annotation.from_dict(a, owner_set=annset, **kwargs))
+                for a in dictrepr.get(&#34;annotations&#34;))
+        else:
+            annset._annotations = {}
+        return annset</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.annotation_set.AnnotationSet"><code class="flex name class">
+<span>class <span class="ident">AnnotationSet</span></span>
+<span>(</span><span>name: str = '', owner_doc: Document = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new annotation set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of the annotation set. This is only really needed if the changelog is used.</dd>
+<dt><strong><code>changelog</code></strong></dt>
+<dd>if a changelog is used, then all changes to the set and its annotations are logged</dd>
+<dt><strong><code>owner_doc</code></strong></dt>
+<dd>if this is set, the set and all sets created from it can be queried for the</dd>
+</dl>
+<p>owning document and offsets get checked against the text of the owning document, if it has
+text.</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnnotationSet:
+    def __init__(self, name: str = &#34;&#34;, owner_doc: &#34;Document&#34; = None):
+        &#34;&#34;&#34;Create a new annotation set.
+
+        Args:
+          name: the name of the annotation set. This is only really needed if the changelog is used.
+          changelog: if a changelog is used, then all changes to the set and its annotations are logged
+          owner_doc: if this is set, the set and all sets created from it can be queried for the
+        owning document and offsets get checked against the text of the owning document, if it has
+        text.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # print(&#34;CREATING annotation set {} with changelog {} &#34;.format(name, changelog), file=sys.stderr)
+        self._name = name
+        self._owner_doc = owner_doc
+
+        # NOTE: the index is only created when we actually need it!
+        # TODO: python 3.5
+        # self._index_by_offset: SortedIntvls = None
+        self._index_by_offset = None
+        self._index_by_type = None
+        # internally we represent the annotations as a map from annotation id (int) to Annotation
+        self._annotations = {}
+        self._is_immutable = False
+        self._next_annid = 0
+
+    @property
+    def name(self):
+        &#34;&#34;&#34;Get the name of the annotation set. NOTE: the name of a set cannot be changed.
+        
+        :return: name of annotation set
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self._name
+
+    @property
+    def changelog(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        if self._owner_doc is None:
+            return None
+        return self._owner_doc.changelog
+
+    def __setattr__(self, key, value):
+        &#34;&#34;&#34;
+        Prevent immutable fields from getting overridden, once they have been
+        set.
+
+        :param key: attribute to set
+        :param value: value to set attribute to
+        :return:
+        &#34;&#34;&#34;
+        if key == &#34;name&#34; or key == &#34;owner_doc&#34;:
+            if self.__dict__.get(key, None) is None:
+                super().__setattr__(key, value)
+            else:
+                raise Exception(&#34;AnnotationSet attribute cannot get changed after being set&#34;)
+        else:
+            super().__setattr__(key, value)
+
+    def detach(self, restrict_to=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Create an immutable copy of this set, optionally restricted to the given annotation ids.
+
+        Args:
+          restrict_to: an iterable of annotation ids, if None, all the annotations from this set. (Default value = None)
+
+        Returns:
+          an immutable annotation set with all the annotations of this set or restricted to the ids
+          in restrict_to
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset._is_immutable = True
+        if restrict_to is None:
+            annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+        else:
+            annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+        annset._next_annid = self._next_annid
+        return annset
+
+    def detach_from(self, anns: Iterable) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Create an immutable detached annotation set from the annotations in anns which could by
+        either a collection of annotations or annotation ids (int numbers) which are assumed to
+        be the annotation ids from this set.
+        
+        The next annotation id for the created set is the highest seen annotation id from anns plus one.
+
+        Args:
+          anns: an iterable of annotations
+          anns: Iterable: 
+
+        Returns:
+          an immutable annotation set with all the annotations of this set or restricted to the ids
+          in restrict_to
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset._is_immutable = True
+        annset._annotations = {}
+        nextid = -1
+        for ann in anns:
+            if isinstance(ann, int):
+                annset._annotations[ann] = self._annotations[ann]
+                annid = ann
+            else:
+                annset._annotations[id] = ann
+                annid = ann.id
+            if annid &gt; nextid:
+                nextid = annid
+        annset._next_annid = nextid + 1
+        return annset
+
+    @property
+    def immutable(self) -&gt; bool:
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: True if immutable
+
+        &#34;&#34;&#34;
+        return self._is_immutable
+
+    @immutable.setter
+    def immutable(self, val: bool) -&gt; None:
+        &#34;&#34;&#34;Set the annotationset to mutable (False) or immutable (True)
+
+        Args:
+          val: boolean, True to set to immutable, False, otherwise.
+          val: bool: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._is_immutable = val
+
+    def isdetached(self) -&gt; bool:
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return self._owner_doc is None
+
+    def _create_index_by_offset(self) -&gt; None:
+        &#34;&#34;&#34;Generates the offset index, if it does not already exist.
+        The offset index is an interval tree that stores the annotation ids for the offset interval of the annotation.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_offset is None:
+            self._index_by_offset = SortedIntvls()
+            for ann in self._annotations.values():
+                self._index_by_offset.add(ann.start, ann.end, ann.id)
+
+    def _create_index_by_type(self) -&gt; None:
+        &#34;&#34;&#34;Generates the type index, if it does not already exist. The type index is a map from
+        annotation type to a set of all annotation ids with that type.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_type is None:
+            self._index_by_type = defaultdict(set)
+            for ann in self._annotations.values():
+                self._index_by_type[ann.type].add(ann.id)
+
+    def _add_to_indices(self, annotation: Annotation) -&gt; None:
+        &#34;&#34;&#34;If we have created the indices, add the annotation to them.
+
+        Args:
+          annotation: the annotation to add to the indices.
+          annotation: Annotation: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_type is not None:
+            self._index_by_type[annotation.type].add(annotation.id)
+        if self._index_by_offset is not None:
+            self._index_by_offset.add(annotation.start, annotation.end, annotation.id)
+
+    def _remove_from_indices(self, annotation: Annotation) -&gt; None:
+        &#34;&#34;&#34;Remove an annotation from the indices.
+
+        Args:
+          annotation: the annotation to remove.
+          annotation: Annotation: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._index_by_offset is not None:
+            self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
+        if self._index_by_type is not None:
+            self._index_by_type[annotation.type].remove(annotation.id)
+
+    @staticmethod
+    def _intvs2idlist(intvs, ignore=None) -&gt; List[int]:
+        &#34;&#34;&#34;Convert an iterable of interval tuples (start, end, id) to a list of ids
+
+        Args:
+          intvs: iterable of interval tuples
+          ignore: an optional annotation id that should not get included in the result (Default value = None)
+
+        Returns:
+          list of ids
+
+        &#34;&#34;&#34;
+        if ignore is not None:
+            return [i[2] for i in intvs if i[2] != ignore]
+        else:
+            return [i[2] for i in intvs]
+
+    @staticmethod
+    def _intvs2idset(intvs, ignore=None) -&gt; Set[int]:
+        &#34;&#34;&#34;Convert an iterable of interval tuples (start, end, id) to a set of ids
+
+        Args:
+          intvs: iterable of interval tuples
+          ignore:  (Default value = None)
+
+        Returns:
+          set of ids
+
+        &#34;&#34;&#34;
+        ret = set()
+        if ignore is not None:
+            for i in intvs:
+                if i[2] != ignore:
+                    ret.add(i[2])
+        else:
+            for i in intvs:
+                ret.add(i[2])
+        return ret
+
+    def _restrict_intvs(self, intvs, ignore=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;
+
+        Args:
+          intvs: 
+          ignore:  (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self.detach(restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore))
+
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return number of annotations in the set.
+
+        :return: number of annotations
+        &#34;&#34;&#34;
+        return len(self._annotations)
+
+    @property
+    def size(self) -&gt; int:
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: number of annotations
+
+        &#34;&#34;&#34;
+        return len(self._annotations)
+
+    @property
+    def document(self) -&gt; Union[&#34;Document&#34;, None]:
+        &#34;&#34;&#34;Get the owning document, if known. If the owning document was not set, return None.
+        
+        :return: the document this annotation set belongs to or None if unknown.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return self._owner_doc
+
+    @support_annotation_or_set
+    def _check_offsets(self, start: int, end: int, annid=None) -&gt; None:
+        &#34;&#34;&#34;Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
+        document and if the owning document has text.
+
+        Args:
+          start: int: 
+          end: int: 
+          annid:  (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._owner_doc is None:
+            return
+        if self._owner_doc.text is None:
+            return
+        doc_size = len(self._owner_doc)
+
+        if start &lt; 0:
+            raise InvalidOffsetError(&#34;Annotation starts before 0&#34;)
+        if end &lt; 0:
+            raise InvalidOffsetError(&#34;Annotation ends before 0&#34;)
+        if start &gt; end:
+            raise InvalidOffsetError(&#34;Annotation ends before it starts&#34;)
+        if start &gt; doc_size:
+            raise InvalidOffsetError(
+                &#34;Annotation starts after document ends: start={}, docsize={}&#34;.format(start, doc_size))
+        if end &gt; doc_size:
+            raise InvalidOffsetError(
+                &#34;Annotation ends after document ends: end={}, docsize={}&#34;.format(end, doc_size))
+
+    @property
+    def start(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          This needs the index and creates it if necessary.
+          
+          Throws an exception if there are no annotations in the set.
+          
+          :return: smallest annotation offset
+
+        &#34;&#34;&#34;
+        if self.size == 0:
+            raise Exception(&#34;Annotation set is empty, cannot determine start offset&#34;)
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start()
+
+    @property
+    def end(self):
+        &#34;&#34;&#34;Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+        This needs the index and creates it if necessary.
+        
+        :return: largest end offset
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self.size == 0:
+            raise Exception(&#34;Annotation set is empty, cannot determine end offset&#34;)
+        self._create_index_by_offset()
+        return self._index_by_offset.max_end()
+
+    @property
+    def length(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          This needs the index and creates it if necessary.
+          
+          :return: length of the annotation set span
+
+        &#34;&#34;&#34;
+        return self.end() - self.start()
+
+    def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+        &#34;&#34;&#34;Add an annotation to the set. Once an annotation has been added, the start and end offsets,
+        the type, and the annotation id are immutable.
+
+        Args:
+          start: start offset
+          end: end offset
+          anntype: the annotation type
+          features: a map, an iterable of tuples or an existing feature map. In any case, the features are used
+        to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+        annotation does not store any map at all.
+          annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+        normally left unspecified and get assigned automatically.
+          start: int: 
+          end: int: 
+          anntype: str: 
+          features: Dict[str: 
+          Any]:  (Default value = None)
+          annid: int:  (Default value = None)
+
+        Returns:
+          the new annotation
+
+        &#34;&#34;&#34;
+        if annid is not None and not isinstance(annid, int):
+            raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
+        if features is not None and isinstance(features, int):
+            raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+        if self._is_immutable:
+            raise Exception(&#34;Cannot add an annotation to an immutable annotation set&#34;)
+        self._check_offsets(start, end)
+        if annid and annid in self._annotations:
+            raise Exception(&#34;Cannot add annotation with id {}, already in set&#34;.format(annid))
+        if annid is None:
+            annid = self._next_annid
+            self._next_annid = self._next_annid + 1
+        ann = Annotation(start, end, anntype, features=features, annid=annid)
+        ann._owner_set = self
+        if not self._annotations:
+            self._annotations = {}
+        self._annotations[annid] = ann
+        self._add_to_indices(ann)
+        if self.changelog is not None:
+            entry = {
+                    &#34;command&#34;: &#34;annotation:add&#34;,
+                    &#34;set&#34;: self.name,
+                    &#34;start&#34;: ann.start,
+                    &#34;end&#34;: ann.end,
+                    &#34;type&#34;: ann.type,
+                    &#34;features&#34;: ann._features.to_dict(),
+                    &#34;id&#34;: ann.id
+                }
+            self.changelog.append(entry)
+        return ann
+
+    def add_ann(self, ann, annid: int = None):
+        &#34;&#34;&#34;Add a copy of the given ann to the annotation set, either with a new annotation id or
+        with the one given.
+
+        Args:
+          annid: the annotation id, if not specified the next free one for this set is used.
+        NOTE: the id should normally left unspecified and get assigned automatically.
+          ann: 
+          annid: int:  (Default value = None)
+
+        Returns:
+          the annotation id of the added annotation
+
+        &#34;&#34;&#34;
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def remove(self, annotation: Union[int, Annotation]) -&gt; None:
+        &#34;&#34;&#34;Remove the given annotation which is either the id or the annotation instance.
+
+        Args:
+          annotation: either the id (int) or the annotation instance (Annotation)
+          annotation: Union[int: 
+          Annotation]: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        annid = None  # make pycharm happy
+        if self._is_immutable:
+            raise Exception(&#34;Cannot remove an annotation from an immutable annotation set&#34;)
+        if isinstance(annotation, int):
+            annid = annotation
+            if annid not in self._annotations:
+                raise Exception(&#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(annid))
+            annotation = self._annotations[annid]
+        elif isinstance(annotation, Annotation):
+            annid = annotation.id
+            if annid not in self._annotations:
+                raise Exception(&#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(annid))
+        # NOTE: once the annotation has been removed from the set, it could still be referenced
+        # somewhere else and its features could get modified. In order to prevent logging of such changes,
+        # the owning set gets cleared for the annotation
+        annotation._owner_set = None
+        del self._annotations[annid]
+        if self.changelog is not None:
+            self.changelog.append({
+                &#34;command&#34;: &#34;annotation:remove&#34;,
+                &#34;set&#34;: self.name,
+                &#34;id&#34;: annid})
+        self._remove_from_indices(annotation)
+
+    def clear(self) -&gt; None:
+        &#34;&#34;&#34;Remove all annotations from the set.
+        
+        :return:
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._annotations.clear()
+        self._index_by_offset = None
+        self._index_by_type = None
+        if self.changelog is not None:
+            self.changelog.append({
+                &#34;command&#34;: &#34;annotations:clear&#34;,
+                &#34;set&#34;: self.name})
+
+    def clone_anns(self, memo=None):
+        &#34;&#34;&#34;Replace the annotations in this set with copies of the originals. If this is a detached set,
+        then this makes sure that any modifications to the annotations do not affect the original annotations
+        in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
+        the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
+
+        Args:
+          memo: for internal use by our __deepcopy__ implementation. (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        tmpdict = {}
+        for annid, ann in self._annotations.items():
+            newann = copy.deepcopy(ann, memo=memo)
+            ann._owner_set = None
+            tmpdict[annid] = newann
+        for annid, ann in tmpdict.items():
+            self._annotations[annid] = ann
+
+    def __copy__(self):
+        &#34;&#34;&#34;
+        NOTE: creating a copy always creates a detached set, but a mutable one.
+        :return:
+        &#34;&#34;&#34;
+        c = self.detach()
+        c._is_immutable = False
+        return c
+
+    def copy(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return self.__copy__()
+
+    def __deepcopy__(self, memo=None):
+        if memo is None:
+            memo = {}
+        c = self.detach()
+        c._is_immutable = False
+        c.clone_anns(memo=memo)
+        return c
+
+    def deepcopy(self):
+        &#34;&#34;&#34; &#34;&#34;&#34;
+        return copy.deepcopy(self)
+
+    def __iter__(self) -&gt; Iterator:
+        &#34;&#34;&#34;
+        Iterator for going through all the annotations of the set.
+
+        Important: using the iterator will always create the index if it is not already there!
+        For fast iteration use fast_iter() which does not allow sorting or offset ranges.
+
+        :return: a generator for the annotations in document order
+        &#34;&#34;&#34;
+        # return iter(self._annotations.values())
+        return self.iter()
+
+    def fast_iter(self) -&gt; Generator:
+        &#34;&#34;&#34;Returns a generator for fast iteration over all annotations in arbitrary order.
+        
+        :return:
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self._annotations:
+            for annid, ann in self._annotations.items():
+                yield ann
+
+    def iter(self,
+             start_ge: Union[int, None] = None,
+             start_lt: Union[None, int] = None,
+             with_type: str = None,
+             reverse: bool = False) -&gt; Generator:
+        &#34;&#34;&#34;Returns a generator for going through annotations in document order, otionally limited
+        by the other parameters. If two annoations start at the same offset, they are always
+        ordered by increasing annotation id.
+
+        Args:
+          annotations: an iterable of annotations from this annotation set.
+          start_ge: the offset from where to start including annotations
+          start_lt: the last offset to use as the starting offset of an annotation
+          with_type: only annotations of this type
+          reverse: process in reverse document order
+          start_ge: Union[int: 
+          None]:  (Default value = None)
+          start_lt: Union[None: 
+          int]:  (Default value = None)
+          with_type: str:  (Default value = None)
+          reverse: bool:  (Default value = False)
+
+        Returns:
+          generator for annotations in document order
+
+        &#34;&#34;&#34;
+
+        if with_type is not None:
+            allowedtypes = set()
+            if isinstance(type, str):
+                allowedtypes.add(with_type)
+            else:
+                for atype in with_type:
+                    allowedtypes.add(atype)
+        else:
+            allowedtypes = None
+        if not self._annotations:
+            return
+        maxoff = None
+        if start_ge is not None:
+            assert start_ge &gt;= 0
+        if start_lt is not None:
+            assert start_lt &gt;= 1
+            maxoff = start_lt + 1
+        if start_lt is not None and start_ge is not None:
+            assert start_lt &gt; start_ge
+        self._create_index_by_offset()
+        for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
+            if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+                continue
+            yield self._annotations[annid]
+
+    def reverse_iter(self, **kwargs):
+        &#34;&#34;&#34;Same as iter, but with the reverse parameter set to true.
+
+        Args:
+          kwargs: Same as for iter(), with revers=True fixed.
+          **kwargs: 
+
+        Returns:
+          same result as iter()
+
+        &#34;&#34;&#34;
+        return self.iter(reverse=True, **kwargs)
+
+    def get(self, annid: Union[int, Annotation], default=None) -&gt; Union[Annotation, None]:
+        &#34;&#34;&#34;Gets the annotation with the given annotation id or returns the given default.
+        
+        NOTE: for handling cases where legacy code still expects the add method to return
+        an id and not the annotation, this will accept an annotation so the the frequent
+        pattern still works:
+        
+           annid = annset.add(b,e,t).id
+           ann = annset.get(annid)
+        
+        If an annotation is passed the annotation from the set with the id of that annotation is
+        returned, if the annotation is from that set, this will return the same object, if it is
+        still in the set (or return the default value).
+
+        Args:
+          annid: the annotation id of the annotation to retrieve.
+          default: what to return if an annotation with the given id is not found. (Default value = None)
+          annid: Union[int: 
+          Annotation]: 
+
+        Returns:
+          the annotation or the default value.
+
+        &#34;&#34;&#34;
+        if isinstance(annid, Annotation):
+            annid = annid.id
+        return self._annotations.get(annid, default)
+
+    def first(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: first annotation
+
+        &#34;&#34;&#34;
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception(&#34;Empty set, there is no first annotation&#34;)
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=False))
+        return self._annotations[annid]
+
+    def last(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          :return: first annotation
+
+        &#34;&#34;&#34;
+        sz = len(self._annotations)
+        if sz == 0:
+            raise Exception(&#34;Empty set, there is no last annotation&#34;)
+        elif sz == 1:
+            return next(iter(self._annotations.values()))
+        self._create_index_by_offset()
+        _, _, annid = next(self._index_by_offset.irange(reverse=True))
+        return self._annotations[annid]
+
+    def __getitem__(self, annid):
+        &#34;&#34;&#34;
+        Gets the annotation with the given annotation id or throws an exception.
+
+        :param item: the annotation id
+        :return: annotation
+        &#34;&#34;&#34;
+        return self._annotations[annid]
+
+    def with_type(self, *anntype: Union[str, Iterable],
+                  non_overlapping: bool = False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations of the specified type(s).
+        Creates the type index if necessary.
+
+        Args:
+          anntype: one or more types or type lists. The union of all types specified that way
+        is used to filter the annotations. If no type is specified, all annotations are selected.
+          non_overlapping: if True, only return annotations of any of the given types which
+        do not overlap with other annotations. If there are several annotations that start at
+        the same offset, use the type that comes first in the parameters, if there are more
+        than one of that type, use the one that would come first in the usual sort order.
+          *anntype: Union[str: 
+          Iterable]: 
+          non_overlapping: bool:  (Default value = False)
+
+        Returns:
+          an immutable annotation set with the matching annotations.
+
+        &#34;&#34;&#34;
+        atypes = []
+        for atype in anntype:
+            if isinstance(atype, str):
+                atypes.append(atype)
+            else:
+                for t in atype:
+                    atypes.append(t)
+        if not atypes:
+            return self.detach()
+        self._create_index_by_type()
+        annids = set()
+        for t in atypes:
+            idxs = self._index_by_type.get(t)
+            if idxs:
+                annids.update(idxs)
+        if non_overlapping:
+            # need to get annotations grouped by start offset and sorted according to
+            # what the Annotation class defines
+            allanns = sorted(annids, key=lambda x: self._annotations[x])
+            allanns = [self._annotations[x] for x in allanns]
+            allannsgrouped = []
+            curstart = None
+            curset = None
+            for ann in allanns:
+                if curstart is None:
+                    curset = [ann]
+                    curstart = ann.start
+                elif curstart == ann.start:
+                    curset.append(ann)
+                else:
+                    allannsgrouped.append(curset)
+                    curset = [ann]
+                    curstart = ann.start
+            if curset:
+                allannsgrouped.append(curset)
+            retanns = []
+            # now go through all the grouped annoations and select the top priority one
+            # then skip to the next group that does not overlap with the one we just selected
+            typepriority = dict()
+            for i, atype in enumerate(atypes):
+                typepriority[atype] = len(atypes)-i
+            curminoffset = 0
+            for group in allannsgrouped:
+                # instead of sorting, go through the group and find the top priority one
+                topann = None
+                if len(group) == 1:
+                    if group[0].start &gt;= curminoffset:
+                        topann = group[0]
+                elif len(group) == 0:
+                    raise Exception(&#34;We should never get a 0 size group here!&#34;)
+                else:
+                    for i, ann in enumerate(group):
+                        if ann.start &gt;= curminoffset:
+                            topann = ann
+                            break
+                    for ann in group[i+1:]:
+                        if ann.start &lt; curminoffset:
+                            continue
+                        if typepriority[ann.type] &gt; typepriority[topann.type]:
+                            topann = ann
+                        elif typepriority[ann.type] == typepriority[topann.type]:
+                            if ann.end &gt; topann.end:
+                                topann = ann
+                            elif ann.end == topann.end:
+                                if ann.id &gt; topann.id:
+                                    topann = ann
+                if topann is not None:
+                    retanns.append(topann)
+                    curminoffset = topann.end
+            annids = [ann.id for ann in retanns]
+        return self.detach(restrict_to=annids)
+
+    def by_offset(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          annotations that start at the same offset, sorted in their natural order.
+          
+          NOTE: creates the index!
+          
+          :return: a generator for lists of annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        lastoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastoff:
+                if lastoff != -1:
+                    yield curlist
+                lastoff = ann.start
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastoff != -1:
+            yield curlist
+
+    def by_span(self):
+        &#34;&#34;&#34;
+
+        Args:
+
+        Returns:
+          annotations with identical spans.
+          
+          NOTE: creates the index!
+          
+          :return: a generator for lists of annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        lastsoff = -1
+        lasteoff = -1
+        curlist = []
+        for ann in self.iter():
+            if ann.start != lastsoff or ann.end != lasteoff:
+                if lastsoff != -1:
+                    yield curlist
+                lastsoff = ann.start
+                lasteoff = ann.end
+                curlist = [ann]
+            else:
+                curlist.append(ann)
+        if lastsoff != -1:
+            yield curlist
+
+    @property
+    def type_names(self) -&gt; KeysView[str]:
+        &#34;&#34;&#34;Gets the names of all types in this set. Creates the type index if necessary.
+        
+        :return: the set of known annotation type names.
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._create_index_by_type()
+        return self._index_by_type.keys()
+
+    @support_annotation_or_set
+    def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
+        annotation set.
+
+        Args:
+          start: the offset where annotations should start
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          start: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          annotation set of matching annotations
+
+        &#34;&#34;&#34;
+        # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
+        # point query
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(start)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets all annotations starting at the first possible offset
+        at or after the given offset and returns them in an immutable
+        annotation set.
+
+        Args:
+          offset: The offset
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          offset: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          annotation set of matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(offset)
+        # now select only those first ones which all have the same offset
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        retids = set()
+        startoff = None
+        for intv in intvs:
+            if startoff is None:
+                startoff = intv[0]
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
+            elif startoff == intv[0]:
+                if ignore is not None:
+                    if ignore != intv[2]:
+                        retids.add(intv[2])
+                else:
+                    retids.add(intv[2])
+            else:
+                break
+        return self.detach(restrict_to=retids)
+
+    @support_annotation_or_set
+    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return the annotations that start at or after the given start offset.
+
+        Args:
+          start: Start offset
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          start: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+          include_self:  (Default value = False)
+
+        Returns:
+          an immutable annotation set of the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_from(start)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def start_lt(self, offset: int, ignored: Any = None, annid=None) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return the annotations that start before the given offset (or annotation). This also accepts an annotation
+        or set.
+
+        Args:
+          offset: offset before which the annotations should start
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          offset: int: 
+          ignored: Any:  (Default value = None)
+          annid:  (Default value = None)
+
+        Returns:
+          an immutable annotation set of the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.starting_before(offset)
+        return self._restrict_intvs(intvs)
+
+
+    @support_annotation_or_set
+    def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations overlapping with the given span. Instead of the start and end offsets,
+        also accepts an annotation or annotation set.
+        
+        For each annotation ann in the result set, ann.overlapping(span) is True
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.overlapping(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def covering(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Get the annotations which contain the given offset range (or annotation/annotation set),
+        i.e. annotations such that the given offset range is within the annotation.
+        
+        For each annotation ann in the result set, ann.covering(span) is True.
+
+        Args:
+          start: the start offset of the span
+          end: the end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations, if any
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.covering(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Gets annotations that fall completely within the given offset range, i.e. annotations
+        such that the offset range is covering each of the annotation.
+        
+        For each annotation ann in the result set, ann.within(span) is True.
+
+        Args:
+          start: start offset of the range
+          end: end offset of the range
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          an immutable annotation set with the matching annotations
+
+        &#34;&#34;&#34;
+        if start == end:
+            intvs = []
+        elif start &gt; end:
+            raise Exception(&#34;Invalid offset range: {},{}&#34;.format(start, end))
+        else:
+            self._create_index_by_offset()
+            intvs = self._index_by_offset.within(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @support_annotation_or_set
+    def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;Return an immutable annotation set with all annotations that start and end at the given offsets.
+        
+        For each annotation ann in the result set, ann.coextensive(span) is True.
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          annid: the annotation id of the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation id for the span is given, do not include that
+        annotation in the result set. (Default value = False)
+          start: int: 
+          end: int: 
+
+        Returns:
+          annotation set with all annotations that have the same start and end offsets.
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.at(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    @property
+    def span(self) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34;Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+        and the largest end offset of any annotation.
+        (Builds the offset index)
+        
+        :return: tuple of minimum start offset and maximum end offset
+
+        Args:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        return self._index_by_offset.min_start(), self._index_by_offset.max_end()
+
+    def __contains__(self, annorannid: Union[int, Annotation]) -&gt; bool:
+        &#34;&#34;&#34;
+        Provides &#39;annotation in annotation_set&#39; functionality
+
+        :param annorannid: the annotation instance or annotation id to check
+        :return: true if the annotation exists in the set, false otherwise
+        &#34;&#34;&#34;
+        if isinstance(annorannid, Annotation):
+            return annorannid.id in self._annotations
+        return annorannid in self._annotations  # On the off chance someone passed an ID in directly
+
+    contains = __contains__
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;
+        String representation of the set.
+
+        :return: string representation.
+        &#34;&#34;&#34;
+        return &#34;AnnotationSet({})&#34;.format(repr(list(self.iter())))
+
+    def to_dict(self, **kwargs):
+        &#34;&#34;&#34;
+
+        Args:
+          **kwargs: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        return {
+            # NOTE: Changelog is not getting added as it is stored in the document part!
+            &#34;name&#34;: self.name,
+            &#34;annotations&#34;: list(val.to_dict(**kwargs)
+                                for val in self._annotations.values()),
+            &#34;next_annid&#34;: self._next_annid,
+        }
+
+    @staticmethod
+    def from_dict(dictrepr, owner_doc=None, **kwargs):
+        &#34;&#34;&#34;
+
+        Args:
+          dictrepr: 
+          owner_doc:  (Default value = None)
+          **kwargs: 
+
+        Returns:
+
+        &#34;&#34;&#34;
+        annset = AnnotationSet(dictrepr.get(&#34;name&#34;), owner_doc=owner_doc)
+        annset._next_annid = dictrepr.get(&#34;next_annid&#34;)
+        if dictrepr.get(&#34;annotations&#34;):
+            annset._annotations = dict(
+                (int(a[&#34;id&#34;]), Annotation.from_dict(a, owner_set=annset, **kwargs))
+                for a in dictrepr.get(&#34;annotations&#34;))
+        else:
+            annset._annotations = {}
+        return annset</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.annotation_set.AnnotationSet.from_dict"><code class="name flex">
+<span>def <span class="ident">from_dict</span></span>(<span>dictrepr, owner_doc=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dictrepr</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>owner_doc</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_dict(dictrepr, owner_doc=None, **kwargs):
+    &#34;&#34;&#34;
+
+    Args:
+      dictrepr: 
+      owner_doc:  (Default value = None)
+      **kwargs: 
+
+    Returns:
+
+    &#34;&#34;&#34;
+    annset = AnnotationSet(dictrepr.get(&#34;name&#34;), owner_doc=owner_doc)
+    annset._next_annid = dictrepr.get(&#34;next_annid&#34;)
+    if dictrepr.get(&#34;annotations&#34;):
+        annset._annotations = dict(
+            (int(a[&#34;id&#34;]), Annotation.from_dict(a, owner_set=annset, **kwargs))
+            for a in dictrepr.get(&#34;annotations&#34;))
+    else:
+        annset._annotations = {}
+    return annset</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.annotation_set.AnnotationSet.changelog"><code class="name">var <span class="ident">changelog</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def changelog(self):
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    if self._owner_doc is None:
+        return None
+    return self._owner_doc.changelog</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.document"><code class="name">var <span class="ident">document</span> : Union[Document, NoneType]</code></dt>
+<dd>
+<div class="desc"><p>Get the owning document, if known. If the owning document was not set, return None.</p>
+<p>:return: the document this annotation set belongs to or None if unknown.</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def document(self) -&gt; Union[&#34;Document&#34;, None]:
+    &#34;&#34;&#34;Get the owning document, if known. If the owning document was not set, return None.
+    
+    :return: the document this annotation set belongs to or None if unknown.
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    return self._owner_doc</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dd>
+<div class="desc"><p>Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+This needs the index and creates it if necessary.</p>
+<p>:return: largest end offset</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def end(self):
+    &#34;&#34;&#34;Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+    This needs the index and creates it if necessary.
+    
+    :return: largest end offset
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if self.size == 0:
+        raise Exception(&#34;Annotation set is empty, cannot determine end offset&#34;)
+    self._create_index_by_offset()
+    return self._index_by_offset.max_end()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.immutable"><code class="name">var <span class="ident">immutable</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>:return: True if immutable</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def immutable(self) -&gt; bool:
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      :return: True if immutable
+
+    &#34;&#34;&#34;
+    return self._is_immutable</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.length"><code class="name">var <span class="ident">length</span></code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>This needs the index and creates it if necessary.</p>
+<p>:return: length of the annotation set span</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def length(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      This needs the index and creates it if necessary.
+      
+      :return: length of the annotation set span
+
+    &#34;&#34;&#34;
+    return self.end() - self.start()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>Get the name of the annotation set. NOTE: the name of a set cannot be changed.</p>
+<p>:return: name of annotation set</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def name(self):
+    &#34;&#34;&#34;Get the name of the annotation set. NOTE: the name of a set cannot be changed.
+    
+    :return: name of annotation set
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    return self._name</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.size"><code class="name">var <span class="ident">size</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>:return: number of annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def size(self) -&gt; int:
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      :return: number of annotations
+
+    &#34;&#34;&#34;
+    return len(self._annotations)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.span"><code class="name">var <span class="ident">span</span> : Tuple[int, int]</code></dt>
+<dd>
+<div class="desc"><p>Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+and the largest end offset of any annotation.
+(Builds the offset index)</p>
+<p>:return: tuple of minimum start offset and maximum end offset</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def span(self) -&gt; Tuple[int, int]:
+    &#34;&#34;&#34;Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+    and the largest end offset of any annotation.
+    (Builds the offset index)
+    
+    :return: tuple of minimum start offset and maximum end offset
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    return self._index_by_offset.min_start(), self._index_by_offset.max_end()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>This needs the index and creates it if necessary.</p>
+<p>Throws an exception if there are no annotations in the set.</p>
+<p>:return: smallest annotation offset</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def start(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      This needs the index and creates it if necessary.
+      
+      Throws an exception if there are no annotations in the set.
+      
+      :return: smallest annotation offset
+
+    &#34;&#34;&#34;
+    if self.size == 0:
+        raise Exception(&#34;Annotation set is empty, cannot determine start offset&#34;)
+    self._create_index_by_offset()
+    return self._index_by_offset.min_start()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.type_names"><code class="name">var <span class="ident">type_names</span> : KeysView[str]</code></dt>
+<dd>
+<div class="desc"><p>Gets the names of all types in this set. Creates the type index if necessary.</p>
+<p>:return: the set of known annotation type names.</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def type_names(self) -&gt; KeysView[str]:
+    &#34;&#34;&#34;Gets the names of all types in this set. Creates the type index if necessary.
+    
+    :return: the set of known annotation type names.
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self._create_index_by_type()
+    return self._index_by_type.keys()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.annotation_set.AnnotationSet.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add an annotation to the set. Once an annotation has been added, the start and end offsets,
+the type, and the annotation id are immutable.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset</dd>
+<dt><strong><code>anntype</code></strong></dt>
+<dd>the annotation type</dd>
+<dt><strong><code>features</code></strong></dt>
+<dd>a map, an iterable of tuples or an existing feature map. In any case, the features are used</dd>
+</dl>
+<p>to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+annotation does not store any map at all.
+annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+normally left unspecified and get assigned automatically.
+start: int:
+end: int:
+anntype: str:
+features: Dict[str:
+Any]:
+(Default value = None)
+annid: int:
+(Default value = None)</p>
+<h2 id="returns">Returns</h2>
+<p>the new annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+    &#34;&#34;&#34;Add an annotation to the set. Once an annotation has been added, the start and end offsets,
+    the type, and the annotation id are immutable.
+
+    Args:
+      start: start offset
+      end: end offset
+      anntype: the annotation type
+      features: a map, an iterable of tuples or an existing feature map. In any case, the features are used
+    to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+    annotation does not store any map at all.
+      annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
+    normally left unspecified and get assigned automatically.
+      start: int: 
+      end: int: 
+      anntype: str: 
+      features: Dict[str: 
+      Any]:  (Default value = None)
+      annid: int:  (Default value = None)
+
+    Returns:
+      the new annotation
+
+    &#34;&#34;&#34;
+    if annid is not None and not isinstance(annid, int):
+        raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
+    if features is not None and isinstance(features, int):
+        raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+    if self._is_immutable:
+        raise Exception(&#34;Cannot add an annotation to an immutable annotation set&#34;)
+    self._check_offsets(start, end)
+    if annid and annid in self._annotations:
+        raise Exception(&#34;Cannot add annotation with id {}, already in set&#34;.format(annid))
+    if annid is None:
+        annid = self._next_annid
+        self._next_annid = self._next_annid + 1
+    ann = Annotation(start, end, anntype, features=features, annid=annid)
+    ann._owner_set = self
+    if not self._annotations:
+        self._annotations = {}
+    self._annotations[annid] = ann
+    self._add_to_indices(ann)
+    if self.changelog is not None:
+        entry = {
+                &#34;command&#34;: &#34;annotation:add&#34;,
+                &#34;set&#34;: self.name,
+                &#34;start&#34;: ann.start,
+                &#34;end&#34;: ann.end,
+                &#34;type&#34;: ann.type,
+                &#34;features&#34;: ann._features.to_dict(),
+                &#34;id&#34;: ann.id
+            }
+        self.changelog.append(entry)
+    return ann</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.add_ann"><code class="name flex">
+<span>def <span class="ident">add_ann</span></span>(<span>self, ann, annid: int = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add a copy of the given ann to the annotation set, either with a new annotation id or
+with the one given.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id, if not specified the next free one for this set is used.</dd>
+</dl>
+<p>NOTE: the id should normally left unspecified and get assigned automatically.
+ann:
+annid: int:
+(Default value = None)</p>
+<h2 id="returns">Returns</h2>
+<p>the annotation id of the added annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_ann(self, ann, annid: int = None):
+    &#34;&#34;&#34;Add a copy of the given ann to the annotation set, either with a new annotation id or
+    with the one given.
+
+    Args:
+      annid: the annotation id, if not specified the next free one for this set is used.
+    NOTE: the id should normally left unspecified and get assigned automatically.
+      ann: 
+      annid: int:  (Default value = None)
+
+    Returns:
+      the annotation id of the added annotation
+
+    &#34;&#34;&#34;
+    return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.by_offset"><code class="name flex">
+<span>def <span class="ident">by_offset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>annotations that start at the same offset, sorted in their natural order.</p>
+<dl>
+<dt><code>NOTE</code></dt>
+<dd>creates the index!</dd>
+</dl>
+<p>:return: a generator for lists of annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def by_offset(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      annotations that start at the same offset, sorted in their natural order.
+      
+      NOTE: creates the index!
+      
+      :return: a generator for lists of annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    lastoff = -1
+    curlist = []
+    for ann in self.iter():
+        if ann.start != lastoff:
+            if lastoff != -1:
+                yield curlist
+            lastoff = ann.start
+            curlist = [ann]
+        else:
+            curlist.append(ann)
+    if lastoff != -1:
+        yield curlist</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.by_span"><code class="name flex">
+<span>def <span class="ident">by_span</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>annotations with identical spans.</p>
+<dl>
+<dt><code>NOTE</code></dt>
+<dd>creates the index!</dd>
+</dl>
+<p>:return: a generator for lists of annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def by_span(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      annotations with identical spans.
+      
+      NOTE: creates the index!
+      
+      :return: a generator for lists of annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    lastsoff = -1
+    lasteoff = -1
+    curlist = []
+    for ann in self.iter():
+        if ann.start != lastsoff or ann.end != lasteoff:
+            if lastsoff != -1:
+                yield curlist
+            lastsoff = ann.start
+            lasteoff = ann.end
+            curlist = [ann]
+        else:
+            curlist.append(ann)
+    if lastsoff != -1:
+        yield curlist</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove all annotations from the set.</p>
+<p>:return:</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear(self) -&gt; None:
+    &#34;&#34;&#34;Remove all annotations from the set.
+    
+    :return:
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self._annotations.clear()
+    self._index_by_offset = None
+    self._index_by_type = None
+    if self.changelog is not None:
+        self.changelog.append({
+            &#34;command&#34;: &#34;annotations:clear&#34;,
+            &#34;set&#34;: self.name})</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.clone_anns"><code class="name flex">
+<span>def <span class="ident">clone_anns</span></span>(<span>self, memo=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Replace the annotations in this set with copies of the originals. If this is a detached set,
+then this makes sure that any modifications to the annotations do not affect the original annotations
+in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
+the annotations in this set any more. The owning set of the annotations that get cloned is cleared.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>memo</code></strong></dt>
+<dd>for internal use by our <strong>deepcopy</strong> implementation. (Default value = None)</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clone_anns(self, memo=None):
+    &#34;&#34;&#34;Replace the annotations in this set with copies of the originals. If this is a detached set,
+    then this makes sure that any modifications to the annotations do not affect the original annotations
+    in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
+    the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
+
+    Args:
+      memo: for internal use by our __deepcopy__ implementation. (Default value = None)
+
+    Returns:
+
+    &#34;&#34;&#34;
+    tmpdict = {}
+    for annid, ann in self._annotations.items():
+        newann = copy.deepcopy(ann, memo=memo)
+        ann._owner_set = None
+        tmpdict[annid] = newann
+    for annid, ann in tmpdict.items():
+        self._annotations[annid] = ann</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.coextensive"><code class="name flex">
+<span>def <span class="ident">coextensive</span></span>(<span>self, start: int, end: int, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return an immutable annotation set with all annotations that start and end at the given offsets.</p>
+<p>For each annotation ann in the result set, ann.coextensive(span) is True.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that</dd>
+</dl>
+<p>annotation in the result set. (Default value = False)
+start: int:
+end: int: </p>
+<h2 id="returns">Returns</h2>
+<p>annotation set with all annotations that have the same start and end offsets.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Return an immutable annotation set with all annotations that start and end at the given offsets.
+    
+    For each annotation ann in the result set, ann.coextensive(span) is True.
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+      annid: the annotation id of the annotation representing the span. (Default value = None)
+      include_self: if True and the annotation id for the span is given, do not include that
+    annotation in the result set. (Default value = False)
+      start: int: 
+      end: int: 
+
+    Returns:
+      annotation set with all annotations that have the same start and end offsets.
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.at(start, end)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.contains"><code class="name flex">
+<span>def <span class="ident">contains</span></span>(<span>self, annorannid: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>]) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Provides 'annotation in annotation_set' functionality</p>
+<p>:param annorannid: the annotation instance or annotation id to check
+:return: true if the annotation exists in the set, false otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __contains__(self, annorannid: Union[int, Annotation]) -&gt; bool:
+    &#34;&#34;&#34;
+    Provides &#39;annotation in annotation_set&#39; functionality
+
+    :param annorannid: the annotation instance or annotation id to check
+    :return: true if the annotation exists in the set, false otherwise
+    &#34;&#34;&#34;
+    if isinstance(annorannid, Annotation):
+        return annorannid.id in self._annotations
+    return annorannid in self._annotations  # On the off chance someone passed an ID in directly</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self):
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    return self.__copy__()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.covering"><code class="name flex">
+<span>def <span class="ident">covering</span></span>(<span>self, start: int, end: int, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the annotations which contain the given offset range (or annotation/annotation set),
+i.e. annotations such that the given offset range is within the annotation.</p>
+<p>For each annotation ann in the result set, ann.covering(span) is True.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>the start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>the end offset of the span</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that</dd>
+</dl>
+<p>annotation in the result set. (Default value = False)
+start: int:
+end: int: </p>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with the matching annotations, if any</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def covering(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Get the annotations which contain the given offset range (or annotation/annotation set),
+    i.e. annotations such that the given offset range is within the annotation.
+    
+    For each annotation ann in the result set, ann.covering(span) is True.
+
+    Args:
+      start: the start offset of the span
+      end: the end offset of the span
+      annid: the annotation id of the annotation representing the span. (Default value = None)
+      include_self: if True and the annotation id for the span is given, do not include that
+    annotation in the result set. (Default value = False)
+      start: int: 
+      end: int: 
+
+    Returns:
+      an immutable annotation set with the matching annotations, if any
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.covering(start, end)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.deepcopy"><code class="name flex">
+<span>def <span class="ident">deepcopy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deepcopy(self):
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    return copy.deepcopy(self)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.detach"><code class="name flex">
+<span>def <span class="ident">detach</span></span>(<span>self, restrict_to=None) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create an immutable copy of this set, optionally restricted to the given annotation ids.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>restrict_to</code></strong></dt>
+<dd>an iterable of annotation ids, if None, all the annotations from this set. (Default value = None)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with all the annotations of this set or restricted to the ids
+in restrict_to</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def detach(self, restrict_to=None) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Create an immutable copy of this set, optionally restricted to the given annotation ids.
+
+    Args:
+      restrict_to: an iterable of annotation ids, if None, all the annotations from this set. (Default value = None)
+
+    Returns:
+      an immutable annotation set with all the annotations of this set or restricted to the ids
+      in restrict_to
+
+    &#34;&#34;&#34;
+    annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+    annset._is_immutable = True
+    if restrict_to is None:
+        annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+    else:
+        annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+    annset._next_annid = self._next_annid
+    return annset</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.detach_from"><code class="name flex">
+<span>def <span class="ident">detach_from</span></span>(<span>self, anns: collections.abc.Iterable) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create an immutable detached annotation set from the annotations in anns which could by
+either a collection of annotations or annotation ids (int numbers) which are assumed to
+be the annotation ids from this set.</p>
+<p>The next annotation id for the created set is the highest seen annotation id from anns plus one.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anns</code></strong></dt>
+<dd>an iterable of annotations</dd>
+<dt><strong><code>anns</code></strong></dt>
+<dd>Iterable: </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with all the annotations of this set or restricted to the ids
+in restrict_to</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def detach_from(self, anns: Iterable) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Create an immutable detached annotation set from the annotations in anns which could by
+    either a collection of annotations or annotation ids (int numbers) which are assumed to
+    be the annotation ids from this set.
+    
+    The next annotation id for the created set is the highest seen annotation id from anns plus one.
+
+    Args:
+      anns: an iterable of annotations
+      anns: Iterable: 
+
+    Returns:
+      an immutable annotation set with all the annotations of this set or restricted to the ids
+      in restrict_to
+
+    &#34;&#34;&#34;
+    annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+    annset._is_immutable = True
+    annset._annotations = {}
+    nextid = -1
+    for ann in anns:
+        if isinstance(ann, int):
+            annset._annotations[ann] = self._annotations[ann]
+            annid = ann
+        else:
+            annset._annotations[id] = ann
+            annid = ann.id
+        if annid &gt; nextid:
+            nextid = annid
+    annset._next_annid = nextid + 1
+    return annset</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.fast_iter"><code class="name flex">
+<span>def <span class="ident">fast_iter</span></span>(<span>self) ‑> Generator</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a generator for fast iteration over all annotations in arbitrary order.</p>
+<p>:return:</p>
+<p>Args:</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fast_iter(self) -&gt; Generator:
+    &#34;&#34;&#34;Returns a generator for fast iteration over all annotations in arbitrary order.
+    
+    :return:
+
+    Args:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if self._annotations:
+        for annid, ann in self._annotations.items():
+            yield ann</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.first"><code class="name flex">
+<span>def <span class="ident">first</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>:return: first annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def first(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      :return: first annotation
+
+    &#34;&#34;&#34;
+    sz = len(self._annotations)
+    if sz == 0:
+        raise Exception(&#34;Empty set, there is no first annotation&#34;)
+    elif sz == 1:
+        return next(iter(self._annotations.values()))
+    self._create_index_by_offset()
+    _, _, annid = next(self._index_by_offset.irange(reverse=False))
+    return self._annotations[annid]</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, annid: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], default=None) ‑> Union[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>, NoneType]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets the annotation with the given annotation id or returns the given default.</p>
+<p>NOTE: for handling cases where legacy code still expects the add method to return
+an id and not the annotation, this will accept an annotation so the the frequent
+pattern still works:</p>
+<p>annid = annset.add(b,e,t).id
+ann = annset.get(annid)</p>
+<p>If an annotation is passed the annotation from the set with the id of that annotation is
+returned, if the annotation is from that set, this will return the same object, if it is
+still in the set (or return the default value).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation to retrieve.</dd>
+<dt><strong><code>default</code></strong></dt>
+<dd>what to return if an annotation with the given id is not found. (Default value = None)</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>Union[int: </dd>
+</dl>
+<p>Annotation]: </p>
+<h2 id="returns">Returns</h2>
+<p>the annotation or the default value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, annid: Union[int, Annotation], default=None) -&gt; Union[Annotation, None]:
+    &#34;&#34;&#34;Gets the annotation with the given annotation id or returns the given default.
+    
+    NOTE: for handling cases where legacy code still expects the add method to return
+    an id and not the annotation, this will accept an annotation so the the frequent
+    pattern still works:
+    
+       annid = annset.add(b,e,t).id
+       ann = annset.get(annid)
+    
+    If an annotation is passed the annotation from the set with the id of that annotation is
+    returned, if the annotation is from that set, this will return the same object, if it is
+    still in the set (or return the default value).
+
+    Args:
+      annid: the annotation id of the annotation to retrieve.
+      default: what to return if an annotation with the given id is not found. (Default value = None)
+      annid: Union[int: 
+      Annotation]: 
+
+    Returns:
+      the annotation or the default value.
+
+    &#34;&#34;&#34;
+    if isinstance(annid, Annotation):
+        annid = annid.id
+    return self._annotations.get(annid, default)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.isdetached"><code class="name flex">
+<span>def <span class="ident">isdetached</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isdetached(self) -&gt; bool:
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    return self._owner_doc is None</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.iter"><code class="name flex">
+<span>def <span class="ident">iter</span></span>(<span>self, start_ge: Union[int, NoneType] = None, start_lt: Union[NoneType, int] = None, with_type: str = None, reverse: bool = False) ‑> Generator</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a generator for going through annotations in document order, otionally limited
+by the other parameters. If two annoations start at the same offset, they are always
+ordered by increasing annotation id.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annotations</code></strong></dt>
+<dd>an iterable of annotations from this annotation set.</dd>
+<dt><strong><code>start_ge</code></strong></dt>
+<dd>the offset from where to start including annotations</dd>
+<dt><strong><code>start_lt</code></strong></dt>
+<dd>the last offset to use as the starting offset of an annotation</dd>
+<dt><strong><code>with_type</code></strong></dt>
+<dd>only annotations of this type</dd>
+<dt><strong><code>reverse</code></strong></dt>
+<dd>process in reverse document order</dd>
+<dt><strong><code>start_ge</code></strong></dt>
+<dd>Union[int: </dd>
+<dt>None]:
+(Default value = None)</dt>
+<dt><strong><code>start_lt</code></strong></dt>
+<dd>Union[None: </dd>
+<dt>int]:
+(Default value = None)</dt>
+<dt><strong><code>with_type</code></strong></dt>
+<dd>str:
+(Default value = None)</dd>
+<dt><strong><code>reverse</code></strong></dt>
+<dd>bool:
+(Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>generator for annotations in document order</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iter(self,
+         start_ge: Union[int, None] = None,
+         start_lt: Union[None, int] = None,
+         with_type: str = None,
+         reverse: bool = False) -&gt; Generator:
+    &#34;&#34;&#34;Returns a generator for going through annotations in document order, otionally limited
+    by the other parameters. If two annoations start at the same offset, they are always
+    ordered by increasing annotation id.
+
+    Args:
+      annotations: an iterable of annotations from this annotation set.
+      start_ge: the offset from where to start including annotations
+      start_lt: the last offset to use as the starting offset of an annotation
+      with_type: only annotations of this type
+      reverse: process in reverse document order
+      start_ge: Union[int: 
+      None]:  (Default value = None)
+      start_lt: Union[None: 
+      int]:  (Default value = None)
+      with_type: str:  (Default value = None)
+      reverse: bool:  (Default value = False)
+
+    Returns:
+      generator for annotations in document order
+
+    &#34;&#34;&#34;
+
+    if with_type is not None:
+        allowedtypes = set()
+        if isinstance(type, str):
+            allowedtypes.add(with_type)
+        else:
+            for atype in with_type:
+                allowedtypes.add(atype)
+    else:
+        allowedtypes = None
+    if not self._annotations:
+        return
+    maxoff = None
+    if start_ge is not None:
+        assert start_ge &gt;= 0
+    if start_lt is not None:
+        assert start_lt &gt;= 1
+        maxoff = start_lt + 1
+    if start_lt is not None and start_ge is not None:
+        assert start_lt &gt; start_ge
+    self._create_index_by_offset()
+    for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
+        if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+            continue
+        yield self._annotations[annid]</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.last"><code class="name flex">
+<span>def <span class="ident">last</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Args:</p>
+<h2 id="returns">Returns</h2>
+<p>:return: first annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def last(self):
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      :return: first annotation
+
+    &#34;&#34;&#34;
+    sz = len(self._annotations)
+    if sz == 0:
+        raise Exception(&#34;Empty set, there is no last annotation&#34;)
+    elif sz == 1:
+        return next(iter(self._annotations.values()))
+    self._create_index_by_offset()
+    _, _, annid = next(self._index_by_offset.irange(reverse=True))
+    return self._annotations[annid]</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.overlapping"><code class="name flex">
+<span>def <span class="ident">overlapping</span></span>(<span>self, start: int, end: int, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets annotations overlapping with the given span. Instead of the start and end offsets,
+also accepts an annotation or annotation set.</p>
+<p>For each annotation ann in the result set, ann.overlapping(span) is True</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that</dd>
+</dl>
+<p>annotation in the result set. (Default value = False)
+start: int:
+end: int: </p>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with the matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Gets annotations overlapping with the given span. Instead of the start and end offsets,
+    also accepts an annotation or annotation set.
+    
+    For each annotation ann in the result set, ann.overlapping(span) is True
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+      annid: the annotation id of the annotation representing the span. (Default value = None)
+      include_self: if True and the annotation id for the span is given, do not include that
+    annotation in the result set. (Default value = False)
+      start: int: 
+      end: int: 
+
+    Returns:
+      an immutable annotation set with the matching annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.overlapping(start, end)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.remove"><code class="name flex">
+<span>def <span class="ident">remove</span></span>(<span>self, annotation: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>]) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove the given annotation which is either the id or the annotation instance.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annotation</code></strong></dt>
+<dd>either the id (int) or the annotation instance (Annotation)</dd>
+<dt><strong><code>annotation</code></strong></dt>
+<dd>Union[int: </dd>
+</dl>
+<p>Annotation]:
+Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove(self, annotation: Union[int, Annotation]) -&gt; None:
+    &#34;&#34;&#34;Remove the given annotation which is either the id or the annotation instance.
+
+    Args:
+      annotation: either the id (int) or the annotation instance (Annotation)
+      annotation: Union[int: 
+      Annotation]: 
+
+    Returns:
+
+    &#34;&#34;&#34;
+    annid = None  # make pycharm happy
+    if self._is_immutable:
+        raise Exception(&#34;Cannot remove an annotation from an immutable annotation set&#34;)
+    if isinstance(annotation, int):
+        annid = annotation
+        if annid not in self._annotations:
+            raise Exception(&#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(annid))
+        annotation = self._annotations[annid]
+    elif isinstance(annotation, Annotation):
+        annid = annotation.id
+        if annid not in self._annotations:
+            raise Exception(&#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(annid))
+    # NOTE: once the annotation has been removed from the set, it could still be referenced
+    # somewhere else and its features could get modified. In order to prevent logging of such changes,
+    # the owning set gets cleared for the annotation
+    annotation._owner_set = None
+    del self._annotations[annid]
+    if self.changelog is not None:
+        self.changelog.append({
+            &#34;command&#34;: &#34;annotation:remove&#34;,
+            &#34;set&#34;: self.name,
+            &#34;id&#34;: annid})
+    self._remove_from_indices(annotation)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.reverse_iter"><code class="name flex">
+<span>def <span class="ident">reverse_iter</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Same as iter, but with the reverse parameter set to true.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>Same as for iter(), with revers=True fixed.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>same result as iter()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reverse_iter(self, **kwargs):
+    &#34;&#34;&#34;Same as iter, but with the reverse parameter set to true.
+
+    Args:
+      kwargs: Same as for iter(), with revers=True fixed.
+      **kwargs: 
+
+    Returns:
+      same result as iter()
+
+    &#34;&#34;&#34;
+    return self.iter(reverse=True, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.start_eq"><code class="name flex">
+<span>def <span class="ident">start_eq</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
+annotation set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>the offset where annotations should start</dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>start</code></strong></dt>
+<dd>int: </dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>Any:
+(Default value = None)</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>(Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>annotation set of matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
+    annotation set.
+
+    Args:
+      start: the offset where annotations should start
+      ignored: dummy parameter to allow the use of annotations and annotation sets
+      start: int: 
+      ignored: Any:  (Default value = None)
+      annid:  (Default value = None)
+      include_self:  (Default value = False)
+
+    Returns:
+      annotation set of matching annotations
+
+    &#34;&#34;&#34;
+    # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
+    # point query
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.starting_from(start)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.start_ge"><code class="name flex">
+<span>def <span class="ident">start_ge</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the annotations that start at or after the given start offset.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>Start offset</dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>start</code></strong></dt>
+<dd>int: </dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>Any:
+(Default value = None)</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>(Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set of the matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Return the annotations that start at or after the given start offset.
+
+    Args:
+      start: Start offset
+      ignored: dummy parameter to allow the use of annotations and annotation sets
+      start: int: 
+      ignored: Any:  (Default value = None)
+      annid:  (Default value = None)
+      include_self:  (Default value = False)
+
+    Returns:
+      an immutable annotation set of the matching annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.starting_from(start)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.start_lt"><code class="name flex">
+<span>def <span class="ident">start_lt</span></span>(<span>self, offset: int, ignored: Any = None, annid=None) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the annotations that start before the given offset (or annotation). This also accepts an annotation
+or set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>offset</code></strong></dt>
+<dd>offset before which the annotations should start</dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>offset</code></strong></dt>
+<dd>int: </dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>Any:
+(Default value = None)</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>(Default value = None)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set of the matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def start_lt(self, offset: int, ignored: Any = None, annid=None) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Return the annotations that start before the given offset (or annotation). This also accepts an annotation
+    or set.
+
+    Args:
+      offset: offset before which the annotations should start
+      ignored: dummy parameter to allow the use of annotations and annotation sets
+      offset: int: 
+      ignored: Any:  (Default value = None)
+      annid:  (Default value = None)
+
+    Returns:
+      an immutable annotation set of the matching annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.starting_before(offset)
+    return self._restrict_intvs(intvs)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.start_min_ge"><code class="name flex">
+<span>def <span class="ident">start_min_ge</span></span>(<span>self, offset: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets all annotations starting at the first possible offset
+at or after the given offset and returns them in an immutable
+annotation set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>offset</code></strong></dt>
+<dd>The offset</dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>offset</code></strong></dt>
+<dd>int: </dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>Any:
+(Default value = None)</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>(Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>annotation set of matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Gets all annotations starting at the first possible offset
+    at or after the given offset and returns them in an immutable
+    annotation set.
+
+    Args:
+      offset: The offset
+      ignored: dummy parameter to allow the use of annotations and annotation sets
+      offset: int: 
+      ignored: Any:  (Default value = None)
+      annid:  (Default value = None)
+      include_self:  (Default value = False)
+
+    Returns:
+      annotation set of matching annotations
+
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.starting_from(offset)
+    # now select only those first ones which all have the same offset
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    retids = set()
+    startoff = None
+    for intv in intvs:
+        if startoff is None:
+            startoff = intv[0]
+            if ignore is not None:
+                if ignore != intv[2]:
+                    retids.add(intv[2])
+            else:
+                retids.add(intv[2])
+        elif startoff == intv[0]:
+            if ignore is not None:
+                if ignore != intv[2]:
+                    retids.add(intv[2])
+            else:
+                retids.add(intv[2])
+        else:
+            break
+    return self.detach(restrict_to=retids)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self, **kwargs):
+    &#34;&#34;&#34;
+
+    Args:
+      **kwargs: 
+
+    Returns:
+
+    &#34;&#34;&#34;
+    return {
+        # NOTE: Changelog is not getting added as it is stored in the document part!
+        &#34;name&#34;: self.name,
+        &#34;annotations&#34;: list(val.to_dict(**kwargs)
+                            for val in self._annotations.values()),
+        &#34;next_annid&#34;: self._next_annid,
+    }</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.with_type"><code class="name flex">
+<span>def <span class="ident">with_type</span></span>(<span>self, *anntype: Union[str, collections.abc.Iterable], non_overlapping: bool = False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets annotations of the specified type(s).
+Creates the type index if necessary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anntype</code></strong></dt>
+<dd>one or more types or type lists. The union of all types specified that way</dd>
+</dl>
+<p>is used to filter the annotations. If no type is specified, all annotations are selected.
+non_overlapping: if True, only return annotations of any of the given types which
+do not overlap with other annotations. If there are several annotations that start at
+the same offset, use the type that comes first in the parameters, if there are more
+than one of that type, use the one that would come first in the usual sort order.
+*anntype: Union[str:
+Iterable]:
+non_overlapping: bool:
+(Default value = False)</p>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with the matching annotations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def with_type(self, *anntype: Union[str, Iterable],
+              non_overlapping: bool = False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Gets annotations of the specified type(s).
+    Creates the type index if necessary.
+
+    Args:
+      anntype: one or more types or type lists. The union of all types specified that way
+    is used to filter the annotations. If no type is specified, all annotations are selected.
+      non_overlapping: if True, only return annotations of any of the given types which
+    do not overlap with other annotations. If there are several annotations that start at
+    the same offset, use the type that comes first in the parameters, if there are more
+    than one of that type, use the one that would come first in the usual sort order.
+      *anntype: Union[str: 
+      Iterable]: 
+      non_overlapping: bool:  (Default value = False)
+
+    Returns:
+      an immutable annotation set with the matching annotations.
+
+    &#34;&#34;&#34;
+    atypes = []
+    for atype in anntype:
+        if isinstance(atype, str):
+            atypes.append(atype)
+        else:
+            for t in atype:
+                atypes.append(t)
+    if not atypes:
+        return self.detach()
+    self._create_index_by_type()
+    annids = set()
+    for t in atypes:
+        idxs = self._index_by_type.get(t)
+        if idxs:
+            annids.update(idxs)
+    if non_overlapping:
+        # need to get annotations grouped by start offset and sorted according to
+        # what the Annotation class defines
+        allanns = sorted(annids, key=lambda x: self._annotations[x])
+        allanns = [self._annotations[x] for x in allanns]
+        allannsgrouped = []
+        curstart = None
+        curset = None
+        for ann in allanns:
+            if curstart is None:
+                curset = [ann]
+                curstart = ann.start
+            elif curstart == ann.start:
+                curset.append(ann)
+            else:
+                allannsgrouped.append(curset)
+                curset = [ann]
+                curstart = ann.start
+        if curset:
+            allannsgrouped.append(curset)
+        retanns = []
+        # now go through all the grouped annoations and select the top priority one
+        # then skip to the next group that does not overlap with the one we just selected
+        typepriority = dict()
+        for i, atype in enumerate(atypes):
+            typepriority[atype] = len(atypes)-i
+        curminoffset = 0
+        for group in allannsgrouped:
+            # instead of sorting, go through the group and find the top priority one
+            topann = None
+            if len(group) == 1:
+                if group[0].start &gt;= curminoffset:
+                    topann = group[0]
+            elif len(group) == 0:
+                raise Exception(&#34;We should never get a 0 size group here!&#34;)
+            else:
+                for i, ann in enumerate(group):
+                    if ann.start &gt;= curminoffset:
+                        topann = ann
+                        break
+                for ann in group[i+1:]:
+                    if ann.start &lt; curminoffset:
+                        continue
+                    if typepriority[ann.type] &gt; typepriority[topann.type]:
+                        topann = ann
+                    elif typepriority[ann.type] == typepriority[topann.type]:
+                        if ann.end &gt; topann.end:
+                            topann = ann
+                        elif ann.end == topann.end:
+                            if ann.id &gt; topann.id:
+                                topann = ann
+            if topann is not None:
+                retanns.append(topann)
+                curminoffset = topann.end
+        annids = [ann.id for ann in retanns]
+    return self.detach(restrict_to=annids)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.within"><code class="name flex">
+<span>def <span class="ident">within</span></span>(<span>self, start: int, end: int, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets annotations that fall completely within the given offset range, i.e. annotations
+such that the offset range is covering each of the annotation.</p>
+<p>For each annotation ann in the result set, ann.within(span) is True.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the range</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the range</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that</dd>
+</dl>
+<p>annotation in the result set. (Default value = False)
+start: int:
+end: int: </p>
+<h2 id="returns">Returns</h2>
+<p>an immutable annotation set with the matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;Gets annotations that fall completely within the given offset range, i.e. annotations
+    such that the offset range is covering each of the annotation.
+    
+    For each annotation ann in the result set, ann.within(span) is True.
+
+    Args:
+      start: start offset of the range
+      end: end offset of the range
+      annid: the annotation id of the annotation representing the span. (Default value = None)
+      include_self: if True and the annotation id for the span is given, do not include that
+    annotation in the result set. (Default value = False)
+      start: int: 
+      end: int: 
+
+    Returns:
+      an immutable annotation set with the matching annotations
+
+    &#34;&#34;&#34;
+    if start == end:
+        intvs = []
+    elif start &gt; end:
+        raise Exception(&#34;Invalid offset range: {},{}&#34;.format(start, end))
+    else:
+        self._create_index_by_offset()
+        intvs = self._index_by_offset.within(start, end)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.annotation_set.InvalidOffsetError"><code class="flex name class">
+<span>class <span class="ident">InvalidOffsetError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class InvalidOffsetError(KeyError):
+    &#34;&#34;&#34; &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.KeyError</li>
+<li>builtins.LookupError</li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp" href="index.html">gatenlp</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.add" href="#gatenlp.annotation_set.AnnotationSet.add">add</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.add_ann" href="#gatenlp.annotation_set.AnnotationSet.add_ann">add_ann</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.by_offset" href="#gatenlp.annotation_set.AnnotationSet.by_offset">by_offset</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.by_span" href="#gatenlp.annotation_set.AnnotationSet.by_span">by_span</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.changelog" href="#gatenlp.annotation_set.AnnotationSet.changelog">changelog</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.clear" href="#gatenlp.annotation_set.AnnotationSet.clear">clear</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.clone_anns" href="#gatenlp.annotation_set.AnnotationSet.clone_anns">clone_anns</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.coextensive" href="#gatenlp.annotation_set.AnnotationSet.coextensive">coextensive</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.contains" href="#gatenlp.annotation_set.AnnotationSet.contains">contains</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.copy" href="#gatenlp.annotation_set.AnnotationSet.copy">copy</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.covering" href="#gatenlp.annotation_set.AnnotationSet.covering">covering</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.deepcopy" href="#gatenlp.annotation_set.AnnotationSet.deepcopy">deepcopy</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.detach" href="#gatenlp.annotation_set.AnnotationSet.detach">detach</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.detach_from" href="#gatenlp.annotation_set.AnnotationSet.detach_from">detach_from</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.document" href="#gatenlp.annotation_set.AnnotationSet.document">document</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.end" href="#gatenlp.annotation_set.AnnotationSet.end">end</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.fast_iter" href="#gatenlp.annotation_set.AnnotationSet.fast_iter">fast_iter</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.first" href="#gatenlp.annotation_set.AnnotationSet.first">first</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.from_dict" href="#gatenlp.annotation_set.AnnotationSet.from_dict">from_dict</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.get" href="#gatenlp.annotation_set.AnnotationSet.get">get</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.immutable" href="#gatenlp.annotation_set.AnnotationSet.immutable">immutable</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.isdetached" href="#gatenlp.annotation_set.AnnotationSet.isdetached">isdetached</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.iter" href="#gatenlp.annotation_set.AnnotationSet.iter">iter</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.last" href="#gatenlp.annotation_set.AnnotationSet.last">last</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.length" href="#gatenlp.annotation_set.AnnotationSet.length">length</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.name" href="#gatenlp.annotation_set.AnnotationSet.name">name</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.overlapping" href="#gatenlp.annotation_set.AnnotationSet.overlapping">overlapping</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.remove" href="#gatenlp.annotation_set.AnnotationSet.remove">remove</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.reverse_iter" href="#gatenlp.annotation_set.AnnotationSet.reverse_iter">reverse_iter</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.size" href="#gatenlp.annotation_set.AnnotationSet.size">size</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.span" href="#gatenlp.annotation_set.AnnotationSet.span">span</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.start" href="#gatenlp.annotation_set.AnnotationSet.start">start</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.start_eq" href="#gatenlp.annotation_set.AnnotationSet.start_eq">start_eq</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.start_ge" href="#gatenlp.annotation_set.AnnotationSet.start_ge">start_ge</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.start_lt" href="#gatenlp.annotation_set.AnnotationSet.start_lt">start_lt</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.start_min_ge" href="#gatenlp.annotation_set.AnnotationSet.start_min_ge">start_min_ge</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.to_dict" href="#gatenlp.annotation_set.AnnotationSet.to_dict">to_dict</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.type_names" href="#gatenlp.annotation_set.AnnotationSet.type_names">type_names</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.with_type" href="#gatenlp.annotation_set.AnnotationSet.with_type">with_type</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.within" href="#gatenlp.annotation_set.AnnotationSet.within">within</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.annotation_set.InvalidOffsetError" href="#gatenlp.annotation_set.InvalidOffsetError">InvalidOffsetError</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

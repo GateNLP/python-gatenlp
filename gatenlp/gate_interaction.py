@@ -27,6 +27,7 @@ ostream = sys.stdout
 sys.stdout = sys.stderr
 
 class _PrWrapper:
+    """ """
     def __init__(self):
         self.func_execute = None   # the function to process each doc
         self.func_execute_allowkws = False
@@ -40,6 +41,14 @@ class _PrWrapper:
         self.logger = None
 
     def execute(self, doc):
+        """
+
+        Args:
+          doc: 
+
+        Returns:
+
+        """
         if self.func_execute_allowkws and self.script_parms:
             ret = self.func_execute(doc, **self.script_parms)
         else:
@@ -52,6 +61,14 @@ class _PrWrapper:
         return ret
 
     def start(self, script_params):
+        """
+
+        Args:
+          script_params: 
+
+        Returns:
+
+        """
         if script_params:
             self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
@@ -62,6 +79,7 @@ class _PrWrapper:
                 self.func_start()
 
     def finish(self):
+        """ """
         if self.func_finish is not None:
             if self.func_finish_allowkws and self.script_parms:
                 return self.func_finish(**self.script_parms)
@@ -69,6 +87,14 @@ class _PrWrapper:
                 return self.func_finish()
 
     def reduce(self, resultslist):
+        """
+
+        Args:
+          resultslist: 
+
+        Returns:
+
+        """
         if self.func_reduce is not None:
             if self.func_reduce_allowkws and self.script_parms:
                 ret = self.func_reduce(resultslist, **self.script_parms)
@@ -78,13 +104,16 @@ class _PrWrapper:
 
 
 def _check_exec(func):
-    """
-    Check the signature of the func to see if it is a proper
+    """Check the signature of the func to see if it is a proper
     execute function: must accept one (or more optional) args
     and can accept kwargs. This returns true of kwargs are accepted
 
-    :param func: the function to check
-    :return: true if the function accepts kwargs
+    Args:
+      func: the function to check
+
+    Returns:
+      true if the function accepts kwargs
+
     """
     argspec = inspect.getfullargspec(func)
     if len(argspec.args) == 1 \
@@ -100,13 +129,16 @@ def _check_exec(func):
 
 
 def _has_method(theobj, name):
-    """
-    Check if the object has a callable method with the given name,
+    """Check if the object has a callable method with the given name,
     if yes return the method, otherwise return None
 
-    :param theobj: the object that contains the method
-    :param name: the name of the method
-    :return: the method or None
+    Args:
+      theobj: the object that contains the method
+      name: the name of the method
+
+    Returns:
+      the method or None
+
     """
     tmp = getattr(theobj, name, None)
     if tmp is not None and callable(tmp):
@@ -116,17 +148,20 @@ def _has_method(theobj, name):
 
 
 def _pr_decorator(what):
-    """
-    This is the decorator to identify a class or function as a processing
+    """This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
     package.
-
+    
     This creates an instance of PRWrapper and registers all the relevant
     functions of the decorated class or the decorated function in the
     wrapper.
 
-    :param what: the class or function to decorate.
-    :return: modified class or function
+    Args:
+      what: the class or function to decorate.
+
+    Returns:
+      modified class or function
+
     """
     gatenlp.gate_python_plugin_pr = "The PR from here!!!"
 
@@ -168,26 +203,60 @@ def _pr_decorator(what):
 
 
 class DefaultPr:
+    """ """
     def __call__(self, doc, **kwargs):
         logger.debug("DefaultPr: called __call__() with doc={}, kwargs={}".format(doc, kwargs))
         return doc
 
     def start(self, **kwargs):
+        """
+
+        Args:
+          **kwargs: 
+
+        Returns:
+
+        """
         logger.debug("DefaultPr: called start() with kwargs={}".format(kwargs))
         logger.warning("Running DefaultPr: did you define a @GateNlpPr class or function?")
         return None
 
     def finish(self, **kwargs):
+        """
+
+        Args:
+          **kwargs: 
+
+        Returns:
+
+        """
         logger.debug("DefaultPr: called finish() with kwargs={}".format(kwargs))
         logger.warning("Finished DefaultPr: did you define a @GateNlpPr class or function?")
         return None
 
     def reduce(self, resultlist, **kwargs):
+        """
+
+        Args:
+          resultlist: 
+          **kwargs: 
+
+        Returns:
+
+        """
         logger.debug("DefaultPr: called reduce() with results {} and kwargs={}".format(
             resultlist, kwargs))
         return None
 
 def get_arguments(from_main=False):
+    """
+
+    Args:
+      from_main:  (Default value = False)
+
+    Returns:
+
+    """
     argparser = ArgumentParser()
     argparser.add_argument("--mode", default="check",
                            help="Interaction mode: pipe|http|websockets|file|dir|check (default: check)")
@@ -205,17 +274,22 @@ def get_arguments(from_main=False):
 
 
 def interact(args=None):
-    """
-    Starts and handles the interaction with a GATE python plugin process.
+    """Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
-
+    
     This MUST be called in the user's python file!
     The python file should also have one class or function decorated
     with the @gatenlp.PR  decorator to identify it as the
     processing resource to the system.
-
+    
     :return:
+
+    Args:
+      args:  (Default value = None)
+
+    Returns:
+
     """
     loglvls = {
         "DEBUG": logging.DEBUG,

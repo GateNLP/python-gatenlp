@@ -1,7 +1,0 @@
-gatenlp.processing.matcher module
-=================================
-
-.. automodule:: gatenlp.processing.matcher
-   :members:
-   :undoc-members:
-   :show-inheritance:

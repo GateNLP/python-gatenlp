@@ -6,12 +6,16 @@ OFFSET_TYPE_PYTHON = "p"
 
 class OffsetMapper:
     def __init__(self, text: str):
-        """
-        Calculate the tables for mapping unicode code points to utf16 code units.
-        NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
-        if after creating the java2python table we find that all offsets are identical, we discard
-        the tables and just set a flag for that.
-        :param text: the text as a python string
+        """Calculate the tables for mapping unicode code points to utf16 code units.
+            NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+            if after creating the java2python table we find that all offsets are identical, we discard
+            the tables and just set a flag for that.
+
+        Args:
+            text: the text as a python string
+
+        Returns:
+
         """
         # for now, remove dependency on numpy and use simple python lists of integers
         # import numpy as np
@@ -45,6 +49,15 @@ class OffsetMapper:
             self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
 
     def _convert_from(self, offsets, from_table=None):
+        """
+
+        Args:
+          offsets: 
+          from_table:  (Default value = None)
+
+        Returns:
+
+        """
         if from_table is None:
             return offsets
         if isinstance(offsets, numbers.Integral):
@@ -55,17 +68,23 @@ class OffsetMapper:
         return ret
 
     def convert_to_python(self, offsets):
-        """
-        Convert one java offset or an iterable of java offsets to python offset/s
-        :param offsets: a single offset or an iterable of offsets
-        :return:
+        """Convert one java offset or an iterable of java offsets to python offset/s
+
+        Args:
+          offsets: a single offset or an iterable of offsets
+
+        Returns:
+
         """
         return self._convert_from(offsets, from_table=self.java2python)
 
     def convert_to_java(self, offsets):
-        """
-        Convert one python offset or an iterable of python offsets to java offset/s
-        :param offsets: a single offset or an iterable of offsets
-        :return:
+        """Convert one python offset or an iterable of python offsets to java offset/s
+
+        Args:
+          offsets: a single offset or an iterable of offsets
+
+        Returns:
+
         """
         return self._convert_from(offsets, from_table=self.python2java)

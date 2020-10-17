@@ -6,14 +6,16 @@ from gatenlp import utils
 
 
 def apply_stanfordnlp(nlp, gatenlpdoc, setname=""):
-    """
-    Run the stanford nlp pipeline on the gatenlp document and transfer the annotations.
+    """Run the stanford nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
-    :param nlp: StanfordNLP pipeline
-    :param gatenlpdoc: gatenlp document
-    :param setname: set to use
-    :return:
+    Args:
+      nlp: StanfordNLP pipeline
+      gatenlpdoc: gatenlp document
+      setname: set to use (Default value = "")
+
+    Returns:
+
     """
     doc = nlp(gatenlpdoc.text)
     return stanfordnlp2gatenlp(doc, gatenlpdoc=gatenlpdoc, setname=setname)
@@ -21,18 +23,23 @@ def apply_stanfordnlp(nlp, gatenlpdoc, setname=""):
 
 def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname="", word_type="Word",
                   sentence_type="Sentence"):
-    """
-    Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already
+    """Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the StanfordNLP document to it. In this case the
     original gatenlpdoc is used and gets modified.
-    :param stanfordnlpdoc: a StanfordNLP document
-    :param gatenlpdoc: if None, a new gatenlp document is created otherwise this
-    document is added to.
-    :param setname: the annotation set name to which the annotations get added, empty string
+
+    Args:
+      stanfordnlpdoc: a StanfordNLP document
+      gatenlpdoc: if None, a new gatenlp document is created otherwise this
+    document is added to. (Default value = None)
+      setname: the annotation set name to which the annotations get added, empty string
     for the default annotation set.
-    :param token_type: the annotation type to use for tokens
-    :param sentence_type: the annotation type to use for sentence anntoations
-    :return: the new or modified
+      token_type: the annotation type to use for tokens
+      sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
+      word_type:  (Default value = "Word")
+
+    Returns:
+      the new or modified
+
     """
     if gatenlpdoc is None:
         retdoc = Document(stanfordnlpdoc.text)
