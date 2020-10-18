@@ -1,6 +1,11 @@
 """
 Various utilities that could be useful in several modules.
 """
+import sys
+import os
+import logging
+import datetime
+import time
 
 
 def to_dict(obj):
@@ -94,4 +99,108 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     else:
         return ret
 
+
+logger = None
+start = 0
+
+
+def set_logger(name=None, file=None, lvl=None, args=None):
+    """
+    Set up logger for the module "name". If file is given, log to that file as well.
+    If file is not given but args is given and has "outpref" parameter, log to
+    file "outpref.DATETIME.log" as well.
+
+    Args:
+        name: name to use in the log, if None, uses sys.argv[0]
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        args: not used yet
+
+    Returns:
+        The logger instance
+    """
+    global logger
+    if name is None:
+        name = sys.argv[0]
+    if logger:
+        raise Exception("Odd, we should not have a logger yet?")
+    logger = logging.getLogger(name)
+    if lvl is None:
+        lvl = logging.INFO
+    logger.setLevel(lvl)
+    fmt = logging.Formatter('%(asctime)s|%(levelname)s|%(name)s|%(message)s')
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    logger.addHandler(hndlr)
+    if file:
+        hdnlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        logger.addHandler(hdnlr)
+    logger.info("Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
+    return logger
+
+
+def ensurelogger():
+    """
+    Make sure the global logger is set to some logger. This should not be necessary
+    if the set_logger function is properly used, but guards against situations where
+    functions that require a logger are used without proper setting up the logger.
+
+    Returns:
+        A logger instance.
+    """
+    global logger
+    if not logger:
+        logger = logging.getLogger("UNINITIALIZEDLOGGER")
+    return logger
+
+
+def run_start():
+    """
+    Define time when running starts.
+
+    Returns:
+        system time in seconds
+    """
+    global  start
+    start = time.time()
+    return start
+
+
+def run_stop():
+    """
+    Log and return formatted elapsed run time.
+
+    Returns:
+        tuple of formatted run time, run time in seconds
+    """
+    logger = ensurelogger()
+    if start == 0:
+        logger.warning("Run timing not set up properly, no time!")
+        return "",0
+    stop = time.time()
+    delta = stop - start
+    deltastr = str(datetime.timedelta(seconds=delta))
+    logger.info(f"Runtime: {deltastr}")
+    return deltastr, delta
+
+
+def file4logger(thelogger, noext=False):
+    """
+    Return the first logging file found for this logger or None if there is no file handler.
+
+    Args:
+        thelogger: logger
+
+    Returns:
+        file path (string)
+    """
+    lpath = None
+    for h in thelogger.handlers:
+        if isinstance(h, logging.FileHandler):
+            lpath = h.baseFilename
+            if noext:
+                lpath = os.path.splitext(lpath)[0]
+            break
+    return lpath
 

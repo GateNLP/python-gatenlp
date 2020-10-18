@@ -11,12 +11,14 @@ returning a document, return a list, which allows to represent: no document retu
 returned (functions like segmenting). However this clashes with the idea of
 using this also to combine partial per-document results with merge.
 """
+from abc import ABC, abstractmethod
 
 __pdoc__ = {
     "Annotator.__call__": True
 }
 
-class Annotator:
+class Annotator(ABC):
+    @abstractmethod
     def __call__(self, doc, **kwargs):
         """This method must get implemented in a concrete subclass to do the actual processing
             and annotation. It must accept a document and return a document which may be
@@ -88,3 +90,4 @@ class Annotator:
           : overal result
 
         """
+        return results
