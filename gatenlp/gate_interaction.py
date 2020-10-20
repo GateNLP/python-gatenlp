@@ -318,7 +318,7 @@ def interact(args=None):
     if args.mode == "check":
         return
 
-    logger.info("\nUsing gatenlp version {}\n".format(gatenlp.__version__))
+    logger.info("Using gatenlp version {}\n".format(gatenlp.__version__))
 
     logger.debug("Starting interaction args={}".format(args))
     if args.mode == "pipe":
