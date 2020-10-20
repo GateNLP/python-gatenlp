@@ -51,12 +51,14 @@ returning a document, return a list, which allows to represent: no document retu
 returned (functions like segmenting). However this clashes with the idea of
 using this also to combine partial per-document results with merge.
 &#34;&#34;&#34;
+from abc import ABC, abstractmethod
 
 __pdoc__ = {
     &#34;Annotator.__call__&#34;: True
 }
 
-class Annotator:
+class Annotator(ABC):
+    @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
             and annotation. It must accept a document and return a document which may be
@@ -127,7 +129,8 @@ class Annotator:
         Returns:
           : overal result
 
-        &#34;&#34;&#34;</code></pre>
+        &#34;&#34;&#34;
+        return results</code></pre>
 </details>
 </section>
 <section>
@@ -143,12 +146,14 @@ class Annotator:
 <span>class <span class="ident">Annotator</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Annotator:
+<pre><code class="python">class Annotator(ABC):
+    @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
             and annotation. It must accept a document and return a document which may be
@@ -219,12 +224,18 @@ class Annotator:
         Returns:
           : overal result
 
-        &#34;&#34;&#34;</code></pre>
+        &#34;&#34;&#34;
+        return results</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="gatenlp.lib_spacy.AnnSpacy" href="../lib_spacy.html#gatenlp.lib_spacy.AnnSpacy">AnnSpacy</a></li>
 <li><a title="gatenlp.lib_stanza.AnnStanza" href="../lib_stanza.html#gatenlp.lib_stanza.AnnStanza">AnnStanza</a></li>
+<li><a title="gatenlp.processing.gazetteer.Gazetteer" href="gazetteer.html#gatenlp.processing.gazetteer.Gazetteer">Gazetteer</a></li>
 <li><a title="gatenlp.processing.pipeline.Pipeline" href="pipeline.html#gatenlp.processing.pipeline.Pipeline">Pipeline</a></li>
 <li><a title="gatenlp.processing.tokenizer.NLTKTokenizer" href="tokenizer.html#gatenlp.processing.tokenizer.NLTKTokenizer">NLTKTokenizer</a></li>
 </ul>
@@ -257,7 +268,8 @@ non-standard situations.
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def __call__(self, doc, **kwargs):
+<pre><code class="python">@abstractmethod
+def __call__(self, doc, **kwargs):
     &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
         and annotation. It must accept a document and return a document which may be
         the same that got passed.
@@ -353,7 +365,8 @@ from finish is used directly.</p>
     Returns:
       : overal result
 
-    &#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;
+    return results</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.start"><code class="name flex">

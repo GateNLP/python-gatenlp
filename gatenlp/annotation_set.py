@@ -1,3 +1,8 @@
+"""
+An annotation set contains an arbitrary number of annotations, which can overlap in arbitrary ways.
+Each annotation set has a name and a document can have as many named annotation sets as needed.
+"""
+
 from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections import defaultdict
 import copy
@@ -6,6 +11,9 @@ from gatenlp.impl import SortedIntvls
 from gatenlp._utils import support_annotation_or_set
 from collections.abc import Iterable
 
+__pdoc__ = {
+    "AnnotationSet.__iter__": True
+}
 
 class InvalidOffsetError(KeyError):
     """ """
@@ -14,25 +22,21 @@ class InvalidOffsetError(KeyError):
 
 class AnnotationSet:
     def __init__(self, name: str = "", owner_doc: "Document" = None):
-        """Create a new annotation set.
+        """
+        Creates an annotation set. This should not be used directly by the user, instead the
+        method `Document.annset(name)` should be used to access the annotation set with a given
+        name from the document.
 
         Args:
-          name: the name of the annotation set. This is only really needed if the changelog is used.
-          changelog: if a changelog is used, then all changes to the set and its annotations are logged
+          name: the name of the annotation set.
+          changelog: use the given changelog
           owner_doc: if this is set, the set and all sets created from it can be queried for the
-        owning document and offsets get checked against the text of the owning document, if it has
-        text.
-
-        Returns:
-
+              owning document and offsets get checked against the text of the owning document, if it has
+              text. Also, the changelog is only updated if an annotation set has an owning document.
         """
         # print("CREATING annotation set {} with changelog {} ".format(name, changelog), file=sys.stderr)
         self._name = name
         self._owner_doc = owner_doc
-
-        # NOTE: the index is only created when we actually need it!
-        # TODO: python 3.5
-        # self._index_by_offset: SortedIntvls = None
         self._index_by_offset = None
         self._index_by_type = None
         # internally we represent the annotations as a map from annotation id (int) to Annotation
@@ -42,20 +46,18 @@ class AnnotationSet:
 
     @property
     def name(self):
-        """Get the name of the annotation set. NOTE: the name of a set cannot be changed.
-        
-        :return: name of annotation set
+        """
+        Returns the name of the annotation set.
 
-        Args:
-
-        Returns:
-
+        Note: the name of a set cannot be changed.
         """
         return self._name
 
     @property
     def changelog(self):
-        """ """
+        """
+        Returns the changelog or None if no changelog is set.
+        """
         if self._owner_doc is None:
             return None
         return self._owner_doc.changelog
@@ -64,10 +66,6 @@ class AnnotationSet:
         """
         Prevent immutable fields from getting overridden, once they have been
         set.
-
-        :param key: attribute to set
-        :param value: value to set attribute to
-        :return:
         """
         if key == "name" or key == "owner_doc":
             if self.__dict__.get(key, None) is None:
@@ -78,15 +76,18 @@ class AnnotationSet:
             super().__setattr__(key, value)
 
     def detach(self, restrict_to=None) -> "AnnotationSet":
-        """Create an immutable copy of this set, optionally restricted to the given annotation ids.
+        """
+        Creates an immutable and detached copy of this set, optionally restricted to the given annotation ids.
+        A detached annotation set does not have an owning document and deleting or adding annotations does not
+        change the annotations stored with the document. However, the annotations in a detached annotation set
+        are the same as those stored in the attached set, so updating their features will modify the annotations
+        in the document as well.
 
         Args:
-          restrict_to: an iterable of annotation ids, if None, all the annotations from this set. (Default value = None)
+          restrict_to: an iterable of annotation ids, if None, all the annotations from this set.
 
         Returns:
-          an immutable annotation set with all the annotations of this set or restricted to the ids
-          in restrict_to
-
+          an immutable annotation set
         """
         annset = AnnotationSet(name="detached-from:"+self.name)
         annset._is_immutable = True
@@ -98,7 +99,8 @@ class AnnotationSet:
         return annset
 
     def detach_from(self, anns: Iterable) -> "AnnotationSet":
-        """Create an immutable detached annotation set from the annotations in anns which could by
+        """
+        Creates an immutable detached annotation set from the annotations in anns which could by
         either a collection of annotations or annotation ids (int numbers) which are assumed to
         be the annotation ids from this set.
         
@@ -106,12 +108,9 @@ class AnnotationSet:
 
         Args:
           anns: an iterable of annotations
-          anns: Iterable: 
 
         Returns:
-          an immutable annotation set with all the annotations of this set or restricted to the ids
-          in restrict_to
-
+          an immutable detached annotation set
         """
         annset = AnnotationSet(name="detached-from:"+self.name)
         annset._is_immutable = True
@@ -132,40 +131,27 @@ class AnnotationSet:
     @property
     def immutable(self) -> bool:
         """
+        Get or set the immutability of the annotation set. If it is immutable, annotations cannot be added
+        or removed from the set, but the annotations themselves can still have their features modified.
 
-        Args:
-
-        Returns:
-          :return: True if immutable
-
+        All detached annotation sets are immutable when created, but can be made mutable afterwards.
         """
         return self._is_immutable
 
     @immutable.setter
     def immutable(self, val: bool) -> None:
-        """Set the annotationset to mutable (False) or immutable (True)
-
-        Args:
-          val: boolean, True to set to immutable, False, otherwise.
-          val: bool: 
-
-        Returns:
-
-        """
         self._is_immutable = val
 
     def isdetached(self) -> bool:
-        """ """
+        """
+        Returns True if the annotation set is detached, False otherwise.
+        """
         return self._owner_doc is None
 
     def _create_index_by_offset(self) -> None:
-        """Generates the offset index, if it does not already exist.
+        """
+        Generates the offset index, if it does not already exist.
         The offset index is an interval tree that stores the annotation ids for the offset interval of the annotation.
-
-        Args:
-
-        Returns:
-
         """
         if self._index_by_offset is None:
             self._index_by_offset = SortedIntvls()
@@ -175,11 +161,6 @@ class AnnotationSet:
     def _create_index_by_type(self) -> None:
         """Generates the type index, if it does not already exist. The type index is a map from
         annotation type to a set of all annotation ids with that type.
-
-        Args:
-
-        Returns:
-
         """
         if self._index_by_type is None:
             self._index_by_type = defaultdict(set)
@@ -187,14 +168,12 @@ class AnnotationSet:
                 self._index_by_type[ann.type].add(ann.id)
 
     def _add_to_indices(self, annotation: Annotation) -> None:
-        """If we have created the indices, add the annotation to them.
+        """
+        If we have created the indices, add the annotation to them.
 
         Args:
           annotation: the annotation to add to the indices.
           annotation: Annotation: 
-
-        Returns:
-
         """
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].add(annotation.id)
@@ -207,9 +186,6 @@ class AnnotationSet:
         Args:
           annotation: the annotation to remove.
           annotation: Annotation: 
-
-        Returns:
-
         """
         if self._index_by_offset is not None:
             self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
@@ -226,7 +202,6 @@ class AnnotationSet:
 
         Returns:
           list of ids
-
         """
         if ignore is not None:
             return [i[2] for i in intvs if i[2] != ignore]
@@ -243,7 +218,6 @@ class AnnotationSet:
 
         Returns:
           set of ids
-
         """
         ret = set()
         if ignore is not None:
@@ -278,40 +252,27 @@ class AnnotationSet:
     @property
     def size(self) -> int:
         """
-
-        Args:
-
-        Returns:
-          :return: number of annotations
-
+        Returns the number of annotations in the annotation set.
         """
         return len(self._annotations)
 
     @property
     def document(self) -> Union["Document", None]:
-        """Get the owning document, if known. If the owning document was not set, return None.
-        
-        :return: the document this annotation set belongs to or None if unknown.
-
-        Args:
-
-        Returns:
-
+        """
+        Returns the owning document, if set. If the owning document was not set, returns None.
         """
         return self._owner_doc
 
     @support_annotation_or_set
     def _check_offsets(self, start: int, end: int, annid=None) -> None:
-        """Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
+        """
+        Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
         document and if the owning document has text.
 
         Args:
           start: int: 
           end: int: 
           annid:  (Default value = None)
-
-        Returns:
-
         """
         if self._owner_doc is None:
             return
@@ -335,16 +296,11 @@ class AnnotationSet:
     @property
     def start(self):
         """
+        Returns the smallest start offset of all annotations, i.e the start of the span of the whole set.
+        This needs the index and creates it if necessary.
 
-        Args:
-
-        Returns:
-          This needs the index and creates it if necessary.
-          
-          Throws an exception if there are no annotations in the set.
-          
-          :return: smallest annotation offset
-
+        Throws:
+          an exception if there are no annotations in the set.
         """
         if self.size == 0:
             raise Exception("Annotation set is empty, cannot determine start offset")
@@ -353,15 +309,12 @@ class AnnotationSet:
 
     @property
     def end(self):
-        """Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
+        """
+        Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
         This needs the index and creates it if necessary.
         
-        :return: largest end offset
-
-        Args:
-
-        Returns:
-
+        Throws:
+          an exception if there are no annotations in the set.
         """
         if self.size == 0:
             raise Exception("Annotation set is empty, cannot determine end offset")
@@ -371,40 +324,30 @@ class AnnotationSet:
     @property
     def length(self):
         """
+        Returns the the length of the annotation set span.
 
-        Args:
-
-        Returns:
-          This needs the index and creates it if necessary.
-          
-          :return: length of the annotation set span
-
+        Throws:
+          an exception if there are no annotations in the set.
         """
         return self.end() - self.start()
 
     def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
-        """Add an annotation to the set. Once an annotation has been added, the start and end offsets,
-        the type, and the annotation id are immutable.
+        """
+        Adds an annotation to the set. Once an annotation has been added, the start and end offsets,
+        the type, and the annotation id of the annotation are immutable.
 
         Args:
           start: start offset
           end: end offset
           anntype: the annotation type
           features: a map, an iterable of tuples or an existing feature map. In any case, the features are used
-        to create a new feature map for this annotation. If the map is empty or this parameter is None, the
-        annotation does not store any map at all.
+            to create a new feature map for this annotation. If the map is empty or this parameter is None, the
+            annotation does not store any map at all.
           annid: the annotation id, if not specified the next free one for this set is used. NOTE: the id should
-        normally left unspecified and get assigned automatically.
-          start: int: 
-          end: int: 
-          anntype: str: 
-          features: Dict[str: 
-          Any]:  (Default value = None)
-          annid: int:  (Default value = None)
+            normally left unspecified and get assigned automatically.
 
         Returns:
-          the new annotation
-
+            the new annotation
         """
         if annid is not None and not isinstance(annid, int):
             raise Exception("Parameter annid must be an int, mixed up with features?")
@@ -438,31 +381,29 @@ class AnnotationSet:
         return ann
 
     def add_ann(self, ann, annid: int = None):
-        """Add a copy of the given ann to the annotation set, either with a new annotation id or
+        """
+        Adds a shallow copy of the given ann to the annotation set, either with a new annotation id or
         with the one given.
 
         Args:
-          annid: the annotation id, if not specified the next free one for this set is used.
-        NOTE: the id should normally left unspecified and get assigned automatically.
-          ann: 
-          annid: int:  (Default value = None)
+          ann: the annotation to copy into the set
+          annid: the annotation id, if not specified the next free one for this set is used. Note:
+             the id should normally left unspecified and get assigned automatically.
 
         Returns:
-          the annotation id of the added annotation
-
+          the added annotation
         """
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
     def remove(self, annotation: Union[int, Annotation]) -> None:
-        """Remove the given annotation which is either the id or the annotation instance.
+        """
+        Removes the given annotation which is either the id or the annotation instance.
+
+        Throws:
+            exception if the annotation set is immutable or the annotation is not in the set
 
         Args:
           annotation: either the id (int) or the annotation instance (Annotation)
-          annotation: Union[int: 
-          Annotation]: 
-
-        Returns:
-
         """
         annid = None  # make pycharm happy
         if self._is_immutable:
@@ -489,14 +430,8 @@ class AnnotationSet:
         self._remove_from_indices(annotation)
 
     def clear(self) -> None:
-        """Remove all annotations from the set.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        """
+        Removes all annotations from the set.
         """
         self._annotations.clear()
         self._index_by_offset = None
@@ -507,16 +442,14 @@ class AnnotationSet:
                 "set": self.name})
 
     def clone_anns(self, memo=None):
-        """Replace the annotations in this set with copies of the originals. If this is a detached set,
+        """
+        Replaces the annotations in this set with deep copies of the originals. If this is a detached set,
         then this makes sure that any modifications to the annotations do not affect the original annotations
         in the attached set. If this is an attached set, it makes sure that all other detached sets cannot affect
         the annotations in this set any more. The owning set of the annotations that get cloned is cleared.
 
         Args:
-          memo: for internal use by our __deepcopy__ implementation. (Default value = None)
-
-        Returns:
-
+          memo: for internal use by our __deepcopy__ implementation.
         """
         tmpdict = {}
         for annid, ann in self._annotations.items():
@@ -529,14 +462,15 @@ class AnnotationSet:
     def __copy__(self):
         """
         NOTE: creating a copy always creates a detached set, but a mutable one.
-        :return:
         """
         c = self.detach()
         c._is_immutable = False
         return c
 
     def copy(self):
-        """ """
+        """
+        Returns a shallow copy of the annotation set.
+        """
         return self.__copy__()
 
     def __deepcopy__(self, memo=None):
@@ -548,7 +482,9 @@ class AnnotationSet:
         return c
 
     def deepcopy(self):
-        """ """
+        """
+        Returns a deep copy of the annotation set.
+        """
         return copy.deepcopy(self)
 
     def __iter__(self) -> Iterator:
@@ -558,7 +494,8 @@ class AnnotationSet:
         Important: using the iterator will always create the index if it is not already there!
         For fast iteration use fast_iter() which does not allow sorting or offset ranges.
 
-        :return: a generator for the annotations in document order
+        Yields:
+            the annotations in document order
         """
         # return iter(self._annotations.values())
         return self.iter()
@@ -723,13 +660,11 @@ class AnnotationSet:
         Args:
           anntype: one or more types or type lists. The union of all types specified that way
         is used to filter the annotations. If no type is specified, all annotations are selected.
+
           non_overlapping: if True, only return annotations of any of the given types which
         do not overlap with other annotations. If there are several annotations that start at
         the same offset, use the type that comes first in the parameters, if there are more
         than one of that type, use the one that would come first in the usual sort order.
-          *anntype: Union[str: 
-          Iterable]: 
-          non_overlapping: bool:  (Default value = False)
 
         Returns:
           an immutable annotation set with the matching annotations.

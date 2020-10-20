@@ -1,11 +1,10 @@
 """
-An annotation is immutable, but the features it contains are mutable.
+Annotation: information about a span of text in  a document.
 """
 import sys
 from typing import List, Union, Dict, Set, Tuple
 import copy
 from functools import total_ordering
-# from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp._utils import support_annotation_or_set
@@ -13,79 +12,16 @@ from gatenlp._utils import support_annotation_or_set
 
 @total_ordering
 class Annotation:
-    """An annotation represents information about a span of text. It contains the start and end
-    offsets of the span, an "annotation type" and it is a feature bearer.
+    """
+    An annotation represents information about a span of text. It contains the start and end
+    offsets of the span, an "annotation type" and an arbitrary number of features.
+
     In addition it contains an id which has no meaning for the annotation itself but is
     used to uniquely identify an annotation within the set it is contained in.
+
     All fields except the features are immutable, once the annotation has been created
     only the features can be changed.
-
-    Args:
-
-    Returns:
-
     """
-
-    @property
-    def type(self):
-        """:return: the type of the annotation, immutable."""
-        return self._type
-
-    @property
-    def start(self):
-        """:return: the start offset of the annotation, immutable."""
-        return self._start
-
-    @property
-    def end(self):
-        """Returns the end offset of the annotation, immutable.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
-        """
-        return self._end
-
-    @property
-    def features(self):
-        """Get the features for the annotation.
-        
-        :return: the Features object.
-
-        Args:
-
-        Returns:
-
-        """
-        return self._features
-
-    @property
-    def id(self):
-        """
-
-        Args:
-
-        Returns:
-          :return:
-
-        """
-        return self._id
-
-    @property
-    def span(self) -> Tuple[int, int]:
-        """Returns a tuple with the start and end offset of the annotation.
-        
-        :return: tuple of start and end offsets
-
-        Args:
-
-        Returns:
-
-        """
-        return self.start, self.end
 
     def __init__(
             self, start: int, end: int, anntype: str,
@@ -93,16 +29,18 @@ class Annotation:
             annid: int = 0
     ):
         """
-        Create a new annotation instance. NOTE: this should almost never be done directly
-        and instead the method annotation_set.add should be used!
-        Once an annotation has been created, the start, end, type and id fields must not
-        be changed!
+        This constructor creates a new annotation instance. Once an annotation has been created,
+        the start, end, type and id fields cannot be changed.
 
-        :param start: start offset of the annotation
-        :param end: end offset of the annotation
-        :param anntype: annotation type
-        :param features: an initial collection of features, None for no features.
-        :param annid: the id of the annotation
+        NOTE: this should almost never be done directly
+        and instead the method AnnotationSet.add should be used.
+
+        Args:
+            start: start offset of the annotation
+            end: end offset of the annotation
+            anntype: annotation type
+            features: an initial collection of features, None for no features.
+            annid: the id of the annotation
         """
         if end < start:
             raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start > end")
@@ -122,15 +60,49 @@ class Annotation:
         self._end = end
         self._id = annid
 
+    @property
+    def type(self) -> str:
+        """
+        Returns the annotation type.
+        """
+        return self._type
+
+    @property
+    def start(self) -> int:
+        """
+        Returns the start offset.
+        """
+        return self._start
+
+    @property
+    def end(self):
+        """
+        Returns the end offset.
+        """
+        return self._end
+
+    @property
+    def features(self):
+        """
+        Returns the features for the annotation.
+        """
+        return self._features
+
+    @property
+    def id(self):
+        """
+        Returns the annotation id.
+        """
+        return self._id
+
+    @property
+    def span(self) -> Tuple[int, int]:
+        """
+        Returns a tuple with the start and end offset of the annotation.
+        """
+        return self.start, self.end
+
     def _changelog(self):
-        """
-
-        Args:
-
-        Returns:
-          :return: the changelog
-
-        """
         if self._owner_set is not None:
             return self._owner_set.changelog
 
@@ -170,9 +142,6 @@ class Annotation:
         """
         Two annotations are identical if they are the same object or if all the fields
         are equal.
-
-        :param other: the object to compare with
-        :return: if the annotations are equal
         """
         if not isinstance(other, Annotation):
             return False
@@ -184,8 +153,6 @@ class Annotation:
     def __hash__(self):
         """
         The hash depends on the annotation ID and the owning set.
-
-        :return: hash
         """
         return hash((self.id, self._owner_set))
 
@@ -194,10 +161,8 @@ class Annotation:
         Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
         Since annotation ids within a set are unique, this guarantees a unique order of annotations that
         come from an annotation set.
-        NOTE: for now the other object has to be an instance of Annotation, duck typing is not supported!
 
-        :param other: another annotation
-        :return:
+        Note: for now the other object has to be an instance of Annotation, duck typing is not supported!
         """
         if not isinstance(other, Annotation):
             raise Exception("Cannot compare to non-Annotation")
@@ -211,93 +176,94 @@ class Annotation:
     def __repr__(self) -> str:
         """
         String representation of the annotation.
-
-        :return: string representation
         """
         return "Annotation({},{},{},features={},id={})".format(self.start, self.end, self.type, self._features, self.id)
 
     @property
     def length(self) -> int:
-        """The length of the annotation is the length of the offset span. Since the end offset is one after the last
+        """
+        Returns the length of the annotation: this is the length of the offset span.
+        Since the end offset is one after the last
         element, we return end-start. Note: this is deliberately not implemented as len(ann), as
         len(annset) returns the number of annotations in the set but annset.length() also returns the
         span length of the annotation set, so the method name for this is identical between annotations
         and annotation sets.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
         """
         return self.end - self.start
 
     @support_annotation_or_set
     def isoverlapping(self, start: int, end: int) -> bool:
-        """Checks if this annotation is overlapping with the given span, annotation or
+        """
+        Checks if this annotation is overlapping with the given span, annotation or
         annotation set.
         An annotation is overlapping with a span if the first or last character
         is inside that span.
 
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
         Args:
           start: start offset of the span
           end: end offset of the span
-          start: int: 
-          end: int: 
 
         Returns:
-          True if overlapping, False otherwise
+          `True` if overlapping, `False` otherwise
 
         """
         return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -> bool:
-        """Checks if this annotation is coextensive with the given span, annotation or
+        """
+        Checks if this annotation is coextensive with the given span, annotation or
         annotation set, i.e. has exactly the same start and end offsets.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
 
         Args:
           start: start offset of the span
           end: end offset of the span
-          start: int: 
-          end: int: 
 
         Returns:
-          True if coextensive, False otherwise
+          `True` if coextensive, `False` otherwise
 
         """
         return self.start == start and self.end == end
 
     @support_annotation_or_set
     def iswithin(self, start: int, end: int) -> bool:
-        """Checks if this annotation is within the given span, annotation or
+        """
+        Checks if this annotation is within the given span, annotation or
         annotation set, i.e. both the start and end offsets of this annotation
         are after the given start and before the given end.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
 
         Args:
           start: start offset of the span
           end: end offset of the span
-          start: int: 
-          end: int: 
 
         Returns:
-          True if within, False otherwise
+          `True` if within, `False` otherwise
 
         """
         return start <= self.start and end >= self.end
 
     @support_annotation_or_set
     def isbefore(self, start: int, end: int, immediately=False) -> bool:
-        """Checks if this annotation is before the other span, i.e. the end of this annotation
+        """
+        Checks if this annotation is before the other span, i.e. the end of this annotation
         is before the start of the other annotation or span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
 
         Args:
           start: start offset of the span
           end: end offset of the span
           immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
-          start: int: 
-          end: int: 
 
         Returns:
           True if before, False otherwise
@@ -313,12 +279,13 @@ class Annotation:
         """Checks if this annotation is after the other span, i.e. the start of this annotation
         is after the end of the other annotation or span.
 
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
         Args:
           start: start offset of the span
           end: end offset of the span
           immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
-          start: int: 
-          end: int: 
 
         Returns:
           True if after, False otherwise
@@ -337,11 +304,12 @@ class Annotation:
         
         This is negative if the annotations overlap.
 
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
         Args:
           start: start offset of span
           end: end offset of span
-          start: int: 
-          end: int: 
 
         Returns:
           size of gap
@@ -368,11 +336,12 @@ class Annotation:
         If end is not given, then the method checks if start is an offset of a character
         contained in the span.
 
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
         Args:
           start: start offset of the span
           end: end offset of the span
-          start: int: 
-          end: int:  (Default value = None)
 
         Returns:
           True if covering, False otherwise
@@ -384,15 +353,17 @@ class Annotation:
             return self.start <= start and self.end >= end
 
     def to_dict(self, offset_mapper=None, offset_type=None):
-        """Return a representation of this annotation as a nested map. This representation is
+        """
+        Return a representation of this annotation as a nested map. This representation is
         used for several serialization methods.
 
         Args:
-          offset_mapper: used if an offset_type is also specified. (Default value = None)
-          offset_type: return: (Default value = None)
+            offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+            offset_type: the offset type to be used for the conversionm must be specified if
+               `offset_mapper` is specified
 
         Returns:
-
+            the dictionary representation of the Annotation
         """
         if (offset_mapper and not offset_type) or (not offset_mapper and offset_type):
             raise Exception("offset_mapper and offset_type must be specified both or none")
@@ -418,16 +389,13 @@ class Annotation:
 
     @staticmethod
     def from_dict(dictrepr, owner_set=None, **kwargs):
-        """Construct an annotation object from the dictionary representation.
+        """
+        Construct an annotation object from the dictionary representation.
 
         Args:
           dictrepr: dictionary representation
           owner_set: the owning set the annotation should have (Default value = None)
           kwargs: ignored
-          **kwargs: 
-
-        Returns:
-
         """
         ann = Annotation(
             start=dictrepr.get("start"),
@@ -444,12 +412,7 @@ class Annotation:
 
     def copy(self):
         """
-
-        Args:
-
-        Returns:
-          :return: shallow copy
-
+        Return a shallow copy of the annotation (features are shared).
         """
         return self.__copy__()
 
@@ -462,11 +425,6 @@ class Annotation:
 
     def deepcopy(self):
         """
-
-        Args:
-
-        Returns:
-          :return: deep copy
-
+        Return a deep copy of the annotation (features and their values are copied as well).
         """
         return copy.deepcopy(self)

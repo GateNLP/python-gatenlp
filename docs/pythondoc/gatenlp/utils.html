@@ -30,6 +30,11 @@
 <pre><code class="python">&#34;&#34;&#34;
 Various utilities that could be useful in several modules.
 &#34;&#34;&#34;
+import sys
+import os
+import logging
+import datetime
+import time
 
 
 def to_dict(obj):
@@ -121,7 +126,112 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     if unmatched:
         return ret, ret2
     else:
-        return ret</code></pre>
+        return ret
+
+
+logger = None
+start = 0
+
+
+def set_logger(name=None, file=None, lvl=None, args=None):
+    &#34;&#34;&#34;
+    Set up logger for the module &#34;name&#34;. If file is given, log to that file as well.
+    If file is not given but args is given and has &#34;outpref&#34; parameter, log to
+    file &#34;outpref.DATETIME.log&#34; as well.
+
+    Args:
+        name: name to use in the log, if None, uses sys.argv[0]
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        args: not used yet
+
+    Returns:
+        The logger instance
+    &#34;&#34;&#34;
+    global logger
+    if name is None:
+        name = sys.argv[0]
+    if logger:
+        raise Exception(&#34;Odd, we should not have a logger yet?&#34;)
+    logger = logging.getLogger(name)
+    if lvl is None:
+        lvl = logging.INFO
+    logger.setLevel(lvl)
+    fmt = logging.Formatter(&#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;)
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    logger.addHandler(hndlr)
+    if file:
+        hdnlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        logger.addHandler(hdnlr)
+    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    return logger
+
+
+def ensurelogger():
+    &#34;&#34;&#34;
+    Make sure the global logger is set to some logger. This should not be necessary
+    if the set_logger function is properly used, but guards against situations where
+    functions that require a logger are used without proper setting up the logger.
+
+    Returns:
+        A logger instance.
+    &#34;&#34;&#34;
+    global logger
+    if not logger:
+        logger = logging.getLogger(&#34;UNINITIALIZEDLOGGER&#34;)
+    return logger
+
+
+def run_start():
+    &#34;&#34;&#34;
+    Define time when running starts.
+
+    Returns:
+        system time in seconds
+    &#34;&#34;&#34;
+    global  start
+    start = time.time()
+    return start
+
+
+def run_stop():
+    &#34;&#34;&#34;
+    Log and return formatted elapsed run time.
+
+    Returns:
+        tuple of formatted run time, run time in seconds
+    &#34;&#34;&#34;
+    logger = ensurelogger()
+    if start == 0:
+        logger.warning(&#34;Run timing not set up properly, no time!&#34;)
+        return &#34;&#34;,0
+    stop = time.time()
+    delta = stop - start
+    deltastr = str(datetime.timedelta(seconds=delta))
+    logger.info(f&#34;Runtime: {deltastr}&#34;)
+    return deltastr, delta
+
+
+def file4logger(thelogger, noext=False):
+    &#34;&#34;&#34;
+    Return the first logging file found for this logger or None if there is no file handler.
+
+    Args:
+        thelogger: logger
+
+    Returns:
+        file path (string)
+    &#34;&#34;&#34;
+    lpath = None
+    for h in thelogger.handlers:
+        if isinstance(h, logging.FileHandler):
+            lpath = h.baseFilename
+            if noext:
+                lpath = os.path.splitext(lpath)[0]
+            break
+    return lpath</code></pre>
 </details>
 </section>
 <section>
@@ -131,6 +241,70 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="gatenlp.utils.ensurelogger"><code class="name flex">
+<span>def <span class="ident">ensurelogger</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make sure the global logger is set to some logger. This should not be necessary
+if the set_logger function is properly used, but guards against situations where
+functions that require a logger are used without proper setting up the logger.</p>
+<h2 id="returns">Returns</h2>
+<p>A logger instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensurelogger():
+    &#34;&#34;&#34;
+    Make sure the global logger is set to some logger. This should not be necessary
+    if the set_logger function is properly used, but guards against situations where
+    functions that require a logger are used without proper setting up the logger.
+
+    Returns:
+        A logger instance.
+    &#34;&#34;&#34;
+    global logger
+    if not logger:
+        logger = logging.getLogger(&#34;UNINITIALIZEDLOGGER&#34;)
+    return logger</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.file4logger"><code class="name flex">
+<span>def <span class="ident">file4logger</span></span>(<span>thelogger, noext=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the first logging file found for this logger or None if there is no file handler.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>thelogger</code></strong></dt>
+<dd>logger</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>file path (string)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def file4logger(thelogger, noext=False):
+    &#34;&#34;&#34;
+    Return the first logging file found for this logger or None if there is no file handler.
+
+    Args:
+        thelogger: logger
+
+    Returns:
+        file path (string)
+    &#34;&#34;&#34;
+    lpath = None
+    for h in thelogger.handlers:
+        if isinstance(h, logging.FileHandler):
+            lpath = h.baseFilename
+            if noext:
+                lpath = os.path.splitext(lpath)[0]
+            break
+    return lpath</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.utils.match_substrings"><code class="name flex">
 <span>def <span class="ident">match_substrings</span></span>(<span>text, items, getstr=None, cmp=None, unmatched=False)</span>
 </code></dt>
@@ -224,6 +398,118 @@ start and end offsets of a substring in the text and item is the item for that s
         return ret</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.utils.run_start"><code class="name flex">
+<span>def <span class="ident">run_start</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Define time when running starts.</p>
+<h2 id="returns">Returns</h2>
+<p>system time in seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_start():
+    &#34;&#34;&#34;
+    Define time when running starts.
+
+    Returns:
+        system time in seconds
+    &#34;&#34;&#34;
+    global  start
+    start = time.time()
+    return start</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.run_stop"><code class="name flex">
+<span>def <span class="ident">run_stop</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Log and return formatted elapsed run time.</p>
+<h2 id="returns">Returns</h2>
+<p>tuple of formatted run time, run time in seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_stop():
+    &#34;&#34;&#34;
+    Log and return formatted elapsed run time.
+
+    Returns:
+        tuple of formatted run time, run time in seconds
+    &#34;&#34;&#34;
+    logger = ensurelogger()
+    if start == 0:
+        logger.warning(&#34;Run timing not set up properly, no time!&#34;)
+        return &#34;&#34;,0
+    stop = time.time()
+    delta = stop - start
+    deltastr = str(datetime.timedelta(seconds=delta))
+    logger.info(f&#34;Runtime: {deltastr}&#34;)
+    return deltastr, delta</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.set_logger"><code class="name flex">
+<span>def <span class="ident">set_logger</span></span>(<span>name=None, file=None, lvl=None, args=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set up logger for the module "name". If file is given, log to that file as well.
+If file is not given but args is given and has "outpref" parameter, log to
+file "outpref.DATETIME.log" as well.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>name to use in the log, if None, uses sys.argv[0]</dd>
+<dt><strong><code>file</code></strong></dt>
+<dd>if given, log to this destination in addition to stderr</dd>
+<dt><strong><code>lvl</code></strong></dt>
+<dd>set logging level</dd>
+<dt><strong><code>args</code></strong></dt>
+<dd>not used yet</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The logger instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_logger(name=None, file=None, lvl=None, args=None):
+    &#34;&#34;&#34;
+    Set up logger for the module &#34;name&#34;. If file is given, log to that file as well.
+    If file is not given but args is given and has &#34;outpref&#34; parameter, log to
+    file &#34;outpref.DATETIME.log&#34; as well.
+
+    Args:
+        name: name to use in the log, if None, uses sys.argv[0]
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        args: not used yet
+
+    Returns:
+        The logger instance
+    &#34;&#34;&#34;
+    global logger
+    if name is None:
+        name = sys.argv[0]
+    if logger:
+        raise Exception(&#34;Odd, we should not have a logger yet?&#34;)
+    logger = logging.getLogger(name)
+    if lvl is None:
+        lvl = logging.INFO
+    logger.setLevel(lvl)
+    fmt = logging.Formatter(&#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;)
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    logger.addHandler(hndlr)
+    if file:
+        hdnlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        logger.addHandler(hdnlr)
+    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    return logger</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.utils.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>obj)</span>
 </code></dt>
@@ -305,8 +591,13 @@ start and end offsets of a substring in the text and item is the item for that s
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="gatenlp.utils.ensurelogger" href="#gatenlp.utils.ensurelogger">ensurelogger</a></code></li>
+<li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
+<li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>
+<li><code><a title="gatenlp.utils.run_stop" href="#gatenlp.utils.run_stop">run_stop</a></code></li>
+<li><code><a title="gatenlp.utils.set_logger" href="#gatenlp.utils.set_logger">set_logger</a></code></li>
 <li><code><a title="gatenlp.utils.to_dict" href="#gatenlp.utils.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.utils.to_list" href="#gatenlp.utils.to_list">to_list</a></code></li>
 </ul>
