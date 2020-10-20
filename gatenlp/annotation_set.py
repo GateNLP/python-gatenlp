@@ -647,28 +647,31 @@ class AnnotationSet:
         """
         Gets the annotation with the given annotation id or throws an exception.
 
-        :param item: the annotation id
-        :return: annotation
+        Args:
+            annid: the annotation id
+
+        Returns:
+            annotation
         """
         return self._annotations[annid]
 
     def with_type(self, *anntype: Union[str, Iterable],
                   non_overlapping: bool = False) -> "AnnotationSet":
-        """Gets annotations of the specified type(s).
+        """
+        Gets annotations of the specified type(s).
         Creates the type index if necessary.
 
         Args:
           anntype: one or more types or type lists. The union of all types specified that way
-        is used to filter the annotations. If no type is specified, all annotations are selected.
+            is used to filter the annotations. If no type is specified, all annotations are selected.
 
           non_overlapping: if True, only return annotations of any of the given types which
-        do not overlap with other annotations. If there are several annotations that start at
-        the same offset, use the type that comes first in the parameters, if there are more
-        than one of that type, use the one that would come first in the usual sort order.
+            do not overlap with other annotations. If there are several annotations that start at
+            the same offset, use the type that comes first in the parameters, if there are more
+            than one of that type, use the one that would come first in the usual sort order.
 
         Returns:
-          an immutable annotation set with the matching annotations.
-
+          a detached immutable annotation set with the matching annotations.
         """
         atypes = []
         for atype in anntype:
@@ -744,16 +747,7 @@ class AnnotationSet:
 
     def by_offset(self):
         """
-
-        Args:
-
-        Returns:
-          annotations that start at the same offset, sorted in their natural order.
-          
-          NOTE: creates the index!
-          
-          :return: a generator for lists of annotations
-
+        Yields lists of annotations which start at the same offset.
         """
         self._create_index_by_offset()
         lastoff = -1
@@ -771,16 +765,7 @@ class AnnotationSet:
 
     def by_span(self):
         """
-
-        Args:
-
-        Returns:
-          annotations with identical spans.
-          
-          NOTE: creates the index!
-          
-          :return: a generator for lists of annotations
-
+        Yields list of annotations with identical spans.
         """
         self._create_index_by_offset()
         lastsoff = -1
@@ -800,37 +785,30 @@ class AnnotationSet:
 
     @property
     def type_names(self) -> KeysView[str]:
-        """Gets the names of all types in this set. Creates the type index if necessary.
-        
-        :return: the set of known annotation type names.
-
-        Args:
-
-        Returns:
-
+        """
+        Gets the names of all types in this set. Creates the type index if necessary.
         """
         self._create_index_by_type()
         return self._index_by_type.keys()
 
     @support_annotation_or_set
     def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
-        """Gets all annotations starting at the given offset (empty if none) and returns them in an immutable
+        """
+        Gets all annotations starting at the given offset (empty if none) and returns them in a detached
         annotation set.
+
+        Note: this can be called with an annotation or annotation set instead of the start offset. If called
+        with an annotation, this annotation is not included in the result set if `include_self` is `False`
 
         Args:
           start: the offset where annotations should start
-          ignored: dummy parameter to allow the use of annotations and annotation sets
-          start: int: 
-          ignored: Any:  (Default value = None)
-          annid:  (Default value = None)
           include_self:  (Default value = False)
+          ignored: dummy parameter to allow the use of annotations and annotation sets
+          annid:  dummy parameter to allow the use of annotations and annotation sets
 
         Returns:
-          annotation set of matching annotations
-
+            detached annotation set of matching annotations
         """
-        # NOTE: my assumption about how intervaltree works was wrong, so we need to filter what we get from the
-        # point query
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(start)
         if not include_self and annid is not None:
@@ -917,7 +895,6 @@ class AnnotationSet:
           offset: offset before which the annotations should start
           ignored: dummy parameter to allow the use of annotations and annotation sets
           offset: int: 
-          ignored: Any:  (Default value = None)
           annid:  (Default value = None)
 
         Returns:
@@ -941,7 +918,7 @@ class AnnotationSet:
           end: end offset of the span
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
-        annotation in the result set. (Default value = False)
+            annotation in the result set. (Default value = False)
           start: int: 
           end: int: 
 
@@ -969,7 +946,7 @@ class AnnotationSet:
           end: the end offset of the span
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
-        annotation in the result set. (Default value = False)
+            annotation in the result set. (Default value = False)
           start: int: 
           end: int: 
 
@@ -997,7 +974,7 @@ class AnnotationSet:
           end: end offset of the range
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
-        annotation in the result set. (Default value = False)
+             annotation in the result set. (Default value = False)
           start: int: 
           end: int: 
 
