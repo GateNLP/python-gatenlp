@@ -92,7 +92,12 @@ setup(
     description='GATE NLP implementation in Python.',
     long_description=readme,
     long_description_content_type='text/markdown',
-    setup_requires=["pytest-runner"],
+    setup_requires=[
+        "pytest-runner",
+        # TODO: figure those out:
+        #"setuptools_git",
+        #"setuptools_scm", 
+        ],
     install_requires=[
       'sortedcontainers>=2.0.0',
     ],

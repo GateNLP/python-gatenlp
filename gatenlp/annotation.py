@@ -1,5 +1,5 @@
 """
-Annotation: information about a span of text in  a document.
+Module for Annotation class which represents information about a span of text in  a document.
 """
 import sys
 from typing import List, Union, Dict, Set, Tuple

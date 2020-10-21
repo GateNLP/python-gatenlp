@@ -1,6 +1,5 @@
 """
-An annotation set contains an arbitrary number of annotations, which can overlap in arbitrary ways.
-Each annotation set has a name and a document can have as many named annotation sets as needed.
+Module for AnnotationSet class which represents a named collection of annotations which can arbitrarily overlap.
 """
 
 from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
@@ -12,8 +11,12 @@ from gatenlp._utils import support_annotation_or_set
 from collections.abc import Iterable
 
 __pdoc__ = {
-    "AnnotationSet.__iter__": True
+    "AnnotationSet.__iter__": True,
+    "AnnotationSet.__contains__": True,
+    "AnnotationSet.__getitem__": True,
+    "AnnotationSet.__len__": True,
 }
+
 
 class InvalidOffsetError(KeyError):
     """ """
@@ -27,9 +30,12 @@ class AnnotationSet:
         method `Document.annset(name)` should be used to access the annotation set with a given
         name from the document.
 
+        An annotation set contains an arbitrary number of annotations, which can overlap in arbitrary ways.
+        Each annotation set has a name and a document can have as many named annotation sets as needed.
+
+
         Args:
-          name: the name of the annotation set.
-          changelog: use the given changelog
+          name: the name of the annotation set, default: the empty string (default annotation set)
           owner_doc: if this is set, the set and all sets created from it can be queried for the
               owning document and offsets get checked against the text of the owning document, if it has
               text. Also, the changelog is only updated if an annotation set has an owning document.
@@ -489,7 +495,7 @@ class AnnotationSet:
 
     def __iter__(self) -> Iterator:
         """
-        Iterator for going through all the annotations of the set.
+        Yields all the annotations of the set.
 
         Important: using the iterator will always create the index if it is not already there!
         For fast iteration use fast_iter() which does not allow sorting or offset ranges.
@@ -501,14 +507,9 @@ class AnnotationSet:
         return self.iter()
 
     def fast_iter(self) -> Generator:
-        """Returns a generator for fast iteration over all annotations in arbitrary order.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        """
+        Yields annotations in insertion order. This is faster then the default iterator and does not
+        need to index (so if the index does not exist, it will not be built).
         """
         if self._annotations:
             for annid, ann in self._annotations.items():
@@ -519,25 +520,19 @@ class AnnotationSet:
              start_lt: Union[None, int] = None,
              with_type: str = None,
              reverse: bool = False) -> Generator:
-        """Returns a generator for going through annotations in document order, otionally limited
+        """
+        Yields annotations in document order, otionally limited
         by the other parameters. If two annoations start at the same offset, they are always
         ordered by increasing annotation id.
 
         Args:
-          annotations: an iterable of annotations from this annotation set.
           start_ge: the offset from where to start including annotations
           start_lt: the last offset to use as the starting offset of an annotation
           with_type: only annotations of this type
           reverse: process in reverse document order
-          start_ge: Union[int: 
-          None]:  (Default value = None)
-          start_lt: Union[None: 
-          int]:  (Default value = None)
-          with_type: str:  (Default value = None)
-          reverse: bool:  (Default value = False)
 
-        Returns:
-          generator for annotations in document order
+        Yields:
+          annotations in document order
 
         """
 
@@ -567,11 +562,12 @@ class AnnotationSet:
             yield self._annotations[annid]
 
     def reverse_iter(self, **kwargs):
-        """Same as iter, but with the reverse parameter set to true.
+        """
+        Same as iter, but with the reverse parameter set to true.
 
         Args:
           kwargs: Same as for iter(), with revers=True fixed.
-          **kwargs: 
+          **kwargs: will get passed on the Annotation.iter
 
         Returns:
           same result as iter()
@@ -671,7 +667,7 @@ class AnnotationSet:
             than one of that type, use the one that would come first in the usual sort order.
 
         Returns:
-          a detached immutable annotation set with the matching annotations.
+            a detached immutable annotation set with the matching annotations.
         """
         atypes = []
         for atype in anntype:
@@ -802,9 +798,9 @@ class AnnotationSet:
 
         Args:
           start: the offset where annotations should start
-          include_self:  (Default value = False)
           ignored: dummy parameter to allow the use of annotations and annotation sets
           annid:  dummy parameter to allow the use of annotations and annotation sets
+          include_self:  should annotation passed be included in the result
 
         Returns:
             detached annotation set of matching annotations
@@ -826,10 +822,8 @@ class AnnotationSet:
         Args:
           offset: The offset
           ignored: dummy parameter to allow the use of annotations and annotation sets
-          offset: int: 
-          ignored: Any:  (Default value = None)
-          annid:  (Default value = None)
-          include_self:  (Default value = False)
+          annid:  annotation id
+          include_self: should annotation passed be included in the result
 
         Returns:
           annotation set of matching annotations
@@ -869,10 +863,8 @@ class AnnotationSet:
         Args:
           start: Start offset
           ignored: dummy parameter to allow the use of annotations and annotation sets
-          start: int: 
-          ignored: Any:  (Default value = None)
-          annid:  (Default value = None)
-          include_self:  (Default value = False)
+          annid:  annotation id
+          include_self:  should annotation passed be included in the result
 
         Returns:
           an immutable annotation set of the matching annotations
@@ -888,14 +880,14 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_lt(self, offset: int, ignored: Any = None, annid=None) -> "AnnotationSet":
-        """Return the annotations that start before the given offset (or annotation). This also accepts an annotation
+        """
+        Returns the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
 
         Args:
           offset: offset before which the annotations should start
           ignored: dummy parameter to allow the use of annotations and annotation sets
-          offset: int: 
-          annid:  (Default value = None)
+          annid:  annotation id
 
         Returns:
           an immutable annotation set of the matching annotations
@@ -908,7 +900,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def overlapping(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
-        """Gets annotations overlapping with the given span. Instead of the start and end offsets,
+        """
+        Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
         
         For each annotation ann in the result set, ann.overlapping(span) is True
@@ -919,8 +912,6 @@ class AnnotationSet:
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
             annotation in the result set. (Default value = False)
-          start: int: 
-          end: int: 
 
         Returns:
           an immutable annotation set with the matching annotations
@@ -936,7 +927,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def covering(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
-        """Get the annotations which contain the given offset range (or annotation/annotation set),
+        """
+        Gets the annotations which contain the given offset range (or annotation/annotation set),
         i.e. annotations such that the given offset range is within the annotation.
         
         For each annotation ann in the result set, ann.covering(span) is True.
@@ -947,8 +939,6 @@ class AnnotationSet:
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
             annotation in the result set. (Default value = False)
-          start: int: 
-          end: int: 
 
         Returns:
           an immutable annotation set with the matching annotations, if any
@@ -964,7 +954,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def within(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
-        """Gets annotations that fall completely within the given offset range, i.e. annotations
+        """
+        Gets annotations that fall completely within the given offset range, i.e. annotations
         such that the offset range is covering each of the annotation.
         
         For each annotation ann in the result set, ann.within(span) is True.
@@ -975,8 +966,6 @@ class AnnotationSet:
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
              annotation in the result set. (Default value = False)
-          start: int: 
-          end: int: 
 
         Returns:
           an immutable annotation set with the matching annotations
@@ -997,7 +986,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def coextensive(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
-        """Return an immutable annotation set with all annotations that start and end at the given offsets.
+        """
+        Returns a detached annotation set with all annotations that start and end at the given offsets.
         
         For each annotation ann in the result set, ann.coextensive(span) is True.
 
@@ -1006,13 +996,10 @@ class AnnotationSet:
           end: end offset of the span
           annid: the annotation id of the annotation representing the span. (Default value = None)
           include_self: if True and the annotation id for the span is given, do not include that
-        annotation in the result set. (Default value = False)
-          start: int: 
-          end: int: 
+             annotation in the result set.
 
         Returns:
           annotation set with all annotations that have the same start and end offsets.
-
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.at(start, end)
@@ -1024,16 +1011,10 @@ class AnnotationSet:
 
     @property
     def span(self) -> Tuple[int, int]:
-        """Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
+        """
+        Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
         and the largest end offset of any annotation.
         (Builds the offset index)
-        
-        :return: tuple of minimum start offset and maximum end offset
-
-        Args:
-
-        Returns:
-
         """
         self._create_index_by_offset()
         return self._index_by_offset.min_start(), self._index_by_offset.max_end()
@@ -1042,8 +1023,11 @@ class AnnotationSet:
         """
         Provides 'annotation in annotation_set' functionality
 
-        :param annorannid: the annotation instance or annotation id to check
-        :return: true if the annotation exists in the set, false otherwise
+        Args:
+            :param annorannid: the annotation instance or annotation id to check
+
+        Returns:
+            `True` if the annotation exists in the set, `False` otherwise
         """
         if isinstance(annorannid, Annotation):
             return annorannid.id in self._annotations
@@ -1053,20 +1037,19 @@ class AnnotationSet:
 
     def __repr__(self) -> str:
         """
-        String representation of the set.
-
-        :return: string representation.
+        Returns the string representation of the set.
         """
         return "AnnotationSet({})".format(repr(list(self.iter())))
 
     def to_dict(self, **kwargs):
         """
+        Convert an annotation set to its dict representation.
 
         Args:
-          **kwargs: 
+          **kwargs: passed on to the dict creation of contained annotations.
 
         Returns:
-
+            the dict representation of the annotation set.
         """
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
@@ -1079,14 +1062,15 @@ class AnnotationSet:
     @staticmethod
     def from_dict(dictrepr, owner_doc=None, **kwargs):
         """
+        Create an AnnotationSet from its dict representation and optionally set the owning document.
 
         Args:
-          dictrepr: 
-          owner_doc:  (Default value = None)
-          **kwargs: 
+          dictrepr: the dict representation of the annotation set
+          owner_doc:  the owning document
+          **kwargs: passed on to the creation of annotations
 
         Returns:
-
+            the annotation set
         """
         annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
         annset._next_annid = dictrepr.get("next_annid")

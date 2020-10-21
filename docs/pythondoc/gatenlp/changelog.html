@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.changelog API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module for ChangeLog class which represents a log of changes to any of the components of
+a Document: document features, annotations, annotation features." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +23,18 @@
 <h1 class="title">Module <code>gatenlp.changelog</code></h1>
 </header>
 <section id="section-intro">
+<p>Module for ChangeLog class which represents a log of changes to any of the components of
+a Document: document features, annotations, annotation features.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import List, Callable, Dict
+<pre><code class="python">&#34;&#34;&#34;
+Module for ChangeLog class which represents a log of changes to any of the components of
+a Document: document features, annotations, annotation features.
+&#34;&#34;&#34;
+
+from typing import List, Callable, Dict
 import sys
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 import importlib
@@ -70,16 +78,22 @@ ADDANN_IGNORE = &#34;ignore&#34; # ignore that annotation, do nothing
 ADDANN_ADD_WITH_NEW_ID = &#34;add-with-new-id&#34;  # add that annotation with a new id to the set
 
 
+__pdoc__ = {
+    &#34;ChangeLog.__len__&#34;: True,
+}
+
+
 class ChangeLog:
     def __init__(self, store=True):
         &#34;&#34;&#34;
+        Creates a ChangeLog.
+
+        A ChangeLog stores a log of all changes applied to a document. That log can be used to recreate
+        the document from its initial version in a different process or at a later time.
 
         Args:
-        store: if True, the change log stores the actions it receives (default). This can be set
-        to false if only callbacks are needed.
-
-        Returns:
-
+            store: if `True`, the change log stores the actions it receives (default). This can be set
+            to false if only callbacks are needed.
         &#34;&#34;&#34;
         self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
@@ -88,16 +102,13 @@ class ChangeLog:
 
     def add_handler(self, actions, handler):
         &#34;&#34;&#34;
-        Register a handler to get called back when any of the actions is added.
+        Registers a handler to get called back when any of the actions is added.
         If any handler was already registered for one or more of the actions,
         the new handler overrides it.
 
         Args:
           actions: either a single action string or a collection of several action strings
           handler: a callable that takes the change information
-
-        Returns:
-
         &#34;&#34;&#34;
         if isinstance(actions, str):
             actions = [actions]
@@ -108,12 +119,11 @@ class ChangeLog:
 
     def append(self, change: Dict):
         &#34;&#34;&#34;
+        Add a change to the change log. The change must be represented as a dictionary which follows the
+        conventions of how to represent changes. This is not using an abstraction yet.
 
         Args:
-          change: Dict: 
-
-        Returns:
-
+          change: dict describing the action/modification
         &#34;&#34;&#34;
         assert isinstance(change, dict)
         action = change.get(&#34;command&#34;,None)
@@ -126,6 +136,9 @@ class ChangeLog:
             hndlr()
 
     def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Returns the number of actions logged in the ChangeLog.
+        &#34;&#34;&#34;
         return len(self.changes)
 
     def _fixup_changes(self, method: Callable, replace=False) -&gt; List[Dict]:
@@ -191,76 +204,21 @@ class ChangeLog:
 
     def format_to(self, fp, prefix=&#34;&#34;) -&gt; None:
         &#34;&#34;&#34;
+        Prints the log to the given stream.
 
         Args:
-          fp: 
-          prefix:  (Default value = &#34;&#34;)
-
-        Returns:
-
+          fp: stream to print to
+          prefix:  something to print in front of each action, default=&#34;&#34;
         &#34;&#34;&#34;
         for c in self.changes:
             print(prefix, str(c), sep=&#34;&#34;, file=fp)
 
-    def _json_repr(self, **kwargs) -&gt; Dict:
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
-        offset_type = self.offset_type
-        changes = self.changes
-        if &#34;offset_type&#34; in kwargs and kwargs[&#34;offset_type&#34;] != offset_type:
-            om = kwargs.get(&#34;offset_mapper&#34;)
-            if om is None:
-                raise Exception(&#34;Need to convert offsets, but no offset_mapper parameter given&#34;)
-            offset_type = kwargs[&#34;offset_type&#34;]
-            if offset_type == OFFSET_TYPE_JAVA:
-                changes = self._fixup_changes(om.convert_to_java)
-            else:
-                changes = self._fixup_changes(om.convert_to_python)
-        return {
-            &#34;changes&#34;: changes,
-            &#34;offset_type&#34;: offset_type,
-            &#34;gatenlp_type&#34;: self.gatenlp_type
-        }
-
-    @staticmethod
-    def _from_json_map(jsonmap, **kwargs) -&gt; &#34;ChangeLog&#34;:
-        &#34;&#34;&#34;
-
-        Args:
-          jsonmap: 
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
-        cl = ChangeLog()
-        cl.changes = jsonmap.get(&#34;changes&#34;)
-        cl.offset_type = jsonmap.get(&#34;offset_type&#34;)
-        if cl.offset_type == OFFSET_TYPE_JAVA:
-            # we need either an offset mapper or a document
-            if &#34;offset_mapper&#34; in kwargs:
-                om = kwargs.get(&#34;offset_mapper&#34;)
-            elif &#34;document&#34; in kwargs:
-                om = OffsetMapper(kwargs.get(&#34;document&#34;))
-            else:
-                raise Exception(&#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;)
-            cl._fixup_changes(om.convert_to_python)
-        return cl
-
     def to_dict(self, **kwargs):
         &#34;&#34;&#34;
+        Returns a dict representation of the ChangeLog.
 
         Args:
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: ignored
         &#34;&#34;&#34;
         offset_type = self.offset_type
         changes = self.changes
@@ -281,13 +239,11 @@ class ChangeLog:
     @staticmethod
     def from_dict(dictrepr, **kwargs):
         &#34;&#34;&#34;
+        Creates a ChangeLog from a dict representation.
 
         Args:
-          dictrepr: 
-          **kwargs: 
-
-        Returns:
-
+          dictrepr: the dict representation to convert
+          **kwargs: ignored
         &#34;&#34;&#34;
         if dictrepr is None:
             return None
@@ -306,10 +262,11 @@ class ChangeLog:
         return cl
 
     def save(self, whereto, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Save the document in the given format.
+        &#34;&#34;&#34;
+        Save the document in the given format.
         
         Additional keyword parameters for format &#34;json&#34;:
-        * as_array: boolean, if True stores as array instead of dictionary, using to
+            as_array: boolean, if True stores as array instead of dictionary
 
         Args:
           whereto: either a file name or something that has a write(string) method.
@@ -317,32 +274,25 @@ class ChangeLog:
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           offset_mapper: nedded if the offset type should get changed (Default value = None)
           mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional parameters for the format
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: additional parameters for the format
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(whereto, fmt)
         saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     def save_mem(self, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Serialize and save to a string.
+        &#34;&#34;&#34;
+        Serialize and save to a string.
         
         Additional keyword parameters for format &#34;json&#34;:
-        * as_array: boolean, if True stores as array instead of dictionary, using to
+            as_array: boolean, if True stores as array instead of dictionary, using to
 
         Args:
           fmt: serialization format, one of &#34;json&#34;, &#34;msgpack&#34; or &#34;pickle&#34; (Default value = &#34;json&#34;)
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           offset_mapper: nedded if the offset type should get changed (Default value = None)
           mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional parameters for the format
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: additional parameters for the format
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(None, fmt)
@@ -351,17 +301,17 @@ class ChangeLog:
     @staticmethod
     def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
         &#34;&#34;&#34;
+        Load ChangeLog from some serialization.
 
         Args:
-          wherefrom: param fmt:
+          wherefrom: the file or URL to load from
           offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
-          kwargs: return:
-          fmt:  (Default value = &#34;json&#34;)
+          fmt:  the format to use (Default value = &#34;json&#34;)
           mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-          **kwargs: 
+          **kwargs: any arguments to pass on the the loader
 
         Returns:
-
+            the ChangeLog instance
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(wherefrom, fmt)
@@ -372,18 +322,20 @@ class ChangeLog:
 
     @staticmethod
     def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Note: the offset type is always converted to PYTHON when loading!
+        &#34;&#34;&#34;
+        Load a ChangeLog from a string representation in the given format.
+
+        Note: the offset type is always converted to PYTHON when loading!
 
         Args:
           wherefrom: the string to deserialize
-          fmt: param offset_mapper: offset mapper in case the offsets need to get converted (Default value = &#34;json&#34;)
-          kwargs: return:
-          offset_mapper:  (Default value = None)
+          fmt: the format to use, default: &#34;json&#34;
+          offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
           mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-          **kwargs: 
+          **kwargs: arguments to pass on to the loader
 
         Returns:
-
+            the ChangeLog instance
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(None, fmt)
@@ -393,14 +345,11 @@ class ChangeLog:
         return chl
 
     def pprint(self, out=None):
-        &#34;&#34;&#34;Pretty print to the given output stream, sys.stdout if not given.
-        :return:
+        &#34;&#34;&#34;
+        Pretty prints to the given output stream, sys.stdout if not given.
 
         Args:
-          out:  (Default value = None)
-
-        Returns:
-
+          out:  the stream to print to, if None uses sys.stdout
         &#34;&#34;&#34;
         if out is None:
             out = sys.stdout
@@ -427,10 +376,15 @@ class ChangeLog:
 <span>(</span><span>store=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Args:
-store: if True, the change log stores the actions it receives (default). This can be set
-to false if only callbacks are needed.</p>
-<p>Returns:</p></div>
+<div class="desc"><p>Creates a ChangeLog.</p>
+<p>A ChangeLog stores a log of all changes applied to a document. That log can be used to recreate
+the document from its initial version in a different process or at a later time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>store</code></strong></dt>
+<dd>if <code>True</code>, the change log stores the actions it receives (default). This can be set</dd>
+</dl>
+<p>to false if only callbacks are needed.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -438,13 +392,14 @@ to false if only callbacks are needed.</p>
 <pre><code class="python">class ChangeLog:
     def __init__(self, store=True):
         &#34;&#34;&#34;
+        Creates a ChangeLog.
+
+        A ChangeLog stores a log of all changes applied to a document. That log can be used to recreate
+        the document from its initial version in a different process or at a later time.
 
         Args:
-        store: if True, the change log stores the actions it receives (default). This can be set
-        to false if only callbacks are needed.
-
-        Returns:
-
+            store: if `True`, the change log stores the actions it receives (default). This can be set
+            to false if only callbacks are needed.
         &#34;&#34;&#34;
         self.changes = []
         self.offset_type = OFFSET_TYPE_PYTHON
@@ -453,16 +408,13 @@ to false if only callbacks are needed.</p>
 
     def add_handler(self, actions, handler):
         &#34;&#34;&#34;
-        Register a handler to get called back when any of the actions is added.
+        Registers a handler to get called back when any of the actions is added.
         If any handler was already registered for one or more of the actions,
         the new handler overrides it.
 
         Args:
           actions: either a single action string or a collection of several action strings
           handler: a callable that takes the change information
-
-        Returns:
-
         &#34;&#34;&#34;
         if isinstance(actions, str):
             actions = [actions]
@@ -473,12 +425,11 @@ to false if only callbacks are needed.</p>
 
     def append(self, change: Dict):
         &#34;&#34;&#34;
+        Add a change to the change log. The change must be represented as a dictionary which follows the
+        conventions of how to represent changes. This is not using an abstraction yet.
 
         Args:
-          change: Dict: 
-
-        Returns:
-
+          change: dict describing the action/modification
         &#34;&#34;&#34;
         assert isinstance(change, dict)
         action = change.get(&#34;command&#34;,None)
@@ -491,6 +442,9 @@ to false if only callbacks are needed.</p>
             hndlr()
 
     def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Returns the number of actions logged in the ChangeLog.
+        &#34;&#34;&#34;
         return len(self.changes)
 
     def _fixup_changes(self, method: Callable, replace=False) -&gt; List[Dict]:
@@ -556,76 +510,21 @@ to false if only callbacks are needed.</p>
 
     def format_to(self, fp, prefix=&#34;&#34;) -&gt; None:
         &#34;&#34;&#34;
+        Prints the log to the given stream.
 
         Args:
-          fp: 
-          prefix:  (Default value = &#34;&#34;)
-
-        Returns:
-
+          fp: stream to print to
+          prefix:  something to print in front of each action, default=&#34;&#34;
         &#34;&#34;&#34;
         for c in self.changes:
             print(prefix, str(c), sep=&#34;&#34;, file=fp)
 
-    def _json_repr(self, **kwargs) -&gt; Dict:
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
-        offset_type = self.offset_type
-        changes = self.changes
-        if &#34;offset_type&#34; in kwargs and kwargs[&#34;offset_type&#34;] != offset_type:
-            om = kwargs.get(&#34;offset_mapper&#34;)
-            if om is None:
-                raise Exception(&#34;Need to convert offsets, but no offset_mapper parameter given&#34;)
-            offset_type = kwargs[&#34;offset_type&#34;]
-            if offset_type == OFFSET_TYPE_JAVA:
-                changes = self._fixup_changes(om.convert_to_java)
-            else:
-                changes = self._fixup_changes(om.convert_to_python)
-        return {
-            &#34;changes&#34;: changes,
-            &#34;offset_type&#34;: offset_type,
-            &#34;gatenlp_type&#34;: self.gatenlp_type
-        }
-
-    @staticmethod
-    def _from_json_map(jsonmap, **kwargs) -&gt; &#34;ChangeLog&#34;:
-        &#34;&#34;&#34;
-
-        Args:
-          jsonmap: 
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
-        cl = ChangeLog()
-        cl.changes = jsonmap.get(&#34;changes&#34;)
-        cl.offset_type = jsonmap.get(&#34;offset_type&#34;)
-        if cl.offset_type == OFFSET_TYPE_JAVA:
-            # we need either an offset mapper or a document
-            if &#34;offset_mapper&#34; in kwargs:
-                om = kwargs.get(&#34;offset_mapper&#34;)
-            elif &#34;document&#34; in kwargs:
-                om = OffsetMapper(kwargs.get(&#34;document&#34;))
-            else:
-                raise Exception(&#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;)
-            cl._fixup_changes(om.convert_to_python)
-        return cl
-
     def to_dict(self, **kwargs):
         &#34;&#34;&#34;
+        Returns a dict representation of the ChangeLog.
 
         Args:
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: ignored
         &#34;&#34;&#34;
         offset_type = self.offset_type
         changes = self.changes
@@ -646,13 +545,11 @@ to false if only callbacks are needed.</p>
     @staticmethod
     def from_dict(dictrepr, **kwargs):
         &#34;&#34;&#34;
+        Creates a ChangeLog from a dict representation.
 
         Args:
-          dictrepr: 
-          **kwargs: 
-
-        Returns:
-
+          dictrepr: the dict representation to convert
+          **kwargs: ignored
         &#34;&#34;&#34;
         if dictrepr is None:
             return None
@@ -671,10 +568,11 @@ to false if only callbacks are needed.</p>
         return cl
 
     def save(self, whereto, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Save the document in the given format.
+        &#34;&#34;&#34;
+        Save the document in the given format.
         
         Additional keyword parameters for format &#34;json&#34;:
-        * as_array: boolean, if True stores as array instead of dictionary, using to
+            as_array: boolean, if True stores as array instead of dictionary
 
         Args:
           whereto: either a file name or something that has a write(string) method.
@@ -682,32 +580,25 @@ to false if only callbacks are needed.</p>
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           offset_mapper: nedded if the offset type should get changed (Default value = None)
           mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional parameters for the format
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: additional parameters for the format
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(whereto, fmt)
         saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
 
     def save_mem(self, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Serialize and save to a string.
+        &#34;&#34;&#34;
+        Serialize and save to a string.
         
         Additional keyword parameters for format &#34;json&#34;:
-        * as_array: boolean, if True stores as array instead of dictionary, using to
+            as_array: boolean, if True stores as array instead of dictionary, using to
 
         Args:
           fmt: serialization format, one of &#34;json&#34;, &#34;msgpack&#34; or &#34;pickle&#34; (Default value = &#34;json&#34;)
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           offset_mapper: nedded if the offset type should get changed (Default value = None)
           mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional parameters for the format
-          **kwargs: 
-
-        Returns:
-
+          **kwargs: additional parameters for the format
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(None, fmt)
@@ -716,17 +607,17 @@ to false if only callbacks are needed.</p>
     @staticmethod
     def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
         &#34;&#34;&#34;
+        Load ChangeLog from some serialization.
 
         Args:
-          wherefrom: param fmt:
+          wherefrom: the file or URL to load from
           offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
-          kwargs: return:
-          fmt:  (Default value = &#34;json&#34;)
+          fmt:  the format to use (Default value = &#34;json&#34;)
           mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-          **kwargs: 
+          **kwargs: any arguments to pass on the the loader
 
         Returns:
-
+            the ChangeLog instance
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(wherefrom, fmt)
@@ -737,18 +628,20 @@ to false if only callbacks are needed.</p>
 
     @staticmethod
     def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Note: the offset type is always converted to PYTHON when loading!
+        &#34;&#34;&#34;
+        Load a ChangeLog from a string representation in the given format.
+
+        Note: the offset type is always converted to PYTHON when loading!
 
         Args:
           wherefrom: the string to deserialize
-          fmt: param offset_mapper: offset mapper in case the offsets need to get converted (Default value = &#34;json&#34;)
-          kwargs: return:
-          offset_mapper:  (Default value = None)
+          fmt: the format to use, default: &#34;json&#34;
+          offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
           mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-          **kwargs: 
+          **kwargs: arguments to pass on to the loader
 
         Returns:
-
+            the ChangeLog instance
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(None, fmt)
@@ -758,14 +651,11 @@ to false if only callbacks are needed.</p>
         return chl
 
     def pprint(self, out=None):
-        &#34;&#34;&#34;Pretty print to the given output stream, sys.stdout if not given.
-        :return:
+        &#34;&#34;&#34;
+        Pretty prints to the given output stream, sys.stdout if not given.
 
         Args:
-          out:  (Default value = None)
-
-        Returns:
-
+          out:  the stream to print to, if None uses sys.stdout
         &#34;&#34;&#34;
         if out is None:
             out = sys.stdout
@@ -783,14 +673,14 @@ to false if only callbacks are needed.</p>
 <span>def <span class="ident">from_dict</span></span>(<span>dictrepr, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Creates a ChangeLog from a dict representation.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>dictrepr</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>the dict representation to convert</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>ignored</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -798,13 +688,11 @@ to false if only callbacks are needed.</p>
 <pre><code class="python">@staticmethod
 def from_dict(dictrepr, **kwargs):
     &#34;&#34;&#34;
+    Creates a ChangeLog from a dict representation.
 
     Args:
-      dictrepr: 
-      **kwargs: 
-
-    Returns:
-
+      dictrepr: the dict representation to convert
+      **kwargs: ignored
     &#34;&#34;&#34;
     if dictrepr is None:
         return None
@@ -827,22 +715,22 @@ def from_dict(dictrepr, **kwargs):
 <span>def <span class="ident">load</span></span>(<span>wherefrom, fmt='json', offset_mapper=None, mod='gatenlp.serialization.default', **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Load ChangeLog from some serialization.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>wherefrom</code></strong></dt>
-<dd>param fmt:</dd>
+<dd>the file or URL to load from</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
 <dd>offset mapper in case the offsets need to get converted (Default value = None)</dd>
-<dt><strong><code>kwargs</code></strong></dt>
-<dd>return:</dd>
 <dt><strong><code>fmt</code></strong></dt>
-<dd>(Default value = "json")</dd>
+<dd>the format to use (Default value = "json")</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>(Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>any arguments to pass on the the loader</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>the ChangeLog instance</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -850,17 +738,17 @@ def from_dict(dictrepr, **kwargs):
 <pre><code class="python">@staticmethod
 def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
     &#34;&#34;&#34;
+    Load ChangeLog from some serialization.
 
     Args:
-      wherefrom: param fmt:
+      wherefrom: the file or URL to load from
       offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
-      kwargs: return:
-      fmt:  (Default value = &#34;json&#34;)
+      fmt:  the format to use (Default value = &#34;json&#34;)
       mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-      **kwargs: 
+      **kwargs: any arguments to pass on the the loader
 
     Returns:
-
+        the ChangeLog instance
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     loader = m.get_changelog_loader(wherefrom, fmt)
@@ -874,41 +762,43 @@ def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.ser
 <span>def <span class="ident">load_mem</span></span>(<span>wherefrom, fmt='json', offset_mapper=None, mod='gatenlp.serialization.default', **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Note: the offset type is always converted to PYTHON when loading!</p>
+<div class="desc"><p>Load a ChangeLog from a string representation in the given format.</p>
+<p>Note: the offset type is always converted to PYTHON when loading!</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>wherefrom</code></strong></dt>
 <dd>the string to deserialize</dd>
 <dt><strong><code>fmt</code></strong></dt>
-<dd>param offset_mapper: offset mapper in case the offsets need to get converted (Default value = "json")</dd>
-<dt><strong><code>kwargs</code></strong></dt>
-<dd>return:</dd>
+<dd>the format to use, default: "json"</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>offset mapper in case the offsets need to get converted (Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>(Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>arguments to pass on to the loader</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>the ChangeLog instance</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-    &#34;&#34;&#34;Note: the offset type is always converted to PYTHON when loading!
+    &#34;&#34;&#34;
+    Load a ChangeLog from a string representation in the given format.
+
+    Note: the offset type is always converted to PYTHON when loading!
 
     Args:
       wherefrom: the string to deserialize
-      fmt: param offset_mapper: offset mapper in case the offsets need to get converted (Default value = &#34;json&#34;)
-      kwargs: return:
-      offset_mapper:  (Default value = None)
+      fmt: the format to use, default: &#34;json&#34;
+      offset_mapper: offset mapper in case the offsets need to get converted (Default value = None)
       mod:  (Default value = &#34;gatenlp.serialization.default&#34;)
-      **kwargs: 
+      **kwargs: arguments to pass on to the loader
 
     Returns:
-
+        the ChangeLog instance
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     loader = m.get_changelog_loader(None, fmt)
@@ -921,11 +811,27 @@ def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="gatenlp.changelog.ChangeLog.__len__"><code class="name flex">
+<span>def <span class="ident">__len__</span></span>(<span>self) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the number of actions logged in the ChangeLog.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __len__(self) -&gt; int:
+    &#34;&#34;&#34;
+    Returns the number of actions logged in the ChangeLog.
+    &#34;&#34;&#34;
+    return len(self.changes)</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.changelog.ChangeLog.add_handler"><code class="name flex">
 <span>def <span class="ident">add_handler</span></span>(<span>self, actions, handler)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Register a handler to get called back when any of the actions is added.
+<div class="desc"><p>Registers a handler to get called back when any of the actions is added.
 If any handler was already registered for one or more of the actions,
 the new handler overrides it.</p>
 <h2 id="args">Args</h2>
@@ -934,24 +840,20 @@ the new handler overrides it.</p>
 <dd>either a single action string or a collection of several action strings</dd>
 <dt><strong><code>handler</code></strong></dt>
 <dd>a callable that takes the change information</dd>
-</dl>
-<p>Returns:</p></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def add_handler(self, actions, handler):
     &#34;&#34;&#34;
-    Register a handler to get called back when any of the actions is added.
+    Registers a handler to get called back when any of the actions is added.
     If any handler was already registered for one or more of the actions,
     the new handler overrides it.
 
     Args:
       actions: either a single action string or a collection of several action strings
       handler: a callable that takes the change information
-
-    Returns:
-
     &#34;&#34;&#34;
     if isinstance(actions, str):
         actions = [actions]
@@ -965,24 +867,24 @@ the new handler overrides it.</p>
 <span>def <span class="ident">append</span></span>(<span>self, change: Dict)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Add a change to the change log. The change must be represented as a dictionary which follows the
+conventions of how to represent changes. This is not using an abstraction yet.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>change</code></strong></dt>
-<dd>Dict: </dd>
-</dl>
-<p>Returns:</p></div>
+<dd>dict describing the action/modification</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def append(self, change: Dict):
     &#34;&#34;&#34;
+    Add a change to the change log. The change must be represented as a dictionary which follows the
+    conventions of how to represent changes. This is not using an abstraction yet.
 
     Args:
-      change: Dict: 
-
-    Returns:
-
+      change: dict describing the action/modification
     &#34;&#34;&#34;
     assert isinstance(change, dict)
     action = change.get(&#34;command&#34;,None)
@@ -1049,27 +951,25 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <span>def <span class="ident">format_to</span></span>(<span>self, fp, prefix='') ‑> NoneType</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Prints the log to the given stream.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fp</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>stream to print to</dd>
 <dt><strong><code>prefix</code></strong></dt>
-<dd>(Default value = "")</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>something to print in front of each action, default=""</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_to(self, fp, prefix=&#34;&#34;) -&gt; None:
     &#34;&#34;&#34;
+    Prints the log to the given stream.
 
     Args:
-      fp: 
-      prefix:  (Default value = &#34;&#34;)
-
-    Returns:
-
+      fp: stream to print to
+      prefix:  something to print in front of each action, default=&#34;&#34;
     &#34;&#34;&#34;
     for c in self.changes:
         print(prefix, str(c), sep=&#34;&#34;, file=fp)</code></pre>
@@ -1079,27 +979,22 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <span>def <span class="ident">pprint</span></span>(<span>self, out=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Pretty print to the given output stream, sys.stdout if not given.
-:return:</p>
+<div class="desc"><p>Pretty prints to the given output stream, sys.stdout if not given.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>out</code></strong></dt>
-<dd>(Default value = None)</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>the stream to print to, if None uses sys.stdout</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pprint(self, out=None):
-    &#34;&#34;&#34;Pretty print to the given output stream, sys.stdout if not given.
-    :return:
+    &#34;&#34;&#34;
+    Pretty prints to the given output stream, sys.stdout if not given.
 
     Args:
-      out:  (Default value = None)
-
-    Returns:
-
+      out:  the stream to print to, if None uses sys.stdout
     &#34;&#34;&#34;
     if out is None:
         out = sys.stdout
@@ -1118,7 +1013,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <dd>
 <div class="desc"><p>Save the document in the given format.</p>
 <p>Additional keyword parameters for format "json":
-* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+as_array: boolean, if True stores as array instead of dictionary</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>whereto</code></strong></dt>
@@ -1131,21 +1026,19 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <dd>nedded if the offset type should get changed (Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>module to use (Default value = "gatenlp.serialization.default")</dd>
-<dt><strong><code>kwargs</code></strong></dt>
-<dd>additional parameters for the format</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>additional parameters for the format</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save(self, whereto, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-    &#34;&#34;&#34;Save the document in the given format.
+    &#34;&#34;&#34;
+    Save the document in the given format.
     
     Additional keyword parameters for format &#34;json&#34;:
-    * as_array: boolean, if True stores as array instead of dictionary, using to
+        as_array: boolean, if True stores as array instead of dictionary
 
     Args:
       whereto: either a file name or something that has a write(string) method.
@@ -1153,11 +1046,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       offset_mapper: nedded if the offset type should get changed (Default value = None)
       mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-      kwargs: additional parameters for the format
-      **kwargs: 
-
-    Returns:
-
+      **kwargs: additional parameters for the format
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     saver = m.get_changelog_saver(whereto, fmt)
@@ -1170,7 +1059,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <dd>
 <div class="desc"><p>Serialize and save to a string.</p>
 <p>Additional keyword parameters for format "json":
-* as_array: boolean, if True stores as array instead of dictionary, using to</p>
+as_array: boolean, if True stores as array instead of dictionary, using to</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fmt</code></strong></dt>
@@ -1181,32 +1070,26 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <dd>nedded if the offset type should get changed (Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>module to use (Default value = "gatenlp.serialization.default")</dd>
-<dt><strong><code>kwargs</code></strong></dt>
-<dd>additional parameters for the format</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>additional parameters for the format</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save_mem(self, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-    &#34;&#34;&#34;Serialize and save to a string.
+    &#34;&#34;&#34;
+    Serialize and save to a string.
     
     Additional keyword parameters for format &#34;json&#34;:
-    * as_array: boolean, if True stores as array instead of dictionary, using to
+        as_array: boolean, if True stores as array instead of dictionary, using to
 
     Args:
       fmt: serialization format, one of &#34;json&#34;, &#34;msgpack&#34; or &#34;pickle&#34; (Default value = &#34;json&#34;)
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       offset_mapper: nedded if the offset type should get changed (Default value = None)
       mod: module to use (Default value = &#34;gatenlp.serialization.default&#34;)
-      kwargs: additional parameters for the format
-      **kwargs: 
-
-    Returns:
-
+      **kwargs: additional parameters for the format
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     saver = m.get_changelog_saver(None, fmt)
@@ -1217,24 +1100,22 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <span>def <span class="ident">to_dict</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Returns a dict representation of the ChangeLog.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<dd>ignored</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_dict(self, **kwargs):
     &#34;&#34;&#34;
+    Returns a dict representation of the ChangeLog.
 
     Args:
-      **kwargs: 
-
-    Returns:
-
+      **kwargs: ignored
     &#34;&#34;&#34;
     offset_type = self.offset_type
     changes = self.changes
@@ -1274,6 +1155,7 @@ offset type, if necessary. If the ChangeLog already has that offset type, this d
 <li>
 <h4><code><a title="gatenlp.changelog.ChangeLog" href="#gatenlp.changelog.ChangeLog">ChangeLog</a></code></h4>
 <ul class="two-column">
+<li><code><a title="gatenlp.changelog.ChangeLog.__len__" href="#gatenlp.changelog.ChangeLog.__len__">__len__</a></code></li>
 <li><code><a title="gatenlp.changelog.ChangeLog.add_handler" href="#gatenlp.changelog.ChangeLog.add_handler">add_handler</a></code></li>
 <li><code><a title="gatenlp.changelog.ChangeLog.append" href="#gatenlp.changelog.ChangeLog.append">append</a></code></li>
 <li><code><a title="gatenlp.changelog.ChangeLog.fixup_changes" href="#gatenlp.changelog.ChangeLog.fixup_changes">fixup_changes</a></code></li>
