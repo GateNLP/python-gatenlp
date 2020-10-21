@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.impl.sortedintvls API documentation</title>
-<meta name="description" content="A simple class that represents a collection of sorted intervals and allows for some basic interval-based
-operations. Internally this stores the …" />
+<meta name="description" content="Module that provides a simple class that represents a collection of sorted intervals and allows for some
+basic interval-based operations …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,28 +23,33 @@ operations. Internally this stores the …" />
 <h1 class="title">Module <code>gatenlp.impl.sortedintvls</code></h1>
 </header>
 <section id="section-intro">
-<p>A simple class that represents a collection of sorted intervals and allows for some basic interval-based
-operations. Internally this stores the intervals using standard sorted lists. This is not optimal and my
+<p>Module that provides a simple class that represents a collection of sorted intervals and allows for some
+basic interval-based operations.</p>
+<p>Internally this stores the intervals using standard sorted lists. This is not optimal and may
 incur a O(n) overhead on some operations depending on the result set. It also may incur a significant overhead
-for creating and maintaning the sorted lists.
-NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset
-for sorting.</p>
-<p>!!!TODO: we should maybe implement a stricter and more stable sorting order here, where
-we use the sorting order defined in the annotation class itself.</p>
+for creating and maintaning the sorted lists.</p>
+<p>NOTE: this stores a tuple (start, end, annid, object) in the sorted lists for the start
+and end offsets
+and uses a key function that returns which elements to use for sorting.</p>
+<p>For the list sorted by start offset, we use the start offset and annotation id. For the end offset we use the
+end offset of the annotation only.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-A simple class that represents a collection of sorted intervals and allows for some basic interval-based
-operations. Internally this stores the intervals using standard sorted lists. This is not optimal and my
+Module that provides a simple class that represents a collection of sorted intervals and allows for some
+basic interval-based operations.
+
+Internally this stores the intervals using standard sorted lists. This is not optimal and may
 incur a O(n) overhead on some operations depending on the result set. It also may incur a significant overhead
 for creating and maintaning the sorted lists.
-NOTE: this stores a tuple (start, end, object) in the sorted list and uses a key function that returns the offset
-for sorting.
 
-!!!TODO: we should maybe implement a stricter and more stable sorting order here, where
-we use the sorting order defined in the annotation class itself.
+NOTE: this stores a tuple (start, end, annid, object) in the sorted lists for the start  and end offsets
+and uses a key function that returns which elements to use for sorting.
+
+For the list sorted by start offset, we use the start offset and annotation id. For the end offset we use the
+end offset of the annotation only.
 &#34;&#34;&#34;
 
 import sys
@@ -54,181 +59,101 @@ from sortedcontainers import SortedKeyList
 class SortedIntvls:
     &#34;&#34;&#34; &#34;&#34;&#34;
     def __init__(self):
-        # NOTE: we sort by increasing start offset then increasing annotation id for this
+        # we sort by increasing start offset then increasing annotation id for this
         self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
         # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
     def add(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Adds an interval.
         &#34;&#34;&#34;
         self._by_start.add((start, end, data))
         self._by_end.add((start, end, data))
 
     def update(self, tupleiterable):
         &#34;&#34;&#34;
-
-        Args:
-          tupleiterable: 
-
-        Returns:
-
+        Updates from an iterable of intervals.
         &#34;&#34;&#34;
         self._by_start.update(tupleiterable)
         self._by_end.update(tupleiterable)
 
     def remove(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Removes an interval, exception if the interval does not exist.
         &#34;&#34;&#34;
         self._by_start.remove((start, end, data))
         self._by_end.remove((start, end, data))
 
     def discard(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Removes and interval, do nothing if the interval does not exist.
         &#34;&#34;&#34;
         self._by_start.discard((start, end, data))
         self._by_end.discard((start, end, data))
 
     def __len__(self):
+        &#34;&#34;&#34;
+        Returns the number of intervals.
+        &#34;&#34;&#34;
         return len(self._by_start)
 
     def starting_at(self, offset):
-        &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where start==offset
-
-        Args:
-          offset: the starting offset
-
-        Returns:
-          
-
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset,sys.maxsize))
+        Returns an iterable of (start, end, data) tuples where start==offset
+        &#34;&#34;&#34;
+        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset, sys.maxsize))
 
     def ending_at(self, offset):
-        &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where end==offset
-
-        Args:
-          offset: the ending offset
-
-        Returns:
-          
-
+        &#34;&#34;&#34;
+        Returns an iterable of (start, end, data) tuples where end==offset
         &#34;&#34;&#34;
         return self._by_end.irange_key(min_key=offset, max_key=offset)
 
     def at(self, start, end):
-        &#34;&#34;&#34;Return iterable of tuples where start==start and end==end
-
-        Args:
-          start: param end
-          end: 
-
-        Returns:
-          
-
         &#34;&#34;&#34;
-        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(start, sys.maxsize)):
+        Returns an iterable of tuples where start==start and end==end
+        &#34;&#34;&#34;
+        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(start, sys.maxsize)):
             if intvl[1] == end:
                 yield intvl
 
-    # SAME as within
     def within(self, start, end):
-        &#34;&#34;&#34;Return intervals which are fully contained within start...end
-
-        Args:
-          start: param end
-          end: 
-
-        Returns:
-          
-
+        &#34;&#34;&#34;
+        Returns intervals which are fully contained within start...end
         &#34;&#34;&#34;
         # get all the intervals that start within the range, then keep those which also end within the range
-        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(end, sys.maxsize)):
+        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(end, sys.maxsize)):
             if intvl[1] &lt;= end:
                 yield intvl
 
     def starting_from(self, offset):
-        &#34;&#34;&#34;Intervals that start at or after offset.
-
-        Args:
-          offset: return:
-
-        Returns:
-
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=(offset,0))
+        Returns intervals that start at or after offset.
+        &#34;&#34;&#34;
+        return self._by_start.irange_key(min_key=(offset, 0))
 
     def starting_before(self, offset):
-        &#34;&#34;&#34;Intervals that start before offset
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that start before offset.
         &#34;&#34;&#34;
         return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
     def ending_to(self, offset):
-        &#34;&#34;&#34;Intervals that end before or at the given end offset.
-        
-        NOTE: the result is sorted by end offset, not start offset!
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that end before or at the given end offset.
         &#34;&#34;&#34;
         return self._by_end.irange_key(max_key=offset)
 
     def ending_after(self, offset):
-        &#34;&#34;&#34;Intervals the end after the given offset
-        
-        NOTE: the result is sorted by end offset!
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals the end after the given offset.
         &#34;&#34;&#34;
         return self._by_end.irange_key(min_key=offset+1)
 
     def covering(self, start, end):
-        &#34;&#34;&#34;Intervals that contain the given range
-
-        Args:
-          start: param end:
-          end: 
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that contain the given range.
         &#34;&#34;&#34;
         # All intervals that start at or before the start and end at or after the end offset
         # we do this by first getting the intervals the start before or atthe start
@@ -238,14 +163,8 @@ class SortedIntvls:
                 yield intvl
 
     def overlapping(self, start, end):
-        &#34;&#34;&#34;Intervals that overlap with the given range.
-
-        Args:
-          start: param end:
-          end: 
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that overlap with the given range.
         &#34;&#34;&#34;
         # All intervals where the start or end offset lies within the given range.
         # This excludes the ones where the end offset is before the start or
@@ -259,12 +178,7 @@ class SortedIntvls:
 
     def firsts(self):
         &#34;&#34;&#34;
-
-        Args:
-
-        Returns:
-          : return:
-
+        Yields all intervals which start at the smallest known offset.
         &#34;&#34;&#34;
         laststart = None
         # logger.info(&#34;DEBUG: set laststart to None&#34;)
@@ -283,12 +197,7 @@ class SortedIntvls:
 
     def lasts(self):
         &#34;&#34;&#34;
-
-        Args:
-
-        Returns:
-          : return:
-
+        Yields all intervals which start at the last known start offset.
         &#34;&#34;&#34;
         laststart = None
         for intvl in reversed(self._by_start):
@@ -301,41 +210,32 @@ class SortedIntvls:
                 return
 
     def min_start(self):
-        &#34;&#34;&#34;Returns the smallest start offset we have
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns the smallest known start offset.
         &#34;&#34;&#34;
         return self._by_start[0][0]
 
     def max_end(self):
-        &#34;&#34;&#34;Returns the biggest end offset we have
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns the biggest known end offset.
         &#34;&#34;&#34;
         return self._by_end[-1][1]
 
-    def irange(self, minoff=None, maxoff=None, reverse=False):
+    def irange(self, minoff=None, maxoff=None, reverse=False, inclusive=(True, True)):
         &#34;&#34;&#34;
+        Yields an iterator of intervals with a start offset between minoff and maxoff, inclusive.
 
         Args:
-          minoff: (Default value = None)
-          maxoff: (Default value = None)
-          reverse: (Default value = False)
+          minoff: minimum offset, default None indicates any
+          maxoff: maximum offset, default None indicates any
+          reverse: if `True` yield in reverse order
+          inclusive: if the minoff and maxoff values should be inclusive, default is (True,True)
 
         Returns:
 
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=minoff, max_key=maxoff, reverse=reverse)
+        return self._by_start.irange_key(
+            min_key=minoff, max_key=maxoff, reverse=reverse, inclusive=inclusive)
 
     def __repr__(self):
         return &#34;SortedIntvls({},{})&#34;.format(self._by_start, self._by_end)</code></pre>
@@ -362,181 +262,101 @@ class SortedIntvls:
 <pre><code class="python">class SortedIntvls:
     &#34;&#34;&#34; &#34;&#34;&#34;
     def __init__(self):
-        # NOTE: we sort by increasing start offset then increasing annotation id for this
+        # we sort by increasing start offset then increasing annotation id for this
         self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
         # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
     def add(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Adds an interval.
         &#34;&#34;&#34;
         self._by_start.add((start, end, data))
         self._by_end.add((start, end, data))
 
     def update(self, tupleiterable):
         &#34;&#34;&#34;
-
-        Args:
-          tupleiterable: 
-
-        Returns:
-
+        Updates from an iterable of intervals.
         &#34;&#34;&#34;
         self._by_start.update(tupleiterable)
         self._by_end.update(tupleiterable)
 
     def remove(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Removes an interval, exception if the interval does not exist.
         &#34;&#34;&#34;
         self._by_start.remove((start, end, data))
         self._by_end.remove((start, end, data))
 
     def discard(self, start, end, data):
         &#34;&#34;&#34;
-
-        Args:
-          start: 
-          end: 
-          data: 
-
-        Returns:
-
+        Removes and interval, do nothing if the interval does not exist.
         &#34;&#34;&#34;
         self._by_start.discard((start, end, data))
         self._by_end.discard((start, end, data))
 
     def __len__(self):
+        &#34;&#34;&#34;
+        Returns the number of intervals.
+        &#34;&#34;&#34;
         return len(self._by_start)
 
     def starting_at(self, offset):
-        &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where start==offset
-
-        Args:
-          offset: the starting offset
-
-        Returns:
-          
-
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset,sys.maxsize))
+        Returns an iterable of (start, end, data) tuples where start==offset
+        &#34;&#34;&#34;
+        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset, sys.maxsize))
 
     def ending_at(self, offset):
-        &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where end==offset
-
-        Args:
-          offset: the ending offset
-
-        Returns:
-          
-
+        &#34;&#34;&#34;
+        Returns an iterable of (start, end, data) tuples where end==offset
         &#34;&#34;&#34;
         return self._by_end.irange_key(min_key=offset, max_key=offset)
 
     def at(self, start, end):
-        &#34;&#34;&#34;Return iterable of tuples where start==start and end==end
-
-        Args:
-          start: param end
-          end: 
-
-        Returns:
-          
-
         &#34;&#34;&#34;
-        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(start, sys.maxsize)):
+        Returns an iterable of tuples where start==start and end==end
+        &#34;&#34;&#34;
+        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(start, sys.maxsize)):
             if intvl[1] == end:
                 yield intvl
 
-    # SAME as within
     def within(self, start, end):
-        &#34;&#34;&#34;Return intervals which are fully contained within start...end
-
-        Args:
-          start: param end
-          end: 
-
-        Returns:
-          
-
+        &#34;&#34;&#34;
+        Returns intervals which are fully contained within start...end
         &#34;&#34;&#34;
         # get all the intervals that start within the range, then keep those which also end within the range
-        for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(end, sys.maxsize)):
+        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(end, sys.maxsize)):
             if intvl[1] &lt;= end:
                 yield intvl
 
     def starting_from(self, offset):
-        &#34;&#34;&#34;Intervals that start at or after offset.
-
-        Args:
-          offset: return:
-
-        Returns:
-
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=(offset,0))
+        Returns intervals that start at or after offset.
+        &#34;&#34;&#34;
+        return self._by_start.irange_key(min_key=(offset, 0))
 
     def starting_before(self, offset):
-        &#34;&#34;&#34;Intervals that start before offset
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that start before offset.
         &#34;&#34;&#34;
         return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
     def ending_to(self, offset):
-        &#34;&#34;&#34;Intervals that end before or at the given end offset.
-        
-        NOTE: the result is sorted by end offset, not start offset!
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that end before or at the given end offset.
         &#34;&#34;&#34;
         return self._by_end.irange_key(max_key=offset)
 
     def ending_after(self, offset):
-        &#34;&#34;&#34;Intervals the end after the given offset
-        
-        NOTE: the result is sorted by end offset!
-
-        Args:
-          offset: return:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals the end after the given offset.
         &#34;&#34;&#34;
         return self._by_end.irange_key(min_key=offset+1)
 
     def covering(self, start, end):
-        &#34;&#34;&#34;Intervals that contain the given range
-
-        Args:
-          start: param end:
-          end: 
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that contain the given range.
         &#34;&#34;&#34;
         # All intervals that start at or before the start and end at or after the end offset
         # we do this by first getting the intervals the start before or atthe start
@@ -546,14 +366,8 @@ class SortedIntvls:
                 yield intvl
 
     def overlapping(self, start, end):
-        &#34;&#34;&#34;Intervals that overlap with the given range.
-
-        Args:
-          start: param end:
-          end: 
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns intervals that overlap with the given range.
         &#34;&#34;&#34;
         # All intervals where the start or end offset lies within the given range.
         # This excludes the ones where the end offset is before the start or
@@ -567,12 +381,7 @@ class SortedIntvls:
 
     def firsts(self):
         &#34;&#34;&#34;
-
-        Args:
-
-        Returns:
-          : return:
-
+        Yields all intervals which start at the smallest known offset.
         &#34;&#34;&#34;
         laststart = None
         # logger.info(&#34;DEBUG: set laststart to None&#34;)
@@ -591,12 +400,7 @@ class SortedIntvls:
 
     def lasts(self):
         &#34;&#34;&#34;
-
-        Args:
-
-        Returns:
-          : return:
-
+        Yields all intervals which start at the last known start offset.
         &#34;&#34;&#34;
         laststart = None
         for intvl in reversed(self._by_start):
@@ -609,41 +413,32 @@ class SortedIntvls:
                 return
 
     def min_start(self):
-        &#34;&#34;&#34;Returns the smallest start offset we have
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns the smallest known start offset.
         &#34;&#34;&#34;
         return self._by_start[0][0]
 
     def max_end(self):
-        &#34;&#34;&#34;Returns the biggest end offset we have
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Returns the biggest known end offset.
         &#34;&#34;&#34;
         return self._by_end[-1][1]
 
-    def irange(self, minoff=None, maxoff=None, reverse=False):
+    def irange(self, minoff=None, maxoff=None, reverse=False, inclusive=(True, True)):
         &#34;&#34;&#34;
+        Yields an iterator of intervals with a start offset between minoff and maxoff, inclusive.
 
         Args:
-          minoff: (Default value = None)
-          maxoff: (Default value = None)
-          reverse: (Default value = False)
+          minoff: minimum offset, default None indicates any
+          maxoff: maximum offset, default None indicates any
+          reverse: if `True` yield in reverse order
+          inclusive: if the minoff and maxoff values should be inclusive, default is (True,True)
 
         Returns:
 
         &#34;&#34;&#34;
-        return self._by_start.irange_key(min_key=minoff, max_key=maxoff, reverse=reverse)
+        return self._by_start.irange_key(
+            min_key=minoff, max_key=maxoff, reverse=reverse, inclusive=inclusive)
 
     def __repr__(self):
         return &#34;SortedIntvls({},{})&#34;.format(self._by_start, self._by_end)</code></pre>
@@ -654,30 +449,14 @@ class SortedIntvls:
 <span>def <span class="ident">add</span></span>(<span>self, start, end, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>data</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Adds an interval.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def add(self, start, end, data):
     &#34;&#34;&#34;
-
-    Args:
-      start: 
-      end: 
-      data: 
-
-    Returns:
-
+    Adds an interval.
     &#34;&#34;&#34;
     self._by_start.add((start, end, data))
     self._by_end.add((start, end, data))</code></pre>
@@ -687,31 +466,16 @@ class SortedIntvls:
 <span>def <span class="ident">at</span></span>(<span>self, start, end)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return iterable of tuples where start==start and end==end</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>param end</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns an iterable of tuples where start==start and end==end</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def at(self, start, end):
-    &#34;&#34;&#34;Return iterable of tuples where start==start and end==end
-
-    Args:
-      start: param end
-      end: 
-
-    Returns:
-      
-
     &#34;&#34;&#34;
-    for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(start, sys.maxsize)):
+    Returns an iterable of tuples where start==start and end==end
+    &#34;&#34;&#34;
+    for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(start, sys.maxsize)):
         if intvl[1] == end:
             yield intvl</code></pre>
 </details>
@@ -720,28 +484,14 @@ class SortedIntvls:
 <span>def <span class="ident">covering</span></span>(<span>self, start, end)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals that contain the given range</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>param end:</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals that contain the given range.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def covering(self, start, end):
-    &#34;&#34;&#34;Intervals that contain the given range
-
-    Args:
-      start: param end:
-      end: 
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns intervals that contain the given range.
     &#34;&#34;&#34;
     # All intervals that start at or before the start and end at or after the end offset
     # we do this by first getting the intervals the start before or atthe start
@@ -755,30 +505,14 @@ class SortedIntvls:
 <span>def <span class="ident">discard</span></span>(<span>self, start, end, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>data</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Removes and interval, do nothing if the interval does not exist.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def discard(self, start, end, data):
     &#34;&#34;&#34;
-
-    Args:
-      start: 
-      end: 
-      data: 
-
-    Returns:
-
+    Removes and interval, do nothing if the interval does not exist.
     &#34;&#34;&#34;
     self._by_start.discard((start, end, data))
     self._by_end.discard((start, end, data))</code></pre>
@@ -788,28 +522,14 @@ class SortedIntvls:
 <span>def <span class="ident">ending_after</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals the end after the given offset</p>
-<p>NOTE: the result is sorted by end offset!</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>return:</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals the end after the given offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ending_after(self, offset):
-    &#34;&#34;&#34;Intervals the end after the given offset
-    
-    NOTE: the result is sorted by end offset!
-
-    Args:
-      offset: return:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns intervals the end after the given offset.
     &#34;&#34;&#34;
     return self._by_end.irange_key(min_key=offset+1)</code></pre>
 </details>
@@ -818,26 +538,14 @@ class SortedIntvls:
 <span>def <span class="ident">ending_at</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return an iterable of (start, end, data) tuples where end==offset</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>the ending offset</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns an iterable of (start, end, data) tuples where end==offset</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ending_at(self, offset):
-    &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where end==offset
-
-    Args:
-      offset: the ending offset
-
-    Returns:
-      
-
+    &#34;&#34;&#34;
+    Returns an iterable of (start, end, data) tuples where end==offset
     &#34;&#34;&#34;
     return self._by_end.irange_key(min_key=offset, max_key=offset)</code></pre>
 </details>
@@ -846,28 +554,14 @@ class SortedIntvls:
 <span>def <span class="ident">ending_to</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals that end before or at the given end offset.</p>
-<p>NOTE: the result is sorted by end offset, not start offset!</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>return:</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals that end before or at the given end offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ending_to(self, offset):
-    &#34;&#34;&#34;Intervals that end before or at the given end offset.
-    
-    NOTE: the result is sorted by end offset, not start offset!
-
-    Args:
-      offset: return:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns intervals that end before or at the given end offset.
     &#34;&#34;&#34;
     return self._by_end.irange_key(max_key=offset)</code></pre>
 </details>
@@ -876,23 +570,14 @@ class SortedIntvls:
 <span>def <span class="ident">firsts</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Args:</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dd>return:</dd>
-</dl></div>
+<div class="desc"><p>Yields all intervals which start at the smallest known offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def firsts(self):
     &#34;&#34;&#34;
-
-    Args:
-
-    Returns:
-      : return:
-
+    Yields all intervals which start at the smallest known offset.
     &#34;&#34;&#34;
     laststart = None
     # logger.info(&#34;DEBUG: set laststart to None&#34;)
@@ -911,58 +596,55 @@ class SortedIntvls:
 </details>
 </dd>
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.irange"><code class="name flex">
-<span>def <span class="ident">irange</span></span>(<span>self, minoff=None, maxoff=None, reverse=False)</span>
+<span>def <span class="ident">irange</span></span>(<span>self, minoff=None, maxoff=None, reverse=False, inclusive=(True, True))</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
+<div class="desc"><p>Yields an iterator of intervals with a start offset between minoff and maxoff, inclusive.</p>
+<h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>minoff</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>minimum offset, default None indicates any</dd>
 <dt><strong><code>maxoff</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>maximum offset, default None indicates any</dd>
 <dt><strong><code>reverse</code></strong></dt>
-<dd>(Default value = False)</dd>
+<dd>if <code>True</code> yield in reverse order</dd>
+<dt><strong><code>inclusive</code></strong></dt>
+<dd>if the minoff and maxoff values should be inclusive, default is (True,True)</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def irange(self, minoff=None, maxoff=None, reverse=False):
+<pre><code class="python">def irange(self, minoff=None, maxoff=None, reverse=False, inclusive=(True, True)):
     &#34;&#34;&#34;
+    Yields an iterator of intervals with a start offset between minoff and maxoff, inclusive.
 
     Args:
-      minoff: (Default value = None)
-      maxoff: (Default value = None)
-      reverse: (Default value = False)
+      minoff: minimum offset, default None indicates any
+      maxoff: maximum offset, default None indicates any
+      reverse: if `True` yield in reverse order
+      inclusive: if the minoff and maxoff values should be inclusive, default is (True,True)
 
     Returns:
 
     &#34;&#34;&#34;
-    return self._by_start.irange_key(min_key=minoff, max_key=maxoff, reverse=reverse)</code></pre>
+    return self._by_start.irange_key(
+        min_key=minoff, max_key=maxoff, reverse=reverse, inclusive=inclusive)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.lasts"><code class="name flex">
 <span>def <span class="ident">lasts</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Args:</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dd>return:</dd>
-</dl></div>
+<div class="desc"><p>Yields all intervals which start at the last known start offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def lasts(self):
     &#34;&#34;&#34;
-
-    Args:
-
-    Returns:
-      : return:
-
+    Yields all intervals which start at the last known start offset.
     &#34;&#34;&#34;
     laststart = None
     for intvl in reversed(self._by_start):
@@ -979,23 +661,14 @@ class SortedIntvls:
 <span>def <span class="ident">max_end</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the biggest end offset we have</p>
-<p>:return:</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns the biggest known end offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def max_end(self):
-    &#34;&#34;&#34;Returns the biggest end offset we have
-    
-    :return:
-
-    Args:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns the biggest known end offset.
     &#34;&#34;&#34;
     return self._by_end[-1][1]</code></pre>
 </details>
@@ -1004,23 +677,14 @@ class SortedIntvls:
 <span>def <span class="ident">min_start</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the smallest start offset we have</p>
-<p>:return:</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns the smallest known start offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def min_start(self):
-    &#34;&#34;&#34;Returns the smallest start offset we have
-    
-    :return:
-
-    Args:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns the smallest known start offset.
     &#34;&#34;&#34;
     return self._by_start[0][0]</code></pre>
 </details>
@@ -1029,28 +693,14 @@ class SortedIntvls:
 <span>def <span class="ident">overlapping</span></span>(<span>self, start, end)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals that overlap with the given range.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>param end:</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals that overlap with the given range.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def overlapping(self, start, end):
-    &#34;&#34;&#34;Intervals that overlap with the given range.
-
-    Args:
-      start: param end:
-      end: 
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns intervals that overlap with the given range.
     &#34;&#34;&#34;
     # All intervals where the start or end offset lies within the given range.
     # This excludes the ones where the end offset is before the start or
@@ -1067,30 +717,14 @@ class SortedIntvls:
 <span>def <span class="ident">remove</span></span>(<span>self, start, end, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>data</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Removes an interval, exception if the interval does not exist.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def remove(self, start, end, data):
     &#34;&#34;&#34;
-
-    Args:
-      start: 
-      end: 
-      data: 
-
-    Returns:
-
+    Removes an interval, exception if the interval does not exist.
     &#34;&#34;&#34;
     self._by_start.remove((start, end, data))
     self._by_end.remove((start, end, data))</code></pre>
@@ -1100,53 +734,30 @@ class SortedIntvls:
 <span>def <span class="ident">starting_at</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return an iterable of (start, end, data) tuples where start==offset</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>the starting offset</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns an iterable of (start, end, data) tuples where start==offset</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def starting_at(self, offset):
-    &#34;&#34;&#34;Return an iterable of (start, end, data) tuples where start==offset
-
-    Args:
-      offset: the starting offset
-
-    Returns:
-      
-
     &#34;&#34;&#34;
-    return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset,sys.maxsize))</code></pre>
+    Returns an iterable of (start, end, data) tuples where start==offset
+    &#34;&#34;&#34;
+    return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset, sys.maxsize))</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.starting_before"><code class="name flex">
 <span>def <span class="ident">starting_before</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals that start before offset</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>return:</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals that start before offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def starting_before(self, offset):
-    &#34;&#34;&#34;Intervals that start before offset
-
-    Args:
-      offset: return:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Returns intervals that start before offset.
     &#34;&#34;&#34;
     return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))</code></pre>
 </details>
@@ -1155,51 +766,30 @@ class SortedIntvls:
 <span>def <span class="ident">starting_from</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Intervals that start at or after offset.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>offset</code></strong></dt>
-<dd>return:</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals that start at or after offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def starting_from(self, offset):
-    &#34;&#34;&#34;Intervals that start at or after offset.
-
-    Args:
-      offset: return:
-
-    Returns:
-
     &#34;&#34;&#34;
-    return self._by_start.irange_key(min_key=(offset,0))</code></pre>
+    Returns intervals that start at or after offset.
+    &#34;&#34;&#34;
+    return self._by_start.irange_key(min_key=(offset, 0))</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls.update"><code class="name flex">
 <span>def <span class="ident">update</span></span>(<span>self, tupleiterable)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>tupleiterable</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Updates from an iterable of intervals.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def update(self, tupleiterable):
     &#34;&#34;&#34;
-
-    Args:
-      tupleiterable: 
-
-    Returns:
-
+    Updates from an iterable of intervals.
     &#34;&#34;&#34;
     self._by_start.update(tupleiterable)
     self._by_end.update(tupleiterable)</code></pre>
@@ -1209,32 +799,17 @@ class SortedIntvls:
 <span>def <span class="ident">within</span></span>(<span>self, start, end)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return intervals which are fully contained within start&hellip;end</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>param end</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Returns intervals which are fully contained within start&hellip;end</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def within(self, start, end):
-    &#34;&#34;&#34;Return intervals which are fully contained within start...end
-
-    Args:
-      start: param end
-      end: 
-
-    Returns:
-      
-
+    &#34;&#34;&#34;
+    Returns intervals which are fully contained within start...end
     &#34;&#34;&#34;
     # get all the intervals that start within the range, then keep those which also end within the range
-    for intvl in self._by_start.irange_key(min_key=(start,0), max_key=(end, sys.maxsize)):
+    for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(end, sys.maxsize)):
         if intvl[1] &lt;= end:
             yield intvl</code></pre>
 </details>

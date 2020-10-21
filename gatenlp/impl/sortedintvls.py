@@ -96,7 +96,7 @@ class SortedIntvls:
 
     def starting_before(self, offset):
         """
-        Returns intervals that start before offset.
+        Returns intervals  that start before offset.
         """
         return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
