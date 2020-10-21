@@ -1,4 +1,6 @@
-
+"""
+Module that implements the various ways of how to save and load documents and change logs.
+"""
 import io
 import os
 import sys
@@ -30,14 +32,15 @@ warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
 
 
 def is_url(ext):
-    """Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    """
+    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
 
     Args:
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-      : True, usrlstring or False, pathstring
+        a tuple (True, urlstring)  or (False,pathstring)
 
     """
     if ext is None:
@@ -55,7 +58,6 @@ def is_url(ext):
         raise Exception(f"Odd type: {ext}")
 
 
-
 def get_str_from_url(url, encoding=None):
     """Read a string from the URL.
 
@@ -64,47 +66,47 @@ def get_str_from_url(url, encoding=None):
       encoding: override the encoding that would have determined automatically (Default value = None)
 
     Returns:
-      : the string
-
+        the string
     """
     req = requests.get(url)
     if encoding is not None:
         req.encoding = encoding
     return req.text
 
+
 def get_bytes_from_url(url):
-    """Read bytes from url.
+    """
+    Reads bytes from url.
 
     Args:
       url: the URL
 
     Returns:
-      : the bytes
-
+        the bytes
     """
     req = requests.get(url)
     return req.content
 
 
 class JsonSerializer:
-    """ """
+    """
+    This class performs the saving and load of Documents and ChangeLog instances to and from the
+    BDOC JSON format files, optionally with gzip compression.
+    """
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         """
 
         Args:
-          clazz: 
-          inst: 
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use "p" (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: if True, the JSON gets gzip compressed
           **kwargs: 
-
-        Returns:
-
         """
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -123,14 +125,7 @@ class JsonSerializer:
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
         """
-
-        Args:
-          clazz: 
-          inst: 
-          **kwargs: 
-
-        Returns:
-
+        Invokes the save method with gzip=True
         """
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 

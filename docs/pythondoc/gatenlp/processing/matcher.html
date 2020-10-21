@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.processing.matcher API documentation</title>
-<meta name="description" content="Matchers in this class process either the document text or a sequence of annotations
-and match subsequences of characters or annotations to create new …" />
+<meta name="description" content="Module that defines classes for matchers other than gazetteers which match e.g. regular expressions
+of strings or annotations." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,39 +23,27 @@ and match subsequences of characters or annotations to create new …" />
 <h1 class="title">Module <code>gatenlp.processing.matcher</code></h1>
 </header>
 <section id="section-intro">
-<p>Matchers in this class process either the document text or a sequence of annotations
-and match subsequences of characters or annotations to create new annotations.
-Gazetteers match based on (large) lists of strings, Regex matchers match based on
-regular expressions.</p>
+<p>Module that defines classes for matchers other than gazetteers which match e.g. regular expressions
+of strings or annotations.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Matchers in this class process either the document text or a sequence of annotations
-and match subsequences of characters or annotations to create new annotations.
-Gazetteers match based on (large) lists of strings, Regex matchers match based on
-regular expressions.
+Module that defines classes for matchers other than gazetteers which match e.g. regular expressions
+of strings or annotations.
 &#34;&#34;&#34;
 
-class StringGazetteer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass
-
-
-class AnnotationGazetteer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass
-
-
 class StringRegexMatcher:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
     pass
 
 
-class AnnotationRegexMatcher:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass</code></pre>
+#class AnnotationRegexMatcher:
+#    &#34;&#34;&#34; &#34;&#34;&#34;
+#    pass</code></pre>
 </details>
 </section>
 <section>
@@ -67,59 +55,19 @@ class AnnotationRegexMatcher:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gatenlp.processing.matcher.AnnotationGazetteer"><code class="flex name class">
-<span>class <span class="ident">AnnotationGazetteer</span></span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AnnotationGazetteer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.processing.matcher.AnnotationRegexMatcher"><code class="flex name class">
-<span>class <span class="ident">AnnotationRegexMatcher</span></span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AnnotationRegexMatcher:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.processing.matcher.StringGazetteer"><code class="flex name class">
-<span>class <span class="ident">StringGazetteer</span></span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class StringGazetteer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.processing.matcher.StringRegexMatcher"><code class="flex name class">
 <span>class <span class="ident">StringRegexMatcher</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>NOT YET IMPLEMENTED</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class StringRegexMatcher:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
 </dd>
@@ -139,15 +87,6 @@ class AnnotationRegexMatcher:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
-<li>
-<h4><code><a title="gatenlp.processing.matcher.AnnotationGazetteer" href="#gatenlp.processing.matcher.AnnotationGazetteer">AnnotationGazetteer</a></code></h4>
-</li>
-<li>
-<h4><code><a title="gatenlp.processing.matcher.AnnotationRegexMatcher" href="#gatenlp.processing.matcher.AnnotationRegexMatcher">AnnotationRegexMatcher</a></code></h4>
-</li>
-<li>
-<h4><code><a title="gatenlp.processing.matcher.StringGazetteer" href="#gatenlp.processing.matcher.StringGazetteer">StringGazetteer</a></code></h4>
-</li>
 <li>
 <h4><code><a title="gatenlp.processing.matcher.StringRegexMatcher" href="#gatenlp.processing.matcher.StringRegexMatcher">StringRegexMatcher</a></code></h4>
 </li>

@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.processing.annotator API documentation</title>
-<meta name="description" content="Base class and supporting functions for all annotators.
-Any callable that can be called by passing a document can be used as an annotator,
-but the …" />
+<meta name="description" content="Module with the base class and supporting functions for all annotators.
+Any callable that can be called by passing a document can be used as an …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -24,32 +23,19 @@ but the …" />
 <h1 class="title">Module <code>gatenlp.processing.annotator</code></h1>
 </header>
 <section id="section-intro">
-<p>Base class and supporting functions for all annotators.
+<p>Module with the base class and supporting functions for all annotators.
 Any callable that can be called by passing a document can be used as an annotator,
 but the base class "Annotator" defined in here is designed to allow for a more
 flexible approach to do things.</p>
-<p>One functionality we could also implement here is by implementing the annotator
-call function to follow a basic monad pattern for stream processing: instead of
-returning a document, return a list, which allows to represent: no document returned
-(filtering), one document returned (update/replacement), more than one document
-returned (functions like segmenting). However this clashes with the idea of
-using this also to combine partial per-document results with merge.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Base class and supporting functions for all annotators.
+Module with the base class and supporting functions for all annotators.
 Any callable that can be called by passing a document can be used as an annotator,
 but the base class &#34;Annotator&#34; defined in here is designed to allow for a more
 flexible approach to do things.
-
-One functionality we could also implement here is by implementing the annotator
-call function to follow a basic monad pattern for stream processing: instead of
-returning a document, return a list, which allows to represent: no document returned
-(filtering), one document returned (update/replacement), more than one document
-returned (functions like segmenting). However this clashes with the idea of
-using this also to combine partial per-document results with merge.
 &#34;&#34;&#34;
 from abc import ABC, abstractmethod
 
@@ -57,61 +43,55 @@ __pdoc__ = {
     &#34;Annotator.__call__&#34;: True
 }
 
+
 class Annotator(ABC):
     @abstractmethod
     def __call__(self, doc, **kwargs):
-        &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
-            and annotation. It must accept a document and return a document which may be
-            the same that got passed.
-            If it returns a list of documents, all of them are used as processing results, if
-            the list is empty, the processing does not yield a result.
+        &#34;&#34;&#34;
+        This method must get implemented in a concrete subclass to do the actual processing
+        and annotation. It must accept a document and return a document which may be
+        the same that got passed.
 
-            The method must accept arbitrary keyword arguments which will be used for handling
-            non-standard situations.
+        If it returns a list of documents, all of them are used as processing results, if
+        the list is empty, the processing does not yield a result.
+
+        The method must accept arbitrary keyword arguments which will be used for handling
+        non-standard situations.
 
         Args:
           doc: the document to process
           kwargs: return: a document or a list of documents
 
         Returns:
-          : a document or a list of documents
-
+            a document or a list of documents
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
 
     def start(self):
-        &#34;&#34;&#34;A method that gets called when processing starts, e.g. before the first document in
+        &#34;&#34;&#34;
+        A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
         of documents.
         
         This is different from initializing the Annotator: initializing may load large data which
         can be reused even if the same annotator instance is run several times over documents.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
         &#34;&#34;&#34;
         pass
 
     def finish(self):
-        &#34;&#34;&#34;A method that gets called when processing ends, e.g. when all documents of a corpus
+        &#34;&#34;&#34;
+        A method that gets called when processing ends, e.g. when all documents of a corpus
         have been processed. It should return some result for processing the whole batch of documents
         it has seen - that result may be None.
-        
-        :return: result of processing documents or None
-
-        Args:
 
         Returns:
-
+            The overall result of processing all documents or None
         &#34;&#34;&#34;
         pass
 
     def reduce(self, results):
-        &#34;&#34;&#34;A method that should know how to combine the results passed on in some collection into a
+        &#34;&#34;&#34;
+        A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
         data that is specific to the concrete instance.
         
@@ -123,12 +103,12 @@ class Annotator(ABC):
         from finish is used directly.
 
         Args:
-          resultlist: an iterable of individual results over some documents each
-          results: 
+          results: an iterable of individual results over some documents each or None if no results are available.
+             If no results have been passed back from the finish method of any of the processes, the executor should
+             not call reduce, but if it does, reduce should accept None or an iterator of all None and return None.
 
         Returns:
-          : overal result
-
+            The combined overall result or None if there are no individual results
         &#34;&#34;&#34;
         return results</code></pre>
 </details>
@@ -155,58 +135,51 @@ inheritance.</p></div>
 <pre><code class="python">class Annotator(ABC):
     @abstractmethod
     def __call__(self, doc, **kwargs):
-        &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
-            and annotation. It must accept a document and return a document which may be
-            the same that got passed.
-            If it returns a list of documents, all of them are used as processing results, if
-            the list is empty, the processing does not yield a result.
+        &#34;&#34;&#34;
+        This method must get implemented in a concrete subclass to do the actual processing
+        and annotation. It must accept a document and return a document which may be
+        the same that got passed.
 
-            The method must accept arbitrary keyword arguments which will be used for handling
-            non-standard situations.
+        If it returns a list of documents, all of them are used as processing results, if
+        the list is empty, the processing does not yield a result.
+
+        The method must accept arbitrary keyword arguments which will be used for handling
+        non-standard situations.
 
         Args:
           doc: the document to process
           kwargs: return: a document or a list of documents
 
         Returns:
-          : a document or a list of documents
-
+            a document or a list of documents
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
 
     def start(self):
-        &#34;&#34;&#34;A method that gets called when processing starts, e.g. before the first document in
+        &#34;&#34;&#34;
+        A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
         of documents.
         
         This is different from initializing the Annotator: initializing may load large data which
         can be reused even if the same annotator instance is run several times over documents.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
         &#34;&#34;&#34;
         pass
 
     def finish(self):
-        &#34;&#34;&#34;A method that gets called when processing ends, e.g. when all documents of a corpus
+        &#34;&#34;&#34;
+        A method that gets called when processing ends, e.g. when all documents of a corpus
         have been processed. It should return some result for processing the whole batch of documents
         it has seen - that result may be None.
-        
-        :return: result of processing documents or None
-
-        Args:
 
         Returns:
-
+            The overall result of processing all documents or None
         &#34;&#34;&#34;
         pass
 
     def reduce(self, results):
-        &#34;&#34;&#34;A method that should know how to combine the results passed on in some collection into a
+        &#34;&#34;&#34;
+        A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
         data that is specific to the concrete instance.
         
@@ -218,12 +191,12 @@ inheritance.</p></div>
         from finish is used directly.
 
         Args:
-          resultlist: an iterable of individual results over some documents each
-          results: 
+          results: an iterable of individual results over some documents each or None if no results are available.
+             If no results have been passed back from the finish method of any of the processes, the executor should
+             not call reduce, but if it does, reduce should accept None or an iterator of all None and return None.
 
         Returns:
-          : overal result
-
+            The combined overall result or None if there are no individual results
         &#34;&#34;&#34;
         return results</code></pre>
 </details>
@@ -236,6 +209,7 @@ inheritance.</p></div>
 <li><a title="gatenlp.lib_spacy.AnnSpacy" href="../lib_spacy.html#gatenlp.lib_spacy.AnnSpacy">AnnSpacy</a></li>
 <li><a title="gatenlp.lib_stanza.AnnStanza" href="../lib_stanza.html#gatenlp.lib_stanza.AnnStanza">AnnStanza</a></li>
 <li><a title="gatenlp.processing.gazetteer.Gazetteer" href="gazetteer.html#gatenlp.processing.gazetteer.Gazetteer">Gazetteer</a></li>
+<li><a title="gatenlp.processing.normalizer.Normalizer" href="normalizer.html#gatenlp.processing.normalizer.Normalizer">Normalizer</a></li>
 <li><a title="gatenlp.processing.pipeline.Pipeline" href="pipeline.html#gatenlp.processing.pipeline.Pipeline">Pipeline</a></li>
 <li><a title="gatenlp.processing.tokenizer.NLTKTokenizer" href="tokenizer.html#gatenlp.processing.tokenizer.NLTKTokenizer">NLTKTokenizer</a></li>
 </ul>
@@ -247,12 +221,11 @@ inheritance.</p></div>
 <dd>
 <div class="desc"><p>This method must get implemented in a concrete subclass to do the actual processing
 and annotation. It must accept a document and return a document which may be
-the same that got passed.
-If it returns a list of documents, all of them are used as processing results, if
+the same that got passed.</p>
+<p>If it returns a list of documents, all of them are used as processing results, if
 the list is empty, the processing does not yield a result.</p>
-<pre><code>The method must accept arbitrary keyword arguments which will be used for handling
-non-standard situations.
-</code></pre>
+<p>The method must accept arbitrary keyword arguments which will be used for handling
+non-standard situations.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>doc</code></strong></dt>
@@ -261,31 +234,30 @@ non-standard situations.
 <dd>return: a document or a list of documents</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>a document or a list of documents</dd>
-</dl></div>
+<p>a document or a list of documents</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
 def __call__(self, doc, **kwargs):
-    &#34;&#34;&#34;This method must get implemented in a concrete subclass to do the actual processing
-        and annotation. It must accept a document and return a document which may be
-        the same that got passed.
-        If it returns a list of documents, all of them are used as processing results, if
-        the list is empty, the processing does not yield a result.
+    &#34;&#34;&#34;
+    This method must get implemented in a concrete subclass to do the actual processing
+    and annotation. It must accept a document and return a document which may be
+    the same that got passed.
 
-        The method must accept arbitrary keyword arguments which will be used for handling
-        non-standard situations.
+    If it returns a list of documents, all of them are used as processing results, if
+    the list is empty, the processing does not yield a result.
+
+    The method must accept arbitrary keyword arguments which will be used for handling
+    non-standard situations.
 
     Args:
       doc: the document to process
       kwargs: return: a document or a list of documents
 
     Returns:
-      : a document or a list of documents
-
+        a document or a list of documents
     &#34;&#34;&#34;
     raise Exception(&#34;This method must be implemented!&#34;)</code></pre>
 </details>
@@ -297,24 +269,20 @@ def __call__(self, doc, **kwargs):
 <div class="desc"><p>A method that gets called when processing ends, e.g. when all documents of a corpus
 have been processed. It should return some result for processing the whole batch of documents
 it has seen - that result may be None.</p>
-<p>:return: result of processing documents or None</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>The overall result of processing all documents or None</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def finish(self):
-    &#34;&#34;&#34;A method that gets called when processing ends, e.g. when all documents of a corpus
+    &#34;&#34;&#34;
+    A method that gets called when processing ends, e.g. when all documents of a corpus
     have been processed. It should return some result for processing the whole batch of documents
     it has seen - that result may be None.
-    
-    :return: result of processing documents or None
-
-    Args:
 
     Returns:
-
+        The overall result of processing all documents or None
     &#34;&#34;&#34;
     pass</code></pre>
 </details>
@@ -333,21 +301,20 @@ over separate sets of documents. If only a single instance was used, the result 
 from finish is used directly.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>resultlist</code></strong></dt>
-<dd>an iterable of individual results over some documents each</dd>
 <dt><strong><code>results</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>an iterable of individual results over some documents each or None if no results are available.
+If no results have been passed back from the finish method of any of the processes, the executor should
+not call reduce, but if it does, reduce should accept None or an iterator of all None and return None.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>overal result</dd>
-</dl></div>
+<p>The combined overall result or None if there are no individual results</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reduce(self, results):
-    &#34;&#34;&#34;A method that should know how to combine the results passed on in some collection into a
+    &#34;&#34;&#34;
+    A method that should know how to combine the results passed on in some collection into a
     single result. This method should behave like a static method, i.e. not make use of any
     data that is specific to the concrete instance.
     
@@ -359,12 +326,12 @@ from finish is used directly.</p>
     from finish is used directly.
 
     Args:
-      resultlist: an iterable of individual results over some documents each
-      results: 
+      results: an iterable of individual results over some documents each or None if no results are available.
+         If no results have been passed back from the finish method of any of the processes, the executor should
+         not call reduce, but if it does, reduce should accept None or an iterator of all None and return None.
 
     Returns:
-      : overal result
-
+        The combined overall result or None if there are no individual results
     &#34;&#34;&#34;
     return results</code></pre>
 </details>
@@ -377,28 +344,19 @@ from finish is used directly.</p>
 corpus gets processed. This is invoked by an executor to initialize processing a batch
 of documents.</p>
 <p>This is different from initializing the Annotator: initializing may load large data which
-can be reused even if the same annotator instance is run several times over documents.</p>
-<p>:return:</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+can be reused even if the same annotator instance is run several times over documents.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start(self):
-    &#34;&#34;&#34;A method that gets called when processing starts, e.g. before the first document in
+    &#34;&#34;&#34;
+    A method that gets called when processing starts, e.g. before the first document in
     corpus gets processed. This is invoked by an executor to initialize processing a batch
     of documents.
     
     This is different from initializing the Annotator: initializing may load large data which
     can be reused even if the same annotator instance is run several times over documents.
-    
-    :return:
-
-    Args:
-
-    Returns:
-
     &#34;&#34;&#34;
     pass</code></pre>
 </details>

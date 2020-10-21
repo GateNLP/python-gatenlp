@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.serialization.default API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that implements the various ways of how to save and load documents and change logs." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,15 @@
 <h1 class="title">Module <code>gatenlp.serialization.default</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that implements the various ways of how to save and load documents and change logs.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import io
+<pre><code class="python">&#34;&#34;&#34;
+Module that implements the various ways of how to save and load documents and change logs.
+&#34;&#34;&#34;
+import io
 import os
 import sys
 import json
@@ -57,14 +61,15 @@ warnings.filterwarnings(&#39;ignore&#39;, category=GuessedAtParserWarning)
 
 
 def is_url(ext):
-    &#34;&#34;&#34;Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    &#34;&#34;&#34;
+    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
 
     Args:
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-      : True, usrlstring or False, pathstring
+        a tuple (True, urlstring)  or (False,pathstring)
 
     &#34;&#34;&#34;
     if ext is None:
@@ -82,7 +87,6 @@ def is_url(ext):
         raise Exception(f&#34;Odd type: {ext}&#34;)
 
 
-
 def get_str_from_url(url, encoding=None):
     &#34;&#34;&#34;Read a string from the URL.
 
@@ -91,47 +95,47 @@ def get_str_from_url(url, encoding=None):
       encoding: override the encoding that would have determined automatically (Default value = None)
 
     Returns:
-      : the string
-
+        the string
     &#34;&#34;&#34;
     req = requests.get(url)
     if encoding is not None:
         req.encoding = encoding
     return req.text
 
+
 def get_bytes_from_url(url):
-    &#34;&#34;&#34;Read bytes from url.
+    &#34;&#34;&#34;
+    Reads bytes from url.
 
     Args:
       url: the URL
 
     Returns:
-      : the bytes
-
+        the bytes
     &#34;&#34;&#34;
     req = requests.get(url)
     return req.content
 
 
 class JsonSerializer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This class performs the saving and load of Documents and ChangeLog instances to and from the
+    BDOC JSON format files, optionally with gzip compression.
+    &#34;&#34;&#34;
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: if True, the JSON gets gzip compressed
           **kwargs: 
-
-        Returns:
-
         &#34;&#34;&#34;
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -150,14 +154,7 @@ class JsonSerializer:
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
-
-        Args:
-          clazz: 
-          inst: 
-          **kwargs: 
-
-        Returns:
-
+        Invokes the save method with gzip=True
         &#34;&#34;&#34;
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
@@ -1204,29 +1201,27 @@ def get_changelog_loader(filespec, fmt):
 <span>def <span class="ident">get_bytes_from_url</span></span>(<span>url)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Read bytes from url.</p>
+<div class="desc"><p>Reads bytes from url.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>url</code></strong></dt>
 <dd>the URL</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>the bytes</dd>
-</dl></div>
+<p>the bytes</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_bytes_from_url(url):
-    &#34;&#34;&#34;Read bytes from url.
+    &#34;&#34;&#34;
+    Reads bytes from url.
 
     Args:
       url: the URL
 
     Returns:
-      : the bytes
-
+        the bytes
     &#34;&#34;&#34;
     req = requests.get(url)
     return req.content</code></pre>
@@ -1429,9 +1424,7 @@ def get_changelog_loader(filespec, fmt):
 <dd>override the encoding that would have determined automatically (Default value = None)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>the string</dd>
-</dl></div>
+<p>the string</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1444,8 +1437,7 @@ def get_changelog_loader(filespec, fmt):
       encoding: override the encoding that would have determined automatically (Default value = None)
 
     Returns:
-      : the string
-
+        the string
     &#34;&#34;&#34;
     req = requests.get(url)
     if encoding is not None:
@@ -1457,7 +1449,7 @@ def get_changelog_loader(filespec, fmt):
 <span>def <span class="ident">is_url</span></span>(<span>ext)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+<div class="desc"><p>Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
 If ext is None, returns None, None.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -1465,22 +1457,22 @@ If ext is None, returns None, None.</p>
 <dd>something that represents an external resource: string, url parse, pathlib path object &hellip;</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>True, usrlstring or False, pathstring</dd>
-</dl></div>
+<p>a tuple (True, urlstring)
+or (False,pathstring)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def is_url(ext):
-    &#34;&#34;&#34;Returns True, urlstring if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    &#34;&#34;&#34;
+    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
 
     Args:
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-      : True, usrlstring or False, pathstring
+        a tuple (True, urlstring)  or (False,pathstring)
 
     &#34;&#34;&#34;
     if ext is None:
@@ -2392,30 +2384,31 @@ def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_n
 <span>class <span class="ident">JsonSerializer</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This class performs the saving and load of Documents and ChangeLog instances to and from the
+BDOC JSON format files, optionally with gzip compression.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class JsonSerializer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    This class performs the saving and load of Documents and ChangeLog instances to and from the
+    BDOC JSON format files, optionally with gzip compression.
+    &#34;&#34;&#34;
 
     @staticmethod
     def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: if True, the JSON gets gzip compressed
           **kwargs: 
-
-        Returns:
-
         &#34;&#34;&#34;
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -2434,14 +2427,7 @@ def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_n
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
-
-        Args:
-          clazz: 
-          inst: 
-          **kwargs: 
-
-        Returns:
-
+        Invokes the save method with gzip=True
         &#34;&#34;&#34;
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
@@ -2620,23 +2606,21 @@ def load_gzip(clazz, **kwargs):
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>the class of the object that gets saved</dd>
 <dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>the object to get saved</dd>
 <dt><strong><code>to_ext</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>where to save to, this should be a file path, only one of to_ext and to_mem should be specified</dd>
 <dt><strong><code>to_mem</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>if True, return a String serialization</dd>
 <dt><strong><code>offset_type</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>the offset type to use for saving, if None (default) use "p" (Python)</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
-<dd>(Default value = None)</dd>
+<dd>the offset mapper to use, only needed if the type needs to get converted</dd>
 <dt><strong><code>gzip</code></strong></dt>
-<dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
+<dd>if True, the JSON gets gzip compressed</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2646,17 +2630,14 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
-      to_ext: (Default value = None)
-      to_mem: (Default value = None)
-      offset_type: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False)
+      clazz: the class of the object that gets saved
+      inst: the object to get saved
+      to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+      to_mem: if True, return a String serialization
+      offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+      offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+      gzip: if True, the JSON gets gzip compressed
       **kwargs: 
-
-    Returns:
-
     &#34;&#34;&#34;
     d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
     if to_mem:
@@ -2677,16 +2658,7 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
 <span>def <span class="ident">save_gzip</span></span>(<span>clazz, inst, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"><p>Invokes the save method with gzip=True</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2694,14 +2666,7 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
 <pre><code class="python">@staticmethod
 def save_gzip(clazz, inst, **kwargs):
     &#34;&#34;&#34;
-
-    Args:
-      clazz: 
-      inst: 
-      **kwargs: 
-
-    Returns:
-
+    Invokes the save method with gzip=True
     &#34;&#34;&#34;
     JsonSerializer.save(clazz, inst, gzip=True, **kwargs)</code></pre>
 </details>

@@ -32,7 +32,8 @@ from gatenlp.processing.annotator import Annotator
 
 
 def _check_and_ret_callable(a, **kwargs):
-    &#34;&#34;&#34;Make sure a is either a callable or a class that can be instatiated to a callable.
+    &#34;&#34;&#34;
+    Make sure a is either a callable or a class that can be instatiated to a callable.
 
     Args:
       a: a class or instantiated callable
@@ -40,7 +41,7 @@ def _check_and_ret_callable(a, **kwargs):
       **kwargs: 
 
     Returns:
-      : an instantiated callable or throws an exception if not a callable
+        an instantiated callable or throws an exception if not a callable
 
     &#34;&#34;&#34;
     if inspect.isclass(a):
@@ -49,15 +50,17 @@ def _check_and_ret_callable(a, **kwargs):
         raise Exception(f&#34;Not a callable: {a}&#34;)
     return a
 
+
 def _has_method(obj, name):
-    &#34;&#34;&#34;Check if the object has a method with that name
+    &#34;&#34;&#34;
+    Check if the object has a method with that name
 
     Args:
       obj: the object
       name: the name of the method
 
     Returns:
-      : True if the object has a callable method with that name, otherwise False
+        True if the object has a callable method with that name, otherwise False
 
     &#34;&#34;&#34;
     mth = getattr(obj, name, None)
@@ -70,26 +73,22 @@ def _has_method(obj, name):
 
 
 class Pipeline(Annotator):
-    &#34;&#34;&#34;A pipeline is an annotator which runs several other annotators in sequence on a document
+    &#34;&#34;&#34;
+    A pipeline is an annotator which runs several other annotators in sequence on a document
     and returns the result. Since annotators can return no or more than one result document
     in a list, the pipeline can return no or more than one document for each input document
     as well.
-
-    Args:
-
-    Returns:
-
     &#34;&#34;&#34;
 
-    def __init(self, *annotators, **kwargs):
+    def __init__(self, *annotators, **kwargs):
         &#34;&#34;&#34;
 
-        :param annotators: each paramter can be an annotator or callable, if it is an iterable,
-           it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
-           be either a class or an already initialized instance of a class which must be a callable
-           or some other callable.
-        :param kwargs:
-        :return:
+        Args:
+            annotators: each paramter can be an annotator or callable, if it is an iterable,
+                it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
+                be either a class or an already initialized instance of a class which must be a callable
+                or some other callable.
+            **kwargs: these arguments are passed to the constructor of any class in the annotators list
         &#34;&#34;&#34;
         self.annotators = []
         for ann in annotators:
@@ -98,16 +97,19 @@ class Pipeline(Annotator):
                     a = _check_and_ret_callable(a)
                     self.annotators.append(a)
             else:
-                a = _check_and_ret_callable(a)
+                a = _check_and_ret_callable(a, **kwargs)
                 self.annotators.append(ann)
 
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
         Calls each annotator in sequence and passes the result or results to the next.
 
-        :param doc: the document to process
-        :param kwargs:
-        :return: a document or a list of documents
+        Args:
+            doc: the document to process
+            **kwargs: any kwargs will be passed to all annotators
+
+        Returns:
+            a document or a list of documents
         &#34;&#34;&#34;
         toprocess = [doc]
         results = []
@@ -127,29 +129,20 @@ class Pipeline(Annotator):
             return results
 
     def start(self):
-        &#34;&#34;&#34;Invoke start on all annotators to prepare them for a corpus of documents.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Invokes start on all annotators.
         &#34;&#34;&#34;
         for annotator in self.annotators:
             if _has_method(annotator, &#34;start&#34;):
                 annotator.start()
 
     def finish(self):
-        &#34;&#34;&#34;Invoke finish on all annotators and return their results as a list with as many
+        &#34;&#34;&#34;
+        Invokes finish on all annotators and return their results as a list with as many
         elements as there are annotators (annotators which did not return anything have None).
-        
-        :return: list of annotator results
-
-        Args:
 
         Returns:
-
+            list of annotator results
         &#34;&#34;&#34;
         results = []
         for annotator in self.annotators:
@@ -160,18 +153,18 @@ class Pipeline(Annotator):
         return results
 
     def reduce(self, results):
-        &#34;&#34;&#34;Invoke reduce on all annotators using the list of result lists. `results` is a list with
+        &#34;&#34;&#34;
+        Invokes reduce on all annotators using the list of result lists. `results` is a list with
         as many elements as there are annotators. Each element is a list of results from different
         processes or different batches.
         
         Returns a list with as many elements as there are annotators, each element the combined result.
 
         Args:
-          results: a list of result lists
+            results: a list of result lists
 
         Returns:
-          : a list of combined results
-
+            a list of combined results
         &#34;&#34;&#34;
         results = []
         assert len(results) == len(self.annotators)
@@ -194,39 +187,44 @@ class Pipeline(Annotator):
 <dl>
 <dt id="gatenlp.processing.pipeline.Pipeline"><code class="flex name class">
 <span>class <span class="ident">Pipeline</span></span>
+<span>(</span><span>*annotators, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline is an annotator which runs several other annotators in sequence on a document
 and returns the result. Since annotators can return no or more than one result document
 in a list, the pipeline can return no or more than one document for each input document
 as well.</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annotators</code></strong></dt>
+<dd>each paramter can be an annotator or callable, if it is an iterable,
+it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
+be either a class or an already initialized instance of a class which must be a callable
+or some other callable.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>these arguments are passed to the constructor of any class in the annotators list</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Pipeline(Annotator):
-    &#34;&#34;&#34;A pipeline is an annotator which runs several other annotators in sequence on a document
+    &#34;&#34;&#34;
+    A pipeline is an annotator which runs several other annotators in sequence on a document
     and returns the result. Since annotators can return no or more than one result document
     in a list, the pipeline can return no or more than one document for each input document
     as well.
-
-    Args:
-
-    Returns:
-
     &#34;&#34;&#34;
 
-    def __init(self, *annotators, **kwargs):
+    def __init__(self, *annotators, **kwargs):
         &#34;&#34;&#34;
 
-        :param annotators: each paramter can be an annotator or callable, if it is an iterable,
-           it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
-           be either a class or an already initialized instance of a class which must be a callable
-           or some other callable.
-        :param kwargs:
-        :return:
+        Args:
+            annotators: each paramter can be an annotator or callable, if it is an iterable,
+                it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
+                be either a class or an already initialized instance of a class which must be a callable
+                or some other callable.
+            **kwargs: these arguments are passed to the constructor of any class in the annotators list
         &#34;&#34;&#34;
         self.annotators = []
         for ann in annotators:
@@ -235,16 +233,19 @@ as well.</p>
                     a = _check_and_ret_callable(a)
                     self.annotators.append(a)
             else:
-                a = _check_and_ret_callable(a)
+                a = _check_and_ret_callable(a, **kwargs)
                 self.annotators.append(ann)
 
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
         Calls each annotator in sequence and passes the result or results to the next.
 
-        :param doc: the document to process
-        :param kwargs:
-        :return: a document or a list of documents
+        Args:
+            doc: the document to process
+            **kwargs: any kwargs will be passed to all annotators
+
+        Returns:
+            a document or a list of documents
         &#34;&#34;&#34;
         toprocess = [doc]
         results = []
@@ -264,29 +265,20 @@ as well.</p>
             return results
 
     def start(self):
-        &#34;&#34;&#34;Invoke start on all annotators to prepare them for a corpus of documents.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Invokes start on all annotators.
         &#34;&#34;&#34;
         for annotator in self.annotators:
             if _has_method(annotator, &#34;start&#34;):
                 annotator.start()
 
     def finish(self):
-        &#34;&#34;&#34;Invoke finish on all annotators and return their results as a list with as many
+        &#34;&#34;&#34;
+        Invokes finish on all annotators and return their results as a list with as many
         elements as there are annotators (annotators which did not return anything have None).
-        
-        :return: list of annotator results
-
-        Args:
 
         Returns:
-
+            list of annotator results
         &#34;&#34;&#34;
         results = []
         for annotator in self.annotators:
@@ -297,18 +289,18 @@ as well.</p>
         return results
 
     def reduce(self, results):
-        &#34;&#34;&#34;Invoke reduce on all annotators using the list of result lists. `results` is a list with
+        &#34;&#34;&#34;
+        Invokes reduce on all annotators using the list of result lists. `results` is a list with
         as many elements as there are annotators. Each element is a list of results from different
         processes or different batches.
         
         Returns a list with as many elements as there are annotators, each element the combined result.
 
         Args:
-          results: a list of result lists
+            results: a list of result lists
 
         Returns:
-          : a list of combined results
-
+            a list of combined results
         &#34;&#34;&#34;
         results = []
         assert len(results) == len(self.annotators)
@@ -330,25 +322,21 @@ as well.</p>
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Invoke finish on all annotators and return their results as a list with as many
+<div class="desc"><p>Invokes finish on all annotators and return their results as a list with as many
 elements as there are annotators (annotators which did not return anything have None).</p>
-<p>:return: list of annotator results</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>list of annotator results</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def finish(self):
-    &#34;&#34;&#34;Invoke finish on all annotators and return their results as a list with as many
+    &#34;&#34;&#34;
+    Invokes finish on all annotators and return their results as a list with as many
     elements as there are annotators (annotators which did not return anything have None).
-    
-    :return: list of annotator results
-
-    Args:
 
     Returns:
-
+        list of annotator results
     &#34;&#34;&#34;
     results = []
     for annotator in self.annotators:
@@ -363,7 +351,7 @@ elements as there are annotators (annotators which did not return anything have 
 <span>def <span class="ident">reduce</span></span>(<span>self, results)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Invoke reduce on all annotators using the list of result lists. <code>results</code> is a list with
+<div class="desc"><p>Invokes reduce on all annotators using the list of result lists. <code>results</code> is a list with
 as many elements as there are annotators. Each element is a list of results from different
 processes or different batches.</p>
 <p>Returns a list with as many elements as there are annotators, each element the combined result.</p>
@@ -373,26 +361,24 @@ processes or different batches.</p>
 <dd>a list of result lists</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dd>a list of combined results</dd>
-</dl></div>
+<p>a list of combined results</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reduce(self, results):
-    &#34;&#34;&#34;Invoke reduce on all annotators using the list of result lists. `results` is a list with
+    &#34;&#34;&#34;
+    Invokes reduce on all annotators using the list of result lists. `results` is a list with
     as many elements as there are annotators. Each element is a list of results from different
     processes or different batches.
     
     Returns a list with as many elements as there are annotators, each element the combined result.
 
     Args:
-      results: a list of result lists
+        results: a list of result lists
 
     Returns:
-      : a list of combined results
-
+        a list of combined results
     &#34;&#34;&#34;
     results = []
     assert len(results) == len(self.annotators)
@@ -408,23 +394,14 @@ processes or different batches.</p>
 <span>def <span class="ident">start</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Invoke start on all annotators to prepare them for a corpus of documents.</p>
-<p>:return:</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<div class="desc"><p>Invokes start on all annotators.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start(self):
-    &#34;&#34;&#34;Invoke start on all annotators to prepare them for a corpus of documents.
-    
-    :return:
-
-    Args:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Invokes start on all annotators.
     &#34;&#34;&#34;
     for annotator in self.annotators:
         if _has_method(annotator, &#34;start&#34;):

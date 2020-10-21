@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.processing.gazetteer API documentation</title>
-<meta name="description" content="Gazatteers." />
+<meta name="description" content="This module provides Gazetteer classes which allow matching the text or the tokens of documents against
+gazetteer lists, lists of interesting texts or …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,13 +23,17 @@
 <h1 class="title">Module <code>gatenlp.processing.gazetteer</code></h1>
 </header>
 <section id="section-intro">
-<p>Gazatteers.</p>
+<p>This module provides Gazetteer classes which allow matching the text or the tokens of documents against
+gazetteer lists, lists of interesting texts or token sequences and annotate the matches with features from the
+gazetteer lists.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Gazatteers.
+This module provides Gazetteer classes which allow matching the text or the tokens of documents against
+gazetteer lists, lists of interesting texts or token sequences and annotate the matches with features from the
+gazetteer lists.
 &#34;&#34;&#34;
 
 from collections import defaultdict
@@ -38,6 +43,9 @@ from gatenlp.processing.annotator import Annotator
 
 
 class Gazetteer(Annotator):
+    &#34;&#34;&#34;
+    Base class of all gazetteer classes.
+    &#34;&#34;&#34;
     pass
 
 
@@ -684,13 +692,15 @@ class StringMatcher:
 <span>class <span class="ident">Gazetteer</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Base class of all gazetteer classes.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Gazetteer(Annotator):
+    &#34;&#34;&#34;
+    Base class of all gazetteer classes.
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>

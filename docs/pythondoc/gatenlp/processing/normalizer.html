@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.processing.normalizer API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that provides classes for normalizers. Normalizers are annotators which change the text of selected
+annotations or the entire text of the …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,18 +23,39 @@
 <h1 class="title">Module <code>gatenlp.processing.normalizer</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that provides classes for normalizers. Normalizers are annotators which change the text of selected
+annotations or the entire text of the document.
+Since the text of a document is immutable, such Normalizers return a new document with the modified text.
+Since the text is modified any annotations present in the document may be invalid, therefore all annotations
+are removed when the new document is returned. Document features are preserved. Any changelog is preserved but
+the normalization is not logged.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># NOTE: a simple normalizer may only return a copy of the document with any annotations removed, so
-# we do not have to adapt all the annotation offsets.
-# Another aspect of normalizing may be that we just normalize &#34;string&#34; features within annotations,
-# not the actual document text, that way, subsequent steps can act on the normalized
-# feature values instead of the text.
+<pre><code class="python">&#34;&#34;&#34;
+Module that provides classes for normalizers. Normalizers are annotators which change the text of selected
+ annotations or the entire text of the document.
+Since the text of a document is immutable, such Normalizers return a new document with the modified text.
+Since the text is modified any annotations present in the document may be invalid, therefore all annotations
+are removed when the new document is returned. Document features are preserved. Any changelog is preserved but
+the normalization is not logged.
+&#34;&#34;&#34;
 
-class Normalizer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+from gatenlp.processing.annotator import Annotator
+
+
+class Normalizer(Annotator):
+    &#34;&#34;&#34;
+    Base class of all normalizers.
+    &#34;&#34;&#34;
+    pass
+
+
+class TextNormalizer(Normalizer):
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
 </section>
@@ -50,15 +72,70 @@ class Normalizer:
 <span>class <span class="ident">Normalizer</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Base class of all normalizers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Normalizer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+<pre><code class="python">class Normalizer(Annotator):
+    &#34;&#34;&#34;
+    Base class of all normalizers.
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.normalizer.TextNormalizer" href="#gatenlp.processing.normalizer.TextNormalizer">TextNormalizer</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.processing.normalizer.TextNormalizer"><code class="flex name class">
+<span>class <span class="ident">TextNormalizer</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>NOT YET IMPLEMENTED</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TextNormalizer(Normalizer):
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.normalizer.Normalizer" href="#gatenlp.processing.normalizer.Normalizer">Normalizer</a></li>
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.normalizer.Normalizer" href="#gatenlp.processing.normalizer.Normalizer">Normalizer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.normalizer.Normalizer.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.normalizer.Normalizer.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.normalizer.Normalizer.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.normalizer.Normalizer.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -78,6 +155,9 @@ class Normalizer:
 <ul>
 <li>
 <h4><code><a title="gatenlp.processing.normalizer.Normalizer" href="#gatenlp.processing.normalizer.Normalizer">Normalizer</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.normalizer.TextNormalizer" href="#gatenlp.processing.normalizer.TextNormalizer">TextNormalizer</a></code></h4>
 </li>
 </ul>
 </li>

@@ -1,25 +1,15 @@
 """
-Matchers in this class process either the document text or a sequence of annotations
-and match subsequences of characters or annotations to create new annotations.
-Gazetteers match based on (large) lists of strings, Regex matchers match based on
-regular expressions.
+Module that defines classes for matchers other than gazetteers which match e.g. regular expressions
+of strings or annotations.
 """
 
-class StringGazetteer:
-    """ """
-    pass
-
-
-class AnnotationGazetteer:
-    """ """
-    pass
-
-
 class StringRegexMatcher:
-    """ """
+    """
+    NOT YET IMPLEMENTED
+    """
     pass
 
 
-class AnnotationRegexMatcher:
-    """ """
-    pass
+#class AnnotationRegexMatcher:
+#    """ """
+#    pass

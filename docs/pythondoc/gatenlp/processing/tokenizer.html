@@ -42,14 +42,17 @@ from nltk.tokenize.util import align_tokens
 
 
 class NLTKTokenizer(Annotator):
-    &#34;&#34;&#34;Uses a NLTK Tokenizer to perform tokenization.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Uses a NLTK Tokenizer to perform tokenization.
+    &#34;&#34;&#34;
     def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;):
         &#34;&#34;&#34;
-        Create the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
 
-        :param nltk_tokenizer: either a class or instance of an nltk tokenizer
-        :param out_set: annotation set to put the Token annotations in
-        :param token_type: annotation type of the Token annotations
+        Args:
+            :param nltk_tokenizer: either a class or instance of an nltk tokenizer
+            :param out_set: annotation set to put the Token annotations in
+            :param token_type: annotation type of the Token annotations
         &#34;&#34;&#34;
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):
@@ -96,7 +99,8 @@ class NLTKTokenizer(Annotator):
 </code></dt>
 <dd>
 <div class="desc"><p>Uses a NLTK Tokenizer to perform tokenization.</p>
-<p>Create the tokenizer. NOTE: this tokenizer does NOT create space tokens</p>
+<p>Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens</p>
+<h2 id="args">Args</h2>
 <p>:param nltk_tokenizer: either a class or instance of an nltk tokenizer
 :param out_set: annotation set to put the Token annotations in
 :param token_type: annotation type of the Token annotations</p></div>
@@ -105,14 +109,17 @@ class NLTKTokenizer(Annotator):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class NLTKTokenizer(Annotator):
-    &#34;&#34;&#34;Uses a NLTK Tokenizer to perform tokenization.&#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Uses a NLTK Tokenizer to perform tokenization.
+    &#34;&#34;&#34;
     def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;):
         &#34;&#34;&#34;
-        Create the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
 
-        :param nltk_tokenizer: either a class or instance of an nltk tokenizer
-        :param out_set: annotation set to put the Token annotations in
-        :param token_type: annotation type of the Token annotations
+        Args:
+            :param nltk_tokenizer: either a class or instance of an nltk tokenizer
+            :param out_set: annotation set to put the Token annotations in
+            :param token_type: annotation type of the Token annotations
         &#34;&#34;&#34;
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):

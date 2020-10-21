@@ -14,14 +14,17 @@ from nltk.tokenize.util import align_tokens
 
 
 class NLTKTokenizer(Annotator):
-    """Uses a NLTK Tokenizer to perform tokenization."""
+    """
+    Uses a NLTK Tokenizer to perform tokenization.
+    """
     def __init__(self, nltk_tokenizer=None, out_set="", token_type="Token"):
         """
-        Create the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
 
-        :param nltk_tokenizer: either a class or instance of an nltk tokenizer
-        :param out_set: annotation set to put the Token annotations in
-        :param token_type: annotation type of the Token annotations
+        Args:
+            :param nltk_tokenizer: either a class or instance of an nltk tokenizer
+            :param out_set: annotation set to put the Token annotations in
+            :param token_type: annotation type of the Token annotations
         """
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):

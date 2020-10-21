@@ -1,5 +1,7 @@
 """
-Gazatteers.
+This module provides Gazetteer classes which allow matching the text or the tokens of documents against
+gazetteer lists, lists of interesting texts or token sequences and annotate the matches with features from the
+gazetteer lists.
 """
 
 from collections import defaultdict
@@ -9,6 +11,9 @@ from gatenlp.processing.annotator import Annotator
 
 
 class Gazetteer(Annotator):
+    """
+    Base class of all gazetteer classes.
+    """
     pass
 
 

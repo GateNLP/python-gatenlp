@@ -135,7 +135,7 @@ class SortedIntvls:
 
     def starting_before(self, offset):
         &#34;&#34;&#34;
-        Returns intervals that start before offset.
+        Returns intervals  that start before offset.
         &#34;&#34;&#34;
         return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
@@ -338,7 +338,7 @@ class SortedIntvls:
 
     def starting_before(self, offset):
         &#34;&#34;&#34;
-        Returns intervals that start before offset.
+        Returns intervals  that start before offset.
         &#34;&#34;&#34;
         return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
 
@@ -750,14 +750,15 @@ class SortedIntvls:
 <span>def <span class="ident">starting_before</span></span>(<span>self, offset)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns intervals that start before offset.</p></div>
+<div class="desc"><p>Returns intervals
+that start before offset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def starting_before(self, offset):
     &#34;&#34;&#34;
-    Returns intervals that start before offset.
+    Returns intervals  that start before offset.
     &#34;&#34;&#34;
     return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))</code></pre>
 </details>
