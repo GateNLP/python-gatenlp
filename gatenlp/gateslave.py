@@ -287,7 +287,8 @@ class GateSlave:
         self.slave = self.gateway.entry_point
 
     def close(self):
-        """Clean up: if the gate slave process was started by us, we will shut it down.
+        """
+        Clean up: if the gate slave process was started by us, we will shut it down.
         Otherwise we can still close it if it was started by the slaverunner, not the Lr
         Note: if it was started by us, it was started via the slaverunner.
         

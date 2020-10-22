@@ -77,19 +77,21 @@ a Document: document features, annotations, annotation features.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.document" href="document.html">gatenlp.document</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Module that implements the Document class for representing gatenlp documents with features and annotation sets.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.features" href="features.html">gatenlp.features</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Module that implements class Feature for representing features.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.gate_interaction" href="gate_interaction.html">gatenlp.gate_interaction</a></code></dt>
 <dd>
-<div class="desc"><p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.</p></div>
+<div class="desc"><p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.
+This is used by the Java GATE Python plugin.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.gatenlpconfig" href="gatenlpconfig.html">gatenlp.gatenlpconfig</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Module that provides the class GatenlpConfig and the instance gatenlpconfig which stores various
+global configuration options.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.gateslave" href="gateslave.html">gatenlp.gateslave</a></code></dt>
 <dd>
@@ -121,7 +123,8 @@ convert from stanford Stanza output to gatenlp documents and annotations.</p></d
 </dd>
 <dt><code class="name"><a title="gatenlp.offsetmapper" href="offsetmapper.html">gatenlp.offsetmapper</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
+Java strings are represented as UTF16 …</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.processing" href="processing/index.html">gatenlp.processing</a></code></dt>
 <dd>
@@ -164,7 +167,8 @@ wrapper.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def _pr_decorator(what):
-    &#34;&#34;&#34;This is the decorator to identify a class or function as a processing
+    &#34;&#34;&#34;
+    This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
     package.
     
@@ -662,16 +666,16 @@ and instead the method AnnotationSet.add should be used.</p>
 
     def __deepcopy__(self, memo=None):
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo=memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo=memo)
         else:
             fts = None
         return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         &#34;&#34;&#34;
         Return a deep copy of the annotation (features and their values are copied as well).
         &#34;&#34;&#34;
-        return copy.deepcopy(self)</code></pre>
+        return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -852,7 +856,7 @@ def type(self) -&gt; str:
 </details>
 </dd>
 <dt id="gatenlp.Annotation.deepcopy"><code class="name flex">
-<span>def <span class="ident">deepcopy</span></span>(<span>self)</span>
+<span>def <span class="ident">deepcopy</span></span>(<span>self, memo=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a deep copy of the annotation (features and their values are copied as well).</p></div>
@@ -860,11 +864,11 @@ def type(self) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def deepcopy(self):
+<pre><code class="python">def deepcopy(self, memo=None):
     &#34;&#34;&#34;
     Return a deep copy of the annotation (features and their values are copied as well).
     &#34;&#34;&#34;
-    return copy.deepcopy(self)</code></pre>
+    return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Annotation.gap"><code class="name flex">
@@ -5239,16 +5243,16 @@ changelog: a ChangeLog instance to use to log changes.</p>
         :return: a deep copy of the document.
         &#34;&#34;&#34;
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         doc = Document(self._text, features=fts)
         doc._changelog = None
-        doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
+        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
         return doc
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
 
         Args:
@@ -5258,7 +5262,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
           a deep copy of the document.
 
         &#34;&#34;&#34;
-        return copy.deepcopy(self)
+        return lib_copy.deepcopy(self, memo=memo)
 
     def _repr_html_(self):
         &#34;&#34;&#34;Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
@@ -5758,7 +5762,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 </details>
 </dd>
 <dt id="gatenlp.Document.deepcopy"><code class="name flex">
-<span>def <span class="ident">deepcopy</span></span>(<span>self)</span>
+<span>def <span class="ident">deepcopy</span></span>(<span>self, memo=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a deep copy, except the changelog which is set to None.</p>
@@ -5773,7 +5777,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def deepcopy(self):
+<pre><code class="python">def deepcopy(self, memo=None):
     &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
 
     Args:
@@ -5783,7 +5787,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
       a deep copy of the document.
 
     &#34;&#34;&#34;
-    return copy.deepcopy(self)</code></pre>
+    return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Document.remove_annset"><code class="name flex">

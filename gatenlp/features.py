@@ -1,4 +1,6 @@
-
+"""
+Module that implements class Feature for representing features.
+"""
 # Implementation note: Features should behave much like a dict. However, inheriting from dict
 # is problematic, because dict has an odd way to implement interdependent methods, e.g. ne and eq
 # are implemented separately, so the inheriting class would need to implement them separately too.
@@ -13,7 +15,8 @@
 # wrapping an actual dict, the collections.UserDict approach seems to be more adequate.
 
 from collections import UserDict
-from collections.abc import Iterable
+import copy as lib_copy
+
 
 
 class Features(UserDict):
@@ -119,50 +122,54 @@ class Features(UserDict):
         ret._logger = None
         return ret
 
-    def to_dict(self, copy=True, deepcopy=False):
-        """Return a dictionary representation of the features.
+    def to_dict(self, deepcopy=False, memo=None):
+        """
+        Return a dictionary representation of the features. The returned dictionary is always a shallow
+        copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
+
+        Note:
+            Features with names that start with two underscores are considered "internal/transient" features
+            and not saved. Features with names that start with one underscore are considered "internal" but
+            do get saved/serialized.
 
         Args:
-          copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
-        object. This should always be done except it is known that no modifications are made to the
-        dictionary or the modifications do not matter in the original Features object. (Default value = True)
-          deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-        in the original are unaffected if they get modified in the copy. (Default value = False)
+          deepcopy: if True, the dictionary is a deep copy so that mutable objects
+              in the original are unaffected if they get modified in the copy. (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
-          the dict
+          the dict representation of the features
 
         """
-        if copy:
+        ret = dict()
+        for k,v in self.data.items():
+            if k.startswith("__"):
+                continue
             if deepcopy:
-                return deepcopy(self.data)
+                ret[k] = lib_copy.deepcopy(v)
             else:
-                return self.data.copy()
-        else:
-            return self.data
+                ret[k] = v
+        return ret
 
     @staticmethod
-    def from_dict(thedict, copy=True, deepcopy=False):
-        """Create a Features instance from a dictionary. If copy is True, a shallow copy of the
-        dictionary is used, if deepcopy is True as well, a deepcopy is created instead.
+    def from_dict(thedict, deepcopy=False, memo=None):
+        """
+        Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
         
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:
           thedict: the dictionary from which to create the Features.
-          copy: if True use a shallow copy of the dictionary (Default value = True)
           deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopying
 
         Returns:
           the Features instance
 
         """
         ret = Features()
-        if copy:
-            if deepcopy:
-                ret.data = deepcopy(thedict)
-            else:
-                ret.data = thedict.copy()
+        if deepcopy:
+            ret.data = lib_copy.deepcopy(thedict, memo=memo)
         else:
-            ret.data = thedict
+            ret.data = thedict.copy()
         return ret

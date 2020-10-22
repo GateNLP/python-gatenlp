@@ -1,47 +1,18 @@
 """
 Various utilities that could be useful in several modules.
 """
+import numbers
 import sys
 import os
 import logging
 import datetime
 import time
-
-
-def to_dict(obj):
-    """If obj is not None, call its to_dict method, otherwise return None
-
-    Args:
-      obj: the object on which to call to_dict
-
-    Returns:
-      the result of to_dict or None
-
-    """
-    if obj is None:
-        return None
-    else:
-        return obj.to_dict()
-
-
-def to_list(obj):
-    """If obj is not None, call its to_list method, otherwise return None
-
-    Args:
-      obj: the object on which to call to_list
-
-    Returns:
-      the result of to_list or None
-
-    """
-    if obj is None:
-        return None
-    else:
-        return obj.to_list()
+from functools import wraps
 
 
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
-    """Matches each item from the items sequence with sum substring of the text
+    """
+    Matches each item from the items sequence with sum substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with
@@ -204,3 +175,44 @@ def file4logger(thelogger, noext=False):
             break
     return lpath
 
+
+def support_annotation_or_set(method):
+    """
+    Decorator to allow a method that normally takes a start and end
+    offset to take an annotation or annotation set, or any other object that has
+    "start" and "end" attributes, or a pair of offsets instead.
+    It also allows to take a single offset instead which will then be used
+    to create a length one span (start is the original offset, end is the original offset plus one)
+
+    Args:
+      method: the method that gets converted by this decorator.
+
+    Returns:
+        the adapted method which now takes an annotation or annotation set as well as start/end offsets.
+    """
+    @wraps(method)
+    def _support_annotation_or_set(self, *args, **kwargs):
+        from gatenlp.annotation import Annotation
+        annid = None
+        if len(args) == 1:
+            obj = args[0]
+            if hasattr(obj, "start") and hasattr(obj, "end"):
+                left, right = obj.start, obj.end
+            elif isinstance(obj, (tuple, list)) and len(obj) == 2:
+                left, right = obj
+            elif isinstance(obj, numbers.Integral):
+                left, right = obj, obj+1
+            else:
+                raise Exception("Not an annotation or an annotation set or pair: {}".format(args[0]))
+            if isinstance(obj, Annotation):
+                annid = obj.id
+        else:
+            assert len(args) == 2
+            left, right = args
+        # if the called method/function does have an annid keyword, pass it, otherwise omit
+        if "annid" in method.__code__.co_varnames:
+            return method(self, left, right, annid=annid, **kwargs)
+        else:
+            return method(self, left, right, **kwargs)
+
+    return _support_annotation_or_set

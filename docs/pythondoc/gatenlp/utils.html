@@ -30,47 +30,18 @@
 <pre><code class="python">&#34;&#34;&#34;
 Various utilities that could be useful in several modules.
 &#34;&#34;&#34;
+import numbers
 import sys
 import os
 import logging
 import datetime
 import time
-
-
-def to_dict(obj):
-    &#34;&#34;&#34;If obj is not None, call its to_dict method, otherwise return None
-
-    Args:
-      obj: the object on which to call to_dict
-
-    Returns:
-      the result of to_dict or None
-
-    &#34;&#34;&#34;
-    if obj is None:
-        return None
-    else:
-        return obj.to_dict()
-
-
-def to_list(obj):
-    &#34;&#34;&#34;If obj is not None, call its to_list method, otherwise return None
-
-    Args:
-      obj: the object on which to call to_list
-
-    Returns:
-      the result of to_list or None
-
-    &#34;&#34;&#34;
-    if obj is None:
-        return None
-    else:
-        return obj.to_list()
+from functools import wraps
 
 
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
-    &#34;&#34;&#34;Matches each item from the items sequence with sum substring of the text
+    &#34;&#34;&#34;
+    Matches each item from the items sequence with sum substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with
@@ -231,7 +202,49 @@ def file4logger(thelogger, noext=False):
             if noext:
                 lpath = os.path.splitext(lpath)[0]
             break
-    return lpath</code></pre>
+    return lpath
+
+
+def support_annotation_or_set(method):
+    &#34;&#34;&#34;
+    Decorator to allow a method that normally takes a start and end
+    offset to take an annotation or annotation set, or any other object that has
+    &#34;start&#34; and &#34;end&#34; attributes, or a pair of offsets instead.
+    It also allows to take a single offset instead which will then be used
+    to create a length one span (start is the original offset, end is the original offset plus one)
+
+    Args:
+      method: the method that gets converted by this decorator.
+
+    Returns:
+        the adapted method which now takes an annotation or annotation set as well as start/end offsets.
+    &#34;&#34;&#34;
+    @wraps(method)
+    def _support_annotation_or_set(self, *args, **kwargs):
+        from gatenlp.annotation import Annotation
+        annid = None
+        if len(args) == 1:
+            obj = args[0]
+            if hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
+                left, right = obj.start, obj.end
+            elif isinstance(obj, (tuple, list)) and len(obj) == 2:
+                left, right = obj
+            elif isinstance(obj, numbers.Integral):
+                left, right = obj, obj+1
+            else:
+                raise Exception(&#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0]))
+            if isinstance(obj, Annotation):
+                annid = obj.id
+        else:
+            assert len(args) == 2
+            left, right = args
+        # if the called method/function does have an annid keyword, pass it, otherwise omit
+        if &#34;annid&#34; in method.__code__.co_varnames:
+            return method(self, left, right, annid=annid, **kwargs)
+        else:
+            return method(self, left, right, **kwargs)
+
+    return _support_annotation_or_set</code></pre>
 </details>
 </section>
 <section>
@@ -339,7 +352,8 @@ start and end offsets of a substring in the text and item is the item for that s
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
-    &#34;&#34;&#34;Matches each item from the items sequence with sum substring of the text
+    &#34;&#34;&#34;
+    Matches each item from the items sequence with sum substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with
@@ -510,68 +524,66 @@ file "outpref.DATETIME.log" as well.</p>
     return logger</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.utils.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>obj)</span>
+<dt id="gatenlp.utils.support_annotation_or_set"><code class="name flex">
+<span>def <span class="ident">support_annotation_or_set</span></span>(<span>method)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>If obj is not None, call its to_dict method, otherwise return None</p>
+<div class="desc"><p>Decorator to allow a method that normally takes a start and end
+offset to take an annotation or annotation set, or any other object that has
+"start" and "end" attributes, or a pair of offsets instead.
+It also allows to take a single offset instead which will then be used
+to create a length one span (start is the original offset, end is the original offset plus one)</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>obj</code></strong></dt>
-<dd>the object on which to call to_dict</dd>
+<dt><strong><code>method</code></strong></dt>
+<dd>the method that gets converted by this decorator.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>the result of to_dict or None</p></div>
+<p>the adapted method which now takes an annotation or annotation set as well as start/end offsets.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(obj):
-    &#34;&#34;&#34;If obj is not None, call its to_dict method, otherwise return None
+<pre><code class="python">def support_annotation_or_set(method):
+    &#34;&#34;&#34;
+    Decorator to allow a method that normally takes a start and end
+    offset to take an annotation or annotation set, or any other object that has
+    &#34;start&#34; and &#34;end&#34; attributes, or a pair of offsets instead.
+    It also allows to take a single offset instead which will then be used
+    to create a length one span (start is the original offset, end is the original offset plus one)
 
     Args:
-      obj: the object on which to call to_dict
+      method: the method that gets converted by this decorator.
 
     Returns:
-      the result of to_dict or None
-
+        the adapted method which now takes an annotation or annotation set as well as start/end offsets.
     &#34;&#34;&#34;
-    if obj is None:
-        return None
-    else:
-        return obj.to_dict()</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.utils.to_list"><code class="name flex">
-<span>def <span class="ident">to_list</span></span>(<span>obj)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>If obj is not None, call its to_list method, otherwise return None</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>obj</code></strong></dt>
-<dd>the object on which to call to_list</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>the result of to_list or None</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_list(obj):
-    &#34;&#34;&#34;If obj is not None, call its to_list method, otherwise return None
+    @wraps(method)
+    def _support_annotation_or_set(self, *args, **kwargs):
+        from gatenlp.annotation import Annotation
+        annid = None
+        if len(args) == 1:
+            obj = args[0]
+            if hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
+                left, right = obj.start, obj.end
+            elif isinstance(obj, (tuple, list)) and len(obj) == 2:
+                left, right = obj
+            elif isinstance(obj, numbers.Integral):
+                left, right = obj, obj+1
+            else:
+                raise Exception(&#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0]))
+            if isinstance(obj, Annotation):
+                annid = obj.id
+        else:
+            assert len(args) == 2
+            left, right = args
+        # if the called method/function does have an annid keyword, pass it, otherwise omit
+        if &#34;annid&#34; in method.__code__.co_varnames:
+            return method(self, left, right, annid=annid, **kwargs)
+        else:
+            return method(self, left, right, **kwargs)
 
-    Args:
-      obj: the object on which to call to_list
-
-    Returns:
-      the result of to_list or None
-
-    &#34;&#34;&#34;
-    if obj is None:
-        return None
-    else:
-        return obj.to_list()</code></pre>
+    return _support_annotation_or_set</code></pre>
 </details>
 </dd>
 </dl>
@@ -591,15 +603,14 @@ file "outpref.DATETIME.log" as well.</p>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="gatenlp.utils.ensurelogger" href="#gatenlp.utils.ensurelogger">ensurelogger</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
 <li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>
 <li><code><a title="gatenlp.utils.run_stop" href="#gatenlp.utils.run_stop">run_stop</a></code></li>
 <li><code><a title="gatenlp.utils.set_logger" href="#gatenlp.utils.set_logger">set_logger</a></code></li>
-<li><code><a title="gatenlp.utils.to_dict" href="#gatenlp.utils.to_dict">to_dict</a></code></li>
-<li><code><a title="gatenlp.utils.to_list" href="#gatenlp.utils.to_list">to_list</a></code></li>
+<li><code><a title="gatenlp.utils.support_annotation_or_set" href="#gatenlp.utils.support_annotation_or_set">support_annotation_or_set</a></code></li>
 </ul>
 </li>
 </ul>

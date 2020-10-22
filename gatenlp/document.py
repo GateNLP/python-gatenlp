@@ -1,14 +1,15 @@
-import collections
-from typing import Callable, Dict, KeysView, Any
-from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+"""
+Module that implements the Document class for representing gatenlp documents with features and annotation sets.
+"""
+
+from typing import KeysView
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
-# from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.features import Features
 import logging
 import importlib
-import copy
+import copy as lib_copy
 from gatenlp.gatenlpconfig import gatenlpconfig
 
 logging.basicConfig()
@@ -623,16 +624,16 @@ class Document:
         :return: a deep copy of the document.
         """
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         doc = Document(self._text, features=fts)
         doc._changelog = None
-        doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
+        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
         return doc
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         """Creates a deep copy, except the changelog which is set to None.
 
         Args:
@@ -642,7 +643,7 @@ class Document:
           a deep copy of the document.
 
         """
-        return copy.deepcopy(self)
+        return lib_copy.deepcopy(self, memo=memo)
 
     def _repr_html_(self):
         """Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.

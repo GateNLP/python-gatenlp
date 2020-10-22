@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.gate_interaction API documentation</title>
-<meta name="description" content="Support for interacting between a GATE (java) process and a gatenlp (Python) process." />
+<meta name="description" content="Support for interacting between a GATE (java) process and a gatenlp (Python) process.
+This is used by the Java GATE Python plugin." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,7 +23,8 @@
 <h1 class="title">Module <code>gatenlp.gate_interaction</code></h1>
 </header>
 <section id="section-intro">
-<p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.</p>
+<p>Support for interacting between a GATE (java) process and a gatenlp (Python) process.
+This is used by the Java GATE Python plugin.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -30,9 +32,8 @@
 <pre><code class="python">#!/usr/bin/env python
 &#34;&#34;&#34;
 Support for interacting between a GATE (java) process and a gatenlp (Python) process.
+This is used by the Java GATE Python plugin.
 &#34;&#34;&#34;
-
-# TODO: add a __main__ section that can be used to show help about usage?
 
 import sys
 import os
@@ -55,8 +56,8 @@ instream = io.TextIOWrapper(sys.stdin.buffer, encoding=&#34;utf-8&#34;)
 ostream = sys.stdout
 sys.stdout = sys.stderr
 
+
 class _PrWrapper:
-    &#34;&#34;&#34; &#34;&#34;&#34;
     def __init__(self):
         self.func_execute = None   # the function to process each doc
         self.func_execute_allowkws = False
@@ -70,14 +71,6 @@ class _PrWrapper:
         self.logger = None
 
     def execute(self, doc):
-        &#34;&#34;&#34;
-
-        Args:
-          doc: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         if self.func_execute_allowkws and self.script_parms:
             ret = self.func_execute(doc, **self.script_parms)
         else:
@@ -90,14 +83,6 @@ class _PrWrapper:
         return ret
 
     def start(self, script_params):
-        &#34;&#34;&#34;
-
-        Args:
-          script_params: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         if script_params:
             self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
@@ -108,7 +93,6 @@ class _PrWrapper:
                 self.func_start()
 
     def finish(self):
-        &#34;&#34;&#34; &#34;&#34;&#34;
         if self.func_finish is not None:
             if self.func_finish_allowkws and self.script_parms:
                 return self.func_finish(**self.script_parms)
@@ -116,14 +100,6 @@ class _PrWrapper:
                 return self.func_finish()
 
     def reduce(self, resultslist):
-        &#34;&#34;&#34;
-
-        Args:
-          resultslist: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         if self.func_reduce is not None:
             if self.func_reduce_allowkws and self.script_parms:
                 ret = self.func_reduce(resultslist, **self.script_parms)
@@ -133,7 +109,8 @@ class _PrWrapper:
 
 
 def _check_exec(func):
-    &#34;&#34;&#34;Check the signature of the func to see if it is a proper
+    &#34;&#34;&#34;
+    Check the signature of the func to see if it is a proper
     execute function: must accept one (or more optional) args
     and can accept kwargs. This returns true of kwargs are accepted
 
@@ -158,7 +135,8 @@ def _check_exec(func):
 
 
 def _has_method(theobj, name):
-    &#34;&#34;&#34;Check if the object has a callable method with the given name,
+    &#34;&#34;&#34;
+    Check if the object has a callable method with the given name,
     if yes return the method, otherwise return None
 
     Args:
@@ -177,7 +155,8 @@ def _has_method(theobj, name):
 
 
 def _pr_decorator(what):
-    &#34;&#34;&#34;This is the decorator to identify a class or function as a processing
+    &#34;&#34;&#34;
+    This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
     package.
     
@@ -232,60 +211,27 @@ def _pr_decorator(what):
 
 
 class DefaultPr:
-    &#34;&#34;&#34; &#34;&#34;&#34;
     def __call__(self, doc, **kwargs):
         logger.debug(&#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs))
         return doc
 
     def start(self, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
         logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
         return None
 
     def finish(self, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
         logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
         return None
 
     def reduce(self, resultlist, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          resultlist: 
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
             resultlist, kwargs))
         return None
 
+
 def get_arguments(from_main=False):
-    &#34;&#34;&#34;
-
-    Args:
-      from_main:  (Default value = False)
-
-    Returns:
-
-    &#34;&#34;&#34;
     argparser = ArgumentParser()
     argparser.add_argument(&#34;--mode&#34;, default=&#34;check&#34;,
                            help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;)
@@ -483,25 +429,12 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_arguments</span></span>(<span>from_main=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>from_main</code></strong></dt>
-<dd>(Default value = False)</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_arguments(from_main=False):
-    &#34;&#34;&#34;
-
-    Args:
-      from_main:  (Default value = False)
-
-    Returns:
-
-    &#34;&#34;&#34;
     argparser = ArgumentParser()
     argparser.add_argument(&#34;--mode&#34;, default=&#34;check&#34;,
                            help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;)
@@ -716,47 +649,21 @@ processing resource to the system.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DefaultPr:
-    &#34;&#34;&#34; &#34;&#34;&#34;
     def __call__(self, doc, **kwargs):
         logger.debug(&#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs))
         return doc
 
     def start(self, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
         logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
         return None
 
     def finish(self, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
         logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
         return None
 
     def reduce(self, resultlist, **kwargs):
-        &#34;&#34;&#34;
-
-        Args:
-          resultlist: 
-          **kwargs: 
-
-        Returns:
-
-        &#34;&#34;&#34;
         logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
             resultlist, kwargs))
         return None</code></pre>
@@ -767,25 +674,12 @@ processing resource to the system.</p>
 <span>def <span class="ident">finish</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def finish(self, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      **kwargs: 
-
-    Returns:
-
-    &#34;&#34;&#34;
     logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
     logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
     return None</code></pre>
@@ -795,28 +689,12 @@ processing resource to the system.</p>
 <span>def <span class="ident">reduce</span></span>(<span>self, resultlist, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>resultlist</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reduce(self, resultlist, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      resultlist: 
-      **kwargs: 
-
-    Returns:
-
-    &#34;&#34;&#34;
     logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
         resultlist, kwargs))
     return None</code></pre>
@@ -826,25 +704,12 @@ processing resource to the system.</p>
 <span>def <span class="ident">start</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start(self, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      **kwargs: 
-
-    Returns:
-
-    &#34;&#34;&#34;
     logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
     logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
     return None</code></pre>

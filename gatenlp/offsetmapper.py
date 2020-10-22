@@ -1,3 +1,9 @@
+"""
+Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
+Java strings are represented as UTF16 while Python strings are represented as Unicode code points, so offsets
+differ if a Unicode character needs more than one UTF16 code unit.
+"""
+
 import numbers
 
 OFFSET_TYPE_JAVA = "j"
@@ -6,16 +12,15 @@ OFFSET_TYPE_PYTHON = "p"
 
 class OffsetMapper:
     def __init__(self, text: str):
-        """Calculate the tables for mapping unicode code points to utf16 code units.
-            NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
-            if after creating the java2python table we find that all offsets are identical, we discard
-            the tables and just set a flag for that.
+        """
+        Calculate the tables for mapping unicode code points to utf16 code units.
+
+        NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+        if after creating the java2python table we find that all offsets are identical, we discard
+        the tables and just set a flag for that.
 
         Args:
             text: the text as a python string
-
-        Returns:
-
         """
         # for now, remove dependency on numpy and use simple python lists of integers
         # import numpy as np
@@ -68,12 +73,14 @@ class OffsetMapper:
         return ret
 
     def convert_to_python(self, offsets):
-        """Convert one java offset or an iterable of java offsets to python offset/s
+        """
+        Convert one java offset or an iterable of java offsets to python offset/s
 
         Args:
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         """
         return self._convert_from(offsets, from_table=self.java2python)
@@ -85,6 +92,7 @@ class OffsetMapper:
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         """
         return self._convert_from(offsets, from_table=self.python2java)

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.document API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that implements the Document class for representing gatenlp documents with features and annotation sets." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,21 +22,23 @@
 <h1 class="title">Module <code>gatenlp.document</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that implements the Document class for representing gatenlp documents with features and annotation sets.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import collections
-from typing import Callable, Dict, KeysView, Any
-from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+<pre><code class="python">&#34;&#34;&#34;
+Module that implements the Document class for representing gatenlp documents with features and annotation sets.
+&#34;&#34;&#34;
+
+from typing import KeysView
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
-# from gatenlp.feature_bearer import FeatureBearer, FeatureViewer
 from gatenlp.features import Features
 import logging
 import importlib
-import copy
+import copy as lib_copy
 from gatenlp.gatenlpconfig import gatenlpconfig
 
 logging.basicConfig()
@@ -651,16 +653,16 @@ class Document:
         :return: a deep copy of the document.
         &#34;&#34;&#34;
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         doc = Document(self._text, features=fts)
         doc._changelog = None
-        doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
+        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
         return doc
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
 
         Args:
@@ -670,7 +672,7 @@ class Document:
           a deep copy of the document.
 
         &#34;&#34;&#34;
-        return copy.deepcopy(self)
+        return lib_copy.deepcopy(self, memo=memo)
 
     def _repr_html_(self):
         &#34;&#34;&#34;Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
@@ -1361,16 +1363,16 @@ changelog: a ChangeLog instance to use to log changes.</p>
         :return: a deep copy of the document.
         &#34;&#34;&#34;
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo)
         else:
             fts = None
         doc = Document(self._text, features=fts)
         doc._changelog = None
-        doc._annotation_sets = copy.deepcopy(self._annotation_sets, memo)
+        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
         return doc
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
 
         Args:
@@ -1380,7 +1382,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
           a deep copy of the document.
 
         &#34;&#34;&#34;
-        return copy.deepcopy(self)
+        return lib_copy.deepcopy(self, memo=memo)
 
     def _repr_html_(self):
         &#34;&#34;&#34;Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
@@ -1880,7 +1882,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 </details>
 </dd>
 <dt id="gatenlp.document.Document.deepcopy"><code class="name flex">
-<span>def <span class="ident">deepcopy</span></span>(<span>self)</span>
+<span>def <span class="ident">deepcopy</span></span>(<span>self, memo=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a deep copy, except the changelog which is set to None.</p>
@@ -1895,7 +1897,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def deepcopy(self):
+<pre><code class="python">def deepcopy(self, memo=None):
     &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
 
     Args:
@@ -1905,7 +1907,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
       a deep copy of the document.
 
     &#34;&#34;&#34;
-    return copy.deepcopy(self)</code></pre>
+    return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.document.Document.remove_annset"><code class="name flex">

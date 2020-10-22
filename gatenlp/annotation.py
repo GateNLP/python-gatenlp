@@ -3,11 +3,11 @@ Module for Annotation class which represents information about a span of text in
 """
 import sys
 from typing import List, Union, Dict, Set, Tuple
-import copy
+import copy as lib_copy
 from functools import total_ordering
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp._utils import support_annotation_or_set
+from gatenlp.utils import support_annotation_or_set
 
 
 @total_ordering
@@ -418,13 +418,13 @@ class Annotation:
 
     def __deepcopy__(self, memo=None):
         if self._features is not None:
-            fts = copy.deepcopy(self._features.to_dict(), memo=memo)
+            fts = lib_copy.deepcopy(self._features.to_dict(), memo=memo)
         else:
             fts = None
         return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
 
-    def deepcopy(self):
+    def deepcopy(self, memo=None):
         """
         Return a deep copy of the annotation (features and their values are copied as well).
         """
-        return copy.deepcopy(self)
+        return lib_copy.deepcopy(self, memo=memo)

@@ -1,4 +1,7 @@
-
+"""
+Module that provides the class GatenlpConfig and the instance gatenlpconfig which stores various
+global configuration options.
+"""
 
 class GatenlpConfig:
     """ """

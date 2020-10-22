@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.offsetmapper API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
+Java strings are represented as UTF16 …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +23,20 @@
 <h1 class="title">Module <code>gatenlp.offsetmapper</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
+Java strings are represented as UTF16 while Python strings are represented as Unicode code points, so offsets
+differ if a Unicode character needs more than one UTF16 code unit.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import numbers
+<pre><code class="python">&#34;&#34;&#34;
+Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
+Java strings are represented as UTF16 while Python strings are represented as Unicode code points, so offsets
+differ if a Unicode character needs more than one UTF16 code unit.
+&#34;&#34;&#34;
+
+import numbers
 
 OFFSET_TYPE_JAVA = &#34;j&#34;
 OFFSET_TYPE_PYTHON = &#34;p&#34;
@@ -34,16 +44,15 @@ OFFSET_TYPE_PYTHON = &#34;p&#34;
 
 class OffsetMapper:
     def __init__(self, text: str):
-        &#34;&#34;&#34;Calculate the tables for mapping unicode code points to utf16 code units.
-            NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
-            if after creating the java2python table we find that all offsets are identical, we discard
-            the tables and just set a flag for that.
+        &#34;&#34;&#34;
+        Calculate the tables for mapping unicode code points to utf16 code units.
+
+        NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+        if after creating the java2python table we find that all offsets are identical, we discard
+        the tables and just set a flag for that.
 
         Args:
             text: the text as a python string
-
-        Returns:
-
         &#34;&#34;&#34;
         # for now, remove dependency on numpy and use simple python lists of integers
         # import numpy as np
@@ -96,12 +105,14 @@ class OffsetMapper:
         return ret
 
     def convert_to_python(self, offsets):
-        &#34;&#34;&#34;Convert one java offset or an iterable of java offsets to python offset/s
+        &#34;&#34;&#34;
+        Convert one java offset or an iterable of java offsets to python offset/s
 
         Args:
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         &#34;&#34;&#34;
         return self._convert_from(offsets, from_table=self.java2python)
@@ -113,6 +124,7 @@ class OffsetMapper:
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         &#34;&#34;&#34;
         return self._convert_from(offsets, from_table=self.python2java)</code></pre>
@@ -132,32 +144,30 @@ class OffsetMapper:
 <span>(</span><span>text: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Calculate the tables for mapping unicode code points to utf16 code units.
-NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+<div class="desc"><p>Calculate the tables for mapping unicode code points to utf16 code units.</p>
+<p>NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
 if after creating the java2python table we find that all offsets are identical, we discard
 the tables and just set a flag for that.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>text</code></strong></dt>
 <dd>the text as a python string</dd>
-</dl>
-<p>Returns:</p></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class OffsetMapper:
     def __init__(self, text: str):
-        &#34;&#34;&#34;Calculate the tables for mapping unicode code points to utf16 code units.
-            NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
-            if after creating the java2python table we find that all offsets are identical, we discard
-            the tables and just set a flag for that.
+        &#34;&#34;&#34;
+        Calculate the tables for mapping unicode code points to utf16 code units.
+
+        NOTE: currently this optimizes for conversion speed at the cost of memory, with one special case:
+        if after creating the java2python table we find that all offsets are identical, we discard
+        the tables and just set a flag for that.
 
         Args:
             text: the text as a python string
-
-        Returns:
-
         &#34;&#34;&#34;
         # for now, remove dependency on numpy and use simple python lists of integers
         # import numpy as np
@@ -210,12 +220,14 @@ the tables and just set a flag for that.</p>
         return ret
 
     def convert_to_python(self, offsets):
-        &#34;&#34;&#34;Convert one java offset or an iterable of java offsets to python offset/s
+        &#34;&#34;&#34;
+        Convert one java offset or an iterable of java offsets to python offset/s
 
         Args:
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         &#34;&#34;&#34;
         return self._convert_from(offsets, from_table=self.java2python)
@@ -227,6 +239,7 @@ the tables and just set a flag for that.</p>
           offsets: a single offset or an iterable of offsets
 
         Returns:
+            the converted offset or offsets
 
         &#34;&#34;&#34;
         return self._convert_from(offsets, from_table=self.python2java)</code></pre>
@@ -243,7 +256,8 @@ the tables and just set a flag for that.</p>
 <dt><strong><code>offsets</code></strong></dt>
 <dd>a single offset or an iterable of offsets</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>the converted offset or offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -255,6 +269,7 @@ the tables and just set a flag for that.</p>
       offsets: a single offset or an iterable of offsets
 
     Returns:
+        the converted offset or offsets
 
     &#34;&#34;&#34;
     return self._convert_from(offsets, from_table=self.python2java)</code></pre>
@@ -270,18 +285,21 @@ the tables and just set a flag for that.</p>
 <dt><strong><code>offsets</code></strong></dt>
 <dd>a single offset or an iterable of offsets</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>the converted offset or offsets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def convert_to_python(self, offsets):
-    &#34;&#34;&#34;Convert one java offset or an iterable of java offsets to python offset/s
+    &#34;&#34;&#34;
+    Convert one java offset or an iterable of java offsets to python offset/s
 
     Args:
       offsets: a single offset or an iterable of offsets
 
     Returns:
+        the converted offset or offsets
 
     &#34;&#34;&#34;
     return self._convert_from(offsets, from_table=self.java2python)</code></pre>

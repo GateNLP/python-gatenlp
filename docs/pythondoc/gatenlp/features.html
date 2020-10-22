@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>gatenlp.features API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Module that implements class Feature for representing features." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,15 @@
 <h1 class="title">Module <code>gatenlp.features</code></h1>
 </header>
 <section id="section-intro">
+<p>Module that implements class Feature for representing features.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># Implementation note: Features should behave much like a dict. However, inheriting from dict
+<pre><code class="python">&#34;&#34;&#34;
+Module that implements class Feature for representing features.
+&#34;&#34;&#34;
+# Implementation note: Features should behave much like a dict. However, inheriting from dict
 # is problematic, because dict has an odd way to implement interdependent methods, e.g. ne and eq
 # are implemented separately, so the inheriting class would need to implement them separately too.
 # Similar for clear and __delitem__ and other method pairs.
@@ -40,7 +44,8 @@
 # wrapping an actual dict, the collections.UserDict approach seems to be more adequate.
 
 from collections import UserDict
-from collections.abc import Iterable
+import copy as lib_copy
+
 
 
 class Features(UserDict):
@@ -146,52 +151,56 @@ class Features(UserDict):
         ret._logger = None
         return ret
 
-    def to_dict(self, copy=True, deepcopy=False):
-        &#34;&#34;&#34;Return a dictionary representation of the features.
+    def to_dict(self, deepcopy=False, memo=None):
+        &#34;&#34;&#34;
+        Return a dictionary representation of the features. The returned dictionary is always a shallow
+        copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
+
+        Note:
+            Features with names that start with two underscores are considered &#34;internal/transient&#34; features
+            and not saved. Features with names that start with one underscore are considered &#34;internal&#34; but
+            do get saved/serialized.
 
         Args:
-          copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
-        object. This should always be done except it is known that no modifications are made to the
-        dictionary or the modifications do not matter in the original Features object. (Default value = True)
-          deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-        in the original are unaffected if they get modified in the copy. (Default value = False)
+          deepcopy: if True, the dictionary is a deep copy so that mutable objects
+              in the original are unaffected if they get modified in the copy. (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
-          the dict
+          the dict representation of the features
 
         &#34;&#34;&#34;
-        if copy:
+        ret = dict()
+        for k,v in self.data.items():
+            if k.startswith(&#34;__&#34;):
+                continue
             if deepcopy:
-                return deepcopy(self.data)
+                ret[k] = lib_copy.deepcopy(v)
             else:
-                return self.data.copy()
-        else:
-            return self.data
+                ret[k] = v
+        return ret
 
     @staticmethod
-    def from_dict(thedict, copy=True, deepcopy=False):
-        &#34;&#34;&#34;Create a Features instance from a dictionary. If copy is True, a shallow copy of the
-        dictionary is used, if deepcopy is True as well, a deepcopy is created instead.
+    def from_dict(thedict, deepcopy=False, memo=None):
+        &#34;&#34;&#34;
+        Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
         
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:
           thedict: the dictionary from which to create the Features.
-          copy: if True use a shallow copy of the dictionary (Default value = True)
           deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopying
 
         Returns:
           the Features instance
 
         &#34;&#34;&#34;
         ret = Features()
-        if copy:
-            if deepcopy:
-                ret.data = deepcopy(thedict)
-            else:
-                ret.data = thedict.copy()
+        if deepcopy:
+            ret.data = lib_copy.deepcopy(thedict, memo=memo)
         else:
-            ret.data = thedict
+            ret.data = thedict.copy()
         return ret</code></pre>
 </details>
 </section>
@@ -329,52 +338,56 @@ command, featurename, featurevalue.</p></div>
         ret._logger = None
         return ret
 
-    def to_dict(self, copy=True, deepcopy=False):
-        &#34;&#34;&#34;Return a dictionary representation of the features.
+    def to_dict(self, deepcopy=False, memo=None):
+        &#34;&#34;&#34;
+        Return a dictionary representation of the features. The returned dictionary is always a shallow
+        copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
+
+        Note:
+            Features with names that start with two underscores are considered &#34;internal/transient&#34; features
+            and not saved. Features with names that start with one underscore are considered &#34;internal&#34; but
+            do get saved/serialized.
 
         Args:
-          copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
-        object. This should always be done except it is known that no modifications are made to the
-        dictionary or the modifications do not matter in the original Features object. (Default value = True)
-          deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-        in the original are unaffected if they get modified in the copy. (Default value = False)
+          deepcopy: if True, the dictionary is a deep copy so that mutable objects
+              in the original are unaffected if they get modified in the copy. (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
-          the dict
+          the dict representation of the features
 
         &#34;&#34;&#34;
-        if copy:
+        ret = dict()
+        for k,v in self.data.items():
+            if k.startswith(&#34;__&#34;):
+                continue
             if deepcopy:
-                return deepcopy(self.data)
+                ret[k] = lib_copy.deepcopy(v)
             else:
-                return self.data.copy()
-        else:
-            return self.data
+                ret[k] = v
+        return ret
 
     @staticmethod
-    def from_dict(thedict, copy=True, deepcopy=False):
-        &#34;&#34;&#34;Create a Features instance from a dictionary. If copy is True, a shallow copy of the
-        dictionary is used, if deepcopy is True as well, a deepcopy is created instead.
+    def from_dict(thedict, deepcopy=False, memo=None):
+        &#34;&#34;&#34;
+        Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
         
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:
           thedict: the dictionary from which to create the Features.
-          copy: if True use a shallow copy of the dictionary (Default value = True)
           deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+          memo: if deepcopy is True, the memo object to use for deepcopying
 
         Returns:
           the Features instance
 
         &#34;&#34;&#34;
         ret = Features()
-        if copy:
-            if deepcopy:
-                ret.data = deepcopy(thedict)
-            else:
-                ret.data = thedict.copy()
+        if deepcopy:
+            ret.data = lib_copy.deepcopy(thedict, memo=memo)
         else:
-            ret.data = thedict
+            ret.data = thedict.copy()
         return ret</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -390,20 +403,19 @@ command, featurename, featurevalue.</p></div>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.features.Features.from_dict"><code class="name flex">
-<span>def <span class="ident">from_dict</span></span>(<span>thedict, copy=True, deepcopy=False)</span>
+<span>def <span class="ident">from_dict</span></span>(<span>thedict, deepcopy=False, memo=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create a Features instance from a dictionary. If copy is True, a shallow copy of the
-dictionary is used, if deepcopy is True as well, a deepcopy is created instead.</p>
+<div class="desc"><p>Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.</p>
 <p>NOTE: no checks are done to make sure that feature names are string only!</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>thedict</code></strong></dt>
 <dd>the dictionary from which to create the Features.</dd>
-<dt><strong><code>copy</code></strong></dt>
-<dd>if True use a shallow copy of the dictionary (Default value = True)</dd>
 <dt><strong><code>deepcopy</code></strong></dt>
 <dd>if True and copy is True, use a deep copy of the dictionary (Default value = False)</dd>
+<dt><strong><code>memo</code></strong></dt>
+<dd>if deepcopy is True, the memo object to use for deepcopying</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the Features instance</p></div>
@@ -412,29 +424,26 @@ dictionary is used, if deepcopy is True as well, a deepcopy is created instead.<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def from_dict(thedict, copy=True, deepcopy=False):
-    &#34;&#34;&#34;Create a Features instance from a dictionary. If copy is True, a shallow copy of the
-    dictionary is used, if deepcopy is True as well, a deepcopy is created instead.
+def from_dict(thedict, deepcopy=False, memo=None):
+    &#34;&#34;&#34;
+    Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
     
     NOTE: no checks are done to make sure that feature names are string only!
 
     Args:
       thedict: the dictionary from which to create the Features.
-      copy: if True use a shallow copy of the dictionary (Default value = True)
       deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+      memo: if deepcopy is True, the memo object to use for deepcopying
 
     Returns:
       the Features instance
 
     &#34;&#34;&#34;
     ret = Features()
-    if copy:
-        if deepcopy:
-            ret.data = deepcopy(thedict)
-        else:
-            ret.data = thedict.copy()
+    if deepcopy:
+        ret.data = lib_copy.deepcopy(thedict, memo=memo)
     else:
-        ret.data = thedict
+        ret.data = thedict.copy()
     return ret</code></pre>
 </details>
 </dd>
@@ -512,46 +521,57 @@ any logging!).</p>
 </details>
 </dd>
 <dt id="gatenlp.features.Features.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, copy=True, deepcopy=False)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, deepcopy=False, memo=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return a dictionary representation of the features.</p>
+<div class="desc"><p>Return a dictionary representation of the features. The returned dictionary is always a shallow
+copy of the original dictionary of features, but will be a deep copy if the parameter <code>deepcopy</code> is True.</p>
+<h2 id="note">Note</h2>
+<p>Features with names that start with two underscores are considered "internal/transient" features
+and not saved. Features with names that start with one underscore are considered "internal" but
+do get saved/serialized.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>copy</code></strong></dt>
-<dd>if True, the dictionary is a shallow copy of the dictionary wrapped in the Features</dd>
+<dt><strong><code>deepcopy</code></strong></dt>
+<dd>if True, the dictionary is a deep copy so that mutable objects
+in the original are unaffected if they get modified in the copy. (Default value = False)</dd>
+<dt><strong><code>memo</code></strong></dt>
+<dd>if deepcopy is True, the memo object to use for deepcopy, if any</dd>
 </dl>
-<p>object. This should always be done except it is known that no modifications are made to the
-dictionary or the modifications do not matter in the original Features object. (Default value = True)
-deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-in the original are unaffected if they get modified in the copy. (Default value = False)</p>
 <h2 id="returns">Returns</h2>
-<p>the dict</p></div>
+<p>the dict representation of the features</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, copy=True, deepcopy=False):
-    &#34;&#34;&#34;Return a dictionary representation of the features.
+<pre><code class="python">def to_dict(self, deepcopy=False, memo=None):
+    &#34;&#34;&#34;
+    Return a dictionary representation of the features. The returned dictionary is always a shallow
+    copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
+
+    Note:
+        Features with names that start with two underscores are considered &#34;internal/transient&#34; features
+        and not saved. Features with names that start with one underscore are considered &#34;internal&#34; but
+        do get saved/serialized.
 
     Args:
-      copy: if True, the dictionary is a shallow copy of the dictionary wrapped in the Features
-    object. This should always be done except it is known that no modifications are made to the
-    dictionary or the modifications do not matter in the original Features object. (Default value = True)
-      deepcopy: if True and copy is True, the dictionary is a deep copy so that mutable objects
-    in the original are unaffected if they get modified in the copy. (Default value = False)
+      deepcopy: if True, the dictionary is a deep copy so that mutable objects
+          in the original are unaffected if they get modified in the copy. (Default value = False)
+      memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
     Returns:
-      the dict
+      the dict representation of the features
 
     &#34;&#34;&#34;
-    if copy:
+    ret = dict()
+    for k,v in self.data.items():
+        if k.startswith(&#34;__&#34;):
+            continue
         if deepcopy:
-            return deepcopy(self.data)
+            ret[k] = lib_copy.deepcopy(v)
         else:
-            return self.data.copy()
-    else:
-        return self.data</code></pre>
+            ret[k] = v
+    return ret</code></pre>
 </details>
 </dd>
 </dl>
