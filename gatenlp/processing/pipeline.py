@@ -1,3 +1,14 @@
+"""
+Module that provides the Pipeline class. A Pipeline is an annotator which is configured to contain several annotators
+which get executed in sequence. The result of each annotator is passed on to the next anotator.
+Each annotator can return a single document, None, or list of documents. If no document is returned, subsequent
+annotators are not called and None is returned from the pipeline. If several documents are areturned, subsequent
+annotators are invoked for each of those documents and the list of final return documents is returned by the pipeline.
+
+Whenever a single document is returned it is returned as the document and NOT as a list with a single document as
+the only element.
+"""
+
 from collections.abc import Iterable
 import inspect
 from gatenlp.processing.annotator import Annotator
@@ -50,13 +61,21 @@ class Pipeline(Annotator):
     and returns the result. Since annotators can return no or more than one result document
     in a list, the pipeline can return no or more than one document for each input document
     as well.
+
+    When the start/finish/reduce method of the pipeline is invoked, all start/finish/reduce methods of
+    all annotators are invoked in sequence. The finish method returns the list of all return values of
+    all the finish methods of the annotators (if a finish method returns None, this is added to the list).
+
+    The reduce method expects a list with as many return value lists as there are annotators and returns
+    the overall result for each annotator (again, including None if there is none).
     """
 
     def __init__(self, *annotators, **kwargs):
         """
+        Creates a pipeline annotator.
 
         Args:
-            annotators: each paramter can be an annotator or callable, if it is an iterable,
+            annotators: each parameter can be an annotator or callable, if it is an iterable,
                 it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
                 be either a class or an already initialized instance of a class which must be a callable
                 or some other callable.
