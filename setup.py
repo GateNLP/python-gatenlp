@@ -59,6 +59,20 @@ def make_html_ann_viewer():
     copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
     copyfile(HTML_ANN_VIEWER_MERGEDJS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
 
+def write_versioninfo():
+    try:
+        import git
+    except:
+        print("WARNING: could not import git, install gitpython", file=sys.stderr)
+        return
+    repo = git.Repo(".")
+    head = repo.head.ref.name
+    comm = repo.head.ref.commit.hexsha
+    date = repo.head.ref.commit.authored_datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
+    with open("./gatenlp/versioninfo.txt", "wt") as outfp:
+        print(head, comm, date, file=outfp)
+
+write_versioninfo()
 
 make_html_ann_viewer()
 
@@ -81,7 +95,6 @@ def get_install_extras_require():
     extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})
     return extras_require
 
-
 setup(
     name="gatenlp",
     version=versionfromfile("gatenlp/__init__.py"),
@@ -94,6 +107,7 @@ setup(
     long_description_content_type='text/markdown',
     setup_requires=[
         "pytest-runner",
+        "pygit2",
         # TODO: figure those out:
         #"setuptools_git",
         #"setuptools_scm", 
@@ -132,4 +146,5 @@ setup(
         "License :: OSI Approved :: MIT License",
       ],
     )
+
 
