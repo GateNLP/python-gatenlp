@@ -59,6 +59,8 @@ def make_html_ann_viewer():
     copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
     copyfile(HTML_ANN_VIEWER_MERGEDJS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
 
+version=versionfromfile("gatenlp/__init__.py")
+
 def write_versioninfo():
     try:
         import git
@@ -70,7 +72,7 @@ def write_versioninfo():
     comm = repo.head.ref.commit.hexsha
     date = repo.head.ref.commit.authored_datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
     with open("./gatenlp/versioninfo.txt", "wt") as outfp:
-        print(head, comm, date, file=outfp)
+        print(version, head, comm, date, file=outfp)
 
 write_versioninfo()
 
@@ -97,7 +99,7 @@ def get_install_extras_require():
 
 setup(
     name="gatenlp",
-    version=versionfromfile("gatenlp/__init__.py"),
+    version=version,
     author="Johann Petrak",
     author_email="johann.petrak@gmail.com",
     url='https://github.com/GateNLP/python-gatenlp',
