@@ -180,7 +180,7 @@ class JsonSerializer:
             else:
                 # print("DEBUG: not a URL !!!")
                 pass
-        if from_mem:
+        if from_mem is not None:
             if gzip:
                 d = json.loads(decompress(from_mem).decode("UTF-8"))
             else:
@@ -289,7 +289,7 @@ class PlainTextSerializer:
                     from_mem = get_bytes_from_url(extstr)
                 else:
                     from_mem = get_str_from_url(extstr, encoding=encoding)
-        if from_mem:
+        if from_mem is not None:
             if gzip:
                 txt = decompress(from_mem).decode(encoding)
             else:
@@ -389,7 +389,7 @@ class YamlSerializer:
                     from_mem = get_bytes_from_url(extstr)
                 else:
                     from_mem = get_str_from_url(extstr, encoding="utf-8")
-        if from_mem:
+        if from_mem is not None:
             if gzip:
                 d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader)
             else:

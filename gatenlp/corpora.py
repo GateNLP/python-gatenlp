@@ -84,6 +84,13 @@ class DocumentDestination(ABC):
         Args:
             doc: the document to add
         """
+        pass
+
+    def close(self):
+        """
+        Must have a close method that is used to end writing and close the destination.
+        """
+        pass
 
 
 class JsonLinesFileSource(DocumentSource):
@@ -105,8 +112,12 @@ class JsonLinesFileSource(DocumentSource):
 
     def __next__(self):
         line = self.fh.readline()
-        doc = Document.load_mem(line, fmt="json")
-        return doc
+        if not line:
+            self.fh.close()
+            raise StopIteration
+        else:
+            doc = Document.load_mem(line, fmt="json")
+            return doc
 
 
 class JsonLinesFileDestination(DocumentDestination):
@@ -127,6 +138,12 @@ class JsonLinesFileDestination(DocumentDestination):
             self.fh = file
         self.n = 0
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.fh.close()
+
     def append(self, doc):
         """
         Append a document to the destination.
@@ -137,6 +154,9 @@ class JsonLinesFileDestination(DocumentDestination):
         self.fh.write(doc.save_mem(fmt="json"))
         self.fh.write("\n")
         self.n += 1
+
+    def close(self):
+        self.fh.close()
 
 
 def matching_paths(dirpath, exts=None, recursive=True, relative=True):
@@ -201,8 +221,8 @@ def make_file_path_fromidx(digits=1, levels=1):
     Returns:
         a function that takes doc and idx and return a path name (str)
     """
-    if not isinstance(digits, int) or isinstance(levels, int) or digits < 1 or levels < 1 or digits < levels:
-        raise Exception("digits and levels must be integers larger than 0 and digits must not be smaller than levels")
+    if not isinstance(digits, int) or not isinstance(levels, int) or digits < 1 or levels < 1 or digits < levels:
+        raise Exception(f"digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}")
 
     def file_path_fromidx(doc=None, idx=None, digits=10, levels=3):
         if idx is None or not isinstance(idx, int) or idx < 0:
@@ -223,7 +243,6 @@ def make_file_path_fromidx(digits=1, levels=1):
             fromdigit = fromdigit - per
             todigit = todigit - per
         path = tmp[:todigit] + path
-        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
         return path
     return file_path_fromidx
 
@@ -264,7 +283,8 @@ class DirFilesSource(DocumentSource):
         Yield the next document from the source.
         """
         for p in self.paths:
-            Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+        raise StopIteration
 
 
 class DirFilesDestination(DocumentDestination):
@@ -330,11 +350,27 @@ class DirFilesDestination(DocumentDestination):
         self.ext = ext
         self.fmt = fmt
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
+
     def append(self, doc):
         path = self.file_path_maker(doc=doc, idx=self.idx)
-        path = path + self.ext
-        Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.join(self.dirpath, path) + self.ext
+        # check if we need to create the directories. For this we first need to get the directories part of the path,
+        # which is everything left of the last slash
+        if os.path.sep in path:
+            dirs = path[:path.rindex(os.path.sep)]
+            if not os.path.exists(os.path.normpath(dirs)):
+                os.makedirs(dirs)
+        Document.save(doc, path, fmt=self.fmt)
         self.idx += 1
+
+    def close(self):
+        pass
 
 
 class DirCorpus(Corpus):
@@ -428,6 +464,7 @@ class TsvFileSource(DocumentSource):
                     doc.features[k] = value
             self.n += 1
             yield doc
+        raise StopIteration
 
 
 class PandasDfSource(DocumentSource):
@@ -465,4 +502,5 @@ class PandasDfSource(DocumentSource):
                     doc.features[k] = value
             self.n += 1
             yield doc
+        raise StopIteration
 
