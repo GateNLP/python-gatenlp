@@ -61,21 +61,6 @@ def make_html_ann_viewer():
 
 version=versionfromfile("gatenlp/__init__.py")
 
-def write_versioninfo():
-    try:
-        import git
-    except:
-        print("WARNING: could not import git, install gitpython", file=sys.stderr)
-        return
-    repo = git.Repo(".")
-    head = repo.head.ref.name
-    comm = repo.head.ref.commit.hexsha
-    date = repo.head.ref.commit.authored_datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
-    with open("./gatenlp/versioninfo.txt", "wt") as outfp:
-        print(version, head, comm, date, file=outfp)
-
-write_versioninfo()
-
 make_html_ann_viewer()
 
 make_java()
