@@ -16,6 +16,7 @@ from gatenlp.changelog import ChangeLog
 from gzip import open as gopen, compress, decompress
 from pathlib import Path
 from urllib.parse import ParseResult
+from urllib.request import urlopen
 import requests
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
@@ -86,6 +87,23 @@ def get_bytes_from_url(url):
     """
     req = requests.get(url)
     return req.content
+
+
+def read_lines_from(url_or_file):
+    """
+    Yields lines of text from either a file or an URL
+
+    Args:
+        url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
+        only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
+    """
+    if is_url(url_or_file):
+        for line in urlopen(url_or_file):
+            yield line
+    else:
+        with open(url_or_file, "rt", encoding="utf-8") as infp:
+            for line in infp:
+                yield line
 
 
 class JsonSerializer:
