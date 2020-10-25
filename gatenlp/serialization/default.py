@@ -89,7 +89,7 @@ def get_bytes_from_url(url):
     return req.content
 
 
-def read_lines_from(url_or_file):
+def read_lines_from(url_or_file, encoding="utf-8"):
     """
     Yields lines of text from either a file or an URL
 
@@ -99,9 +99,10 @@ def read_lines_from(url_or_file):
     """
     if is_url(url_or_file):
         for line in urlopen(url_or_file):
+            line = line.decode(encoding)
             yield line
     else:
-        with open(url_or_file, "rt", encoding="utf-8") as infp:
+        with open(url_or_file, "rt", encoding=encoding) as infp:
             for line in infp:
                 yield line
 

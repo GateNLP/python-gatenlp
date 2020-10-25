@@ -442,21 +442,22 @@ class TsvFileSource(DocumentSource):
             feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
               column names of where to get the feature value from.
         """
+        assert text_col is not None and isinstance(text_col, str)
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.source = source
-        self.reader = read_lines_from(source)
         self.n = 0
         self.hdr2col = {}
 
     def __iter__(self):
+        reader = read_lines_from(self.source)
         if self.hdr == True and self.n == 0:
             self.n += 1
-            self.hdr = next(self.reader).split("\t")
+            self.hdr = next(reader).rstrip("\n\r").split("\t")
         if self.hdr:
-            self.hdr2col = {name: idx for idx, name in self.hdr}
-        for line in self.reader:
+            self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
+        for line in reader:
             fields = line.split("\t")
             if isinstance(self.text_col, int):
                 text = fields[self.text_col]
@@ -464,7 +465,7 @@ class TsvFileSource(DocumentSource):
                 text = fields[self.hdr2col[self.text_col]]
             doc = Document(text)
             if self.feature_cols:
-                for fname, colid in self.feature_cols:
+                for fname, colid in self.feature_cols.items():
                     if isinstance(colid, int):
                         value = fields[colid]
                     else:
@@ -501,7 +502,7 @@ class PandasDfSource(DocumentSource):
             text = row[self.text_col]
             doc = Document(text)
             if self.feature_cols:
-                for fname, colname in self.feature_cols:
+                for fname, colname in self.feature_cols.items():
                     value = row[colname]
                     doc.features[fname] = value
             self.n += 1

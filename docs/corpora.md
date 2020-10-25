@@ -25,6 +25,11 @@ import os
 from gatenlp import Document
 from gatenlp.corpora import JsonLinesFileDestination, JsonLinesFileSource
 from gatenlp.corpora import DirFilesDestination, DirFilesSource, DirFilesCorpus
+from gatenlp.corpora import TsvFileSource
+
+# all the example files will be created in "./tmp"
+if not os.path.exists("tmp"):
+    os.mkdir("tmp")
 ```
 
 
@@ -57,7 +62,8 @@ print(json)
 ```python
 # now lets save the 4 documents to a single JsonLinesFile using the document destination:
 # IMPORTANT: the file is only complete once the destination has been closed!
-dest1 = JsonLinesFileDestination("jsonlinesfile1.jsonl")
+jsfile1 = os.path.join("tmp","jsonlinesfile1.jsonl")
+dest1 = JsonLinesFileDestination(jsfile1)
 for doc in docs:
     dest1.append(doc)
 dest1.close()
@@ -66,7 +72,7 @@ dest1.close()
 
 ```python
 # lets view the created file: 
-with open("jsonlinesfile1.jsonl", "rt") as infp:
+with open(jsfile1, "rt") as infp:
     print(infp.read())
 ```
 
@@ -81,12 +87,12 @@ with open("jsonlinesfile1.jsonl", "rt") as infp:
 ```python
 # Another way to use most document destinations is in a "with" block, which has the advantage that the 
 # destination will get closed automatically:
-
-with JsonLinesFileDestination("jsonlinesfile2.jsonl") as dest:
+jsfile2 = os.path.join("tmp","jsonlinesfile2.jsonl")
+with JsonLinesFileDestination(jsfile2) as dest:
     for doc in docs:
         dest.append(doc)
         
-with open("jsonlinesfile2.jsonl", "rt") as infp:
+with open(jsfile2, "rt") as infp:
     print(infp.read())
 ```
 
@@ -101,7 +107,7 @@ with open("jsonlinesfile2.jsonl", "rt") as infp:
 ```python
 # Now that we have create a jsonlines file, we can use a document source to iterate over the documents in it
 
-for doc in JsonLinesFileSource("jsonlinesfile2.jsonl"):
+for doc in JsonLinesFileSource(jsfile2):
     print(doc)
 ```
 
@@ -132,18 +138,19 @@ index of the document, i.e. the running number of the document as the base name 
 
 
 ```python
-if not os.path.exists("dir1"):
-    os.mkdir("dir1")  # The directory for a DirFilesDestination must exist
+dir1 = os.path.join("tmp", "dir1")
+if not os.path.exists(dir1):
+    os.mkdir(dir1)  # The directory for a DirFilesDestination must exist
 # The path_from="idx" setting makes the DirFilesCorpus use the running number of the document as 
 # the file base name.
 
-with DirFilesDestination("dir1", ext="bdocjs", path_from="idx") as dest:
-    for doc in JsonLinesFileSource("jsonlinesfile1.jsonl"):
+with DirFilesDestination(dir1, ext="bdocjs", path_from="idx") as dest:
+    for doc in JsonLinesFileSource(jsfile1):
         dest.append(doc)
     
 
 # lets see what the content of the directory is now:
-print(os.listdir("dir1"))
+print(os.listdir(dir1))
 ```
 
     ['3.bdocjs', '1.bdocjs', '0.bdocjs', '2.bdocjs']
@@ -156,7 +163,7 @@ If we open it as a document source, we can simply iterate over all documents in 
 
 
 ```python
-src2 = DirFilesSource("dir1")
+src2 = DirFilesSource(dir1)
 for doc in src2:
     print(doc)
 ```
@@ -175,7 +182,7 @@ If we open it as a document corpus, we can directly access each document as from
 
 
 ```python
-corp1 = DirFilesCorpus("dir1")
+corp1 = DirFilesCorpus(dir1)
 ```
 
 
@@ -198,7 +205,7 @@ for idx, doc in enumerate(corp1):
     
 # the files in the directory now contain the modified documents. lets open them again and show them 
 # using a dirfiles source:
-src3 = DirFilesSource("dir1")
+src3 = DirFilesSource(dir1)
 print("Updated documents:")
 for doc in src2:
     print(doc)
@@ -206,6 +213,15 @@ for doc in src2:
 
     length is: 4
     Original documents:
+    Document(And another document.,features=Features({}),anns=[])
+    Document(Another text.
+    This one has two lines,features=Features({}),anns=[])
+    Document(This is the first text.,features=Features({}),anns=[])
+    Document(This is the third document.
+    It has three lines.
+    This line is the last one.
+    ,features=Features({}),anns=[])
+    Updated documents:
     Document(And another document.,features=Features({'docidx': 0}),anns=['':1])
     Document(Another text.
     This one has two lines,features=Features({'docidx': 1}),anns=['':1])
@@ -214,18 +230,54 @@ for doc in src2:
     It has three lines.
     This line is the last one.
     ,features=Features({'docidx': 3}),anns=['':1])
-    Updated documents:
-    Document(And another document.,features=Features({'docidx': 0}),anns=['':2])
-    Document(Another text.
-    This one has two lines,features=Features({'docidx': 1}),anns=['':2])
-    Document(This is the first text.,features=Features({'docidx': 2}),anns=['':2])
-    Document(This is the third document.
-    It has three lines.
-    This line is the last one.
-    ,features=Features({'docidx': 3}),anns=['':2])
+
+
+## TsvFileSource
+
+The TsvFileSource is a document source which initializes documents from the text in some column of a tsv
+file and optionally sets document features from other columns of the tsv file. 
+
+
+```python
+# Let's load documents from a tsv file on a web page. This tsv file has three columns and a header line which 
+# gives the names "text", "feat1" "feat2" to the columns. 
+# We create the documents by fetching the text from column "text" and creating two document features
+# with names "f1" and "f2" from the columns "feat1" and "feat2":
+tsvsrc = TsvFileSource("https://gatenlp.github.io/python-gatenlp/tsvcorpus_example1.tsv",
+                      text_col="text", feature_cols=dict(f1="feat1", f2="feat2"))
+
+
+
+for doc in tsvsrc:
+    print(doc)
+```
+
+
+    ---------------------------------------------------------------------------
+
+    KeyError                                  Traceback (most recent call last)
+
+    <ipython-input-11-418743f134c1> in <module>
+          6                       text_col="text", feature_cols=dict(f1="feat1", f2="feat2"))
+          7 
+    ----> 8 for doc in tsvsrc:
+          9     print(doc)
+
+
+    /data/johann/work-git/python-gatenlp/gatenlp/corpora.py in __iter__(self)
+        470                         value = fields[colid]
+        471                     else:
+    --> 472                         value = fields[self.hdr2col[colid]]
+        473                     doc.features[fname] = value
+        474             self.n += 1
+
+
+    KeyError: 'feat2'
 
 
 
 ```python
-
+# clean up after ourselves
+import shutil
+shutil.rmtree("tmp")
 ```
