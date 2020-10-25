@@ -173,21 +173,31 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
     """
     if recursive:
         for root, dirnames, filenames in os.walk(dirpath):
+            print("Processing directory", root, "dirnames", dirnames)
             for fname in filenames:
+                print("Processing file", fname)
                 if exts:
                     for ext in exts:
                         if fname.endswith(ext) and not fname.startswith("."):
                             if relative:
-                                yield os.path.relpath(dirpath, os.path.join(dirpath, fname))
+                                ret = os.path.relpath(os.path.join(root, fname), dirpath)
+                                print("yielding", ret)
+                                yield ret
                             else:
-                                yield os.path.join(dirpath, fname)
+                                ret = os.path.join(root, fname)
+                                print("yielding", ret)
+                                yield ret
                             break
                 else:
                     if not fname.startswith("."):
                         if relative:
-                            yield os.path.relpath(dirpath, os.path.join(dirpath, fname))
+                            ret = os.path.relpath(os.path.join(root, fname), dirpath)
+                            print("yielding", ret)
+                            yield ret
                         else:
-                            os.path.join(dirpath, fname)
+                            ret = os.path.join(root, fname)
+                            print("yielding", ret)
+                            yield ret
     else:
         for fname in os.listdir(dirpath):
             full = os.path.join(dirpath, fname)
@@ -197,13 +207,13 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
                 for ext in exts:
                     if fname.endswith(ext):
                         if relative:
-                            yield os.path.relpath(dirpath, full)
+                            yield os.path.relpath(full, dirpath)
                         else:
                             yield full
                         break
             else:
                 if relative:
-                    yield os.path.relpath(dirpath, full)
+                    yield os.path.relpath(full, dirpath)
                 else:
                     yield full
 
@@ -238,7 +248,7 @@ def make_file_path_fromidx(digits=1, levels=1):
         todigit = len(tmp)
         for lvl in range(levels-1):
             path = tmp[fromdigit:todigit] + path
-            print("per=", per, "from=", fromdigit, "to=", todigit, "sec=", tmp[fromdigit:todigit])
+            # print("per=", per, "from=", fromdigit, "to=", todigit, "sec=", tmp[fromdigit:todigit])
             path = "/" + path
             fromdigit = fromdigit - per
             todigit = todigit - per
@@ -392,7 +402,7 @@ class DirCorpus(Corpus):
         self.dirpath = dirpath
         self.ext = ext
         self.fmt = fmt
-        self.paths = matching_paths(dirpath, exts=[ext], recursive=recursive)
+        self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
         self.size = len(self.paths)
         pass
 
