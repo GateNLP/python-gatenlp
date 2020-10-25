@@ -252,27 +252,9 @@ for doc in tsvsrc:
     print(doc)
 ```
 
-
-    ---------------------------------------------------------------------------
-
-    KeyError                                  Traceback (most recent call last)
-
-    <ipython-input-11-418743f134c1> in <module>
-          6                       text_col="text", feature_cols=dict(f1="feat1", f2="feat2"))
-          7 
-    ----> 8 for doc in tsvsrc:
-          9     print(doc)
-
-
-    /data/johann/work-git/python-gatenlp/gatenlp/corpora.py in __iter__(self)
-        470                         value = fields[colid]
-        471                     else:
-    --> 472                         value = fields[self.hdr2col[colid]]
-        473                     doc.features[fname] = value
-        474             self.n += 1
-
-
-    KeyError: 'feat2'
+    Document(Here is some text. Like with JSON, newlines are escaped:\nHere is another line.,features=Features({'f1': 'fval1', 'f2': 'fval2\n'}),anns=[])
+    Document(Another text\nThis one\nhas more\n\nlines.,features=Features({'f1': '11', 'f2': '22\n'}),anns=[])
+    Document(And another.,features=Features({'f1': 'a', 'f2': 'b\n'}),anns=[])
 
 
 
