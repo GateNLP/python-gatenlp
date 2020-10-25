@@ -12,6 +12,7 @@ DocumentDestination subclasses represent collections that can receive Documents 
 
 import os
 from abc import ABC, abstractmethod
+import numbers
 from gatenlp.serialization.default import read_lines_from
 from gatenlp.document import  Document
 
@@ -24,11 +25,18 @@ __pdoc__ = {
 
 
 class Corpus(ABC):
+    """
+    A corpus represents a collection of documents with a fixed number of elements which can be read and written
+    using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
+    the element is either a document or None.
+
+    NOTE: assigning None to a corpus removes the element from the corpus.
+
+    """
     @abstractmethod
     def __getitem__(self, idx: int):
         """
-        A corpus object must allow getting an item by its idx, e.g. `mycorpus[2]`
-        For each index, a corpus must either return a single Document or None.
+        Retrieve a document from the corpus.
 
         Args:
             idx: the index of the document
@@ -69,10 +77,6 @@ class DocumentSource(ABC):
     def __iter__(self):
         return self
 
-    @abstractmethod
-    def __next__(self):
-        pass
-
 
 class DocumentDestination(ABC):
     @abstractmethod
@@ -105,19 +109,12 @@ class JsonLinesFileSource(DocumentSource):
         Args:
             file: the file path (a string) or an open file handle.
         """
-        self.fh = open(file, "rt", encoding="utf-8")
+        self.file = file
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
-        line = self.fh.readline()
-        if not line:
-            self.fh.close()
-            raise StopIteration
-        else:
-            doc = Document.load_mem(line, fmt="json")
-            return doc
+        with open(self.file, "rt", encoding="utf-8") as infp:
+            for line in infp:
+                yield Document.load_mem(line, fmt="json")
 
 
 class JsonLinesFileDestination(DocumentDestination):
@@ -173,36 +170,26 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
     """
     if recursive:
         for root, dirnames, filenames in os.walk(dirpath):
-            print("Processing directory", root, "dirnames", dirnames)
             for fname in filenames:
-                print("Processing file", fname)
                 if exts:
                     for ext in exts:
                         if fname.endswith(ext) and not fname.startswith("."):
                             if relative:
-                                ret = os.path.relpath(os.path.join(root, fname), dirpath)
-                                print("yielding", ret)
-                                yield ret
+                                yield os.path.relpath(os.path.join(root, fname), dirpath)
                             else:
-                                ret = os.path.join(root, fname)
-                                print("yielding", ret)
-                                yield ret
+                                yield os.path.join(root, fname)
                             break
                 else:
                     if not fname.startswith("."):
                         if relative:
-                            ret = os.path.relpath(os.path.join(root, fname), dirpath)
-                            print("yielding", ret)
-                            yield ret
+                            yield os.path.relpath(os.path.join(root, fname), dirpath)
                         else:
-                            ret = os.path.join(root, fname)
-                            print("yielding", ret)
-                            yield ret
+                            yield os.path.join(root, fname)
     else:
         for fname in os.listdir(dirpath):
             full = os.path.join(dirpath, fname)
             if not os.path.isfile(full) or fname.startswith("."):
-                continue
+                pass
             elif exts:
                 for ext in exts:
                     if fname.endswith(ext):
@@ -234,15 +221,14 @@ def make_file_path_fromidx(digits=1, levels=1):
     if not isinstance(digits, int) or not isinstance(levels, int) or digits < 1 or levels < 1 or digits < levels:
         raise Exception(f"digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}")
 
-    def file_path_fromidx(doc=None, idx=None, digits=10, levels=3):
+    def file_path_fromidx(doc=None, idx=None):
         if idx is None or not isinstance(idx, int) or idx < 0:
             raise Exception("Index must be an integer >= 0")
         per = int(digits/levels)
         asstr = str(idx)
-        digits = max(0, digits-len(asstr))
-        tmp = "0" * digits
+        digs = max(0, digits-len(asstr))
+        tmp = "0" * digs
         tmp += str(idx)
-        print("tmp=", tmp)
         path = ""
         fromdigit = len(tmp) - per
         todigit = len(tmp)
@@ -257,9 +243,19 @@ def make_file_path_fromidx(digits=1, levels=1):
     return file_path_fromidx
 
 
+def debug_maker(var1=22):
+
+    def debug_closure():
+        print(var1)
+    return debug_closure
+
+
 class DirFilesSource(DocumentSource):
 
-    def __init__(self, dirpath, paths=None, paths_from=None, exts=None, fmt=None, recursive=True):
+    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
+                 fmt=None, recursive=True, sort=False,
+                 every_n=1, every_n_k=0,
+                 ):
         """
         Create a DirFilesSource.
 
@@ -271,6 +267,9 @@ class DirFilesSource(DocumentSource):
             fmt: the format to use for loading files. This is only useful if all files have the same format
                but the file extensions does not indicate the format.
             recursive: recursively include paths from all subdirectories as well
+            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is > 1.
+            every_n: only yield every nth document (default 1: every document)
+            every_n_k: start with that index, before yielding every_n th document (default 0: start at beginning)
         """
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
@@ -283,18 +282,20 @@ class DirFilesSource(DocumentSource):
                 self.paths.append(p.rstrip("\n\r"))
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
+        if sort or every_n > 1:
+            self.paths.sort()
+        if every_n > 1:
+            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+        self.every_n = every_n
+        self.every_n_k = every_n_k
         self.fmt = fmt
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
         """
         Yield the next document from the source.
         """
         for p in self.paths:
             yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
-        raise StopIteration
 
 
 class DirFilesDestination(DocumentDestination):
@@ -335,14 +336,14 @@ class DirFilesDestination(DocumentDestination):
         self.dirpath = dirpath
         self.idx = 0
         if path_from.startswith("idx"):
-            rest = path_from[3:]
+            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
             if len(rest) == 0:
                 digits = 1
                 levels = 1
             else:
                 parms = rest.split(":")
                 parms.append(1)
-                digits, levels = parms[0:2]
+                digits, levels = parms[1:3]
                 digits = int(digits)
                 levels = int(levels)
             self.file_path_maker = make_file_path_fromidx(digits, levels)
@@ -363,7 +364,7 @@ class DirFilesDestination(DocumentDestination):
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         pass
 
     def append(self, doc):
@@ -383,7 +384,7 @@ class DirFilesDestination(DocumentDestination):
         pass
 
 
-class DirCorpus(Corpus):
+class DirFilesCorpus(Corpus):
     """
     A corpus representing all files in a directory that match the given extension.
     """
@@ -450,9 +451,6 @@ class TsvFileSource(DocumentSource):
         self.hdr2col = {}
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
         if self.hdr == True and self.n == 0:
             self.n += 1
             self.hdr = next(self.reader).split("\t")
@@ -466,15 +464,14 @@ class TsvFileSource(DocumentSource):
                 text = fields[self.hdr2col[self.text_col]]
             doc = Document(text)
             if self.feature_cols:
-                for k,v in self.feature_cols:
-                    if isinstance(v, int):
-                        value = fields[v]
+                for fname, colid in self.feature_cols:
+                    if isinstance(colid, int):
+                        value = fields[colid]
                     else:
-                        value = fields[self.hdr2col[v]]
-                    doc.features[k] = value
+                        value = fields[self.hdr2col[colid]]
+                    doc.features[fname] = value
             self.n += 1
             yield doc
-        raise StopIteration
 
 
 class PandasDfSource(DocumentSource):
@@ -500,17 +497,97 @@ class PandasDfSource(DocumentSource):
         self.n = 0
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
-        for idx, row in self.reader:
+        for _, row in self.reader:
             text = row[self.text_col]
             doc = Document(text)
             if self.feature_cols:
-                for k,v in self.feature_cols:
-                    value = row[v]
-                    doc.features[k] = value
+                for fname, colname in self.feature_cols:
+                    value = row[colname]
+                    doc.features[fname] = value
             self.n += 1
             yield doc
-        raise StopIteration
+
+
+class EveryNthCorpus(Corpus):
+    """
+    Wraps a corpus to only every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
+    one client at the same time!
+    """
+
+    def __init__(self, corpus, every_n, every_n_k):
+        """
+        Create an EveryNthCorpus.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be < n
+        """
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception("n and k must be integers.")
+        if every_n < 2 or every_n_k < 0 or every_n_k >= every_n:
+            raise Exception("n must be >= 2 and k must be >= 0 and < n")
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.corpus = corpus
+        # precalculate the length
+        otherlen = len(corpus)
+        # the size of this dataset is int((otherlen + (n-k) - 1)/k)
+        self.len = int((otherlen + (every_n - every_n_k) - 1) / every_n_k)
+
+    def __getitem__(self, idx):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception("Item must be an integer")
+        if idx >= self.len or idx < 0:
+            raise Exception("Index idx must be >= 0 and < {}".format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        return self.corpus[idx * self.every_n + self.every_n_k]
+
+    def __setitem__(self, idx, doc):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception("Item must be an integer")
+        if idx >= self.len or idx < 0:
+            raise Exception("Index idx must be >= 0 and < {}".format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[idx * self.every_n + self.every_n_k] = doc
+
+    def __len__(self):
+        return self.len
+
+class EveryNthSource(DocumentSource):
+    """
+    Wraps a document source to only return every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
+    one client at the same time!
+    """
+
+    def __init__(self, source, every_n, every_n_k):
+        """
+        Create an EveryNthSource.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be < n
+        """
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception("n and k must be integers.")
+        if every_n < 2 or every_n_k < 0 or every_n_k >= every_n:
+            raise Exception("n must be >= 2 and k must be >= 0 and < n")
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.source = source
+
+    def __iter__(self):
+        idx = 0
+        for doc in self.source:
+            if (idx-self.every_n_k) % self.every_n == 0:
+                yield doc
 

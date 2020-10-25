@@ -12,6 +12,7 @@ the only element.
 from collections.abc import Iterable
 import inspect
 from gatenlp.processing.annotator import Annotator
+from gatenlp.utils import make_logger
 
 
 def _check_and_ret_callable(a, **kwargs):
@@ -82,6 +83,7 @@ class Pipeline(Annotator):
             **kwargs: these arguments are passed to the constructor of any class in the annotators list
         """
         self.annotators = []
+        self.logger = make_logger(__name__)
         for ann in annotators:
             if isinstance(ann, Iterable):
                 for a in ann:
@@ -90,6 +92,8 @@ class Pipeline(Annotator):
             else:
                 a = _check_and_ret_callable(a, **kwargs)
                 self.annotators.append(ann)
+        if len(self.annotators) == 0:
+            self.logger.warn("Pipeline is a do-nothing pipeline: no annotators")
 
     def __call__(self, doc, **kwargs):
         """

@@ -1,0 +1,4 @@
+text	feat1	feat2
+Here is some text. Like with JSON, newlines are escaped:\nHere is another line.	fval1	fval2
+Another text\nThis one\nhas more\n\nlines.	11	22
+And another.	a	b

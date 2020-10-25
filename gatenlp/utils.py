@@ -75,9 +75,40 @@ logger = None
 start = 0
 
 
+def make_logger(name=None, file=None, lvl=None, args=None):
+    """
+    Create and return logger.
+
+    Args:
+        name: name to use in the log, if None, uses sys.argv[0]
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        args: not used yet
+
+    Returns:
+        The logger instance
+    """
+    if name is None:
+        name = sys.argv[0]
+    logger = logging.getLogger(name)
+    if lvl is None:
+        lvl = logging.INFO
+    logger.setLevel(lvl)
+    fmt = logging.Formatter('%(asctime)s|%(levelname)s|%(name)s|%(message)s')
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    logger.addHandler(hndlr)
+    logger.propagate = False
+    if file:
+        hdnlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        logger.addHandler(hdnlr)
+    return logger
+
+
 def set_logger(name=None, file=None, lvl=None, args=None):
     """
-    Set up logger for the module "name". If file is given, log to that file as well.
+    Create and return a logger instance and set the global logger.
     If file is not given but args is given and has "outpref" parameter, log to
     file "outpref.DATETIME.log" as well.
 
@@ -95,19 +126,7 @@ def set_logger(name=None, file=None, lvl=None, args=None):
         name = sys.argv[0]
     if logger:
         raise Exception("Odd, we should not have a logger yet?")
-    logger = logging.getLogger(name)
-    if lvl is None:
-        lvl = logging.INFO
-    logger.setLevel(lvl)
-    fmt = logging.Formatter('%(asctime)s|%(levelname)s|%(name)s|%(message)s')
-    hndlr = logging.StreamHandler(sys.stderr)
-    hndlr.setFormatter(fmt)
-    logger.addHandler(hndlr)
-    if file:
-        hdnlr = logging.FileHandler(file)
-        hndlr.setFormatter(fmt)
-        logger.addHandler(hdnlr)
-    logger.info("Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
+    logger = make_logger(name=name, file=file, lvl=lvl, args=args)
     return logger
 
 
@@ -122,30 +141,35 @@ def ensurelogger():
     """
     global logger
     if not logger:
-        logger = logging.getLogger("UNINITIALIZEDLOGGER")
+        logger = set_logger()
     return logger
 
 
-def run_start():
+def run_start(logger=None):
     """
     Define time when running starts.
 
     Returns:
         system time in seconds
     """
-    global  start
+    global start
+    if logger is None:
+        logger = ensurelogger()
+    logger.info("Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
     start = time.time()
     return start
 
 
-def run_stop():
+def run_stop(logger=None):
     """
     Log and return formatted elapsed run time.
 
     Returns:
         tuple of formatted run time, run time in seconds
     """
-    logger = ensurelogger()
+    if logger is None:
+        logger = ensurelogger()
+    logger.info("Stpped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
     if start == 0:
         logger.warning("Run timing not set up properly, no time!")
         return "",0
@@ -216,3 +240,4 @@ def support_annotation_or_set(method):
             return method(self, left, right, **kwargs)
 
     return _support_annotation_or_set
+
