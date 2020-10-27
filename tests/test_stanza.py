@@ -1,15 +1,16 @@
 from gatenlp.lib_stanza import stanza2gatenlp
+from gatenlp import logger
 
-try:
-    import stanza
-    nlp = stanza.Pipeline()
-except:
-    stanfordnlp = None
+import stanza
 
 
 class TestStanza01:
+
     def test_stanza01a(self):
+        stanza.download("en")
+        nlp = stanza.Pipeline()
         if stanza is None:
+            logger.warn("Stanza could not be imported, Stanza tests skipped!")
             return
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
         sdoc = nlp(txt)
