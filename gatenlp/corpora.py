@@ -11,6 +11,7 @@ DocumentDestination subclasses represent collections that can receive Documents 
 """
 
 import os
+import random
 from abc import ABC, abstractmethod
 import numbers
 from gatenlp.serialization.default import read_lines_from
@@ -423,6 +424,62 @@ class DirFilesCorpus(Corpus):
         doc.save(os.path.join(self.dirpath, path), fmt=self.fmt)
 
 
+class NumberedDirFilesCorpus:
+    """
+    A corpus that represents files from a (nested) directory, where the filename is derived from
+    the index number of the document. This corpus can represent missing elements as None, both
+    on reading (when the corresponding expected document does not exist) and on writing (the
+    corresponding document gets deleted).
+    """
+
+    def __init__(self, dirpath,  digits=1, levels=1, ext="bdocjs", fmt=None, size=None):
+        """
+        Creates the DirCorpus.
+
+        Args:
+            dirpath: the directory path
+            digits: the number of digits to use for the file path
+            levels: the number of levels to split the digits up which are then used as subdire names.
+            ext: the file extension used for all files in the corpus
+            fmt: the format to use, if None, determined from the extension
+            size: the size of the corpus. This can be used to create a corpus from an empty directory
+              to contain only None elements initially.  It can also be used to limit access to only the
+              first size elements if the directory contains more documents.
+        """
+        if not ext.startswith("."):
+            ext = "." + ext
+        self.dirpath = dirpath
+        self.ext = ext
+        self.fmt = fmt
+        self.size = size
+        self.file_path_maker = make_file_path_fromidx(digits, levels)
+        pass
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        assert isinstance(idx, int)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if os.path.exists(path):
+            doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        else:
+            doc = None
+        return doc
+
+    def __setitem__(self, idx, doc):
+        assert isinstance(idx, int)
+        assert doc is None or isinstance(doc, Document)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if doc is None:
+            if os.path.exists(path):
+                os.remove(path)
+        else:
+            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+
+
 class TsvFileSource(DocumentSource):
     """
     A TsvFileSource is a DocumentSource which is a single TSV file with a fixed number of tab-separated
@@ -514,8 +571,12 @@ class EveryNthCorpus(Corpus):
     Wraps a corpus to only every nth document, starting with the kth document.
     For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
     documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
-    documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
-    one client at the same time!
+    documents 2,5,8,11,14 etc.
+
+    This is useful to access a subset of documents from a corpus from n different concurrent
+    processes (in that case, the wrapped corpus must allow concurrent access!) or
+    split a corpus into n subsets for other purposes.
+
     """
 
     def __init__(self, corpus, every_n, every_n_k):
@@ -559,6 +620,7 @@ class EveryNthCorpus(Corpus):
     def __len__(self):
         return self.len
 
+
 class EveryNthSource(DocumentSource):
     """
     Wraps a document source to only return every nth document, starting with the kth document.
@@ -591,4 +653,105 @@ class EveryNthSource(DocumentSource):
         for doc in self.source:
             if (idx-self.every_n_k) % self.every_n == 0:
                 yield doc
+
+
+class ShuffledCorpus(Corpus):
+    """
+    Wraps a corpus to reorder the documents in the corpus randomly.
+    """
+
+    def __init__(self, corpus, seed=None):
+        """
+        Create a ShuffledCorpus wrapper.
+
+        Args:
+            seed: if an integer and > 0, shuffle the list of instances randomly, using the given seed.
+                If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+                and whatever the current state of the random generator is is used. If None, no shuffling is
+                carried out. If this is None or not an integer, same as 0.
+        """
+        super().__init__()
+        self.corpus = corpus
+        self.seed = seed
+        self.idxs = list(range(len(corpus)))
+        self.shuffle(seed)
+
+    def shuffle(self, seed=0):
+        """
+        Shuffle instance list order,
+        :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+        If seed is None, no shuffling is carried out.
+        :return:
+        """
+        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+            if seed != -1:
+                if seed == 0:
+                    random.seed()
+                else:
+                    random.seed(seed)
+            random.shuffle(self.idxs)
+        else:  # not an integer seed: None or some other type
+            # same as seed 0
+            random.seed()
+            random.shuffle(self.idxs)
+
+    def __getitem__(self, idx):
+        return self.corpus[self.idxs[idx]]
+
+    def __setitem__(self, idx, doc):
+        # TODO: refactor into separate utility function
+        if not isinstance(idx, numbers.Integral):
+            raise Exception("Item must be an integer")
+        if idx >= self.len or idx < 0:
+            raise Exception("Index idx must be >= 0 and < {}".format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[self.idxs[idx]] = doc
+
+    def __len__(self):
+        return len(self.idxs)
+
+
+class CachedCorpus(Corpus):
+    """
+    Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+    cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+    files. This wrapper caches documents when they are written to, but this can be changed to caching on read.
+    """
+
+    def __init__(self, basecorpus, cachecorpus, cacheonread=False):
+        """
+        Creates a cached corpus.
+        This accesses data from the cachecorpus, if it does not exist in there (entry is,
+        None) will instead fall back to the base corpus.
+
+        This cached corpus can be set up to cache on read or cache on write.
+
+        Args:
+            basedataset: any corpus
+            cachedataset: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+              or just an in-memory list or array.
+            cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
+                Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+                of processing efficiently.
+        """
+        assert len(cachecorpus) == len(basecorpus)
+        self.is_writable = True
+        self.basecorpus = basecorpus
+        self.cachecorpus = cachecorpus
+        self.cacheonread = cacheonread
+
+    def __len__(self):
+        return len(self.basecorpus)
+
+    def __getitem__(self, index):
+        tmp = self.cachecorpus[index]
+        if tmp is None:
+            tmp = self.basecorpus
+            if self.cacheonread:
+                self[index] = tmp
+        return tmp
+
+    def __setitem__(self, index, value):
+        self.cachecorpus[index] = value
+
 
