@@ -217,7 +217,7 @@ def get_arguments(from_main=False):
     return args
 
 
-def interact(args=None):
+def interact(args=None, annotator=None):
     """Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
@@ -244,11 +244,13 @@ def interact(args=None):
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
-    if gatenlp.gate_python_plugin_pr is None:
-        logger.warning("No processing resource defined with @GateNlpPr decorator, using default do-nothing")
+    if gatenlp.gate_python_plugin_pr is None and annotator is None:
+        logger.warning("No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing")
         _pr_decorator(DefaultPr)
-
-    pr = gatenlp.gate_python_plugin_pr
+    if annotator is not None:
+        pr = annotator
+    else:
+        pr = gatenlp.gate_python_plugin_pr
 
     if args is None:
         args = get_arguments()
