@@ -10,16 +10,8 @@ import re
 from shutil import copyfile
 
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
-JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compiling
-JARFILE_DIST = os.path.join("gatenlp", "_jars", JARFILE) # where to put the jarfile prior before running setup
 JARFILE_DEST = os.path.join("_jars", JARFILE) # where it should be relative to the gatenlp package
-JAVAFILE_PATH = os.path.join("java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java")
 
-HTML_ANN_VIEWER_HTML_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.html")
-HTML_ANN_VIEWER_MERGEDJS_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer-merged.js")
-HTML_ANN_VIEWER_GATEJS_FILE = os.path.join("html-ann-viewer", "gatenlp-ann-viewer.js")
-HTML_ANN_VIEWER_LIBJS_FILE = os.path.join("html-ann-viewer", "jquery-3.5.1.min.js")
-HTML_ANN_VIEWER_DIST_DIR = os.path.join("gatenlp", "serialization", "_htmlviewer")
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
@@ -37,33 +29,7 @@ def versionfromfile(*filepath):
         raise RuntimeError("Unable to find version string in {}.".format(infile))
 
 
-def make_java():
-    if os.path.exists(JARFILE_DIST) and os.stat(JARFILE_DIST).st_mtime > os.stat(JAVAFILE_PATH).st_mtime:
-        return
-    os.chdir("java")
-    retcode = subprocess.call("mvn package", shell=True)
-    if retcode != 0:
-        raise Exception("Could not build jar, exit code is {}".format(retcode))
-    os.chdir("..")
-    copyfile(JARFILE_PATH, JARFILE_DIST)
-
-
-def make_html_ann_viewer():
-    # concatenate the JS files to create the merged file
-    with open(HTML_ANN_VIEWER_MERGEDJS_FILE, "wt", encoding="UTF-8") as outfp:
-        for fname in [HTML_ANN_VIEWER_LIBJS_FILE, HTML_ANN_VIEWER_GATEJS_FILE]:
-            with open(fname, "rt", encoding="UTF-8") as infp:
-                for line in infp:
-                    outfp.write(line)
-    print("Copying HTML and merged JS files", file=sys.stderr)
-    copyfile(HTML_ANN_VIEWER_HTML_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer.html"))
-    copyfile(HTML_ANN_VIEWER_MERGEDJS_FILE, os.path.join(HTML_ANN_VIEWER_DIST_DIR, "gatenlp-ann-viewer-merged.js"))
-
 version=versionfromfile("gatenlp/__init__.py")
-
-make_html_ann_viewer()
-
-make_java()
 
 
 def get_install_extras_require():
@@ -75,7 +41,7 @@ def get_install_extras_require():
         'nltk': ['nltk'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3'],  # for development
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3', 'tox'],  # for development
     }
     # Add automatically the 'all' target
     extras_require.update({'all': [p for l in extras_require.values() for p in l if p not in ['dev']]})
@@ -92,7 +58,7 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     setup_requires=[
-        "pytest-runner",
+        # deliberately not used, since it installs packages without pip,  use the "dev" extras instead
         ],
     install_requires=[
       'sortedcontainers>=2.0.0',
