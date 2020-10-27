@@ -73,13 +73,12 @@ def get_install_extras_require():
         'stanza': ['stanza'],
         'spacy': ['spacy'],
         'nltk': ['nltk'],
-        'stanfordnlp': ['stanfordnlp'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3'],  # for development
     }
     # Add automatically the 'all' target
-    extras_require.update({'all': [i[0] for i in extras_require.values() if i[0] not in ['dev']]})
+    extras_require.update({'all': [p for l in extras_require.values() for p in l if p not in ['dev']]})
     return extras_require
 
 setup(
@@ -94,17 +93,13 @@ setup(
     long_description_content_type='text/markdown',
     setup_requires=[
         "pytest-runner",
-        "pygit2",
-        # TODO: figure those out:
-        #"setuptools_git",
-        #"setuptools_scm", 
         ],
     install_requires=[
       'sortedcontainers>=2.0.0',
     ],
     extras_require=get_install_extras_require(),
-    python_requires=">=3.5",
-    tests_require=['pytest'],
+    python_requires=">=3.6",
+    tests_require=['pytest', "pytest-cov"],
     platforms='any',
     license="MIT",
     packages=find_packages(),

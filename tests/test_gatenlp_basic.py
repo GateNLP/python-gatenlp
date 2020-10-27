@@ -44,7 +44,7 @@ class TestDocument01:
         assert ann3id in annset1
         assert annset1.span == (0, 22)
         retset1 = annset1.within(0,10)
-        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG: ", retset1)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG: ", retset1)
         assert retset1.isdetached()
         assert retset1.immutable
         assert retset1.size == 2
@@ -91,7 +91,7 @@ class TestChangeLog01:
         doc1.features["docfeature1"] = "value1"
         doc1.features["docfeature1"] = "value1b"
         chlog1 = doc1.changelog
-        print("!!!!!!!!!!!!!!DEBUG: ",chlog1.pprint())
+        # print("!!!!!!!!!!!!!!DEBUG: ",chlog1.pprint())
         assert chlog1.changes[4].get("end") == 24
         assert chlog.changes[4].get("end") == 24
         om = OffsetMapper(doc1)

@@ -55,7 +55,6 @@ class TestSortedIntvls01:
         assert len(ret6) == 1
         assert (0, 20, 7, "int0") in ret6
         ret7 = list(si1.covering(8, 9))
-        logger.info("\n?????????????????????????? covering 8,9={}".format(ret7))
         assert len(ret7) == 5
         assert (0, 20, 7, 'int0') in ret7
         assert (4, 10, 4, 'int4') in ret7
