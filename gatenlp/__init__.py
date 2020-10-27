@@ -2,6 +2,7 @@
 # line since we parse that line in a shell script!
 __version__ = "0.9.1"
 import logging
+import sys
 try:
     import sortedcontainers
 except Exception as ex:
@@ -10,9 +11,9 @@ except Exception as ex:
     print("Please install it, using e.g. 'pip install -U sortedcontainers'", file=sys.stderr)
     sys.exit(1)
 # TODO: check version of sortedcontainers (we have 2.1.0)
-logging.basicConfig()
-logger = logging.getLogger("gatenlp")
-logger.setLevel(logging.INFO)
+
+from gatenlp.utils import make_logger
+logger = make_logger("gatenlp")
 
 # this attribute globally holds the processing resource last defined
 # so it can be used for interacting with the GATE python plugin

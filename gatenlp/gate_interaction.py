@@ -143,8 +143,9 @@ def _pr_decorator(what):
     gatenlp.gate_python_plugin_pr = "The PR from here!!!"
 
     wrapper = _PrWrapper()
-    if inspect.isclass(what):
-        what = what()   # create an instance
+    if inspect.isclass(what) or _has_method(what, "__call__"):
+        if inspect.isclass(what):
+            what = what()   # if it is a class, create an instance, otherwise assume it is already an instance
         # TODO: instead of this we could just as well store the instance and 
         # directly call the instance methods from the wrapper!
         execmethod = _has_method(what, "__call__")
@@ -248,7 +249,7 @@ def interact(args=None, annotator=None):
         logger.warning("No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing")
         _pr_decorator(DefaultPr)
     if annotator is not None:
-        pr = annotator
+        pr = _pr_decorator(annotator)
     else:
         pr = gatenlp.gate_python_plugin_pr
 
