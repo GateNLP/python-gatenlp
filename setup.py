@@ -77,7 +77,7 @@ setup(
     python_requires=">=3.6",
     tests_require=['pytest', "pytest-cov"],
     platforms='any',
-    license="MIT",
+    license="Apache License 2.0",
     packages=find_packages(),
     package_data={"gatenlp": [JARFILE_DEST]},  
     # include_package_data=True,
