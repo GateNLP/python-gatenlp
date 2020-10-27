@@ -103,7 +103,7 @@ setup(
       'sortedcontainers>=2.0.0',
     ],
     extras_require=get_install_extras_require(),
-    python_requires=">=3.7",
+    python_requires=">=3.5",
     tests_require=['pytest'],
     platforms='any',
     license="MIT",
