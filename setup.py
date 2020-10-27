@@ -41,7 +41,7 @@ def get_install_extras_require():
         'nltk': ['nltk'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3', 'tox'],  # for development
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel'],  # for development
     }
     # Add automatically the 'all' target
     extras_require.update({'all': [p for l in extras_require.values() for p in l if p not in ['dev']]})
