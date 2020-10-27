@@ -9,6 +9,9 @@ from setuptools import setup, find_packages
 import re
 from shutil import copyfile
 
+if sys.version_info < (3, 6):
+    sys.exit('ERROR: gatenlp requires Python 3.6+')
+
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
 JARFILE_DEST = os.path.join("_jars", JARFILE) # where it should be relative to the gatenlp package
 
@@ -41,7 +44,10 @@ def get_install_extras_require():
         'nltk': ['nltk'],
         'gazetteers': ['matchtext'],
         # the following are not included in all:
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel'],  # for development
+        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
+            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy',
+            'setuptools_git', 'setuptools_scm',
+            ],
     }
     # Add automatically the 'all' target
     extras_require.update({'all': [p for l in extras_require.values() for p in l if p not in ['dev']]})
@@ -64,6 +70,10 @@ setup(
       'sortedcontainers>=2.0.0',
     ],
     extras_require=get_install_extras_require(),
+    # NOTE: this is not actually used since it will not work with gatenlp version reporting
+    # from the gateplugin-Python plugin (since _version.py is not/should not get committed, only distributed)
+    # (this would also not work if we deploy after committing)
+    use_scm_version={'write_to': os.path.join('gatenlp','_version.py')},
     python_requires=">=3.6",
     tests_require=['pytest', "pytest-cov"],
     platforms='any',

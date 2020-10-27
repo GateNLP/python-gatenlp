@@ -1,0 +1,14 @@
+[run]
+source=gatenlp
+omit=
+  _jars
+  serialization/_htmlviewer
+
+[report]
+exclude_lines =
+    ^\s*continue\b
+    ^\s*return\b
+    ^\s*raise\b
+    ^\s*except\b
+    ^\s*warnings\.warn\(
+    ^\s*warn\(  

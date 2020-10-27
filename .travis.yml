@@ -1,4 +1,8 @@
+os: linux
+dist: bionic
 language: python
+cache:
+  pip: true
 python:
   - "3.6"
   - "3.7"
@@ -8,4 +12,8 @@ install:
   - pip install -e .[all]
 
 script:
-  - pytest
+  - python setup.py test
+
+# for codecov.io
+after_success:
+  - <(curl -s https://codecov.io/bash)
