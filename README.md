@@ -4,6 +4,7 @@
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp)
 [![GitHub](https://img.shields.io/github/license/GateNLP/python-gatenlp.svg)](LICENSE.txt)
+[![Travis](https://travis-ci.com/GateNLP/python-gatenlp.svg?branch=master)](https://travis-ci.com/github/GateNLP/python-gatenlp)
 
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
