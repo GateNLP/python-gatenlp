@@ -5,7 +5,8 @@ gazetteer lists.
 """
 
 from collections import defaultdict
-from dataclasses import dataclass
+# from dataclasses import dataclass
+from recordclass import structclass
 from gatenlp.utils import ensurelogger
 from gatenlp.processing.annotator import Annotator
 
@@ -16,15 +17,16 @@ class Gazetteer(Annotator):
     """
     pass
 
+# NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
+# class TokenGazetteerMatch, with __slots__=("start", "end", "match", "entrydata", "matcherdata")
+# and type declarations start: int, end: int, match: list, entrydata: object, matcherdata: object
+# HOWEVER, dataclasses require Python 3.7 and have their own issues.
+# Named tuples cannot be used because what we need has to be mutable.
+# So for now we use the structclass approach from package recordclass which is very compact and rather fast.
+# !! structclass by default does NOT support cyclic garbage collection which should be ok for us
 
-@dataclass(unsafe_hash=True, order=True)
-class TokenGazetteerMatch:
-    __slots__ = ("start", "end", "match", "entrydata", "matcherdata")
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object
+
+TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "entrydata", "matcherdata"))
 
 
 class TokenGazetteerNode(object):
@@ -402,15 +404,8 @@ import sys
 def thisorthat(x,y): x if x is not None else y
 
 
-@dataclass(unsafe_hash=True, order=True)
-class Match:
-    __slots__ = ("start", "end", "match", "entrydata", "matcherdata")
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object
-
+# NOTE: Match was a dataclass originally
+Match = structclass("Match", ("start", "end", "match", "entrydata", "matcherdata"))
 
 _NOVALUE = object()
 

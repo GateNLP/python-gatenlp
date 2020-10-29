@@ -15,7 +15,7 @@ import logging
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp import logger
+from gatenlp.utils import init_logger
 import json
 
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
@@ -24,7 +24,6 @@ import json
 instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
 ostream = sys.stdout
 sys.stdout = sys.stderr
-
 
 class _PrWrapper:
     def __init__(self):
@@ -236,6 +235,7 @@ def interact(args=None, annotator=None):
     Returns:
 
     """
+    logger = init_logger(__name__)
     loglvls = {
         "DEBUG": logging.DEBUG,
         "INFO": logging.INFO,
@@ -383,6 +383,7 @@ def interact(args=None, annotator=None):
 if __name__ == "__main__":
     # we run this from the command line so we need to also first load the PR code from the python file
     args = get_arguments(from_main=True)
+    logger = init_logger(__name__)
     import importlib.util
     spec = importlib.util.spec_from_file_location("gateapp", args.pythonfile)
     foo = importlib.util.module_from_spec(spec)

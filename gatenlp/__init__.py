@@ -12,8 +12,8 @@ except Exception as ex:
     sys.exit(1)
 # TODO: check version of sortedcontainers (we have 2.1.0)
 
-from gatenlp.utils import make_logger
-logger = make_logger("gatenlp")
+from gatenlp.utils import init_logger
+logger = init_logger("gatenlp")
 
 # this attribute globally holds the processing resource last defined
 # so it can be used for interacting with the GATE python plugin

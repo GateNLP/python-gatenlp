@@ -12,7 +12,7 @@ the only element.
 from collections.abc import Iterable
 import inspect
 from gatenlp.processing.annotator import Annotator
-from gatenlp.utils import make_logger
+from gatenlp.utils import init_logger
 
 
 def _check_and_ret_callable(a, **kwargs):
@@ -83,7 +83,7 @@ class Pipeline(Annotator):
             **kwargs: these arguments are passed to the constructor of any class in the annotators list
         """
         self.annotators = []
-        self.logger = make_logger(__name__)
+        self.logger = init_logger(__name__)
         for ann in annotators:
             if isinstance(ann, Iterable):
                 for a in ann:

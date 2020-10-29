@@ -71,81 +71,57 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
         return ret
 
 
-logger = None
 start = 0
+LOGGING_FORMAT = '%(asctime)s|%(levelname)s|%(name)s|%(message)s'
 
 
-def make_logger(name=None, file=None, lvl=None, args=None):
+def init_logger(name=None, file=None, lvl=None, args=None):
     """
-    Create and return logger.
+    Configure the root logger (this only works the very first time, all subsequent
+    invocations will not modify the root logger). The root logger is initialized
+    with a standard format the given log level and, if specified the outputs to the
+    given file.
 
-    Args:
-        name: name to use in the log, if None, uses sys.argv[0]
-        file: if given, log to this destination in addition to stderr
-        lvl: set logging level
-        args: not used yet
+    The get a new logger for the given name is retrieved using the given name or
+    the invoking command if None. It is also set to the given logging leve and returned.
 
-    Returns:
-        The logger instance
-    """
-    if name is None:
-        name = sys.argv[0]
-    logger = logging.getLogger(name)
-    if lvl is None:
-        lvl = logging.INFO
-    logger.setLevel(lvl)
-    fmt = logging.Formatter('%(asctime)s|%(levelname)s|%(name)s|%(message)s')
-    hndlr = logging.StreamHandler(sys.stderr)
-    hndlr.setFormatter(fmt)
-    logger.addHandler(hndlr)
-    logger.propagate = False
-    if file:
-        hdnlr = logging.FileHandler(file)
-        hndlr.setFormatter(fmt)
-        logger.addHandler(hdnlr)
-    return logger
-
-
-def set_logger(name=None, file=None, lvl=None, args=None):
-    """
-    Create and return a logger instance and set the global logger.
-    If file is not given but args is given and has "outpref" parameter, log to
+    TODO: If file is not given but args is given and has "outpref" parameter, log to
     file "outpref.DATETIME.log" as well.
 
     Args:
-        name: name to use in the log, if None, uses sys.argv[0]
+        name: name to use in the log, if None, __name__
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
         args: not used yet
 
     Returns:
-        The logger instance
+        A logger instance for name (always the same instance for the same name)
     """
-    global logger
+
     if name is None:
         name = sys.argv[0]
-    if logger:
-        raise Exception("Odd, we should not have a logger yet?")
-    logger = make_logger(name=name, file=file, lvl=lvl, args=args)
+    if lvl is None:
+        lvl = logging.INFO
+    # get the root logger
+    rl = logging.getLogger()
+    # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
+    # handler for the file, if needed, only if the root logger has no handlers yet as well
+    addhandlers = []
+    fmt = logging.Formatter(LOGGING_FORMAT)
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    addhandlers.append(hndlr)
+    if file and len(logging.getLogger().handlers) == 0:
+        hndlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        addhandlers.append(hndlr)
+    logging.basicConfig(level=lvl, handlers=addhandlers)
+    # now get the handler for name
+    logger = logging.getLogger(name)
     return logger
 
 
-def ensurelogger():
-    """
-    Make sure the global logger is set to some logger. This should not be necessary
-    if the set_logger function is properly used, but guards against situations where
-    functions that require a logger are used without proper setting up the logger.
-
-    Returns:
-        A logger instance.
-    """
-    global logger
-    if not logger:
-        logger = set_logger()
-    return logger
-
-
-def run_start(logger=None):
+def run_start(logger=None, name=None, lvl=None):
     """
     Define time when running starts.
 
@@ -154,13 +130,13 @@ def run_start(logger=None):
     """
     global start
     if logger is None:
-        logger = ensurelogger()
+        logger = init_logger(name=name, lvl=lvl)
     logger.info("Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
     start = time.time()
     return start
 
 
-def run_stop(logger=None):
+def run_stop(logger=None, name=None):
     """
     Log and return formatted elapsed run time.
 
@@ -168,7 +144,7 @@ def run_stop(logger=None):
         tuple of formatted run time, run time in seconds
     """
     if logger is None:
-        logger = ensurelogger()
+        logger = init_logger(name=name)
     logger.info("Stpped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
     if start == 0:
         logger.warning("Run timing not set up properly, no time!")
