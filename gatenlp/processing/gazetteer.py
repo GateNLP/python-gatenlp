@@ -7,8 +7,8 @@ gazetteer lists.
 from collections import defaultdict
 # from dataclasses import dataclass
 from recordclass import structclass
-from gatenlp.utils import ensurelogger
 from gatenlp.processing.annotator import Annotator
+from gatenlp.utils import init_logger
 
 
 class Gazetteer(Annotator):
@@ -278,7 +278,7 @@ class TokenGazetteer:
             An iterable of Match if not matchfunc is specified, otherwise an iterable of what matchfunc
             returned for each match. The start/end fields of each Match are the token indices.
         """
-        logger = ensurelogger()
+        logger = init_logger(__name__)
         logger.debug("CALL")
         matches = []
         l = len(tokens)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
 <title>gatenlp.processing.executor API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -35,76 +35,107 @@ __pdoc__ = {
 
 class SerialCorpusExecutor:
     &#34;&#34;&#34;
-    Runs a pipeline on an iterable of documents and creates another iterable of documents.
-    If inplace=True, the original iterable must be an object that can be enumerated and where
-    each element can be accessed and replaced by its enumeration number: `doc=corpus[i]`
-    `corpus[i] = doc`.
+    Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
+    in turn, or on a source and destination, where each document from the source gets processed and all documents
+    the are the result of processing get appended to the destination.
     &#34;&#34;&#34;
     def __init__(self,
-                 input_corpus,
                  annotator,
-                 output_corpus=None,
-                 inplace=False,
+                 corpus=None,
+                 source=None,
+                 destination=None,
+                 readonly=False,
+                 exit_on_error=False
                  ):
         &#34;&#34;&#34;
-        Creates an Executor to run an annotator on an iterator of documents. If an output corpus is
-        specified, the returned documents are added to the output corpus and the inplace parameter is ignored.
+        Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
+        and no destination is specified,
+        the document passed on to the annotator must be returned by the annotator and gets stored back into the
+        corpus, unless readonly is True.
 
-        If no output corpus is specified, then if inplace is True, the processing result is stored back into
-        the input corpus which mast support setting an element by id. If the annotator returns a list of documents
-        or None, that is also stored back to where the original document was. In most cases, if documents should get
-        stored back, the Annotator should return the original document.
+        If a corpus is specified and a destination is specified, the corpus is iterated over in sequence and
+        documents are processed by the annotator and all documents returned by the annotator are appended to the
+        destination.
 
-        If no output corpus is specified and
-        inplace is False, the documents are processed, but the returned documents are discarded (this can be
-        useful if the annotator is really just something that is called for a side-effect like sending or storing).
+        If a document source is processed, the document gets processed and the annotator can return zero,
+        one or several documents which are appended to the destination unless readonly is set to True.
 
-        If an output corpus is specified, the returned document(s) are added one by one to it using the
-        `append` or `add` method of the corpus.
+        An exception is thrown if both a courpus and a source are specified.
 
         Args:
-            input_corpus: the source of documents to iterate over. If inplace is True and not output corpus is
-              specified this must all to assign the processing result back to the corpus, e.g. `corpus[i]=result`.
             annotator: the callable to run on each document. If this is an instance of Annotator, the additional
               methods start, finish, and reduce are called as appropriate
-            output_corpus: if specified the result documents are added to this one by one, if an annotator returns
-              a list, then the list elements are added. If the corpus has the method &#34;append&#34; it is used, otherwise
-              the method &#34;add&#34; is expected.
-            inplace: if no output corpus is specified and this is True, then results are assigned back to the
-              input corpus.
+            corpus: the corpus to process.
+            source: a document source to process. Corpus and source are mutually exclusive.
+            destination: if specified, the result documents are appended to the destination unless
+              readonly is True.
+            readonly: if True, nothing is saved back to the corpus or appended to the destination.
         &#34;&#34;&#34;
-        self.input_corpus = input_corpus
-        # check how we can add to the output corps
-        if output_corpus:
-            adder = getattr(output_corpus, &#34;append&#34;, None)
-            if adder is None:
-                adder = getattr(output_corpus, &#34;add&#34;, None)
-            if adder is None or not callable(adder):
-                raise Exception(&#34;Output corpus does not have a callable &#39;append&#39; or &#39;add&#39; method&#34;)
-            self.corpus_adder = adder
-        elif inplace:
-            adder = getattr(input_corpus, &#34;__setitem__&#34;, None)
-            if adder is None or not callable(adder):
-                raise Exception(&#34;Input corpus cannot be assigned to&#34;)
-        self.corpus_adder = adder
-        if output_corpus is None and inplace:
-            self.output_corpus = input_corpus
-        else:
-            self.output_corpus = output_corpus
-            self.inplace = False
+        if (corpus is None and source is None) or (corpus is not None and source is not None):
+            raise Exception(&#34;Exactly one of corpus or source must be specified&#34;)
+        self.corpus = corpus
+        self.source = source
+        self.destination = destination
         self.annotator = annotator
+        self.readonly = readonly
+        self.exit_on_error = exit_on_error
+        self.n_in = 0
+        self.n_none = 0  # number of None items from the corpus/source, ignored
+        self.n_out = 0
+        self.n_err = 0
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, &#34;start&#34;):
             self.annotator.init()
-        for idx, doc in enumerate(self.input_corpus):
-            ret = self.annotator(doc, **kwargs)
-            if self.inplace:   # we need to assign the result as it is back to the corpus
-                self.input_corpus[idx] = ret
-            elif self.output_corpus:
+        if self.corpus:
+            for idx, doc in enumerate(self.corpus):
+                self.n_in += 1
+                if doc is None:
+                    self.n_none += 1
+                    continue
+                try:
+                    ret = self.annotator(doc, **kwargs)
+                except Exception as ex:
+                    self.n_err += 1
+                    if self.exit_on_error:
+                        return
+                    else:
+                        continue
+                if self.destination is None:
+                    if id(ret) != id(doc):
+                        raise Exception(&#34;Cannot update corpus if Annotator does not return the processed document&#34;)
+                    self.corpus[idx] = doc
+                else:
+                    if ret is not None:
+                        if isinstance(ret, list):
+                            for d in ret:
+                                self.destination.append(d)
+                                self.n_out += 1
+                        else:
+                            self.destination.append(ret)
+                            self.n_out += 1
+        else:
+            for doc in self.source:
+                self.n_in += 1
+                if doc is None:
+                    self.n_none += 1
+                    continue
+                try:
+                    ret = self.annotator(doc, **kwargs)
+                except Exception as ex:
+                    self.n_err += 1
+                    if self.exit_on_error:
+                        return
+                    else:
+                        continue
                 if ret is not None:
-                    for d in ret:
-                        self.output_corpus.append(d)
+                    if isinstance(ret, list):
+                        for d in ret:
+                            self.destination.append(d)
+                            self.n_out += 1
+                    else:
+                        self.destination.append(ret)
+                        self.n_out += 1
         if _has_method(self.annotator, &#34;finish&#34;):
             rets = self.annotator.init()
             return rets
@@ -124,39 +155,36 @@ class SerialCorpusExecutor:
 <dl>
 <dt id="gatenlp.processing.executor.SerialCorpusExecutor"><code class="flex name class">
 <span>class <span class="ident">SerialCorpusExecutor</span></span>
-<span>(</span><span>input_corpus, annotator, output_corpus=None, inplace=False)</span>
+<span>(</span><span>annotator, corpus=None, source=None, destination=None, readonly=False, exit_on_error=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Runs a pipeline on an iterable of documents and creates another iterable of documents.
-If inplace=True, the original iterable must be an object that can be enumerated and where
-each element can be accessed and replaced by its enumeration number: <code>doc=corpus[i]</code>
-<code>corpus[i] = doc</code>.</p>
-<p>Creates an Executor to run an annotator on an iterator of documents. If an output corpus is
-specified, the returned documents are added to the output corpus and the inplace parameter is ignored.</p>
-<p>If no output corpus is specified, then if inplace is True, the processing result is stored back into
-the input corpus which mast support setting an element by id. If the annotator returns a list of documents
-or None, that is also stored back to where the original document was. In most cases, if documents should get
-stored back, the Annotator should return the original document.</p>
-<p>If no output corpus is specified and
-inplace is False, the documents are processed, but the returned documents are discarded (this can be
-useful if the annotator is really just something that is called for a side-effect like sending or storing).</p>
-<p>If an output corpus is specified, the returned document(s) are added one by one to it using the
-<code>append</code> or <code>add</code> method of the corpus.</p>
+<div class="desc"><p>Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
+in turn, or on a source and destination, where each document from the source gets processed and all documents
+the are the result of processing get appended to the destination.</p>
+<p>Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
+and no destination is specified,
+the document passed on to the annotator must be returned by the annotator and gets stored back into the
+corpus, unless readonly is True.</p>
+<p>If a corpus is specified and a destination is specified, the corpus is iterated over in sequence and
+documents are processed by the annotator and all documents returned by the annotator are appended to the
+destination.</p>
+<p>If a document source is processed, the document gets processed and the annotator can return zero,
+one or several documents which are appended to the destination unless readonly is set to True.</p>
+<p>An exception is thrown if both a courpus and a source are specified.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>input_corpus</code></strong></dt>
-<dd>the source of documents to iterate over. If inplace is True and not output corpus is
-specified this must all to assign the processing result back to the corpus, e.g. <code>corpus[i]=result</code>.</dd>
 <dt><strong><code>annotator</code></strong></dt>
 <dd>the callable to run on each document. If this is an instance of Annotator, the additional
 methods start, finish, and reduce are called as appropriate</dd>
-<dt><strong><code>output_corpus</code></strong></dt>
-<dd>if specified the result documents are added to this one by one, if an annotator returns
-a list, then the list elements are added. If the corpus has the method "append" it is used, otherwise
-the method "add" is expected.</dd>
-<dt><strong><code>inplace</code></strong></dt>
-<dd>if no output corpus is specified and this is True, then results are assigned back to the
-input corpus.</dd>
+<dt><strong><code>corpus</code></strong></dt>
+<dd>the corpus to process.</dd>
+<dt><strong><code>source</code></strong></dt>
+<dd>a document source to process. Corpus and source are mutually exclusive.</dd>
+<dt><strong><code>destination</code></strong></dt>
+<dd>if specified, the result documents are appended to the destination unless
+readonly is True.</dd>
+<dt><strong><code>readonly</code></strong></dt>
+<dd>if True, nothing is saved back to the corpus or appended to the destination.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -164,76 +192,107 @@ input corpus.</dd>
 </summary>
 <pre><code class="python">class SerialCorpusExecutor:
     &#34;&#34;&#34;
-    Runs a pipeline on an iterable of documents and creates another iterable of documents.
-    If inplace=True, the original iterable must be an object that can be enumerated and where
-    each element can be accessed and replaced by its enumeration number: `doc=corpus[i]`
-    `corpus[i] = doc`.
+    Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
+    in turn, or on a source and destination, where each document from the source gets processed and all documents
+    the are the result of processing get appended to the destination.
     &#34;&#34;&#34;
     def __init__(self,
-                 input_corpus,
                  annotator,
-                 output_corpus=None,
-                 inplace=False,
+                 corpus=None,
+                 source=None,
+                 destination=None,
+                 readonly=False,
+                 exit_on_error=False
                  ):
         &#34;&#34;&#34;
-        Creates an Executor to run an annotator on an iterator of documents. If an output corpus is
-        specified, the returned documents are added to the output corpus and the inplace parameter is ignored.
+        Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
+        and no destination is specified,
+        the document passed on to the annotator must be returned by the annotator and gets stored back into the
+        corpus, unless readonly is True.
 
-        If no output corpus is specified, then if inplace is True, the processing result is stored back into
-        the input corpus which mast support setting an element by id. If the annotator returns a list of documents
-        or None, that is also stored back to where the original document was. In most cases, if documents should get
-        stored back, the Annotator should return the original document.
+        If a corpus is specified and a destination is specified, the corpus is iterated over in sequence and
+        documents are processed by the annotator and all documents returned by the annotator are appended to the
+        destination.
 
-        If no output corpus is specified and
-        inplace is False, the documents are processed, but the returned documents are discarded (this can be
-        useful if the annotator is really just something that is called for a side-effect like sending or storing).
+        If a document source is processed, the document gets processed and the annotator can return zero,
+        one or several documents which are appended to the destination unless readonly is set to True.
 
-        If an output corpus is specified, the returned document(s) are added one by one to it using the
-        `append` or `add` method of the corpus.
+        An exception is thrown if both a courpus and a source are specified.
 
         Args:
-            input_corpus: the source of documents to iterate over. If inplace is True and not output corpus is
-              specified this must all to assign the processing result back to the corpus, e.g. `corpus[i]=result`.
             annotator: the callable to run on each document. If this is an instance of Annotator, the additional
               methods start, finish, and reduce are called as appropriate
-            output_corpus: if specified the result documents are added to this one by one, if an annotator returns
-              a list, then the list elements are added. If the corpus has the method &#34;append&#34; it is used, otherwise
-              the method &#34;add&#34; is expected.
-            inplace: if no output corpus is specified and this is True, then results are assigned back to the
-              input corpus.
+            corpus: the corpus to process.
+            source: a document source to process. Corpus and source are mutually exclusive.
+            destination: if specified, the result documents are appended to the destination unless
+              readonly is True.
+            readonly: if True, nothing is saved back to the corpus or appended to the destination.
         &#34;&#34;&#34;
-        self.input_corpus = input_corpus
-        # check how we can add to the output corps
-        if output_corpus:
-            adder = getattr(output_corpus, &#34;append&#34;, None)
-            if adder is None:
-                adder = getattr(output_corpus, &#34;add&#34;, None)
-            if adder is None or not callable(adder):
-                raise Exception(&#34;Output corpus does not have a callable &#39;append&#39; or &#39;add&#39; method&#34;)
-            self.corpus_adder = adder
-        elif inplace:
-            adder = getattr(input_corpus, &#34;__setitem__&#34;, None)
-            if adder is None or not callable(adder):
-                raise Exception(&#34;Input corpus cannot be assigned to&#34;)
-        self.corpus_adder = adder
-        if output_corpus is None and inplace:
-            self.output_corpus = input_corpus
-        else:
-            self.output_corpus = output_corpus
-            self.inplace = False
+        if (corpus is None and source is None) or (corpus is not None and source is not None):
+            raise Exception(&#34;Exactly one of corpus or source must be specified&#34;)
+        self.corpus = corpus
+        self.source = source
+        self.destination = destination
         self.annotator = annotator
+        self.readonly = readonly
+        self.exit_on_error = exit_on_error
+        self.n_in = 0
+        self.n_none = 0  # number of None items from the corpus/source, ignored
+        self.n_out = 0
+        self.n_err = 0
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, &#34;start&#34;):
             self.annotator.init()
-        for idx, doc in enumerate(self.input_corpus):
-            ret = self.annotator(doc, **kwargs)
-            if self.inplace:   # we need to assign the result as it is back to the corpus
-                self.input_corpus[idx] = ret
-            elif self.output_corpus:
+        if self.corpus:
+            for idx, doc in enumerate(self.corpus):
+                self.n_in += 1
+                if doc is None:
+                    self.n_none += 1
+                    continue
+                try:
+                    ret = self.annotator(doc, **kwargs)
+                except Exception as ex:
+                    self.n_err += 1
+                    if self.exit_on_error:
+                        return
+                    else:
+                        continue
+                if self.destination is None:
+                    if id(ret) != id(doc):
+                        raise Exception(&#34;Cannot update corpus if Annotator does not return the processed document&#34;)
+                    self.corpus[idx] = doc
+                else:
+                    if ret is not None:
+                        if isinstance(ret, list):
+                            for d in ret:
+                                self.destination.append(d)
+                                self.n_out += 1
+                        else:
+                            self.destination.append(ret)
+                            self.n_out += 1
+        else:
+            for doc in self.source:
+                self.n_in += 1
+                if doc is None:
+                    self.n_none += 1
+                    continue
+                try:
+                    ret = self.annotator(doc, **kwargs)
+                except Exception as ex:
+                    self.n_err += 1
+                    if self.exit_on_error:
+                        return
+                    else:
+                        continue
                 if ret is not None:
-                    for d in ret:
-                        self.output_corpus.append(d)
+                    if isinstance(ret, list):
+                        for d in ret:
+                            self.destination.append(d)
+                            self.n_out += 1
+                    else:
+                        self.destination.append(ret)
+                        self.n_out += 1
         if _has_method(self.annotator, &#34;finish&#34;):
             rets = self.annotator.init()
             return rets
@@ -266,7 +325,7 @@ input corpus.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
 </footer>
 </body>
 </html>

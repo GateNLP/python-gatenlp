@@ -1,0 +1,2378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<title>gatenlp.corpora API documentation</title>
+<meta name="description" content="Module that defines base and implementation classes for representing document collections …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.corpora</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that defines base and implementation classes for representing document collections.</p>
+<p>Corpus subclasses represent collections with a fixed number of documents, where each document can be
+accessed and stored by its index number, much like lists/arrays of documents.</p>
+<p>DocumentSource subclasses represent collections that can be iterated over, producing a sequence of Documents,
+one document a time.</p>
+<p>DocumentDestination subclasses represent collections that can receive Documents one document a time.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that defines base and implementation classes for representing document collections.
+
+Corpus subclasses represent collections with a fixed number of documents, where each document can be
+accessed and stored by its index number, much like lists/arrays of documents.
+
+DocumentSource subclasses represent collections that can be iterated over, producing a sequence of Documents,
+one document a time.
+
+DocumentDestination subclasses represent collections that can receive Documents one document a time.
+&#34;&#34;&#34;
+
+import os
+import random
+from abc import ABC, abstractmethod
+import numbers
+from gatenlp.serialization.default import read_lines_from
+from gatenlp.document import  Document
+
+__pdoc__ = {
+    &#34;Corpus.__getitem__&#34;: True,
+    &#34;Corpus.__setitem__&#34;: True,
+    &#34;Corpus.__len__&#34;: True,
+    &#34;DocumentSource.__iter__&#34;: True,
+}
+
+
+class Corpus(ABC):
+    &#34;&#34;&#34;
+    A corpus represents a collection of documents with a fixed number of elements which can be read and written
+    using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
+    the element is either a document or None.
+
+    NOTE: assigning None to a corpus removes the element from the corpus.
+
+    &#34;&#34;&#34;
+    @abstractmethod
+    def __getitem__(self, idx: int):
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus.
+
+        Args:
+            idx: the index of the document
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, key, value):
+        &#34;&#34;&#34;
+        A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
+        The item assigned must be a document or None.
+
+        Args:
+            idx: the index of the document
+            value: a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __len__(self):
+        &#34;&#34;&#34;
+        Returns the size of the corpus.
+        &#34;&#34;&#34;
+        pass
+
+
+class DocumentSource(ABC):
+    @abstractmethod
+    def __iter__(self):
+        return self
+
+
+class DocumentDestination(ABC):
+    @abstractmethod
+    def append(self, doc):
+        &#34;&#34;&#34;
+        A document destination must have the append method defined which is used to add a new document
+        to the destination.
+
+        Args:
+            doc: the document to add
+        &#34;&#34;&#34;
+        pass
+
+    def close(self):
+        &#34;&#34;&#34;
+        Must have a close method that is used to end writing and close the destination.
+        &#34;&#34;&#34;
+        pass
+
+
+class JsonLinesFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which reads one json serialization of a document from each line of the given file.
+    &#34;&#34;&#34;
+
+    def __init__(self, file):
+        &#34;&#34;&#34;
+        Create a JsonLinesFileSource.
+
+        Args:
+            file: the file path (a string) or an open file handle.
+        &#34;&#34;&#34;
+        self.file = file
+
+    def __iter__(self):
+        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+            for line in infp:
+                yield Document.load_mem(line, fmt=&#34;json&#34;)
+
+
+class JsonLinesFileDestination(DocumentDestination):
+    &#34;&#34;&#34;
+    Writes one line of JSON per document to the a single output file.
+    &#34;&#34;&#34;
+
+    def __init__(self, file):
+        &#34;&#34;&#34;
+
+        Args:
+            file: the file to write to. If it exsits, it gets overwritten without warning.
+               Expected to be a string or an open file handle.
+        &#34;&#34;&#34;
+        if isinstance(file, str):
+            self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
+        else:
+            self.fh = file
+        self.n = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.fh.close()
+
+    def append(self, doc):
+        &#34;&#34;&#34;
+        Append a document to the destination.
+
+        Args:
+            doc: the document
+        &#34;&#34;&#34;
+        self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
+        self.fh.write(&#34;\n&#34;)
+        self.n += 1
+
+    def close(self):
+        self.fh.close()
+
+
+def matching_paths(dirpath, exts=None, recursive=True, relative=True):
+    &#34;&#34;&#34;
+    Yields all relative file paths from dirpath which match the list of extensions
+    and which do not start with a dot.
+
+    Args:
+        dir: the directory to traverse
+        exts: a list of allowed extensions (inluding the dot)
+        recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
+          only paths from the top directory.
+        relative: if True (default), the paths are relative to the directory path
+    &#34;&#34;&#34;
+    if recursive:
+        for root, dirnames, filenames in os.walk(dirpath):
+            for fname in filenames:
+                if exts:
+                    for ext in exts:
+                        if fname.endswith(ext) and not fname.startswith(&#34;.&#34;):
+                            if relative:
+                                yield os.path.relpath(os.path.join(root, fname), dirpath)
+                            else:
+                                yield os.path.join(root, fname)
+                            break
+                else:
+                    if not fname.startswith(&#34;.&#34;):
+                        if relative:
+                            yield os.path.relpath(os.path.join(root, fname), dirpath)
+                        else:
+                            yield os.path.join(root, fname)
+    else:
+        for fname in os.listdir(dirpath):
+            full = os.path.join(dirpath, fname)
+            if not os.path.isfile(full) or fname.startswith(&#34;.&#34;):
+                pass
+            elif exts:
+                for ext in exts:
+                    if fname.endswith(ext):
+                        if relative:
+                            yield os.path.relpath(full, dirpath)
+                        else:
+                            yield full
+                        break
+            else:
+                if relative:
+                    yield os.path.relpath(full, dirpath)
+                else:
+                    yield full
+
+
+def make_file_path_fromidx(digits=1, levels=1):
+    &#34;&#34;&#34;
+    Creates a method that returns a file path for the given number of leading digits and levels.
+
+    Args:
+        digits: minimum number of digits to use for the path, any number with less digits will have leading zeros
+           added.
+        levels: how to split the original sequence of digits into a hierarchical path name. For example if digits=10
+           and levels=3, the generated function will convert the index number 23 into 0/000/000/023
+
+    Returns:
+        a function that takes doc and idx and return a path name (str)
+    &#34;&#34;&#34;
+    if not isinstance(digits, int) or not isinstance(levels, int) or digits &lt; 1 or levels &lt; 1 or digits &lt; levels:
+        raise Exception(f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;)
+
+    def file_path_fromidx(doc=None, idx=None):
+        if idx is None or not isinstance(idx, int) or idx &lt; 0:
+            raise Exception(&#34;Index must be an integer &gt;= 0&#34;)
+        per = int(digits/levels)
+        asstr = str(idx)
+        digs = max(0, digits-len(asstr))
+        tmp = &#34;0&#34; * digs
+        tmp += str(idx)
+        path = &#34;&#34;
+        fromdigit = len(tmp) - per
+        todigit = len(tmp)
+        for lvl in range(levels-1):
+            path = tmp[fromdigit:todigit] + path
+            # print(&#34;per=&#34;, per, &#34;from=&#34;, fromdigit, &#34;to=&#34;, todigit, &#34;sec=&#34;, tmp[fromdigit:todigit])
+            path = &#34;/&#34; + path
+            fromdigit = fromdigit - per
+            todigit = todigit - per
+        path = tmp[:todigit] + path
+        return path
+    return file_path_fromidx
+
+
+def debug_maker(var1=22):
+
+    def debug_closure():
+        print(var1)
+    return debug_closure
+
+
+class DirFilesSource(DocumentSource):
+
+    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
+                 fmt=None, recursive=True, sort=False,
+                 every_n=1, every_n_k=0,
+                 ):
+        &#34;&#34;&#34;
+        Create a DirFilesSource.
+
+        Args:
+            dirpath: the directory that contains the file to load as documents.
+            paths:  if not None, must be an iterable of relate file paths to load from the directory
+            paths_from: if not None, must be a file or URL to load a list of file paths from
+            exts: an iterable of allowed file extensions or file extension regexps
+            fmt: the format to use for loading files. This is only useful if all files have the same format
+               but the file extensions does not indicate the format.
+            recursive: recursively include paths from all subdirectories as well
+            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.
+            every_n: only yield every nth document (default 1: every document)
+            every_n_k: start with that index, before yielding every_n th document (default 0: start at beginning)
+        &#34;&#34;&#34;
+        self.dirpath = dirpath
+        if paths is not None and paths_from is not None:
+            raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
+        if paths is not None:
+            self.paths = paths
+        elif paths_from is not None:
+            self.paths = []
+            for p in read_lines_from(paths_from):
+                self.paths.append(p.rstrip(&#34;\n\r&#34;))
+        else:
+            self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
+        if sort or every_n &gt; 1:
+            self.paths.sort()
+        if every_n &gt; 1:
+            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.fmt = fmt
+
+    def __iter__(self):
+        &#34;&#34;&#34;
+        Yield the next document from the source.
+        &#34;&#34;&#34;
+        for p in self.paths:
+            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+
+
+class DirFilesDestination(DocumentDestination):
+    &#34;&#34;&#34;
+    A destination where each document is stored in a file in a directory or directory tree in some
+    known serialization format. The filename or path of the file can be derived from a document feature,
+    the document name, the running number of file added, or any function that can derive a file path
+    from the document and the running number.
+
+
+    &#34;&#34;&#34;
+    def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
+        &#34;&#34;&#34;
+        Create a destination to store documents in files inside a directory or directory tree.
+
+        Args:
+            dirpath: the directory to contain the files
+            path_from: one of options listed below. If a string is used as a path name, then the forward slash
+                 is always used as the directory path separator, on all systems!
+               * &#34;idx&#34;: just use the index/running number of the added document as the base name
+               * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
+               * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
+                   pathname of 2 levels, so 10:2 would mean the first 5 digits are for the name of the subdirectory
+                   and the second 5 digits are for the file base name. 10:3 would have for levels, the first
+                   subdirectory level with 1 digit, the next two with 3 digits and the remaining 3 digits for the
+                   filename.
+                   NOTE: &#34;idx&#34; by itself is equivalent to idx:1:1
+                * &#34;feature:fname&#34;: use the document feature with the feature name fname as a relative path as is
+                   but add the extension
+                * &#34;name&#34;: use the document name as the relative path, but add extension.
+                * somefunction: a function that should return the pathname (without extension) and should take two
+                   keyword arguments: doc (the document) and idx (the running index of the document).
+            ext: the file extension to add to all generated file names
+            fmt: the format to use for serializing the document, if None, will try to determine from the extension.
+        &#34;&#34;&#34;
+        if not os.path.isdir(dirpath):
+            raise Exception(&#34;Not a directory: &#34;, dirpath)
+        self.dirpath = dirpath
+        self.idx = 0
+        if path_from.startswith(&#34;idx&#34;):
+            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
+            if len(rest) == 0:
+                digits = 1
+                levels = 1
+            else:
+                parms = rest.split(&#34;:&#34;)
+                parms.append(1)
+                digits, levels = parms[1:3]
+                digits = int(digits)
+                levels = int(levels)
+            self.file_path_maker = make_file_path_fromidx(digits, levels)
+        elif path_from.startswith(&#34;feature&#34;):
+            _, fname = path_from.split(&#34;:&#34;)
+            self.file_path_maker = lambda doc: doc.features[fname]
+        elif path_from == &#34;name&#34;:
+            self.file_path_maker = lambda doc: doc.name
+        elif callable(path_from):
+            self.file_path_maker = path_from
+        else:
+            raise Exception(f&#34;Not allowed for path_from: {path_from}&#34;)
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.ext = ext
+        self.fmt = fmt
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, typ, value, traceback):
+        pass
+
+    def append(self, doc):
+        path = self.file_path_maker(doc=doc, idx=self.idx)
+        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.join(self.dirpath, path) + self.ext
+        # check if we need to create the directories. For this we first need to get the directories part of the path,
+        # which is everything left of the last slash
+        if os.path.sep in path:
+            dirs = path[:path.rindex(os.path.sep)]
+            if not os.path.exists(os.path.normpath(dirs)):
+                os.makedirs(dirs)
+        Document.save(doc, path, fmt=self.fmt)
+        self.idx += 1
+
+    def close(self):
+        pass
+
+
+class DirFilesCorpus(Corpus):
+    &#34;&#34;&#34;
+    A corpus representing all files in a directory that match the given extension.
+    &#34;&#34;&#34;
+    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
+        &#34;&#34;&#34;
+        Creates the DirCorpus.
+
+        Args:
+            dirpath: the directory path
+            ext: the file extension that must be matched by all files for the corpus
+            fmt: the format to use, if None, will be determined from the extension
+            recursive: if True (default) all matching files from all subdirectories are included
+        &#34;&#34;&#34;
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.dirpath = dirpath
+        self.ext = ext
+        self.fmt = fmt
+        self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
+        self.size = len(self.paths)
+        pass
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        assert isinstance(idx, int)
+        path = self.paths[idx]
+        doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        return doc
+
+    def __setitem__(self, idx, doc):
+        assert isinstance(idx, int)
+        assert isinstance(doc, Document)
+        path = self.paths[idx]
+        doc.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+
+
+class NumberedDirFilesCorpus:
+    &#34;&#34;&#34;
+    A corpus that represents files from a (nested) directory, where the filename is derived from
+    the index number of the document. This corpus can represent missing elements as None, both
+    on reading (when the corresponding expected document does not exist) and on writing (the
+    corresponding document gets deleted).
+    &#34;&#34;&#34;
+
+    def __init__(self, dirpath,  digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
+        &#34;&#34;&#34;
+        Creates the DirCorpus.
+
+        Args:
+            dirpath: the directory path
+            digits: the number of digits to use for the file path
+            levels: the number of levels to split the digits up which are then used as subdire names.
+            ext: the file extension used for all files in the corpus
+            fmt: the format to use, if None, determined from the extension
+            size: the size of the corpus. This can be used to create a corpus from an empty directory
+              to contain only None elements initially.  It can also be used to limit access to only the
+              first size elements if the directory contains more documents.
+        &#34;&#34;&#34;
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.dirpath = dirpath
+        self.ext = ext
+        self.fmt = fmt
+        self.size = size
+        self.file_path_maker = make_file_path_fromidx(digits, levels)
+        pass
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        assert isinstance(idx, int)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if os.path.exists(path):
+            doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        else:
+            doc = None
+        return doc
+
+    def __setitem__(self, idx, doc):
+        assert isinstance(idx, int)
+        assert doc is None or isinstance(doc, Document)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if doc is None:
+            if os.path.exists(path):
+                os.remove(path)
+        else:
+            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+
+
+class TsvFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A TsvFileSource is a DocumentSource which is a single TSV file with a fixed number of tab-separated
+    values per row. Each document in sequence is created from the text in one of the columns and
+    document features can be set from arbitrary columns as well.
+    &#34;&#34;&#34;
+    def __init__(self, source, hdr=True, text_col=None, feature_cols=None):
+        &#34;&#34;&#34;
+        Creates the TsvFileSource.
+
+        Args:
+            source: a file path or URL
+            hdr: if True (default), expects a header line with the column names, if a list, should be the list
+              of column names, if False/None, no header line is expected.
+            text_col: the column which contains the text for creating the document. Either the column number,
+              or the name of the column (only possible if there is a header line)
+            feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
+              column names of where to get the feature value from.
+        &#34;&#34;&#34;
+        assert text_col is not None and isinstance(text_col, str)
+        self.hdr = hdr
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = source
+        self.n = 0
+        self.hdr2col = {}
+
+    def __iter__(self):
+        reader = read_lines_from(self.source)
+        if self.hdr == True and self.n == 0:
+            self.n += 1
+            self.hdr = next(reader).rstrip(&#34;\n\r&#34;).split(&#34;\t&#34;)
+        if self.hdr:
+            self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
+        for line in reader:
+            fields = line.split(&#34;\t&#34;)
+            if isinstance(self.text_col, int):
+                text = fields[self.text_col]
+            else:
+                text = fields[self.hdr2col[self.text_col]]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colid in self.feature_cols.items():
+                    if isinstance(colid, int):
+                        value = fields[colid]
+                    else:
+                        value = fields[self.hdr2col[colid]]
+                    doc.features[fname] = value
+            self.n += 1
+            yield doc
+
+
+class PandasDfSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which creates documents from the text in some data frame column for each row, and
+    sets features from arbitrary columns in the row.
+    &#34;&#34;&#34;
+    def __init__(self, df, text_col=None, feature_cols=None):
+        &#34;&#34;&#34;
+        Creates a PandasDfSource.
+
+        Args:
+            df: the data frae
+            text_col:  the name of the column that contains the text
+            feature_cols: a dictionary that maps document feature names to column names of where to get the
+               feature value from (default: None)
+        &#34;&#34;&#34;
+        assert text_col is not None
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = df
+        self.reader = df.iterrows()
+        self.n = 0
+
+    def __iter__(self):
+        for _, row in self.reader:
+            text = row[self.text_col]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colname in self.feature_cols.items():
+                    value = row[colname]
+                    doc.features[fname] = value
+            self.n += 1
+            yield doc
+
+
+class EveryNthCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to only every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc.
+
+    This is useful to access a subset of documents from a corpus from n different concurrent
+    processes (in that case, the wrapped corpus must allow concurrent access!) or
+    split a corpus into n subsets for other purposes.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, every_n, every_n_k):
+        &#34;&#34;&#34;
+        Create an EveryNthCorpus.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be &lt; n
+        &#34;&#34;&#34;
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception(&#34;n and k must be integers.&#34;)
+        if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
+            raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.corpus = corpus
+        # precalculate the length
+        otherlen = len(corpus)
+        # the size of this dataset is int((otherlen + (n-k) - 1)/k)
+        self.len = int((otherlen + (every_n - every_n_k) - 1) / every_n_k)
+
+    def __getitem__(self, idx):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        return self.corpus[idx * self.every_n + self.every_n_k]
+
+    def __setitem__(self, idx, doc):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[idx * self.every_n + self.every_n_k] = doc
+
+    def __len__(self):
+        return self.len
+
+
+class EveryNthSource(DocumentSource):
+    &#34;&#34;&#34;
+    Wraps a document source to only return every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
+    one client at the same time!
+    &#34;&#34;&#34;
+
+    def __init__(self, source, every_n, every_n_k):
+        &#34;&#34;&#34;
+        Create an EveryNthSource.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be &lt; n
+        &#34;&#34;&#34;
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception(&#34;n and k must be integers.&#34;)
+        if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
+            raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.source = source
+
+    def __iter__(self):
+        idx = 0
+        for doc in self.source:
+            if (idx-self.every_n_k) % self.every_n == 0:
+                yield doc
+
+
+class ShuffledCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to reorder the documents in the corpus randomly.
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, seed=None):
+        &#34;&#34;&#34;
+        Create a ShuffledCorpus wrapper.
+
+        Args:
+            seed: if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+                If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+                and whatever the current state of the random generator is is used. If None, no shuffling is
+                carried out. If this is None or not an integer, same as 0.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.corpus = corpus
+        self.seed = seed
+        self.idxs = list(range(len(corpus)))
+        self.shuffle(seed)
+
+    def shuffle(self, seed=0):
+        &#34;&#34;&#34;
+        Shuffle instance list order,
+        :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+        If seed is None, no shuffling is carried out.
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+            if seed != -1:
+                if seed == 0:
+                    random.seed()
+                else:
+                    random.seed(seed)
+            random.shuffle(self.idxs)
+        else:  # not an integer seed: None or some other type
+            # same as seed 0
+            random.seed()
+            random.shuffle(self.idxs)
+
+    def __getitem__(self, idx):
+        return self.corpus[self.idxs[idx]]
+
+    def __setitem__(self, idx, doc):
+        # TODO: refactor into separate utility function
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[self.idxs[idx]] = doc
+
+    def __len__(self):
+        return len(self.idxs)
+
+
+class CachedCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+    cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+    files. This wrapper caches documents when they are written to, but this can be changed to caching on read.
+    &#34;&#34;&#34;
+
+    def __init__(self, basecorpus, cachecorpus, cacheonread=False):
+        &#34;&#34;&#34;
+        Creates a cached corpus.
+        This accesses data from the cachecorpus, if it does not exist in there (entry is,
+        None) will instead fall back to the base corpus.
+
+        This cached corpus can be set up to cache on read or cache on write.
+
+        Args:
+            basedataset: any corpus
+            cachedataset: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+              or just an in-memory list or array.
+            cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
+                Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+                of processing efficiently.
+        &#34;&#34;&#34;
+        assert len(cachecorpus) == len(basecorpus)
+        self.is_writable = True
+        self.basecorpus = basecorpus
+        self.cachecorpus = cachecorpus
+        self.cacheonread = cacheonread
+
+    def __len__(self):
+        return len(self.basecorpus)
+
+    def __getitem__(self, index):
+        tmp = self.cachecorpus[index]
+        if tmp is None:
+            tmp = self.basecorpus
+            if self.cacheonread:
+                self[index] = tmp
+        return tmp
+
+    def __setitem__(self, index, value):
+        self.cachecorpus[index] = value</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gatenlp.corpora.debug_maker"><code class="name flex">
+<span>def <span class="ident">debug_maker</span></span>(<span>var1=22)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def debug_maker(var1=22):
+
+    def debug_closure():
+        print(var1)
+    return debug_closure</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.make_file_path_fromidx"><code class="name flex">
+<span>def <span class="ident">make_file_path_fromidx</span></span>(<span>digits=1, levels=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a method that returns a file path for the given number of leading digits and levels.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>digits</code></strong></dt>
+<dd>minimum number of digits to use for the path, any number with less digits will have leading zeros
+added.</dd>
+<dt><strong><code>levels</code></strong></dt>
+<dd>how to split the original sequence of digits into a hierarchical path name. For example if digits=10
+and levels=3, the generated function will convert the index number 23 into 0/000/000/023</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a function that takes doc and idx and return a path name (str)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_file_path_fromidx(digits=1, levels=1):
+    &#34;&#34;&#34;
+    Creates a method that returns a file path for the given number of leading digits and levels.
+
+    Args:
+        digits: minimum number of digits to use for the path, any number with less digits will have leading zeros
+           added.
+        levels: how to split the original sequence of digits into a hierarchical path name. For example if digits=10
+           and levels=3, the generated function will convert the index number 23 into 0/000/000/023
+
+    Returns:
+        a function that takes doc and idx and return a path name (str)
+    &#34;&#34;&#34;
+    if not isinstance(digits, int) or not isinstance(levels, int) or digits &lt; 1 or levels &lt; 1 or digits &lt; levels:
+        raise Exception(f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;)
+
+    def file_path_fromidx(doc=None, idx=None):
+        if idx is None or not isinstance(idx, int) or idx &lt; 0:
+            raise Exception(&#34;Index must be an integer &gt;= 0&#34;)
+        per = int(digits/levels)
+        asstr = str(idx)
+        digs = max(0, digits-len(asstr))
+        tmp = &#34;0&#34; * digs
+        tmp += str(idx)
+        path = &#34;&#34;
+        fromdigit = len(tmp) - per
+        todigit = len(tmp)
+        for lvl in range(levels-1):
+            path = tmp[fromdigit:todigit] + path
+            # print(&#34;per=&#34;, per, &#34;from=&#34;, fromdigit, &#34;to=&#34;, todigit, &#34;sec=&#34;, tmp[fromdigit:todigit])
+            path = &#34;/&#34; + path
+            fromdigit = fromdigit - per
+            todigit = todigit - per
+        path = tmp[:todigit] + path
+        return path
+    return file_path_fromidx</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.matching_paths"><code class="name flex">
+<span>def <span class="ident">matching_paths</span></span>(<span>dirpath, exts=None, recursive=True, relative=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yields all relative file paths from dirpath which match the list of extensions
+and which do not start with a dot.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dir</code></strong></dt>
+<dd>the directory to traverse</dd>
+<dt><strong><code>exts</code></strong></dt>
+<dd>a list of allowed extensions (inluding the dot)</dd>
+<dt><strong><code>recursive</code></strong></dt>
+<dd>if True (default) include all matching paths from all subdirectories as well, otherwise
+only paths from the top directory.</dd>
+<dt><strong><code>relative</code></strong></dt>
+<dd>if True (default), the paths are relative to the directory path</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def matching_paths(dirpath, exts=None, recursive=True, relative=True):
+    &#34;&#34;&#34;
+    Yields all relative file paths from dirpath which match the list of extensions
+    and which do not start with a dot.
+
+    Args:
+        dir: the directory to traverse
+        exts: a list of allowed extensions (inluding the dot)
+        recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
+          only paths from the top directory.
+        relative: if True (default), the paths are relative to the directory path
+    &#34;&#34;&#34;
+    if recursive:
+        for root, dirnames, filenames in os.walk(dirpath):
+            for fname in filenames:
+                if exts:
+                    for ext in exts:
+                        if fname.endswith(ext) and not fname.startswith(&#34;.&#34;):
+                            if relative:
+                                yield os.path.relpath(os.path.join(root, fname), dirpath)
+                            else:
+                                yield os.path.join(root, fname)
+                            break
+                else:
+                    if not fname.startswith(&#34;.&#34;):
+                        if relative:
+                            yield os.path.relpath(os.path.join(root, fname), dirpath)
+                        else:
+                            yield os.path.join(root, fname)
+    else:
+        for fname in os.listdir(dirpath):
+            full = os.path.join(dirpath, fname)
+            if not os.path.isfile(full) or fname.startswith(&#34;.&#34;):
+                pass
+            elif exts:
+                for ext in exts:
+                    if fname.endswith(ext):
+                        if relative:
+                            yield os.path.relpath(full, dirpath)
+                        else:
+                            yield full
+                        break
+            else:
+                if relative:
+                    yield os.path.relpath(full, dirpath)
+                else:
+                    yield full</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.corpora.CachedCorpus"><code class="flex name class">
+<span>class <span class="ident">CachedCorpus</span></span>
+<span>(</span><span>basecorpus, cachecorpus, cacheonread=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+files. This wrapper caches documents when they are written to, but this can be changed to caching on read.</p>
+<p>Creates a cached corpus.
+This accesses data from the cachecorpus, if it does not exist in there (entry is,
+None) will instead fall back to the base corpus.</p>
+<p>This cached corpus can be set up to cache on read or cache on write.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>basedataset</code></strong></dt>
+<dd>any corpus</dd>
+<dt><strong><code>cachedataset</code></strong></dt>
+<dd>any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+or just an in-memory list or array.</dd>
+<dt><strong><code>cacheonread</code></strong></dt>
+<dd>if True, writes to the cache as soon as an item has been read from the base dataset.
+Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+of processing efficiently.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CachedCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+    cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+    files. This wrapper caches documents when they are written to, but this can be changed to caching on read.
+    &#34;&#34;&#34;
+
+    def __init__(self, basecorpus, cachecorpus, cacheonread=False):
+        &#34;&#34;&#34;
+        Creates a cached corpus.
+        This accesses data from the cachecorpus, if it does not exist in there (entry is,
+        None) will instead fall back to the base corpus.
+
+        This cached corpus can be set up to cache on read or cache on write.
+
+        Args:
+            basedataset: any corpus
+            cachedataset: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+              or just an in-memory list or array.
+            cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
+                Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+                of processing efficiently.
+        &#34;&#34;&#34;
+        assert len(cachecorpus) == len(basecorpus)
+        self.is_writable = True
+        self.basecorpus = basecorpus
+        self.cachecorpus = cachecorpus
+        self.cacheonread = cacheonread
+
+    def __len__(self):
+        return len(self.basecorpus)
+
+    def __getitem__(self, index):
+        tmp = self.cachecorpus[index]
+        if tmp is None:
+            tmp = self.basecorpus
+            if self.cacheonread:
+                self[index] = tmp
+        return tmp
+
+    def __setitem__(self, index, value):
+        self.cachecorpus[index] = value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.Corpus.__getitem__" href="#gatenlp.corpora.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__len__" href="#gatenlp.corpora.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__setitem__" href="#gatenlp.corpora.Corpus.__setitem__">__setitem__</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.Corpus"><code class="flex name class">
+<span>class <span class="ident">Corpus</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus represents a collection of documents with a fixed number of elements which can be read and written
+using an index number, e.g. <code>doc = corpus[2]</code> and <code>corpus[2] = doc</code>. For each index in the allowed range,
+the element is either a document or None.</p>
+<p>NOTE: assigning None to a corpus removes the element from the corpus.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Corpus(ABC):
+    &#34;&#34;&#34;
+    A corpus represents a collection of documents with a fixed number of elements which can be read and written
+    using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
+    the element is either a document or None.
+
+    NOTE: assigning None to a corpus removes the element from the corpus.
+
+    &#34;&#34;&#34;
+    @abstractmethod
+    def __getitem__(self, idx: int):
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus.
+
+        Args:
+            idx: the index of the document
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, key, value):
+        &#34;&#34;&#34;
+        A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
+        The item assigned must be a document or None.
+
+        Args:
+            idx: the index of the document
+            value: a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __len__(self):
+        &#34;&#34;&#34;
+        Returns the size of the corpus.
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.CachedCorpus" href="#gatenlp.corpora.CachedCorpus">CachedCorpus</a></li>
+<li><a title="gatenlp.corpora.DirFilesCorpus" href="#gatenlp.corpora.DirFilesCorpus">DirFilesCorpus</a></li>
+<li><a title="gatenlp.corpora.EveryNthCorpus" href="#gatenlp.corpora.EveryNthCorpus">EveryNthCorpus</a></li>
+<li><a title="gatenlp.corpora.ShuffledCorpus" href="#gatenlp.corpora.ShuffledCorpus">ShuffledCorpus</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.Corpus.__getitem__"><code class="name flex">
+<span>def <span class="ident">__getitem__</span></span>(<span>self, idx: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrieve a document from the corpus.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>idx</code></strong></dt>
+<dd>the index of the document</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a document or None</p>
+<h2 id="throws">Throws</h2>
+<p>exception if the index idx does not exist in the corpus</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def __getitem__(self, idx: int):
+    &#34;&#34;&#34;
+    Retrieve a document from the corpus.
+
+    Args:
+        idx: the index of the document
+
+    Returns:
+        a document or None
+
+    Throws:
+        exception if the index idx does not exist in the corpus
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.Corpus.__len__"><code class="name flex">
+<span>def <span class="ident">__len__</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the size of the corpus.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def __len__(self):
+    &#34;&#34;&#34;
+    Returns the size of the corpus.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.Corpus.__setitem__"><code class="name flex">
+<span>def <span class="ident">__setitem__</span></span>(<span>self, key, value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus object must allow setting an item by its idx, e.g. <code>mycorpus[2] = doc</code>
+The item assigned must be a document or None.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>idx</code></strong></dt>
+<dd>the index of the document</dd>
+<dt><strong><code>value</code></strong></dt>
+<dd>a document or None</dd>
+</dl>
+<h2 id="throws">Throws</h2>
+<p>exception if the index idx does not exist in the corpus</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def __setitem__(self, key, value):
+    &#34;&#34;&#34;
+    A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
+    The item assigned must be a document or None.
+
+    Args:
+        idx: the index of the document
+        value: a document or None
+
+    Throws:
+        exception if the index idx does not exist in the corpus
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.DirFilesCorpus"><code class="flex name class">
+<span>class <span class="ident">DirFilesCorpus</span></span>
+<span>(</span><span>dirpath, ext='bdocjs', fmt=None, recursive=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus representing all files in a directory that match the given extension.</p>
+<p>Creates the DirCorpus.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dirpath</code></strong></dt>
+<dd>the directory path</dd>
+<dt><strong><code>ext</code></strong></dt>
+<dd>the file extension that must be matched by all files for the corpus</dd>
+<dt><strong><code>fmt</code></strong></dt>
+<dd>the format to use, if None, will be determined from the extension</dd>
+<dt><strong><code>recursive</code></strong></dt>
+<dd>if True (default) all matching files from all subdirectories are included</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DirFilesCorpus(Corpus):
+    &#34;&#34;&#34;
+    A corpus representing all files in a directory that match the given extension.
+    &#34;&#34;&#34;
+    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
+        &#34;&#34;&#34;
+        Creates the DirCorpus.
+
+        Args:
+            dirpath: the directory path
+            ext: the file extension that must be matched by all files for the corpus
+            fmt: the format to use, if None, will be determined from the extension
+            recursive: if True (default) all matching files from all subdirectories are included
+        &#34;&#34;&#34;
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.dirpath = dirpath
+        self.ext = ext
+        self.fmt = fmt
+        self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
+        self.size = len(self.paths)
+        pass
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        assert isinstance(idx, int)
+        path = self.paths[idx]
+        doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        return doc
+
+    def __setitem__(self, idx, doc):
+        assert isinstance(idx, int)
+        assert isinstance(doc, Document)
+        path = self.paths[idx]
+        doc.save(os.path.join(self.dirpath, path), fmt=self.fmt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.Corpus.__getitem__" href="#gatenlp.corpora.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__len__" href="#gatenlp.corpora.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__setitem__" href="#gatenlp.corpora.Corpus.__setitem__">__setitem__</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.DirFilesDestination"><code class="flex name class">
+<span>class <span class="ident">DirFilesDestination</span></span>
+<span>(</span><span>dirpath, path_from='idx', ext='bdocjs', fmt=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A destination where each document is stored in a file in a directory or directory tree in some
+known serialization format. The filename or path of the file can be derived from a document feature,
+the document name, the running number of file added, or any function that can derive a file path
+from the document and the running number.</p>
+<p>Create a destination to store documents in files inside a directory or directory tree.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dirpath</code></strong></dt>
+<dd>the directory to contain the files</dd>
+<dt><strong><code>path_from</code></strong></dt>
+<dd>one of options listed below. If a string is used as a path name, then the forward slash
+is always used as the directory path separator, on all systems!
+* "idx": just use the index/running number of the added document as the base name
+* "idx:5": use the index/running number with at least 5 digits in the name.
+* "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
+pathname of 2 levels, so 10:2 would mean the first 5 digits are for the name of the subdirectory
+and the second 5 digits are for the file base name. 10:3 would have for levels, the first
+subdirectory level with 1 digit, the next two with 3 digits and the remaining 3 digits for the
+filename.
+NOTE: "idx" by itself is equivalent to idx:1:1
+* "feature:fname": use the document feature with the feature name fname as a relative path as is
+but add the extension
+* "name": use the document name as the relative path, but add extension.
+* somefunction: a function that should return the pathname (without extension) and should take two
+keyword arguments: doc (the document) and idx (the running index of the document).</dd>
+<dt><strong><code>ext</code></strong></dt>
+<dd>the file extension to add to all generated file names</dd>
+<dt><strong><code>fmt</code></strong></dt>
+<dd>the format to use for serializing the document, if None, will try to determine from the extension.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DirFilesDestination(DocumentDestination):
+    &#34;&#34;&#34;
+    A destination where each document is stored in a file in a directory or directory tree in some
+    known serialization format. The filename or path of the file can be derived from a document feature,
+    the document name, the running number of file added, or any function that can derive a file path
+    from the document and the running number.
+
+
+    &#34;&#34;&#34;
+    def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
+        &#34;&#34;&#34;
+        Create a destination to store documents in files inside a directory or directory tree.
+
+        Args:
+            dirpath: the directory to contain the files
+            path_from: one of options listed below. If a string is used as a path name, then the forward slash
+                 is always used as the directory path separator, on all systems!
+               * &#34;idx&#34;: just use the index/running number of the added document as the base name
+               * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
+               * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
+                   pathname of 2 levels, so 10:2 would mean the first 5 digits are for the name of the subdirectory
+                   and the second 5 digits are for the file base name. 10:3 would have for levels, the first
+                   subdirectory level with 1 digit, the next two with 3 digits and the remaining 3 digits for the
+                   filename.
+                   NOTE: &#34;idx&#34; by itself is equivalent to idx:1:1
+                * &#34;feature:fname&#34;: use the document feature with the feature name fname as a relative path as is
+                   but add the extension
+                * &#34;name&#34;: use the document name as the relative path, but add extension.
+                * somefunction: a function that should return the pathname (without extension) and should take two
+                   keyword arguments: doc (the document) and idx (the running index of the document).
+            ext: the file extension to add to all generated file names
+            fmt: the format to use for serializing the document, if None, will try to determine from the extension.
+        &#34;&#34;&#34;
+        if not os.path.isdir(dirpath):
+            raise Exception(&#34;Not a directory: &#34;, dirpath)
+        self.dirpath = dirpath
+        self.idx = 0
+        if path_from.startswith(&#34;idx&#34;):
+            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
+            if len(rest) == 0:
+                digits = 1
+                levels = 1
+            else:
+                parms = rest.split(&#34;:&#34;)
+                parms.append(1)
+                digits, levels = parms[1:3]
+                digits = int(digits)
+                levels = int(levels)
+            self.file_path_maker = make_file_path_fromidx(digits, levels)
+        elif path_from.startswith(&#34;feature&#34;):
+            _, fname = path_from.split(&#34;:&#34;)
+            self.file_path_maker = lambda doc: doc.features[fname]
+        elif path_from == &#34;name&#34;:
+            self.file_path_maker = lambda doc: doc.name
+        elif callable(path_from):
+            self.file_path_maker = path_from
+        else:
+            raise Exception(f&#34;Not allowed for path_from: {path_from}&#34;)
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.ext = ext
+        self.fmt = fmt
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, typ, value, traceback):
+        pass
+
+    def append(self, doc):
+        path = self.file_path_maker(doc=doc, idx=self.idx)
+        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.join(self.dirpath, path) + self.ext
+        # check if we need to create the directories. For this we first need to get the directories part of the path,
+        # which is everything left of the last slash
+        if os.path.sep in path:
+            dirs = path[:path.rindex(os.path.sep)]
+            if not os.path.exists(os.path.normpath(dirs)):
+                os.makedirs(dirs)
+        Document.save(doc, path, fmt=self.fmt)
+        self.idx += 1
+
+    def close(self):
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentDestination" href="#gatenlp.corpora.DocumentDestination">DocumentDestination</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.DocumentDestination" href="#gatenlp.corpora.DocumentDestination">DocumentDestination</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.DocumentDestination.append" href="#gatenlp.corpora.DocumentDestination.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.DocumentDestination.close" href="#gatenlp.corpora.DocumentDestination.close">close</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.DirFilesSource"><code class="flex name class">
+<span>class <span class="ident">DirFilesSource</span></span>
+<span>(</span><span>dirpath, paths=None, paths_from=None, exts=None, fmt=None, recursive=True, sort=False, every_n=1, every_n_k=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Create a DirFilesSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dirpath</code></strong></dt>
+<dd>the directory that contains the file to load as documents.</dd>
+<dt><strong><code>paths</code></strong></dt>
+<dd>if not None, must be an iterable of relate file paths to load from the directory</dd>
+<dt><strong><code>paths_from</code></strong></dt>
+<dd>if not None, must be a file or URL to load a list of file paths from</dd>
+<dt><strong><code>exts</code></strong></dt>
+<dd>an iterable of allowed file extensions or file extension regexps</dd>
+<dt><strong><code>fmt</code></strong></dt>
+<dd>the format to use for loading files. This is only useful if all files have the same format
+but the file extensions does not indicate the format.</dd>
+<dt><strong><code>recursive</code></strong></dt>
+<dd>recursively include paths from all subdirectories as well</dd>
+<dt><strong><code>sort</code></strong></dt>
+<dd>sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.</dd>
+<dt><strong><code>every_n</code></strong></dt>
+<dd>only yield every nth document (default 1: every document)</dd>
+<dt><strong><code>every_n_k</code></strong></dt>
+<dd>start with that index, before yielding every_n th document (default 0: start at beginning)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DirFilesSource(DocumentSource):
+
+    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
+                 fmt=None, recursive=True, sort=False,
+                 every_n=1, every_n_k=0,
+                 ):
+        &#34;&#34;&#34;
+        Create a DirFilesSource.
+
+        Args:
+            dirpath: the directory that contains the file to load as documents.
+            paths:  if not None, must be an iterable of relate file paths to load from the directory
+            paths_from: if not None, must be a file or URL to load a list of file paths from
+            exts: an iterable of allowed file extensions or file extension regexps
+            fmt: the format to use for loading files. This is only useful if all files have the same format
+               but the file extensions does not indicate the format.
+            recursive: recursively include paths from all subdirectories as well
+            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.
+            every_n: only yield every nth document (default 1: every document)
+            every_n_k: start with that index, before yielding every_n th document (default 0: start at beginning)
+        &#34;&#34;&#34;
+        self.dirpath = dirpath
+        if paths is not None and paths_from is not None:
+            raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
+        if paths is not None:
+            self.paths = paths
+        elif paths_from is not None:
+            self.paths = []
+            for p in read_lines_from(paths_from):
+                self.paths.append(p.rstrip(&#34;\n\r&#34;))
+        else:
+            self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
+        if sort or every_n &gt; 1:
+            self.paths.sort()
+        if every_n &gt; 1:
+            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.fmt = fmt
+
+    def __iter__(self):
+        &#34;&#34;&#34;
+        Yield the next document from the source.
+        &#34;&#34;&#34;
+        for p in self.paths:
+            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.DocumentDestination"><code class="flex name class">
+<span>class <span class="ident">DocumentDestination</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DocumentDestination(ABC):
+    @abstractmethod
+    def append(self, doc):
+        &#34;&#34;&#34;
+        A document destination must have the append method defined which is used to add a new document
+        to the destination.
+
+        Args:
+            doc: the document to add
+        &#34;&#34;&#34;
+        pass
+
+    def close(self):
+        &#34;&#34;&#34;
+        Must have a close method that is used to end writing and close the destination.
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DirFilesDestination" href="#gatenlp.corpora.DirFilesDestination">DirFilesDestination</a></li>
+<li><a title="gatenlp.corpora.JsonLinesFileDestination" href="#gatenlp.corpora.JsonLinesFileDestination">JsonLinesFileDestination</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.DocumentDestination.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, doc)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document destination must have the append method defined which is used to add a new document
+to the destination.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document to add</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def append(self, doc):
+    &#34;&#34;&#34;
+    A document destination must have the append method defined which is used to add a new document
+    to the destination.
+
+    Args:
+        doc: the document to add
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.DocumentDestination.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Must have a close method that is used to end writing and close the destination.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    &#34;&#34;&#34;
+    Must have a close method that is used to end writing and close the destination.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.DocumentSource"><code class="flex name class">
+<span>class <span class="ident">DocumentSource</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DocumentSource(ABC):
+    @abstractmethod
+    def __iter__(self):
+        return self</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DirFilesSource" href="#gatenlp.corpora.DirFilesSource">DirFilesSource</a></li>
+<li><a title="gatenlp.corpora.EveryNthSource" href="#gatenlp.corpora.EveryNthSource">EveryNthSource</a></li>
+<li><a title="gatenlp.corpora.JsonLinesFileSource" href="#gatenlp.corpora.JsonLinesFileSource">JsonLinesFileSource</a></li>
+<li><a title="gatenlp.corpora.PandasDfSource" href="#gatenlp.corpora.PandasDfSource">PandasDfSource</a></li>
+<li><a title="gatenlp.corpora.TsvFileSource" href="#gatenlp.corpora.TsvFileSource">TsvFileSource</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.DocumentSource.__iter__"><code class="name flex">
+<span>def <span class="ident">__iter__</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def __iter__(self):
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.EveryNthCorpus"><code class="flex name class">
+<span>class <span class="ident">EveryNthCorpus</span></span>
+<span>(</span><span>corpus, every_n, every_n_k)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a corpus to only every nth document, starting with the kth document.
+For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+documents 2,5,8,11,14 etc.</p>
+<p>This is useful to access a subset of documents from a corpus from n different concurrent
+processes (in that case, the wrapped corpus must allow concurrent access!) or
+split a corpus into n subsets for other purposes.</p>
+<p>Create an EveryNthCorpus.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>corpus</code></strong></dt>
+<dd>the corpus to wrap, must allow multiple concurrent access</dd>
+<dt><strong><code>every_n</code></strong></dt>
+<dd>the increment</dd>
+<dt><strong><code>every_n_k</code></strong></dt>
+<dd>the offset, must be &lt; n</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EveryNthCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to only every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc.
+
+    This is useful to access a subset of documents from a corpus from n different concurrent
+    processes (in that case, the wrapped corpus must allow concurrent access!) or
+    split a corpus into n subsets for other purposes.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, every_n, every_n_k):
+        &#34;&#34;&#34;
+        Create an EveryNthCorpus.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be &lt; n
+        &#34;&#34;&#34;
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception(&#34;n and k must be integers.&#34;)
+        if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
+            raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.corpus = corpus
+        # precalculate the length
+        otherlen = len(corpus)
+        # the size of this dataset is int((otherlen + (n-k) - 1)/k)
+        self.len = int((otherlen + (every_n - every_n_k) - 1) / every_n_k)
+
+    def __getitem__(self, idx):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        return self.corpus[idx * self.every_n + self.every_n_k]
+
+    def __setitem__(self, idx, doc):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[idx * self.every_n + self.every_n_k] = doc
+
+    def __len__(self):
+        return self.len</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.Corpus.__getitem__" href="#gatenlp.corpora.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__len__" href="#gatenlp.corpora.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__setitem__" href="#gatenlp.corpora.Corpus.__setitem__">__setitem__</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.EveryNthSource"><code class="flex name class">
+<span>class <span class="ident">EveryNthSource</span></span>
+<span>(</span><span>source, every_n, every_n_k)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a document source to only return every nth document, starting with the kth document.
+For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
+one client at the same time!</p>
+<p>Create an EveryNthSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>corpus</code></strong></dt>
+<dd>the corpus to wrap, must allow multiple concurrent access</dd>
+<dt><strong><code>every_n</code></strong></dt>
+<dd>the increment</dd>
+<dt><strong><code>every_n_k</code></strong></dt>
+<dd>the offset, must be &lt; n</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EveryNthSource(DocumentSource):
+    &#34;&#34;&#34;
+    Wraps a document source to only return every nth document, starting with the kth document.
+    For example with n=3 and k=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with n=3 and k=2, we get
+    documents 2,5,8,11,14 etc. The wrapped corpus must allow to get used by more than
+    one client at the same time!
+    &#34;&#34;&#34;
+
+    def __init__(self, source, every_n, every_n_k):
+        &#34;&#34;&#34;
+        Create an EveryNthSource.
+
+        Args:
+            corpus: the corpus to wrap, must allow multiple concurrent access
+            every_n: the increment
+            every_n_k: the offset, must be &lt; n
+        &#34;&#34;&#34;
+        super().__init__()
+        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+            raise Exception(&#34;n and k must be integers.&#34;)
+        if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
+            raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
+        self.every_n = every_n
+        self.every_n_k = every_n_k
+        self.source = source
+
+    def __iter__(self):
+        idx = 0
+        for doc in self.source:
+            if (idx-self.every_n_k) % self.every_n == 0:
+                yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.JsonLinesFileDestination"><code class="flex name class">
+<span>class <span class="ident">JsonLinesFileDestination</span></span>
+<span>(</span><span>file)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Writes one line of JSON per document to the a single output file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>file</code></strong></dt>
+<dd>the file to write to. If it exsits, it gets overwritten without warning.
+Expected to be a string or an open file handle.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class JsonLinesFileDestination(DocumentDestination):
+    &#34;&#34;&#34;
+    Writes one line of JSON per document to the a single output file.
+    &#34;&#34;&#34;
+
+    def __init__(self, file):
+        &#34;&#34;&#34;
+
+        Args:
+            file: the file to write to. If it exsits, it gets overwritten without warning.
+               Expected to be a string or an open file handle.
+        &#34;&#34;&#34;
+        if isinstance(file, str):
+            self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
+        else:
+            self.fh = file
+        self.n = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.fh.close()
+
+    def append(self, doc):
+        &#34;&#34;&#34;
+        Append a document to the destination.
+
+        Args:
+            doc: the document
+        &#34;&#34;&#34;
+        self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
+        self.fh.write(&#34;\n&#34;)
+        self.n += 1
+
+    def close(self):
+        self.fh.close()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentDestination" href="#gatenlp.corpora.DocumentDestination">DocumentDestination</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.JsonLinesFileDestination.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, doc)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append a document to the destination.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self, doc):
+    &#34;&#34;&#34;
+    Append a document to the destination.
+
+    Args:
+        doc: the document
+    &#34;&#34;&#34;
+    self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
+    self.fh.write(&#34;\n&#34;)
+    self.n += 1</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.DocumentDestination" href="#gatenlp.corpora.DocumentDestination">DocumentDestination</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.DocumentDestination.close" href="#gatenlp.corpora.DocumentDestination.close">close</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.JsonLinesFileSource"><code class="flex name class">
+<span>class <span class="ident">JsonLinesFileSource</span></span>
+<span>(</span><span>file)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source which reads one json serialization of a document from each line of the given file.</p>
+<p>Create a JsonLinesFileSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>file</code></strong></dt>
+<dd>the file path (a string) or an open file handle.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class JsonLinesFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which reads one json serialization of a document from each line of the given file.
+    &#34;&#34;&#34;
+
+    def __init__(self, file):
+        &#34;&#34;&#34;
+        Create a JsonLinesFileSource.
+
+        Args:
+            file: the file path (a string) or an open file handle.
+        &#34;&#34;&#34;
+        self.file = file
+
+    def __iter__(self):
+        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+            for line in infp:
+                yield Document.load_mem(line, fmt=&#34;json&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.NumberedDirFilesCorpus"><code class="flex name class">
+<span>class <span class="ident">NumberedDirFilesCorpus</span></span>
+<span>(</span><span>dirpath, digits=1, levels=1, ext='bdocjs', fmt=None, size=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus that represents files from a (nested) directory, where the filename is derived from
+the index number of the document. This corpus can represent missing elements as None, both
+on reading (when the corresponding expected document does not exist) and on writing (the
+corresponding document gets deleted).</p>
+<p>Creates the DirCorpus.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dirpath</code></strong></dt>
+<dd>the directory path</dd>
+<dt><strong><code>digits</code></strong></dt>
+<dd>the number of digits to use for the file path</dd>
+<dt><strong><code>levels</code></strong></dt>
+<dd>the number of levels to split the digits up which are then used as subdire names.</dd>
+<dt><strong><code>ext</code></strong></dt>
+<dd>the file extension used for all files in the corpus</dd>
+<dt><strong><code>fmt</code></strong></dt>
+<dd>the format to use, if None, determined from the extension</dd>
+<dt><strong><code>size</code></strong></dt>
+<dd>the size of the corpus. This can be used to create a corpus from an empty directory
+to contain only None elements initially.
+It can also be used to limit access to only the
+first size elements if the directory contains more documents.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NumberedDirFilesCorpus:
+    &#34;&#34;&#34;
+    A corpus that represents files from a (nested) directory, where the filename is derived from
+    the index number of the document. This corpus can represent missing elements as None, both
+    on reading (when the corresponding expected document does not exist) and on writing (the
+    corresponding document gets deleted).
+    &#34;&#34;&#34;
+
+    def __init__(self, dirpath,  digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
+        &#34;&#34;&#34;
+        Creates the DirCorpus.
+
+        Args:
+            dirpath: the directory path
+            digits: the number of digits to use for the file path
+            levels: the number of levels to split the digits up which are then used as subdire names.
+            ext: the file extension used for all files in the corpus
+            fmt: the format to use, if None, determined from the extension
+            size: the size of the corpus. This can be used to create a corpus from an empty directory
+              to contain only None elements initially.  It can also be used to limit access to only the
+              first size elements if the directory contains more documents.
+        &#34;&#34;&#34;
+        if not ext.startswith(&#34;.&#34;):
+            ext = &#34;.&#34; + ext
+        self.dirpath = dirpath
+        self.ext = ext
+        self.fmt = fmt
+        self.size = size
+        self.file_path_maker = make_file_path_fromidx(digits, levels)
+        pass
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        assert isinstance(idx, int)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if os.path.exists(path):
+            doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        else:
+            doc = None
+        return doc
+
+    def __setitem__(self, idx, doc):
+        assert isinstance(idx, int)
+        assert doc is None or isinstance(doc, Document)
+        path = self.file_path_maker(idx)
+        path = path + self.ext
+        if doc is None:
+            if os.path.exists(path):
+                os.remove(path)
+        else:
+            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.PandasDfSource"><code class="flex name class">
+<span>class <span class="ident">PandasDfSource</span></span>
+<span>(</span><span>df, text_col=None, feature_cols=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source which creates documents from the text in some data frame column for each row, and
+sets features from arbitrary columns in the row.</p>
+<p>Creates a PandasDfSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>the data frae</dd>
+<dt><strong><code>text_col</code></strong></dt>
+<dd>the name of the column that contains the text</dd>
+<dt><strong><code>feature_cols</code></strong></dt>
+<dd>a dictionary that maps document feature names to column names of where to get the
+feature value from (default: None)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PandasDfSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which creates documents from the text in some data frame column for each row, and
+    sets features from arbitrary columns in the row.
+    &#34;&#34;&#34;
+    def __init__(self, df, text_col=None, feature_cols=None):
+        &#34;&#34;&#34;
+        Creates a PandasDfSource.
+
+        Args:
+            df: the data frae
+            text_col:  the name of the column that contains the text
+            feature_cols: a dictionary that maps document feature names to column names of where to get the
+               feature value from (default: None)
+        &#34;&#34;&#34;
+        assert text_col is not None
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = df
+        self.reader = df.iterrows()
+        self.n = 0
+
+    def __iter__(self):
+        for _, row in self.reader:
+            text = row[self.text_col]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colname in self.feature_cols.items():
+                    value = row[colname]
+                    doc.features[fname] = value
+            self.n += 1
+            yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.ShuffledCorpus"><code class="flex name class">
+<span>class <span class="ident">ShuffledCorpus</span></span>
+<span>(</span><span>corpus, seed=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a corpus to reorder the documents in the corpus randomly.</p>
+<p>Create a ShuffledCorpus wrapper.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>seed</code></strong></dt>
+<dd>if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+and whatever the current state of the random generator is is used. If None, no shuffling is
+carried out. If this is None or not an integer, same as 0.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ShuffledCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to reorder the documents in the corpus randomly.
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, seed=None):
+        &#34;&#34;&#34;
+        Create a ShuffledCorpus wrapper.
+
+        Args:
+            seed: if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+                If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+                and whatever the current state of the random generator is is used. If None, no shuffling is
+                carried out. If this is None or not an integer, same as 0.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.corpus = corpus
+        self.seed = seed
+        self.idxs = list(range(len(corpus)))
+        self.shuffle(seed)
+
+    def shuffle(self, seed=0):
+        &#34;&#34;&#34;
+        Shuffle instance list order,
+        :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+        If seed is None, no shuffling is carried out.
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+            if seed != -1:
+                if seed == 0:
+                    random.seed()
+                else:
+                    random.seed(seed)
+            random.shuffle(self.idxs)
+        else:  # not an integer seed: None or some other type
+            # same as seed 0
+            random.seed()
+            random.shuffle(self.idxs)
+
+    def __getitem__(self, idx):
+        return self.corpus[self.idxs[idx]]
+
+    def __setitem__(self, idx, doc):
+        # TODO: refactor into separate utility function
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= self.len or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[self.idxs[idx]] = doc
+
+    def __len__(self):
+        return len(self.idxs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.ShuffledCorpus.shuffle"><code class="name flex">
+<span>def <span class="ident">shuffle</span></span>(<span>self, seed=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shuffle instance list order,
+:param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+If seed is None, no shuffling is carried out.
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def shuffle(self, seed=0):
+    &#34;&#34;&#34;
+    Shuffle instance list order,
+    :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+    If seed is None, no shuffling is carried out.
+    :return:
+    &#34;&#34;&#34;
+    if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+        if seed != -1:
+            if seed == 0:
+                random.seed()
+            else:
+                random.seed(seed)
+        random.shuffle(self.idxs)
+    else:  # not an integer seed: None or some other type
+        # same as seed 0
+        random.seed()
+        random.shuffle(self.idxs)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.Corpus.__getitem__" href="#gatenlp.corpora.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__len__" href="#gatenlp.corpora.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__setitem__" href="#gatenlp.corpora.Corpus.__setitem__">__setitem__</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.TsvFileSource"><code class="flex name class">
+<span>class <span class="ident">TsvFileSource</span></span>
+<span>(</span><span>source, hdr=True, text_col=None, feature_cols=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A TsvFileSource is a DocumentSource which is a single TSV file with a fixed number of tab-separated
+values per row. Each document in sequence is created from the text in one of the columns and
+document features can be set from arbitrary columns as well.</p>
+<p>Creates the TsvFileSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong></dt>
+<dd>a file path or URL</dd>
+<dt><strong><code>hdr</code></strong></dt>
+<dd>if True (default), expects a header line with the column names, if a list, should be the list
+of column names, if False/None, no header line is expected.</dd>
+<dt><strong><code>text_col</code></strong></dt>
+<dd>the column which contains the text for creating the document. Either the column number,
+or the name of the column (only possible if there is a header line)</dd>
+<dt><strong><code>feature_cols</code></strong></dt>
+<dd>if not None, must be a dictionary mapping document feature names to the column numbers or
+column names of where to get the feature value from.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TsvFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A TsvFileSource is a DocumentSource which is a single TSV file with a fixed number of tab-separated
+    values per row. Each document in sequence is created from the text in one of the columns and
+    document features can be set from arbitrary columns as well.
+    &#34;&#34;&#34;
+    def __init__(self, source, hdr=True, text_col=None, feature_cols=None):
+        &#34;&#34;&#34;
+        Creates the TsvFileSource.
+
+        Args:
+            source: a file path or URL
+            hdr: if True (default), expects a header line with the column names, if a list, should be the list
+              of column names, if False/None, no header line is expected.
+            text_col: the column which contains the text for creating the document. Either the column number,
+              or the name of the column (only possible if there is a header line)
+            feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
+              column names of where to get the feature value from.
+        &#34;&#34;&#34;
+        assert text_col is not None and isinstance(text_col, str)
+        self.hdr = hdr
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = source
+        self.n = 0
+        self.hdr2col = {}
+
+    def __iter__(self):
+        reader = read_lines_from(self.source)
+        if self.hdr == True and self.n == 0:
+            self.n += 1
+            self.hdr = next(reader).rstrip(&#34;\n\r&#34;).split(&#34;\t&#34;)
+        if self.hdr:
+            self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
+        for line in reader:
+            fields = line.split(&#34;\t&#34;)
+            if isinstance(self.text_col, int):
+                text = fields[self.text_col]
+            else:
+                text = fields[self.hdr2col[self.text_col]]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colid in self.feature_cols.items():
+                    if isinstance(colid, int):
+                        value = fields[colid]
+                    else:
+                        value = fields[self.hdr2col[colid]]
+                    doc.features[fname] = value
+            self.n += 1
+            yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp" href="index.html">gatenlp</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gatenlp.corpora.debug_maker" href="#gatenlp.corpora.debug_maker">debug_maker</a></code></li>
+<li><code><a title="gatenlp.corpora.make_file_path_fromidx" href="#gatenlp.corpora.make_file_path_fromidx">make_file_path_fromidx</a></code></li>
+<li><code><a title="gatenlp.corpora.matching_paths" href="#gatenlp.corpora.matching_paths">matching_paths</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.corpora.CachedCorpus" href="#gatenlp.corpora.CachedCorpus">CachedCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.Corpus" href="#gatenlp.corpora.Corpus">Corpus</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.Corpus.__getitem__" href="#gatenlp.corpora.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__len__" href="#gatenlp.corpora.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.Corpus.__setitem__" href="#gatenlp.corpora.Corpus.__setitem__">__setitem__</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.DirFilesCorpus" href="#gatenlp.corpora.DirFilesCorpus">DirFilesCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.DirFilesDestination" href="#gatenlp.corpora.DirFilesDestination">DirFilesDestination</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.DirFilesSource" href="#gatenlp.corpora.DirFilesSource">DirFilesSource</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.DocumentDestination" href="#gatenlp.corpora.DocumentDestination">DocumentDestination</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.DocumentDestination.append" href="#gatenlp.corpora.DocumentDestination.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.DocumentDestination.close" href="#gatenlp.corpora.DocumentDestination.close">close</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.DocumentSource" href="#gatenlp.corpora.DocumentSource">DocumentSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.DocumentSource.__iter__" href="#gatenlp.corpora.DocumentSource.__iter__">__iter__</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.EveryNthCorpus" href="#gatenlp.corpora.EveryNthCorpus">EveryNthCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.EveryNthSource" href="#gatenlp.corpora.EveryNthSource">EveryNthSource</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.JsonLinesFileDestination" href="#gatenlp.corpora.JsonLinesFileDestination">JsonLinesFileDestination</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.JsonLinesFileDestination.append" href="#gatenlp.corpora.JsonLinesFileDestination.append">append</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.JsonLinesFileSource" href="#gatenlp.corpora.JsonLinesFileSource">JsonLinesFileSource</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.NumberedDirFilesCorpus" href="#gatenlp.corpora.NumberedDirFilesCorpus">NumberedDirFilesCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.PandasDfSource" href="#gatenlp.corpora.PandasDfSource">PandasDfSource</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.ShuffledCorpus" href="#gatenlp.corpora.ShuffledCorpus">ShuffledCorpus</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.ShuffledCorpus.shuffle" href="#gatenlp.corpora.ShuffledCorpus.shuffle">shuffle</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.TsvFileSource" href="#gatenlp.corpora.TsvFileSource">TsvFileSource</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+</footer>
+</body>
+</html>

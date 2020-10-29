@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
 <title>gatenlp.processing.gazetteer API documentation</title>
 <meta name="description" content="This module provides Gazetteer classes which allow matching the text or the tokens of documents against
 gazetteer lists, lists of interesting texts or …" />
@@ -37,9 +37,10 @@ gazetteer lists.
 &#34;&#34;&#34;
 
 from collections import defaultdict
-from dataclasses import dataclass
-from gatenlp.utils import ensurelogger
+# from dataclasses import dataclass
+from recordclass import structclass
 from gatenlp.processing.annotator import Annotator
+from gatenlp.utils import init_logger
 
 
 class Gazetteer(Annotator):
@@ -48,15 +49,16 @@ class Gazetteer(Annotator):
     &#34;&#34;&#34;
     pass
 
+# NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
+# class TokenGazetteerMatch, with __slots__=(&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
+# and type declarations start: int, end: int, match: list, entrydata: object, matcherdata: object
+# HOWEVER, dataclasses require Python 3.7 and have their own issues.
+# Named tuples cannot be used because what we need has to be mutable.
+# So for now we use the structclass approach from package recordclass which is very compact and rather fast.
+# !! structclass by default does NOT support cyclic garbage collection which should be ok for us
 
-@dataclass(unsafe_hash=True, order=True)
-class TokenGazetteerMatch:
-    __slots__ = (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object
+
+TokenGazetteerMatch = structclass(&#34;TokenGazetteerMatch&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;))
 
 
 class TokenGazetteerNode(object):
@@ -308,7 +310,7 @@ class TokenGazetteer:
             An iterable of Match if not matchfunc is specified, otherwise an iterable of what matchfunc
             returned for each match. The start/end fields of each Match are the token indices.
         &#34;&#34;&#34;
-        logger = ensurelogger()
+        logger = init_logger(__name__)
         logger.debug(&#34;CALL&#34;)
         matches = []
         l = len(tokens)
@@ -434,15 +436,8 @@ import sys
 def thisorthat(x,y): x if x is not None else y
 
 
-@dataclass(unsafe_hash=True, order=True)
-class Match:
-    __slots__ = (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object
-
+# NOTE: Match was a dataclass originally
+Match = structclass(&#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;))
 
 _NOVALUE = object()
 
@@ -722,41 +717,34 @@ class StringMatcher:
 </dd>
 <dt id="gatenlp.processing.gazetteer.Match"><code class="flex name class">
 <span>class <span class="ident">Match</span></span>
-<span>(</span><span>start: int, end: int, match: list, entrydata: object, matcherdata: object)</span>
+<span>(</span><span>start, end, match, entrydata, matcherdata)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Match(start: int, end: int, match: list, entrydata: object, matcherdata: object)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Match:
-    __slots__ = (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object</code></pre>
-</details>
+<div class="desc"><h2 id="matchstart-end-match-entrydata-matcherdata">Match(start, end, match, entrydata, matcherdata)</h2>
+<p>Create class instance</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>recordclass.datatype.dataobject</li>
+</ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.Match.end"><code class="name">var <span class="ident">end</span> : int</code></dt>
+<dt id="gatenlp.processing.gazetteer.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.Match.entrydata"><code class="name">var <span class="ident">entrydata</span> : object</code></dt>
+<dt id="gatenlp.processing.gazetteer.Match.entrydata"><code class="name">var <span class="ident">entrydata</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.Match.match"><code class="name">var <span class="ident">match</span> : list</code></dt>
+<dt id="gatenlp.processing.gazetteer.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.Match.matcherdata"><code class="name">var <span class="ident">matcherdata</span> : object</code></dt>
+<dt id="gatenlp.processing.gazetteer.Match.matcherdata"><code class="name">var <span class="ident">matcherdata</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.Match.start"><code class="name">var <span class="ident">start</span> : int</code></dt>
+<dt id="gatenlp.processing.gazetteer.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
@@ -1437,7 +1425,7 @@ gazetteer entry contains a list of a data (True), or replace the existing data w
             An iterable of Match if not matchfunc is specified, otherwise an iterable of what matchfunc
             returned for each match. The start/end fields of each Match are the token indices.
         &#34;&#34;&#34;
-        logger = ensurelogger()
+        logger = init_logger(__name__)
         logger.debug(&#34;CALL&#34;)
         matches = []
         l = len(tokens)
@@ -1684,7 +1672,7 @@ returned for each match. The start/end fields of each Match are the token indice
         An iterable of Match if not matchfunc is specified, otherwise an iterable of what matchfunc
         returned for each match. The start/end fields of each Match are the token indices.
     &#34;&#34;&#34;
-    logger = ensurelogger()
+    logger = init_logger(__name__)
     logger.debug(&#34;CALL&#34;)
     matches = []
     l = len(tokens)
@@ -1940,41 +1928,34 @@ Returns:</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch"><code class="flex name class">
 <span>class <span class="ident">TokenGazetteerMatch</span></span>
-<span>(</span><span>start: int, end: int, match: list, entrydata: object, matcherdata: object)</span>
+<span>(</span><span>start, end, match, entrydata, matcherdata)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>TokenGazetteerMatch(start: int, end: int, match: list, entrydata: object, matcherdata: object)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TokenGazetteerMatch:
-    __slots__ = (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
-    start: int
-    end: int
-    match: list
-    entrydata: object
-    matcherdata: object</code></pre>
-</details>
+<div class="desc"><h2 id="tokengazetteermatchstart-end-match-entrydata-matcherdata">TokenGazetteerMatch(start, end, match, entrydata, matcherdata)</h2>
+<p>Create class instance</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>recordclass.datatype.dataobject</li>
+</ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.end"><code class="name">var <span class="ident">end</span> : int</code></dt>
+<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.entrydata"><code class="name">var <span class="ident">entrydata</span> : object</code></dt>
+<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.entrydata"><code class="name">var <span class="ident">entrydata</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.match"><code class="name">var <span class="ident">match</span> : list</code></dt>
+<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.match"><code class="name">var <span class="ident">match</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.matcherdata"><code class="name">var <span class="ident">matcherdata</span> : object</code></dt>
+<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.matcherdata"><code class="name">var <span class="ident">matcherdata</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.start"><code class="name">var <span class="ident">start</span> : int</code></dt>
+<dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.start"><code class="name">var <span class="ident">start</span></code></dt>
 <dd>
 <div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
@@ -2152,7 +2133,7 @@ def dict_repr(nodes):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
 </footer>
 </body>
 </html>

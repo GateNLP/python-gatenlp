@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
 <title>gatenlp.annotation_set API documentation</title>
 <meta name="description" content="Module for AnnotationSet class which represents a named collection of annotations which can arbitrarily overlap." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -2252,7 +2252,7 @@ def from_dict(dictrepr, owner_doc=None, **kwargs):
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.annotation_set.AnnotationSet.changelog"><code class="name">var <span class="ident">changelog</span></code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.changelog"><code class="name">property/get <span class="ident">changelog</span></code></dt>
 <dd>
 <div class="desc"><p>Returns the changelog or None if no changelog is set.</p></div>
 <details class="source">
@@ -2269,7 +2269,7 @@ def changelog(self):
     return self._owner_doc.changelog</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.document"><code class="name">var <span class="ident">document</span> : Union[Document, NoneType]</code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.document"><code class="name">property/get <span class="ident">document</span> : Union[_ForwardRef('Document'), NoneType]</code></dt>
 <dd>
 <div class="desc"><p>Returns the owning document, if set. If the owning document was not set, returns None.</p></div>
 <details class="source">
@@ -2284,7 +2284,7 @@ def document(self) -&gt; Union[&#34;Document&#34;, None]:
     return self._owner_doc</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.end"><code class="name">property/get <span class="ident">end</span></code></dt>
 <dd>
 <div class="desc"><p>Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
 This needs the index and creates it if necessary.</p>
@@ -2309,7 +2309,7 @@ def end(self):
     return self._index_by_offset.max_end()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.immutable"><code class="name">var <span class="ident">immutable</span> : bool</code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.immutable"><code class="name">property/get/set <span class="ident">immutable</span> : bool</code></dt>
 <dd>
 <div class="desc"><p>Get or set the immutability of the annotation set. If it is immutable, annotations cannot be added
 or removed from the set, but the annotations themselves can still have their features modified.</p>
@@ -2329,7 +2329,7 @@ def immutable(self) -&gt; bool:
     return self._is_immutable</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.length"><code class="name">var <span class="ident">length</span></code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.length"><code class="name">property/get <span class="ident">length</span></code></dt>
 <dd>
 <div class="desc"><p>Returns the the length of the annotation set span.</p>
 <h2 id="throws">Throws</h2>
@@ -2349,7 +2349,7 @@ def length(self):
     return self.end() - self.start()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.name"><code class="name">property/get <span class="ident">name</span></code></dt>
 <dd>
 <div class="desc"><p>Returns the name of the annotation set.</p>
 <p>Note: the name of a set cannot be changed.</p></div>
@@ -2367,7 +2367,7 @@ def name(self):
     return self._name</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.size"><code class="name">var <span class="ident">size</span> : int</code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.size"><code class="name">property/get <span class="ident">size</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Returns the number of annotations in the annotation set.</p></div>
 <details class="source">
@@ -2382,7 +2382,7 @@ def size(self) -&gt; int:
     return len(self._annotations)</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.span"><code class="name">var <span class="ident">span</span> : Tuple[int, int]</code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.span"><code class="name">property/get <span class="ident">span</span> : Tuple[int, int]</code></dt>
 <dd>
 <div class="desc"><p>Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
 and the largest end offset of any annotation.
@@ -2402,7 +2402,7 @@ def span(self) -&gt; Tuple[int, int]:
     return self._index_by_offset.min_start(), self._index_by_offset.max_end()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.start"><code class="name">property/get <span class="ident">start</span></code></dt>
 <dd>
 <div class="desc"><p>Returns the smallest start offset of all annotations, i.e the start of the span of the whole set.
 This needs the index and creates it if necessary.</p>
@@ -2427,7 +2427,7 @@ def start(self):
     return self._index_by_offset.min_start()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.type_names"><code class="name">var <span class="ident">type_names</span> : KeysView[str]</code></dt>
+<dt id="gatenlp.annotation_set.AnnotationSet.type_names"><code class="name">property/get <span class="ident">type_names</span> : KeysView[str]</code></dt>
 <dd>
 <div class="desc"><p>Gets the names of all types in this set. Creates the type index if necessary.</p></div>
 <details class="source">
@@ -3640,7 +3640,7 @@ def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_sel
 </details>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.with_type"><code class="name flex">
-<span>def <span class="ident">with_type</span></span>(<span>self, *anntype: Union[str, collections.abc.Iterable], non_overlapping: bool = False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+<span>def <span class="ident">with_type</span></span>(<span>self, *anntype: collections.abc.Iterable, non_overlapping: bool = False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets annotations of the specified type(s).
@@ -3909,7 +3909,7 @@ def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#3
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
 </footer>
 </body>
 </html>

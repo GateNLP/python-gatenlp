@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
 <title>gatenlp.gate_interaction API documentation</title>
 <meta name="description" content="Support for interacting between a GATE (java) process and a gatenlp (Python) process.
 This is used by the Java GATE Python plugin." />
@@ -46,7 +46,7 @@ import logging
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp import logger
+from gatenlp.utils import init_logger
 import json
 
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
@@ -55,7 +55,6 @@ import json
 instream = io.TextIOWrapper(sys.stdin.buffer, encoding=&#34;utf-8&#34;)
 ostream = sys.stdout
 sys.stdout = sys.stderr
-
 
 class _PrWrapper:
     def __init__(self):
@@ -174,8 +173,9 @@ def _pr_decorator(what):
     gatenlp.gate_python_plugin_pr = &#34;The PR from here!!!&#34;
 
     wrapper = _PrWrapper()
-    if inspect.isclass(what):
-        what = what()   # create an instance
+    if inspect.isclass(what) or _has_method(what, &#34;__call__&#34;):
+        if inspect.isclass(what):
+            what = what()   # if it is a class, create an instance, otherwise assume it is already an instance
         # TODO: instead of this we could just as well store the instance and 
         # directly call the instance methods from the wrapper!
         execmethod = _has_method(what, &#34;__call__&#34;)
@@ -248,7 +248,7 @@ def get_arguments(from_main=False):
     return args
 
 
-def interact(args=None):
+def interact(args=None, annotator=None):
     &#34;&#34;&#34;Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
@@ -266,6 +266,7 @@ def interact(args=None):
     Returns:
 
     &#34;&#34;&#34;
+    logger = init_logger(__name__)
     loglvls = {
         &#34;DEBUG&#34;: logging.DEBUG,
         &#34;INFO&#34;: logging.INFO,
@@ -275,11 +276,13 @@ def interact(args=None):
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
-    if gatenlp.gate_python_plugin_pr is None:
-        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator, using default do-nothing&#34;)
+    if gatenlp.gate_python_plugin_pr is None and annotator is None:
+        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;)
         _pr_decorator(DefaultPr)
-
-    pr = gatenlp.gate_python_plugin_pr
+    if annotator is not None:
+        pr = _pr_decorator(annotator)
+    else:
+        pr = gatenlp.gate_python_plugin_pr
 
     if args is None:
         args = get_arguments()
@@ -411,6 +414,7 @@ def interact(args=None):
 if __name__ == &#34;__main__&#34;:
     # we run this from the command line so we need to also first load the PR code from the python file
     args = get_arguments(from_main=True)
+    logger = init_logger(__name__)
     import importlib.util
     spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, args.pythonfile)
     foo = importlib.util.module_from_spec(spec)
@@ -452,7 +456,7 @@ if __name__ == &#34;__main__&#34;:
 </details>
 </dd>
 <dt id="gatenlp.gate_interaction.interact"><code class="name flex">
-<span>def <span class="ident">interact</span></span>(<span>args=None)</span>
+<span>def <span class="ident">interact</span></span>(<span>args=None, annotator=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Starts and handles the interaction with a GATE python plugin process.
@@ -474,7 +478,7 @@ processing resource to the system.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def interact(args=None):
+<pre><code class="python">def interact(args=None, annotator=None):
     &#34;&#34;&#34;Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
@@ -492,6 +496,7 @@ processing resource to the system.</p>
     Returns:
 
     &#34;&#34;&#34;
+    logger = init_logger(__name__)
     loglvls = {
         &#34;DEBUG&#34;: logging.DEBUG,
         &#34;INFO&#34;: logging.INFO,
@@ -501,11 +506,13 @@ processing resource to the system.</p>
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
-    if gatenlp.gate_python_plugin_pr is None:
-        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator, using default do-nothing&#34;)
+    if gatenlp.gate_python_plugin_pr is None and annotator is None:
+        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;)
         _pr_decorator(DefaultPr)
-
-    pr = gatenlp.gate_python_plugin_pr
+    if annotator is not None:
+        pr = _pr_decorator(annotator)
+    else:
+        pr = gatenlp.gate_python_plugin_pr
 
     if args is None:
         args = get_arguments()
@@ -753,7 +760,7 @@ processing resource to the system.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
 </footer>
 </body>
 </html>

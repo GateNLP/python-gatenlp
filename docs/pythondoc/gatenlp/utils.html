@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
 <title>gatenlp.utils API documentation</title>
 <meta name="description" content="Various utilities that could be useful in several modules." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -100,81 +100,81 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
         return ret
 
 
-logger = None
 start = 0
+LOGGING_FORMAT = &#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;
 
 
-def set_logger(name=None, file=None, lvl=None, args=None):
+def init_logger(name=None, file=None, lvl=None, args=None):
     &#34;&#34;&#34;
-    Set up logger for the module &#34;name&#34;. If file is given, log to that file as well.
-    If file is not given but args is given and has &#34;outpref&#34; parameter, log to
+    Configure the root logger (this only works the very first time, all subsequent
+    invocations will not modify the root logger). The root logger is initialized
+    with a standard format the given log level and, if specified the outputs to the
+    given file.
+
+    The get a new logger for the given name is retrieved using the given name or
+    the invoking command if None. It is also set to the given logging leve and returned.
+
+    TODO: If file is not given but args is given and has &#34;outpref&#34; parameter, log to
     file &#34;outpref.DATETIME.log&#34; as well.
 
     Args:
-        name: name to use in the log, if None, uses sys.argv[0]
+        name: name to use in the log, if None, __name__
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
         args: not used yet
 
     Returns:
-        The logger instance
+        A logger instance for name (always the same instance for the same name)
     &#34;&#34;&#34;
-    global logger
+
     if name is None:
         name = sys.argv[0]
-    if logger:
-        raise Exception(&#34;Odd, we should not have a logger yet?&#34;)
-    logger = logging.getLogger(name)
     if lvl is None:
         lvl = logging.INFO
-    logger.setLevel(lvl)
-    fmt = logging.Formatter(&#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;)
+    # get the root logger
+    rl = logging.getLogger()
+    # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
+    # handler for the file, if needed, only if the root logger has no handlers yet as well
+    addhandlers = []
+    fmt = logging.Formatter(LOGGING_FORMAT)
     hndlr = logging.StreamHandler(sys.stderr)
     hndlr.setFormatter(fmt)
-    logger.addHandler(hndlr)
-    if file:
-        hdnlr = logging.FileHandler(file)
+    addhandlers.append(hndlr)
+    if file and len(logging.getLogger().handlers) == 0:
+        hndlr = logging.FileHandler(file)
         hndlr.setFormatter(fmt)
-        logger.addHandler(hdnlr)
-    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+        addhandlers.append(hndlr)
+    logging.basicConfig(level=lvl, handlers=addhandlers)
+    # now get the handler for name
+    logger = logging.getLogger(name)
     return logger
 
 
-def ensurelogger():
-    &#34;&#34;&#34;
-    Make sure the global logger is set to some logger. This should not be necessary
-    if the set_logger function is properly used, but guards against situations where
-    functions that require a logger are used without proper setting up the logger.
-
-    Returns:
-        A logger instance.
-    &#34;&#34;&#34;
-    global logger
-    if not logger:
-        logger = logging.getLogger(&#34;UNINITIALIZEDLOGGER&#34;)
-    return logger
-
-
-def run_start():
+def run_start(logger=None, name=None, lvl=None):
     &#34;&#34;&#34;
     Define time when running starts.
 
     Returns:
         system time in seconds
     &#34;&#34;&#34;
-    global  start
+    global start
+    if logger is None:
+        logger = init_logger(name=name, lvl=lvl)
+    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
     start = time.time()
     return start
 
 
-def run_stop():
+def run_stop(logger=None, name=None):
     &#34;&#34;&#34;
     Log and return formatted elapsed run time.
 
     Returns:
         tuple of formatted run time, run time in seconds
     &#34;&#34;&#34;
-    logger = ensurelogger()
+    if logger is None:
+        logger = init_logger(name=name)
+    logger.info(&#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
     if start == 0:
         logger.warning(&#34;Run timing not set up properly, no time!&#34;)
         return &#34;&#34;,0
@@ -254,34 +254,6 @@ def support_annotation_or_set(method):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="gatenlp.utils.ensurelogger"><code class="name flex">
-<span>def <span class="ident">ensurelogger</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Make sure the global logger is set to some logger. This should not be necessary
-if the set_logger function is properly used, but guards against situations where
-functions that require a logger are used without proper setting up the logger.</p>
-<h2 id="returns">Returns</h2>
-<p>A logger instance.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def ensurelogger():
-    &#34;&#34;&#34;
-    Make sure the global logger is set to some logger. This should not be necessary
-    if the set_logger function is properly used, but guards against situations where
-    functions that require a logger are used without proper setting up the logger.
-
-    Returns:
-        A logger instance.
-    &#34;&#34;&#34;
-    global logger
-    if not logger:
-        logger = logging.getLogger(&#34;UNINITIALIZEDLOGGER&#34;)
-    return logger</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.utils.file4logger"><code class="name flex">
 <span>def <span class="ident">file4logger</span></span>(<span>thelogger, noext=False)</span>
 </code></dt>
@@ -316,6 +288,81 @@ functions that require a logger are used without proper setting up the logger.</
                 lpath = os.path.splitext(lpath)[0]
             break
     return lpath</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.init_logger"><code class="name flex">
+<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, args=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Configure the root logger (this only works the very first time, all subsequent
+invocations will not modify the root logger). The root logger is initialized
+with a standard format the given log level and, if specified the outputs to the
+given file.</p>
+<p>The get a new logger for the given name is retrieved using the given name or
+the invoking command if None. It is also set to the given logging leve and returned.</p>
+<p>TODO: If file is not given but args is given and has "outpref" parameter, log to
+file "outpref.DATETIME.log" as well.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>name to use in the log, if None, <strong>name</strong></dd>
+<dt><strong><code>file</code></strong></dt>
+<dd>if given, log to this destination in addition to stderr</dd>
+<dt><strong><code>lvl</code></strong></dt>
+<dd>set logging level</dd>
+<dt><strong><code>args</code></strong></dt>
+<dd>not used yet</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A logger instance for name (always the same instance for the same name)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_logger(name=None, file=None, lvl=None, args=None):
+    &#34;&#34;&#34;
+    Configure the root logger (this only works the very first time, all subsequent
+    invocations will not modify the root logger). The root logger is initialized
+    with a standard format the given log level and, if specified the outputs to the
+    given file.
+
+    The get a new logger for the given name is retrieved using the given name or
+    the invoking command if None. It is also set to the given logging leve and returned.
+
+    TODO: If file is not given but args is given and has &#34;outpref&#34; parameter, log to
+    file &#34;outpref.DATETIME.log&#34; as well.
+
+    Args:
+        name: name to use in the log, if None, __name__
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        args: not used yet
+
+    Returns:
+        A logger instance for name (always the same instance for the same name)
+    &#34;&#34;&#34;
+
+    if name is None:
+        name = sys.argv[0]
+    if lvl is None:
+        lvl = logging.INFO
+    # get the root logger
+    rl = logging.getLogger()
+    # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
+    # handler for the file, if needed, only if the root logger has no handlers yet as well
+    addhandlers = []
+    fmt = logging.Formatter(LOGGING_FORMAT)
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    addhandlers.append(hndlr)
+    if file and len(logging.getLogger().handlers) == 0:
+        hndlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        addhandlers.append(hndlr)
+    logging.basicConfig(level=lvl, handlers=addhandlers)
+    # now get the handler for name
+    logger = logging.getLogger(name)
+    return logger</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.utils.match_substrings"><code class="name flex">
@@ -413,7 +460,7 @@ start and end offsets of a substring in the text and item is the item for that s
 </details>
 </dd>
 <dt id="gatenlp.utils.run_start"><code class="name flex">
-<span>def <span class="ident">run_start</span></span>(<span>)</span>
+<span>def <span class="ident">run_start</span></span>(<span>logger=None, name=None, lvl=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Define time when running starts.</p>
@@ -423,20 +470,23 @@ start and end offsets of a substring in the text and item is the item for that s
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_start():
+<pre><code class="python">def run_start(logger=None, name=None, lvl=None):
     &#34;&#34;&#34;
     Define time when running starts.
 
     Returns:
         system time in seconds
     &#34;&#34;&#34;
-    global  start
+    global start
+    if logger is None:
+        logger = init_logger(name=name, lvl=lvl)
+    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
     start = time.time()
     return start</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.utils.run_stop"><code class="name flex">
-<span>def <span class="ident">run_stop</span></span>(<span>)</span>
+<span>def <span class="ident">run_stop</span></span>(<span>logger=None, name=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Log and return formatted elapsed run time.</p>
@@ -446,14 +496,16 @@ start and end offsets of a substring in the text and item is the item for that s
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_stop():
+<pre><code class="python">def run_stop(logger=None, name=None):
     &#34;&#34;&#34;
     Log and return formatted elapsed run time.
 
     Returns:
         tuple of formatted run time, run time in seconds
     &#34;&#34;&#34;
-    logger = ensurelogger()
+    if logger is None:
+        logger = init_logger(name=name)
+    logger.info(&#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
     if start == 0:
         logger.warning(&#34;Run timing not set up properly, no time!&#34;)
         return &#34;&#34;,0
@@ -462,66 +514,6 @@ start and end offsets of a substring in the text and item is the item for that s
     deltastr = str(datetime.timedelta(seconds=delta))
     logger.info(f&#34;Runtime: {deltastr}&#34;)
     return deltastr, delta</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.utils.set_logger"><code class="name flex">
-<span>def <span class="ident">set_logger</span></span>(<span>name=None, file=None, lvl=None, args=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set up logger for the module "name". If file is given, log to that file as well.
-If file is not given but args is given and has "outpref" parameter, log to
-file "outpref.DATETIME.log" as well.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>name to use in the log, if None, uses sys.argv[0]</dd>
-<dt><strong><code>file</code></strong></dt>
-<dd>if given, log to this destination in addition to stderr</dd>
-<dt><strong><code>lvl</code></strong></dt>
-<dd>set logging level</dd>
-<dt><strong><code>args</code></strong></dt>
-<dd>not used yet</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>The logger instance</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_logger(name=None, file=None, lvl=None, args=None):
-    &#34;&#34;&#34;
-    Set up logger for the module &#34;name&#34;. If file is given, log to that file as well.
-    If file is not given but args is given and has &#34;outpref&#34; parameter, log to
-    file &#34;outpref.DATETIME.log&#34; as well.
-
-    Args:
-        name: name to use in the log, if None, uses sys.argv[0]
-        file: if given, log to this destination in addition to stderr
-        lvl: set logging level
-        args: not used yet
-
-    Returns:
-        The logger instance
-    &#34;&#34;&#34;
-    global logger
-    if name is None:
-        name = sys.argv[0]
-    if logger:
-        raise Exception(&#34;Odd, we should not have a logger yet?&#34;)
-    logger = logging.getLogger(name)
-    if lvl is None:
-        lvl = logging.INFO
-    logger.setLevel(lvl)
-    fmt = logging.Formatter(&#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;)
-    hndlr = logging.StreamHandler(sys.stderr)
-    hndlr.setFormatter(fmt)
-    logger.addHandler(hndlr)
-    if file:
-        hdnlr = logging.FileHandler(file)
-        hndlr.setFormatter(fmt)
-        logger.addHandler(hdnlr)
-    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
-    return logger</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.utils.support_annotation_or_set"><code class="name flex">
@@ -604,12 +596,11 @@ to create a length one span (start is the original offset, end is the original o
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="gatenlp.utils.ensurelogger" href="#gatenlp.utils.ensurelogger">ensurelogger</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
+<li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
 <li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>
 <li><code><a title="gatenlp.utils.run_stop" href="#gatenlp.utils.run_stop">run_stop</a></code></li>
-<li><code><a title="gatenlp.utils.set_logger" href="#gatenlp.utils.set_logger">set_logger</a></code></li>
 <li><code><a title="gatenlp.utils.support_annotation_or_set" href="#gatenlp.utils.support_annotation_or_set">support_annotation_or_set</a></code></li>
 </ul>
 </li>
@@ -617,7 +608,7 @@ to create a length one span (start is the original offset, end is the original o
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
 </footer>
 </body>
 </html>
