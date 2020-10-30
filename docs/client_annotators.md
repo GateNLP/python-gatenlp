@@ -46,7 +46,7 @@ annotator = GateCloudAnnotator(
 
 ```python
 # an example document to annotate
-doc = Document("Barack Obama visited 💩💩 Microsoft in New York last May.")
+doc = Document("Barack Obama visited Microsoft in New York last May.")
 ```
 
 
@@ -59,25 +59,25 @@ doc
 
 
 
-<div><style>#IENDGERLUM-wrapper { color: black !important; }</style>
-<div id="IENDGERLUM-wrapper">
+<div><style>#BPVLAWPWEX-wrapper { color: black !important; }</style>
+<div id="BPVLAWPWEX-wrapper">
 
 <div>
 <style>
-#IENDGERLUM-content {
+#BPVLAWPWEX-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.IENDGERLUM-row {
+.BPVLAWPWEX-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.IENDGERLUM-col {
+.BPVLAWPWEX-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -87,23 +87,23 @@ doc
     overflow-y: auto;
 }
 
-.IENDGERLUM-hdr {
+.BPVLAWPWEX-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.IENDGERLUM-label {
+.BPVLAWPWEX-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.IENDGERLUM-input {
+.BPVLAWPWEX-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#IENDGERLUM-popup {
+#BPVLAWPWEX-popup {
     display: none;
     color: black;
     position: absolute;
@@ -118,45 +118,45 @@ doc
     overflow: auto;
 }
 
-.IENDGERLUM-selection {
+.BPVLAWPWEX-selection {
     margin-bottom: 5px;
 }
 
-.IENDGERLUM-featuretable {
+.BPVLAWPWEX-featuretable {
     margin-top: 10px;
 }
 
-.IENDGERLUM-fname {
+.BPVLAWPWEX-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.IENDGERLUM-fvalue {
+.BPVLAWPWEX-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="IENDGERLUM-content">
-        <div id="IENDGERLUM-popup" style="display: none;">
+  <div id="BPVLAWPWEX-content">
+        <div id="BPVLAWPWEX-popup" style="display: none;">
         </div>
-        <div class="IENDGERLUM-row" id="IENDGERLUM-row1" style="height:67vh; min-height:100px;">
-            <div id="IENDGERLUM-text-wrapper" class="IENDGERLUM-col" style="width:70%;">
-                <div class="IENDGERLUM-hdr" id="IENDGERLUM-dochdr"></div>
-                <div id="IENDGERLUM-text">
+        <div class="BPVLAWPWEX-row" id="BPVLAWPWEX-row1" style="height:67vh; min-height:100px;">
+            <div id="BPVLAWPWEX-text-wrapper" class="BPVLAWPWEX-col" style="width:70%;">
+                <div class="BPVLAWPWEX-hdr" id="BPVLAWPWEX-dochdr"></div>
+                <div id="BPVLAWPWEX-text">
                 </div>
             </div>
-            <div id="IENDGERLUM-chooser" class="IENDGERLUM-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="BPVLAWPWEX-chooser" class="BPVLAWPWEX-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="IENDGERLUM-row" id="IENDGERLUM-row2" style="height:30vh; min-height: 100px;">
-            <div id="IENDGERLUM-details" class="IENDGERLUM-col" style="width:100%; border-top-width: 0px;">
+        <div class="BPVLAWPWEX-row" id="BPVLAWPWEX-row2" style="height:30vh; min-height: 100px;">
+            <div id="BPVLAWPWEX-details" class="BPVLAWPWEX-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.11/gatenlp-ann-viewer.js"></script>
-    <script type="application/json" id="IENDGERLUM-data">
-    {"annotation_sets": {"ANNIE": {"name": "detached-from:ANNIE", "annotations": [{"type": "Date", "start": 48, "end": 56, "id": 0, "features": {"rule": "ModifierNamedDate", "ruleFinal": "DateOnlyFinal", "kind": "date"}}, {"type": "Location", "start": 39, "end": 47, "id": 1, "features": {"kind": "locName", "rule": "InLoc1", "locType": "city", "ruleFinal": "LocFinal"}}, {"type": "Organization", "start": 26, "end": 35, "id": 2, "features": {"orgType": "company", "rule": "GazOrganization", "ruleFinal": "OrgFinal"}}, {"type": "Person", "start": 0, "end": 12, "id": 3, "features": {"firstName": "Barack", "surname": "Obama", "kind": "fullName", "rule": "GazPerson", "gender": "male", "ruleFinal": "PersonFinal"}}, {"type": "Token", "start": 0, "end": 6, "id": 4, "features": {"string": "Barack", "length": "6", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 7, "end": 12, "id": 5, "features": {"string": "Obama", "length": "5", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 13, "end": 20, "id": 6, "features": {"string": "visited", "length": "7", "orth": "lowercase", "kind": "word", "category": "VBD"}}, {"type": "Token", "start": 21, "end": 23, "id": 7, "features": {"string": "\ud83d\udca9", "length": "2", "kind": "symbol", "category": "NN"}}, {"type": "Token", "start": 23, "end": 25, "id": 8, "features": {"string": "\ud83d\udca9", "length": "2", "kind": "symbol", "category": "NN"}}, {"type": "Token", "start": 26, "end": 35, "id": 9, "features": {"string": "Microsoft", "length": "9", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 36, "end": 38, "id": 10, "features": {"string": "in", "length": "2", "orth": "lowercase", "kind": "word", "category": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 11, "features": {"string": "New", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 43, "end": 47, "id": 12, "features": {"string": "York", "length": "4", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 48, "end": 52, "id": 13, "features": {"string": "last", "length": "4", "orth": "lowercase", "kind": "word", "category": "JJ"}}, {"type": "Token", "start": 53, "end": 56, "id": 14, "features": {"string": "May", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 56, "end": 57, "id": 15, "features": {"string": ".", "length": "1", "kind": "punctuation", "category": "."}}, {"type": "SpaceToken", "start": 6, "end": 7, "id": 16, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 17, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 20, "end": 21, "id": 18, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 25, "end": 26, "id": 19, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 35, "end": 36, "id": 20, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 38, "end": 39, "id": 21, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 42, "end": 43, "id": 22, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 23, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 52, "end": 53, "id": 24, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "Sentence", "start": 0, "end": 57, "id": 25, "features": {}}], "next_annid": 26}}, "text": "Barack Obama visited \ud83d\udca9\ud83d\udca9 Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""}
+    <script type="application/json" id="BPVLAWPWEX-data">
+    {"annotation_sets": {"ANNIE": {"name": "detached-from:ANNIE", "annotations": [{"type": "Date", "start": 43, "end": 51, "id": 0, "features": {"rule": "ModifierNamedDate", "ruleFinal": "DateOnlyFinal", "kind": "date"}}, {"type": "Location", "start": 34, "end": 42, "id": 1, "features": {"kind": "locName", "rule": "InLoc1", "locType": "city", "ruleFinal": "LocFinal"}}, {"type": "Organization", "start": 21, "end": 30, "id": 2, "features": {"orgType": "company", "rule": "GazOrganization", "ruleFinal": "OrgFinal"}}, {"type": "Person", "start": 0, "end": 12, "id": 3, "features": {"firstName": "Barack", "surname": "Obama", "kind": "fullName", "rule": "GazPerson", "gender": "male", "ruleFinal": "PersonFinal"}}, {"type": "Token", "start": 0, "end": 6, "id": 4, "features": {"string": "Barack", "length": "6", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 7, "end": 12, "id": 5, "features": {"string": "Obama", "length": "5", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 13, "end": 20, "id": 6, "features": {"string": "visited", "length": "7", "orth": "lowercase", "kind": "word", "category": "VBD"}}, {"type": "Token", "start": 21, "end": 30, "id": 7, "features": {"string": "Microsoft", "length": "9", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 31, "end": 33, "id": 8, "features": {"string": "in", "length": "2", "orth": "lowercase", "kind": "word", "category": "IN"}}, {"type": "Token", "start": 34, "end": 37, "id": 9, "features": {"string": "New", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 38, "end": 42, "id": 10, "features": {"string": "York", "length": "4", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 43, "end": 47, "id": 11, "features": {"string": "last", "length": "4", "orth": "lowercase", "kind": "word", "category": "JJ"}}, {"type": "Token", "start": 48, "end": 51, "id": 12, "features": {"string": "May", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 51, "end": 52, "id": 13, "features": {"string": ".", "length": "1", "kind": "punctuation", "category": "."}}, {"type": "SpaceToken", "start": 6, "end": 7, "id": 14, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 15, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 20, "end": 21, "id": 16, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 30, "end": 31, "id": 17, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 33, "end": 34, "id": 18, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 37, "end": 38, "id": 19, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 42, "end": 43, "id": 20, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 21, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "Sentence", "start": 0, "end": 52, "id": 22, "features": {}}], "next_annid": 23}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("IENDGERLUM-");
+        gatenlp_run("BPVLAWPWEX-");
     </script>
   </div>
 
