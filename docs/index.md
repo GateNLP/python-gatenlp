@@ -36,26 +36,28 @@ for running on your own computer.
 * [Installation](installation.md)
 * [Getting Started](getting-started) / [Getting Started Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/getting-started.ipynb) / [Notebook Download](getting-started.ipynb)
 * The Document class and classes related to components of a document:
-  * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
-  * [AnnotationSet](annotationsets) / [AnnotationSet Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [Notebook Download](annotationsets.ipynb)
-  * [Document](documents) / [Document Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [Notebook Download](documents.ipynb)
+    * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
+    * [AnnotationSet](annotationsets) / [AnnotationSet Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [Notebook Download](annotationsets.ipynb)
+    * [Document](documents) / [Document Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [Notebook Download](documents.ipynb)
 * The Changelog class for recording changes to a document
-  * [ChangeLog](changelogs)
+    * [ChangeLog](changelogs)
 * A [comparison with the Java GATE API](diffs2gate)
 * The module for running python code from the GATE Python plugin
-  * [GateInteraction](gateinteraction)
+    * [GateInteraction](gateinteraction)
 * The module for running Java GATE code from python
-  * [GateSlave](gateslave) / [GateSlave Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateslave.ipynb)) / [Notebook Download](gateslave.ipynb)
+    * [GateSlave](gateslave) / [GateSlave Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateslave.ipynb)) / [Notebook Download](gateslave.ipynb)
 * Modules for interaction with other NLP packages and converting their documents
-  * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
-  * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
-  * [`lib_stanfordnlp`](lib_stanfordnlp) for interacting with [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/)
+    * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
+    * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
+    * [`lib_stanfordnlp`](lib_stanfordnlp) for interacting with [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/)
+* Connecting to annotation services on the web:
+    * [Client Annotators](client_annotators) / [Client Annotators Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [Notebook Download](client_annotators.ipynb)
 * Modules related to NLP processing (in development):
-  * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
-  * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
-  * [Gazetteers](gazetteers) NOT YET
-  * [Annotation Rules/Patterns: ARUPAC](arupac) NOT YET
-  * [Machine Learning](ml) NOT YET
+    * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
+    * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
+    * [Gazetteers](gazetteers) NOT YET
+    * [Annotation Rules/Patterns: ARUPAC](arupac) NOT YET
+* [Machine Learning](ml) NOT YET
 * [Comparison to other Python NLP packages](comparison)
 
 * [The Generated Python Documentation](pythondoc/gatenlp)
