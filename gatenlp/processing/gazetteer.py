@@ -15,7 +15,9 @@ class Gazetteer(Annotator):
     """
     Base class of all gazetteer classes.
     """
-    pass
+    def __call__(self, *args, **kwargs):
+        raise NotImplemented
+
 
 # NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
 # class TokenGazetteerMatch, with __slots__=("start", "end", "match", "entrydata", "matcherdata")

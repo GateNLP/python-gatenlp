@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<title>gatenlp.processing.client API documentation</title>
+<meta name="description" content="Module that provides various Annotators which act as clients to REST annotation services." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.processing.client</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that provides various Annotators which act as clients to REST annotation services.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that provides various Annotators which act as clients to REST annotation services.
+&#34;&#34;&#34;
+
+import logging
+from gatenlp.processing.annotator import Annotator
+import requests
+from requests.auth import HTTPBasicAuth
+from gatenlp.utils import init_logger
+import time
+from gatenlp.offsetmapper import OffsetMapper
+
+# TODO:
+# * support compression send/receive
+# * send GATE XML for existing annotations (requires GATE XML serialization writer)
+# * send raw HTML or other formats support by the endpoint instead &#34;doc&#34; (which so far is just text)
+# * maybe support the 100-continue protocol so far we dont
+# * ERROR HANDLING: raise exception vs return None?
+class GateCloudAnnotator(Annotator):
+    &#34;&#34;&#34;
+    This annotator sends the text of a document to a GATE Cloud (https://cloud.gate.ac.uk/) endpoint and uses the
+    returned result to create annotations.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 api_key=None,
+                 api_password=None,
+                 url=None,
+                 ann_types=None,
+                 map_types=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        &#34;&#34;&#34;
+        Create a GateCloudAnnotator.
+
+        Args:
+            api_key: API key needed to authenticate. Some services can be used in a limited way without
+               authentication.
+            api_password: API password needed to authenticale.
+            url:  the URL of the annotation service endpoint, shown on the GATE Cloud page for the service
+            ann_types: this can be used to let the service annotate fewer or more than the default list of annotation
+               types. The default list and all possible annotations are shown on the GATE Cloud page for the service.
+               Either a string with comma separated annotation types preceded by a colon (e.g. &#34;:Person,:Location&#34;)
+               or a python list with those type names (e.g. [&#34;:Person&#34;, &#34;:Location&#34;]). If the list contains type names
+               without a leading colon, the colon is added.
+            map_types: a dict which maps the annotation types from the service to arbitrary new annotation types,
+               any type name not in the map will remain unchanged.
+            out_annset: the annotation set in which to store the annotations
+            min_delay_ms: minimum time in milliseconds between two subsequent requests to the server
+        &#34;&#34;&#34;
+        self.api_key = api_key
+        self.api_password = api_password
+        self.url = url
+        self.map_types = map_types
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.out_annset = out_annset
+        if ann_types:
+            if isinstance(ann_types, str):
+                self.ann_types = ann_types
+            elif isinstance(ann_types, list):
+                self.ann_types = &#34;,&#34;.join([at if at.startswith(&#34;:&#34;) else &#34;:&#34;+at for at in ann_types])
+            else:
+                raise Exception(&#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;)
+        else:
+            self.ann_types = None
+        self.logger = init_logger()
+        self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+
+    def __call__(self, doc, **kwargs):
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        if &#34;url&#34; in kwargs:
+            url = kwargs[&#34;url&#34;]
+        else:
+            url = self.url
+        text = doc.text
+        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        params = {}
+        if self.ann_types:
+            params[&#34;annotations&#34;] = self.ann_types
+        # NOTE: not sure when this is needed, for now, disabled
+        #next_annid = doc.annset(self.out_annset)._next_annid
+        #params[&#34;nextAnnotationId&#34;] = str(next_annid)
+        # self.logger.debug(f&#34;Sending text={text}, params={params}&#34;)
+        if self.api_key:
+            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params,
+                                     auth=HTTPBasicAuth(self.api_key, self.api_password))
+        else:
+            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        ents = json.get(&#34;entities&#34;, {})
+        annset = doc.annset(self.out_annset)
+        for typename, anns in ents.items():
+            for anndata in anns:
+                feats = {}
+                start, end = None, None   # cause an exception if the return data does not have indices
+                for fname, fval in anndata.items():
+                    if fname == &#34;indices&#34;:
+                        start, end = fval[0], fval[1]
+                    else:
+                        feats[fname] = fval
+                if self.map_types:
+                    typename = self.map_types.get(typename, typename)
+                # self.logger.debug(f&#34;Adding annotation {start},{start},{typename},{feats}&#34;)
+                annset.add(start, end, typename, features=feats)
+        return doc
+
+
+class TagMeAnnotator(Annotator):
+    &#34;&#34;&#34;
+    An annotator that sends text to the TagMe Annotation service (https://sobigdata.d4science.org/group/tagme/tagme)
+    and uses the result to annotate the document.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 lang=&#34;en&#34;,
+                 ann_type=&#34;Mention&#34;,
+                 auth_token=None,
+                 url=None,
+                 task=&#34;tag&#34;, # or spot
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 tweet=False,
+                 include_all_spots=False,
+                 long_text=None,
+                 epsilon=None,
+                 link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;
+                 ):
+        &#34;&#34;&#34;
+        Create a TagMeAnnotator.
+
+        Args:
+            lang: the language of the text, one of &#39;de&#39;, &#39;en&#39; (default), &#39;it&#39;
+            ann_type: the annotation type for the new annotations, default is &#34;Mention&#34;
+            auth_token: the authentication token needed to use the service
+            url: the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used
+            task: one of &#34;spot&#34; (only find mentions) or &#34;tag&#34; (find mentions and link), default is &#34;tag&#34;
+            out_annset: the annotationset to put the new annotations in
+            min_delay_ms: minimum time in ms to wait between requests to the server
+            tweet: if True, TagMe expects a Tweet (default is False)
+            include_all_spots: if True, include spots that cannot be linked (default is False)
+            long_text: if not None, the context length to use (default: None)
+            epsilon: if not None, the epsilong value (float) to use (default: None)
+            link_pattern: the URL pattern to use to turn the &#34;title&#34; returned from TagMe into an actual link. The
+               default is &#34;https://{0}.wikipedia.org/wiki/{1}&#34; where {0} gets replaced with the language code and
+               {1} gets replaced with the title.
+        &#34;&#34;&#34;
+        if url is None:
+            if task == &#34;tag&#34;:
+                url = &#34;https://tagme.d4science.org/tagme/tag&#34;
+            elif task == &#34;spot&#34;:
+                url = &#34;https://tagme.d4science.org/tagme/spot&#34;
+            else:
+                raise Exception(&#34;task must be &#39;tag&#39; or &#39;spot&#39;&#34;)
+        assert lang in [&#39;en&#39;, &#39;de&#39;, &#39;it&#39;]
+        if long_text is not None:
+            assert isinstance(long_text, int)
+        if epsilon is not None:
+            assert isinstance(epsilon, float)
+        self.long_text = long_text
+        self.epsilon = epsilon
+        self.lang = lang
+        self.auth_token = auth_token
+        self.url = url
+        self.tweet = tweet
+        self.include_all_spots = include_all_spots
+        self.out_annset = out_annset
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.logger = init_logger()
+        # self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+        self.ann_type = ann_type
+        self.link_pattern = link_pattern
+
+    def __call__(self, doc, **kwargs):
+        if &#39;tweet&#39; in kwargs:
+            tweet = kwargs[&#34;tweet&#34;]
+        else:
+            tweet = self.tweet
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        text = doc.text
+        text = doc.text
+        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        params = {
+            &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
+        }
+        if self.include_all_spots:
+            params[&#34;include_all_spots&#34;] = &#34;true&#34;
+        if tweet:
+            params[&#34;tweet&#34;] = &#34;true&#34;
+        if self.long_text is not None:
+            params[&#34;long_text&#34;] = self.long_text
+        if self.epsilon is not None:
+            params[&#34;epsilon&#34;] = self.epsilon
+        response = requests.post(self.url, params=params)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        # self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        ents = json.get(&#34;annotations&#34;, {})
+        annset = doc.annset(self.out_annset)
+        om = OffsetMapper(text)
+        for ent in ents:
+            start = ent[&#34;start&#34;]
+            end = ent[&#34;end&#34;]
+            start, end = om.convert_to_python([start, end])
+            feats = {}
+            title = ent.get(&#34;title&#34;)
+            if title is not None:
+                if self.link_pattern:
+                    feats[&#34;url&#34;] = self.link_pattern.format(self.lang, title)
+                else:
+                    feats[&#34;title&#34;] = title
+            for fname in [&#34;id&#34;, &#34;rho&#34;, &#34;link_probability&#34;, &#34;lp&#34;]:
+                fval = ent.get(fname)
+                if fval is not None:
+                    feats[fname] = fval
+            # self.logger.debug(f&#34;Adding annotation {start},{end},{feats}&#34;)
+            annset.add(start, end, self.ann_type, features=feats)
+        return doc
+
+
+class ElgTextAnnotator(Annotator):
+    &#34;&#34;&#34;
+    Not yet implemented.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 auth_token=None,
+                 url=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        pass
+
+    def __call__(self, doc, **kwargs):
+        pass</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.processing.client.ElgTextAnnotator"><code class="flex name class">
+<span>class <span class="ident">ElgTextAnnotator</span></span>
+<span>(</span><span>auth_token=None, url=None, out_annset='', min_delay_ms=501)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Not yet implemented.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ElgTextAnnotator(Annotator):
+    &#34;&#34;&#34;
+    Not yet implemented.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 auth_token=None,
+                 url=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        pass
+
+    def __call__(self, doc, **kwargs):
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.processing.client.GateCloudAnnotator"><code class="flex name class">
+<span>class <span class="ident">GateCloudAnnotator</span></span>
+<span>(</span><span>api_key=None, api_password=None, url=None, ann_types=None, map_types=None, out_annset='', min_delay_ms=501)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This annotator sends the text of a document to a GATE Cloud (<a href="https://cloud.gate.ac.uk/">https://cloud.gate.ac.uk/</a>) endpoint and uses the
+returned result to create annotations.</p>
+<p>Create a GateCloudAnnotator.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>api_key</code></strong></dt>
+<dd>API key needed to authenticate. Some services can be used in a limited way without
+authentication.</dd>
+<dt><strong><code>api_password</code></strong></dt>
+<dd>API password needed to authenticale.</dd>
+<dt><strong><code>url</code></strong></dt>
+<dd>the URL of the annotation service endpoint, shown on the GATE Cloud page for the service</dd>
+<dt><strong><code>ann_types</code></strong></dt>
+<dd>this can be used to let the service annotate fewer or more than the default list of annotation
+types. The default list and all possible annotations are shown on the GATE Cloud page for the service.
+Either a string with comma separated annotation types preceded by a colon (e.g. ":Person,:Location")
+or a python list with those type names (e.g. [":Person", ":Location"]). If the list contains type names
+without a leading colon, the colon is added.</dd>
+<dt><strong><code>map_types</code></strong></dt>
+<dd>a dict which maps the annotation types from the service to arbitrary new annotation types,
+any type name not in the map will remain unchanged.</dd>
+<dt><strong><code>out_annset</code></strong></dt>
+<dd>the annotation set in which to store the annotations</dd>
+<dt><strong><code>min_delay_ms</code></strong></dt>
+<dd>minimum time in milliseconds between two subsequent requests to the server</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GateCloudAnnotator(Annotator):
+    &#34;&#34;&#34;
+    This annotator sends the text of a document to a GATE Cloud (https://cloud.gate.ac.uk/) endpoint and uses the
+    returned result to create annotations.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 api_key=None,
+                 api_password=None,
+                 url=None,
+                 ann_types=None,
+                 map_types=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        &#34;&#34;&#34;
+        Create a GateCloudAnnotator.
+
+        Args:
+            api_key: API key needed to authenticate. Some services can be used in a limited way without
+               authentication.
+            api_password: API password needed to authenticale.
+            url:  the URL of the annotation service endpoint, shown on the GATE Cloud page for the service
+            ann_types: this can be used to let the service annotate fewer or more than the default list of annotation
+               types. The default list and all possible annotations are shown on the GATE Cloud page for the service.
+               Either a string with comma separated annotation types preceded by a colon (e.g. &#34;:Person,:Location&#34;)
+               or a python list with those type names (e.g. [&#34;:Person&#34;, &#34;:Location&#34;]). If the list contains type names
+               without a leading colon, the colon is added.
+            map_types: a dict which maps the annotation types from the service to arbitrary new annotation types,
+               any type name not in the map will remain unchanged.
+            out_annset: the annotation set in which to store the annotations
+            min_delay_ms: minimum time in milliseconds between two subsequent requests to the server
+        &#34;&#34;&#34;
+        self.api_key = api_key
+        self.api_password = api_password
+        self.url = url
+        self.map_types = map_types
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.out_annset = out_annset
+        if ann_types:
+            if isinstance(ann_types, str):
+                self.ann_types = ann_types
+            elif isinstance(ann_types, list):
+                self.ann_types = &#34;,&#34;.join([at if at.startswith(&#34;:&#34;) else &#34;:&#34;+at for at in ann_types])
+            else:
+                raise Exception(&#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;)
+        else:
+            self.ann_types = None
+        self.logger = init_logger()
+        self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+
+    def __call__(self, doc, **kwargs):
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        if &#34;url&#34; in kwargs:
+            url = kwargs[&#34;url&#34;]
+        else:
+            url = self.url
+        text = doc.text
+        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        params = {}
+        if self.ann_types:
+            params[&#34;annotations&#34;] = self.ann_types
+        # NOTE: not sure when this is needed, for now, disabled
+        #next_annid = doc.annset(self.out_annset)._next_annid
+        #params[&#34;nextAnnotationId&#34;] = str(next_annid)
+        # self.logger.debug(f&#34;Sending text={text}, params={params}&#34;)
+        if self.api_key:
+            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params,
+                                     auth=HTTPBasicAuth(self.api_key, self.api_password))
+        else:
+            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        ents = json.get(&#34;entities&#34;, {})
+        annset = doc.annset(self.out_annset)
+        for typename, anns in ents.items():
+            for anndata in anns:
+                feats = {}
+                start, end = None, None   # cause an exception if the return data does not have indices
+                for fname, fval in anndata.items():
+                    if fname == &#34;indices&#34;:
+                        start, end = fval[0], fval[1]
+                    else:
+                        feats[fname] = fval
+                if self.map_types:
+                    typename = self.map_types.get(typename, typename)
+                # self.logger.debug(f&#34;Adding annotation {start},{start},{typename},{feats}&#34;)
+                annset.add(start, end, typename, features=feats)
+        return doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.processing.client.TagMeAnnotator"><code class="flex name class">
+<span>class <span class="ident">TagMeAnnotator</span></span>
+<span>(</span><span>lang='en', ann_type='Mention', auth_token=None, url=None, task='tag', out_annset='', min_delay_ms=501, tweet=False, include_all_spots=False, long_text=None, epsilon=None, link_pattern='https://{0}.wikipedia.org/wiki/{1}')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An annotator that sends text to the TagMe Annotation service (<a href="https://sobigdata.d4science.org/group/tagme/tagme">https://sobigdata.d4science.org/group/tagme/tagme</a>)
+and uses the result to annotate the document.</p>
+<p>Create a TagMeAnnotator.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>lang</code></strong></dt>
+<dd>the language of the text, one of 'de', 'en' (default), 'it'</dd>
+<dt><strong><code>ann_type</code></strong></dt>
+<dd>the annotation type for the new annotations, default is "Mention"</dd>
+<dt><strong><code>auth_token</code></strong></dt>
+<dd>the authentication token needed to use the service</dd>
+<dt><strong><code>url</code></strong></dt>
+<dd>the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used</dd>
+<dt><strong><code>task</code></strong></dt>
+<dd>one of "spot" (only find mentions) or "tag" (find mentions and link), default is "tag"</dd>
+<dt><strong><code>out_annset</code></strong></dt>
+<dd>the annotationset to put the new annotations in</dd>
+<dt><strong><code>min_delay_ms</code></strong></dt>
+<dd>minimum time in ms to wait between requests to the server</dd>
+<dt><strong><code>tweet</code></strong></dt>
+<dd>if True, TagMe expects a Tweet (default is False)</dd>
+<dt><strong><code>include_all_spots</code></strong></dt>
+<dd>if True, include spots that cannot be linked (default is False)</dd>
+<dt><strong><code>long_text</code></strong></dt>
+<dd>if not None, the context length to use (default: None)</dd>
+<dt><strong><code>epsilon</code></strong></dt>
+<dd>if not None, the epsilong value (float) to use (default: None)</dd>
+<dt><strong><code>link_pattern</code></strong></dt>
+<dd>the URL pattern to use to turn the "title" returned from TagMe into an actual link. The
+default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the language code and
+{1} gets replaced with the title.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TagMeAnnotator(Annotator):
+    &#34;&#34;&#34;
+    An annotator that sends text to the TagMe Annotation service (https://sobigdata.d4science.org/group/tagme/tagme)
+    and uses the result to annotate the document.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 lang=&#34;en&#34;,
+                 ann_type=&#34;Mention&#34;,
+                 auth_token=None,
+                 url=None,
+                 task=&#34;tag&#34;, # or spot
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 tweet=False,
+                 include_all_spots=False,
+                 long_text=None,
+                 epsilon=None,
+                 link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;
+                 ):
+        &#34;&#34;&#34;
+        Create a TagMeAnnotator.
+
+        Args:
+            lang: the language of the text, one of &#39;de&#39;, &#39;en&#39; (default), &#39;it&#39;
+            ann_type: the annotation type for the new annotations, default is &#34;Mention&#34;
+            auth_token: the authentication token needed to use the service
+            url: the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used
+            task: one of &#34;spot&#34; (only find mentions) or &#34;tag&#34; (find mentions and link), default is &#34;tag&#34;
+            out_annset: the annotationset to put the new annotations in
+            min_delay_ms: minimum time in ms to wait between requests to the server
+            tweet: if True, TagMe expects a Tweet (default is False)
+            include_all_spots: if True, include spots that cannot be linked (default is False)
+            long_text: if not None, the context length to use (default: None)
+            epsilon: if not None, the epsilong value (float) to use (default: None)
+            link_pattern: the URL pattern to use to turn the &#34;title&#34; returned from TagMe into an actual link. The
+               default is &#34;https://{0}.wikipedia.org/wiki/{1}&#34; where {0} gets replaced with the language code and
+               {1} gets replaced with the title.
+        &#34;&#34;&#34;
+        if url is None:
+            if task == &#34;tag&#34;:
+                url = &#34;https://tagme.d4science.org/tagme/tag&#34;
+            elif task == &#34;spot&#34;:
+                url = &#34;https://tagme.d4science.org/tagme/spot&#34;
+            else:
+                raise Exception(&#34;task must be &#39;tag&#39; or &#39;spot&#39;&#34;)
+        assert lang in [&#39;en&#39;, &#39;de&#39;, &#39;it&#39;]
+        if long_text is not None:
+            assert isinstance(long_text, int)
+        if epsilon is not None:
+            assert isinstance(epsilon, float)
+        self.long_text = long_text
+        self.epsilon = epsilon
+        self.lang = lang
+        self.auth_token = auth_token
+        self.url = url
+        self.tweet = tweet
+        self.include_all_spots = include_all_spots
+        self.out_annset = out_annset
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.logger = init_logger()
+        # self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+        self.ann_type = ann_type
+        self.link_pattern = link_pattern
+
+    def __call__(self, doc, **kwargs):
+        if &#39;tweet&#39; in kwargs:
+            tweet = kwargs[&#34;tweet&#34;]
+        else:
+            tweet = self.tweet
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        text = doc.text
+        text = doc.text
+        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        params = {
+            &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
+        }
+        if self.include_all_spots:
+            params[&#34;include_all_spots&#34;] = &#34;true&#34;
+        if tweet:
+            params[&#34;tweet&#34;] = &#34;true&#34;
+        if self.long_text is not None:
+            params[&#34;long_text&#34;] = self.long_text
+        if self.epsilon is not None:
+            params[&#34;epsilon&#34;] = self.epsilon
+        response = requests.post(self.url, params=params)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        # self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        ents = json.get(&#34;annotations&#34;, {})
+        annset = doc.annset(self.out_annset)
+        om = OffsetMapper(text)
+        for ent in ents:
+            start = ent[&#34;start&#34;]
+            end = ent[&#34;end&#34;]
+            start, end = om.convert_to_python([start, end])
+            feats = {}
+            title = ent.get(&#34;title&#34;)
+            if title is not None:
+                if self.link_pattern:
+                    feats[&#34;url&#34;] = self.link_pattern.format(self.lang, title)
+                else:
+                    feats[&#34;title&#34;] = title
+            for fname in [&#34;id&#34;, &#34;rho&#34;, &#34;link_probability&#34;, &#34;lp&#34;]:
+                fval = ent.get(fname)
+                if fval is not None:
+                    feats[fname] = fval
+            # self.logger.debug(f&#34;Adding annotation {start},{end},{feats}&#34;)
+            annset.add(start, end, self.ann_type, features=feats)
+        return doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.processing" href="index.html">gatenlp.processing</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.processing.client.ElgTextAnnotator" href="#gatenlp.processing.client.ElgTextAnnotator">ElgTextAnnotator</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.client.GateCloudAnnotator" href="#gatenlp.processing.client.GateCloudAnnotator">GateCloudAnnotator</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.client.TagMeAnnotator" href="#gatenlp.processing.client.TagMeAnnotator">TagMeAnnotator</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+</footer>
+</body>
+</html>

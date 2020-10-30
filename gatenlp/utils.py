@@ -5,6 +5,7 @@ import numbers
 import sys
 import os
 import logging
+import logging.config
 import datetime
 import time
 from functools import wraps
@@ -75,7 +76,7 @@ start = 0
 LOGGING_FORMAT = '%(asctime)s|%(levelname)s|%(name)s|%(message)s'
 
 
-def init_logger(name=None, file=None, lvl=None, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, args=None):
     """
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -92,6 +93,7 @@ def init_logger(name=None, file=None, lvl=None, args=None):
         name: name to use in the log, if None, __name__
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
+        config: if specified, set logger config from this file
         args: not used yet
 
     Returns:
@@ -102,6 +104,11 @@ def init_logger(name=None, file=None, lvl=None, args=None):
         name = sys.argv[0]
     if lvl is None:
         lvl = logging.INFO
+    if config:
+        # NOTE we could also configure from a yaml file or a dictionary, see
+        # http://zetcode.com/python/logging/
+        # see doc on logging.config
+        logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional

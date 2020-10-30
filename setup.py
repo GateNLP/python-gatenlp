@@ -42,15 +42,17 @@ def get_install_extras_require():
         'stanza': ['stanza'],
         'spacy': ['spacy'],
         'nltk': ['nltk'],
-        'gazetteers': ['matchtext'],
-        # the following are not included in all:
+        'gazetteers': ['matchtext', 'recordclass'],
+        # the following are not included in all but in alldev
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
-            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy',
+            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy', 'jupyterlab', 'notebook', 'voila', 
             'setuptools_git', 'setuptools_scm',
             ],
     }
     # Add automatically the 'all' target
-    extras_require.update({'all': [p for l in extras_require.values() for p in l if p not in ['dev']]})
+    add_all = [p for l in extras_require.values() for p in l if p not in ['dev']]
+    add_alldev = [p for l in extras_require.values() for p in l ]
+    extras_require.update({'all': add_all, 'alldev': add_alldev})
     return extras_require
 
 setup(

@@ -47,7 +47,9 @@ class Gazetteer(Annotator):
     &#34;&#34;&#34;
     Base class of all gazetteer classes.
     &#34;&#34;&#34;
-    pass
+    def __call__(self, *args, **kwargs):
+        raise NotImplemented
+
 
 # NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
 # class TokenGazetteerMatch, with __slots__=(&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
@@ -696,7 +698,8 @@ class StringMatcher:
     &#34;&#34;&#34;
     Base class of all gazetteer classes.
     &#34;&#34;&#34;
-    pass</code></pre>
+    def __call__(self, *args, **kwargs):
+        raise NotImplemented</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

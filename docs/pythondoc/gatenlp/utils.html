@@ -34,6 +34,7 @@ import numbers
 import sys
 import os
 import logging
+import logging.config
 import datetime
 import time
 from functools import wraps
@@ -104,7 +105,7 @@ start = 0
 LOGGING_FORMAT = &#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;
 
 
-def init_logger(name=None, file=None, lvl=None, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, args=None):
     &#34;&#34;&#34;
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -121,6 +122,7 @@ def init_logger(name=None, file=None, lvl=None, args=None):
         name: name to use in the log, if None, __name__
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
+        config: if specified, set logger config from this file
         args: not used yet
 
     Returns:
@@ -131,6 +133,11 @@ def init_logger(name=None, file=None, lvl=None, args=None):
         name = sys.argv[0]
     if lvl is None:
         lvl = logging.INFO
+    if config:
+        # NOTE we could also configure from a yaml file or a dictionary, see
+        # http://zetcode.com/python/logging/
+        # see doc on logging.config
+        logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
@@ -291,7 +298,7 @@ def support_annotation_or_set(method):
 </details>
 </dd>
 <dt id="gatenlp.utils.init_logger"><code class="name flex">
-<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, args=None)</span>
+<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, args=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Configure the root logger (this only works the very first time, all subsequent
@@ -310,6 +317,8 @@ file "outpref.DATETIME.log" as well.</p>
 <dd>if given, log to this destination in addition to stderr</dd>
 <dt><strong><code>lvl</code></strong></dt>
 <dd>set logging level</dd>
+<dt><strong><code>config</code></strong></dt>
+<dd>if specified, set logger config from this file</dd>
 <dt><strong><code>args</code></strong></dt>
 <dd>not used yet</dd>
 </dl>
@@ -319,7 +328,7 @@ file "outpref.DATETIME.log" as well.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def init_logger(name=None, file=None, lvl=None, args=None):
+<pre><code class="python">def init_logger(name=None, file=None, lvl=None, config=None, args=None):
     &#34;&#34;&#34;
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -336,6 +345,7 @@ file "outpref.DATETIME.log" as well.</p>
         name: name to use in the log, if None, __name__
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
+        config: if specified, set logger config from this file
         args: not used yet
 
     Returns:
@@ -346,6 +356,11 @@ file "outpref.DATETIME.log" as well.</p>
         name = sys.argv[0]
     if lvl is None:
         lvl = logging.INFO
+    if config:
+        # NOTE we could also configure from a yaml file or a dictionary, see
+        # http://zetcode.com/python/logging/
+        # see doc on logging.config
+        logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
