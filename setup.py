@@ -47,6 +47,7 @@ def get_install_extras_require():
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
             'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy', 'jupyterlab', 'notebook', 'voila', 
             'setuptools_git', 'setuptools_scm',
+            'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             ],
     }
     # Add automatically the 'all' target
