@@ -164,6 +164,8 @@ class Document:
         for change in changes:
             cmd = change.get("command")
             fname = change.get("feature")
+            fvalue = change.get("value")
+            features = change.get("features")
             sname = change.get("set")
             annid = change.get("id")
             if cmd is None:
@@ -181,7 +183,7 @@ class Document:
                 anntype = change.get("type")
 
                 if ann is None:
-                    anns.add(start, end, anntype, annid)
+                    anns.add(start, end, anntype, annid=annid, features=features)
                 else:
                     if handle_existing_anns == ADDANN_IGNORE:
                         pass
@@ -191,14 +193,11 @@ class Document:
                         anns.remove(annid)
                         anns.add(start, end, anntype, annid)
                     elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
-                        features = change.get("features")
                         ann.features.update(features)
                     elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
-                        features = change.get("features")
                         ann.features.clear()
                         ann.features.update(features)
                     elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
-                        features = change.get("features")
                         fns = ann.feature_names()
                         for f in features.keys():
                             if f not in fns:
@@ -219,6 +218,12 @@ class Document:
                     pass # ignore, could happen with a detached annotation
             elif cmd == ACTION_CLEAR_DOC_FEATURES:
                 self.features.clear()
+            elif cmd == ACTION_SET_ANN_FEATURE:
+                assert fname is not None
+                assert sname is not None
+                assert annid is not None
+                ann = self.annset(sname).get(annid)
+                ann.features[fname] = fvalue
             elif cmd == ACTION_DEL_ANN_FEATURE:
                 assert sname is not None
                 assert annid is not None
@@ -237,6 +242,16 @@ class Document:
                 assert annid is not None
                 anns = self.annset(sname)
                 anns.remove(annid)
+            elif cmd == ACTION_SET_DOC_FEATURE:
+                assert fname is not None
+                self.features[fname] = fvalue
+            elif cmd == ACTION_CLEAR_DOC_FEATURES:
+                self._features.clear()
+            elif cmd == ACTION_DEL_DOC_FEATURE:
+                assert fname is not None
+                del self._features[fname]
+            else:
+                raise Exception("Unknown ChangeLog action: ", cmd)
 
     @property
     def features(self):
