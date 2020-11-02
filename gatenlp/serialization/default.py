@@ -13,6 +13,7 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
+from gatenlp.features import Features
 from gzip import open as gopen, compress, decompress
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -473,7 +474,7 @@ class MsgPackSerializer:
         doc.offset_type = u.unpack()
         doc._text = u.unpack()
         doc.name = u.unpack()
-        doc._features = u.unpack()
+        doc._features = Features(u.unpack())
         nsets = u.unpack()
         setsdict = dict()
         doc.annotation_sets = setsdict
@@ -493,6 +494,7 @@ class MsgPackSerializer:
                 ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
                 annset._annotations[aid] = ann
             setsdict[sname] = annset
+        doc._annotation_sets = setsdict
         return doc
 
     @staticmethod
