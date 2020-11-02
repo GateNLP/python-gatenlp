@@ -1,10 +1,10 @@
 # Python GateNLP 
 ## A Python package for NLP similar to the Java GATE NLP framework
 
-This is a package for representing the basic elements of text processing
+This is a Python package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
 [Java GATE NLP](https://gate.ac.uk/)
-framework.
+framework. 
 
 Processed documents exported from Java GATE can be used and processed documents
 exported from this package can be used by Java GATE. In addition this package:
@@ -52,12 +52,8 @@ for running on your own computer.
     * [`lib_stanfordnlp`](lib_stanfordnlp) for interacting with [StanfordNLP](https://stanfordnlp.github.io/stanfordnlp/)
 * Connecting to annotation services on the web:
     * [Client Annotators](client_annotators) / [Client Annotators Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [Notebook Download](client_annotators.ipynb)
-* Modules related to NLP processing (in development):
+* Modules related to NLP processing:
     * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
     * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
-    * [Gazetteers](gazetteers) NOT YET
-    * [Annotation Rules/Patterns: ARUPAC](arupac) NOT YET
-* [Machine Learning](ml) NOT YET
-* [Comparison to other Python NLP packages](comparison)
 
 * [The Generated Python Documentation](pythondoc/gatenlp)

@@ -3,6 +3,7 @@ Module that provides various Annotators which act as clients to REST annotation 
 """
 
 import logging
+import json
 from gatenlp.processing.annotator import Annotator
 import requests
 from requests.auth import HTTPBasicAuth
@@ -186,7 +187,6 @@ class TagMeAnnotator(Annotator):
         if delay < self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         text = doc.text
-        text = doc.text
         hdrs = {'Content-Type': 'text/plain; charset=UTF-8', 'Accept': 'application/gate+json'}
         params = {
             'text': text, 'gcube-token': self.auth_token, 'lang': self.lang,
@@ -199,7 +199,7 @@ class TagMeAnnotator(Annotator):
             params["long_text"] = self.long_text
         if self.epsilon is not None:
             params["epsilon"] = self.epsilon
-        response = requests.post(self.url, params=params)
+        response = requests.post(self.url, params=params, headers=hdrs)
         scode = response.status_code
         if scode != 200:
             raise Exception(f"Something went wrong, received status code {scode}")
@@ -230,15 +230,70 @@ class TagMeAnnotator(Annotator):
 
 class ElgTextAnnotator(Annotator):
     """
-    Not yet implemented.
+    An annotator that sends text to one of the services registered with the European Language Grid
+    (https://live.european-language-grid.eu/) and uses the result to create annotations.
+
+    NOTE: This is maybe not properly implemented and not properly tested yet!
     """
     def __init__(self,
                  auth_token=None,
                  url=None,
                  out_annset="",
                  min_delay_ms=501,
+                 anntypes_map=None,
                  ):
-        pass
+        """
+        Create an ElgTextAnnotator.
+
+        Args:
+            auth_token: the authentication token from ELG
+            url:  the annotation service URL to use
+            out_annset: the name of the annotation set where to create the annotations (default: "")
+            min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
+            anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
+               the annotated document.
+        """
+        assert url is not None
+        self.auth_token = auth_token
+        self.url = url
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.anntypes_map = anntypes_map
+        self.out_annset = out_annset
+        self.logger = init_logger()
+        # self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
-        pass
+        delay = time.time() - self._last_call_time
+        if delay < self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        om = OffsetMapper(doc.text)
+        request_json = json.dumps({"type": "text", "content": doc.text, "mimeType": "text/plain"})
+        hdrs = {'Content-Type': 'application/json'}
+        if self.auth_token:
+            hdrs["Authorization"] = f"Bearer {self.auth_token}"
+        response = requests.post(self.url, data=request_json, headers=hdrs)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f"Something went wrong, received status code/text {scode} / {response.text}")
+        response_json = response.json()
+        # self.logger.debug(f"Response JSON: {json}")
+        # TODO: check that we have got
+        # - a map
+        # - which has the "response" key
+        # - response value is a map which has "type"= "annotations" and
+        # - "annotations" is a map with keys being the annotation types and values arrays of annoations
+        ents = response_json.get("response", {}).get("annotations", {})
+        annset = doc.annset(self.out_annset)
+        for ret_anntype, ret_anns in ents.items():
+            if self.anntypes_map:
+                anntype = self.anntypes_map.get(ret_anntype, ret_anntype)
+            else:
+                anntype = ret_anntype
+            for ret_ann in ret_anns:
+                start = ret_ann["start"]
+                end = ret_ann["end"]
+                feats = ret_ann.get("features", {})
+                start, end = om.convert_to_python([start, end])
+                annset.add(start, end, anntype, features=feats)
+        return doc

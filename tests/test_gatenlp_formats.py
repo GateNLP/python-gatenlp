@@ -3,6 +3,19 @@ import os
 import pytest
 
 
+DOC1_TEXT = "A simple document"
+
+def makedoc1():
+    from gatenlp.document import Document
+    doc1 = Document(DOC1_TEXT)
+    doc1.features["feat1"] = "value1"
+    anns = doc1.annset()
+    anns.add(0, 2, "Type1", dict(a=1, b=True, c="some string"))
+    doc1.annset("Set2").add(2, 8, "Type2")
+    return doc1
+
+
+
 class TestFormatGateXml:
 
     def test_formatgatexml01(self):
@@ -79,5 +92,88 @@ class TestFormatYaml:
         assert ann2.start == 5
         assert ann2.end == 8
         assert ann2.id == 1
+
+    def test_formatyaml02(self):
+        from gatenlp.document import Document
+        doc1 = makedoc1()
+        asjson = doc1.save_mem(fmt="text/bdocym")
+        doc2 = Document.load_mem(asjson, fmt="text/bdocym")
+        assert doc2.text == DOC1_TEXT
+        assert len(doc1.features) == 1
+        assert doc1.features.get("feat1") == "value1"
+        assert len(doc1.annset()) == 1
+        assert len(doc1.annset("Set2")) == 1
+        ann1 = doc1.annset().first()
+        assert ann1.type == "Type1"
+        assert ann1.start == 0
+        assert ann1.end == 2
+        assert len(ann1.features) == 3
+        assert ann1.features.get("a") == 1
+        assert ann1.features.get("b") == True
+        assert ann1.features.get("c") == "some string"
+        ann2 = doc1.annset("Set2").first()
+        assert ann2.type == "Type2"
+        assert ann2.start == 2
+        assert ann2.end == 8
+        assert len(ann2.features) == 0
+
+
+
+class TestFormatJson:
+
+    def test_formatjson02(self):
+        from gatenlp.document import Document
+        doc1 = makedoc1()
+        asjson = doc1.save_mem(fmt="text/bdocjs")
+        doc2 = Document.load_mem(asjson, fmt="text/bdocjs")
+        assert doc2.text == DOC1_TEXT
+        assert len(doc1.features) == 1
+        assert doc1.features.get("feat1") == "value1"
+        assert len(doc1.annset()) == 1
+        assert len(doc1.annset("Set2")) == 1
+        ann1 = doc1.annset().first()
+        assert ann1.type == "Type1"
+        assert ann1.start == 0
+        assert ann1.end == 2
+        assert len(ann1.features) == 3
+        assert ann1.features.get("a") == 1
+        assert ann1.features.get("b") == True
+        assert ann1.features.get("c") == "some string"
+        ann2 = doc1.annset("Set2").first()
+        assert ann2.type == "Type2"
+        assert ann2.start == 2
+        assert ann2.end == 8
+        assert len(ann2.features) == 0
+
+
+
+class TestFormatMsgPack:
+
+    def test_formatmsgpack02(self):
+        from gatenlp.document import Document
+        doc1 = makedoc1()
+        asjson = doc1.save_mem(fmt="text/bdocmp")
+        doc2 = Document.load_mem(asjson, fmt="text/bdocmp")
+        assert doc2.text == DOC1_TEXT
+        assert len(doc1.features) == 1
+        assert doc1.features.get("feat1") == "value1"
+        assert len(doc1.annset()) == 1
+        assert len(doc1.annset("Set2")) == 1
+        ann1 = doc1.annset().first()
+        assert ann1.type == "Type1"
+        assert ann1.start == 0
+        assert ann1.end == 2
+        assert len(ann1.features) == 3
+        assert ann1.features.get("a") == 1
+        assert ann1.features.get("b") == True
+        assert ann1.features.get("c") == "some string"
+        ann2 = doc1.annset("Set2").first()
+        assert ann2.type == "Type2"
+        assert ann2.start == 2
+        assert ann2.end == 8
+        assert len(ann2.features) == 0
+
+
+
 
 

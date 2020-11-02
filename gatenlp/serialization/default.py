@@ -442,18 +442,18 @@ class MsgPackSerializer:
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
         pack(doc.name, stream)
-        pack(doc._features, stream)
+        pack(doc._features.to_dict(), stream)
         pack(len(doc._annotation_sets), stream)
-        for name, annset in doc._annotation_sets:
+        for name, annset in doc._annotation_sets.items():
             pack(name, stream)
-            pack(annset.next_annid, stream)
+            pack(annset._next_annid, stream)
             pack(len(annset), stream)
             for ann in annset.fast_iter():
                 pack(ann.type, stream)
                 pack(ann.start, stream)
                 pack(ann.end, stream)
                 pack(ann.id, stream)
-                pack(ann.features, stream)
+                pack(ann.features.to_dict(), stream)
 
     @staticmethod
     def stream2document(stream):
@@ -968,35 +968,50 @@ DOCUMENT_SAVERS = {
     "text/plain": PlainTextSerializer.save,
     "text/plain+gzip": PlainTextSerializer.save_gzip,
     "text": PlainTextSerializer.save,
-    "bdocjs": JsonSerializer.save,
+
     "json": JsonSerializer.save,
     "jsongz": JsonSerializer.save_gzip,
-    "yaml": YamlSerializer.save,
-    "text/bdocym": YamlSerializer.save,
-    "text/bdocym+gzip+": YamlSerializer.save,
+    "bdocjs": JsonSerializer.save,
+    "bdocjsgz": JsonSerializer.save_gzip,
     "text/bdocjs": JsonSerializer.save,
     "text/bdocjs+gzip": JsonSerializer.save_gzip,
+
+    "yaml": YamlSerializer.save,
+    "yamlgz": YamlSerializer.save_gzip,
+    "text/bdocym": YamlSerializer.save,
+    "text/bdocym+gzip+": YamlSerializer.save_gzip,
+
     "msgpack": MsgPackSerializer.save,
+    "bdocmp": MsgPackSerializer.save,
+    "text/bdocmp": MsgPackSerializer.save,
     "application/msgpack": MsgPackSerializer.save,
+
     "html-ann-viewer": HtmlAnnViewerSerializer.save,
 }
 DOCUMENT_LOADERS = {
     "json": JsonSerializer.load,
+    "jsongz": JsonSerializer.load_gzip,
     "bdocjs": JsonSerializer.load,
+    "bdocjsgz": JsonSerializer.load_gzip,
+    "text/bdocjs": JsonSerializer.load,
+    "text/bdocjs+gzip": JsonSerializer.load_gzip,
+
     "yaml": YamlSerializer.load,
+    "yamlgz": YamlSerializer.load_gzip,
+    "bdocym": YamlSerializer.load,
+    "bdocymzg: ": YamlSerializer.load_gzip,
     "text/bdocym": YamlSerializer.load,
     "text/bdocym+gzip": YamlSerializer.load_gzip,
-    "jsongz": JsonSerializer.load_gzip,
-    "yamlgz": YamlSerializer.load_gzip,
+
+    "msgpack": MsgPackSerializer.load,
+    "bdocmp": MsgPackSerializer.load,
+    "application/msgpack": MsgPackSerializer.load,
+    "text/bdocmp": MsgPackSerializer.load,
+
     "jsonormsgpack": determine_loader,
-    "text/bdocjs": JsonSerializer.load,
     "text/plain": PlainTextSerializer.load,
     "text/plain+gzip": PlainTextSerializer.load_gzip,
     "text": PlainTextSerializer.load,
-    "text/bdocjs+gzip": JsonSerializer.load_gzip,
-    "bdocjsgz": JsonSerializer.load_gzip,
-    "msgpack": MsgPackSerializer.load,
-    "application/msgpack": MsgPackSerializer.load,
     "text/html": HtmlLoader.load,
     "html": HtmlLoader.load,
     "html-rendered": HtmlLoader.load_rendered,
