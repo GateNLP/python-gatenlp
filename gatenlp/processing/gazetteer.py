@@ -75,13 +75,18 @@ def tokentext_getter(token, doc=None, feature=None):
     return txt
 
 
+# TODO: allow output annotation type to be set from the match or from the list!
 class TokenGazetteer:
 
     def __init__(self,
                  source,
                  fmt="gate-def",
                  feature=None,
-                 setname="",
+                 all=False,
+                 skip=True,
+                 annset="",
+                 outset="",
+                 outtype="Lookup",
                  tokentype="Token",
                  septype=None,
                  splittype=None,
@@ -106,9 +111,13 @@ class TokenGazetteer:
             feature: the feature name to use to get the string for each token. If the feature does not exist, is None
               or is the empty string, the Token is completely ignored. If the feature name is None, use the document
               string covered by the token.
-            setname: the set where the tokens to match should come from
+            all: return all matches, if False only return longest matches
+            skip: skip forward over longest match (do not return contained/overlapping matches)
+            annset: the set where the tokens to match should come from
+            outset: the set where the new annotations are added
+            outtype: the annotation type of the annotations to create
             tokentype: the annotation type of the token annotations
-            septype: the annotation type of separator annotations (NOT YET USED)
+            septype: the annotation type of separator annotations (NOT YET USED/IMPLEMENTED!)
             splittype: the annotation type of any split annotations which will end any ongoing match
             withintype: only matches fully within annotations of this type will be made
             listfeatures: a list of dictionaries containing the features to set for all matches witch have the
@@ -126,11 +135,15 @@ class TokenGazetteer:
         self.mapfunc = mapfunc
         self.ignorefunc = ignorefunc
         self.feature = feature
-        self.setname = setname
+        self.annset = annset
         self.tokentype = tokentype
         self.septype = septype
         self.splittype = splittype
         self.withintype = withintype
+        self.outset = outset
+        self.outtype = outtype
+        self.all = all
+        self.skip = skip
         if getterfunc:
             self.getterfunc = getterfunc
         else:
@@ -234,7 +247,7 @@ class TokenGazetteer:
             else:
                 node.listidx = listidx
 
-    def match(self, tokens, doc=None, all=False, idx=0, endidx=None, matchfunc=None):
+    def match(self, tokens, doc=None, all=None, idx=0, endidx=None, matchfunc=None):
         """
         Try to match at index location idx of the tokens sequence. Returns a list which contains
         no elements if no match is found,  or
@@ -246,7 +259,8 @@ class TokenGazetteer:
             tokens: a list of tokens (must allow to fetch the ith token as tokens[i])
             doc: the document to which the tokens belong. Necessary of the underlying text is used
                for the tokens.
-            all: whether to return all matches or just the longest ones.
+            all: whether to return all matches or just the longest ones. If None, overrides the setting
+               from init.
             idx: the index in tokens where the match must start
             endidx: the index in tokens after which no match must end
             matchfunc: a function to process each match.
@@ -261,26 +275,29 @@ class TokenGazetteer:
         if endidx is None:
             endidx = len(tokens)
         assert idx < endidx
-
-        token_obj = tokens[idx]
-        token = self.getterfunc(token_obj, doc=doc, feature=self.feature)
-        if token is None:
+        if all is None:
+            all = self.all
+        token = tokens[idx]
+        if token.type == self.splittype:
             return [], 0
-        self.logger.debug(f"Check token {idx}={token_obj}/{token}")
+        token_string = self.getterfunc(token, doc=doc, feature=self.feature)
+        if token_string is None:
+            return [], 0
+        self.logger.debug(f"Check token {idx}={token}/{token_string}")
         if self.mapfunc:
-            token = self.mapfunc(token)
+            token_string = self.mapfunc(token_string)
         if self.ignorefunc:
-            if self.ignorefunc(token):
+            if self.ignorefunc(token_string):
                 # no match possible here
                 return [], 0
         # check if we can match the current token
-        if token in self.nodes:
+        if token_string in self.nodes:
             # ok, we have the beginning of a possible match
             longest = 0
-            node = self.nodes[token]
-            self.logger.debug(f"Got a first token match for {token}")
+            node = self.nodes[token_string]
+            self.logger.debug(f"Got a first token match for {token_string}")
             thismatches = []
-            thistokens = [token_obj]
+            thistokens = [token]
             if node.is_match:
                 # the first token is already a complete match, so we need to add this to thismatches
                 self.logger.debug(f"First token match is also entry match")
@@ -296,22 +313,24 @@ class TokenGazetteer:
             while j <= endidx:
                 self.logger.debug(f"j={j}")
                 if node.nodes:
-                    tok_obj = tokens[j]
-                    tok = self.getterfunc(tok_obj, doc=doc, feature=self.feature)
-                    if tok is None:
+                    token = tokens[j]
+                    if token.type == self.splittype:
+                        break
+                    token_string = self.getterfunc(token, doc=doc, feature=self.feature)
+                    if token_string is None:
                         j += 1
                         nignored += 1
                         continue
                     if self.mapfunc:
-                        tok = self.mapfunc(tok)
-                    if self.ignorefunc and self.ignorefunc(tok):
+                        token_string = self.mapfunc(token_string)
+                    if self.ignorefunc and self.ignorefunc(token_string):
                         j += 1
                         nignored += 1
                         continue
-                    if tok in node.nodes:
-                        self.logger.debug(f"Found token {tok}")
-                        node = node.nodes[tok]
-                        thistokens.append(tok_obj)
+                    if token_string in node.nodes:
+                        self.logger.debug(f"Found token {token_string}")
+                        node = node.nodes[token_string]
+                        thistokens.append(token)
                         if node.is_match:
                             self.logger.debug(f"Also is entry match")
                             if matchfunc:
@@ -336,7 +355,7 @@ class TokenGazetteer:
                         j += 1
                         continue
                     else:
-                        self.logger.debug(f"Breaking: {tok} does not match, j={j}")
+                        self.logger.debug(f"Breaking: {token_string} does not match, j={j}")
                         break
                 else:
                     self.logger.debug("Breaking: no nodes")
@@ -346,7 +365,7 @@ class TokenGazetteer:
         else:
             return [], 0
 
-    def find(self, tokens, doc=None, all=False,
+    def find(self, tokens, doc=None, all=None,
                   fromidx=None, toidx=None, endidx=None, matchfunc=None):
         """
         Find the next match in the given index range and return a tuple with two elements: the first element
@@ -357,7 +376,8 @@ class TokenGazetteer:
             tokens: list of tokens (must allow to fetch the ith token as tokens[i])
             doc: the document to which the tokens belong. Necessary of the underlying text is used
                for the tokens.
-            all: whether to return all matches or just the longest ones.
+            all: whether to return all matches or just the longest ones. If not none, overrides the
+               setting from init
             fromidx: first index where a match may start
             toidx: last index where a match may start
             endidx: the index in tokens after which no match must end
@@ -368,6 +388,8 @@ class TokenGazetteer:
             as the second element and the index where the match occurs or None as the third element
 
         """
+        if all is None:
+            all = self.all
         idx = fromidx
         if toidx is None:
             toidx = len(tokens)-1
@@ -383,9 +405,11 @@ class TokenGazetteer:
 
 
     def find_all(self, tokens, doc=None,
-                 all=False, skip=True,
+                 all=None, skip=None,
                  fromidx=None, toidx=None, endidx=None,
-                 matchfunc=None, reverse=True):
+                 matchfunc=None,
+                 # reverse=True,
+                 ):
         """
         Find gazetteer entries in a sequence of tokens.
         Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
@@ -396,8 +420,10 @@ class TokenGazetteer:
                string.
             doc: the document this should run on. Only necessary if the text to match is not retrieved from
                the token annotation, but from the underlying document text.
-            all: return all matches, if False only return longest matches
-            skip: skip forward over longest match (do not return contained/overlapping matches)
+            all: return all matches, if False only return longest matches. If not None, overrides the init
+               setting
+            skip: skip forward over longest match (do not return contained/overlapping matches). If not
+               None overrides the init setting.
             fromidx: index where to start finding in tokens
             toidx: index where to stop finding in tokens (this is the last index actually used)
             endidx: index beyond which no matches should end
@@ -408,6 +434,10 @@ class TokenGazetteer:
             list of matches
         """
         logger = self.logger
+        if all is None:
+            all = self.all
+        if skip is None:
+            skip = self.skip
         matches = []
         l = len(tokens)
         if endidx is None:
@@ -435,129 +465,10 @@ class TokenGazetteer:
             if skip:
                 idx += maxlen
 
-    def find_all_old(self, tokens, doc=None, all=False, skip=True, fromidx=None, toidx=None, matchfunc=None, reverse=True):
-        """
-        Find gazetteer entries in a sequence of tokens.
-        Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
-        ignored.
-
-        Args:
-            tokens: iterable of tokens. The getter will be applied to each one and the doc to retrieve the initial
-               string.
-            doc: the document this should run on. Only necessary if the text to match is not retrieved from
-               the token annotation, but from the underlying document text.
-            all: return all matches, if False only return longest matches
-            skip: skip forward over longest match (do not return contained/overlapping matches)
-            fromidx: index where to start finding in tokens
-            toidx: index where to stop finding in tokens (this is the last index actually used)
-            endidx: index beyond which no matches should end
-            matchfunc: a function which takes the data from the gazetteer, the token and doc and performs
-                some action.
-
-        Yields:
-            list of matches
-        """
-        logger = init_logger(__name__)
-        logger.debug("CALL")
-        matches = []
-        l = len(tokens)
-        if fromidx is None:
-            fromidx = 0
-        if toidx is None:
-            toidx = l-1
-        if fromidx >= l:
-            return matches
-        if toidx >= l:
-            toidx = l-1
-        if fromidx > toidx:
-            return matches
-        i = fromidx
-        logger.debug(f"From index {i} to index {toidx} for {tokens}")
-        while i <= toidx:
-            token_obj = tokens[i]
-            token = self.getterfunc(token_obj)
-            logger.debug(f"Check token {i}={token}")
-            if self.mapfunc:
-                token = self.mapfunc(token)
-            if self.ignorefunc:
-                if self.ignorefunc(token):
-                    continue
-            # check if we can match the current token
-            if token in self.nodes:  # only possible if the token was not ignored!
-                # ok, we have the beginning of a possible match
-                longest = 0
-                node = self.nodes[token]
-                logger.debug(f"Got a first token match for {token}")
-                thismatches = []
-                thistokens = [token_obj]
-                if node.is_match:
-                    # the first token is already a complete match, so we need to add this to thismatches
-                    logger.debug(f"First token match is also entry match")
-                    longest = 1
-                    # TODO: make this work with list data!
-                    if matchfunc:
-                        match = matchfunc(i, i+1, thistokens.copy(), doc, node.data, node.listidx)
-                    else:
-                        match = TokenGazetteerMatch(i, i + 1, thistokens.copy(), doc, node.data, node.listidx)
-                    thismatches.append(match)
-                j = i+1  # index into text tokens
-                nignored = 0
-                while j <= toidx:
-                    logger.debug(f"j={j}")
-                    if node.nodes:
-                        tok_obj = tokens[j]
-                        tok = self.getterfunc(tok_obj)
-                        if self.mapfunc:
-                            tok = self.mapfunc(tok)
-                        if self.ignorefunc and self.ignorefunc(tok):
-                            j += 1
-                            nignored += 1
-                            continue
-                        if tok in node.nodes:
-                            logger.debug(f"Found token {tok}")
-                            node = node.nodes[tok]
-                            thistokens.append(tok_obj)
-                            if node.is_match:
-                                logger.debug(f"Also is entry match")
-                                if matchfunc:
-                                    match = matchfunc(
-                                        i, i + len(thistokens)+nignored,
-                                        thistokens.copy(),
-                                        doc,
-                                        node.data, node.listidx)
-                                else:
-                                    match = TokenGazetteerMatch(
-                                        i, i + len(thistokens)+nignored,
-                                        thistokens.copy(),
-                                        doc,
-                                        node.data, node.listidx)
-                                # TODO: should LONGEST get calculated including ignored tokens or not?
-                                if all:
-                                    thismatches.append(match)
-                                    if len(thistokens) > longest:
-                                        longest = len(thistokens)
-                                else:
-                                    if len(thistokens) > longest:
-                                        thismatches = [match]
-                                        longest = len(thistokens)
-                            j += 1
-                            continue
-                        else:
-                            logger.debug(f"Breaking: {tok} does not match, j={j}")
-                            break
-                    else:
-                        logger.debug("Breaking: no nodes")
-                        break
-                logger.debug(f"Going through thismatches: {thismatches}")
-                for m in thismatches:
-                    matches.append(m)
-                if thismatches and skip:
-                    i += longest - 1  # we will increment by 1 right after!
-            i += 1
-            logger.debug(f"Incremented i to {i}")
-        return matches
-
-    def __call__(self, doc, annset=None, tokentype=None, septype=None, splittype=None, withintype=None):
+    def __call__(self, doc,
+                 annset=None, tokentype=None, septype=None, splittype=None, withintype=None,
+                 all=None, skip=None,
+                 ):
         """
         Apply the gazetteer to the document and annotate all matches.
 
@@ -568,11 +479,65 @@ class TokenGazetteer:
             septype: if given, overrides the one specified for the gazetteer instance.
             splittype: if given, overrides the one specified for the gazetteer instance.
             withintype: if given, overrides the one specified for the gazetteer instance.
+            all: if not None, overrides the gazetteer setting
+            skip: if not None, overrides the gazetteer setting
+
 
         Returns:
             the annotated document
         """
-        pass
+        if all is None:
+            all = self.all
+        if skip is None:
+            skip = self.skip
+        if annset is None:
+            annset = self.annset
+        if tokentype is None:
+            tokentype = self.tokentype
+        if septype is None:
+            septype = self.septype
+        if splittype is None:
+            splittype = self.splittype
+        if withintype is None:
+            withintype = self.withintype
+        # create the token lists from the document: if withintype is None we only have one token list,
+        # otherwise we have one list for each withingtype
+        # We create a list of segments which are identified by start and end offsets
+        if withintype is None:
+            segment_offs = [(0, len(doc.text))]
+        else:
+            withinanns = doc.annset(withintype)
+            segment_offs = []
+            for wann in withinanns:
+                segment_offs.append((wann.start, wann.end))
+        self.logger.debug(f"!!!!!! segements={segment_offs}")
+        anntypes = [tokentype]
+        # TODO: septype still not implemented, not added here!
+        # if septype is not None:
+        #     anntypes.append(septype)
+        if splittype is not None:
+            anntypes.append(splittype)
+        self.logger.debug(f"!!!!!! anntypes={anntypes}")
+        anns = doc.annset(annset).with_type(anntypes)
+        self.logger.debug(f"!!!!!! anns={anns}")
+        # now do the annotation process for each segment
+        outset = doc.annset(self.outset)
+        for segment_start, segment_end in segment_offs:
+            tokens = list(anns.within(segment_start, segment_end))
+            for matches in self.find_all(tokens, doc=doc):
+                for match in matches:
+                    starttoken = tokens[match.start]
+                    endtoken = tokens[match.end]
+                    startoffset = starttoken.start
+                    endoffset = endtoken.end
+                    # TODO: make the output type depend on the match or list info!
+                    for feats in match.entrydata:
+                        outset.add(startoffset, endoffset, self.outtype, features=feats)
+        return doc
+
+
+
+
 
 
 ####################### TODO
@@ -676,7 +641,6 @@ class StringMatcher:
         :return: an iterable of Match. The start/end fields of each Match are the character offsets if
         text is a string, otherwise are the token offsets.
         """
-        logger = ensurelogger()
         logger.debug("CALL")
         matches = []
         l = len(text)
