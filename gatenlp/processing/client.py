@@ -356,9 +356,6 @@ class TextRazorTextAnnotator(Annotator):
         return doc
 
 
-
-
-
 class ElgTextAnnotator(Annotator):
     """
     An annotator that sends text to one of the services registered with the European Language Grid
@@ -390,7 +387,7 @@ class ElgTextAnnotator(Annotator):
         self.min_delay_s = min_delay_ms / 1000.0
         self.anntypes_map = anntypes_map
         self.out_annset = out_annset
-        self.logger = init_logger()
+        self.logger = init_logger(__name__)
         # self.logger.setLevel(logging.DEBUG)
         self._last_call_time = 0
 

@@ -5,6 +5,7 @@ gazetteer lists.
 """
 
 from collections import defaultdict
+import logging
 # from dataclasses import dataclass
 from recordclass import structclass
 from gatenlp.processing.annotator import Annotator
@@ -28,7 +29,7 @@ class Gazetteer(Annotator):
 # !! structclass by default does NOT support cyclic garbage collection which should be ok for us
 
 
-TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "entrydata", "matcherdata"))
+TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "entrydata", "listdata"))
 
 
 class TokenGazetteerNode(object):
@@ -64,6 +65,16 @@ class TokenGazetteerNode(object):
         return f"Node(is_match={self.is_match},data={self.data},nodes={nodes})"
 
 
+def tokentext_getter(token, doc=None, feature=None):
+    if feature is not None:
+        txt = token.features.get(feature)
+    else:
+        if doc is None:
+            raise Exception("No feature given, need doc for gazetteer")
+        txt = doc[token]
+    return txt
+
+
 class TokenGazetteer:
 
     def __init__(self,
@@ -79,7 +90,6 @@ class TokenGazetteer:
                  ignorefunc=None,
                  getterfunc=None,
                  listfeatures=None,
-                 matcherfeatures=None,
                  append=True,
                  ):
         """
@@ -116,15 +126,20 @@ class TokenGazetteer:
         self.mapfunc = mapfunc
         self.ignorefunc = ignorefunc
         self.feature = feature
+        self.setname = setname
+        self.tokentype = tokentype
+        self.septype = septype
+        self.splittype = splittype
+        self.withintype = withintype
         if getterfunc:
             self.getterfunc = getterfunc
         else:
-            if feature:
-                self.getterfunc = lambda tok, doc=None: tok.features[feature]
-            else:
-                self.getterfunc = lambda tok, doc=None: doc[tok]
-        self.listfeatures = listfeatures.copy()
+            self.getterfunc = tokentext_getter
+        if listfeatures:
+            self.listfeatures = listfeatures.copy()
         self.load(source, fmt=fmt, append=append)  # we just copied the listfeatures, do not pass!
+        self.logger = init_logger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
     def load(self,
              source,
@@ -165,7 +180,7 @@ class TokenGazetteer:
                     listidx = None
                 self.add(entry, data, listidx=listidx, append=append)
         elif fmt == "gate-def":
-            pass
+            raise Exception("Not implemented yet")
         else:
             raise Exception(f"TokenGazetteer format {fmt} not known")
 
@@ -219,46 +234,158 @@ class TokenGazetteer:
             else:
                 node.listidx = listidx
 
-    def match(self, tokens, doc=None, all=False, idx=0, matchfunc=None):
+    def match(self, tokens, doc=None, all=False, idx=0, endidx=None, matchfunc=None):
         """
-        Try to match at index location idx of the tokens sequence. If successful and all is False,
-        return the match object or True or whatever matchfunc returns. If successful and all is True,
-        return the list of match objects or True, or whatever the matchfunc returns.
-        If unsuccessful return None.
+        Try to match at index location idx of the tokens sequence. Returns a list which contains
+        no elements if no match is found,  or
+        as many elements as matches are found. The element for each match is either a
+        TokenGazeteerMatch instance if matchfunc is None or whatever matchfunc returns for a match.
+        Also returns the legngth of the longest match (0 if no match).
 
         Args:
-            tokens:
-            doc:
-            all:
-            idx:
-            matchfunc:
+            tokens: a list of tokens (must allow to fetch the ith token as tokens[i])
+            doc: the document to which the tokens belong. Necessary of the underlying text is used
+               for the tokens.
+            all: whether to return all matches or just the longest ones.
+            idx: the index in tokens where the match must start
+            endidx: the index in tokens after which no match must end
+            matchfunc: a function to process each match.
+               The function is passed the TokenGazetteerMatch and the doc and should return something
+               that is then added to the result list of matches.
 
         Returns:
+            A tuple, where the first element is a list of match elements, empty if no matches are found
+            and the second element is the length of the longest match, 0 if no match.
 
         """
-        pass
+        if endidx is None:
+            endidx = len(tokens)
+        assert idx < endidx
 
-    def find_next(self, tokens, doc=None, all=False, skip=True, fromidx=None, toidx=None, matchfunc=None):
+        token_obj = tokens[idx]
+        token = self.getterfunc(token_obj, doc=doc, feature=self.feature)
+        if token is None:
+            return [], 0
+        self.logger.debug(f"Check token {idx}={token_obj}/{token}")
+        if self.mapfunc:
+            token = self.mapfunc(token)
+        if self.ignorefunc:
+            if self.ignorefunc(token):
+                # no match possible here
+                return [], 0
+        # check if we can match the current token
+        if token in self.nodes:
+            # ok, we have the beginning of a possible match
+            longest = 0
+            node = self.nodes[token]
+            self.logger.debug(f"Got a first token match for {token}")
+            thismatches = []
+            thistokens = [token_obj]
+            if node.is_match:
+                # the first token is already a complete match, so we need to add this to thismatches
+                self.logger.debug(f"First token match is also entry match")
+                longest = 1
+                # TODO: make this work with list data!
+                if matchfunc:
+                    match = matchfunc(idx, idx + 1, thistokens.copy(), node.data, node.listidx)
+                else:
+                    match = TokenGazetteerMatch(idx, idx + 1, thistokens.copy(), node.data, node.listidx)
+                thismatches.append(match)
+            j = idx + 1  # index into text tokens
+            nignored = 0
+            while j <= endidx:
+                self.logger.debug(f"j={j}")
+                if node.nodes:
+                    tok_obj = tokens[j]
+                    tok = self.getterfunc(tok_obj, doc=doc, feature=self.feature)
+                    if tok is None:
+                        j += 1
+                        nignored += 1
+                        continue
+                    if self.mapfunc:
+                        tok = self.mapfunc(tok)
+                    if self.ignorefunc and self.ignorefunc(tok):
+                        j += 1
+                        nignored += 1
+                        continue
+                    if tok in node.nodes:
+                        self.logger.debug(f"Found token {tok}")
+                        node = node.nodes[tok]
+                        thistokens.append(tok_obj)
+                        if node.is_match:
+                            self.logger.debug(f"Also is entry match")
+                            if matchfunc:
+                                match = matchfunc(
+                                    idx, idx + len(thistokens) + nignored,
+                                    thistokens.copy(),
+                                    node.data, node.listidx)
+                            else:
+                                match = TokenGazetteerMatch(
+                                    idx, idx + len(thistokens) + nignored,
+                                    thistokens.copy(),
+                                    node.data, node.listidx)
+                            # TODO: should LONGEST get calculated including ignored tokens or not?
+                            if all:
+                                thismatches.append(match)
+                                if len(thistokens) > longest:
+                                    longest = len(thistokens)
+                            else:
+                                if len(thistokens) > longest:
+                                    thismatches = [match]
+                                    longest = len(thistokens)
+                        j += 1
+                        continue
+                    else:
+                        self.logger.debug(f"Breaking: {tok} does not match, j={j}")
+                        break
+                else:
+                    self.logger.debug("Breaking: no nodes")
+                    break
+            self.logger.debug(f"Going through thismatches: {thismatches}")
+            return thismatches, longest
+        else:
+            return [], 0
+
+    def find(self, tokens, doc=None, all=False,
+                  fromidx=None, toidx=None, endidx=None, matchfunc=None):
         """
-        Find the next match in the given index range and return None if no match found, or an indication
-        of matching as for the `match` method.
+        Find the next match in the given index range and return a tuple with two elements: the first element
+        if the list of matches, empty if no match was found, the second element is the index where the matches
+        were found or None if no match was found.
 
         Args:
-            tokens:
-            doc:
-            all:
-            fromidx:
-            toidx:
-            matchfunc:
+            tokens: list of tokens (must allow to fetch the ith token as tokens[i])
+            doc: the document to which the tokens belong. Necessary of the underlying text is used
+               for the tokens.
+            all: whether to return all matches or just the longest ones.
+            fromidx: first index where a match may start
+            toidx: last index where a match may start
+            endidx: the index in tokens after which no match must end
+            matchfunc: the function to use to process each match
 
         Returns:
+            A triple with the list of matches as the first element, the max length of matches or 0 if no matches
+            as the second element and the index where the match occurs or None as the third element
 
         """
-        # if match:
-        pass
+        idx = fromidx
+        if toidx is None:
+            toidx = len(tokens)-1
+        if endidx is None:
+            endidx = len(tokens)
+        while idx <= toidx:
+            matches, long = self.match(tokens, idx=idx, doc=doc, all=all, endidx=endidx, matchfunc=matchfunc)
+            if long == 0:
+                idx += 1
+                continue
+            return matches, long, idx
+        return [], 0, None
 
-    # TODO: try to implement find_all in terms of match/find_next
-    def find_all(self, tokens, doc=None, all=False, skip=True, fromidx=None, toidx=None, matchfunc=None, reverse=True):
+
+    def find_all(self, tokens, doc=None,
+                 all=False, skip=True,
+                 fromidx=None, toidx=None, endidx=None,
+                 matchfunc=None, reverse=True):
         """
         Find gazetteer entries in a sequence of tokens.
         Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
@@ -269,16 +396,66 @@ class TokenGazetteer:
                string.
             doc: the document this should run on. Only necessary if the text to match is not retrieved from
                the token annotation, but from the underlying document text.
-            all: return all matches, if False only return longest match
+            all: return all matches, if False only return longest matches
             skip: skip forward over longest match (do not return contained/overlapping matches)
             fromidx: index where to start finding in tokens
             toidx: index where to stop finding in tokens (this is the last index actually used)
+            endidx: index beyond which no matches should end
             matchfunc: a function which takes the data from the gazetteer, the token and doc and performs
-                some action. Signature should be (startoff, endoff, tokenlist, doc=None, data=None, listidxs=None)
+                some action.
 
-        Returns:
-            An iterable of Match if not matchfunc is specified, otherwise an iterable of what matchfunc
-            returned for each match. The start/end fields of each Match are the token indices.
+        Yields:
+            list of matches
+        """
+        logger = self.logger
+        matches = []
+        l = len(tokens)
+        if endidx is None:
+            endidx = l
+        if fromidx is None:
+            fromidx = 0
+        if toidx is None:
+            toidx = l-1
+        if fromidx >= l:
+            yield matches
+            return
+        if toidx >= l:
+            toidx = l-1
+        if fromidx > toidx:
+            yield matches
+            return
+        idx = fromidx
+        logger.debug(f"From index {idx} to index {toidx} for {tokens}")
+        while idx <= toidx:
+            matches, maxlen, idx = self.find(tokens, doc=doc, all=all, fromidx=idx, endidx=endidx, toidx=toidx,
+                                             matchfunc=matchfunc)
+            if idx is None:
+                return
+            yield matches
+            if skip:
+                idx += maxlen
+
+    def find_all_old(self, tokens, doc=None, all=False, skip=True, fromidx=None, toidx=None, matchfunc=None, reverse=True):
+        """
+        Find gazetteer entries in a sequence of tokens.
+        Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
+        ignored.
+
+        Args:
+            tokens: iterable of tokens. The getter will be applied to each one and the doc to retrieve the initial
+               string.
+            doc: the document this should run on. Only necessary if the text to match is not retrieved from
+               the token annotation, but from the underlying document text.
+            all: return all matches, if False only return longest matches
+            skip: skip forward over longest match (do not return contained/overlapping matches)
+            fromidx: index where to start finding in tokens
+            toidx: index where to stop finding in tokens (this is the last index actually used)
+            endidx: index beyond which no matches should end
+            matchfunc: a function which takes the data from the gazetteer, the token and doc and performs
+                some action.
+
+        Yields:
+            list of matches
         """
         logger = init_logger(__name__)
         logger.debug("CALL")
