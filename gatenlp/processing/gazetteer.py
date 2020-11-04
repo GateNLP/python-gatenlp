@@ -4,10 +4,12 @@ gazetteer lists, lists of interesting texts or token sequences and annotate the 
 gazetteer lists.
 """
 
+import os
 from collections import defaultdict
 import logging
 # from dataclasses import dataclass
 from recordclass import structclass
+from gatenlp.document import  Document
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
@@ -29,7 +31,7 @@ class Gazetteer(Annotator):
 # !! structclass by default does NOT support cyclic garbage collection which should be ok for us
 
 
-TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "entrydata", "listdata"))
+TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "data", "listidx"))
 
 
 class TokenGazetteerNode(object):
@@ -48,7 +50,6 @@ class TokenGazetteerNode(object):
             is_match: this node is a match
             data: data associated with the match, can be a list of data items
             nodes:
-            listidx: list index or list of list indices for the list data this item refers to
         """
         self.is_match = is_match
         self.data = data
@@ -81,21 +82,32 @@ class TokenGazetteer:
     def __init__(self,
                  source,
                  fmt="gate-def",
-                 feature=None,
+                 source_sep="\t",
+                 source_encoding="UTF-8",
+
+                 cache_source=None,
+
+                 tokenizer=None,
+
                  all=False,
                  skip=True,
-                 annset="",
+
                  outset="",
                  outtype="Lookup",
+
+                 annset="",
                  tokentype="Token",
+                 feature=None,
                  septype=None,
                  splittype=None,
                  withintype=None,
+
                  mapfunc=None,
                  ignorefunc=None,
                  getterfunc=None,
+
                  listfeatures=None,
-                 append=True,
+                 listtype=None,
                  ):
         """
 
@@ -103,11 +115,14 @@ class TokenGazetteer:
             source: where to load the gazetteer from. What is actually expected here depends on the fmt
               parameter.
             fmt: defines what is expected as the format and/or content of the source parameter. One of:
-               *  "gate-def" (default): source must be a string, a pathlib Path or a parsed urllib url and
-                  point to a GATE-style "def" file. See https://gate.ac.uk/userguide/chap:gazetteers
+               *  "gate-def" (default): the path to a GATE-style "def" file.
+                  See https://gate.ac.uk/userguide/chap:gazetteers
                * "gazlist": a list of tuples or lists where the first element of the tuple/list
-                  is a list of strings, the second element is a dictionary containing the features to assign and
-                  the third element, if it exists, is the index of an element in the listfeatures array.
+                  is a list of strings and the second element is a dictionary containing the features to assign.
+                  All entries in the list belong to the first gazetteer list which has list features as
+                  specified with the listfeatures parameter and a list type as specified with the listtype parameter.
+            source_sep: the field separator to use for some source formats (default: tab character)
+            source_encoding: the encoding to use for some source formats (default: UTF-8)
             feature: the feature name to use to get the string for each token. If the feature does not exist, is None
               or is the empty string, the Token is completely ignored. If the feature name is None, use the document
               string covered by the token.
@@ -115,21 +130,24 @@ class TokenGazetteer:
             skip: skip forward over longest match (do not return contained/overlapping matches)
             annset: the set where the tokens to match should come from
             outset: the set where the new annotations are added
-            outtype: the annotation type of the annotations to create
+            outtype: the annotation type of the annotations to create, unless a type is given for the gazetteer
+               entry or for the gazetteer list.
             tokentype: the annotation type of the token annotations
             septype: the annotation type of separator annotations (NOT YET USED/IMPLEMENTED!)
             splittype: the annotation type of any split annotations which will end any ongoing match
             withintype: only matches fully within annotations of this type will be made
-            listfeatures: a list of dictionaries containing the features to set for all matches witch have the
-              list index set.
             mapfunc: a function that maps the original string extracted for each token to the actual string to use.
             ignorefunc: a function which given the mapped token string decides if the token should be ignored
               (not added to the gazetteer list, not considered in the document when matching)
             getterfunc: a function which, given a token annotation, retrieves the string. If there is mapfunc, the
               retrieved string is then still run through the mapfunc. The getterfunc must accept the token and
-              an optional document as parameters
-            append: if an entry occurs in the source which is already in the gazetteer, append the data so the
-              gazetteer entry contains a list of a data (True), or replace the existing data with the new data (False)
+              an optional document as parameters.
+            listfeatures: a dictionary of features common to the whole list or None. If what gets loaded specifies
+              its own list features, this is getting ignored.
+            listtype: the output annotation type to use for the list, ignored if the input format specifies this
+              on its own. If the input does not specify this on its own and this is not None, then it takes
+              precedence over outtype for the data loaded from source.
+
         """
         self.nodes = defaultdict(TokenGazetteerNode)
         self.mapfunc = mapfunc
@@ -144,25 +162,27 @@ class TokenGazetteer:
         self.outtype = outtype
         self.all = all
         self.skip = skip
+        self.tokenizer = tokenizer
         if getterfunc:
             self.getterfunc = getterfunc
         else:
             self.getterfunc = tokentext_getter
-        if listfeatures:
-            self.listfeatures = listfeatures.copy()
-        self.load(source, fmt=fmt, append=append)  # we just copied the listfeatures, do not pass!
+        self.listfeatures = []
+        self.listtypes = []
         self.logger = init_logger(__name__)
         self.logger.setLevel(logging.DEBUG)
+        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype)
 
-    def load(self,
-             source,
-             fmt="gate-def",
-             listfeatures=None,
-             append=True
-             ):
+    def append(self,
+               source,
+               fmt="gate-def",
+               source_sep="\t",
+               source_encoding="UTF-8",
+               listfeatures=None,
+               listtype=None,
+               ):
         """
-        This method adds more entries to gazetteer. It works just like the constructor, but adds additional
-        data into the gazetteer.
+        This method appends more entries to gazetteer.
 
         Args:
             source: where to load the gazetteer from. What is actually expected here depends on the fmt
@@ -174,39 +194,111 @@ class TokenGazetteer:
                   is a list of strings, the second element is a dictionary containing the features to assign and
                   the third element, if it exists, is the index of an element in the listfeatures array.
             listfeatures: a list of dictionaries containing the features to set for all matches witch have the
-              list index set, this list gets appended to the existing listfeatures.
-            append: if an entry occurs in the source which is already in the gazetteer, append the data so the
-              gazetteer entry contains a list of a data (True), or replace the existing data with the new data (False)
+              list index set, this list gets appended to the existing listfeatures. If what gets appended specifies
+              its own list features, this is ignored.
+            listtype: the output annotation type to use for the list that gets appended. If what gets appended
+               specifies its own list type or list types, this is ignored.
         """
-        if isinstance(listfeatures, list):
-            if self.listfeatures is None:
-                self.listfeatures = []
-            self.listfeatures.extend(listfeatures)
-
         if fmt == "gazlist":
+            if listfeatures is not None:
+                self.listfeatures.append(listfeatures)
+            else:
+                self.listfeatures.append({})
+            if listtype is not None:
+                self.listtypes.append(listtype)
+            else:
+                self.listtypes.append(self.outtype)
+            listidx = len(self.listfeatures)-1
             for el in source:
                 entry = el[0]
                 data = el[1]
-                if len(el) > 2:
-                    listidx = el[2]
-                else:
-                    listidx = None
-                self.add(entry, data, listidx=listidx, append=append)
+                self.add(entry, data, listidx=listidx)
         elif fmt == "gate-def":
-            raise Exception("Not implemented yet")
+            if listfeatures is None:
+                listfeatures = {}
+            if listtype is None:
+                listtype =self.outtype
+            with open(source, "rt", encoding=source_encoding) as infp:
+                for line in infp:
+                    line = line.rstrip("\n\r")
+                    fields = line.split(":")
+                    fields.extend(["", "", "", ""])
+                    listFile = fields[0]
+                    majorType = fields[1]
+                    minorType = fields[2]
+                    languages = fields[3]
+                    anntype = fields[4]
+                    this_listfeatures = listfeatures.copy()
+                    this_outtype = listtype
+                    if majorType:
+                        this_listfeatures["majorType"] = majorType
+                    if minorType:
+                        this_listfeatures["minorType"] = minorType
+                    if languages:
+                        this_listfeatures["lang"] = languages
+                    if anntype:
+                        this_outtype = anntype
+                    # read in the actual list
+                    listfile = os.path.join(os.path.dirname(source), listFile)
+                    self.logger.info(f"Reading list file {listfile}")
+                    with open(listfile, "rt", encoding=source_encoding) as inlistfile:
+                        self.listtypes.append(this_outtype)
+                        self.listfeatures.append(this_listfeatures)
+                        linenr = 0
+                        for listline in inlistfile:
+                            linenr += 1
+                            listline = listline.rstrip("\n\r")
+                            fields = listline.split(source_sep)
+                            entry = fields[0]
+                            if self.tokenizer:
+                                tmpdoc = Document(entry)
+                                self.tokenizer(tmpdoc)
+                                # TODO: include and handle SpaceToken if we use the speparator annoations!
+                                # TODO: maybe have a different way to retrieve the token annotations based
+                                # on the tokenizer????
+                                tokenanns = list(tmpdoc.annset().with_type("Token"))
+                                if self.getterfunc:
+                                    tokenstrings = [self.getterfunc(a, doc=tmpdoc) for a in tokenanns]
+                                else:
+                                    tokenstrings = [tmpdoc[a] for a in tokenanns]
+                                if self.mapfunc:
+                                    tokenstrings = [self.mapfunc(s) for s in tokenstrings]
+                                if self.ignorefunc:
+                                    tokenstrings = [s for s in tokenstrings if not self.ignorefunc(s)]
+                            else:
+                                tokenstrings = entry.split()  # just split on whitespace
+                            if len(tokenstrings) == 0:
+                                self.logger.warn(f"File {listfile}, skipping line {linenr}, no tokens left: {listline}")
+                                continue
+                            if len(entry) > 1:
+                                feats = {}
+                                for fspec in fields[1:]:
+                                    fname, fval = fspec.split("=")
+                                    feats[fname] = fval
+                            else:
+                                feats = None
+                            listidx = len(self.listfeatures)-1
+                            self.add(tokenstrings, feats, listidx=listidx)
         else:
             raise Exception(f"TokenGazetteer format {fmt} not known")
 
-    def add(self, entry, data=None, append=True, listidx=None):
+    def add(self, entry, data=None, listidx=None):
         """
-        Add a single gazetteer entry. If the same entry already exsists, the new data is added to the entry unless
-        append is False in which case the existing entry is replaced.
+        Add a single gazetteer entry. A gazetteer entry can have no data associated with it at all if both
+        data and listidx are None. If only list indices are given then an array of those indices is stored
+        with the entry and data remaines None, if only data is given then an array of data is stored and
+        listidx remains None. If at some point, both data and a listidx are stored in the same entry, then
+        both fields are changed to have both a list with the same number of elements corresponding to each
+        other, with missing data or listidx elements being None.
 
         Args:
-            entry: a iterable of string or a string for a single element
-            data: a dictionary of features to add to
-            append: if true and data is not None, store data in a list and append any new data
-            listidx: The index of a listfeatures entry to add to the entry.
+            entry: a iterable of string or a string for a single element, each element is the string that
+               represents a token to be matched
+            data: dictionary of features to add
+            listidx: the index to list features and a list type to add
+
+        Returns:
+            The list of feature sets currently stored with the entry
         """
         if isinstance(entry, str):
             entry = [entry]
@@ -229,23 +321,52 @@ class TokenGazetteer:
                     node = node.nodes[token]
             i += 1
         node.is_match = True
-        if data is not None:
-            # we need to set or append
-            if append:
-                if node.data:
-                    node.data.append(data)
-                else:
-                    node.data = [data]
+        # For now: always store parallel lists of data and listidxs, with None elements if necessary.
+        if data is not None or listidx is not None:
+            if node.data is None:
+                node.data = [data]
+                node.listidx = [listidx]
             else:
-                node.data = data
-        if listidx is not None:
-            if append:
-                if node.listidx:
-                    node.listidx.append(listidx)
-                else:
-                    node.listidx = [listidx]
-            else:
-                node.listidx = listidx
+                node.data.append(data)
+                node.listidx.append(listidx)
+
+        # TODO: code to test and correct: try to save space by only storing parallel lists if
+        # both data and listindices are actually both non-null and added:
+        #
+        # if data is None and listidx is None:
+        #     # nothing to do, return what we have
+        #     return node.data, node.listidx
+        # # if we have only data and no listidx and there is no listidx
+        # if data is not None and listidx is None and node.listidx is None:
+        #     if node.data is None:
+        #         node.data = [data]
+        #     else:
+        #         node.data.append(data)
+        # elif listidx is not None and data is None and node.data is None:
+        #     if node.listidx is None:
+        #         node.listidx = [listidx]
+        #     else:
+        #         node.listidx.append(listidx)
+        # else:
+        #     # make sure we have parallel lists
+        #     if node.data is None:
+        #         node.data = []
+        #     if node.listidx is None:
+        #         node.listidx = []
+        #     if len(node.data) > len(node.listidx):
+        #         node.listidx.extend([None] * (len(node.data) - len(node.listidx)))
+        #     elif len(node.listidx) > len(node.data):
+        #         node.data.extend([None] * (len(node.listidx) - len(node.data)))
+        #     if listidx:
+        #         node.listidx.append(listidx)
+        #         if data:
+        #             node.data.append(data)
+        #         else:
+        #             node.data.append(None)
+        #     else:
+        #         node.listidx.append(None)
+        #         node.listidx.append(listidx)
+        return node.data, node.listidx
 
     def match(self, tokens, doc=None, all=None, idx=0, endidx=None, matchfunc=None):
         """
@@ -283,7 +404,6 @@ class TokenGazetteer:
         token_string = self.getterfunc(token, doc=doc, feature=self.feature)
         if token_string is None:
             return [], 0
-        self.logger.debug(f"Check token {idx}={token}/{token_string}")
         if self.mapfunc:
             token_string = self.mapfunc(token_string)
         if self.ignorefunc:
@@ -295,12 +415,10 @@ class TokenGazetteer:
             # ok, we have the beginning of a possible match
             longest = 0
             node = self.nodes[token_string]
-            self.logger.debug(f"Got a first token match for {token_string}")
             thismatches = []
             thistokens = [token]
             if node.is_match:
                 # the first token is already a complete match, so we need to add this to thismatches
-                self.logger.debug(f"First token match is also entry match")
                 longest = 1
                 # TODO: make this work with list data!
                 if matchfunc:
@@ -311,7 +429,6 @@ class TokenGazetteer:
             j = idx + 1  # index into text tokens
             nignored = 0
             while j <= endidx:
-                self.logger.debug(f"j={j}")
                 if node.nodes:
                     token = tokens[j]
                     if token.type == self.splittype:
@@ -328,11 +445,9 @@ class TokenGazetteer:
                         nignored += 1
                         continue
                     if token_string in node.nodes:
-                        self.logger.debug(f"Found token {token_string}")
                         node = node.nodes[token_string]
                         thistokens.append(token)
                         if node.is_match:
-                            self.logger.debug(f"Also is entry match")
                             if matchfunc:
                                 match = matchfunc(
                                     idx, idx + len(thistokens) + nignored,
@@ -343,6 +458,7 @@ class TokenGazetteer:
                                     idx, idx + len(thistokens) + nignored,
                                     thistokens.copy(),
                                     node.data, node.listidx)
+                            debugtxt = " ".join([doc[tokens[i]] for i in range(match.start, match.end)])
                             # TODO: should LONGEST get calculated including ignored tokens or not?
                             if all:
                                 thismatches.append(match)
@@ -355,14 +471,12 @@ class TokenGazetteer:
                         j += 1
                         continue
                     else:
-                        self.logger.debug(f"Breaking: {token_string} does not match, j={j}")
                         break
                 else:
-                    self.logger.debug("Breaking: no nodes")
                     break
-            self.logger.debug(f"Going through thismatches: {thismatches}")
             return thismatches, longest
         else:
+            # first token did not match, nothing to be found
             return [], 0
 
     def find(self, tokens, doc=None, all=None,
@@ -455,7 +569,6 @@ class TokenGazetteer:
             yield matches
             return
         idx = fromidx
-        logger.debug(f"From index {idx} to index {toidx} for {tokens}")
         while idx <= toidx:
             matches, maxlen, idx = self.find(tokens, doc=doc, all=all, fromidx=idx, endidx=endidx, toidx=toidx,
                                              matchfunc=matchfunc)
@@ -464,6 +577,8 @@ class TokenGazetteer:
             yield matches
             if skip:
                 idx += maxlen
+            else:
+                idx += 1
 
     def __call__(self, doc,
                  annset=None, tokentype=None, septype=None, splittype=None, withintype=None,
@@ -510,16 +625,13 @@ class TokenGazetteer:
             segment_offs = []
             for wann in withinanns:
                 segment_offs.append((wann.start, wann.end))
-        self.logger.debug(f"!!!!!! segements={segment_offs}")
         anntypes = [tokentype]
         # TODO: septype still not implemented, not added here!
         # if septype is not None:
         #     anntypes.append(septype)
         if splittype is not None:
             anntypes.append(splittype)
-        self.logger.debug(f"!!!!!! anntypes={anntypes}")
         anns = doc.annset(annset).with_type(anntypes)
-        self.logger.debug(f"!!!!!! anns={anns}")
         # now do the annotation process for each segment
         outset = doc.annset(self.outset)
         for segment_start, segment_end in segment_offs:
@@ -527,31 +639,35 @@ class TokenGazetteer:
             for matches in self.find_all(tokens, doc=doc):
                 for match in matches:
                     starttoken = tokens[match.start]
-                    endtoken = tokens[match.end]
+                    endtoken = tokens[match.end-1]  # end is the index after the last match!!
                     startoffset = starttoken.start
                     endoffset = endtoken.end
-                    # TODO: make the output type depend on the match or list info!
-                    for feats in match.entrydata:
-                        outset.add(startoffset, endoffset, self.outtype, features=feats)
+                    if match.data: # TODO: for now data and listidx are either both None or lists with same len
+                        for data, listidx in zip(match.data, match.listidx):
+                            outtype = self.outtype
+                            feats = {}
+                            if listidx is not None:
+                                feats.update(self.listfeatures[listidx])
+                                outtype = self.listtypes[listidx]
+                            if "_gatenlp.gazetteer.outtype" in feats:
+                                outtype = feats["_gatenlp.gazetteer.outtype"]
+                                del feats["_gatenlp.gazetteer.outtype"]
+                            if data is not None:
+                                feats.update(data)
+                            outset.add(startoffset, endoffset, outtype, features=feats)
+                    else:
+                        outset.add(startoffset, endoffset, self.outtype)
         return doc
 
-
-
-
-
-
-####################### TODO
-
-import sys
-
-
-def thisorthat(x,y): x if x is not None else y
-
+# TODO: Implement the StringGazetteer!!!!!!!!!!!!!!!!!!!!!!
 
 # NOTE: Match was a dataclass originally
 Match = structclass("Match", ("start", "end", "match", "entrydata", "matcherdata"))
 
+
 _NOVALUE = object()
+
+import sys
 
 
 class _Node:
@@ -576,7 +692,7 @@ class _Node:
         print("])", end="", file=file)
 
 
-class StringMatcher:
+class StringGazetteer:
 
     def __init__(self, ignorefunc=None, mapfunc=None, matcherdata=None, defaultdata=None):
         """
@@ -594,6 +710,8 @@ class StringMatcher:
         self.defaultdata = defaultdata
         self.matcherdata = matcherdata
         self._root = _Node()
+        self.loger = init_logger(__name__)
+        raise Exception("Not yet implemented")
 
     def add(self, entry, data=None, listdata=None, append=False):
         """
@@ -641,7 +759,6 @@ class StringMatcher:
         :return: an iterable of Match. The start/end fields of each Match are the character offsets if
         text is a string, otherwise are the token offsets.
         """
-        logger.debug("CALL")
         matches = []
         l = len(text)
         if fromidx is None:
@@ -655,7 +772,7 @@ class StringMatcher:
         if fromidx > toidx:
             return matches
         i = fromidx
-        logger.debug(f"From index {i} to index {toidx} for {text}")
+        self.logger.debug(f"From index {i} to index {toidx} for {text}")
         while i < toidx:
             chr = text[i]
             if self.ignorefunc and self.ignorefunc(chr):
@@ -673,9 +790,9 @@ class StringMatcher:
                     # we found a match
                     cur_len = k+1
                     if matchmaker:
-                        match = matchmaker(i, i + k + 1, text[i:i+k+1], thisorthat(node.value, self.defaultdata), self.matcherdata)
+                        match = matchmaker(i, i + k + 1, text[i:i+k+1], node.value, self.matcherdata)
                     else:
-                        match = Match(i, i + k + 1, text[i:i+k+1], thisorthat(node.value, self.defaultdata), self.matcherdata)
+                        match = Match(i, i + k + 1, text[i:i+k+1], node.value, self.matcherdata)
                     if all:
                         matches.append(match)
                     else:
@@ -699,7 +816,7 @@ class StringMatcher:
             if not all and longest_match is not None:
                 matches.append(longest_match)
             if skip:
-                i += max(k,1)
+                i += max(k, 1)
             else:
                 i += 1
         return matches
@@ -748,23 +865,3 @@ class StringMatcher:
                     else:
                         return None
         return node
-
-    def replace(self,  text, fromidx=None, toidx=None, getter=None, replacer=None, matchmaker=None):
-        matches = self.find(text, fromidx=fromidx, toidx=toidx, all=False, skip=True, matchmaker=matchmaker)
-        if len(matches) == 0:
-            return text
-        parts = []
-        last = 0
-        for match in matches:
-            if match.start > last:
-                parts.append(text[last:match.start])
-            if match.start >= last:
-                if replacer:
-                    rep = replacer(match)
-                else:
-                    rep = str(match.entrydata)
-                parts.append(rep)
-                last = match.end
-        if last < len(text):
-            parts.append(text[last:])
-        return "".join(parts)

@@ -1,4 +1,5 @@
 import inspect
+from gatenlp.document import Document
 from gatenlp.processing.annotator import Annotator
 # NOTE we use NLTK's own aligner, but there is also get_original_spans(tk, s) from package tokenizations
 from nltk.tokenize.util import align_tokens
@@ -12,14 +13,25 @@ from nltk.tokenize.util import align_tokens
 
 # in here we could also include pos taggers and lemmatizers as these are related to token features?
 
+class Tokenizer(Annotator):
+    """
+    A tokenizer creates token annotations and optionally also space token annotations. In additiona it
+    may add word annotations for multi-word tokens and and multi-token words.
 
-class NLTKTokenizer(Annotator):
+    Tokenizers should have the fields token_type, space_token_type, and word_type which identify
+    the types of annotations it creates, and out_set to identify the output annotation set.
+
+    """
+    pass
+
+
+class NLTKTokenizer(Tokenizer):
     """
     Uses a NLTK Tokenizer to perform tokenization.
     """
-    def __init__(self, nltk_tokenizer=None, out_set="", token_type="Token"):
+    def __init__(self, nltk_tokenizer=None, out_set="", token_type="Token", space_token_type=None):
         """
-        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
 
         Args:
             :param nltk_tokenizer: either a class or instance of an nltk tokenizer
@@ -39,8 +51,9 @@ class NLTKTokenizer(Annotator):
             self.tokenizer.span_tokenize("text")
         except:
             self.has_span_tokenize = False
-        self.out_set=out_set
+        self.out_set = out_set
         self.token_type = token_type
+        self.space_token_type = space_token_type
 
     def __call__(self, doc, **kwargs):
         if doc.text is None:
