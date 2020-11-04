@@ -46,7 +46,7 @@ def get_install_extras_require():
         # the following are not included in all but in alldev
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
             'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy', 'jupyterlab', 'notebook', 'voila', 
-            'setuptools_git', 'setuptools_scm',
+            'setuptools_git', 'setuptools_scm', 'ipywidgets',
             'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             ],
     }

@@ -1,6 +1,6 @@
 # Installation
 
-Make sure you have Python 3.5 or later installed. Python version 3.7 or later is highly recommended!
+Make sure you have Python 3.6 or later installed. Python version 3.7 or later is highly recommended!
 
 The recommended way to install Python is to use Conda by installing  one of 
 
