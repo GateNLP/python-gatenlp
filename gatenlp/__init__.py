@@ -1,6 +1,6 @@
 # NOTE: do not place a comment at the end of the version assignment
 # line since we parse that line in a shell script!
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 import logging
 import sys
 try:
