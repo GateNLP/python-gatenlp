@@ -46,7 +46,7 @@ def get_install_extras_require():
         # the following are not included in all but in alldev
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
             'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy', 'jupyterlab', 'notebook', 'voila', 
-            'setuptools_git', 'setuptools_scm', 'ipywidgets',
+            'ipywidgets',
             'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             ],
     }
@@ -76,7 +76,6 @@ setup(
     # NOTE: this is not actually used since it will not work with gatenlp version reporting
     # from the gateplugin-Python plugin (since _version.py is not/should not get committed, only distributed)
     # (this would also not work if we deploy after committing)
-    use_scm_version={'write_to': os.path.join('gatenlp','_version.py')},
     python_requires=">=3.6",
     tests_require=['pytest', "pytest-cov"],
     platforms='any',
