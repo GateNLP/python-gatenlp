@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import inspect
+from gatenlp.document import Document
 from gatenlp.processing.annotator import Annotator
 # NOTE we use NLTK&#39;s own aligner, but there is also get_original_spans(tk, s) from package tokenizations
 from nltk.tokenize.util import align_tokens
@@ -40,14 +41,25 @@ from nltk.tokenize.util import align_tokens
 
 # in here we could also include pos taggers and lemmatizers as these are related to token features?
 
+class Tokenizer(Annotator):
+    &#34;&#34;&#34;
+    A tokenizer creates token annotations and optionally also space token annotations. In additiona it
+    may add word annotations for multi-word tokens and and multi-token words.
 
-class NLTKTokenizer(Annotator):
+    Tokenizers should have the fields token_type, space_token_type, and word_type which identify
+    the types of annotations it creates, and out_set to identify the output annotation set.
+
+    &#34;&#34;&#34;
+    pass
+
+
+class NLTKTokenizer(Tokenizer):
     &#34;&#34;&#34;
     Uses a NLTK Tokenizer to perform tokenization.
     &#34;&#34;&#34;
-    def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;):
+    def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;, space_token_type=None):
         &#34;&#34;&#34;
-        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
 
         Args:
             :param nltk_tokenizer: either a class or instance of an nltk tokenizer
@@ -67,8 +79,9 @@ class NLTKTokenizer(Annotator):
             self.tokenizer.span_tokenize(&#34;text&#34;)
         except:
             self.has_span_tokenize = False
-        self.out_set=out_set
+        self.out_set = out_set
         self.token_type = token_type
+        self.space_token_type = space_token_type
 
     def __call__(self, doc, **kwargs):
         if doc.text is None:
@@ -95,11 +108,11 @@ class NLTKTokenizer(Annotator):
 <dl>
 <dt id="gatenlp.processing.tokenizer.NLTKTokenizer"><code class="flex name class">
 <span>class <span class="ident">NLTKTokenizer</span></span>
-<span>(</span><span>nltk_tokenizer=None, out_set='', token_type='Token')</span>
+<span>(</span><span>nltk_tokenizer=None, out_set='', token_type='Token', space_token_type=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Uses a NLTK Tokenizer to perform tokenization.</p>
-<p>Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens</p>
+<p>Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default</p>
 <h2 id="args">Args</h2>
 <p>:param nltk_tokenizer: either a class or instance of an nltk tokenizer
 :param out_set: annotation set to put the Token annotations in
@@ -108,13 +121,13 @@ class NLTKTokenizer(Annotator):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class NLTKTokenizer(Annotator):
+<pre><code class="python">class NLTKTokenizer(Tokenizer):
     &#34;&#34;&#34;
     Uses a NLTK Tokenizer to perform tokenization.
     &#34;&#34;&#34;
-    def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;):
+    def __init__(self, nltk_tokenizer=None, out_set=&#34;&#34;, token_type=&#34;Token&#34;, space_token_type=None):
         &#34;&#34;&#34;
-        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens
+        Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
 
         Args:
             :param nltk_tokenizer: either a class or instance of an nltk tokenizer
@@ -134,8 +147,9 @@ class NLTKTokenizer(Annotator):
             self.tokenizer.span_tokenize(&#34;text&#34;)
         except:
             self.has_span_tokenize = False
-        self.out_set=out_set
+        self.out_set = out_set
         self.token_type = token_type
+        self.space_token_type = space_token_type
 
     def __call__(self, doc, **kwargs):
         if doc.text is None:
@@ -152,8 +166,53 @@ class NLTKTokenizer(Annotator):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="gatenlp.processing.tokenizer.Tokenizer" href="#gatenlp.processing.tokenizer.Tokenizer">Tokenizer</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.tokenizer.Tokenizer" href="#gatenlp.processing.tokenizer.Tokenizer">Tokenizer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.tokenizer.Tokenizer.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.tokenizer.Tokenizer.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.tokenizer.Tokenizer.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.tokenizer.Tokenizer.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.processing.tokenizer.Tokenizer"><code class="flex name class">
+<span>class <span class="ident">Tokenizer</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A tokenizer creates token annotations and optionally also space token annotations. In additiona it
+may add word annotations for multi-word tokens and and multi-token words.</p>
+<p>Tokenizers should have the fields token_type, space_token_type, and word_type which identify
+the types of annotations it creates, and out_set to identify the output annotation set.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Tokenizer(Annotator):
+    &#34;&#34;&#34;
+    A tokenizer creates token annotations and optionally also space token annotations. In additiona it
+    may add word annotations for multi-word tokens and and multi-token words.
+
+    Tokenizers should have the fields token_type, space_token_type, and word_type which identify
+    the types of annotations it creates, and out_set to identify the output annotation set.
+
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.tokenizer.NLTKTokenizer" href="#gatenlp.processing.tokenizer.NLTKTokenizer">NLTKTokenizer</a></li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -185,6 +244,9 @@ class NLTKTokenizer(Annotator):
 <ul>
 <li>
 <h4><code><a title="gatenlp.processing.tokenizer.NLTKTokenizer" href="#gatenlp.processing.tokenizer.NLTKTokenizer">NLTKTokenizer</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.tokenizer.Tokenizer" href="#gatenlp.processing.tokenizer.Tokenizer">Tokenizer</a></code></h4>
 </li>
 </ul>
 </li>

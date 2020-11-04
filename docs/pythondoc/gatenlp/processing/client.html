@@ -32,6 +32,7 @@ Module that provides various Annotators which act as clients to REST annotation 
 &#34;&#34;&#34;
 
 import logging
+import json
 from gatenlp.processing.annotator import Annotator
 import requests
 from requests.auth import HTTPBasicAuth
@@ -215,7 +216,6 @@ class TagMeAnnotator(Annotator):
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         text = doc.text
-        text = doc.text
         hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
         params = {
             &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
@@ -228,7 +228,7 @@ class TagMeAnnotator(Annotator):
             params[&#34;long_text&#34;] = self.long_text
         if self.epsilon is not None:
             params[&#34;epsilon&#34;] = self.epsilon
-        response = requests.post(self.url, params=params)
+        response = requests.post(self.url, params=params, headers=hdrs)
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -257,20 +257,203 @@ class TagMeAnnotator(Annotator):
         return doc
 
 
+class TextRazorTextAnnotator(Annotator):
+    &#34;&#34;&#34;
+    An annotator that sends document text to the TextRazor Annotation service (https://www.textrazor.com/)
+    and uses the result to annotate the document.
+
+    NOTE: this annotator and how it can get parametrized will still change!
+    &#34;&#34;&#34;
+    def __init__(self,
+                 lang=None,  # if None/not specified, TextRazor auto-detects
+                 auth_token=None,
+                 url=None,  # use default
+                 extractors=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        &#34;&#34;&#34;
+        Create a TextRazorTextAnnotator.
+
+        Args:
+            lang: if specified, override the auto-detected language of the text
+            auth_token: the authentication token needed to use the service
+            url: the annotation service endpoint, is None, the default endpoint  https://api.textrazor.com is used
+            extractors: a list of extractor names or a string with comma-separated extractor names to add to the
+               minimum extractors (words, sentences). If None uses words, sentences, entities.
+               NOTE: currently only words, sentences, entities is supported.!
+            out_annset: the annotationset to put the new annotations in
+            min_delay_ms: minimum time in ms to wait between requests to the server
+        &#34;&#34;&#34;
+        if url is None:
+            url = &#34;https://api.textrazor.com&#34;
+        self.url = url
+        self.lang = lang
+        self.out_annset = out_annset
+        self.auth_token = auth_token
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.logger = init_logger()
+        self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+        if extractors is not None:
+            if isinstance(extractors, str):
+                extractors = extractors.split(&#34;,&#34;)
+            if isinstance(extractors, list):
+                allextrs = set()
+                allextrs.update(extractors)
+                allextrs.update([&#34;words&#34;, &#34;sentences&#34;])
+                self.extractors = &#34;,&#34;.join(list(allextrs))
+            else:
+                raise Exception(&#34;Odd extractors, must be list of strings or string&#34;)
+        else:
+            self.extractors = &#34;words,sentences,entities&#34;
+
+    def __call__(self, doc, **kwargs):
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        text = doc.text
+        hdrs = {
+            # &#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;,
+            # &#39;Accept-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed responses
+            # &#39;Content-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed requests
+            &#39;X-TextRazor-Key&#39;: self.auth_token
+        }
+        data = {
+            &#39;text&#39;: text.encode(&#34;UTF-8&#34;)
+        }
+        if self.extractors:
+            data[&#34;extractors&#34;] = self.extractors
+        if self.lang:
+            data[&#34;languageOverride&#34;] = self.lang
+        self.logger.debug(f&#34;Sending request to {self.url}, data={data}, headers={hdrs}&#34;)
+        response = requests.post(
+            self.url,
+            # params=params,
+            data=data,
+            headers=hdrs)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        ok = json.get(&#34;ok&#34;, False)
+        if not ok:
+            raise Exception(f&#34;Something went wrong, did not get OK, json: {json}&#34;)
+        self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        resp = json.get(&#34;response&#34;, {})
+        entities = resp.get(&#34;entities&#34;, [])
+        sentences = resp.get(&#34;sentences&#34;, [])
+        categories = resp.get(&#34;categories&#34;, [])
+        topics = resp.get(&#34;topics&#34;, [])
+        entailments = resp.get(&#34;entailments&#34;, [])
+        relations = resp.get(&#34;relations&#34;, [])
+        properties = resp.get(&#34;properties&#34;, [])
+        nounphrases = resp.get(&#34;nounPhrases&#34;, [])
+        language = resp.get(&#34;language&#34;)
+        languageIsReliable = resp.get(&#34;languageIsReliable&#34;)
+        tok2off = {}  # maps token idxs to tuples (start,end)
+        annset = doc.annset(self.out_annset)
+        for s in sentences:
+            sentstart = None
+            sentend = None
+            words = s.get(&#34;words&#34;, [])
+            end = None
+            for word in words:
+                start = word[&#34;startingPos&#34;]
+                end = word[&#34;endingPos&#34;]
+                if sentstart is None:
+                    sentstart = start
+                tokidx = word[&#34;position&#34;]
+                feats = {}
+                feats[&#34;partOfSpeech&#34;] = word[&#34;partOfSpeech&#34;]
+                feats[&#34;lemma&#34;] = word[&#34;lemma&#34;]
+                if word.get(&#34;stem&#34;):
+                    feats[&#34;stem&#34;] = word[&#34;stem&#34;]
+                annset.add(start, end, &#34;Token&#34;, features=feats)
+                tok2off[tokidx] = (start, end)
+            if end is not None:
+                sentend = end
+            if sentstart is not None and sentend is not None:
+                annset.add(sentstart, sentend, &#34;Sentence&#34;)
+        for ent in entities:
+            feats = {}
+            for fname in [&#34;wikiLink&#34;, &#34;entityEnglishId&#34;, &#34;wikidataId&#34;, &#34;relevanceScore&#34;, &#34;confidenceScore&#34;, &#34;type&#34;,
+                          &#34;freebaseId&#34;, &#34;entityId&#34;, &#34;freebaseTypes&#34;]:
+                if fname in ent:
+                    feats[fname] = ent[fname]
+            annset.add(ent[&#34;startingPos&#34;], ent[&#34;endingPos&#34;], &#34;Entity&#34;, feats)
+        return doc
+
+
 class ElgTextAnnotator(Annotator):
     &#34;&#34;&#34;
-    Not yet implemented.
+    An annotator that sends text to one of the services registered with the European Language Grid
+    (https://live.european-language-grid.eu/) and uses the result to create annotations.
+
+    NOTE: This is maybe not properly implemented and not properly tested yet!
     &#34;&#34;&#34;
     def __init__(self,
                  auth_token=None,
                  url=None,
                  out_annset=&#34;&#34;,
                  min_delay_ms=501,
+                 anntypes_map=None,
                  ):
-        pass
+        &#34;&#34;&#34;
+        Create an ElgTextAnnotator.
+
+        Args:
+            auth_token: the authentication token from ELG
+            url:  the annotation service URL to use
+            out_annset: the name of the annotation set where to create the annotations (default: &#34;&#34;)
+            min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
+            anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
+               the annotated document.
+        &#34;&#34;&#34;
+        assert url is not None
+        self.auth_token = auth_token
+        self.url = url
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.anntypes_map = anntypes_map
+        self.out_annset = out_annset
+        self.logger = init_logger(__name__)
+        # self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
-        pass</code></pre>
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        om = OffsetMapper(doc.text)
+        request_json = json.dumps({&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;})
+        hdrs = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        if self.auth_token:
+            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
+        response = requests.post(self.url, data=request_json, headers=hdrs)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;)
+        response_json = response.json()
+        # self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        # TODO: check that we have got
+        # - a map
+        # - which has the &#34;response&#34; key
+        # - response value is a map which has &#34;type&#34;= &#34;annotations&#34; and
+        # - &#34;annotations&#34; is a map with keys being the annotation types and values arrays of annoations
+        ents = response_json.get(&#34;response&#34;, {}).get(&#34;annotations&#34;, {})
+        annset = doc.annset(self.out_annset)
+        for ret_anntype, ret_anns in ents.items():
+            if self.anntypes_map:
+                anntype = self.anntypes_map.get(ret_anntype, ret_anntype)
+            else:
+                anntype = ret_anntype
+            for ret_ann in ret_anns:
+                start = ret_ann[&#34;start&#34;]
+                end = ret_ann[&#34;end&#34;]
+                feats = ret_ann.get(&#34;features&#34;, {})
+                start, end = om.convert_to_python([start, end])
+                annset.add(start, end, anntype, features=feats)
+        return doc</code></pre>
 </details>
 </section>
 <section>
@@ -284,28 +467,100 @@ class ElgTextAnnotator(Annotator):
 <dl>
 <dt id="gatenlp.processing.client.ElgTextAnnotator"><code class="flex name class">
 <span>class <span class="ident">ElgTextAnnotator</span></span>
-<span>(</span><span>auth_token=None, url=None, out_annset='', min_delay_ms=501)</span>
+<span>(</span><span>auth_token=None, url=None, out_annset='', min_delay_ms=501, anntypes_map=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Not yet implemented.</p></div>
+<div class="desc"><p>An annotator that sends text to one of the services registered with the European Language Grid
+(<a href="https://live.european-language-grid.eu/">https://live.european-language-grid.eu/</a>) and uses the result to create annotations.</p>
+<p>NOTE: This is maybe not properly implemented and not properly tested yet!</p>
+<p>Create an ElgTextAnnotator.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>auth_token</code></strong></dt>
+<dd>the authentication token from ELG</dd>
+<dt><strong><code>url</code></strong></dt>
+<dd>the annotation service URL to use</dd>
+<dt><strong><code>out_annset</code></strong></dt>
+<dd>the name of the annotation set where to create the annotations (default: "")</dd>
+<dt><strong><code>min_delay_ms</code></strong></dt>
+<dd>the minimum delay time between requests in milliseconds (default: 501 ms)</dd>
+<dt><strong><code>anntypes_map</code></strong></dt>
+<dd>a map for renaming the annotation type names from the service to the ones to use in
+the annotated document.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ElgTextAnnotator(Annotator):
     &#34;&#34;&#34;
-    Not yet implemented.
+    An annotator that sends text to one of the services registered with the European Language Grid
+    (https://live.european-language-grid.eu/) and uses the result to create annotations.
+
+    NOTE: This is maybe not properly implemented and not properly tested yet!
     &#34;&#34;&#34;
     def __init__(self,
                  auth_token=None,
                  url=None,
                  out_annset=&#34;&#34;,
                  min_delay_ms=501,
+                 anntypes_map=None,
                  ):
-        pass
+        &#34;&#34;&#34;
+        Create an ElgTextAnnotator.
+
+        Args:
+            auth_token: the authentication token from ELG
+            url:  the annotation service URL to use
+            out_annset: the name of the annotation set where to create the annotations (default: &#34;&#34;)
+            min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
+            anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
+               the annotated document.
+        &#34;&#34;&#34;
+        assert url is not None
+        self.auth_token = auth_token
+        self.url = url
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.anntypes_map = anntypes_map
+        self.out_annset = out_annset
+        self.logger = init_logger(__name__)
+        # self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
-        pass</code></pre>
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        om = OffsetMapper(doc.text)
+        request_json = json.dumps({&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;})
+        hdrs = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        if self.auth_token:
+            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
+        response = requests.post(self.url, data=request_json, headers=hdrs)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;)
+        response_json = response.json()
+        # self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        # TODO: check that we have got
+        # - a map
+        # - which has the &#34;response&#34; key
+        # - response value is a map which has &#34;type&#34;= &#34;annotations&#34; and
+        # - &#34;annotations&#34; is a map with keys being the annotation types and values arrays of annoations
+        ents = response_json.get(&#34;response&#34;, {}).get(&#34;annotations&#34;, {})
+        annset = doc.annset(self.out_annset)
+        for ret_anntype, ret_anns in ents.items():
+            if self.anntypes_map:
+                anntype = self.anntypes_map.get(ret_anntype, ret_anntype)
+            else:
+                anntype = ret_anntype
+            for ret_ann in ret_anns:
+                start = ret_ann[&#34;start&#34;]
+                end = ret_ann[&#34;end&#34;]
+                feats = ret_ann.get(&#34;features&#34;, {})
+                start, end = om.convert_to_python([start, end])
+                annset.add(start, end, anntype, features=feats)
+        return doc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -586,7 +841,6 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         text = doc.text
-        text = doc.text
         hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
         params = {
             &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
@@ -599,7 +853,7 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
             params[&#34;long_text&#34;] = self.long_text
         if self.epsilon is not None:
             params[&#34;epsilon&#34;] = self.epsilon
-        response = requests.post(self.url, params=params)
+        response = requests.post(self.url, params=params, headers=hdrs)
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -644,6 +898,181 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
 </li>
 </ul>
 </dd>
+<dt id="gatenlp.processing.client.TextRazorTextAnnotator"><code class="flex name class">
+<span>class <span class="ident">TextRazorTextAnnotator</span></span>
+<span>(</span><span>lang=None, auth_token=None, url=None, extractors=None, out_annset='', min_delay_ms=501)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An annotator that sends document text to the TextRazor Annotation service (<a href="https://www.textrazor.com/">https://www.textrazor.com/</a>)
+and uses the result to annotate the document.</p>
+<p>NOTE: this annotator and how it can get parametrized will still change!</p>
+<p>Create a TextRazorTextAnnotator.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>lang</code></strong></dt>
+<dd>if specified, override the auto-detected language of the text</dd>
+<dt><strong><code>auth_token</code></strong></dt>
+<dd>the authentication token needed to use the service</dd>
+<dt><strong><code>url</code></strong></dt>
+<dd>the annotation service endpoint, is None, the default endpoint
+<a href="https://api.textrazor.com">https://api.textrazor.com</a> is used</dd>
+<dt><strong><code>extractors</code></strong></dt>
+<dd>a list of extractor names or a string with comma-separated extractor names to add to the
+minimum extractors (words, sentences). If None uses words, sentences, entities.
+NOTE: currently only words, sentences, entities is supported.!</dd>
+<dt><strong><code>out_annset</code></strong></dt>
+<dd>the annotationset to put the new annotations in</dd>
+<dt><strong><code>min_delay_ms</code></strong></dt>
+<dd>minimum time in ms to wait between requests to the server</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TextRazorTextAnnotator(Annotator):
+    &#34;&#34;&#34;
+    An annotator that sends document text to the TextRazor Annotation service (https://www.textrazor.com/)
+    and uses the result to annotate the document.
+
+    NOTE: this annotator and how it can get parametrized will still change!
+    &#34;&#34;&#34;
+    def __init__(self,
+                 lang=None,  # if None/not specified, TextRazor auto-detects
+                 auth_token=None,
+                 url=None,  # use default
+                 extractors=None,
+                 out_annset=&#34;&#34;,
+                 min_delay_ms=501,
+                 ):
+        &#34;&#34;&#34;
+        Create a TextRazorTextAnnotator.
+
+        Args:
+            lang: if specified, override the auto-detected language of the text
+            auth_token: the authentication token needed to use the service
+            url: the annotation service endpoint, is None, the default endpoint  https://api.textrazor.com is used
+            extractors: a list of extractor names or a string with comma-separated extractor names to add to the
+               minimum extractors (words, sentences). If None uses words, sentences, entities.
+               NOTE: currently only words, sentences, entities is supported.!
+            out_annset: the annotationset to put the new annotations in
+            min_delay_ms: minimum time in ms to wait between requests to the server
+        &#34;&#34;&#34;
+        if url is None:
+            url = &#34;https://api.textrazor.com&#34;
+        self.url = url
+        self.lang = lang
+        self.out_annset = out_annset
+        self.auth_token = auth_token
+        self.min_delay_s = min_delay_ms / 1000.0
+        self.logger = init_logger()
+        self.logger.setLevel(logging.DEBUG)
+        self._last_call_time = 0
+        if extractors is not None:
+            if isinstance(extractors, str):
+                extractors = extractors.split(&#34;,&#34;)
+            if isinstance(extractors, list):
+                allextrs = set()
+                allextrs.update(extractors)
+                allextrs.update([&#34;words&#34;, &#34;sentences&#34;])
+                self.extractors = &#34;,&#34;.join(list(allextrs))
+            else:
+                raise Exception(&#34;Odd extractors, must be list of strings or string&#34;)
+        else:
+            self.extractors = &#34;words,sentences,entities&#34;
+
+    def __call__(self, doc, **kwargs):
+        delay = time.time() - self._last_call_time
+        if delay &lt; self.min_delay_s:
+            time.sleep(self.min_delay_s - delay)
+        text = doc.text
+        hdrs = {
+            # &#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;,
+            # &#39;Accept-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed responses
+            # &#39;Content-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed requests
+            &#39;X-TextRazor-Key&#39;: self.auth_token
+        }
+        data = {
+            &#39;text&#39;: text.encode(&#34;UTF-8&#34;)
+        }
+        if self.extractors:
+            data[&#34;extractors&#34;] = self.extractors
+        if self.lang:
+            data[&#34;languageOverride&#34;] = self.lang
+        self.logger.debug(f&#34;Sending request to {self.url}, data={data}, headers={hdrs}&#34;)
+        response = requests.post(
+            self.url,
+            # params=params,
+            data=data,
+            headers=hdrs)
+        scode = response.status_code
+        if scode != 200:
+            raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
+        json = response.json()
+        ok = json.get(&#34;ok&#34;, False)
+        if not ok:
+            raise Exception(f&#34;Something went wrong, did not get OK, json: {json}&#34;)
+        self.logger.debug(f&#34;Response JSON: {json}&#34;)
+        resp = json.get(&#34;response&#34;, {})
+        entities = resp.get(&#34;entities&#34;, [])
+        sentences = resp.get(&#34;sentences&#34;, [])
+        categories = resp.get(&#34;categories&#34;, [])
+        topics = resp.get(&#34;topics&#34;, [])
+        entailments = resp.get(&#34;entailments&#34;, [])
+        relations = resp.get(&#34;relations&#34;, [])
+        properties = resp.get(&#34;properties&#34;, [])
+        nounphrases = resp.get(&#34;nounPhrases&#34;, [])
+        language = resp.get(&#34;language&#34;)
+        languageIsReliable = resp.get(&#34;languageIsReliable&#34;)
+        tok2off = {}  # maps token idxs to tuples (start,end)
+        annset = doc.annset(self.out_annset)
+        for s in sentences:
+            sentstart = None
+            sentend = None
+            words = s.get(&#34;words&#34;, [])
+            end = None
+            for word in words:
+                start = word[&#34;startingPos&#34;]
+                end = word[&#34;endingPos&#34;]
+                if sentstart is None:
+                    sentstart = start
+                tokidx = word[&#34;position&#34;]
+                feats = {}
+                feats[&#34;partOfSpeech&#34;] = word[&#34;partOfSpeech&#34;]
+                feats[&#34;lemma&#34;] = word[&#34;lemma&#34;]
+                if word.get(&#34;stem&#34;):
+                    feats[&#34;stem&#34;] = word[&#34;stem&#34;]
+                annset.add(start, end, &#34;Token&#34;, features=feats)
+                tok2off[tokidx] = (start, end)
+            if end is not None:
+                sentend = end
+            if sentstart is not None and sentend is not None:
+                annset.add(sentstart, sentend, &#34;Sentence&#34;)
+        for ent in entities:
+            feats = {}
+            for fname in [&#34;wikiLink&#34;, &#34;entityEnglishId&#34;, &#34;wikidataId&#34;, &#34;relevanceScore&#34;, &#34;confidenceScore&#34;, &#34;type&#34;,
+                          &#34;freebaseId&#34;, &#34;entityId&#34;, &#34;freebaseTypes&#34;]:
+                if fname in ent:
+                    feats[fname] = ent[fname]
+            annset.add(ent[&#34;startingPos&#34;], ent[&#34;endingPos&#34;], &#34;Entity&#34;, feats)
+        return doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -668,6 +1097,9 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
 </li>
 <li>
 <h4><code><a title="gatenlp.processing.client.TagMeAnnotator" href="#gatenlp.processing.client.TagMeAnnotator">TagMeAnnotator</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.client.TextRazorTextAnnotator" href="#gatenlp.processing.client.TextRazorTextAnnotator">TextRazorTextAnnotator</a></code></h4>
 </li>
 </ul>
 </li>

@@ -139,10 +139,6 @@ Java strings are represented as UTF16 …</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="gatenlp.test_pydoc" href="test_pydoc.html">gatenlp.test_pydoc</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="gatenlp.utils" href="utils.html">gatenlp.utils</a></code></dt>
 <dd>
 <div class="desc"><p>Various utilities that could be useful in several modules.</p></div>
@@ -4793,6 +4789,8 @@ changelog: a ChangeLog instance to use to log changes.</p>
         for change in changes:
             cmd = change.get(&#34;command&#34;)
             fname = change.get(&#34;feature&#34;)
+            fvalue = change.get(&#34;value&#34;)
+            features = change.get(&#34;features&#34;)
             sname = change.get(&#34;set&#34;)
             annid = change.get(&#34;id&#34;)
             if cmd is None:
@@ -4810,7 +4808,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
                 anntype = change.get(&#34;type&#34;)
 
                 if ann is None:
-                    anns.add(start, end, anntype, annid)
+                    anns.add(start, end, anntype, annid=annid, features=features)
                 else:
                     if handle_existing_anns == ADDANN_IGNORE:
                         pass
@@ -4820,14 +4818,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
                         anns.remove(annid)
                         anns.add(start, end, anntype, annid)
                     elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
-                        features = change.get(&#34;features&#34;)
                         ann.features.update(features)
                     elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
-                        features = change.get(&#34;features&#34;)
                         ann.features.clear()
                         ann.features.update(features)
                     elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
-                        features = change.get(&#34;features&#34;)
                         fns = ann.feature_names()
                         for f in features.keys():
                             if f not in fns:
@@ -4848,6 +4843,12 @@ changelog: a ChangeLog instance to use to log changes.</p>
                     pass # ignore, could happen with a detached annotation
             elif cmd == ACTION_CLEAR_DOC_FEATURES:
                 self.features.clear()
+            elif cmd == ACTION_SET_ANN_FEATURE:
+                assert fname is not None
+                assert sname is not None
+                assert annid is not None
+                ann = self.annset(sname).get(annid)
+                ann.features[fname] = fvalue
             elif cmd == ACTION_DEL_ANN_FEATURE:
                 assert sname is not None
                 assert annid is not None
@@ -4866,6 +4867,16 @@ changelog: a ChangeLog instance to use to log changes.</p>
                 assert annid is not None
                 anns = self.annset(sname)
                 anns.remove(annid)
+            elif cmd == ACTION_SET_DOC_FEATURE:
+                assert fname is not None
+                self.features[fname] = fvalue
+            elif cmd == ACTION_CLEAR_DOC_FEATURES:
+                self._features.clear()
+            elif cmd == ACTION_DEL_DOC_FEATURE:
+                assert fname is not None
+                del self._features[fname]
+            else:
+                raise Exception(&#34;Unknown ChangeLog action: &#34;, cmd)
 
     @property
     def features(self):
@@ -5671,6 +5682,8 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
     for change in changes:
         cmd = change.get(&#34;command&#34;)
         fname = change.get(&#34;feature&#34;)
+        fvalue = change.get(&#34;value&#34;)
+        features = change.get(&#34;features&#34;)
         sname = change.get(&#34;set&#34;)
         annid = change.get(&#34;id&#34;)
         if cmd is None:
@@ -5688,7 +5701,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
             anntype = change.get(&#34;type&#34;)
 
             if ann is None:
-                anns.add(start, end, anntype, annid)
+                anns.add(start, end, anntype, annid=annid, features=features)
             else:
                 if handle_existing_anns == ADDANN_IGNORE:
                     pass
@@ -5698,14 +5711,11 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
                     anns.remove(annid)
                     anns.add(start, end, anntype, annid)
                 elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
-                    features = change.get(&#34;features&#34;)
                     ann.features.update(features)
                 elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
-                    features = change.get(&#34;features&#34;)
                     ann.features.clear()
                     ann.features.update(features)
                 elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
-                    features = change.get(&#34;features&#34;)
                     fns = ann.feature_names()
                     for f in features.keys():
                         if f not in fns:
@@ -5726,6 +5736,12 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
                 pass # ignore, could happen with a detached annotation
         elif cmd == ACTION_CLEAR_DOC_FEATURES:
             self.features.clear()
+        elif cmd == ACTION_SET_ANN_FEATURE:
+            assert fname is not None
+            assert sname is not None
+            assert annid is not None
+            ann = self.annset(sname).get(annid)
+            ann.features[fname] = fvalue
         elif cmd == ACTION_DEL_ANN_FEATURE:
             assert sname is not None
             assert annid is not None
@@ -5743,7 +5759,17 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
             assert sname is not None
             assert annid is not None
             anns = self.annset(sname)
-            anns.remove(annid)</code></pre>
+            anns.remove(annid)
+        elif cmd == ACTION_SET_DOC_FEATURE:
+            assert fname is not None
+            self.features[fname] = fvalue
+        elif cmd == ACTION_CLEAR_DOC_FEATURES:
+            self._features.clear()
+        elif cmd == ACTION_DEL_DOC_FEATURE:
+            assert fname is not None
+            del self._features[fname]
+        else:
+            raise Exception(&#34;Unknown ChangeLog action: &#34;, cmd)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Document.copy"><code class="name flex">
@@ -6112,7 +6138,6 @@ otherwise None.</p>
 <li><code><a title="gatenlp.offsetmapper" href="offsetmapper.html">gatenlp.offsetmapper</a></code></li>
 <li><code><a title="gatenlp.processing" href="processing/index.html">gatenlp.processing</a></code></li>
 <li><code><a title="gatenlp.serialization" href="serialization/index.html">gatenlp.serialization</a></code></li>
-<li><code><a title="gatenlp.test_pydoc" href="test_pydoc.html">gatenlp.test_pydoc</a></code></li>
 <li><code><a title="gatenlp.utils" href="utils.html">gatenlp.utils</a></code></li>
 </ul>
 </li>

@@ -42,6 +42,7 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
+from gatenlp.features import Features
 from gzip import open as gopen, compress, decompress
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -471,18 +472,18 @@ class MsgPackSerializer:
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
         pack(doc.name, stream)
-        pack(doc._features, stream)
+        pack(doc._features.to_dict(), stream)
         pack(len(doc._annotation_sets), stream)
-        for name, annset in doc._annotation_sets:
+        for name, annset in doc._annotation_sets.items():
             pack(name, stream)
-            pack(annset.next_annid, stream)
+            pack(annset._next_annid, stream)
             pack(len(annset), stream)
             for ann in annset.fast_iter():
                 pack(ann.type, stream)
                 pack(ann.start, stream)
                 pack(ann.end, stream)
                 pack(ann.id, stream)
-                pack(ann.features, stream)
+                pack(ann.features.to_dict(), stream)
 
     @staticmethod
     def stream2document(stream):
@@ -502,7 +503,7 @@ class MsgPackSerializer:
         doc.offset_type = u.unpack()
         doc._text = u.unpack()
         doc.name = u.unpack()
-        doc._features = u.unpack()
+        doc._features = Features(u.unpack())
         nsets = u.unpack()
         setsdict = dict()
         doc.annotation_sets = setsdict
@@ -522,6 +523,7 @@ class MsgPackSerializer:
                 ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
                 annset._annotations[aid] = ann
             setsdict[sname] = annset
+        doc._annotation_sets = setsdict
         return doc
 
     @staticmethod
@@ -997,35 +999,50 @@ DOCUMENT_SAVERS = {
     &#34;text/plain&#34;: PlainTextSerializer.save,
     &#34;text/plain+gzip&#34;: PlainTextSerializer.save_gzip,
     &#34;text&#34;: PlainTextSerializer.save,
-    &#34;bdocjs&#34;: JsonSerializer.save,
+
     &#34;json&#34;: JsonSerializer.save,
     &#34;jsongz&#34;: JsonSerializer.save_gzip,
-    &#34;yaml&#34;: YamlSerializer.save,
-    &#34;text/bdocym&#34;: YamlSerializer.save,
-    &#34;text/bdocym+gzip+&#34;: YamlSerializer.save,
+    &#34;bdocjs&#34;: JsonSerializer.save,
+    &#34;bdocjsgz&#34;: JsonSerializer.save_gzip,
     &#34;text/bdocjs&#34;: JsonSerializer.save,
     &#34;text/bdocjs+gzip&#34;: JsonSerializer.save_gzip,
+
+    &#34;yaml&#34;: YamlSerializer.save,
+    &#34;yamlgz&#34;: YamlSerializer.save_gzip,
+    &#34;text/bdocym&#34;: YamlSerializer.save,
+    &#34;text/bdocym+gzip+&#34;: YamlSerializer.save_gzip,
+
     &#34;msgpack&#34;: MsgPackSerializer.save,
+    &#34;bdocmp&#34;: MsgPackSerializer.save,
+    &#34;text/bdocmp&#34;: MsgPackSerializer.save,
     &#34;application/msgpack&#34;: MsgPackSerializer.save,
+
     &#34;html-ann-viewer&#34;: HtmlAnnViewerSerializer.save,
 }
 DOCUMENT_LOADERS = {
     &#34;json&#34;: JsonSerializer.load,
+    &#34;jsongz&#34;: JsonSerializer.load_gzip,
     &#34;bdocjs&#34;: JsonSerializer.load,
+    &#34;bdocjsgz&#34;: JsonSerializer.load_gzip,
+    &#34;text/bdocjs&#34;: JsonSerializer.load,
+    &#34;text/bdocjs+gzip&#34;: JsonSerializer.load_gzip,
+
     &#34;yaml&#34;: YamlSerializer.load,
+    &#34;yamlgz&#34;: YamlSerializer.load_gzip,
+    &#34;bdocym&#34;: YamlSerializer.load,
+    &#34;bdocymzg: &#34;: YamlSerializer.load_gzip,
     &#34;text/bdocym&#34;: YamlSerializer.load,
     &#34;text/bdocym+gzip&#34;: YamlSerializer.load_gzip,
-    &#34;jsongz&#34;: JsonSerializer.load_gzip,
-    &#34;yamlgz&#34;: YamlSerializer.load_gzip,
+
+    &#34;msgpack&#34;: MsgPackSerializer.load,
+    &#34;bdocmp&#34;: MsgPackSerializer.load,
+    &#34;application/msgpack&#34;: MsgPackSerializer.load,
+    &#34;text/bdocmp&#34;: MsgPackSerializer.load,
+
     &#34;jsonormsgpack&#34;: determine_loader,
-    &#34;text/bdocjs&#34;: JsonSerializer.load,
     &#34;text/plain&#34;: PlainTextSerializer.load,
     &#34;text/plain+gzip&#34;: PlainTextSerializer.load_gzip,
     &#34;text&#34;: PlainTextSerializer.load,
-    &#34;text/bdocjs+gzip&#34;: JsonSerializer.load_gzip,
-    &#34;bdocjsgz&#34;: JsonSerializer.load_gzip,
-    &#34;msgpack&#34;: MsgPackSerializer.load,
-    &#34;application/msgpack&#34;: MsgPackSerializer.load,
     &#34;text/html&#34;: HtmlLoader.load,
     &#34;html&#34;: HtmlLoader.load,
     &#34;html-rendered&#34;: HtmlLoader.load_rendered,
@@ -2753,18 +2770,18 @@ def save_gzip(clazz, inst, **kwargs):
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
         pack(doc.name, stream)
-        pack(doc._features, stream)
+        pack(doc._features.to_dict(), stream)
         pack(len(doc._annotation_sets), stream)
-        for name, annset in doc._annotation_sets:
+        for name, annset in doc._annotation_sets.items():
             pack(name, stream)
-            pack(annset.next_annid, stream)
+            pack(annset._next_annid, stream)
             pack(len(annset), stream)
             for ann in annset.fast_iter():
                 pack(ann.type, stream)
                 pack(ann.start, stream)
                 pack(ann.end, stream)
                 pack(ann.id, stream)
-                pack(ann.features, stream)
+                pack(ann.features.to_dict(), stream)
 
     @staticmethod
     def stream2document(stream):
@@ -2784,7 +2801,7 @@ def save_gzip(clazz, inst, **kwargs):
         doc.offset_type = u.unpack()
         doc._text = u.unpack()
         doc.name = u.unpack()
-        doc._features = u.unpack()
+        doc._features = Features(u.unpack())
         nsets = u.unpack()
         setsdict = dict()
         doc.annotation_sets = setsdict
@@ -2804,6 +2821,7 @@ def save_gzip(clazz, inst, **kwargs):
                 ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
                 annset._annotations[aid] = ann
             setsdict[sname] = annset
+        doc._annotation_sets = setsdict
         return doc
 
     @staticmethod
@@ -2906,18 +2924,18 @@ def document2stream(doc: Document, stream):
     pack(doc.offset_type, stream)
     pack(doc.text, stream)
     pack(doc.name, stream)
-    pack(doc._features, stream)
+    pack(doc._features.to_dict(), stream)
     pack(len(doc._annotation_sets), stream)
-    for name, annset in doc._annotation_sets:
+    for name, annset in doc._annotation_sets.items():
         pack(name, stream)
-        pack(annset.next_annid, stream)
+        pack(annset._next_annid, stream)
         pack(len(annset), stream)
         for ann in annset.fast_iter():
             pack(ann.type, stream)
             pack(ann.start, stream)
             pack(ann.end, stream)
             pack(ann.id, stream)
-            pack(ann.features, stream)</code></pre>
+            pack(ann.features.to_dict(), stream)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.serialization.default.MsgPackSerializer.load"><code class="name flex">
@@ -3066,7 +3084,7 @@ def stream2document(stream):
     doc.offset_type = u.unpack()
     doc._text = u.unpack()
     doc.name = u.unpack()
-    doc._features = u.unpack()
+    doc._features = Features(u.unpack())
     nsets = u.unpack()
     setsdict = dict()
     doc.annotation_sets = setsdict
@@ -3086,6 +3104,7 @@ def stream2document(stream):
             ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
             annset._annotations[aid] = ann
         setsdict[sname] = annset
+    doc._annotation_sets = setsdict
     return doc</code></pre>
 </details>
 </dd>
