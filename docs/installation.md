@@ -30,6 +30,11 @@ To install `gatenlp` with all dependencies run:
 python -m pip install gatenlp[all]
 ```
 
+NOTE: if this fails because of a problem installing torch (this may happen on Windows), 
+first install Pytorch separately according to 
+the Pytorch installation instructions, see: https://pytorch.org/get-started/locally/
+then run the gatenlp installation again. 
+
 The following specific dependencies can be chosen:
 * `formats`: to support the various serialization formats
 * `java`: to support the Gate slave 
@@ -45,6 +50,8 @@ To install gatenlp with support for stanza and spacy and serialization:
 ```
 python -m pip install gatenlp[stanza,spacy,formats]
 ```
+
+
 
 To install the latest `gatenlp` code from GitHub with all dependencies:
 * Clone the repository and change into it
