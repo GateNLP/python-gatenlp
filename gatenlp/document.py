@@ -53,7 +53,6 @@ class Document:
             assert isinstance(text, str)
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
-        # super().__init__(features)
         self._changelog = changelog
         self._features = Features(features, logger=self._log_feature_change)
         self._annotation_sets = dict()
@@ -467,8 +466,10 @@ class Document:
                     om = OffsetMapper(self._text)
         else:
             offset_type = self.offset_type
+        if om is not None:
+            kwargs["offset_mapper"] = om
         return {
-            "annotation_sets": {name: aset.to_dict() for name, aset in self._annotation_sets.items() },
+            "annotation_sets": {name: aset.to_dict(**kwargs) for name, aset in self._annotation_sets.items() },
             "text": self._text,
             "features": self._features.to_dict(),
             "offset_type": offset_type,
@@ -481,7 +482,7 @@ class Document:
 
         Args:
           dictrepr: return: the initialized Document instance
-          **kwargs: 
+          **kwargs:
 
         Returns:
           the initialized Document instance
@@ -689,3 +690,97 @@ class Document:
                              notebook=notebook,
                              offline=gatenlpconfig.doc_html_repr_offline,
                              htmlid=htmlid)
+
+
+class MultiDocument(Document):
+    """
+    NOTE: This is not implemented fully yet!
+
+    A MultiDocument can store more than one document, each identified by their ids. One of those
+    documents is always the "active" one and the MultiDocument can be used just like a Document
+    with that content. In addition, there are methods to make each of the other documents active
+    and to create mappings between annotations of pairs of documents.
+
+    An AnnotationMapping is something that maps annotations to annotations, either for the same
+    document, from the same or different sets, of for different documents. Once an annotation
+    becomes part of a mapping, that annotation is becoming immutable. Even if the original annotation
+    in the document changes or gets removed, the mapping retains the original copy of the annotation
+    until the mapping is modified or removed.
+    """
+    # TODO: ALL necessary fields of the document must be references of mutable objects so that
+    # if something is changed for the active document the one stored in the documents map is
+    # really updated as well, or we must override the updating method to change both!
+    # A better way could be to override all methods to always directly change the document in the
+    # documents map, and simply pass on all calls to the activated document.
+    # In that case, to_dict and from_dict would actually generate the fields for normal document
+    # readers and ignore them on restore
+    def __init__(self, text: str = None, features=None, changelog: ChangeLog = None, docid=0):
+        self.documents = {}  # map from document id to document
+        self._mappings = None   # TODO: we need to implement this
+        self._docid = None
+        doc = Document(text, features=features, changelog=changelog)
+        self.documents[docid] = doc
+        self.activate(docid)
+
+    @property
+    def docid(self):
+        return self._docid
+
+    def activate(self, docid=0):
+        if docid not in self.documents:
+            raise Exception(f"Cannot activate id {docid}, not in MultiDocument")
+        doc = self.documents[docid]
+        self._changelog = doc._changelog
+        self._features = doc._features
+        self._annotation_sets = doc._annotation_sets
+        self._text = doc._text
+        self.offset_type = OFFSET_TYPE_PYTHON
+        self._name = doc._name
+        self._docid = docid
+
+    def add_document(self, doc, docid=None, activate=False):
+        if docid is None:
+            docid = len(self.documents)
+        elif docid in self.documents:
+            raise Exception(f"Cannot add document to MultiDocument, id {docid} already exists")
+        self.documents[docid] = doc
+        if activate:
+            self.activate(docid)
+        return docid
+
+    def to_dict(self, offset_type=None, **kwargs):
+        # TODO: check what to do with the offset type parameter!
+        # The basic strategy is that we simply create the dictionary for the active document plus
+        # the entries for the documents map and the annotation mappings. That way, any reader of the
+        # dict representation which just ignored unknown fields can still read this in as a normal
+        # document from the active document.
+        # The drawback is that the active document is represented twice, but OK
+        thedict = {
+            "annotation_sets": {name: aset.to_dict() for name, aset in self._annotation_sets.items() },
+            "text": self._text,
+            "features": self._features.to_dict(),
+            "offset_type": self.offset_type,
+            "name": self.name,
+        }
+        thedict["documents"] = {docid: doc.to_dict() for docid, doc in self.documents.items()}
+        thedict["docid"] = self._docid
+        thedict["mappings"] = self._mappings
+        return thedict
+
+    @staticmethod
+    def from_dict(dictrepr, **kwargs):
+        feats = dictrepr.get("features")
+        docid = dictrepr.get("docid")
+        doc = MultiDocument(dictrepr.get("text"), features=feats, docid=docid)
+        doc.name = dictrepr.get("name")
+        doc.offset_type = dictrepr.get("offset_type")
+        if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
+            raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
+        annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
+                   for name, adict in dictrepr.get("annotation_sets").items()}
+        doc._annotation_sets = annsets
+        doc.documents = {did: Document.from_dict(d) for did, d in dictrepr.get("documents", {}).items()}
+        #mappingsrepr = dictrepr.get("mappings")
+        #if mappingsrepr:
+        #    doc._mappings = AnnotationMappingsOrWhatever.from_dict()
+        return doc
