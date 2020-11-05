@@ -464,10 +464,11 @@ class Document:
             if offset_type != self.offset_type:
                 if self._text is not None:
                     om = OffsetMapper(self._text)
+                    kwargs["offset_mapper"] = om
+                    kwargs["offset_type"] = offset_type
         else:
             offset_type = self.offset_type
-        if om is not None:
-            kwargs["offset_mapper"] = om
+
         return {
             "annotation_sets": {name: aset.to_dict(**kwargs) for name, aset in self._annotation_sets.items() },
             "text": self._text,
