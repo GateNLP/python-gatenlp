@@ -81,7 +81,11 @@ setup(
     platforms='any',
     license="Apache License 2.0",
     packages=find_packages(),
-    package_data={"gatenlp": [JARFILE_DEST]},  
+    package_data={"gatenlp": [
+        JARFILE_DEST,
+        os.path.join("serialization", "_htmlviewer", "gatenlp-ann-viewer.html"),
+        os.path.join("serialization", "_htmlviewer", "gatenlp-ann-viewer-merged.js"),
+    ]},  
     # include_package_data=True,
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite='tests',
