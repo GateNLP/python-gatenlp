@@ -23,12 +23,16 @@
     <header class="page-header" role="banner">
       <h2 class="project-name" style="color:white" >Python GateNLP</h2>
       <a style="color:white;font-size:150%;padding:0px 12px" href="{{ site.baseurl }}/">Home</a>
-      <a style="color:white;font-size:150%;padding:0px 12px" href="{{ site.github.repository_url }}">GitHub></a>
       <a style="color:white;font-size:150%;padding:0px 12px" href="{{ site.baseurl }}/site-search">Search</a>
+      <a style="color:white;font-size:150%;padding:0px 12px" href="{{ site.github.repository_url }}">GitHub</a>
+      <a style="color:white;font-size:150%;padding:0px 12px" href="https://pypi.org/project/gatenlp/">PyPi</a>
     </header>
 
     <main id="content" class="main-content" role="main">
       {{ content }}
+
+      <p>
+      {% include comments %}
 
       <footer class="site-footer">
         {% if site.github.is_project_page %}
