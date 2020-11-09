@@ -24,10 +24,22 @@ To install `gatenlp` with the minimal set of dependencies run:
 python -m pip install gatenlp 
 ```
 
+To upgrade an already installed gatenlp package to the latest version run: 
+
+```
+python -m pip install -U gatenlp 
+```
+
 To install `gatenlp` with all dependencies run:
 
 ```
 python -m pip install gatenlp[all]
+```
+
+To upgrade to the latest version with all dependencies:
+
+```
+python -m pip install  -U gatenlp[all]
 ```
 
 NOTE: if this fails because of a problem installing torch (this may happen on Windows), 
@@ -52,10 +64,16 @@ python -m pip install gatenlp[stanza,spacy,formats]
 ```
 
 
-
 To install the latest `gatenlp` code from GitHub with all dependencies:
 * Clone the repository and change into it
-* Run `python -m pip -e .[all]`
+* Run `python -m pip install -e .[all]`
+
+To also install everything needed for development use the "dev"
+extras: 
+
+```
+python -m pip install -e .[all,dev]
+```
 
 
 #### Requirements for using the GATE slave:
