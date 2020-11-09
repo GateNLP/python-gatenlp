@@ -312,8 +312,7 @@ class GateSlave:
         Returns:
 
         """
-        canclose = self.slave.isClosable()
-        if canclose and not self.closed:
+        if not self.closed() and self.slave.isCLoseable():
             self.closed = True
             self.gateway.shutdown()
             if self.gateprocess is not None:
