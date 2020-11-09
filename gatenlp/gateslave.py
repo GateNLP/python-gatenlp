@@ -309,6 +309,10 @@ class GateSlave:
             gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token))
         self.jvm = self.gateway.jvm
         self.slave = self.gateway.entry_point
+        self.gate_version = self.jvm.gate.Main.version
+        self.gate_build = self.jvm.gate.Main.build
+        self.slave_version = self.slave.plugin_version()
+        self.slave_build = self.slave.plugin_build()
 
     def close(self):
         """
