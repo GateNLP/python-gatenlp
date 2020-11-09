@@ -161,6 +161,7 @@ def start_gate_slave(
         line = subproc.stderr.readline()
         if line == "":
             break
+        line = line.rstrip("\n\r")
         if line == "PythonSlaveRunner.java: server start OK":
             break
         if line == "PythonSlaveRunner.java: server start NOT OK":
@@ -286,6 +287,7 @@ class GateSlave:
                 line = subproc.stderr.readline()
                 if line == "":
                     break
+                line = line.rstrip("\n\r")
                 if line == "PythonSlaveRunner.java: server start OK":
                     break
                 if line == "PythonSlaveRunner.java: server start NOT OK":
