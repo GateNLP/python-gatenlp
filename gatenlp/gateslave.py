@@ -13,6 +13,7 @@ import atexit
 import secrets
 import argparse
 import signal
+import glob
 
 # NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
@@ -81,9 +82,10 @@ def gate_classpath(gatehome, platform=None):
         bindir = os.path.join(gatehome, "bin")
         if not os.path.isdir(libdir):
             raise Exception("Could not determine class path from {}, no lib directory".format(gatehome))
-        # jars = glob.glob(os.path.join(libdir,"*.jar"))
-        # return cpsep.join(jars)
-        return libdir + cpsep + bindir
+        jars = glob.glob(os.path.join(libdir, "*.jar"))
+        libcp = cpsep.join(jars)
+
+        return libcp + cpsep + bindir
 
 
 def start_gate_slave(
@@ -96,6 +98,7 @@ def start_gate_slave(
         gatehome=None,
         log_actions=False,
         keep=False,
+        debug=False,
 ):
     """
 
@@ -109,11 +112,14 @@ def start_gate_slave(
       gatehome:  (Default value = None)
       log_actions:  (Default value = False)
       keep:  (Default value = False)
+      debug: (Default valuye = False) Show debug messages.
 
     Returns:
 
     """
     logger = init_logger(__name__)
+    if debug:
+        logger.setLevel(logging.DEBUG)
 
     if gatehome is None:
         gatehome = os.environ.get("GATE_HOME")
@@ -134,9 +140,11 @@ def start_gate_slave(
         keep = "1"
     else:
         keep = "0"
+    logger.debug(f"Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}")
     jarloc = os.path.join(os.path.dirname(__file__), "_jars", f"gatetools-gatenlpslave-{JARVERSION}.jar")
     if not os.path.exists(jarloc):
         raise Exception("Could not find jar, {} does not exist".format(jarloc))
+    logger.debug(f"Using JAR: {jarloc}")
     cmdandparms = [java, "-cp"]
     cpsep = classpath_sep(platform=platform)
     cmdandparms.append(jarloc + cpsep + gate_classpath(gatehome, platform=platform))
@@ -146,8 +154,8 @@ def start_gate_slave(
     cmdandparms.append(log_actions)
     cmdandparms.append(keep)
     os.environ["GATENLP_SLAVE_TOKEN_" + str(port)] = auth_token
-    # cmd = " ".join(cmdandparms)
-    # logger.info(f"Running command: {cmd}")
+    cmd = " ".join(cmdandparms)
+    logger.debug(f"Running command: {cmd}")
     subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
 
     def shutdown():
@@ -186,6 +194,7 @@ class GateSlave:
                  use_auth_token=True,
                  log_actions=False,
                  keep=False,
+                 debug=False,
                  ):
         """
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
@@ -229,6 +238,7 @@ class GateSlave:
         :param keep: normally if gs.close() is called and we are not connected to the PythonSlaveLr,
                the slave will be shut down. If this is True, the gs.close() method does not shut down
                the slave.
+        :param debug: show debug messages (default: False)
         """
         self.logger = init_logger(__name__)
 
@@ -245,6 +255,7 @@ class GateSlave:
         self.slave = None
         self.closed = False
         self.keep = keep
+        self.debug = debug
         self.log_actions = log_actions
         if use_auth_token:
             if not auth_token:
@@ -279,8 +290,8 @@ class GateSlave:
             else:
                 cmdandparms.append("0")
             os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
-            # cmd = " ".join(cmdandparms)
-            # self.logger.info(f"Running command: {cmd}")
+            cmd = " ".join(cmdandparms)
+            self.logger.debug(f"Running command: {cmd}")
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
@@ -441,6 +452,7 @@ def main():
     ap.add_argument("--platform", default=None, type=str, help="OS/Platform: windows or linux (autodetect)")
     ap.add_argument("--log_actions", action="store_true", help="If slave actions should be logged")
     ap.add_argument("--keep", action="store_true", help="Prevent shutting down the slave")
+    ap.add_argument("--debug", action="store_true", help="Show debug messages")
     args = ap.parse_args()
     start_gate_slave(
         port=args.port,
@@ -451,6 +463,7 @@ def main():
         platform=args.platform,
         log_actions=args.log_actions,
         keep=args.keep,
+        debug=args.debug,
     )
 
 
