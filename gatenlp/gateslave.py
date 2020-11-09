@@ -18,6 +18,7 @@ import signal
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
 # from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
+from gatenlp.utils import init_logger
 
 JARVERSION = "1.0"
 
@@ -112,6 +113,8 @@ def start_gate_slave(
     Returns:
 
     """
+    logger = init_logger(__name__)
+
     if gatehome is None:
         gatehome = os.environ.get("GATE_HOME")
         if gatehome is None:
@@ -143,7 +146,8 @@ def start_gate_slave(
     cmdandparms.append(log_actions)
     cmdandparms.append(keep)
     os.environ["GATENLP_SLAVE_TOKEN_" + str(port)] = auth_token
-    # logger.info(f"DEBUG: running slave with port={port}, host={host},auth={auth_token},log={log_actions},keep={keep}")
+    cmd = " ".join(cmdandparms)
+    logger.info(f"Running command: {cmd}")
     subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
 
     def shutdown():
@@ -154,7 +158,9 @@ def start_gate_slave(
 
     atexit.register(shutdown)
     while True:
-        line = subproc.stderr.readline().strip()
+        line = subproc.stderr.readline()
+        if line == "":
+            break
         if line == "PythonSlaveRunner.java: server start OK":
             break
         if line == "PythonSlaveRunner.java: server start NOT OK":
@@ -223,6 +229,8 @@ class GateSlave:
                the slave will be shut down. If this is True, the gs.close() method does not shut down
                the slave.
         """
+        self.logger = init_logger(__name__)
+
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
         self.gatehome = gatehome
@@ -270,7 +278,8 @@ class GateSlave:
             else:
                 cmdandparms.append("0")
             os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
-            # logger.info(f"Running cmd: {cmdandparms}")
+            cmd = " ".join(cmdandparms)
+            self.logger.info(f"Running command: {cmd}")
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
