@@ -274,7 +274,9 @@ class GateSlave:
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:
-                line = subproc.stderr.readline().strip()
+                line = subproc.stderr.readline()
+                if line == "":
+                    break
                 if line == "PythonSlaveRunner.java: server start OK":
                     break
                 if line == "PythonSlaveRunner.java: server start NOT OK":
