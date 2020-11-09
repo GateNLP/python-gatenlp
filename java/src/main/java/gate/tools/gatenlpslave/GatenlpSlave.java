@@ -30,7 +30,7 @@ public class GatenlpSlave {
   static boolean DEBUG = false;
   public static void main(String[] args) {
     if(args.length > 4) {
-      System.err.println("Need up to three parameters: port number, host address, 0/1 if actions should get logged, 0/1 if slave should be kept running");
+      System.err.println("Need up to four parameters: port number, host address, 0/1 if actions should get logged, 0/1 if slave should be kept running");
       System.exit(1);
     }
     int port = 25333;

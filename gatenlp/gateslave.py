@@ -146,8 +146,8 @@ def start_gate_slave(
     cmdandparms.append(log_actions)
     cmdandparms.append(keep)
     os.environ["GATENLP_SLAVE_TOKEN_" + str(port)] = auth_token
-    cmd = " ".join(cmdandparms)
-    logger.info(f"Running command: {cmd}")
+    # cmd = " ".join(cmdandparms)
+    # logger.info(f"Running command: {cmd}")
     subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
 
     def shutdown():
@@ -278,8 +278,8 @@ class GateSlave:
             else:
                 cmdandparms.append("0")
             os.environ["GATENLP_SLAVE_TOKEN_"+str(self.port)] = self.auth_token
-            cmd = " ".join(cmdandparms)
-            self.logger.info(f"Running command: {cmd}")
+            # cmd = " ".join(cmdandparms)
+            # self.logger.info(f"Running command: {cmd}")
             subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8")
             self.gateprocess = subproc
             while True:

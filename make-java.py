@@ -5,6 +5,7 @@ import sys
 import os
 import re
 from shutil import copyfile
+import subprocess
 
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
 JARFILE_PATH = os.path.join("java","target", JARFILE) # where it is after compiling
