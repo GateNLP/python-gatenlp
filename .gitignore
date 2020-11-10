@@ -1,6 +1,7 @@
 .idea
 
-gatenlp/_version.py
+/gatenlp/_version.py
+/gate-downloader/gate.classpath
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
