@@ -314,6 +314,20 @@ class GateSlave:
         self.slave_version = self.slave.plugin_version()
         self.slave_build = self.slave.plugin_build()
 
+    @staticmethod
+    def download(self):
+        """
+        Download GATE libraries into a standard location so we can run the GATE slave even if GATE_HOME
+        is not set.
+        """
+        # TODO: this should use the command and bootstrapping jar in gate-downloader:
+        # copy the whole directory into the standard per-user config directory for the system
+        # run the command
+        # use the generated gate.classpath as for a compiled local git repo
+        # NOTE: should change error message if GATE_HOME is not set to hint at this! (option --downlaod for the script)
+        # NOTE: add to documentation
+        raise Exception("Not yet implemented")
+
     def close(self):
         """
         Clean up: if the gate slave process was started by us, we will shut it down.
@@ -448,6 +462,7 @@ class GateSlave:
 def main():
     """ """
     ap = argparse.ArgumentParser(description="Start Java GATE Slave")
+    ap.add_argument("--download", action="store_true", help="Download GATE libraries to run GATE slave")
     ap.add_argument("--port", default=25333, type=int, help="Port (25333)")
     ap.add_argument("--host", default="127.0.0.1", type=str, help="Host to bind to (127.0.0.1)")
     ap.add_argument("--auth", default=None, type=str, help="Auth token to use (generate random)")
@@ -458,6 +473,8 @@ def main():
     ap.add_argument("--keep", action="store_true", help="Prevent shutting down the slave")
     ap.add_argument("--debug", action="store_true", help="Show debug messages")
     args = ap.parse_args()
+    if args.download:
+
     start_gate_slave(
         port=args.port,
         host=args.host,
