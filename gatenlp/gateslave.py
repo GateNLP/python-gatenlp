@@ -431,19 +431,21 @@ class GateSlave:
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
-    def del_gdoc(self, gdoc):
-        """Delete/unload the GATE document from GATE.
-        This is necessary to do for each GATE document that is not used anymore, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+    def del_resource(self, resource):
+        """
+        Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
         GATE document does not delete/unload the document!
 
         Args:
-          gdoc: the document to remove
+          resource: the Java GATE resource, e.g. a document to remove
 
         Returns:
 
         """
-        self.jvm.gate.Factory.deleteResource(gdoc)
+        self.jvm.gate.Factory.deleteResource(resource)
 
     def show_gui(self):
         """Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems

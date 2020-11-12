@@ -58,7 +58,9 @@ The gate slave instance provides a number of useful methods directly (see [Pytho
 * `gs.save_gdoc(gatedocument, filepath, mimetype=None)`: save a GATE document on the Java side
 * `gs.gdoc2pdoc(gatedocument)`: convert the Java GATE document as a Python GateNLP document and return it
 * `gs.pdoc2gdoc(doc)`: convert the Python GateNLP document to a Java GATE document and return it
-* `gs.del_gdoc(gatedocument)`: remove a Java GATE document on the Java side (this necessary to release memory)
+* `gs.del_resource(gatedocument)`: remove a Java GATE document on the Java side (this necessary to release memory)
+  This can also be used to remove other kinds of GATE resources like ProcessingResource, Corpus, LanguageResource
+  etc.
 * `gs.load_pdoc(filepath, mimetype=None)`: load a document on the Java side using the file format specified via the mime type and return it as a Python GateNLP document
 * `gs.log_actions(trueorfalse)`: switch logging of actions on the slave side off/on
 
