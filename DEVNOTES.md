@@ -3,9 +3,20 @@
 
 
 
+## Prepare a release
 
+For now rather simple:
 
-
+* make sure it works
+* make sure the latest version of the htmlviewer javascript is released
+  and the correct version is used in the serializer
+* run ./gendoc-pdoc3.sh
+* commit/push
+* run ./make.sh test
+* make sure the maven build worked!
+* upload to pypi
+* created annotated tag v9.9
+* increase the gatenlp version
 
 ## Run pytest
 
