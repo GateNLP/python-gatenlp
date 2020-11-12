@@ -25,6 +25,14 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.gateslave import GateSlave
 
+
+def  init_notebook():
+    from gatenlp.serialization.default import HtmlAnnViewerSerializer
+    from gatenlp.gatenlpconfig import gatenlpconfig
+    HtmlAnnViewerSerializer.init_javscript()
+    gatenlpconfig.notebook_js_initialized = True
+
+
 __all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
            "ChangeLog", "logger"]
 

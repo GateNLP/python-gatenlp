@@ -573,23 +573,52 @@ class HtmlAnnViewerSerializer:
     """ """
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False,
-             htmlid=None, **kwargs):
+    def javascript():
+        """
+        Return the Javascript needed for the HTML Annotation viewer.
+
+        Returns: Javascript string.
+
+        """
+        jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
+        if not os.path.exists(jsloc):
+            raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
+        with open(jsloc, "rt", encoding="utf-8") as infp:
+            js = infp.read();
+            js = """<script type="text/javascript">""" + js + "</script>"
+        return js
+
+    @staticmethod
+    def init_javscript():
+        import IPython
+        IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
+
+    @staticmethod
+    def save(clazz, inst, to_ext=None, to_mem=None,
+             notebook=False,
+             offline=False,
+             add_js=True,
+             htmlid=None,
+             **kwargs):
         """Convert a document to HTML for visualizing it.
 
         Args:
-          clazz: param inst:
-          to_ext: param to_mem: (Default value = None)
-          notebook: param offline: (Default value = False)
-          htmlid: the id to use for HTML ids so it is possible to style the output
-        from a separate notebook cell. (Default value = None)
-          kwargs: return:
-          inst: 
-          to_mem: (Default value = None)
-          offline: (Default value = False)
-          **kwargs: 
+          clazz: the class of the object to save
+          inst: the instance/object to save
+          to_ext:  the destination where to save to unless to_mem is given
+          to_mem: if true, ignores to_ext and returns the representation
+          notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
+             generate a full HTML document
+          offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
+             from the internet.
+          add_js: if true (default), add the necessary Javascript either directly or by loading a library from
+             the internet. If false, assume that the Javascript is already there (only makes sense with
+             notebook=True).
+          htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
+             same HTML page and to style the output from a separate notebook cell
+          kwargs: swallow any other kwargs.
 
-        Returns:
+        Returns: if to_mem is True, returns the representation, otherwise None.
 
         """
         if not isinstance(inst, Document):
@@ -620,15 +649,16 @@ class HtmlAnnViewerSerializer:
             # replace the prefix with a random one
             html = html.replace("GATENLPID", rndpref)
         if offline:
-            global html_ann_viewer_serializer_js_loaded
-            if not html_ann_viewer_serializer_js_loaded:
+            # global html_ann_viewer_serializer_js_loaded
+            # if not html_ann_viewer_serializer_js_loaded:
+            if add_js:
                 jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
                 if not os.path.exists(jsloc):
                     raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
                 with open(jsloc, "rt", encoding="utf-8") as infp:
                     js = infp.read();
                     js = """<script type="text/javascript">""" + js + "</script>"
-                html_ann_viewer_serializer_js_loaded = True
+                # html_ann_viewer_serializer_js_loaded = True
             else:
                 js = ""
         else:

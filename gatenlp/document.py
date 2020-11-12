@@ -663,34 +663,43 @@ class Document:
         return lib_copy.deepcopy(self, memo=memo)
 
     def _repr_html_(self):
-        """Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
-        
-        :return:
+        """
+        Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
+        This renders the HTML for notebook, for offline mode, but does not add the JS
+        but instead initializes the JS in the notebook unless gatenlp.init_notebook()
+        has bee called already.
+        """
+        return self._notebook_show()
+
+    def notebook_show(self, htmlid=None):
+        """
+        Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+        the generated HTML can be directly styled afterwards.
+        This directly sends the rendered document to the cell (no display/HTML necessary).
 
         Args:
-
-        Returns:
-
-        """
-        return self.repr_html()
-
-    def repr_html(self, notebook=True, offline=None, htmlid=None):
-        """Return a
-
-        Args:
-          notebook: param offline: (Default value = True)
-          htmlid: return: (Default value = None)
-          offline:  (Default value = None)
-
-        Returns:
+            htmlid: the HTML id prefix to use for classes and element ids.
 
         """
-        if offline is None:
-            offline = gatenlpconfig.doc_html_repr_offline
-        return self.save_mem(fmt="html-ann-viewer",
-                             notebook=notebook,
-                             offline=gatenlpconfig.doc_html_repr_offline,
+        self._notebook_show(htmlid=htmlid, display=True)
+
+    def _notebook_show(self, htmlid=None, display=False):
+        from gatenlp.gatenlpconfig import gatenlpconfig
+        from gatenlp.serialization.default import HtmlAnnViewerSerializer
+        from IPython.display import display_html
+        if not gatenlpconfig.notebook_js_initialized:
+            HtmlAnnViewerSerializer.init_javscript()
+            gatenlpconfig.notebook_js_initialized = True
+        html = self.save_mem(fmt="html-ann-viewer",
+                             notebook=True,
+                             add_js = False,
+                             offline=True,
                              htmlid=htmlid)
+        if display:
+            display_html(html, raw=True)
+        else:
+            return html
+
 
 
 class MultiDocument(Document):
