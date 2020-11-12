@@ -12,11 +12,12 @@ __pycache__/
 *.so
 
 # for the java part
-*.jar
+#*.jar
 
 /tmp-doc-html
 /tmp-doc-sphinx
 /examples/tmp_*
+/java/target
 
 # Distribution / packaging
 .Python
