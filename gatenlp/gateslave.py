@@ -311,8 +311,8 @@ class GateSlave:
         self.slave = self.gateway.entry_point
         self.gate_version = self.jvm.gate.Main.version
         self.gate_build = self.jvm.gate.Main.build
-        self.slave_version = self.slave.plugin_version()
-        self.slave_build = self.slave.plugin_build()
+        self.slave_version = self.slave.pluginVersion()
+        self.slave_build = self.slave.pluginBuild()
 
     @staticmethod
     def download():
