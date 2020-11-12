@@ -12,6 +12,7 @@ For now rather simple:
   and the correct version is used in the serializer
 * run ./gendoc-pdoc3.sh
 * commit/push
+* Do: `touch java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
 * run ./make.sh test
 * make sure the maven build worked!
 * upload to pypi
