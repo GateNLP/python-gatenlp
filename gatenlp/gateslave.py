@@ -315,7 +315,7 @@ class GateSlave:
         self.slave_build = self.slave.plugin_build()
 
     @staticmethod
-    def download(self):
+    def download():
         """
         Download GATE libraries into a standard location so we can run the GATE slave even if GATE_HOME
         is not set.
@@ -474,18 +474,19 @@ def main():
     ap.add_argument("--debug", action="store_true", help="Show debug messages")
     args = ap.parse_args()
     if args.download:
-
-    start_gate_slave(
-        port=args.port,
-        host=args.host,
-        auth_token=args.auth,
-        use_auth_token=not args.noauth,
-        gatehome=args.gatehome,
-        platform=args.platform,
-        log_actions=args.log_actions,
-        keep=args.keep,
-        debug=args.debug,
-    )
+        GateSlave.download()
+    else:
+        start_gate_slave(
+            port=args.port,
+            host=args.host,
+            auth_token=args.auth,
+            use_auth_token=not args.noauth,
+            gatehome=args.gatehome,
+            platform=args.platform,
+            log_actions=args.log_actions,
+            keep=args.keep,
+            debug=args.debug,
+        )
 
 
 if __name__ == "__main__":

@@ -42,11 +42,11 @@ def get_install_extras_require():
         'stanza': ['stanza'],
         'spacy': ['spacy'],
         'nltk': ['nltk'],
+        'notebook': ['ipython', 'ipykernel','jupyterlab', 'notebook', 'voila', 'ipywidgets',],
         'gazetteers': ['matchtext', 'recordclass'],
         # the following are not included in all but in alldev
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
-            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'ipython', 'ipykernel', 'mypy', 'jupyterlab', 'notebook', 'voila', 
-            'ipywidgets',
+            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'mypy',  
             'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             ],
     }
