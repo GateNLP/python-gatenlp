@@ -327,18 +327,3 @@ print("Types:", annset.type_names)
 
     Types: dict_keys(['Token', 'Document', 'Vowel', 'X', 'SomeOtherNew', 'SomeNew'])
 
-
-
-```python
-
-```
-
-
-```python
-
-```
-
-
-```python
-
-```
