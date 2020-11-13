@@ -76,7 +76,7 @@ start = 0
 LOGGING_FORMAT = '%(asctime)s|%(levelname)s|%(name)s|%(message)s'
 
 
-def init_logger(name=None, file=None, lvl=None, config=None, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
     """
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -103,7 +103,10 @@ def init_logger(name=None, file=None, lvl=None, config=None, args=None):
     if name is None:
         name = sys.argv[0]
     if lvl is None:
-        lvl = logging.INFO
+        if debug:
+            lvl = logging.DEBUG
+        else:
+            lvl = logging.INFO
     if config:
         # NOTE we could also configure from a yaml file or a dictionary, see
         # http://zetcode.com/python/logging/

@@ -123,16 +123,17 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
                    add_entities=True,
                    ent_prefix=None,
                    ):
-    """Convert a Stanford Stanza document to a gatenlp document. If a gatenlp document is already
+    """
+    Convert a Stanford Stanza document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the Stanford Stanza document to it. In this case the
     original gatenlpdoc is used and gets modified.
 
     Args:
       stanzadoc: a Stanford Stanza document
       gatenlpdoc: if None, a new gatenlp document is created otherwise this
-    document is added to. (Default value = None)
+         document is added to. (Default value = None)
       setname: the annotation set name to which the annotations get added, empty string
-    for the default annotation set.
+         for the default annotation set.
       token_type: the annotation type to use for tokens, if needed (Default value = "Token")
       sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
       add_entities: if True, add any entities as well (Default value = True)

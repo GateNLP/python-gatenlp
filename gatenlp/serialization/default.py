@@ -22,10 +22,14 @@ import requests
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
-from bs4 import GuessedAtParserWarning
 import warnings
 
-warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
+try:
+    from bs4 import GuessedAtParserWarning
+    warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
+except:
+    pass
+
 
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see

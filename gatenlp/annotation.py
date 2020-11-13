@@ -141,7 +141,7 @@ class Annotation:
     def __eq__(self, other) -> bool:
         """
         Two annotations are identical if they are the same object or if all the fields
-        are equal.
+        are equal (including the annotation id)!
         """
         if not isinstance(other, Annotation):
             return False
