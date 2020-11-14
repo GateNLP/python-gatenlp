@@ -57,7 +57,7 @@ class Corpus(ABC):
         The item assigned must be a document or None.
 
         Args:
-            idx: the index of the document
+            key: the index of the document
             value: a document or None
 
         Throws:
@@ -163,7 +163,7 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
     and which do not start with a dot.
 
     Args:
-        dir: the directory to traverse
+        dirpath: the directory to traverse
         exts: a list of allowed extensions (inluding the dot)
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
@@ -495,17 +495,22 @@ class TsvFileSource(DocumentSource):
             hdr: if True (default), expects a header line with the column names, if a list, should be the list
               of column names, if False/None, no header line is expected.
             text_col: the column which contains the text for creating the document. Either the column number,
-              or the name of the column (only possible if there is a header line)
+              or the name of the column (only possible if there is a header line) or a function that should
+              take the list of fields and arbitrary kwargs and return the text. Also passes "cols" and "n"
+              as keyward arguments.
             feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
-              column names of where to get the feature value from.
+              column names of where to get the feature value from of a function that should take the list of fields
+              and arbitrary kwargs and return a dictionary with the features. Also passes "cols" (dict
+              mapping column names to column indices, or None) and "n" (current line number) as keyword arguments.
         """
-        assert text_col is not None and isinstance(text_col, str)
+        assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.source = source
         self.n = 0
         self.hdr2col = {}
+
 
     def __iter__(self):
         reader = read_lines_from(self.source)
@@ -518,15 +523,20 @@ class TsvFileSource(DocumentSource):
             fields = line.split("\t")
             if isinstance(self.text_col, int):
                 text = fields[self.text_col]
+            elif callable(self.text_col):
+                text = self.text_col(fields, cols=self.hdr2col, n=self.n)
             else:
                 text = fields[self.hdr2col[self.text_col]]
             doc = Document(text)
             if self.feature_cols:
-                for fname, colid in self.feature_cols.items():
-                    if isinstance(colid, int):
-                        value = fields[colid]
-                    else:
-                        value = fields[self.hdr2col[colid]]
+                if callable(self.feature_cols):
+                    doc.features.update(self.feature_cols(fields, cols=self.hdr2col, n=self.n))
+                else:
+                    for fname, colid in self.feature_cols.items():
+                        if isinstance(colid, int):
+                            value = fields[colid]
+                        else:
+                            value = fields[self.hdr2col[colid]]
                     doc.features[fname] = value
             self.n += 1
             yield doc

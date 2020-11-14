@@ -102,12 +102,15 @@ def read_lines_from(url_or_file, encoding="utf-8"):
         url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
         only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
     """
-    if is_url(url_or_file):
-        for line in urlopen(url_or_file):
+    isurl, extstr = is_url(url_or_file)
+    if isurl is None:
+        return
+    if isurl:
+        for line in urlopen(extstr):
             line = line.decode(encoding)
             yield line
     else:
-        with open(url_or_file, "rt", encoding=encoding) as infp:
+        with open(extstr, "rt", encoding=encoding) as infp:
             for line in infp:
                 yield line
 
