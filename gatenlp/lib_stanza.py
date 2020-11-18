@@ -194,7 +194,7 @@ def stanza2gatenlp(stanzadoc, gatenlpdoc=None,
             stanzaid = t["id"]
             starts.append(start)
             ends.append(end)
-            annid = annset.add(start, end, token_type, t["fm"]).id
+            annid = annset.add(start, end, token_type, features=t["fm"]).id
             idx2annid[str(stanzaid)] = annid
         # print(f"\n!!!!!!DEBUG: idx2annid={idx2annid}")
         # create a sentence annotation from beginning of first word to end of last
