@@ -3,12 +3,12 @@ Module for AnnotationSet class which represents a named collection of annotation
 """
 
 from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
+from collections.abc import Iterable
 from collections import defaultdict
 import copy
 from gatenlp.annotation import Annotation
 from gatenlp.impl import SortedIntvls
 from gatenlp.utils import support_annotation_or_set
-from collections.abc import Iterable
 
 __pdoc__ = {
     "AnnotationSet.__iter__": True,
@@ -401,39 +401,46 @@ class AnnotationSet:
         """
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
-    def remove(self, annotation: Union[int, Annotation]) -> None:
+    def remove(self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True) -> None:
         """
-        Removes the given annotation which is either the id or the annotation instance.
+        Removes the given annotation which is either the id or the annotation instance or
+        recursively all annotations in the iterable.
 
         Throws:
             exception if the annotation set is immutable or the annotation is not in the set
 
         Args:
-          annotation: either the id (int) or the annotation instance (Annotation)
+          annoriter: either the id (int) or the annotation instance (Annotation) or an iterable of
+            id or annotation instance or iterable ...
+          raise_on_notexisting: (default: True) if false, silently accepts non-existing annotations/ids and does nothing.
+            Note: if this is True, but the annotation set is immutable, an Exception is still raised.
         """
-        annid = None  # make pycharm happy
         if self._is_immutable:
             raise Exception("Cannot remove an annotation from an immutable annotation set")
-        if isinstance(annotation, int):
-            annid = annotation
+        if isinstance(annoriter, Iterable):
+            for a in annoriter:
+                self.remove(a, raise_on_notexisting=raise_on_notexisting)
+        annid = None  # make pycharm happy
+        if isinstance(annoriter, int):
+            annid = annoriter
             if annid not in self._annotations:
                 raise Exception("Annotation with id {} not in annotation set, cannot remove".format(annid))
-            annotation = self._annotations[annid]
-        elif isinstance(annotation, Annotation):
-            annid = annotation.id
+            annoriter = self._annotations[annid]
+        elif isinstance(annoriter, Annotation):
+            annid = annoriter.id
             if annid not in self._annotations:
                 raise Exception("Annotation with id {} does not belong to this set, cannot remove".format(annid))
         # NOTE: once the annotation has been removed from the set, it could still be referenced
         # somewhere else and its features could get modified. In order to prevent logging of such changes,
         # the owning set gets cleared for the annotation
-        annotation._owner_set = None
+        annoriter._owner_set = None
         del self._annotations[annid]
         if self.changelog is not None:
             self.changelog.append({
                 "command": "annotation:remove",
                 "set": self.name,
                 "id": annid})
-        self._remove_from_indices(annotation)
+        self._remove_from_indices(annoriter)
 
     def clear(self) -> None:
         """
