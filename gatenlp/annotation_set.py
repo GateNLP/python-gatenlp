@@ -420,6 +420,7 @@ class AnnotationSet:
         if isinstance(annoriter, Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
+            return
         annid = None  # make pycharm happy
         if isinstance(annoriter, int):
             annid = annoriter
