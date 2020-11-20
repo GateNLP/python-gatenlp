@@ -137,6 +137,43 @@ class Success(Iterable, Sized):
                 self._results.append(result)
         return self
 
+    def result(self, matchtype="first"):
+        """
+        Return the result described by parameter matchtype. If "all" returns the whole list of matches.
+
+        Args:
+            matchtype: one of  "first", "shortest", "longest", "all". If there is more than one longest or shortest
+               result, the first one of those in the list is returned.
+
+        Returns:
+            the filtered match or matches
+        """
+        if matchtype == None:
+            matchtype = "first"
+        if matchtype == "all":
+            return self._results
+        elif matchtype == "first":
+            return self._results[0]
+        elif matchtype == "longest":
+            result = self._results[0]
+            loc = result.location
+            for res in self._results:
+                if res.location.text_location > loc.text_location:
+                    loc = res.location
+                    result = res
+            return result
+        elif matchtype == "shortest":
+            result = self._results[0]
+            loc = result.location
+            for res in self._results:
+                if res.location.text_location < loc.text_location:
+                    loc = res.location
+                    result = res
+            return result
+        else:
+            raise Exception(f"Not a valid value for matchtype: {matchtype}")
+
+
     def __iter__(self):
         return iter(self._results)
 
@@ -346,14 +383,14 @@ class AnnAt(Parser):
     """
     Parser for matching the first or all annotations at the offset for the next annotation in the list.
     """
-    def __init__(self, type=None, features=None, features_eq=None, text=None, match_all=False, name=None):
+    def __init__(self, type=None, features=None, features_eq=None, text=None, matchtype="first", name=None):
         self.type = type
         self.features = features
         self.features_eq = features_eq
         self.text = text
         self.name = name
         self._matcher = AnnMatcher(type=type, features=features, features_eq=features_eq, text=text)
-        self.match_all = match_all
+        self.matchtype = matchtype
 
     def parse(self, location, context):
         next_ann = context.get_ann(location)
@@ -371,12 +408,11 @@ class AnnAt(Parser):
                 matched = True
                 matchlocation = ParseLocation(text_location=start, ann_location=location.ann_location)
                 data = dict(location=matchlocation, ann=next_ann, name=self.name, parser=self.__class__.__name__)
-                if self.name:
-                    datas.append(data)
                 # update location
                 location = context.inc_location(location, by_index=1)
-                if not self.match_all:
-                    return Success(Result(data=datas, location=location))
+                if self.matchtype == "first":
+                    return Success(Result(data=data, location=location))
+                data.append(data)
                 next_ann = context.get_ann(location)
                 if not next_ann or next_ann.start != start:
                     break
@@ -392,7 +428,24 @@ class AnnAt(Parser):
                 location=location,
                 message="No matching annotation")
         else:
-            return Success(Result(data=datas, location=location))
+            if self.matchtype == "all":
+                return Success(Result(data=datas, location=location))
+            elif self.matchtype == "shortest":
+                pick = datas[0]
+                end = pick.ann.end
+                for d in datas:
+                    if d.end < end:
+                        end = d.end
+                        pick = d
+                return Success(Result(data=pick, location=location))
+            elif self.matchtype == "longest":
+                pick = datas[0]
+                end = pick.ann.end
+                for d in datas:
+                    if d.end > end:
+                        end = d.end
+                        pick = d
+                return Success(Result(data=pick, location=location))
 
 
 class Ann(Parser):
@@ -469,18 +522,79 @@ class Find:
                         return Failure(context=context, message="Not found via text", location=location)
 
 
-
 class Seq:
     """
     A parser that represents a sequence of matching parsers.
     """
-    pass
+    def __init__(self, *parsers, name=None, matchtype="first"):
+        """
+
+        Args:
+            *parsers: one or more parsers
+            name: the name, if specified, create data for this matcher (containing any data created by the submatchers)
+            match: (default "first") one of "first", "longest", "shortest", "all" ("all" not yet implemented)
+        """
+        assert len(parsers) > 0
+        self.parsers = parsers
+        self.name = name
+        if matchtype is None:
+            matchtype = "first"
+        assert matchtype in ["first", "longest", "shortest", "all"]
+        self.matchtype = matchtype
+
+    def parse(self, location, context):
+        if self.matchtype != "all":
+            datas = []
+            for parser in self.parsers:
+                ret = parser.parse(location, context)
+                if ret.issuccess():
+                    result = ret.result(self.matchtype)
+                    if self.name:
+                        for d in result.data:
+                            datas.append(d)
+                    location = result.location
+                else:
+                    return Failure(context=context, location=location, message="Mismatch in Seq")
+            return Success(results=Result(data=datas, location=location))
+        else:
+            # for finding all possible matches, we need to continue all matches for a parser with all
+            # possible matches, then continue all successful combinations etc.
+            # TODO: implement this by a recursive algorithm for now and add memoization later.
+            # TODO: instead of recursive try to do iterative to not exhaust the stack?
+            raise NotImplemented()
 
 class N:
     """
     A parser that represents a sequence of k to l matching parsers, greedy.
     """
-    pass
+    def __init__(self, parser, min=1, max=1, matchtype="first"):
+        self.parser = parser
+        self.min = min
+        self.max = max
+        self.matchtype = matchtype
+
+    def parse(self, location, context):
+        # TODO
+        if self.matchtype != "all":
+            datas = []
+            for parser in self.parsers:
+                ret = parser.parse(location, context)
+                if ret.issuccess():
+                    result = ret.result(self.matchtype)
+                    if self.name:
+                        for d in result.data:
+                            datas.append(d)
+                    location = result.location
+                else:
+                    return Failure(context=context, location=location, message="Mismatch in Seq")
+            return Success(results=Result(data=datas, location=location))
+        else:
+            # for finding all possible matches, we need to continue all matches for a parser with all
+            # possible matches, then continue all successful combinations etc.
+            # TODO: implement this by a recursive algorithm for now and add memoization later.
+            # TODO: instead of recursive try to do iterative to not exhaust the stack?
+            raise NotImplemented()
+
 
 
 class Text:
