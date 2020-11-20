@@ -11,6 +11,24 @@ from collections.abc import Iterable, Sized
 from abc import ABC, abstractmethod
 from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 
+# TODO: make matchtype a parameter of the innermost parser that can return multiple matches. These are
+# * AnnAt
+# * All / ^
+# An nothing else!
+
+# TODO: think about how to combine multiple matches
+# For now we have the following things that can return multiple matches: AnnAt, All
+# We have the following where we need to combine multiple matches somehow:
+# * Seq
+# * N
+# This essentially needs the monadic approach where we use generic code to combine the multiple matches with a reducer
+# function. For pairwaise we can do this easily, so for N we have to do this stepwise-pairwise somehow.
+# In other words, convert Seq(a,b,c,d) into (((a+b)+c)+d) or:
+# r1 = add(a,b)
+# r2 = add(r1, c)
+# r2 = add(r2, d)
+# and do the pairwise calculation each time!
+
 class ParseLocation:
     """
     A ParseLocation represents the next location in the text and annotation list where a parser will try to
@@ -361,8 +379,14 @@ class Parser:
         """
         return Rule(self, func, onfailure=onfailure)
 
+    def __or__(self, other):
+        return Or(self, other)
 
-class Rule:
+    def __rshift__(self, other):
+        return Seq(self, other)
+
+class Rule(Parser):
+
     def __init__(self, parser, func, onfailure=None, priority=100):
         self.parser = parser
         self.func = func
@@ -412,7 +436,7 @@ class AnnAt(Parser):
                 location = context.inc_location(location, by_index=1)
                 if self.matchtype == "first":
                     return Success(Result(data=data, location=location))
-                data.append(data)
+                datas.append(data)
                 next_ann = context.get_ann(location)
                 if not next_ann or next_ann.start != start:
                     break
@@ -491,7 +515,7 @@ class Ann(Parser):
         else:
             return Failure(location=location, context=context, parser=self)
 
-class Find:
+class Find(Parser):
     """
     A parser that tries another parser until it matches.
     """
@@ -522,11 +546,11 @@ class Find:
                         return Failure(context=context, message="Not found via text", location=location)
 
 
-class Seq:
+class Seq(Parser):
     """
     A parser that represents a sequence of matching parsers.
     """
-    def __init__(self, *parsers, name=None, matchtype="first"):
+    def __init__(self, *parsers, matchtype="first"):
         """
 
         Args:
@@ -536,7 +560,6 @@ class Seq:
         """
         assert len(parsers) > 0
         self.parsers = parsers
-        self.name = name
         if matchtype is None:
             matchtype = "first"
         assert matchtype in ["first", "longest", "shortest", "all"]
@@ -549,13 +572,12 @@ class Seq:
                 ret = parser.parse(location, context)
                 if ret.issuccess():
                     result = ret.result(self.matchtype)
-                    if self.name:
-                        for d in result.data:
-                            datas.append(d)
+                    for d in result.data:
+                        datas.append(d)
                     location = result.location
                 else:
                     return Failure(context=context, location=location, message="Mismatch in Seq")
-            return Success(results=Result(data=datas, location=location))
+            return Success(Result(data=datas, location=location))
         else:
             # for finding all possible matches, we need to continue all matches for a parser with all
             # possible matches, then continue all successful combinations etc.
@@ -563,7 +585,7 @@ class Seq:
             # TODO: instead of recursive try to do iterative to not exhaust the stack?
             raise NotImplemented()
 
-class N:
+class N(Parser):
     """
     A parser that represents a sequence of k to l matching parsers, greedy.
     """
@@ -574,20 +596,27 @@ class N:
         self.matchtype = matchtype
 
     def parse(self, location, context):
-        # TODO
         if self.matchtype != "all":
             datas = []
-            for parser in self.parsers:
-                ret = parser.parse(location, context)
-                if ret.issuccess():
-                    result = ret.result(self.matchtype)
-                    if self.name:
-                        for d in result.data:
-                            datas.append(d)
-                    location = result.location
+            i = 0
+            newlocation = location
+            while True:
+                ret = self.parser.parse(location, context)
+                if not ret.issuccess():
+                    if i < self.min:
+                        return Failure(context=context, location=location, message=f"Not at least {self.min} matches")
+                    else:
+                        return Success(Result(data=datas, location=newlocation))
                 else:
-                    return Failure(context=context, location=location, message="Mismatch in Seq")
-            return Success(results=Result(data=datas, location=location))
+                    result = ret.result(self.matchtype)
+                    data = result.data
+                    for d in data:
+                        datas.append(d)
+                    newlocation = result.location
+                    i += 1
+                    if i == self.max:
+                        break
+            return Success(Result(data=datas, location=newlocation))
         else:
             # for finding all possible matches, we need to continue all matches for a parser with all
             # possible matches, then continue all successful combinations etc.
@@ -596,8 +625,7 @@ class N:
             raise NotImplemented()
 
 
-
-class Text:
+class Text(Parser):
     """
     A parser that matches some text or regular expression
     """
@@ -652,3 +680,24 @@ class Text:
                 return Success(results=Result(data=data, location=newlocation))
             else:
                 return Failure(context=context)
+
+
+class Or(Parser):
+    """
+    Create a parser that accepts the first of all the parsers specified.
+    """
+    def __init__(self, *parsers, matchtype="first"):
+        assert len(parsers) > 0
+        self.parsers = parsers
+        self.matchtype = matchtype
+        if matchtype == "all":
+            raise NotImplemented()
+
+    def parse(self, location, context):
+        for p in self.parsers:
+            ret = p.parse(location, context)
+            if ret.issuccess():
+                result = ret.result(self.matchtype)
+                newloc = result.location
+                return Success(Result(result.data, location=newloc))
+        return Failure(context=context, location=location, message="None of the choices match")
