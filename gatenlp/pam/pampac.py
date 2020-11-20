@@ -264,10 +264,8 @@ class Context:
                 newloc.ann_location = len(self.anns)
             else:
                 # otherwise try to find the next matching annotation
-                print(f"DEBUG: before incrementing by offset: {newloc}")
                 newloc.text_location += by_offset
                 newloc.ann_location = self.nextidx4offset(location, newloc.text_location)
-                print(f"DEBUG: after incrementing by offset: {newloc}")
                 # if we got end of annotations index, we do NOT update the text to end of text!
                 # we could still want to match something in the text after the last annotation.
         return newloc
@@ -369,31 +367,25 @@ class AnnAt(Parser):
         start = next_ann.start
         matched = False
         while True:
-            print(f"DEBUG: Trying matcher at {location}, got ann {next_ann}")
             if self._matcher(next_ann):
                 matched = True
                 matchlocation = ParseLocation(text_location=start, ann_location=location.ann_location)
-                print(f"DEBUG: Matchlocation is {location}")
                 data = dict(location=matchlocation, ann=next_ann, name=self.name, parser=self.__class__.__name__)
                 if self.name:
                     datas.append(data)
                 # update location
                 location = context.inc_location(location, by_index=1)
-                print(f"DEBUG: Incremented location {location}")
                 if not self.match_all:
                     return Success(Result(data=datas, location=location))
                 next_ann = context.get_ann(location)
-                print(f"DEBUG: got new next ann: {next_ann}")
                 if not next_ann or next_ann.start != start:
                     break
             else:
                 location = context.inc_location(location, by_index=1)
                 next_ann = context.get_ann(location)
-                print(f"DEBUG: got new next ann for loc {location} in else: {next_ann}")
                 if not next_ann or next_ann.start != start:
                     break
         if not matched:
-            print("NOT MATCHED")
             return Failure(
                 context=context,
                 parser=self,
@@ -463,7 +455,6 @@ class Find:
 
     def parse(self, location, context):
         while True:
-            print(f"DEBUG: trying to parse at {location}, lendoc={len(context.doc.text)}")
             ret = self.parser.parse(location, context)
             if ret.issuccess():
                 return ret
@@ -473,9 +464,7 @@ class Find:
                     if context.at_endofanns(location):
                         return Failure(context=context, message="Not found via anns", location=location)
                 else:
-                    print(f"DEBUG: before increment: {location}, end={context.end}")
                     location = context.inc_location(location, by_offset=1)
-                    print(f"DEBUG: after increment: {location}, end={context.end}")
                     if context.at_endoftext(location):
                         return Failure(context=context, message="Not found via text", location=location)
 
