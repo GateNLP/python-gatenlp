@@ -14,8 +14,6 @@ framework,
 for manipulating GateNLP documents and
 for interacting with GATE Java and the GATE python plugin.
 
-**NOTE: The previous Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab)**
-
 ## Overview
 
 This package is a Python implementation of text processing and NLP similar to
@@ -42,3 +40,8 @@ a Java GATE process in two different ways:
   * [Usage Examples](https://gatenlp.github.io/python-gatenlp/usage-examples)
   * [Tutorial](https://gatenlp.github.io/python-gatenlp/tutorial) 
   * [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/)
+
+---
+
+**NOTE: The previous Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab)**
+
