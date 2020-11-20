@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Module for PAMPAC (Pattern Matching wit PArser Combinators) which allows to create parsers that can match
 patterns in annotations and text and carry out actions if a match occurs.
@@ -28,6 +27,27 @@ from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_P
 # r2 = add(r1, c)
 # r2 = add(r2, d)
 # and do the pairwise calculation each time!
+
+# TODO: implement And / &: matches if both/all match at same position
+# TODO: implement All / ^: returns all the possible matches: All(A,B,C) matches if one or more match and returns all
+# TODO: implement constraint modifiers. within, covering, coextensive
+# TODO: implement lookahead modifier: Ann("x").before("Person"), Ann("x").before(Seq(...))
+# TODO: implement non-greedy N by adding until=parser option: N(Ann("Token"),1,5,until=Ann("Person"))
+# TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
+# TODO: implement Forward() / fwd.set(fwd | Ann("X"))
+# TODO: implement support for literal Text/Regexp: Seq(Ann("Token"), "text", regexp) and Ann >> "text" and "text" >> Ann()
+#   and Ann() | text etc.
+# !!TODO: options for skip:
+# !!TODO: * overlapping=True/False: sequence element can overlap with previous match
+# !!TODO: * skip=True/False: skip forward in annotation list until we find annotation that fits
+# !!TODO: * mingap=n, maxgap=n: gap between annotation must be in this range
+# !!TODO: so A.followedby(B) is equal to Seq(A,B, mingap=0, maxgap=0, skip=False/True)
+# mindist, maxdist: from start to start (mingap/maxgap; from end to start).
+# !!TODO: implement memoize: save recursive result and check max recursion, modifier: parser.memoize(maxdepth=5)
+#   for the wrapped parsers, before each call to the wrapped parser, we first check if the result is already in
+#   the memotable and return it. If not, calculate recursion depth and Fail if too deep, otherwise call wrapped
+#   parser and memoize (store Success or Failure)
+# TODO: Maybe: .where(predicatefunc) modfier to do local filtering of results
 
 class ParseLocation:
     """
