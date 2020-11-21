@@ -21,11 +21,6 @@ from gatenlp import Span
 # Instead of rule priorities we have ordered or to prefer matches within FindAll
 # Or to find everything, use All/^
 
-# TODO: refactor names: Pampac instead of Parser, _parse instead of parse
-# utility method match(doc, annset, start=None, end=None
-
-# !!!!!TODO: add span to all Results!!!!!
-
 # TODO: make matchtype a parameter of the innermost parser that can return multiple matches. These are
 # * AnnAt
 # * All / ^
@@ -44,13 +39,6 @@ from gatenlp import Span
 # r2 = add(r2, d)
 # and do the pairwise calculation each time!
 
-# TODO: implement And / &: matches if both/all match at same position
-# TODO: implement All / ^: returns all the possible matches: All(A,B,C) matches if one or more match and returns all
-# TODO: implement constraint modifiers: at, within, covering, coextensive, notat, notwithin,
-#   where the parameter to at can be a whole parser and the span is used! If the parser returns more than one,
-#   for at, within, one span is sufficient for succes, if notat, notwithin, no span must exist.
-# TODO: implement lookahead modifier: Ann("x").before("Person"), Ann("x").before(Seq(...))
-# TODO: implement non-greedy N by adding until=parser option: N(Ann("Token"),1,5,until=Ann("Person"))
 # TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
 # TODO: implement Forward() / fwd.set(fwd | Ann("X"))
 # TODO: implement support for literal Text/Regexp: Seq(Ann("Token"), "text", regexp) and Ann >> "text" and "text" >> Ann()
@@ -65,7 +53,6 @@ from gatenlp import Span
 #   for the wrapped parsers, before each call to the wrapped parser, we first check if the result is already in
 #   the memotable and return it. If not, calculate recursion depth and Fail if too deep, otherwise call wrapped
 #   parser and memoize (store Success or Failure)
-# TODO: Maybe: .where(predicatefunc) modfier to do local filtering of results
 
 # TODO: Seq: to implement the more powerful optins AND support multiple results properly, need to refactor:
 # * have a helper function for combining all the results from the first and all the results of the next to return
@@ -211,6 +198,18 @@ class Success(Iterable, Sized):
             else:
                 self._results.append(result)
         return self
+
+    def pprint(self, file=None):
+        for idx, res in enumerate(self._results):
+            if file:
+                print(f"Result {idx}, location={res.location}:", file=file)
+            else:
+                print(f"Result {idx}, location={res.location}:", file=file)
+            for jdx, d in enumerate(res.data):
+                if file:
+                    print(f"  {jdx}: {d}", file)
+                else:
+                    print(f"  {jdx}: {d}", file)
 
     @staticmethod
     def select_result(results, matchtype="first"):
@@ -396,6 +395,38 @@ class Context:
                 # we could still want to match something in the text after the last annotation.
         return newloc
 
+    def update_location_byoffset(self, location):
+        """
+        Update the passed location so that the annotation index is updated by the text offset: all annotations are
+        skipped until the start offset of the annotation is at or past the text offset.
+
+        Args:
+            location: the location to update
+
+        Returns:
+            a new location with the annotation index updated
+        """
+        for i in range(location.ann_location, len(self.anns)):
+            if self.anns[i].start >= location.text_location:
+                return ParseLocation(location.text_location, i)
+        return ParseLocation(location.text_location, len(self.anns))
+
+    def update_location_byindex(self, location):
+        """
+        Update the passed location from the annotation index and make sure it points to the end of the current
+        annotation or the end of the document.
+
+        Args:
+            location: the location to update
+
+        Returns:
+            a new location with the text offset updated
+        """
+        if location.ann_location == len(self.anns):
+            return ParseLocation(len(self.doc.text), location.ann_location)
+        else:
+            return ParseLocation(location.text_location, self.anns[location.ann_location].end)
+
     def at_endoftext(self, location):
         """
         Returns true if the location represents the end of text location
@@ -438,7 +469,7 @@ class PampacParser:
     def parse(self, location, context):
         return self._parser_function(location, context)
 
-    def match(self, doc, anns=None, start=None, end=None):
+    def match(self, doc, anns=None, start=None, end=None, location=None):
         """
         Runs the matcher on the given document and the given annotations. Annotations may be empty in which
         case only matching on text makes sense.
@@ -460,8 +491,9 @@ class PampacParser:
         else:
             anns = list(anns)
         ctx = Context(doc, anns, start=start, end=end)
-        loc = ParseLocation(ctx.start, 0)
-        return self.parse(loc, ctx)
+        if location is None:
+            location = ParseLocation(ctx.start, 0)
+        return self.parse(location, ctx)
 
     __call__ = match
 
@@ -481,6 +513,41 @@ class PampacParser:
 
     def __rshift__(self, other):
         return Seq(self, other)
+
+    def __and__(self, other):
+        return And(self, other)
+
+    def __xor__(self, other):
+        """
+        Return a parser that succeeds if this or the other parser succeeds and return the union of all results.
+        Fails if both parsers fail.
+
+        NOTE: `a ^ b ^ c` is NOT the same as All(a,b,c) as the first will fail if b fails but the second will
+        still return `a ^ c`
+
+        Args:
+            other:
+
+        Returns:
+
+        """
+        return All(self, other)
+
+    def where(self, predicate, take_if=True):
+        return Filter(self, predicate, take_if=take_if)
+
+    def repeat(self, min=1, max=1):
+        return N(self, min=min, max=max)
+
+    def __mul__(self, n):
+        if isinstance(n, int):
+            return N(self, min=n, max=n)
+        elif isinstance(n, tuple) and len(n) == 2:
+            return N(self, min=n[0], max=n[1])
+        elif isinstance(n, list) and len(n) == 2:
+            return N(self, min=n[0], max=n[1])
+        else:
+            raise Exception("Not an integer or tuple or list of two integers")
 
     @support_annotation_or_set
     def within(self, start, end, matchtype="first"):
@@ -641,7 +708,8 @@ class AnnAt(PampacParser):
     """
     Parser for matching the first or all annotations at the offset for the next annotation in the list.
     """
-    def __init__(self, type=None, features=None, features_eq=None, text=None, matchtype="first", name=None):
+    def __init__(self, type=None, features=None, features_eq=None, text=None,
+                 matchtype="first", name=None, useoffset=True):
         self.type = type
         self.features = features
         self.features_eq = features_eq
@@ -649,8 +717,11 @@ class AnnAt(PampacParser):
         self.name = name
         self._matcher = AnnMatcher(type=type, features=features, features_eq=features_eq, text=text)
         self.matchtype = matchtype
+        self.useoffset = useoffset
 
     def parse(self, location, context):
+        if self.useoffset:
+            location = context.update_location_byoffset(location)
         next_ann = context.get_ann(location)
         if not next_ann:
             return Failure(
@@ -665,7 +736,10 @@ class AnnAt(PampacParser):
             if self._matcher(next_ann):
                 matched = True
                 matchlocation = ParseLocation(text_location=start, ann_location=location.ann_location)
-                data = dict(location=matchlocation, ann=next_ann, name=self.name, parser=self.__class__.__name__)
+                if self.name is None:
+                    data = None
+                else:
+                    data = dict(location=matchlocation, ann=next_ann, name=self.name, parser=self.__class__.__name__)
                 # update location
                 location = context.inc_location(location, by_index=1)
                 result = Result(data=data, location=location, span=(next_ann.start, next_ann.end))
@@ -695,12 +769,27 @@ class Ann(PampacParser):
     """
     Parser for matching the next annotation in the annotation list.
     """
-    def __init__(self, type=None, features=None, features_eq=None, text=None, name=None):
+    def __init__(self, type=None, features=None, features_eq=None, text=None, name=None, useoffset=True):
+        """
+
+        Args:
+            type: (default: None): type to match, string, regexp or predicate function
+            features: (default: None): features to match, dictionary where each value is value, regexp or predicate function
+               Annotation can contain additional features.
+            features_eq: (default: None): features to match, annotation must not contain additional features
+            text: (default: None): document text to match, string or regexp
+            name: (default: None): if set to a non-empty string, saves the data and assigns that name to the data
+            useoffset: if True, and a location is give where the next annotation starts before the text offset, skips
+               forward in the annotation list until an annotation is found at or after that offset.
+               If no such annotation found, fails. If False, always uses the next annotation in the list, no matter
+               the offset.
+        """
         self.type = type
         self.features = features
         self.features_eq = features_eq
         self.text = text
         self.name = name
+        self.useoffset = useoffset
         self._matcher = AnnMatcher(type=type, features=features, features_eq=features_eq, text=text)
 
     def parse(self, location, context):
@@ -714,6 +803,8 @@ class Ann(PampacParser):
         Returns:
             Success or Failure
         """
+        if self.useoffset:
+            location = context.update_location_byoffset(location)
         next_ann = context.get_ann(location)
         if not next_ann:
             return Failure(
@@ -724,7 +815,7 @@ class Ann(PampacParser):
         # try to match it
         if self._matcher(next_ann, doc=context.doc):
             newlocation = context.inc_location(location, by_index=1)
-            if self.name:
+            if self.name is not None:
                 data = dict(location=location, ann=next_ann, name=self.name, parser=self.__class__.__name__)
             else:
                 data = None
@@ -765,61 +856,28 @@ class Find(PampacParser):
                         return Failure(context=context, message="Not found via text", location=location)
 
 
-class Seq(PampacParser):
-    """
-    A parser that represents a sequence of matching parsers.
-    """
-    def __init__(self, *parsers, matchtype="first"):
-        """
-
-        Args:
-            *parsers: one or more parsers
-            name: the name, if specified, create data for this matcher (containing any data created by the submatchers)
-            match: (default "first") one of "first", "longest", "shortest", "all" ("all" not yet implemented)
-        """
-        assert len(parsers) > 0
-        self.parsers = parsers
-        if matchtype is None:
-            matchtype = "first"
-        assert matchtype in ["first", "longest", "shortest", "all"]
-        self.matchtype = matchtype
-
-    def parse(self, location, context):
-        if self.matchtype != "all":
-            datas = []
-            first = True
-            start = None
-            end = None
-            for parser in self.parsers:
-                ret = parser.parse(location, context)
-                if ret.issuccess():
-                    result = ret.result(self.matchtype)
-                    for d in result.data:
-                        datas.append(d)
-                    location = result.location
-                    if first:
-                        first = False
-                        start = result.span[0]
-                    end = result.span[1]
-                else:
-                    return Failure(context=context, location=location, message="Mismatch in Seq")
-            return Success(Result(data=datas, location=location, span=(start, end)), context)
-        else:
-            # for finding all possible matches, we need to continue all matches for a parser with all
-            # possible matches, then continue all successful combinations etc.
-            # TODO: implement this by a recursive algorithm for now and add memoization later.
-            # TODO: instead of recursive try to do iterative to not exhaust the stack?
-            raise NotImplemented()
-
 class N(PampacParser):
     """
     A parser that represents a sequence of k to l matching parsers, greedy.
     """
-    def __init__(self, parser, min=1, max=1, matchtype="first"):
+    def __init__(self, parser, min=1, max=1, matchtype="first", until=None):
+        """
+        Return a parser that matches min to max matches of parser in sequence. If until is specified, that
+        parser is tried to match before each iteration and as soon as it matched, the parser succeeds.
+        If after ming to max matches of the parser, until does not match, the parser fails.
+
+        Args:
+            parser:
+            min:
+            max:
+            matchtype:
+            until:
+        """
         self.parser = parser
         self.min = min
         self.max = max
         self.matchtype = matchtype
+        self.until = until
 
     def parse(self, location, context):
         if self.matchtype != "all":
@@ -830,6 +888,15 @@ class N(PampacParser):
             end = None
             first = True
             while True:
+                if self.until and i >= self.min:
+                    ret = self.until.parse(location, context)
+                    if ret.issuccess():
+                        res = ret.result(self.matchtype)
+                        data = res.data
+                        loc = res.location
+                        end = res.end
+                        datas.append(data)
+                        return Success(Result(datas, location=loc, span=(start, end)), context)
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
                     if i < self.min:
@@ -849,6 +916,17 @@ class N(PampacParser):
                     i += 1
                     if i == self.max:
                         break
+            if self.until:
+                ret = self.until.parse(location, context)
+                if ret.issuccess():
+                    res = ret.result(self.matchtype)
+                    data = res.data
+                    loc = res.location
+                    end = res.end
+                    datas.append(data)
+                    return Success(Result(datas, location=loc, span=(start, end)), context)
+                else:
+                    return Failure(context=context, location=location, message="Until parser not successful")
             return Success(Result(data=datas, location=newlocation, span=(start, end)), context)
         else:
             # for finding all possible matches, we need to continue all matches for a parser with all
@@ -877,6 +955,7 @@ class Text(PampacParser):
         self.matchcase = matchcase
 
     def parse(self, location, context):
+        location = context.update_location_byindex(location)
         txt = context.doc.text[location.text_location:]
         if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(self.text, CLASS_REGEX_PATTERN):
             m = self.text.match(txt)
@@ -931,3 +1010,131 @@ class Or(PampacParser):
                 newloc = result.location
                 return Success(Result(result.data, location=newloc, span=result.span), context)
         return Failure(context=context, location=location, message="None of the choices match")
+
+
+class And(PampacParser):
+
+    def __init__(self, *parsers):
+        self.parsers = parsers
+
+    def parse(self, location, context):
+        results = []
+        for p in self.parsers:
+            ret = p.parse(location, context)
+            if ret.issuccess():
+                for r in ret:
+                    results.append(r)
+            else:
+                return Failure(context=context, location=location, message="Not all parsers succeed")
+        return Success(results)
+
+
+class All(PampacParser):
+
+    def __init__(self, *parsers):
+        self.parsers = parsers
+
+    def parse(self, location, context):
+        results = []
+        for p in self.parsers:
+            ret = p.parse(location, context)
+            if ret.issuccess():
+                for r in ret:
+                    results.append(r)
+        if len(results) > 0:
+            return Success(results)
+        else:
+            return Failure(context=context, location=location, message="None of the parsers succeeded")
+
+
+class Seq(PampacParser):
+    """
+    A parser that represents a sequence of matching parsers. This parser will combine
+    """
+    def __init__(self, *parsers, matchtype="first", select="first"):
+        """
+
+        Args:
+            *parsers: one or more parsers
+            matchtype: (default "first") one of "first", "longest", "shortest", "all": which match to return.
+              Note that even if a matchtype for a single match is specified, the parser may still need to
+              generate an exponential number of combinations for all the results to select from.
+            select: (default "first") one of "first", "longest", "shortest", "all": which match to choose from each
+              of the parsers. Only if "all" is used will more than one result be generated.
+        """
+        assert len(parsers) > 0
+        self.parsers = parsers
+        if matchtype is None:
+            matchtype = "first"
+        assert matchtype in ["first", "longest", "shortest", "all"]
+        self.select = select
+        self.matchtype = matchtype
+
+    def parse(self, location, context):
+        if self.select != "all":
+            datas = []
+            first = True
+            start = None
+            end = None
+            for parser in self.parsers:
+                ret = parser.parse(location, context)
+                if ret.issuccess():
+                    result = ret.result(self.select)
+                    for d in result.data:
+                        datas.append(d)
+                    location = result.location
+                    if first:
+                        first = False
+                        start = result.span[0]
+                    end = result.span[1]
+                else:
+                    return Failure(context=context, location=location, message="Mismatch in Seq")
+            return Success(Result(data=datas, location=location, span=(start, end)), context)
+        else:
+            # This does a depth-first enumeration of all matches: each successive parser gets tried
+            # for each result of the previous one.
+
+            def depthfirst(lvl, result):
+                parser = self.parsers[lvl]
+                ret = parser.parse(result.location, context)
+                if ret.issuccess():
+                    for res in ret:
+                        datas = result.data.copy()
+                        for d in res.data:
+                            datas.append(d)
+                        loc = res.location
+                        span = (location.text_location, res.location.text_location)
+                        newresult = Result(datas, location=loc, span=span)
+                        if lvl == len(self.parsers) - 1:
+                            yield newresult
+                        else:
+                            yield from depthfirst(lvl+1, newresult)
+            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            all = []
+            best = None
+            for idx, result in enumerate(gen):
+                if self.matchtype == "first" and idx == 0:
+                    return Success(result, context)
+                if self.matchtype == "all":
+                    all.append(result)
+                elif self.matchtype == "longest":
+                    if best is None:
+                        best = result
+                    elif result.span[1] > best.span[1]:
+                        best = result
+                elif self.matchtype == "shortest":
+                    if best is None:
+                        best = result
+                    elif result.span[1] < best.span[1]:
+                        best = result
+            if self.matchtype == "all":
+                if len(all) > 0:
+                    return Success(all, context)
+                else:
+                    return Failure(context=context, location=location)
+            else:
+                if best is not None:
+                    return Success(best, context)
+                else:
+                    return Failure(context=context, location=location)
+

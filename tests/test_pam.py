@@ -129,6 +129,91 @@ class TestPampac01:
         ret = parser.parse(ParseLocation(), ctx)
         print(ret)
 
+        parser = Ann("Ann", name="a1") * 2
+        ret = parser.parse(ParseLocation(), ctx)
+        print(ret)
+
+        parser = Ann("Ann", name="a1") * (1,3)
+        ret = parser.parse(ParseLocation(), ctx)
+        print(ret)
+
+    def test02(self):
+        # Test multiple result matches
+
+        doc = Document("Some test document")
+        doc.annset().add(0, 2, "Ann")  # 0
+        doc.annset().add(0, 2, "Ann")  # 1
+        doc.annset().add(0, 2, "Token") # 2
+        doc.annset().add(2, 4, "Ann")  # 3
+        doc.annset().add(2, 4, "Ann")  # 4
+        annlist = list(doc.annset())
+
+        # match all annotations at the document start
+        ret = AnnAt(matchtype="all").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 3
+
+        # match sequence Token/Ann, take first at each point
+        # this should match annotation ids 2 and 3
+        ret = Seq(AnnAt("Token", name="1"), AnnAt("Ann", name="2")).match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 2
+        assert ret[0].data[0]["ann"].id == 2
+        assert ret[0].data[1]["ann"].id == 3
+
+        # match sequence Ann/Ann, take first at each point
+        ret = Seq(AnnAt("Ann", name="1"), AnnAt("Ann", name="2")).match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 2
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+
+        # match sequence Ann/Ann, take first at each point, set useoffset=False so we do not skip to the
+        # end offset of the previous before matching the next
+        # In that case the next ann we match is the second one at offset 0
+        ret = Seq(AnnAt("Ann", name="1"), AnnAt("Ann", name="2", useoffset=False)).match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 2
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 1
+
+        # Make sure we get the correct set of annotations at position 0 and 2
+        ret = AnnAt("Ann", name="a", matchtype="all").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 2
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[1].data[0]["ann"].id == 1
+        # ret.pprint()
+        ret = AnnAt("Ann", name="a", matchtype="all").match(doc, annlist, location=ParseLocation(2,2))
+        assert ret.issuccess()
+        assert len(ret) == 2
+        assert ret[0].data[0]["ann"].id == 3
+        assert ret[1].data[0]["ann"].id == 4
+        # ret.pprint()
+
+        # Match sequence of two anns in order, take all results
+        ret = Seq(AnnAt("Ann", name="1", matchtype="all"),
+                  AnnAt("Ann", name="2", matchtype="all"),
+                  select="all",
+                  matchtype="all",
+                  ).match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 4
+        assert len(ret[0].data) == 2
+        assert len(ret[1].data) == 2
+        assert len(ret[2].data) == 2
+        assert len(ret[3].data) == 2
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[1].data[0]["ann"].id == 0
+        assert ret[1].data[1]["ann"].id == 4
+        assert ret[2].data[0]["ann"].id == 1
+        assert ret[2].data[1]["ann"].id == 3
+        assert ret[3].data[0]["ann"].id == 1
+        assert ret[3].data[1]["ann"].id == 4
 
 if __name__ == "__main__":
-    TestPampac01().test01()
+    TestPampac01().test02()
