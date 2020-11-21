@@ -10,10 +10,24 @@ from collections.abc import Iterable, Sized
 from abc import ABC, abstractmethod
 from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 
+# TODO: Context does not need to be part of each result, can be just in Success/Failure?
+# All actions get the success, not individual results!
+
+# TODO: FindAll: return all matches as separate results in Success, even finding nothing is Success.
+# options for how to go over offsets or annotations and for how to advance after a match.
+# if by offsets, advance by one, by longest, if by annotation, advance to next ann or to next ann after longest match,
+# so we can use something like advance="next"/"longest" for both modes.
+
+# TODO re-think "Rule", FindAll sounds more like a rule so Rule(parser, function, **options) could be the
+# equivalent of FindAll(parser, **options).call(function)
+
+# Instead of rule priorities we have ordered or to prefer matches within FindAll
+# Or to find everything, use All/^
+
 # TODO: refactor names: Pampac instead of Parser, _parse instead of parse
 # utility method match(doc, annset, start=None, end=None
 
-# TODO: replace location with start_location, end_location
+# !!!!!TODO: add span to all Results!!!!!
 
 # TODO: make matchtype a parameter of the innermost parser that can return multiple matches. These are
 # * AnnAt
@@ -35,7 +49,9 @@ from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_P
 
 # TODO: implement And / &: matches if both/all match at same position
 # TODO: implement All / ^: returns all the possible matches: All(A,B,C) matches if one or more match and returns all
-# TODO: implement constraint modifiers. within, covering, coextensive
+# TODO: implement constraint modifiers: at, within, covering, coextensive, notat, notwithin,
+#   where the parameter to at can be a whole parser and the span is used! If the parser returns more than one,
+#   for at, within, one span is sufficient for succes, if notat, notwithin, no span must exist.
 # TODO: implement lookahead modifier: Ann("x").before("Person"), Ann("x").before(Seq(...))
 # TODO: implement non-greedy N by adding until=parser option: N(Ann("Token"),1,5,until=Ann("Person"))
 # TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
@@ -75,11 +91,9 @@ class ParseLocation:
 
 
 class Result:
-    def __init__(self, data=None, location=None, span=None, context=None):
-        assert data is not None
+    def __init__(self, data=None, location=None, span=None):
         assert location is not None
-        # assert span is not None
-        assert context is not None
+        assert span is not None
         if data is not None:
             if isinstance(data, dict):
                 self.data = [data]
@@ -90,16 +104,16 @@ class Result:
         else:
             self.data = []
         self.location = location
-        self.context = context
+        self.span = span
 
     def data4name(self, name):
         return [d for d in self.data if d.name == name]
 
     def __str__(self):
-        return f"Result(loc={self.location},ndata={len(self.data)})"
+        return f"Result(loc={self.location},span=({self.span[0]},{self.span[1]}),ndata={len(self.data)})"
 
     def __repr__(self):
-        return f"Result(loc={self.location},data={self.data})"
+        return f"Result(loc={self.location},span=({self.span[0]},{self.span[1]}),data={self.data})"
 
 
 class Failure:
@@ -158,17 +172,19 @@ class Failure:
             f'{self._cur_text!r}/{self._cur_ann}, {self._causes!r})'
         )
 
+
 class Success(Iterable, Sized):
     """
     Represents a parse success as a possibly empty list of result elements.
     """
-    def __init__(self, results=None):
+    def __init__(self, results, context):
         if results is None:
             self._results = []
         elif isinstance(results, Iterable):
             self._results = list(results)
         else:
             self._results = [results]
+        self.context = context
 
     def issuccess(self):
         return True
@@ -467,7 +483,7 @@ class AnnAt(Parser):
                 # update location
                 location = context.inc_location(location, by_index=1)
                 if self.matchtype == "first":
-                    return Success(Result(data=data, location=location))
+                    return Success(Result(data=data, location=location, span=(next_ann.start, next_ann.end)), context)
                 datas.append(data)
                 next_ann = context.get_ann(location)
                 if not next_ann or next_ann.start != start:
@@ -486,25 +502,27 @@ class AnnAt(Parser):
         else:
             if self.matchtype == "all":
                 # TODO: !!!BUG: many results, not many datas!!!!
-                return Success(Result(data=datas, location=location))
+                return Success(Result(data=datas, location=location, span=(None,None)), context)
             elif self.matchtype == "shortest":
                 pick = datas[0]
-                end = pick.ann.end
-                start = picl.ann.start
+                end = pick["ann"].end
+                start = pick["ann"].start
                 for d in datas:
-                    if d.end < end:
-                        end = d.end
-                        start = d.start
+                    if d["ann"].end < end:
+                        end = d["ann"].end
+                        start = d["ann"].start
                         pick = d
-                return Success(Result(data=pick, span=(start, end), location=location))
+                return Success(Result(data=pick, span=(start, end), location=location), context)
             elif self.matchtype == "longest":
                 pick = datas[0]
-                end = pick.ann.end
+                end = pick["ann"].end
+                start = pick["ann"].start
                 for d in datas:
-                    if d.end > end:
-                        end = d.end
+                    if d["ann"].end > end:
+                        end = d["ann"].end
+                        start = d["ann"].start
                         pick = d
-                return Success(Result(data=pick, location=location))
+                return Success(Result(data=pick, location=location, span=(start, end)), context)
 
 
 class Ann(Parser):
@@ -545,9 +563,7 @@ class Ann(Parser):
             else:
                 data = None
             span = (next_ann.start, next_ann.end)
-            return Success(
-                Result(context=context, data=data, span=span, location=newlocation)
-            )
+            return Success(Result(data=data, span=span, location=newlocation), context)
         else:
             return Failure(location=location, context=context, parser=self)
 
@@ -604,6 +620,9 @@ class Seq(Parser):
     def parse(self, location, context):
         if self.matchtype != "all":
             datas = []
+            first = True
+            start = None
+            end = None
             for parser in self.parsers:
                 ret = parser.parse(location, context)
                 if ret.issuccess():
@@ -611,9 +630,13 @@ class Seq(Parser):
                     for d in result.data:
                         datas.append(d)
                     location = result.location
+                    if first:
+                        first = False
+                        start = result.span[0]
+                    end = result.span[1]
                 else:
                     return Failure(context=context, location=location, message="Mismatch in Seq")
-            return Success(Result(data=datas, location=location))
+            return Success(Result(data=datas, location=location, span=(start, end)), context)
         else:
             # for finding all possible matches, we need to continue all matches for a parser with all
             # possible matches, then continue all successful combinations etc.
@@ -636,15 +659,22 @@ class N(Parser):
             datas = []
             i = 0
             newlocation = location
+            start = None
+            end = None
+            first = True
             while True:
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
                     if i < self.min:
                         return Failure(context=context, location=location, message=f"Not at least {self.min} matches")
                     else:
-                        return Success(Result(data=datas, location=newlocation))
+                        return Success(Result(data=datas, location=newlocation, span=(start, end)), context)
                 else:
                     result = ret.result(self.matchtype)
+                    if first:
+                        first = False
+                        start = result.span[0]
+                    end = result.span[1]
                     data = result.data
                     for d in data:
                         datas.append(d)
@@ -652,7 +682,7 @@ class N(Parser):
                     i += 1
                     if i == self.max:
                         break
-            return Success(Result(data=datas, location=newlocation))
+            return Success(Result(data=datas, location=newlocation, span=(start, end)), context)
         else:
             # for finding all possible matches, we need to continue all matches for a parser with all
             # possible matches, then continue all successful combinations etc.
@@ -696,12 +726,8 @@ class Text(Parser):
                     )
                 else:
                     data = None
-                return Success(
-                    results=Result(
-                        data=data,
-                        location=newlocation
-                    )
-                )
+                span = (location.text_location, location.text_location+len(m.group()))
+                return Success(Result(data=data, location=newlocation, span=span), context)
             else:
                 return Failure(context=context)
         else:
@@ -713,7 +739,8 @@ class Text(Parser):
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
-                return Success(results=Result(data=data, location=newlocation))
+                span = (location.text_location, location.text_location+len(self.text))
+                return Success(Result(data=data, location=newlocation, span=span), context)
             else:
                 return Failure(context=context)
 
@@ -735,5 +762,5 @@ class Or(Parser):
             if ret.issuccess():
                 result = ret.result(self.matchtype)
                 newloc = result.location
-                return Success(Result(result.data, location=newloc))
+                return Success(Result(result.data, location=newloc, span=result.span), context)
         return Failure(context=context, location=location, message="None of the choices match")
