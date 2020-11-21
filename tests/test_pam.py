@@ -92,11 +92,11 @@ class TestPampac01:
         ret = parser.parse(ParseLocation(), ctx)
         print(ret)
 
-        parser = Seq(Ann("Ann", name="a1"), Ann("Ann", name="a2"), name="seq", matchtype="longest")
+        parser = Seq(Ann("Ann", name="a1"), Ann("Ann", name="a2"), matchtype="longest")
         ret = parser.parse(ParseLocation(), ctx)
         print(ret)
 
-        parser = N(AnnAt("Ann", name="a1"), 1, 5, name="n1", matchtype="first")
+        parser = N(AnnAt("Ann", name="a1"), 1, 5, matchtype="first")
         ret = parser.parse(ParseLocation(), ctx)
         print(ret)
 
