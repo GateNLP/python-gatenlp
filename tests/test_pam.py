@@ -227,5 +227,154 @@ class TestPampac01:
         assert ret[3].data[0]["ann"].id == 1
         assert ret[3].data[1]["ann"].id == 4
 
+    def test03(self):
+        # Test single result matches with N, with and without the until clause
+
+        doc = Document("Some test document")
+        doc.annset().add(0, 2, "Ann")  # 0
+        doc.annset().add(0, 2, "Ann")  # 1
+        doc.annset().add(0, 2, "Token") # 2
+        doc.annset().add(2, 4, "Ann")  # 3
+        doc.annset().add(2, 4, "Ann")  # 4
+        doc.annset().add(4, 6, "Ann")  # 5
+        doc.annset().add(4, 6, "Ann")  # 6
+        doc.annset().add(4, 6, "Person")  # 7
+        doc.annset().add(6, 8, "Ann")  # 8
+        doc.annset().add(6, 8, "Ann")  # 9
+        doc.annset().add(8, 10, "XXXX")  # 10
+        annlist = list(doc.annset())
+
+        # single Ann, single result from N
+        # this should return annotation ids 0, 3, 5
+        ret = N(AnnAt("Ann", name="a1", matchtype="first"),
+                min=2, max=3, select="first", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 3
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 5
+
+        # single Ann, single result from N
+        # this should return annotation ids 0, 3, 5, 8
+        ret = N(AnnAt("Ann", name="a1", matchtype="first"),
+                min=2, max=99, select="first", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 4
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 5
+        assert ret[0].data[3]["ann"].id == 8
+
+        # single Ann, single result from N, with early stopping at Person
+        # this should return annotation ids 0, 3, 7
+        ret = N(AnnAt("Ann", name="a1", matchtype="first"),
+                until=AnnAt("Person", name="p"),
+                min=2, max=99, select="first", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 3
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 7
+
+        # Try a match with min=0 and max=99 that does not succeed
+        # single Ann, single result from N
+        # this should return an empty list for data
+        ret = N(AnnAt("NotThere", name="a1", matchtype="first"),
+                min=0, max=99, select="first", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 0
+
+        # Try a match with min=0 and max=99 that does not succeed
+        # single Ann, single result from N
+        # this should return an empty list for data
+        ret = N(AnnAt("Ann", name="a1", matchtype="first"),
+                min=0, max=99, select="first", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 4
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 5
+        assert ret[0].data[3]["ann"].id == 8
+
+    def test04(self):
+        # Test multiple result matches with N, with and without the until clause
+
+        doc = Document("Some test document")
+        doc.annset().add(0, 2, "Ann")  # 0
+        doc.annset().add(0, 2, "Ann")  # 1
+        doc.annset().add(0, 2, "Token") # 2
+        doc.annset().add(2, 4, "Ann")  # 3
+        doc.annset().add(2, 4, "Ann")  # 4
+        doc.annset().add(4, 6, "Ann")  # 5
+        doc.annset().add(4, 6, "Ann")  # 6
+        doc.annset().add(4, 6, "Person")  # 7
+        doc.annset().add(6, 8, "Ann")  # 8
+        doc.annset().add(6, 8, "Ann")  # 9
+        doc.annset().add(8, 10, "XXXX")  # 10
+        annlist = list(doc.annset())
+
+        # multiple Anns, single result from N: first
+        # This should find 0,3,5
+        ret = N(AnnAt("Ann", name="a1", matchtype="all"),
+                min=2, max=3, select="all", matchtype="first").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 3
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 5
+
+        # multiple Anns, all results from N
+        ret = N(AnnAt("Ann", name="a1", matchtype="all"),
+                min=1, max=1, select="all", matchtype="all").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 4
+        assert len(ret[0].data) == 2
+        assert len(ret[1].data) == 2
+        assert len(ret[2].data) == 2
+        assert len(ret[3].data) == 2
+
+        # multiple Anns, all results from N
+        ret = N(AnnAt("Ann", name="a1", matchtype="all"),
+                min=1, max=2, select="all", matchtype="all").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 8
+        assert len(ret[0].data) == 3
+        assert len(ret[1].data) == 3
+        assert len(ret[2].data) == 3
+        assert len(ret[3].data) == 3
+
+        # multiple Anns, all results from N
+        ret = N(AnnAt(name="a1", matchtype="all"),
+                min=1, max=1, select="all", matchtype="all").match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 6
+        assert len(ret[0].data) == 2
+        assert len(ret[1].data) == 2
+        assert len(ret[2].data) == 2
+        assert len(ret[3].data) == 2
+        assert len(ret[4].data) == 2
+        assert len(ret[5].data) == 2
+
+        # This should stop early at the second annotation in sequence each time
+        # TODO: this files because Result.result(matchtype) returns a list for "all" which we do not handle properly!
+        # ret = N(AnnAt("Ann", name="a1", matchtype="all"),
+        #         until=AnnAt("Token", name="t"),
+        #         min=1, max=3, select="all", matchtype="all").match(doc, annlist)
+        # assert ret.issuccess()
+        # ret.pprint()
+        # assert len(ret) == 8
+        # assert len(ret[0].data) == 3
+        # assert len(ret[1].data) == 3
+        # assert len(ret[2].data) == 3
+        # assert len(ret[3].data) == 3
+
+
+
 if __name__ == "__main__":
-    TestPampac01().test01()
+    TestPampac01().test04()

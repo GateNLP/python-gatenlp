@@ -10,6 +10,8 @@ from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
 from gatenlp import Span
 
+# TODO: IMPORTANT!!! Result.result(matchtype) should always return a list?? Or always treet "all" differently?
+
 # TODO: FindAll: return all matches as separate results in Success, even finding nothing is Success.
 # options for how to go over offsets or annotations and for how to advance after a match.
 # if by offsets, advance by one, by longest, if by annotation, advance to next ann or to next ann after longest match,
@@ -860,84 +862,6 @@ class Find(PampacParser):
                         return Failure(context=context, message="Not found via text", location=location)
 
 
-class N(PampacParser):
-    """
-    A parser that represents a sequence of k to l matching parsers, greedy.
-    """
-    def __init__(self, parser, min=1, max=1, matchtype="first", until=None):
-        """
-        Return a parser that matches min to max matches of parser in sequence. If until is specified, that
-        parser is tried to match before each iteration and as soon as it matched, the parser succeeds.
-        If after ming to max matches of the parser, until does not match, the parser fails.
-
-        Args:
-            parser:
-            min:
-            max:
-            matchtype:
-            until:
-        """
-        self.parser = parser
-        self.min = min
-        self.max = max
-        self.matchtype = matchtype
-        self.until = until
-
-    def parse(self, location, context):
-        if self.matchtype != "all":
-            datas = []
-            i = 0
-            newlocation = location
-            start = None
-            end = None
-            first = True
-            while True:
-                if self.until and i >= self.min:
-                    ret = self.until.parse(location, context)
-                    if ret.issuccess():
-                        res = ret.result(self.matchtype)
-                        data = res.data
-                        loc = res.location
-                        end = res.end
-                        datas.append(data)
-                        return Success(Result(datas, location=loc, span=(start, end)), context)
-                ret = self.parser.parse(location, context)
-                if not ret.issuccess():
-                    if i < self.min:
-                        return Failure(context=context, location=location, message=f"Not at least {self.min} matches")
-                    else:
-                        return Success(Result(data=datas, location=newlocation, span=(start, end)), context)
-                else:
-                    result = ret.result(self.matchtype)
-                    if first:
-                        first = False
-                        start = result.span[0]
-                    end = result.span[1]
-                    data = result.data
-                    for d in data:
-                        datas.append(d)
-                    newlocation = result.location
-                    i += 1
-                    if i == self.max:
-                        break
-            if self.until:
-                ret = self.until.parse(location, context)
-                if ret.issuccess():
-                    res = ret.result(self.matchtype)
-                    data = res.data
-                    loc = res.location
-                    end = res.end
-                    datas.append(data)
-                    return Success(Result(datas, location=loc, span=(start, end)), context)
-                else:
-                    return Failure(context=context, location=location, message="Until parser not successful")
-            return Success(Result(data=datas, location=newlocation, span=(start, end)), context)
-        else:
-            # for finding all possible matches, we need to continue all matches for a parser with all
-            # possible matches, then continue all successful combinations etc.
-            # TODO: implement this by a recursive algorithm for now and add memoization later.
-            # TODO: instead of recursive try to do iterative to not exhaust the stack?
-            raise NotImplemented()
 
 
 class Text(PampacParser):
@@ -1142,3 +1066,154 @@ class Seq(PampacParser):
                 else:
                     return Failure(context=context, location=location)
 
+
+class N(PampacParser):
+    """
+    A parser that represents a sequence of k to l matching parsers, greedy.
+    """
+    def __init__(self, parser, min=1, max=1, matchtype="first", select="first", until=None):
+        """
+        Return a parser that matches min to max matches of parser in sequence. If until is specified, that
+        parser is tried to match before each iteration and as soon as it matched, the parser succeeds.
+        If after ming to max matches of the parser, until does not match, the parser fails.
+
+        Args:
+            parser:
+            min:
+            max:
+            matchtype:
+            until:
+        """
+        self.parser = parser
+        self.min = min
+        self.max = max
+        self.matchtype = matchtype
+        self.until = until
+        self.select = select
+
+    def parse(self, location, context):
+        if self.matchtype != "all":
+            datas = []
+            i = 0
+            start = location.text_location
+            end = start
+            first = True
+            # location is the location where we try to match
+            while True:
+                if self.until and i >= self.min:
+                    ret = self.until.parse(location, context)
+                    if ret.issuccess():
+                        res = ret.result(self.matchtype)
+                        data = res.data
+                        for d in data:
+                            datas.append(d)
+                        loc = res.location
+                        end = res.span[1]
+                        return Success(Result(datas, location=loc, span=(start, end)), context)
+                ret = self.parser.parse(location, context)
+                if not ret.issuccess():
+                    if i < self.min:
+                        return Failure(context=context, location=location, message=f"Not at least {self.min} matches")
+                    else:
+                        return Success(Result(data=datas, location=location, span=(start, end)), context)
+                else:
+                    result = ret.result(self.matchtype)
+                    if first:
+                        first = False
+                        start = result.span[0]
+                    end = result.span[1]
+                    data = result.data
+                    for d in data:
+                        datas.append(d)
+                    location = result.location
+                    i += 1
+                    if i == self.max:
+                        break
+            if self.until:
+                ret = self.until.parse(location, context)
+                if ret.issuccess():
+                    res = ret.result(self.matchtype)
+                    data = res.data
+                    loc = res.location
+                    end = res.span[1]
+                    for d in data:
+                        datas.append(d)
+                    return Success(Result(datas, location=loc, span=(start, end)), context)
+                else:
+                    return Failure(context=context, location=location, message="Until parser not successful")
+            return Success(Result(data=datas, location=location, span=(start, end)), context)
+        else:
+            # This does a depth-first enumeration of all matches: each successive parser gets tried
+            # for each result of the previous one.
+            def depthfirst(lvl, result):
+                # if we already have min matches and we can terminate early, do it
+                if self.until and lvl >= self.min:
+                    ret = self.until.parse(location, context)
+                    if ret.issuccess():
+                        res = ret.result(self.matchtype)
+                        data = result.data.copy()
+                        for d in res.data:
+                            data.append(d)
+                        loc = res.location
+                        end = res.span[1]
+                        yield Result(data, location=loc, span=(start, end))
+                # if we got here after the max number of matches, and self.until is set, then
+                # the parse we did above did not succeed, so we end without a result
+                if self.until and lvl > self.max:
+                    return
+                # if we got here after the max number of matches and self.util is not set, we
+                # can yield the current result as we found max matches
+                if lvl > self.max:
+                    yield result
+                    return
+                # lvl is still smaller than max, so we try to match more
+                ret = self.parser.parse(result.location, context)
+                if ret.issuccess():
+                    # for each of the results, try to continue matching
+                    for res in ret:
+                        datas = result.data.copy()
+                        for d in res.data:
+                            datas.append(d)
+                        loc = res.location
+                        span = (location.text_location, res.location.text_location)
+                        newresult = Result(datas, location=loc, span=span)
+                        yield from depthfirst(lvl + 1, newresult)
+                else:
+                    if lvl <= self.min:
+                        return
+                    else:
+                        # we already have at least min matches: if we have no until, we can yield the result
+                        if not self.until:
+                            yield result
+                        else:
+                            # if we have until, then the until above did not match so neither the normal parser
+                            # nor the until did match so we do not have a success
+                            return
+            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            all = []
+            best = None
+            for idx, result in enumerate(gen):
+                if self.matchtype == "first" and idx == 0:
+                    return Success(result, context)
+                if self.matchtype == "all":
+                    all.append(result)
+                elif self.matchtype == "longest":
+                    if best is None:
+                        best = result
+                    elif result.span[1] > best.span[1]:
+                        best = result
+                elif self.matchtype == "shortest":
+                    if best is None:
+                        best = result
+                    elif result.span[1] < best.span[1]:
+                        best = result
+            if self.matchtype == "all":
+                if len(all) > 0:
+                    return Success(all, context)
+                else:
+                    return Failure(context=context, location=location)
+            else:
+                if best is not None:
+                    return Success(best, context)
+                else:
+                    return Failure(context=context, location=location)
