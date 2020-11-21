@@ -35,12 +35,25 @@ class TestPampac01:
         assert loc.ann_location == 1
         assert len(ret[0].data) == 1
 
-        ret = parser.parse(loc, ctx)
+        # this does NOT first advance the annotation index so the annotation start index
+        # is at least 2. So it matches the annotation at index 1 which ends at 1 which is
+        # BEFORE the text index we have now.
+        assert loc == ParseLocation(2, 1)
+        ret = Ann(name="tmp1", useoffset=False).parse(loc, ctx)
         assert len(ret) == 1
         loc = ret[0].location
-        assert loc.text_location == 1
-        assert loc.ann_location == 2
+        assert loc == ParseLocation(1, 2)
         assert len(ret[0].data) == 1
+
+        # by default we do advance, so we match the last annotation and end up at text
+        # position 4 looking for annotation index 5
+        loc = ParseLocation(2, 1)
+        ret = Ann(name="tmp1", useoffset=True).parse(loc, ctx)
+        assert len(ret) == 1
+        loc = ret[0].location
+        assert loc == ParseLocation(3, 5)
+        assert len(ret[0].data) == 1
+
 
         # Try to fail
         parser = Ann("Token")
@@ -56,11 +69,11 @@ class TestPampac01:
         assert loc.ann_location == 1
         assert len(ret[0].data) == 0
 
-        ret = parser.parse(loc, ctx)
+        ret = Ann().parse(loc, ctx)
         assert len(ret) == 1
         loc = ret[0].location
-        assert loc.text_location == 1
-        assert loc.ann_location == 2
+        assert loc.text_location == 3
+        assert loc.ann_location == 5
         assert len(ret[0].data) == 0
 
         parser = AnnAt(name="a2")
@@ -70,7 +83,6 @@ class TestPampac01:
 
         parser = AnnAt(matchtype="all", name="a3")
         ret = parser.parse(ParseLocation(), ctx)
-        print(f"!!!!!!!!!!!!!!!! GOT: {ret}")
         assert len(ret) == 2
         assert len(ret[0].data) == 1
         assert len(ret[1].data) == 1
@@ -216,4 +228,4 @@ class TestPampac01:
         assert ret[3].data[1]["ann"].id == 4
 
 if __name__ == "__main__":
-    TestPampac01().test02()
+    TestPampac01().test01()

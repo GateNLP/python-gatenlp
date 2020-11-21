@@ -85,6 +85,10 @@ class ParseLocation:
     def __repr__(self):
         return f"Location({self.text_location},{self.ann_location})"
 
+    def __eq__(self, other):
+        if not isinstance(other, ParseLocation):
+            return False
+        return self.text_location == other.text_location and self.ann_location == other.ann_location
 
 class Result:
     def __init__(self, data=None, location=None, span=None):
