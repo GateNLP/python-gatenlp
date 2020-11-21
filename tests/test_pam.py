@@ -3,7 +3,7 @@ import os
 from gatenlp import Document, Annotation
 from gatenlp.pam.pampac import Context, ParseLocation
 
-from gatenlp.pam.pampac import Ann, AnnAt, Rule, Find, Text, N, Seq, Or
+from gatenlp.pam.pampac import Ann, AnnAt, Call, Find, Text, N, Seq, Or, Success, Failure
 
 class TestPampac01:
 
@@ -19,6 +19,16 @@ class TestPampac01:
         ctx = Context(doc, annlist)
         parser = Ann(name="a1")
         ret = parser.parse(ParseLocation(), ctx)
+        assert isinstance(ret, Success)
+        assert len(ret) == 1
+        loc = ret[0].location
+        assert loc.text_location == 2
+        assert loc.ann_location == 1
+        assert len(ret[0].data) == 1
+
+        # do this with the match method
+        ret = parser(doc, annlist)
+        assert isinstance(ret, Success)
         assert len(ret) == 1
         loc = ret[0].location
         assert loc.text_location == 2
@@ -31,6 +41,11 @@ class TestPampac01:
         assert loc.text_location == 1
         assert loc.ann_location == 2
         assert len(ret[0].data) == 1
+
+        # Try to fail
+        parser = Ann("Token")
+        ret = parser(doc, annlist)
+        assert isinstance(ret, Failure)
 
         # Same without a name: should generate the same locations, but no data
         parser = Ann()
@@ -55,15 +70,17 @@ class TestPampac01:
 
         parser = AnnAt(matchtype="all", name="a3")
         ret = parser.parse(ParseLocation(), ctx)
-        assert len(ret) == 1
-        assert len(ret[0].data) == 2
+        print(f"!!!!!!!!!!!!!!!! GOT: {ret}")
+        assert len(ret) == 2
+        assert len(ret[0].data) == 1
+        assert len(ret[1].data) == 1
 
         # Try Rule
         parser = Ann(name="a1")
         tmp = dict(i=0)
         def rhs1(succ, **kwargs):
             tmp["i"] = 1
-        rule = Rule(parser, rhs1)
+        rule = Call(parser, rhs1)
         ret = rule.parse(ParseLocation(), ctx)
         assert len(ret) == 1
         loc = ret[0].location
@@ -111,6 +128,7 @@ class TestPampac01:
         parser = Ann("Ann", name="a1") >> Ann("Ann", name="a2")
         ret = parser.parse(ParseLocation(), ctx)
         print(ret)
+
 
 if __name__ == "__main__":
     TestPampac01().test01()

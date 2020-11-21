@@ -24,6 +24,7 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.gateslave import GateSlave
+from gatenlp.span import Span
 
 
 def  init_notebook():
