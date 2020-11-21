@@ -10,6 +10,11 @@ from collections.abc import Iterable, Sized
 from abc import ABC, abstractmethod
 from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 
+# TODO: refactor names: Pampac instead of Parser, _parse instead of parse
+# utility method match(doc, annset, start=None, end=None
+
+# TODO: replace location with start_location, end_location
+
 # TODO: make matchtype a parameter of the innermost parser that can return multiple matches. These are
 # * AnnAt
 # * All / ^
@@ -49,6 +54,7 @@ from .matcher import FeatureMatcher, FeatureEqMatcher, AnnMatcher, CLASS_REGEX_P
 #   parser and memoize (store Success or Failure)
 # TODO: Maybe: .where(predicatefunc) modfier to do local filtering of results
 
+
 class ParseLocation:
     """
     A ParseLocation represents the next location in the text and annotation list where a parser will try to
@@ -67,8 +73,13 @@ class ParseLocation:
     def __repr__(self):
         return f"Location({self.text_location},{self.ann_location})"
 
+
 class Result:
-    def __init__(self, data=None, location=None, context=None):
+    def __init__(self, data=None, location=None, span=None, context=None):
+        assert data is not None
+        assert location is not None
+        # assert span is not None
+        assert context is not None
         if data is not None:
             if isinstance(data, dict):
                 self.data = [data]
@@ -89,6 +100,7 @@ class Result:
 
     def __repr__(self):
         return f"Result(loc={self.location},data={self.data})"
+
 
 class Failure:
     """
@@ -473,15 +485,18 @@ class AnnAt(Parser):
                 message="No matching annotation")
         else:
             if self.matchtype == "all":
+                # TODO: !!!BUG: many results, not many datas!!!!
                 return Success(Result(data=datas, location=location))
             elif self.matchtype == "shortest":
                 pick = datas[0]
                 end = pick.ann.end
+                start = picl.ann.start
                 for d in datas:
                     if d.end < end:
                         end = d.end
+                        start = d.start
                         pick = d
-                return Success(Result(data=pick, location=location))
+                return Success(Result(data=pick, span=(start, end), location=location))
             elif self.matchtype == "longest":
                 pick = datas[0]
                 end = pick.ann.end
@@ -529,8 +544,9 @@ class Ann(Parser):
                 data = dict(location=location, ann=next_ann, name=self.name, parser=self.__class__.__name__)
             else:
                 data = None
+            span = (next_ann.start, next_ann.end)
             return Success(
-                Result(context=context, data=data, location=newlocation)
+                Result(context=context, data=data, span=span, location=newlocation)
             )
         else:
             return Failure(location=location, context=context, parser=self)
