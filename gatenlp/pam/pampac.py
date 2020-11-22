@@ -88,6 +88,7 @@ from gatenlp import Span
 
 # TODO: !!! for Seq/N we could also do depth-first which may save memory for shortest, longest
 
+
 class ParseLocation:
     """
     A ParseLocation represents the next location in the text and annotation list where a parser will try to
@@ -96,6 +97,7 @@ class ParseLocation:
     The text offset equal to the length of the text represent the EndOfText condition and the annotation index
     equal to the length of the annotation list represents the EndOfAnns condition.
     """
+
     def __init__(self, text_location=0, ann_location=0):
         self.text_location = text_location
         self.ann_location = ann_location
@@ -109,7 +111,11 @@ class ParseLocation:
     def __eq__(self, other):
         if not isinstance(other, ParseLocation):
             return False
-        return self.text_location == other.text_location and self.ann_location == other.ann_location
+        return (
+            self.text_location == other.text_location
+            and self.ann_location == other.ann_location
+        )
+
 
 class Result:
     def __init__(self, data=None, location=None, span=None):
@@ -141,7 +147,15 @@ class Failure:
     """
     Represents a parse failure.
     """
-    def __init__(self, message=None, parser=None, location=None, causes=None, context=None, ):
+
+    def __init__(
+        self,
+        message=None,
+        parser=None,
+        location=None,
+        causes=None,
+        context=None,
+    ):
         self.context = context
         self._parser = parser
         if not message:
@@ -170,17 +184,15 @@ class Failure:
                 yield from cause._get_causes()
 
     def describe(self, indent=4, level=0):
-        lead = ' ' * indent * level
+        lead = " " * indent * level
         desc = (
-            f'{lead}{self._parser} at {self._cur_text}/{self._cur_ann}: '
-            f'{self.message}'
+            f"{lead}{self._parser} at {self._cur_text}/{self._cur_ann}: "
+            f"{self.message}"
         )
-        tail = ''
+        tail = ""
         if self._causes:
-            tail = (
-                    f'\n{lead}Caused by:\n' +
-                    '\n'.join(x.describe(indent, level + 1)
-                              for x in self._get_causes())
+            tail = f"\n{lead}Caused by:\n" + "\n".join(
+                x.describe(indent, level + 1) for x in self._get_causes()
             )
         return desc + tail
 
@@ -189,8 +201,8 @@ class Failure:
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}({self.message!r}, '
-            f'{self._cur_text!r}/{self._cur_ann}, {self._causes!r})'
+            f"{self.__class__.__name__}({self.message!r}, "
+            f"{self._cur_text!r}/{self._cur_ann}, {self._causes!r})"
         )
 
 
@@ -198,6 +210,7 @@ class Success(Iterable, Sized):
     """
     Represents a parse success as a possibly empty list of result elements.
     """
+
     def __init__(self, results, context):
         if results is None:
             self._results = []
@@ -304,12 +317,16 @@ class Success(Iterable, Sized):
     def __getitem__(self, item):
         return self._results[item]
 
+
 class Context:
     """
     Context contains data and refers to data for carrying out the parse. Only the memoize data changes
     in the context, all other fields are treated as immutable during a parse.
     """
-    def __init__(self, doc, anns, start=None, end=None, memoize=False, max_recusion=None):
+
+    def __init__(
+        self, doc, anns, start=None, end=None, memoize=False, max_recusion=None
+    ):
         """
         start is the offset in the original document to where we start parsing, text is the full
         document text, start is the first offset from where we start parsing, end is the offset
@@ -323,10 +340,12 @@ class Context:
             self.start = 0
         else:
             if start >= len(doc.text) or start < 0:
-                raise Exception("Invalid start offset: {start}, document length is {len(doc.text}")
+                raise Exception(
+                    "Invalid start offset: {start}, document length is {len(doc.text}"
+                )
             self.start = start
         if end is None:
-            self.end = len(doc.text)   # offset after the last text character!
+            self.end = len(doc.text)  # offset after the last text character!
         else:
             if end <= start or end > len(doc.text):
                 raise Exception("Invalid end offset: {end}, start is {self.start}")
@@ -394,11 +413,13 @@ class Context:
         Returns:
             new location
         """
-        newloc = ParseLocation(text_location=location.text_location, ann_location=location.ann_location)
+        newloc = ParseLocation(
+            text_location=location.text_location, ann_location=location.ann_location
+        )
         if by_index is not None:
             # get the annotation before the one we want to point at next, so we get the end offset of the
             # last annotation consumed
-            newloc.ann_location += by_index-1
+            newloc.ann_location += by_index - 1
             ann = self.get_ann(location)
             # if we already are at the end of the annotations, just leave everything as it is
             if not ann:
@@ -415,7 +436,9 @@ class Context:
             else:
                 # otherwise try to find the next matching annotation
                 newloc.text_location += by_offset
-                newloc.ann_location = self.nextidx4offset(location, newloc.text_location)
+                newloc.ann_location = self.nextidx4offset(
+                    location, newloc.text_location
+                )
                 # if we got end of annotations index, we do NOT update the text to end of text!
                 # we could still want to match something in the text after the last annotation.
         return newloc
@@ -450,7 +473,9 @@ class Context:
         if location.ann_location == len(self.anns):
             return ParseLocation(len(self.doc.text), location.ann_location)
         else:
-            return ParseLocation(location.text_location, self.anns[location.ann_location].end)
+            return ParseLocation(
+                location.text_location, self.anns[location.ann_location].end
+            )
 
     def at_endoftext(self, location):
         """
@@ -485,6 +510,7 @@ class PampacParser:
 
     When subclassing, the parse(location, context) method must be overriden
     """
+
     def __init__(self, parser_function):
         self.name = None
         self._parser_function = parser_function
@@ -588,71 +614,129 @@ class PampacParser:
         Returns:
             Parser modified to only match within the given span.
         """
-        return Filter(self, lambda ret: Span(ret.span).iswithin(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).iswithin(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notwithin(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).iswithin(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).iswithin(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notwithin(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).iswithin(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).iswithin(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def coextensive(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: Span(ret.span).iscoextensive(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).iscoextensive(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notcoextensive(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).iscoextensive(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).iscoextensive(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def overlapping(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: Span(ret.span).isoverlapping(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).isoverlapping(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notoverlapping(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).isoverlapping(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).isoverlapping(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def covering(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: Span(ret.span).iscovering(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).iscovering(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notcovering(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).iscovering(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).iscovering(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def at(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: Span(ret.span).isat(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self, lambda ret: Span(ret.span).isat(Span(start, end)), matchtype=matchtype
+        )
 
     @support_annotation_or_set
     def noat(self, start, end, matchtype="first"):
-        return Filter(self, lambda ret: not Span(ret.span).isat(Span(start, end)), matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).isat(Span(start, end)),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def before(self, start, end, immediately=False, matchtype="first"):
-        return Filter(self,
-                      lambda ret: Span(ret.span).isbefore(Span(start, end), immediately=immediately),
-                      matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).isbefore(
+                Span(start, end), immediately=immediately
+            ),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notbefore(self, start, end, immediately=False, matchtype="first"):
-        return Filter(self,
-                      lambda ret: not Span(ret.span).isbefore(Span(start, end), immediately=immediately),
-                      matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).isbefore(
+                Span(start, end), immediately=immediately
+            ),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def after(self, start, end, immediately=False, matchtype="first"):
-        return Filter(self,
-                      lambda ret: Span(ret.span).isafter(Span(start, end), immediately=immediately),
-                      matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: Span(ret.span).isafter(
+                Span(start, end), immediately=immediately
+            ),
+            matchtype=matchtype,
+        )
 
     @support_annotation_or_set
     def notafter(self, start, end, immediately=False, matchtype="first"):
-        return Filter(self,
-                      lambda ret: not Span(ret.span).isafter(Span(start, end), immediately=immediately),
-                      matchtype=matchtype)
+        return Filter(
+            self,
+            lambda ret: not Span(ret.span).isafter(
+                Span(start, end), immediately=immediately
+            ),
+            matchtype=matchtype,
+        )
 
     def lookahead(self, parser):
         """
@@ -666,6 +750,7 @@ class PampacParser:
         """
         return Lookahead(self, parser)
 
+
 class Lookahead(PampacParser):
     def __init__(self, parser, laparser):
         self.parser = parser
@@ -675,12 +760,16 @@ class Lookahead(PampacParser):
         if context.parse(location, context).issuccess():
             return self.parser.parse(location, context)
         else:
-            return Failure(context=context, message="Lookahead failed", location=location)
+            return Failure(
+                context=context, message="Lookahead failed", location=location
+            )
+
 
 class Filter(PampacParser):
     """
     Select only some of the results returned by a parser success, call the predicate function on each to check.
     """
+
     def __init__(self, parser, predicate, take_if=True, matchtype="first"):
         """
         Invoke predicate with each result of a successful parse of parser and return success with the remaining
@@ -705,7 +794,11 @@ class Filter(PampacParser):
                 if self.predicate(r) == self.take_if:
                     res.append(r)
             if len(r) == 0:
-                return Failure(context=context, location=location, message="No result satisfies predicate")
+                return Failure(
+                    context=context,
+                    location=location,
+                    message="No result satisfies predicate",
+                )
             else:
                 return Success(res)
         else:
@@ -713,7 +806,6 @@ class Filter(PampacParser):
 
 
 class Call(PampacParser):
-
     def __init__(self, parser, func, onfailure=None):
         self.parser = parser
         self.func = func
@@ -725,7 +817,9 @@ class Call(PampacParser):
             self.func(ret, name=self.parser.name, parser=self.parser.__class__.__name__)
         else:
             if self.onfailure:
-                self.onfailure(ret, name=self.parser.name, parser=self.parser.__class__.__name__)
+                self.onfailure(
+                    ret, name=self.parser.name, parser=self.parser.__class__.__name__
+                )
         return ret
 
 
@@ -733,14 +827,25 @@ class AnnAt(PampacParser):
     """
     Parser for matching the first or all annotations at the offset for the next annotation in the list.
     """
-    def __init__(self, type=None, features=None, features_eq=None, text=None,
-                 matchtype="first", name=None, useoffset=True):
+
+    def __init__(
+        self,
+        type=None,
+        features=None,
+        features_eq=None,
+        text=None,
+        matchtype="first",
+        name=None,
+        useoffset=True,
+    ):
         self.type = type
         self.features = features
         self.features_eq = features_eq
         self.text = text
         self.name = name
-        self._matcher = AnnMatcher(type=type, features=features, features_eq=features_eq, text=text)
+        self._matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
         self.matchtype = matchtype
         self.useoffset = useoffset
 
@@ -753,21 +858,31 @@ class AnnAt(PampacParser):
                 context=context,
                 location=location,
                 parser=self,
-                message="No annotation left")
+                message="No annotation left",
+            )
         results = []
         start = next_ann.start
         matched = False
         while True:
             if self._matcher(next_ann):
                 matched = True
-                matchlocation = ParseLocation(text_location=start, ann_location=location.ann_location)
+                matchlocation = ParseLocation(
+                    text_location=start, ann_location=location.ann_location
+                )
                 if self.name is None:
                     data = None
                 else:
-                    data = dict(location=matchlocation, ann=next_ann, name=self.name, parser=self.__class__.__name__)
+                    data = dict(
+                        location=matchlocation,
+                        ann=next_ann,
+                        name=self.name,
+                        parser=self.__class__.__name__,
+                    )
                 # update location
                 location = context.inc_location(location, by_index=1)
-                result = Result(data=data, location=location, span=(next_ann.start, next_ann.end))
+                result = Result(
+                    data=data, location=location, span=(next_ann.start, next_ann.end)
+                )
                 if self.matchtype == "first":
                     return Success(result, context)
                 results.append(result)
@@ -784,7 +899,8 @@ class AnnAt(PampacParser):
                 context=context,
                 parser=self,
                 location=location,
-                message="No matching annotation")
+                message="No matching annotation",
+            )
         else:
             res = Success.select_result(results, matchtype=self.matchtype)
             return Success(res, context)
@@ -794,7 +910,16 @@ class Ann(PampacParser):
     """
     Parser for matching the next annotation in the annotation list.
     """
-    def __init__(self, type=None, features=None, features_eq=None, text=None, name=None, useoffset=True):
+
+    def __init__(
+        self,
+        type=None,
+        features=None,
+        features_eq=None,
+        text=None,
+        name=None,
+        useoffset=True,
+    ):
         """
 
         Args:
@@ -815,7 +940,9 @@ class Ann(PampacParser):
         self.text = text
         self.name = name
         self.useoffset = useoffset
-        self._matcher = AnnMatcher(type=type, features=features, features_eq=features_eq, text=text)
+        self._matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
 
     def parse(self, location, context):
         """
@@ -836,12 +963,18 @@ class Ann(PampacParser):
                 context=context,
                 parser=self,
                 location=location,
-                message="No annotation left")
+                message="No annotation left",
+            )
         # try to match it
         if self._matcher(next_ann, doc=context.doc):
             newlocation = context.inc_location(location, by_index=1)
             if self.name is not None:
-                data = dict(location=location, ann=next_ann, name=self.name, parser=self.__class__.__name__)
+                data = dict(
+                    location=location,
+                    ann=next_ann,
+                    name=self.name,
+                    parser=self.__class__.__name__,
+                )
             else:
                 data = None
             span = (next_ann.start, next_ann.end)
@@ -854,6 +987,7 @@ class Find(PampacParser):
     """
     A parser that tries another parser until it matches.
     """
+
     def __init__(self, parser, by_anns=True):
         """
 
@@ -874,19 +1008,26 @@ class Find(PampacParser):
                 if self.by_anns:
                     location = context.inc_location(location, by_index=1)
                     if context.at_endofanns(location):
-                        return Failure(context=context, message="Not found via anns", location=location)
+                        return Failure(
+                            context=context,
+                            message="Not found via anns",
+                            location=location,
+                        )
                 else:
                     location = context.inc_location(location, by_offset=1)
                     if context.at_endoftext(location):
-                        return Failure(context=context, message="Not found via text", location=location)
-
-
+                        return Failure(
+                            context=context,
+                            message="Not found via text",
+                            location=location,
+                        )
 
 
 class Text(PampacParser):
     """
     A parser that matches some text or regular expression
     """
+
     def __init__(self, text, name=None, matchcase=True):
         """
 
@@ -903,8 +1044,10 @@ class Text(PampacParser):
 
     def parse(self, location, context):
         location = context.update_location_byindex(location)
-        txt = context.doc.text[location.text_location:]
-        if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(self.text, CLASS_REGEX_PATTERN):
+        txt = context.doc.text[location.text_location :]
+        if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
+            self.text, CLASS_REGEX_PATTERN
+        ):
             m = self.text.match(txt)
             if m:
                 l = len(m.group())
@@ -915,12 +1058,14 @@ class Text(PampacParser):
                         text=m.group(),
                         groups=m.groups(),
                         name=self.name,
-                        parser=self.__class__.__name__
+                        parser=self.__class__.__name__,
                     )
                 else:
                     data = None
-                span = (location.text_location, location.text_location+len(m.group()))
-                return Success(Result(data=data, location=newlocation, span=span), context)
+                span = (location.text_location, location.text_location + len(m.group()))
+                return Success(
+                    Result(data=data, location=newlocation, span=span), context
+                )
             else:
                 return Failure(context=context)
         else:
@@ -928,12 +1073,19 @@ class Text(PampacParser):
                 txt = txt.upper()
             if txt.startswith(self.text):
                 if self.name:
-                    data = dict(location=location, text=self.text, name=self.name, parser=self.__class__.__name__)
+                    data = dict(
+                        location=location,
+                        text=self.text,
+                        name=self.name,
+                        parser=self.__class__.__name__,
+                    )
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
-                span = (location.text_location, location.text_location+len(self.text))
-                return Success(Result(data=data, location=newlocation, span=span), context)
+                span = (location.text_location, location.text_location + len(self.text))
+                return Success(
+                    Result(data=data, location=newlocation, span=span), context
+                )
             else:
                 return Failure(context=context)
 
@@ -942,6 +1094,7 @@ class Or(PampacParser):
     """
     Create a parser that accepts the first of all the parsers specified.
     """
+
     def __init__(self, *parsers, matchtype="first"):
         assert len(parsers) > 0
         self.parsers = parsers
@@ -955,12 +1108,15 @@ class Or(PampacParser):
             if ret.issuccess():
                 result = ret.result(self.matchtype)
                 newloc = result.location
-                return Success(Result(result.data, location=newloc, span=result.span), context)
-        return Failure(context=context, location=location, message="None of the choices match")
+                return Success(
+                    Result(result.data, location=newloc, span=result.span), context
+                )
+        return Failure(
+            context=context, location=location, message="None of the choices match"
+        )
 
 
 class And(PampacParser):
-
     def __init__(self, *parsers):
         self.parsers = parsers
 
@@ -972,12 +1128,15 @@ class And(PampacParser):
                 for r in ret:
                     results.append(r)
             else:
-                return Failure(context=context, location=location, message="Not all parsers succeed")
+                return Failure(
+                    context=context,
+                    location=location,
+                    message="Not all parsers succeed",
+                )
         return Success(results)
 
 
 class All(PampacParser):
-
     def __init__(self, *parsers):
         self.parsers = parsers
 
@@ -991,13 +1150,18 @@ class All(PampacParser):
         if len(results) > 0:
             return Success(results)
         else:
-            return Failure(context=context, location=location, message="None of the parsers succeeded")
+            return Failure(
+                context=context,
+                location=location,
+                message="None of the parsers succeeded",
+            )
 
 
 class Seq(PampacParser):
     """
     A parser that represents a sequence of matching parsers. This parser will combine
     """
+
     def __init__(self, *parsers, matchtype="first", select="first"):
         """
 
@@ -1035,8 +1199,12 @@ class Seq(PampacParser):
                         start = result.span[0]
                     end = result.span[1]
                 else:
-                    return Failure(context=context, location=location, message="Mismatch in Seq")
-            return Success(Result(data=datas, location=location, span=(start, end)), context)
+                    return Failure(
+                        context=context, location=location, message="Mismatch in Seq"
+                    )
+            return Success(
+                Result(data=datas, location=location, span=(start, end)), context
+            )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
@@ -1055,7 +1223,8 @@ class Seq(PampacParser):
                         if lvl == len(self.parsers) - 1:
                             yield newresult
                         else:
-                            yield from depthfirst(lvl+1, newresult)
+                            yield from depthfirst(lvl + 1, newresult)
+
             gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
             all = []
             best = None
@@ -1090,7 +1259,10 @@ class N(PampacParser):
     """
     A parser that represents a sequence of k to l matching parsers, greedy.
     """
-    def __init__(self, parser, min=1, max=1, matchtype="first", select="first", until=None):
+
+    def __init__(
+        self, parser, min=1, max=1, matchtype="first", select="first", until=None
+    ):
         """
         Return a parser that matches min to max matches of parser in sequence. If until is specified, that
         parser is tried to match before each iteration and as soon as it matched, the parser succeeds.
@@ -1128,13 +1300,22 @@ class N(PampacParser):
                             datas.append(d)
                         loc = res.location
                         end = res.span[1]
-                        return Success(Result(datas, location=loc, span=(start, end)), context)
+                        return Success(
+                            Result(datas, location=loc, span=(start, end)), context
+                        )
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
                     if i < self.min:
-                        return Failure(context=context, location=location, message=f"Not at least {self.min} matches")
+                        return Failure(
+                            context=context,
+                            location=location,
+                            message=f"Not at least {self.min} matches",
+                        )
                     else:
-                        return Success(Result(data=datas, location=location, span=(start, end)), context)
+                        return Success(
+                            Result(data=datas, location=location, span=(start, end)),
+                            context,
+                        )
                 else:
                     result = ret.result(self.matchtype)
                     if first:
@@ -1157,10 +1338,18 @@ class N(PampacParser):
                     end = res.span[1]
                     for d in data:
                         datas.append(d)
-                    return Success(Result(datas, location=loc, span=(start, end)), context)
+                    return Success(
+                        Result(datas, location=loc, span=(start, end)), context
+                    )
                 else:
-                    return Failure(context=context, location=location, message="Until parser not successful")
-            return Success(Result(data=datas, location=location, span=(start, end)), context)
+                    return Failure(
+                        context=context,
+                        location=location,
+                        message="Until parser not successful",
+                    )
+            return Success(
+                Result(data=datas, location=location, span=(start, end)), context
+            )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
@@ -1208,6 +1397,7 @@ class N(PampacParser):
                             # if we have until, then the until above did not match so neither the normal parser
                             # nor the until did match so we do not have a success
                             return
+
             gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
             all = []
             best = None
