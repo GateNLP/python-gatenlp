@@ -18,9 +18,9 @@ from collections import UserDict
 import copy as lib_copy
 
 
-
 class Features(UserDict):
-    """A dict-like class for storing features, which are mappings from string feature names to
+    """
+    A dict-like class for storing features, which are mappings from string feature names to
     arbitrary feature values. If the Features instance is a field in another object where
     changes are getting logged in a change log, it should pass on the logger, a method for
     logging feature changes. Any copy of an instance of Features will not receive the logger,
@@ -81,14 +81,16 @@ class Features(UserDict):
         :return:
         """
         if featurename is None or not isinstance(featurename, str):
-            raise Exception("A feature name must be a string, not {}".format(type(featurename)))
+            raise Exception(
+                "A feature name must be a string, not {}".format(type(featurename))
+            )
         if self._logger:
             self._logger("feature:set", feature=featurename, value=featurevalue)
         self.data[featurename] = featurevalue
 
     def clear(self):
         """Remove all features.
-        
+
         :return:
 
         Args:
@@ -101,7 +103,8 @@ class Features(UserDict):
         self.data.clear()
 
     def copy(self, deep=False):
-        """Return a shallow (or deep if deep=True) copy of the features. The result is another
+        """
+        Return a shallow (or deep if deep=True) copy of the features. The result is another
         instance of Features which is detached from the owner and which does not log
         the changes. However, if the copy is shallow and feature values are references
         to mutable objects, they can still get modified in the original set (without
@@ -142,7 +145,7 @@ class Features(UserDict):
 
         """
         ret = dict()
-        for k,v in self.data.items():
+        for k, v in self.data.items():
             if k.startswith("__"):
                 continue
             if deepcopy:
@@ -155,7 +158,7 @@ class Features(UserDict):
     def from_dict(thedict, deepcopy=False, memo=None):
         """
         Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
-        
+
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:

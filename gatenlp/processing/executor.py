@@ -1,8 +1,6 @@
 from gatenlp.processing.pipeline import _has_method
 
-__pdoc__ = {
-    "Annotator.__call__": True
-}
+__pdoc__ = {"Annotator.__call__": True}
 
 
 class SerialCorpusExecutor:
@@ -11,14 +9,16 @@ class SerialCorpusExecutor:
     in turn, or on a source and destination, where each document from the source gets processed and all documents
     the are the result of processing get appended to the destination.
     """
-    def __init__(self,
-                 annotator,
-                 corpus=None,
-                 source=None,
-                 destination=None,
-                 readonly=False,
-                 exit_on_error=False
-                 ):
+
+    def __init__(
+        self,
+        annotator,
+        corpus=None,
+        source=None,
+        destination=None,
+        readonly=False,
+        exit_on_error=False,
+    ):
         """
         Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
         and no destination is specified,
@@ -43,7 +43,9 @@ class SerialCorpusExecutor:
               readonly is True.
             readonly: if True, nothing is saved back to the corpus or appended to the destination.
         """
-        if (corpus is None and source is None) or (corpus is not None and source is not None):
+        if (corpus is None and source is None) or (
+            corpus is not None and source is not None
+        ):
             raise Exception("Exactly one of corpus or source must be specified")
         self.corpus = corpus
         self.source = source
@@ -75,7 +77,9 @@ class SerialCorpusExecutor:
                         continue
                 if self.destination is None:
                     if id(ret) != id(doc):
-                        raise Exception("Cannot update corpus if Annotator does not return the processed document")
+                        raise Exception(
+                            "Cannot update corpus if Annotator does not return the processed document"
+                        )
                     self.corpus[idx] = doc
                 else:
                     if ret is not None:
@@ -114,4 +118,3 @@ class SerialCorpusExecutor:
         else:
             return None
         # NOTE: since this is single-threaded, no reduce call is necessary!
-

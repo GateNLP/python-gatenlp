@@ -34,17 +34,21 @@ ACTIONS = {
     ACTION_ADD_ANNSET,
     ACTION_ADD_ANN,
     ACTION_DEL_ANN,
-    ACTION_CLEAR_ANNS
+    ACTION_CLEAR_ANNS,
 }
 
 # flags that describe how to handle adding an annotation to a document from a changelog if an annotation
 # with the same annotation id already exists in the set.
-ADDANN_REPLACE_ANNOTATION = "replace-annotation" # completely replace with the new one
-ADDANN_REPLACE_FEATURES = "replace-features" # just completely replace the features
-ADDANN_UPDATE_FEATURES = "update-features" # add new and update existing features, do not delete any
-ADDANN_ADD_NEW_FEATURES = "add-new-features" # only add new features
-ADDANN_IGNORE = "ignore" # ignore that annotation, do nothing
-ADDANN_ADD_WITH_NEW_ID = "add-with-new-id"  # add that annotation with a new id to the set
+ADDANN_REPLACE_ANNOTATION = "replace-annotation"  # completely replace with the new one
+ADDANN_REPLACE_FEATURES = "replace-features"  # just completely replace the features
+ADDANN_UPDATE_FEATURES = (
+    "update-features"  # add new and update existing features, do not delete any
+)
+ADDANN_ADD_NEW_FEATURES = "add-new-features"  # only add new features
+ADDANN_IGNORE = "ignore"  # ignore that annotation, do nothing
+ADDANN_ADD_WITH_NEW_ID = (
+    "add-with-new-id"  # add that annotation with a new id to the set
+)
 
 
 __pdoc__ = {
@@ -95,7 +99,7 @@ class ChangeLog:
           change: dict describing the action/modification
         """
         assert isinstance(change, dict)
-        action = change.get("command",None)
+        action = change.get("command", None)
         if action is None:
             raise Exception("Odd change, does not have 'command' key")
         if self._store:
@@ -117,7 +121,7 @@ class ChangeLog:
         Args:
           method: an object method method for converting offsets from or to python.
           replace: if True, modifies the original change objects in the changelog, otherwise, uses copies (Default value = False)
-          method: Callable: 
+          method: Callable:
 
         Returns:
           the modified changes, a reference to the modified changes list of the instance
@@ -194,16 +198,15 @@ class ChangeLog:
         if "offset_type" in kwargs and kwargs["offset_type"] != offset_type:
             om = kwargs.get("offset_mapper")
             if om is None:
-                raise Exception("Need to convert offsets, but no offset_mapper parameter given")
+                raise Exception(
+                    "Need to convert offsets, but no offset_mapper parameter given"
+                )
             offset_type = kwargs["offset_type"]
             if offset_type == OFFSET_TYPE_JAVA:
                 changes = self._fixup_changes(om.convert_to_java, replace=False)
             else:
                 changes = self._fixup_changes(om.convert_to_python, replace=False)
-        return {
-            "changes": changes,
-            "offset_type": offset_type
-        }
+        return {"changes": changes, "offset_type": offset_type}
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
@@ -226,14 +229,24 @@ class ChangeLog:
             elif "document" in kwargs:
                 om = OffsetMapper(kwargs.get("document"))
             else:
-                raise Exception("Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'")
+                raise Exception(
+                    "Loading a changelog with offset_type JAVA, need kwarg 'offset_mapper' or 'document'"
+                )
             cl._fixup_changes(om.convert_to_python)
         return cl
 
-    def save(self, whereto, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
+    def save(
+        self,
+        whereto,
+        fmt="json",
+        offset_type=None,
+        offset_mapper=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """
         Save the document in the given format.
-        
+
         Additional keyword parameters for format "json":
             as_array: boolean, if True stores as array instead of dictionary
 
@@ -247,12 +260,26 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(whereto, fmt)
-        saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        saver(
+            ChangeLog,
+            self,
+            to_ext=whereto,
+            offset_type=offset_type,
+            offset_mapper=offset_mapper,
+            **kwargs,
+        )
 
-    def save_mem(self, fmt="json", offset_type=None, offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
+    def save_mem(
+        self,
+        fmt="json",
+        offset_type=None,
+        offset_mapper=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """
         Serialize and save to a string.
-        
+
         Additional keyword parameters for format "json":
             as_array: boolean, if True stores as array instead of dictionary, using to
 
@@ -265,10 +292,23 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(None, fmt)
-        return saver(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        return saver(
+            ChangeLog,
+            self,
+            to_mem=True,
+            offset_type=offset_type,
+            offset_mapper=offset_mapper,
+            **kwargs,
+        )
 
     @staticmethod
-    def load(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
+    def load(
+        wherefrom,
+        fmt="json",
+        offset_mapper=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """
         Load ChangeLog from some serialization.
 
@@ -284,13 +324,23 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(wherefrom, fmt)
-        chl = loader(ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        chl = loader(
+            ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs
+        )
         if chl.offset_type == OFFSET_TYPE_JAVA:
-            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+            chl.fixup_changes(
+                offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+            )
         return chl
 
     @staticmethod
-    def load_mem(wherefrom, fmt="json", offset_mapper=None, mod="gatenlp.serialization.default", **kwargs):
+    def load_mem(
+        wherefrom,
+        fmt="json",
+        offset_mapper=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """
         Load a ChangeLog from a string representation in the given format.
 
@@ -308,9 +358,13 @@ class ChangeLog:
         """
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(None, fmt)
-        chl = loader(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        chl = loader(
+            ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs
+        )
         if chl.offset_type == OFFSET_TYPE_JAVA:
-            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+            chl.fixup_changes(
+                offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+            )
         return chl
 
     def pprint(self, out=None):

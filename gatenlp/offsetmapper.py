@@ -27,10 +27,10 @@ class OffsetMapper:
         cur_java_off = 0
         python2java_list = [0]
         java2python_list = []
-        last = len(text)-1
+        last = len(text) - 1
         for i, c in enumerate(text):
             # get the java size of the current character
-            width = int(len(c.encode("utf-16be"))/2)
+            width = int(len(c.encode("utf-16be")) / 2)
             assert width == 1 or width == 2
             # the next java offset we get by incrementing the java offset by the with of the current char
             cur_java_off += width
@@ -45,11 +45,11 @@ class OffsetMapper:
             self.java2python = None
             self.bijective = len(text)
         else:
-            python2java_list.append(python2java_list[-1]+1)
+            python2java_list.append(python2java_list[-1] + 1)
             # self.python2java = np.array(python2java_list, np.int32)
             self.python2java = python2java_list
             # self.java2python = np.array(java2python_list, np.int32)
-            java2python_list.append(java2python_list[-1]+1)
+            java2python_list.append(java2python_list[-1] + 1)
             self.java2python = java2python_list
             self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
 
@@ -57,7 +57,7 @@ class OffsetMapper:
         """
 
         Args:
-          offsets: 
+          offsets:
           from_table:  (Default value = None)
 
         Returns:

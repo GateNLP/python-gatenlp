@@ -11,10 +11,10 @@ from gatenlp.utils import support_annotation_or_set
 from collections import namedtuple
 from recordclass import structclass
 
-@total_ordering
-#class Span(namedtuple("Span", ["start", "end"])):
-class Span(structclass("Span", ("start", "end"))):
 
+@total_ordering
+# class Span(namedtuple("Span", ["start", "end"])):
+class Span(structclass("Span", ("start", "end"))):
     def __init__(self, start, end):
         self.start = start
         self.end = end
@@ -155,7 +155,7 @@ class Span(structclass("Span", ("start", "end"))):
         Return the gep between this span and the other span. This is the distance between
         the last character of the first span and the first character of the second span in
         sequence, so it is always independent of the order of the two span.
-        
+
         This is negative if the spans overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
@@ -187,7 +187,7 @@ class Span(structclass("Span", ("start", "end"))):
         Checks if this span is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
         are after the start of this span and before the end of this span.
-        
+
         If end is not given, then the method checks if start is an offset of a character
         contained in the span.
 

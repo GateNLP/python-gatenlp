@@ -38,7 +38,7 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     if getstr is None:
         getstr = lambda x: x
     if cmp is None:
-        cmp = lambda x,y: x == y
+        cmp = lambda x, y: x == y
     ltxt = len(text)
     ret = []
     ret2 = []
@@ -63,7 +63,9 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
         else:
             start += 1
     if item_idx != len(items):
-        raise Exception("Not all items matched but {} of {}".format(item_idx, len(items)))
+        raise Exception(
+            "Not all items matched but {} of {}".format(item_idx, len(items))
+        )
     if unmatched and lastunmatched != ltxt:
         ret2.append((lastunmatched, ltxt))
     if unmatched:
@@ -73,7 +75,7 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
 
 
 start = 0
-LOGGING_FORMAT = '%(asctime)s|%(levelname)s|%(name)s|%(message)s'
+LOGGING_FORMAT = "%(asctime)s|%(levelname)s|%(name)s|%(message)s"
 
 
 def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
@@ -142,7 +144,9 @@ def run_start(logger=None, name=None, lvl=None):
     global start
     if logger is None:
         logger = init_logger(name=name, lvl=lvl)
-    logger.info("Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
+    logger.info(
+        "Started: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S"))
+    )
     start = time.time()
     return start
 
@@ -156,10 +160,12 @@ def run_stop(logger=None, name=None):
     """
     if logger is None:
         logger = init_logger(name=name)
-    logger.info("Stpped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S")))
+    logger.info(
+        "Stpped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S"))
+    )
     if start == 0:
         logger.warning("Run timing not set up properly, no time!")
-        return "",0
+        return "", 0
     stop = time.time()
     delta = stop - start
     deltastr = str(datetime.timedelta(seconds=delta))
@@ -201,9 +207,11 @@ def support_annotation_or_set(method):
     Returns:
         the adapted method which now takes an annotation or annotation set as well as start/end offsets.
     """
+
     @wraps(method)
     def _support_annotation_or_set(self, *args, **kwargs):
         from gatenlp.annotation import Annotation
+
         annid = None
         if len(args) == 1:
             obj = args[0]
@@ -212,9 +220,11 @@ def support_annotation_or_set(method):
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
             elif isinstance(obj, numbers.Integral):
-                left, right = obj, obj+1
+                left, right = obj, obj + 1
             else:
-                raise Exception("Not an annotation or an annotation set or pair: {}".format(args[0]))
+                raise Exception(
+                    "Not an annotation or an annotation set or pair: {}".format(args[0])
+                )
             if isinstance(obj, Annotation):
                 annid = obj.id
         else:
@@ -227,4 +237,3 @@ def support_annotation_or_set(method):
             return method(self, left, right, **kwargs)
 
     return _support_annotation_or_set
-

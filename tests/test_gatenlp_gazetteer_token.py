@@ -11,13 +11,16 @@ DOC1_TEXT = "A simple document which has a number of words in it which we will u
 def makedoc1():
     doc1 = Document(DOC1_TEXT)
     set1 = doc1.annset()
-    whitespaces = [m for m in re.finditer(r"[\s,.!?]+|^[\s,.!?]*|[\s,.!?]*$", DOC1_TEXT)]
-    nrtokens = len(whitespaces)-1
+    whitespaces = [
+        m for m in re.finditer(r"[\s,.!?]+|^[\s,.!?]*|[\s,.!?]*$", DOC1_TEXT)
+    ]
+    nrtokens = len(whitespaces) - 1
     for k in range(nrtokens):
-        fromoff=whitespaces[k].end()
-        tooff=whitespaces[k+1].start()
+        fromoff = whitespaces[k].end()
+        tooff = whitespaces[k + 1].start()
         set1.add(fromoff, tooff, "Token")
     return doc1
+
 
 # no reference to list features
 GAZLIST1 = [
@@ -40,8 +43,8 @@ GAZLIST2 = [
 # three lists, so we have three elements in the list with features for each list
 LISTFEATURES1 = {"list": 0, "feat1": "somevalue1"}
 
-class TestTokenGazetteer1:
 
+class TestTokenGazetteer1:
     def test_create(self):
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         # print("\n!!!!!!!!!!! nodes=", gaz.nodes, "\n")
@@ -68,12 +71,12 @@ class TestTokenGazetteer1:
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        #print("\n!!!!! DEBUG: tokens=", toks, "\n")
+        # print("\n!!!!! DEBUG: tokens=", toks, "\n")
         ret = gaz.match(toks, doc=doc)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
         ret = gaz.match(toks, doc=doc, idx=1)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
         assert len(matches) == 1
@@ -95,7 +98,7 @@ class TestTokenGazetteer1:
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
         ret = gaz.match(toks, doc=doc, idx=1)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
         assert len(matches) == 1
@@ -114,12 +117,12 @@ class TestTokenGazetteer1:
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        #print("\n!!!!! DEBUG: tokens=", toks, "\n")
+        # print("\n!!!!! DEBUG: tokens=", toks, "\n")
         ret = gaz.match(toks, doc=doc)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
         ret = gaz.match(toks, doc=doc, idx=4, all=False)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
         assert len(matches) == 1
@@ -135,12 +138,12 @@ class TestTokenGazetteer1:
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        #print("\n!!!!! DEBUG: tokens=", toks, "\n")
+        # print("\n!!!!! DEBUG: tokens=", toks, "\n")
         ret = gaz.match(toks, doc=doc)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
         ret = gaz.match(toks, doc=doc, idx=4, all=True)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
         assert len(matches) == 3
@@ -166,7 +169,7 @@ class TestTokenGazetteer1:
         doc = makedoc1()
         toks = list(doc.annset())
         ret = gaz.find(toks, doc=doc, fromidx=0)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 3
         matches, maxlen, idx = ret
         assert len(matches) == 1
@@ -183,7 +186,7 @@ class TestTokenGazetteer1:
         doc = makedoc1()
         toks = list(doc.annset())
         ret = gaz.find(toks, doc=doc, fromidx=2, all=True)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 3
         matches, maxlen, idx = ret
         assert idx == 4
@@ -209,7 +212,7 @@ class TestTokenGazetteer1:
         doc = makedoc1()
         toks = list(doc.annset())
         ret = gaz.find(toks, doc=doc, fromidx=5, all=True)
-        #print("\n!!!!! DEBUG: ret=", ret, "\n")
+        # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 3
         matches, maxlen, idx = ret
         assert maxlen == 0
@@ -227,7 +230,7 @@ class TestTokenGazetteer1:
         m1_0 = m1[0]
         assert m1_0.start == 1
         assert m1_0.end == 3
-        assert m1_0.data == [{'match': 1}]
+        assert m1_0.data == [{"match": 1}]
         m2 = ret[1]
         assert len(m2) == 3
 

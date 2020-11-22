@@ -14,6 +14,7 @@ class Normalizer(Annotator):
     """
     Base class of all normalizers.
     """
+
     pass
 
 
@@ -21,4 +22,5 @@ class TextNormalizer(Normalizer):
     """
     NOT YET IMPLEMENTED
     """
+
     pass

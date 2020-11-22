@@ -24,9 +24,7 @@ class Annotation:
     """
 
     def __init__(
-            self, start: int, end: int, anntype: str,
-            features=None,
-            annid: int = 0
+        self, start: int, end: int, anntype: str, features=None, annid: int = 0
     ):
         """
         This constructor creates a new annotation instance. Once an annotation has been created,
@@ -43,16 +41,24 @@ class Annotation:
             annid: the id of the annotation
         """
         if end < start:
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start > end")
+            raise Exception(
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start > end"
+            )
         if not isinstance(annid, int):
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int")
+            raise Exception(
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int"
+            )
         if isinstance(features, int):
-            raise Exception(f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int")
+            raise Exception(
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int"
+            )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
             raise Exception("Parameter annid must be an int, mixed up with features?")
         if features is not None and isinstance(features, int):
-            raise Exception("Parameter features must not be an int: mixed up with annid?")
+            raise Exception(
+                "Parameter features must not be an int: mixed up with annid?"
+            )
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
         self._type = anntype
@@ -113,11 +119,13 @@ class Annotation:
     # serialisable (except None keys for maps).
     # For performance reasons we check the feature name but not the value (maybe make checking optional
     # on by default but still optional?)
-    def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
+    def _log_feature_change(
+        self, command: str, feature: str = None, value=None
+    ) -> None:
         """
 
         Args:
-          command: str: 
+          command: str:
           feature: str:  (Default value = None)
           value:  (Default value = None)
 
@@ -126,12 +134,13 @@ class Annotation:
         """
         if self._changelog() is None:
             return
-        command = "ann-"+command
+        command = "ann-" + command
         ch = {
             "command": command,
             "type": "annotation",
             "set": self._owner_set.name,
-            "id": self.id}
+            "id": self.id,
+        }
         if feature is not None:
             ch["feature"] = feature
         if value is not None:
@@ -147,8 +156,13 @@ class Annotation:
             return False
         if self is other:
             return True
-        return self.start == other.start and self.end == other.end and \
-               self.type == other.type and self.id == other.id and self._features == other._features
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.type == other.type
+            and self.id == other.id
+            and self._features == other._features
+        )
 
     def __hash__(self):
         """
@@ -177,7 +191,9 @@ class Annotation:
         """
         String representation of the annotation.
         """
-        return "Annotation({},{},{},features={},id={})".format(self.start, self.end, self.type, self._features, self.id)
+        return "Annotation({},{},{},features={},id={})".format(
+            self.start, self.end, self.type, self._features, self.id
+        )
 
     @property
     def length(self) -> int:
@@ -301,7 +317,7 @@ class Annotation:
         """Return the gep between this annotation and the other annotation. This is the distance between
         the last character of the first annotation and the first character of the second annotation in
         sequence, so it is always independent of the order of the two annotations.
-        
+
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
@@ -332,7 +348,7 @@ class Annotation:
         """Checks if this annotation is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
         are after the start of this annotation and before the end of this annotation.
-        
+
         If end is not given, then the method checks if start is an offset of a character
         contained in the span.
 
@@ -366,7 +382,9 @@ class Annotation:
             the dictionary representation of the Annotation
         """
         if (offset_mapper and not offset_type) or (not offset_mapper and offset_type):
-            raise Exception("offset_mapper and offset_type must be specified both or none")
+            raise Exception(
+                "offset_mapper and offset_type must be specified both or none"
+            )
         if offset_mapper is not None:
             if offset_type == OFFSET_TYPE_JAVA:
                 start = offset_mapper.convert_to_java(self._start)
@@ -375,7 +393,9 @@ class Annotation:
                 start = offset_mapper.convert_to_python(self._start)
                 end = offset_mapper.convert_to_python(self._end)
             else:
-                raise Exception(f"Not a valid offset type: {offset_type}, must be 'p' or 'j'")
+                raise Exception(
+                    f"Not a valid offset type: {offset_type}, must be 'p' or 'j'"
+                )
         else:
             start = self._start
             end = self._end
@@ -402,13 +422,15 @@ class Annotation:
             end=dictrepr.get("end"),
             anntype=dictrepr.get("type"),
             annid=dictrepr.get("id"),
-            features=dictrepr.get("features")
+            features=dictrepr.get("features"),
         )
         ann._owner_set = owner_set
         return ann
 
     def __copy__(self):
-        return Annotation(self._start, self._end, self._type, annid=self._id, features=self._features)
+        return Annotation(
+            self._start, self._end, self._type, annid=self._id, features=self._features
+        )
 
     def copy(self):
         """
@@ -421,7 +443,9 @@ class Annotation:
             fts = lib_copy.deepcopy(self._features.to_dict(), memo=memo)
         else:
             fts = None
-        return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
+        return Annotation(
+            self._start, self._end, self._type, annid=self._id, features=fts
+        )
 
     def deepcopy(self, memo=None):
         """

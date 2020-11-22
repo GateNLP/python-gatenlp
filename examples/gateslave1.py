@@ -15,8 +15,10 @@ pdoc = gs.gdoc2pdoc(doc1)
 
 print("Python Document:", pdoc)
 
-gs.slave.loadMavenPlugin("uk.ac.gate.plugins","annie","8.6")
-pipeline = gs.slave.loadPipelineFromPlugin("uk.ac.gate.plugins", "annie", "/resources/ANNIE_with_defaults.gapp")
+gs.slave.loadMavenPlugin("uk.ac.gate.plugins", "annie", "8.6")
+pipeline = gs.slave.loadPipelineFromPlugin(
+    "uk.ac.gate.plugins", "annie", "/resources/ANNIE_with_defaults.gapp"
+)
 
 gs.slave.run4Document(pipeline, doc1)
 

@@ -7,9 +7,10 @@ gazetteer lists.
 import os
 from collections import defaultdict
 import logging
+
 # from dataclasses import dataclass
 from recordclass import structclass
-from gatenlp.document import  Document
+from gatenlp.document import Document
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
@@ -18,6 +19,7 @@ class Gazetteer(Annotator):
     """
     Base class of all gazetteer classes.
     """
+
     def __call__(self, *args, **kwargs):
         raise NotImplemented
 
@@ -31,7 +33,9 @@ class Gazetteer(Annotator):
 # !! structclass by default does NOT support cyclic garbage collection which should be ok for us
 
 
-TokenGazetteerMatch = structclass("TokenGazetteerMatch", ("start", "end", "match", "data", "listidx"))
+TokenGazetteerMatch = structclass(
+    "TokenGazetteerMatch", ("start", "end", "match", "data", "listidx")
+)
 
 
 class TokenGazetteerNode(object):
@@ -41,6 +45,7 @@ class TokenGazetteerNode(object):
     The continuations attribute contains None or a list of multi token matches that
     start with the first token and the entry data if we have a match (all tokens match).
     """
+
     __slots__ = ("is_match", "data", "nodes", "listidx")
 
     def __init__(self, is_match=None, data=None, nodes=None, listidx=None):
@@ -78,37 +83,30 @@ def tokentext_getter(token, doc=None, feature=None):
 
 # TODO: allow output annotation type to be set from the match or from the list!
 class TokenGazetteer:
-
-    def __init__(self,
-                 source,
-                 fmt="gate-def",
-                 source_sep="\t",
-                 source_encoding="UTF-8",
-
-                 cache_source=None,
-
-                 tokenizer=None,
-
-                 all=False,
-                 skip=True,
-
-                 outset="",
-                 outtype="Lookup",
-
-                 annset="",
-                 tokentype="Token",
-                 feature=None,
-                 septype=None,
-                 splittype=None,
-                 withintype=None,
-
-                 mapfunc=None,
-                 ignorefunc=None,
-                 getterfunc=None,
-
-                 listfeatures=None,
-                 listtype=None,
-                 ):
+    def __init__(
+        self,
+        source,
+        fmt="gate-def",
+        source_sep="\t",
+        source_encoding="UTF-8",
+        cache_source=None,
+        tokenizer=None,
+        all=False,
+        skip=True,
+        outset="",
+        outtype="Lookup",
+        annset="",
+        tokentype="Token",
+        feature=None,
+        septype=None,
+        splittype=None,
+        withintype=None,
+        mapfunc=None,
+        ignorefunc=None,
+        getterfunc=None,
+        listfeatures=None,
+        listtype=None,
+    ):
         """
 
         Args:
@@ -173,14 +171,15 @@ class TokenGazetteer:
         self.logger.setLevel(logging.DEBUG)
         self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype)
 
-    def append(self,
-               source,
-               fmt="gate-def",
-               source_sep="\t",
-               source_encoding="UTF-8",
-               listfeatures=None,
-               listtype=None,
-               ):
+    def append(
+        self,
+        source,
+        fmt="gate-def",
+        source_sep="\t",
+        source_encoding="UTF-8",
+        listfeatures=None,
+        listtype=None,
+    ):
         """
         This method appends more entries to gazetteer.
 
@@ -208,7 +207,7 @@ class TokenGazetteer:
                 self.listtypes.append(listtype)
             else:
                 self.listtypes.append(self.outtype)
-            listidx = len(self.listfeatures)-1
+            listidx = len(self.listfeatures) - 1
             for el in source:
                 entry = el[0]
                 data = el[1]
@@ -217,7 +216,7 @@ class TokenGazetteer:
             if listfeatures is None:
                 listfeatures = {}
             if listtype is None:
-                listtype =self.outtype
+                listtype = self.outtype
             with open(source, "rt", encoding=source_encoding) as infp:
                 for line in infp:
                     line = line.rstrip("\n\r")
@@ -258,17 +257,28 @@ class TokenGazetteer:
                                 # on the tokenizer????
                                 tokenanns = list(tmpdoc.annset().with_type("Token"))
                                 if self.getterfunc:
-                                    tokenstrings = [self.getterfunc(a, doc=tmpdoc) for a in tokenanns]
+                                    tokenstrings = [
+                                        self.getterfunc(a, doc=tmpdoc)
+                                        for a in tokenanns
+                                    ]
                                 else:
                                     tokenstrings = [tmpdoc[a] for a in tokenanns]
                                 if self.mapfunc:
-                                    tokenstrings = [self.mapfunc(s) for s in tokenstrings]
+                                    tokenstrings = [
+                                        self.mapfunc(s) for s in tokenstrings
+                                    ]
                                 if self.ignorefunc:
-                                    tokenstrings = [s for s in tokenstrings if not self.ignorefunc(s)]
+                                    tokenstrings = [
+                                        s
+                                        for s in tokenstrings
+                                        if not self.ignorefunc(s)
+                                    ]
                             else:
                                 tokenstrings = entry.split()  # just split on whitespace
                             if len(tokenstrings) == 0:
-                                self.logger.warn(f"File {listfile}, skipping line {linenr}, no tokens left: {listline}")
+                                self.logger.warn(
+                                    f"File {listfile}, skipping line {linenr}, no tokens left: {listline}"
+                                )
                                 continue
                             if len(entry) > 1:
                                 feats = {}
@@ -277,7 +287,7 @@ class TokenGazetteer:
                                     feats[fname] = fval
                             else:
                                 feats = None
-                            listidx = len(self.listfeatures)-1
+                            listidx = len(self.listfeatures) - 1
                             self.add(tokenstrings, feats, listidx=listidx)
         else:
             raise Exception(f"TokenGazetteer format {fmt} not known")
@@ -304,7 +314,11 @@ class TokenGazetteer:
             entry = [entry]
         node = None
         i = 0
-        for token in entry:  # each "token" is a string or None, where None indicates a separator
+        for (
+            token
+        ) in (
+            entry
+        ):  # each "token" is a string or None, where None indicates a separator
             if self.mapfunc is not None:
                 token = self.mapfunc(token)
             if self.ignorefunc is not None and self.ignorefunc(token):
@@ -422,9 +436,13 @@ class TokenGazetteer:
                 longest = 1
                 # TODO: make this work with list data!
                 if matchfunc:
-                    match = matchfunc(idx, idx + 1, thistokens.copy(), node.data, node.listidx)
+                    match = matchfunc(
+                        idx, idx + 1, thistokens.copy(), node.data, node.listidx
+                    )
                 else:
-                    match = TokenGazetteerMatch(idx, idx + 1, thistokens.copy(), node.data, node.listidx)
+                    match = TokenGazetteerMatch(
+                        idx, idx + 1, thistokens.copy(), node.data, node.listidx
+                    )
                 thismatches.append(match)
             j = idx + 1  # index into text tokens
             nignored = 0
@@ -450,15 +468,23 @@ class TokenGazetteer:
                         if node.is_match:
                             if matchfunc:
                                 match = matchfunc(
-                                    idx, idx + len(thistokens) + nignored,
+                                    idx,
+                                    idx + len(thistokens) + nignored,
                                     thistokens.copy(),
-                                    node.data, node.listidx)
+                                    node.data,
+                                    node.listidx,
+                                )
                             else:
                                 match = TokenGazetteerMatch(
-                                    idx, idx + len(thistokens) + nignored,
+                                    idx,
+                                    idx + len(thistokens) + nignored,
                                     thistokens.copy(),
-                                    node.data, node.listidx)
-                            debugtxt = " ".join([doc[tokens[i]] for i in range(match.start, match.end)])
+                                    node.data,
+                                    node.listidx,
+                                )
+                            debugtxt = " ".join(
+                                [doc[tokens[i]] for i in range(match.start, match.end)]
+                            )
                             # TODO: should LONGEST get calculated including ignored tokens or not?
                             if all:
                                 thismatches.append(match)
@@ -479,8 +505,16 @@ class TokenGazetteer:
             # first token did not match, nothing to be found
             return [], 0
 
-    def find(self, tokens, doc=None, all=None,
-                  fromidx=None, toidx=None, endidx=None, matchfunc=None):
+    def find(
+        self,
+        tokens,
+        doc=None,
+        all=None,
+        fromidx=None,
+        toidx=None,
+        endidx=None,
+        matchfunc=None,
+    ):
         """
         Find the next match in the given index range and return a tuple with two elements: the first element
         if the list of matches, empty if no match was found, the second element is the index where the matches
@@ -506,24 +540,31 @@ class TokenGazetteer:
             all = self.all
         idx = fromidx
         if toidx is None:
-            toidx = len(tokens)-1
+            toidx = len(tokens) - 1
         if endidx is None:
             endidx = len(tokens)
         while idx <= toidx:
-            matches, long = self.match(tokens, idx=idx, doc=doc, all=all, endidx=endidx, matchfunc=matchfunc)
+            matches, long = self.match(
+                tokens, idx=idx, doc=doc, all=all, endidx=endidx, matchfunc=matchfunc
+            )
             if long == 0:
                 idx += 1
                 continue
             return matches, long, idx
         return [], 0, None
 
-
-    def find_all(self, tokens, doc=None,
-                 all=None, skip=None,
-                 fromidx=None, toidx=None, endidx=None,
-                 matchfunc=None,
-                 # reverse=True,
-                 ):
+    def find_all(
+        self,
+        tokens,
+        doc=None,
+        all=None,
+        skip=None,
+        fromidx=None,
+        toidx=None,
+        endidx=None,
+        matchfunc=None,
+        # reverse=True,
+    ):
         """
         Find gazetteer entries in a sequence of tokens.
         Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
@@ -559,19 +600,26 @@ class TokenGazetteer:
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l-1
+            toidx = l - 1
         if fromidx >= l:
             yield matches
             return
         if toidx >= l:
-            toidx = l-1
+            toidx = l - 1
         if fromidx > toidx:
             yield matches
             return
         idx = fromidx
         while idx <= toidx:
-            matches, maxlen, idx = self.find(tokens, doc=doc, all=all, fromidx=idx, endidx=endidx, toidx=toidx,
-                                             matchfunc=matchfunc)
+            matches, maxlen, idx = self.find(
+                tokens,
+                doc=doc,
+                all=all,
+                fromidx=idx,
+                endidx=endidx,
+                toidx=toidx,
+                matchfunc=matchfunc,
+            )
             if idx is None:
                 return
             yield matches
@@ -580,10 +628,17 @@ class TokenGazetteer:
             else:
                 idx += 1
 
-    def __call__(self, doc,
-                 annset=None, tokentype=None, septype=None, splittype=None, withintype=None,
-                 all=None, skip=None,
-                 ):
+    def __call__(
+        self,
+        doc,
+        annset=None,
+        tokentype=None,
+        septype=None,
+        splittype=None,
+        withintype=None,
+        all=None,
+        skip=None,
+    ):
         """
         Apply the gazetteer to the document and annotate all matches.
 
@@ -639,10 +694,14 @@ class TokenGazetteer:
             for matches in self.find_all(tokens, doc=doc):
                 for match in matches:
                     starttoken = tokens[match.start]
-                    endtoken = tokens[match.end-1]  # end is the index after the last match!!
+                    endtoken = tokens[
+                        match.end - 1
+                    ]  # end is the index after the last match!!
                     startoffset = starttoken.start
                     endoffset = endtoken.end
-                    if match.data: # TODO: for now data and listidx are either both None or lists with same len
+                    if (
+                        match.data
+                    ):  # TODO: for now data and listidx are either both None or lists with same len
                         for data, listidx in zip(match.data, match.listidx):
                             outtype = self.outtype
                             feats = {}
@@ -659,6 +718,7 @@ class TokenGazetteer:
                         outset.add(startoffset, endoffset, self.outtype)
         return doc
 
+
 # TODO: Implement the StringGazetteer!!!!!!!!!!!!!!!!!!!!!!
 
 # NOTE: Match was a dataclass originally
@@ -674,6 +734,7 @@ class _Node:
     """
     Trie Node: represents the value and the children.
     """
+
     __slots__ = ("children", "value")
 
     def __init__(self):
@@ -685,16 +746,17 @@ class _Node:
         if self.value == _NOVALUE:
             print(f"Node(val=,children=[", end="", file=file)
         else:
-            print(f"Node(val={self.value},children=[",end="", file=file)
+            print(f"Node(val={self.value},children=[", end="", file=file)
         for c, n in self.children.items():
-            print(f"{c}:", end="",file=file)
+            print(f"{c}:", end="", file=file)
             n.print_node()
         print("])", end="", file=file)
 
 
 class StringGazetteer:
-
-    def __init__(self, ignorefunc=None, mapfunc=None, matcherdata=None, defaultdata=None):
+    def __init__(
+        self, ignorefunc=None, mapfunc=None, matcherdata=None, defaultdata=None
+    ):
         """
         Create a TokenMatcher.
         :param ignorefunc: a predicate that returns True for any token that should be ignored.
@@ -747,7 +809,9 @@ class StringGazetteer:
                 else:
                     node.value = data
 
-    def find(self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None):
+    def find(
+        self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None
+    ):
         """
         Find gazetteer entries in text.
         ignored.
@@ -764,11 +828,11 @@ class StringGazetteer:
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l-1
+            toidx = l - 1
         if fromidx >= l:
             return matches
         if toidx >= l:
-            toidx = l-1
+            toidx = l - 1
         if fromidx > toidx:
             return matches
         i = fromidx
@@ -788,11 +852,23 @@ class StringGazetteer:
             while node is not None:
                 if node.value != _NOVALUE:
                     # we found a match
-                    cur_len = k+1
+                    cur_len = k + 1
                     if matchmaker:
-                        match = matchmaker(i, i + k + 1, text[i:i+k+1], node.value, self.matcherdata)
+                        match = matchmaker(
+                            i,
+                            i + k + 1,
+                            text[i : i + k + 1],
+                            node.value,
+                            self.matcherdata,
+                        )
                     else:
-                        match = Match(i, i + k + 1, text[i:i+k+1], node.value, self.matcherdata)
+                        match = Match(
+                            i,
+                            i + k + 1,
+                            text[i : i + k + 1],
+                            node.value,
+                            self.matcherdata,
+                        )
                     if all:
                         matches.append(match)
                     else:
@@ -802,16 +878,16 @@ class StringGazetteer:
                             longest_match = match
                 while True:
                     k += 1
-                    if i+k >= len(text):
+                    if i + k >= len(text):
                         break
-                    chr = text[i+k]
+                    chr = text[i + k]
                     if self.ignorefunc and self.ignorefunc(chr):
                         continue
                     if self.mapfunc:
                         chr = self.mapfunc(chr)
                     node = node.children.get(chr)
                     break
-                if i+k >= len(text):
+                if i + k >= len(text):
                     break
             if not all and longest_match is not None:
                 matches.append(longest_match)

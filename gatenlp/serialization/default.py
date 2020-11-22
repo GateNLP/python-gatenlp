@@ -26,7 +26,8 @@ import warnings
 
 try:
     from bs4 import GuessedAtParserWarning
-    warnings.filterwarnings('ignore', category=GuessedAtParserWarning)
+
+    warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
 except:
     pass
 
@@ -34,7 +35,7 @@ except:
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see
 # if  we have a loder registered for that and then let the loader do the rest of the work. This may
-# need loaders to be able to use an already open stream. 
+# need loaders to be able to use an already open stream.
 
 
 def is_url(ext):
@@ -122,7 +123,16 @@ class JsonSerializer:
     """
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         """
 
         Args:
@@ -133,7 +143,7 @@ class JsonSerializer:
           offset_type: the offset type to use for saving, if None (default) use "p" (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
-          **kwargs: 
+          **kwargs:
         """
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -157,16 +167,18 @@ class JsonSerializer:
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -210,8 +222,8 @@ class JsonSerializer:
         """
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -223,22 +235,29 @@ class PlainTextSerializer:
     """ """
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             offset_type=None, offset_mapper=None,
-             encoding="UTF-8",
-             gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        encoding="UTF-8",
+        gzip=False,
+        **kwargs,
+    ):
         """
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = "UTF-8")
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -264,9 +283,9 @@ class PlainTextSerializer:
         """
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -274,19 +293,25 @@ class PlainTextSerializer:
         PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
-             encoding="UTF-8",
-             gzip=False, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        offset_mapper=None,
+        encoding="UTF-8",
+        gzip=False,
+        **kwargs,
+    ):
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = "UTF-8")
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -319,8 +344,8 @@ class PlainTextSerializer:
         """
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -332,18 +357,27 @@ class YamlSerializer:
     """ """
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         """
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -367,9 +401,9 @@ class YamlSerializer:
         """
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -377,16 +411,18 @@ class YamlSerializer:
         YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -400,7 +436,9 @@ class YamlSerializer:
                     from_mem = get_str_from_url(extstr, encoding="utf-8")
         if from_mem is not None:
             if gzip:
-                d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader)
+                d = yaml.load(
+                    decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader
+                )
             else:
                 d = yaml.load(from_mem, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
@@ -419,8 +457,8 @@ class YamlSerializer:
         """
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -440,8 +478,8 @@ class MsgPackSerializer:
 
         Args:
           doc: Document:
-          stream: 
-          doc: Document: 
+          stream:
+          doc: Document:
 
         Returns:
 
@@ -468,7 +506,7 @@ class MsgPackSerializer:
         """
 
         Args:
-          stream: 
+          stream:
 
         Returns:
 
@@ -505,17 +543,25 @@ class MsgPackSerializer:
         return doc
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         """
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -541,11 +587,11 @@ class MsgPackSerializer:
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -568,6 +614,7 @@ class MsgPackSerializer:
         doc = reader(f)
         return doc
 
+
 JS_JQUERY = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>'
 JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.11/gatenlp-ann-viewer.js"></script>'
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
@@ -587,26 +634,36 @@ class HtmlAnnViewerSerializer:
         Returns: Javascript string.
 
         """
-        jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
+        jsloc = os.path.join(
+            os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME
+        )
         if not os.path.exists(jsloc):
-            raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
+            raise Exception(
+                "Could not find JavsScript file, {} does not exist".format(jsloc)
+            )
         with open(jsloc, "rt", encoding="utf-8") as infp:
-            js = infp.read();
+            js = infp.read()
             js = """<script type="text/javascript">""" + js + "</script>"
         return js
 
     @staticmethod
     def init_javscript():
         import IPython
+
         IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             notebook=False,
-             offline=False,
-             add_js=True,
-             htmlid=None,
-             **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        notebook=False,
+        offline=False,
+        add_js=True,
+        htmlid=None,
+        **kwargs,
+    ):
         """Convert a document to HTML for visualizing it.
 
         Args:
@@ -633,11 +690,15 @@ class HtmlAnnViewerSerializer:
         doccopy = inst.deepcopy()
         doccopy.to_offset_type("j")
         json = doccopy.save_mem(fmt="json")
-        htmlloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", HTML_TEMPLATE_FILE_NAME)
+        htmlloc = os.path.join(
+            os.path.dirname(__file__), "_htmlviewer", HTML_TEMPLATE_FILE_NAME
+        )
         if not os.path.exists(htmlloc):
-            raise Exception("Could not find HTML template, {} does not exist".format(htmlloc))
+            raise Exception(
+                "Could not find HTML template, {} does not exist".format(htmlloc)
+            )
         with open(htmlloc, "rt", encoding="utf-8") as infp:
-            html = infp.read();
+            html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
         if notebook:
             str_start = "<!--STARTDIV-->"
@@ -659,11 +720,17 @@ class HtmlAnnViewerSerializer:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
             if add_js:
-                jsloc = os.path.join(os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME)
+                jsloc = os.path.join(
+                    os.path.dirname(__file__), "_htmlviewer", JS_GATENLP_FILE_NAME
+                )
                 if not os.path.exists(jsloc):
-                    raise Exception("Could not find JavsScript file, {} does not exist".format(jsloc))
+                    raise Exception(
+                        "Could not find JavsScript file, {} does not exist".format(
+                            jsloc
+                        )
+                    )
                 with open(jsloc, "rt", encoding="utf-8") as infp:
-                    js = infp.read();
+                    js = infp.read()
                     js = """<script type="text/javascript">""" + js + "</script>"
                 # html_ann_viewer_serializer_js_loaded = True
             else:
@@ -682,19 +749,27 @@ class HtmlLoader:
     """ """
 
     @staticmethod
-    def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load_rendered(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name="Original markups",
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           parser: (Default value = None)
           markup_set_name: (Default value = "Original markups")
           process_soup: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -702,8 +777,16 @@ class HtmlLoader:
         raise Exception("Rendered html parser not yet implemented")
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name="Original markups",
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name="Original markups",
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         """Load a HTML file.
 
         Args:
@@ -714,7 +797,7 @@ class HtmlLoader:
           offset_mapper: param kwargs: (Default value = None)
           from_ext: (Default value = None)
           parser: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -728,32 +811,66 @@ class HtmlLoader:
             if isurl:
                 from_mem = get_str_from_url(extstr)
         if from_mem:
-            bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
         nlels = {
-            "pre", "br", "p", "div", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "li",
-            "address", "article", "aside", "blockquote", "del", "figure", "figcaption",
-            "footer", "header", "hr", "ins", "main", "nav", "section", "summary", "input", "legend",
-            "option", "textarea", "bdi", "bdo", "center", "code", "dfn", "menu", "dir", "caption",
+            "pre",
+            "br",
+            "p",
+            "div",
+            "tr",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "li",
+            "address",
+            "article",
+            "aside",
+            "blockquote",
+            "del",
+            "figure",
+            "figcaption",
+            "footer",
+            "header",
+            "hr",
+            "ins",
+            "main",
+            "nav",
+            "section",
+            "summary",
+            "input",
+            "legend",
+            "option",
+            "textarea",
+            "bdi",
+            "bdo",
+            "center",
+            "code",
+            "dfn",
+            "menu",
+            "dir",
+            "caption",
         }
-        ignoreels = {
-            "script", "style"
-        }
+        ignoreels = {"script", "style"}
         docinfo = {"anninfos": [], "curoffset": 0, "curid": 0, "text": ""}
+
         def walktree(el):
             """
 
             Args:
-              el: 
+              el:
 
             Returns:
 
             """
-            #print("DEBUG: type=", type(el))
+            # print("DEBUG: type=", type(el))
             if isinstance(el, bs4.element.Doctype):
                 # print("DEBUG: got doctype", type(el))
                 pass
@@ -769,25 +886,30 @@ class HtmlLoader:
                 if el.name in ignoreels:
                     return
                 # for some tags we insert a new line before, but only if we do not already have one
-                if not docinfo["text"].endswith("\n") and \
-                        el.name in nlels:
+                if not docinfo["text"].endswith("\n") and el.name in nlels:
                     docinfo["text"] += "\n"
                     # print("DEBUG: adding newline before at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
-                ann = {"type": el.name, "features": el.attrs,
-                       "id": docinfo["curid"], "event": "start", "start": docinfo["curoffset"]}
+                ann = {
+                    "type": el.name,
+                    "features": el.attrs,
+                    "id": docinfo["curid"],
+                    "event": "start",
+                    "start": docinfo["curoffset"],
+                }
                 thisid = docinfo["curid"]
                 docinfo["anninfos"].append(ann)
                 docinfo["curid"] += 1
                 for child in el.children:
                     walktree(child)
                 # for some tags we insert a new line after
-                if not docinfo["text"].endswith("\n") and \
-                        el.name in nlels:
+                if not docinfo["text"].endswith("\n") and el.name in nlels:
                     docinfo["text"] += "\n"
                     # print("DEBUG: adding newline after at ", docinfo["curoffset"])
                     docinfo["curoffset"] += 1
-                docinfo["anninfos"].append({"event": "end", "id": thisid, "end": docinfo["curoffset"]})
+                docinfo["anninfos"].append(
+                    {"event": "end", "id": thisid, "end": docinfo["curoffset"]}
+                )
             elif isinstance(el, bs4.element.NavigableString):
                 # print("DEBUG: got text: ", el)
                 text = str(el)
@@ -797,6 +919,7 @@ class HtmlLoader:
                 docinfo["curoffset"] += len(el)
             else:
                 print("WARNING: odd element type", type(el))
+
         walktree(bs)
         # need to add the end corresponding to bs
         # print("DEBUG: got docinfo:\n",docinfo)
@@ -821,8 +944,12 @@ class HtmlLoader:
         annset = doc.annset(markup_set_name)
         for i in range(nstart):
             anninfo = id2anninfo[i]
-            annset.add(start=anninfo["start"], end=anninfo["end"], anntype=anninfo["type"],
-                       features=anninfo["features"])
+            annset.add(
+                start=anninfo["start"],
+                end=anninfo["end"],
+                anntype=anninfo["type"],
+                features=anninfo["features"],
+            )
         return doc
 
 
@@ -840,14 +967,16 @@ class GateXmlLoader:
         Returns:
 
         """
-        raise Exception("Cannot load GATE XML which contains gate.corpora.ObjectWrapper data")
+        raise Exception(
+            "Cannot load GATE XML which contains gate.corpora.ObjectWrapper data"
+        )
 
     @staticmethod
     def load(clazz, from_ext=None, ignore_unknown_types=False):
         """
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           ignore_unknown_types: (Default value = False)
 
@@ -857,6 +986,7 @@ class GateXmlLoader:
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
+
         isurl, extstr = is_url(from_ext)
         if isurl:
             xmlstring = get_str_from_url(extstr, encoding="utf-8")
@@ -876,7 +1006,7 @@ class GateXmlLoader:
             """
 
             Args:
-              feats: 
+              feats:
 
             Returns:
 
@@ -890,7 +1020,9 @@ class GateXmlLoader:
                         if el.get("className") == "java.lang.String":
                             name = el.text
                         else:
-                            raise Exception("Odd Feature Name type: " + el.get("className"))
+                            raise Exception(
+                                "Odd Feature Name type: " + el.get("className")
+                            )
                     elif el.tag == "Value":
                         cls_name = el.get("className")
                         if cls_name == "java.lang.String":
@@ -903,13 +1035,19 @@ class GateXmlLoader:
                             value = float(el.text)
                         elif cls_name == "java.lang.Boolean":
                             value = bool(el.text)
-                        #elif cls_name == "gate.corpora.ObjectWrapper":
+                        # elif cls_name == "gate.corpora.ObjectWrapper":
                         #    value = GateXmlLoader.value4objectwrapper(el.text)
                         else:
                             if ignore_unknown_types:
-                                print(f"Warning: ignoring feature with serialization type: {cls_name}", file=sys.stderr)
+                                print(
+                                    f"Warning: ignoring feature with serialization type: {cls_name}",
+                                    file=sys.stderr,
+                                )
                             else:
-                                raise Exception("Unsupported serialization type: " + el.get("className"))
+                                raise Exception(
+                                    "Unsupported serialization type: "
+                                    + el.get("className")
+                                )
                 if name is not None and value is not None:
                     features[name] = value
             return features
@@ -962,29 +1100,44 @@ class GateXmlLoader:
                 features = parsefeatures(feats)
                 if len(features) == 0:
                     features = None
-                annotation = {"id": annid, "type": anntype, "start": startoff, "end": endoff,
-                              "features": features}
+                annotation = {
+                    "id": annid,
+                    "type": anntype,
+                    "start": startoff,
+                    "end": endoff,
+                    "features": features,
+                }
                 annotations.append(annotation)
-            annset = {"name": setname, "annotations": annotations, "next_annid": maxannid + 1}
+            annset = {
+                "name": setname,
+                "annotations": annotations,
+                "next_annid": maxannid + 1,
+            }
             annotation_sets[setname] = annset
 
-        docmap = {"text": text, "features": docfeatures, "offset_type": "p",
-                  "annotation_sets": annotation_sets}
+        docmap = {
+            "text": text,
+            "features": docfeatures,
+            "offset_type": "p",
+            "annotation_sets": annotation_sets,
+        }
 
         doc = Document.from_dict(docmap)
         return doc
 
 
-def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+def determine_loader(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
     """
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -996,35 +1149,43 @@ def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gz
         with open(from_ext, "rt") as infp:
             first = infp.read(1)
     if first == "{":
-        return JsonSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)
+        return JsonSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )
     else:
-        return MsgPackSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)
+        return MsgPackSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )
 
 
 DOCUMENT_SAVERS = {
     "text/plain": PlainTextSerializer.save,
     "text/plain+gzip": PlainTextSerializer.save_gzip,
     "text": PlainTextSerializer.save,
-
     "json": JsonSerializer.save,
     "jsongz": JsonSerializer.save_gzip,
     "bdocjs": JsonSerializer.save,
     "bdocjsgz": JsonSerializer.save_gzip,
     "text/bdocjs": JsonSerializer.save,
     "text/bdocjs+gzip": JsonSerializer.save_gzip,
-
     "yaml": YamlSerializer.save,
     "yamlgz": YamlSerializer.save_gzip,
     "text/bdocym": YamlSerializer.save,
     "text/bdocym+gzip+": YamlSerializer.save_gzip,
-
     "msgpack": MsgPackSerializer.save,
     "bdocmp": MsgPackSerializer.save,
     "text/bdocmp": MsgPackSerializer.save,
     "application/msgpack": MsgPackSerializer.save,
-
     "html-ann-viewer": HtmlAnnViewerSerializer.save,
 }
 DOCUMENT_LOADERS = {
@@ -1034,19 +1195,16 @@ DOCUMENT_LOADERS = {
     "bdocjsgz": JsonSerializer.load_gzip,
     "text/bdocjs": JsonSerializer.load,
     "text/bdocjs+gzip": JsonSerializer.load_gzip,
-
     "yaml": YamlSerializer.load,
     "yamlgz": YamlSerializer.load_gzip,
     "bdocym": YamlSerializer.load,
     "bdocymzg: ": YamlSerializer.load_gzip,
     "text/bdocym": YamlSerializer.load,
     "text/bdocym+gzip": YamlSerializer.load_gzip,
-
     "msgpack": MsgPackSerializer.load,
     "bdocmp": MsgPackSerializer.load,
     "application/msgpack": MsgPackSerializer.load,
     "text/bdocmp": MsgPackSerializer.load,
-
     "jsonormsgpack": determine_loader,
     "text/plain": PlainTextSerializer.load,
     "text/plain+gzip": PlainTextSerializer.load_gzip,
@@ -1072,7 +1230,7 @@ EXTENSIONS = {
     "bdocjs": "json",
     "bdocym": "yaml",
     "bdocym.gz": "text/bdocym+gzip",
-    "bdoc.gz": "text/bdocjs+gzip", # lets assume it is compressed json
+    "bdoc.gz": "text/bdocjs+gzip",  # lets assume it is compressed json
     "bdoc": "jsonormsgpack",
     "bdocjs.gz": "text/bdocjs+gzip",
     "bdocjson": "json",
@@ -1088,11 +1246,11 @@ def get_handler(filespec, fmt, handlers, saveload, what):
     """
 
     Args:
-      filespec: 
-      fmt: 
-      handlers: 
-      saveload: 
-      what: 
+      filespec:
+      fmt:
+      handlers:
+      saveload:
+      what:
 
     Returns:
 
@@ -1104,7 +1262,7 @@ def get_handler(filespec, fmt, handlers, saveload, what):
             raise Exception(msg)
         return handler
     else:
-        if not filespec: # in case of save_mem
+        if not filespec:  # in case of save_mem
             raise Exception(msg)
         if isinstance(filespec, os.PathLike):
             wf = os.fspath(filespec)
@@ -1134,8 +1292,8 @@ def get_document_saver(filespec, fmt):
     """
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1147,8 +1305,8 @@ def get_document_loader(filespec, fmt):
     """
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1160,8 +1318,8 @@ def get_changelog_saver(filespec, fmt):
     """
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1173,8 +1331,8 @@ def get_changelog_loader(filespec, fmt):
     """
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 

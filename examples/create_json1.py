@@ -17,4 +17,3 @@ doc1.set_feature("docfeature1", "value1")
 doc1.set_feature("docfeature1", "value1b")
 simplejson.dump_file(doc1, "doc1.bdocjson")
 simplejson.dump_file(doc1, "doc1.bdocjson.gz")
-

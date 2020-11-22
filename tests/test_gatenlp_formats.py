@@ -5,8 +5,10 @@ import pytest
 
 DOC1_TEXT = "A simple document"
 
+
 def makedoc1():
     from gatenlp.document import Document
+
     doc1 = Document(DOC1_TEXT)
     doc1.features["feat1"] = "value1"
     anns = doc1.annset()
@@ -15,27 +17,29 @@ def makedoc1():
     return doc1
 
 
-
 class TestFormatGateXml:
-
     def test_formatgatexml01(self):
         from gatenlp.document import Document
+
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
         with pytest.raises(Exception) as ex:
             Document.load(source=os.path.join(tstpath, "testdoc1.xml"), fmt="gatexml")
         assert "Unsupported serialization type" in str(ex.value)
-        doc = Document.load(source=os.path.join(tstpath, "testdoc1.xml"),
-                            fmt="gatexml", ignore_unknown_types=True)
+        doc = Document.load(
+            source=os.path.join(tstpath, "testdoc1.xml"),
+            fmt="gatexml",
+            ignore_unknown_types=True,
+        )
         fs = doc.features
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
         assert "fInt1" in fs and fs["fInt1"] == 222
         assert "fBoolean" in fs and fs["fBoolean"] == True
         assert "fString1" in fs and fs["fString1"] == "Some string"
         assert "fLong1" in fs and fs["fLong1"] == 123
         assert "fFloat1" in fs and fs["fFloat1"] == 3.4
         anns = doc.annset()
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
         assert len(anns) == 2
         ann1, ann2 = list(anns)[0:2]
         assert ann1.type == "Type1"
@@ -49,14 +53,16 @@ class TestFormatGateXml:
 
 
 class TestFormatYaml:
-
     def test_formatyaml01(self):
         from gatenlp.document import Document
+
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
-        doc = Document.load(source=os.path.join(tstpath, "testdoc1.bdocym"), fmt="text/bdocym")
+        doc = Document.load(
+            source=os.path.join(tstpath, "testdoc1.bdocym"), fmt="text/bdocym"
+        )
         fs = doc.features
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
         assert "fInt1" in fs and fs["fInt1"] == 222
         assert "fBoolean" in fs and fs["fBoolean"] == True
         assert "fString1" in fs and fs["fString1"] == "Some string"
@@ -76,7 +82,7 @@ class TestFormatYaml:
         assert fc2a["k2"] == fc2b["k2"]
         assert fc2a["k2"] is fc2b["k2"]
         anns = doc.annset()
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
         assert len(anns) == 2
         ann1, ann2 = list(anns)[0:2]
         assert ann1.type == "Type1"
@@ -95,6 +101,7 @@ class TestFormatYaml:
 
     def test_formatyaml02(self):
         from gatenlp.document import Document
+
         doc1 = makedoc1()
         asjson = doc1.save_mem(fmt="text/bdocym")
         doc2 = Document.load_mem(asjson, fmt="text/bdocym")
@@ -118,16 +125,17 @@ class TestFormatYaml:
         assert len(ann2.features) == 0
 
 
-
 class TestFormatJson:
-
     def test_formatjson01(self):
         from gatenlp.document import Document
+
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
-        doc = Document.load(source=os.path.join(tstpath, "testdoc1.bdocjs"), fmt="text/bdocjs")
+        doc = Document.load(
+            source=os.path.join(tstpath, "testdoc1.bdocjs"), fmt="text/bdocjs"
+        )
         fs = doc.features
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
         assert "fInt1" in fs and fs["fInt1"] == 222
         assert "fBoolean" in fs and fs["fBoolean"] == True
         assert "fString1" in fs and fs["fString1"] == "Some string"
@@ -147,7 +155,7 @@ class TestFormatJson:
         assert fc2a["k2"] == fc2b["k2"]
         assert fc2a["k2"] is fc2b["k2"]
         anns = doc.annset()
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
         assert len(anns) == 2
         ann1, ann2 = list(anns)[0:2]
         assert ann1.type == "Type1"
@@ -167,6 +175,7 @@ class TestFormatJson:
 
     def test_formatjson02(self):
         from gatenlp.document import Document
+
         doc1 = makedoc1()
         asjson = doc1.save_mem(fmt="text/bdocjs")
         doc2 = Document.load_mem(asjson, fmt="text/bdocjs")
@@ -190,16 +199,17 @@ class TestFormatJson:
         assert len(ann2.features) == 0
 
 
-
 class TestFormatMsgPack:
-
     def test_formatmsgpack01(self):
         from gatenlp.document import Document
+
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
-        doc = Document.load(source=os.path.join(tstpath, "testdoc1.bdocmp"), fmt="text/bdocmp")
+        doc = Document.load(
+            source=os.path.join(tstpath, "testdoc1.bdocmp"), fmt="text/bdocmp"
+        )
         fs = doc.features
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
         assert "fInt1" in fs and fs["fInt1"] == 222
         assert "fBoolean" in fs and fs["fBoolean"] == True
         assert "fString1" in fs and fs["fString1"] == "Some string"
@@ -219,7 +229,7 @@ class TestFormatMsgPack:
         assert fc2a["k2"] == fc2b["k2"]
         assert fc2a["k2"] is fc2b["k2"]
         anns = doc.annset()
-        #print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
+        # print("\n!!!!!!!!!!!!!!!!!!!!!!!! ANNS=", anns)
         assert len(anns) == 2
         ann1, ann2 = list(anns)[0:2]
         assert ann1.type == "Type1"
@@ -239,6 +249,7 @@ class TestFormatMsgPack:
 
     def test_formatmsgpack02(self):
         from gatenlp.document import Document
+
         doc1 = makedoc1()
         asjson = doc1.save_mem(fmt="text/bdocmp")
         doc2 = Document.load_mem(asjson, fmt="text/bdocmp")
@@ -260,8 +271,3 @@ class TestFormatMsgPack:
         assert ann2.start == 2
         assert ann2.end == 8
         assert len(ann2.features) == 0
-
-
-
-
-

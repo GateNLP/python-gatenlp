@@ -19,12 +19,12 @@ logger.setLevel(logging.INFO)
 
 class Document:
     """Represent a GATE document. This is different from the original Java GATE representation in several ways:
-    
+
     * the text is not mutable and can only be set at creation time, so there is no "edit" method
-    
+
     * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
       no separate "FeatureMap" to store them
-    
+
     * does not support listener callbacks
     * there is no separate abstraction for "content", the only content possible is text which is a unicode string
       that can be acessed with the "text()" method
@@ -70,7 +70,7 @@ class Document:
         """
 
         Args:
-          val: 
+          val:
 
         Returns:
 
@@ -88,13 +88,15 @@ class Document:
     def _ensure_type_python(self) -> None:
         """ """
         if self.offset_type != OFFSET_TYPE_PYTHON:
-            raise Exception("Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first")
+            raise Exception(
+                "Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first"
+            )
 
     def _fixup_annotations(self, method: Callable) -> None:
         """
 
         Args:
-          method: Callable: 
+          method: Callable:
 
         Returns:
 
@@ -111,15 +113,15 @@ class Document:
         """Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
-        
+
         NOTE: if the document has a ChangeLog, it is NOT also converted!
-        
+
         The method returns the offset mapper if anything actually was converted,
         otherwise None.
 
         Args:
           offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
-          offsettype: str: 
+          offsettype: str:
 
         Returns:
           offset mapper or None
@@ -145,7 +147,7 @@ class Document:
     def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
         """Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
         a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
-        
+
         The document is modified in-place.
 
         Args:
@@ -214,7 +216,7 @@ class Document:
                 if ann is not None:
                     ann.features.clear()
                 else:
-                    pass # ignore, could happen with a detached annotation
+                    pass  # ignore, could happen with a detached annotation
             elif cmd == ACTION_CLEAR_DOC_FEATURES:
                 self.features.clear()
             elif cmd == ACTION_SET_ANN_FEATURE:
@@ -256,7 +258,7 @@ class Document:
     def features(self):
         """Accesses the features as a FeatureViewer instance. Changes made on this object are
         reflected in the document and recorded in the change log, if there is one.
-        
+
         :return: A FeatureViewer view of the document features.
 
         Args:
@@ -266,11 +268,10 @@ class Document:
         """
         return self._features
 
-
     @property
     def changelog(self):
         """Get the ChangeLog or None if no ChangeLog has been set.
-        
+
         :return: the changelog
 
         Args:
@@ -299,7 +300,7 @@ class Document:
     @property
     def text(self) -> str:
         """Get the text of the document. For a partial document, the text may be None.
-        
+
         :return: the text of the document
 
         Args:
@@ -317,7 +318,7 @@ class Document:
 
         Args:
           value: the text for the document
-          value: str: 
+          value: str:
 
         Returns:
 
@@ -327,11 +328,13 @@ class Document:
         else:
             raise NotImplementedError("Text cannot be modified")
 
-    def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
+    def _log_feature_change(
+        self, command: str, feature: str = None, value=None
+    ) -> None:
         """
 
         Args:
-          command: str: 
+          command: str:
           feature: str:  (Default value = None)
           value:  (Default value = None)
 
@@ -340,7 +343,7 @@ class Document:
         """
         if self._changelog is None:
             return
-        command = "doc-"+command
+        command = "doc-" + command
         ch = {"command": command}
         if command == "doc-feature:set":
             ch["feature"] = feature
@@ -370,9 +373,9 @@ class Document:
         """
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span._start:span._end]
+            return self.text[span._start : span._end]
         if isinstance(span, AnnotationSet):
-            return self.text[span.start():span.end()]
+            return self.text[span.start() : span.end()]
         return self.text[span]
 
     def annset(self, name: str = "") -> AnnotationSet:
@@ -392,9 +395,7 @@ class Document:
             annset = AnnotationSet(owner_doc=self, name=name)
             self._annotation_sets[name] = annset
             if self._changelog:
-                self._changelog.append({
-                    "command": "annotations:add",
-                    "set": name})
+                self._changelog.append({"command": "annotations:add", "set": name})
             return annset
         else:
             return self._annotation_sets[name]
@@ -410,13 +411,13 @@ class Document:
         """
         self._ensure_type_python()
         return list(self._annotation_sets.keys())
-    
+
     def remove_annset(self, name: str):
         """Completely remove the annotation set.
 
         Args:
           name: name of the annotation set to remove
-          name: str: 
+          name: str:
 
         Returns:
 
@@ -425,9 +426,7 @@ class Document:
             raise Exception(f"AnnotationSet with name {name} does not exist")
         del self._annotation_sets[name]
         if self._changelog:
-            self._changelog.append({
-                "command": "annotations:remove",
-                "set": name})
+            self._changelog.append({"command": "annotations:remove", "set": name})
 
     def __repr__(self) -> str:
         """
@@ -435,11 +434,19 @@ class Document:
 
         :return: string representation
         """
-        return "Document({},features={},anns={})".format(self.text, self._features, self._annotation_sets.__repr__())
+        return "Document({},features={},anns={})".format(
+            self.text, self._features, self._annotation_sets.__repr__()
+        )
 
     def __str__(self) -> str:
-        asets = "["+",".join([f"'{k}':{len(v)}" for k, v in self._annotation_sets.items()])+"]"
-        return "Document({},features={},anns={})".format(self.text, self._features, asets)
+        asets = (
+            "["
+            + ",".join([f"'{k}':{len(v)}" for k, v in self._annotation_sets.items()])
+            + "]"
+        )
+        return "Document({},features={},anns={})".format(
+            self.text, self._features, asets
+        )
 
     def to_dict(self, offset_type=None, **kwargs):
         """Convert this instance to a dictionary that can be used to re-create the instance with
@@ -449,7 +456,7 @@ class Document:
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
           the dictionary representation of this instance
@@ -470,7 +477,10 @@ class Document:
             offset_type = self.offset_type
 
         return {
-            "annotation_sets": {name: aset.to_dict(**kwargs) for name, aset in self._annotation_sets.items() },
+            "annotation_sets": {
+                name: aset.to_dict(**kwargs)
+                for name, aset in self._annotation_sets.items()
+            },
             "text": self._text,
             "features": self._features.to_dict(),
             "offset_type": offset_type,
@@ -493,14 +503,26 @@ class Document:
         doc = Document(dictrepr.get("text"), features=feats)
         doc.name = dictrepr.get("name")
         doc.offset_type = dictrepr.get("offset_type")
-        if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
+        if (
+            doc.offset_type != OFFSET_TYPE_JAVA
+            and doc.offset_type != OFFSET_TYPE_PYTHON
+        ):
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
-        annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
-                   for name, adict in dictrepr.get("annotation_sets").items()}
+        annsets = {
+            name: AnnotationSet.from_dict(adict, owner_doc=doc)
+            for name, adict in dictrepr.get("annotation_sets").items()
+        }
         doc._annotation_sets = annsets
         return doc
 
-    def save(self, destination, fmt=None, offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+    def save(
+        self,
+        destination,
+        fmt=None,
+        offset_type=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """Save the document to the destination file.
 
         Args:
@@ -509,7 +531,7 @@ class Document:
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
           kwargs: additional parameters for the document saver.
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -522,7 +544,13 @@ class Document:
             # assume fmt is a callable to get used directly
             fmt(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
 
-    def save_mem(self, fmt="json", offset_type=None, mod="gatenlp.serialization.default", **kwargs):
+    def save_mem(
+        self,
+        fmt="json",
+        offset_type=None,
+        mod="gatenlp.serialization.default",
+        **kwargs,
+    ):
         """Serialize to a string or bytes in the given format.
 
         Args:
@@ -530,7 +558,7 @@ class Document:
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
           kwargs: additional parameters for the format.
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -550,11 +578,11 @@ class Document:
         a URL. If the type of the source is str, then if it starts with "http[s]://" it will get treated
         as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
         deliberately use URL instead of a file parse the URL using urllib.
-        
+
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
-        
+
         Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
-        
+
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
         Args:
@@ -563,7 +591,7 @@ class Document:
         The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
           mod: the name of a module where the document loader is implemented. (Default value = "gatenlp.serialization.default")
           kwargs: additional format specific keyword arguments to pass to the loader
-          **kwargs: 
+          **kwargs:
 
         Returns:
           the loaded document
@@ -583,7 +611,7 @@ class Document:
     def load_mem(source, fmt="json", mod="gatenlp.serialization.default", **kwargs):
         """Create a document from the in-memory serialization in source. Source can be a string or
         bytes, depending on the format.
-        
+
         Note: the offset type is always converted to PYTHON when loading!
 
         Args:
@@ -591,7 +619,7 @@ class Document:
           fmt: the format (Default value = "json")
           mod: the name of the module where the loader is implemented (Default value = "gatenlp.serialization.default")
           kwargs: additional arguments to pass to the loader
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -622,7 +650,7 @@ class Document:
 
     def copy(self):
         """Creates a shallow copy except the changelog which is set to None.
-        
+
         :return: shallow copy of the document
 
         Args:
@@ -687,19 +715,21 @@ class Document:
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
+
         if not gatenlpconfig.notebook_js_initialized:
             HtmlAnnViewerSerializer.init_javscript()
             gatenlpconfig.notebook_js_initialized = True
-        html = self.save_mem(fmt="html-ann-viewer",
-                             notebook=True,
-                             add_js = False,
-                             offline=True,
-                             htmlid=htmlid)
+        html = self.save_mem(
+            fmt="html-ann-viewer",
+            notebook=True,
+            add_js=False,
+            offline=True,
+            htmlid=htmlid,
+        )
         if display:
             display_html(html, raw=True)
         else:
             return html
-
 
 
 class MultiDocument(Document):
@@ -717,6 +747,7 @@ class MultiDocument(Document):
     in the document changes or gets removed, the mapping retains the original copy of the annotation
     until the mapping is modified or removed.
     """
+
     # TODO: ALL necessary fields of the document must be references of mutable objects so that
     # if something is changed for the active document the one stored in the documents map is
     # really updated as well, or we must override the updating method to change both!
@@ -724,9 +755,11 @@ class MultiDocument(Document):
     # documents map, and simply pass on all calls to the activated document.
     # In that case, to_dict and from_dict would actually generate the fields for normal document
     # readers and ignore them on restore
-    def __init__(self, text: str = None, features=None, changelog: ChangeLog = None, docid=0):
+    def __init__(
+        self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
+    ):
         self.documents = {}  # map from document id to document
-        self._mappings = None   # TODO: we need to implement this
+        self._mappings = None  # TODO: we need to implement this
         self._docid = None
         doc = Document(text, features=features, changelog=changelog)
         self.documents[docid] = doc
@@ -752,7 +785,9 @@ class MultiDocument(Document):
         if docid is None:
             docid = len(self.documents)
         elif docid in self.documents:
-            raise Exception(f"Cannot add document to MultiDocument, id {docid} already exists")
+            raise Exception(
+                f"Cannot add document to MultiDocument, id {docid} already exists"
+            )
         self.documents[docid] = doc
         if activate:
             self.activate(docid)
@@ -766,13 +801,17 @@ class MultiDocument(Document):
         # document from the active document.
         # The drawback is that the active document is represented twice, but OK
         thedict = {
-            "annotation_sets": {name: aset.to_dict() for name, aset in self._annotation_sets.items() },
+            "annotation_sets": {
+                name: aset.to_dict() for name, aset in self._annotation_sets.items()
+            },
             "text": self._text,
             "features": self._features.to_dict(),
             "offset_type": self.offset_type,
             "name": self.name,
         }
-        thedict["documents"] = {docid: doc.to_dict() for docid, doc in self.documents.items()}
+        thedict["documents"] = {
+            docid: doc.to_dict() for docid, doc in self.documents.items()
+        }
         thedict["docid"] = self._docid
         thedict["mappings"] = self._mappings
         return thedict
@@ -784,13 +823,21 @@ class MultiDocument(Document):
         doc = MultiDocument(dictrepr.get("text"), features=feats, docid=docid)
         doc.name = dictrepr.get("name")
         doc.offset_type = dictrepr.get("offset_type")
-        if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
+        if (
+            doc.offset_type != OFFSET_TYPE_JAVA
+            and doc.offset_type != OFFSET_TYPE_PYTHON
+        ):
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
-        annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
-                   for name, adict in dictrepr.get("annotation_sets").items()}
+        annsets = {
+            name: AnnotationSet.from_dict(adict, owner_doc=doc)
+            for name, adict in dictrepr.get("annotation_sets").items()
+        }
         doc._annotation_sets = annsets
-        doc.documents = {did: Document.from_dict(d) for did, d in dictrepr.get("documents", {}).items()}
-        #mappingsrepr = dictrepr.get("mappings")
-        #if mappingsrepr:
+        doc.documents = {
+            did: Document.from_dict(d)
+            for did, d in dictrepr.get("documents", {}).items()
+        }
+        # mappingsrepr = dictrepr.get("mappings")
+        # if mappingsrepr:
         #    doc._mappings = AnnotationMappingsOrWhatever.from_dict()
         return doc

@@ -20,6 +20,7 @@ __pdoc__ = {
 
 class InvalidOffsetError(KeyError):
     """ """
+
     pass
 
 
@@ -77,7 +78,9 @@ class AnnotationSet:
             if self.__dict__.get(key, None) is None:
                 super().__setattr__(key, value)
             else:
-                raise Exception("AnnotationSet attribute cannot get changed after being set")
+                raise Exception(
+                    "AnnotationSet attribute cannot get changed after being set"
+                )
         else:
             super().__setattr__(key, value)
 
@@ -95,12 +98,16 @@ class AnnotationSet:
         Returns:
           an immutable annotation set
         """
-        annset = AnnotationSet(name="detached-from:"+self.name)
+        annset = AnnotationSet(name="detached-from:" + self.name)
         annset._is_immutable = True
         if restrict_to is None:
-            annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+            annset._annotations = {
+                annid: self._annotations[annid] for annid in self._annotations.keys()
+            }
         else:
-            annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+            annset._annotations = {
+                annid: self._annotations[annid] for annid in restrict_to
+            }
         annset._next_annid = self._next_annid
         return annset
 
@@ -109,7 +116,7 @@ class AnnotationSet:
         Creates an immutable detached annotation set from the annotations in anns which could by
         either a collection of annotations or annotation ids (int numbers) which are assumed to
         be the annotation ids from this set.
-        
+
         The next annotation id for the created set is the highest seen annotation id from anns plus one.
 
         Args:
@@ -118,7 +125,7 @@ class AnnotationSet:
         Returns:
           an immutable detached annotation set
         """
-        annset = AnnotationSet(name="detached-from:"+self.name)
+        annset = AnnotationSet(name="detached-from:" + self.name)
         annset._is_immutable = True
         annset._annotations = {}
         nextid = -1
@@ -179,7 +186,7 @@ class AnnotationSet:
 
         Args:
           annotation: the annotation to add to the indices.
-          annotation: Annotation: 
+          annotation: Annotation:
         """
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].add(annotation.id)
@@ -191,10 +198,12 @@ class AnnotationSet:
 
         Args:
           annotation: the annotation to remove.
-          annotation: Annotation: 
+          annotation: Annotation:
         """
         if self._index_by_offset is not None:
-            self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
+            self._index_by_offset.remove(
+                annotation.start, annotation.end, annotation.id
+            )
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].remove(annotation.id)
 
@@ -239,13 +248,15 @@ class AnnotationSet:
         """
 
         Args:
-          intvs: 
+          intvs:
           ignore:  (Default value = None)
 
         Returns:
 
         """
-        return self.detach(restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore))
+        return self.detach(
+            restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore)
+        )
 
     def __len__(self) -> int:
         """
@@ -276,8 +287,8 @@ class AnnotationSet:
         document and if the owning document has text.
 
         Args:
-          start: int: 
-          end: int: 
+          start: int:
+          end: int:
           annid:  (Default value = None)
         """
         if self._owner_doc is None:
@@ -294,10 +305,16 @@ class AnnotationSet:
             raise InvalidOffsetError("Annotation ends before it starts")
         if start > doc_size:
             raise InvalidOffsetError(
-                "Annotation starts after document ends: start={}, docsize={}".format(start, doc_size))
+                "Annotation starts after document ends: start={}, docsize={}".format(
+                    start, doc_size
+                )
+            )
         if end > doc_size:
             raise InvalidOffsetError(
-                "Annotation ends after document ends: end={}, docsize={}".format(end, doc_size))
+                "Annotation ends after document ends: end={}, docsize={}".format(
+                    end, doc_size
+                )
+            )
 
     @property
     def start(self):
@@ -318,7 +335,7 @@ class AnnotationSet:
         """
         Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
         This needs the index and creates it if necessary.
-        
+
         Throws:
           an exception if there are no annotations in the set.
         """
@@ -337,7 +354,14 @@ class AnnotationSet:
         """
         return self.end() - self.start()
 
-    def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+    def add(
+        self,
+        start: int,
+        end: int,
+        anntype: str,
+        features: Dict[str, Any] = None,
+        annid: int = None,
+    ):
         """
         Adds an annotation to the set. Once an annotation has been added, the start and end offsets,
         the type, and the annotation id of the annotation are immutable.
@@ -358,12 +382,16 @@ class AnnotationSet:
         if annid is not None and not isinstance(annid, int):
             raise Exception("Parameter annid must be an int, mixed up with features?")
         if features is not None and isinstance(features, int):
-            raise Exception("Parameter features must not be an int: mixed up with annid?")
+            raise Exception(
+                "Parameter features must not be an int: mixed up with annid?"
+            )
         if self._is_immutable:
             raise Exception("Cannot add an annotation to an immutable annotation set")
         self._check_offsets(start, end)
         if annid and annid in self._annotations:
-            raise Exception("Cannot add annotation with id {}, already in set".format(annid))
+            raise Exception(
+                "Cannot add annotation with id {}, already in set".format(annid)
+            )
         if annid is None:
             annid = self._next_annid
             self._next_annid = self._next_annid + 1
@@ -375,14 +403,14 @@ class AnnotationSet:
         self._add_to_indices(ann)
         if self.changelog is not None:
             entry = {
-                    "command": "annotation:add",
-                    "set": self.name,
-                    "start": ann.start,
-                    "end": ann.end,
-                    "type": ann.type,
-                    "features": ann._features.to_dict(),
-                    "id": ann.id
-                }
+                "command": "annotation:add",
+                "set": self.name,
+                "start": ann.start,
+                "end": ann.end,
+                "type": ann.type,
+                "features": ann._features.to_dict(),
+                "id": ann.id,
+            }
             self.changelog.append(entry)
         return ann
 
@@ -401,7 +429,9 @@ class AnnotationSet:
         """
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
-    def remove(self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True) -> None:
+    def remove(
+        self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
+    ) -> None:
         """
         Removes the given annotation which is either the id or the annotation instance or
         recursively all annotations in the iterable.
@@ -416,7 +446,9 @@ class AnnotationSet:
             Note: if this is True, but the annotation set is immutable, an Exception is still raised.
         """
         if self._is_immutable:
-            raise Exception("Cannot remove an annotation from an immutable annotation set")
+            raise Exception(
+                "Cannot remove an annotation from an immutable annotation set"
+            )
         if isinstance(annoriter, Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
@@ -425,22 +457,29 @@ class AnnotationSet:
         if isinstance(annoriter, int):
             annid = annoriter
             if annid not in self._annotations:
-                raise Exception("Annotation with id {} not in annotation set, cannot remove".format(annid))
+                raise Exception(
+                    "Annotation with id {} not in annotation set, cannot remove".format(
+                        annid
+                    )
+                )
             annoriter = self._annotations[annid]
         elif isinstance(annoriter, Annotation):
             annid = annoriter.id
             if annid not in self._annotations:
-                raise Exception("Annotation with id {} does not belong to this set, cannot remove".format(annid))
+                raise Exception(
+                    "Annotation with id {} does not belong to this set, cannot remove".format(
+                        annid
+                    )
+                )
         # NOTE: once the annotation has been removed from the set, it could still be referenced
         # somewhere else and its features could get modified. In order to prevent logging of such changes,
         # the owning set gets cleared for the annotation
         annoriter._owner_set = None
         del self._annotations[annid]
         if self.changelog is not None:
-            self.changelog.append({
-                "command": "annotation:remove",
-                "set": self.name,
-                "id": annid})
+            self.changelog.append(
+                {"command": "annotation:remove", "set": self.name, "id": annid}
+            )
         self._remove_from_indices(annoriter)
 
     def clear(self) -> None:
@@ -451,9 +490,7 @@ class AnnotationSet:
         self._index_by_offset = None
         self._index_by_type = None
         if self.changelog is not None:
-            self.changelog.append({
-                "command": "annotations:clear",
-                "set": self.name})
+            self.changelog.append({"command": "annotations:clear", "set": self.name})
 
     def clone_anns(self, memo=None):
         """
@@ -523,11 +560,13 @@ class AnnotationSet:
             for annid, ann in self._annotations.items():
                 yield ann
 
-    def iter(self,
-             start_ge: Union[int, None] = None,
-             start_lt: Union[None, int] = None,
-             with_type: str = None,
-             reverse: bool = False) -> Generator:
+    def iter(
+        self,
+        start_ge: Union[int, None] = None,
+        start_lt: Union[None, int] = None,
+        with_type: str = None,
+        reverse: bool = False,
+    ) -> Generator:
         """
         Yields annotations in document order, otionally limited
         by the other parameters. If two annoations start at the same offset, they are always
@@ -564,8 +603,13 @@ class AnnotationSet:
         if start_lt is not None and start_ge is not None:
             assert start_lt > start_ge
         self._create_index_by_offset()
-        for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
-            if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+        for _start, _end, annid in self._index_by_offset.irange(
+            minoff=start_ge, maxoff=maxoff, reverse=reverse
+        ):
+            if (
+                allowedtypes is not None
+                and self._annotations[annid].type not in allowedtypes
+            ):
                 continue
             yield self._annotations[annid]
 
@@ -583,16 +627,18 @@ class AnnotationSet:
         """
         return self.iter(reverse=True, **kwargs)
 
-    def get(self, annid: Union[int, Annotation], default=None) -> Union[Annotation, None]:
+    def get(
+        self, annid: Union[int, Annotation], default=None
+    ) -> Union[Annotation, None]:
         """Gets the annotation with the given annotation id or returns the given default.
-        
+
         NOTE: for handling cases where legacy code still expects the add method to return
         an id and not the annotation, this will accept an annotation so the the frequent
         pattern still works:
-        
+
            annid = annset.add(b,e,t).id
            ann = annset.get(annid)
-        
+
         If an annotation is passed the annotation from the set with the id of that annotation is
         returned, if the annotation is from that set, this will return the same object, if it is
         still in the set (or return the default value).
@@ -600,8 +646,8 @@ class AnnotationSet:
         Args:
           annid: the annotation id of the annotation to retrieve.
           default: what to return if an annotation with the given id is not found. (Default value = None)
-          annid: Union[int: 
-          Annotation]: 
+          annid: Union[int:
+          Annotation]:
 
         Returns:
           the annotation or the default value.
@@ -659,8 +705,9 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def with_type(self, *anntype: Union[str, Iterable],
-                  non_overlapping: bool = False) -> "AnnotationSet":
+    def with_type(
+        self, *anntype: Union[str, Iterable], non_overlapping: bool = False
+    ) -> "AnnotationSet":
         """
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
@@ -717,7 +764,7 @@ class AnnotationSet:
             # then skip to the next group that does not overlap with the one we just selected
             typepriority = dict()
             for i, atype in enumerate(atypes):
-                typepriority[atype] = len(atypes)-i
+                typepriority[atype] = len(atypes) - i
             curminoffset = 0
             for group in allannsgrouped:
                 # instead of sorting, go through the group and find the top priority one
@@ -732,7 +779,7 @@ class AnnotationSet:
                         if ann.start >= curminoffset:
                             topann = ann
                             break
-                    for ann in group[i+1:]:
+                    for ann in group[i + 1 :]:
                         if ann.start < curminoffset:
                             continue
                         if typepriority[ann.type] > typepriority[topann.type]:
@@ -796,7 +843,9 @@ class AnnotationSet:
         return self._index_by_type.keys()
 
     @support_annotation_or_set
-    def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
+    def start_eq(
+        self, start: int, ignored: Any = None, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in a detached
         annotation set.
@@ -822,7 +871,9 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
+    def start_min_ge(
+        self, offset: int, ignored: Any = None, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
         annotation set.
@@ -865,7 +916,9 @@ class AnnotationSet:
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -> "AnnotationSet":
+    def start_ge(
+        self, start: int, ignored: Any = None, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """Return the annotations that start at or after the given start offset.
 
         Args:
@@ -905,13 +958,14 @@ class AnnotationSet:
         intvs = self._index_by_offset.starting_before(offset)
         return self._restrict_intvs(intvs)
 
-
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
+    def overlapping(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """
         Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
-        
+
         For each annotation ann in the result set, ann.overlapping(span) is True
 
         Args:
@@ -934,11 +988,13 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
+    def covering(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """
         Gets the annotations which contain the given offset range (or annotation/annotation set),
         i.e. annotations such that the given offset range is within the annotation.
-        
+
         For each annotation ann in the result set, ann.covering(span) is True.
 
         Args:
@@ -961,11 +1017,13 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def within(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
+    def within(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """
         Gets annotations that fall completely within the given offset range, i.e. annotations
         such that the offset range is covering each of the annotation.
-        
+
         For each annotation ann in the result set, ann.within(span) is True.
 
         Args:
@@ -993,10 +1051,12 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def coextensive(self, start: int, end: int, annid=None, include_self=False) -> "AnnotationSet":
+    def coextensive(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -> "AnnotationSet":
         """
         Returns a detached annotation set with all annotations that start and end at the given offsets.
-        
+
         For each annotation ann in the result set, ann.coextensive(span) is True.
 
         Args:
@@ -1039,7 +1099,9 @@ class AnnotationSet:
         """
         if isinstance(annorannid, Annotation):
             return annorannid.id in self._annotations
-        return annorannid in self._annotations  # On the off chance someone passed an ID in directly
+        return (
+            annorannid in self._annotations
+        )  # On the off chance someone passed an ID in directly
 
     contains = __contains__
 
@@ -1062,8 +1124,9 @@ class AnnotationSet:
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
             "name": self.name,
-            "annotations": list(val.to_dict(**kwargs)
-                                for val in self._annotations.values()),
+            "annotations": list(
+                val.to_dict(**kwargs) for val in self._annotations.values()
+            ),
             "next_annid": self._next_annid,
         }
 
@@ -1085,9 +1148,8 @@ class AnnotationSet:
         if dictrepr.get("annotations"):
             annset._annotations = dict(
                 (int(a["id"]), Annotation.from_dict(a, owner_set=annset, **kwargs))
-                for a in dictrepr.get("annotations"))
+                for a in dictrepr.get("annotations")
+            )
         else:
             annset._annotations = {}
         return annset
-
-

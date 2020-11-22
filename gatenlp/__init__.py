@@ -3,16 +3,24 @@
 __version__ = "0.9.7"
 import logging
 import sys
+
 try:
     import sortedcontainers
 except Exception as ex:
     import sys
-    print("ERROR: required package sortedcontainers cannot be imported!", file=sys.stderr)
-    print("Please install it, using e.g. 'pip install -U sortedcontainers'", file=sys.stderr)
+
+    print(
+        "ERROR: required package sortedcontainers cannot be imported!", file=sys.stderr
+    )
+    print(
+        "Please install it, using e.g. 'pip install -U sortedcontainers'",
+        file=sys.stderr,
+    )
     sys.exit(1)
 # TODO: check version of sortedcontainers (we have 2.1.0)
 
 from gatenlp.utils import init_logger
+
 logger = init_logger("gatenlp")
 
 # this attribute globally holds the processing resource last defined
@@ -27,16 +35,21 @@ from gatenlp.gateslave import GateSlave
 from gatenlp.span import Span
 
 
-def  init_notebook():
+def init_notebook():
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
     from gatenlp.gatenlpconfig import gatenlpconfig
+
     HtmlAnnViewerSerializer.init_javscript()
     gatenlpconfig.notebook_js_initialized = True
 
 
-__all__ = ["GateNlpPr", "Annotation", "Document", "AnnotationSet",
-           "ChangeLog", "logger"]
+__all__ = [
+    "GateNlpPr",
+    "Annotation",
+    "Document",
+    "AnnotationSet",
+    "ChangeLog",
+    "logger",
+]
 
 gate_python_plugin_pr = None
-
-

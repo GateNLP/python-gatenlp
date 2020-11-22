@@ -6,9 +6,7 @@ flexible approach to do things.
 """
 from abc import ABC, abstractmethod
 
-__pdoc__ = {
-    "Annotator.__call__": True
-}
+__pdoc__ = {"Annotator.__call__": True}
 
 
 class Annotator(ABC):
@@ -39,7 +37,7 @@ class Annotator(ABC):
         A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
         of documents.
-        
+
         This is different from initializing the Annotator: initializing may load large data which
         can be reused even if the same annotator instance is run several times over documents.
         """
@@ -61,10 +59,10 @@ class Annotator(ABC):
         A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
         data that is specific to the concrete instance.
-        
+
         This can be used to combine corpus results obtained from several processes running on
         different parts of a corpus.
-        
+
         This gets invoked by the executor if more than one instance of the annotator was run
         over separate sets of documents. If only a single instance was used, the result returned
         from finish is used directly.

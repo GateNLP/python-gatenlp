@@ -1,5 +1,6 @@
 import logging
 from gatenlp.impl import SortedIntvls
+
 logging.basicConfig()
 logger = logging.getLogger("gatenlp")
 logger.setLevel(logging.INFO)
@@ -56,8 +57,8 @@ class TestSortedIntvls01:
         assert (0, 20, 7, "int0") in ret6
         ret7 = list(si1.covering(8, 9))
         assert len(ret7) == 5
-        assert (0, 20, 7, 'int0') in ret7
-        assert (4, 10, 4, 'int4') in ret7
-        assert (5, 9, 3, 'int6') in ret7
-        assert (8, 10, 5, 'int8') in ret7
-        assert (8, 9, 9, 'int7') in ret7
+        assert (0, 20, 7, "int0") in ret7
+        assert (4, 10, 4, "int4") in ret7
+        assert (5, 9, 3, "int6") in ret7
+        assert (8, 10, 5, "int8") in ret7
+        assert (8, 9, 9, "int7") in ret7

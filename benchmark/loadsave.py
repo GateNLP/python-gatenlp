@@ -25,13 +25,21 @@ for f in infiles:
         doc = simplejson.load(fp)
         docs.append(doc)
 stop = time.time()
-elapsed = stop-start
-print("Elapsed time for loading: {} / {}".format(elapsed, datetime.timedelta(seconds=elapsed)))
+elapsed = stop - start
+print(
+    "Elapsed time for loading: {} / {}".format(
+        elapsed, datetime.timedelta(seconds=elapsed)
+    )
+)
 
 start = time.time()
 for doc in docs:
     with open(f, "wt", encoding="utf-8") as fp:
         simplejson.dump(doc, fp)
 stop = time.time()
-elapsed = stop-start
-print("Elapsed time for saving: {} / {}".format(elapsed, datetime.timedelta(seconds=elapsed)))
+elapsed = stop - start
+print(
+    "Elapsed time for saving: {} / {}".format(
+        elapsed, datetime.timedelta(seconds=elapsed)
+    )
+)

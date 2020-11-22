@@ -22,7 +22,7 @@ def _check_and_ret_callable(a, **kwargs):
     Args:
       a: a class or instantiated callable
       kwargs: arguments to pass on to the initializer
-      **kwargs: 
+      **kwargs:
 
     Returns:
         an instantiated callable or throws an exception if not a callable
@@ -152,7 +152,7 @@ class Pipeline(Annotator):
         Invokes reduce on all annotators using the list of result lists. `results` is a list with
         as many elements as there are annotators. Each element is a list of results from different
         processes or different batches.
-        
+
         Returns a list with as many elements as there are annotators, each element the combined result.
 
         Args:
@@ -169,4 +169,3 @@ class Pipeline(Annotator):
             else:
                 results.append(reslist)
         return results
-

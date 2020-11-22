@@ -10,14 +10,16 @@ import re
 from shutil import copyfile
 
 if sys.version_info < (3, 6):
-    sys.exit('ERROR: gatenlp requires Python 3.6+')
+    sys.exit("ERROR: gatenlp requires Python 3.6+")
 
 JARFILE = "gatetools-gatenlpslave-1.0.jar"
-JARFILE_DEST = os.path.join("_jars", JARFILE) # where it should be relative to the gatenlp package
+JARFILE_DEST = os.path.join(
+    "_jars", JARFILE
+)  # where it should be relative to the gatenlp package
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.md')) as f:
+with open(os.path.join(here, "README.md")) as f:
     readme = f.read()
 
 
@@ -25,74 +27,91 @@ def versionfromfile(*filepath):
     here = os.path.abspath(os.path.dirname(__file__))
     infile = os.path.join(here, *filepath)
     with open(infile) as fp:
-        version_match = re.search(r"^__version__\s*=\s*['\"]([^'\"]*)['\"]",
-                                  fp.read(), re.M)
+        version_match = re.search(
+            r"^__version__\s*=\s*['\"]([^'\"]*)['\"]", fp.read(), re.M
+        )
         if version_match:
             return version_match.group(1)
         raise RuntimeError("Unable to find version string in {}.".format(infile))
 
 
-version=versionfromfile("gatenlp/__init__.py")
+version = versionfromfile("gatenlp/__init__.py")
 
 
 def get_install_extras_require():
     extras_require = {
-        'formats': ['msgpack', 
-            'pyyaml', 
-            'beautifulsoup4>=4.9.3', 
-            'requests'],
-        'java': ['py4j'],
-        'stanza': ['stanza'],
-        'spacy': ['spacy'],
-        'nltk': ['nltk'],
-        'notebook': ['ipython', 'ipykernel','jupyterlab', 'notebook', 'voila', 'ipywidgets',],
-        'gazetteers': ['matchtext', 'recordclass'],
+        "formats": ["msgpack", "pyyaml", "beautifulsoup4>=4.9.3", "requests"],
+        "java": ["py4j"],
+        "stanza": ["stanza"],
+        "spacy": ["spacy"],
+        "nltk": ["nltk"],
+        "notebook": [
+            "ipython",
+            "ipykernel",
+            "jupyterlab",
+            "notebook",
+            "voila",
+            "ipywidgets",
+        ],
+        "gazetteers": ["matchtext", "recordclass"],
         # the following are not included in all but in alldev
-        'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
-            'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'mypy',  
-            'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
-            'black[d]', # for automatic code formatting
-            ],
+        "dev": [
+            "pytest",
+            "pytest-pep8",
+            "pytest-cov",
+            "pytest-runner",
+            "sphinx",
+            "pdoc3",
+            "tox",
+            "mypy",
+            "pytest-tornasync",  # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
+            "black[d]",  # for automatic code formatting
+        ],
     }
     # Add automatically the 'all' target
-    add_all = [p for l in extras_require.values() for p in l if p not in ['dev']]
-    add_alldev = [p for l in extras_require.values() for p in l ]
-    extras_require.update({'all': add_all, 'alldev': add_alldev})
+    add_all = [p for l in extras_require.values() for p in l if p not in ["dev"]]
+    add_alldev = [p for l in extras_require.values() for p in l]
+    extras_require.update({"all": add_all, "alldev": add_alldev})
     return extras_require
+
 
 setup(
     name="gatenlp",
     version=version,
     author="Johann Petrak",
     author_email="johann.petrak@gmail.com",
-    url='https://github.com/GateNLP/python-gatenlp',
-    keywords=['nlp', 'text processing'],
-    description='GATE NLP implementation in Python.',
+    url="https://github.com/GateNLP/python-gatenlp",
+    keywords=["nlp", "text processing"],
+    description="GATE NLP implementation in Python.",
     long_description=readme,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     setup_requires=[
         # deliberately not used, since it installs packages without pip,  use the "dev" extras instead
-        ],
+    ],
     install_requires=[
-      'sortedcontainers>=2.0.0',
+        "sortedcontainers>=2.0.0",
     ],
     extras_require=get_install_extras_require(),
     # NOTE: this is not actually used since it will not work with gatenlp version reporting
     # from the gateplugin-Python plugin (since _version.py is not/should not get committed, only distributed)
     # (this would also not work if we deploy after committing)
     python_requires=">=3.6",
-    tests_require=['pytest', "pytest-cov"],
-    platforms='any',
+    tests_require=["pytest", "pytest-cov"],
+    platforms="any",
     license="Apache License 2.0",
     packages=find_packages(),
-    package_data={"gatenlp": [
-        JARFILE_DEST,
-        os.path.join("serialization", "_htmlviewer", "gatenlp-ann-viewer.html"),
-        os.path.join("serialization", "_htmlviewer", "gatenlp-ann-viewer-merged.js"),
-    ]},  
+    package_data={
+        "gatenlp": [
+            JARFILE_DEST,
+            os.path.join("serialization", "_htmlviewer", "gatenlp-ann-viewer.html"),
+            os.path.join(
+                "serialization", "_htmlviewer", "gatenlp-ann-viewer-merged.js"
+            ),
+        ]
+    },
     # include_package_data=True,
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
-    test_suite='tests',
+    test_suite="tests",
     entry_points={"console_scripts": ["gatenlp-gate-slave=gatenlp.gateslave:main"]},
     classifiers=[
         # "Development Status :: 6 - Mature",
@@ -111,7 +130,5 @@ setup(
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: MIT License",
-      ],
-    )
-
-
+    ],
+)

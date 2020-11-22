@@ -15,7 +15,7 @@ import random
 from abc import ABC, abstractmethod
 import numbers
 from gatenlp.serialization.default import read_lines_from
-from gatenlp.document import  Document
+from gatenlp.document import Document
 
 __pdoc__ = {
     "Corpus.__getitem__": True,
@@ -34,6 +34,7 @@ class Corpus(ABC):
     NOTE: assigning None to a corpus removes the element from the corpus.
 
     """
+
     @abstractmethod
     def __getitem__(self, idx: int):
         """
@@ -176,7 +177,9 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
                     for ext in exts:
                         if fname.endswith(ext) and not fname.startswith("."):
                             if relative:
-                                yield os.path.relpath(os.path.join(root, fname), dirpath)
+                                yield os.path.relpath(
+                                    os.path.join(root, fname), dirpath
+                                )
                             else:
                                 yield os.path.join(root, fname)
                             break
@@ -219,21 +222,29 @@ def make_file_path_fromidx(digits=1, levels=1):
     Returns:
         a function that takes doc and idx and return a path name (str)
     """
-    if not isinstance(digits, int) or not isinstance(levels, int) or digits < 1 or levels < 1 or digits < levels:
-        raise Exception(f"digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}")
+    if (
+        not isinstance(digits, int)
+        or not isinstance(levels, int)
+        or digits < 1
+        or levels < 1
+        or digits < levels
+    ):
+        raise Exception(
+            f"digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}"
+        )
 
     def file_path_fromidx(doc=None, idx=None):
         if idx is None or not isinstance(idx, int) or idx < 0:
             raise Exception("Index must be an integer >= 0")
-        per = int(digits/levels)
+        per = int(digits / levels)
         asstr = str(idx)
-        digs = max(0, digits-len(asstr))
+        digs = max(0, digits - len(asstr))
         tmp = "0" * digs
         tmp += str(idx)
         path = ""
         fromdigit = len(tmp) - per
         todigit = len(tmp)
-        for lvl in range(levels-1):
+        for lvl in range(levels - 1):
             path = tmp[fromdigit:todigit] + path
             # print("per=", per, "from=", fromdigit, "to=", todigit, "sec=", tmp[fromdigit:todigit])
             path = "/" + path
@@ -241,22 +252,30 @@ def make_file_path_fromidx(digits=1, levels=1):
             todigit = todigit - per
         path = tmp[:todigit] + path
         return path
+
     return file_path_fromidx
 
 
 def debug_maker(var1=22):
-
     def debug_closure():
         print(var1)
+
     return debug_closure
 
 
 class DirFilesSource(DocumentSource):
-
-    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
-                 fmt=None, recursive=True, sort=False,
-                 every_n=1, every_n_k=0,
-                 ):
+    def __init__(
+        self,
+        dirpath,
+        paths=None,
+        paths_from=None,
+        exts=None,
+        fmt=None,
+        recursive=True,
+        sort=False,
+        every_n=1,
+        every_n_k=0,
+    ):
         """
         Create a DirFilesSource.
 
@@ -286,7 +305,11 @@ class DirFilesSource(DocumentSource):
         if sort or every_n > 1:
             self.paths.sort()
         if every_n > 1:
-            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - every_n_k) % every_n) == 0
+            ]
         self.every_n = every_n
         self.every_n_k = every_n_k
         self.fmt = fmt
@@ -308,6 +331,7 @@ class DirFilesDestination(DocumentDestination):
 
 
     """
+
     def __init__(self, dirpath, path_from="idx", ext="bdocjs", fmt=None):
         """
         Create a destination to store documents in files inside a directory or directory tree.
@@ -337,7 +361,9 @@ class DirFilesDestination(DocumentDestination):
         self.dirpath = dirpath
         self.idx = 0
         if path_from.startswith("idx"):
-            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
+            rest = path_from[
+                3:
+            ]  # if we have digits or levels, there is a leading colon!
             if len(rest) == 0:
                 digits = 1
                 levels = 1
@@ -370,12 +396,14 @@ class DirFilesDestination(DocumentDestination):
 
     def append(self, doc):
         path = self.file_path_maker(doc=doc, idx=self.idx)
-        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.normpath(
+            path
+        )  # convert forward slashes to backslashes on windows
         path = os.path.join(self.dirpath, path) + self.ext
         # check if we need to create the directories. For this we first need to get the directories part of the path,
         # which is everything left of the last slash
         if os.path.sep in path:
-            dirs = path[:path.rindex(os.path.sep)]
+            dirs = path[: path.rindex(os.path.sep)]
             if not os.path.exists(os.path.normpath(dirs)):
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
@@ -389,6 +417,7 @@ class DirFilesCorpus(Corpus):
     """
     A corpus representing all files in a directory that match the given extension.
     """
+
     def __init__(self, dirpath, ext="bdocjs", fmt=None, recursive=True):
         """
         Creates the DirCorpus.
@@ -432,7 +461,7 @@ class NumberedDirFilesCorpus:
     corresponding document gets deleted).
     """
 
-    def __init__(self, dirpath,  digits=1, levels=1, ext="bdocjs", fmt=None, size=None):
+    def __init__(self, dirpath, digits=1, levels=1, ext="bdocjs", fmt=None, size=None):
         """
         Creates the DirCorpus.
 
@@ -486,6 +515,7 @@ class TsvFileSource(DocumentSource):
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     """
+
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None):
         """
         Creates the TsvFileSource.
@@ -511,7 +541,6 @@ class TsvFileSource(DocumentSource):
         self.n = 0
         self.hdr2col = {}
 
-
     def __iter__(self):
         reader = read_lines_from(self.source)
         if self.hdr == True and self.n == 0:
@@ -530,7 +559,9 @@ class TsvFileSource(DocumentSource):
             doc = Document(text)
             if self.feature_cols:
                 if callable(self.feature_cols):
-                    doc.features.update(self.feature_cols(fields, cols=self.hdr2col, n=self.n))
+                    doc.features.update(
+                        self.feature_cols(fields, cols=self.hdr2col, n=self.n)
+                    )
                 else:
                     for fname, colid in self.feature_cols.items():
                         if isinstance(colid, int):
@@ -547,6 +578,7 @@ class PandasDfSource(DocumentSource):
     A document source which creates documents from the text in some data frame column for each row, and
     sets features from arbitrary columns in the row.
     """
+
     def __init__(self, df, text_col=None, feature_cols=None):
         """
         Creates a PandasDfSource.
@@ -599,7 +631,9 @@ class EveryNthCorpus(Corpus):
             every_n_k: the offset, must be < n
         """
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception("n and k must be integers.")
         if every_n < 2 or every_n_k < 0 or every_n_k >= every_n:
             raise Exception("n must be >= 2 and k must be >= 0 and < n")
@@ -650,7 +684,9 @@ class EveryNthSource(DocumentSource):
             every_n_k: the offset, must be < n
         """
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception("n and k must be integers.")
         if every_n < 2 or every_n_k < 0 or every_n_k >= every_n:
             raise Exception("n must be >= 2 and k must be >= 0 and < n")
@@ -661,7 +697,7 @@ class EveryNthSource(DocumentSource):
     def __iter__(self):
         idx = 0
         for doc in self.source:
-            if (idx-self.every_n_k) % self.every_n == 0:
+            if (idx - self.every_n_k) % self.every_n == 0:
                 yield doc
 
 
@@ -693,7 +729,7 @@ class ShuffledCorpus(Corpus):
         If seed is None, no shuffling is carried out.
         :return:
         """
-        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+        if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
             if seed != -1:
                 if seed == 0:
                     random.seed()
@@ -763,5 +799,3 @@ class CachedCorpus(Corpus):
 
     def __setitem__(self, index, value):
         self.cachecorpus[index] = value
-
-

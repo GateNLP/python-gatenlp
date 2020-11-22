@@ -19,6 +19,7 @@ from sortedcontainers import SortedKeyList
 
 class SortedIntvls:
     """ """
+
     def __init__(self):
         # we sort by increasing start offset then increasing annotation id for this
         self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
@@ -63,7 +64,9 @@ class SortedIntvls:
         """
         Returns an iterable of (start, end, data) tuples where start==offset
         """
-        return self._by_start.irange_key(min_key=(offset, 0), max_key=(offset, sys.maxsize))
+        return self._by_start.irange_key(
+            min_key=(offset, 0), max_key=(offset, sys.maxsize)
+        )
 
     def ending_at(self, offset):
         """
@@ -75,7 +78,9 @@ class SortedIntvls:
         """
         Returns an iterable of tuples where start==start and end==end
         """
-        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(start, sys.maxsize)):
+        for intvl in self._by_start.irange_key(
+            min_key=(start, 0), max_key=(start, sys.maxsize)
+        ):
             if intvl[1] == end:
                 yield intvl
 
@@ -84,7 +89,9 @@ class SortedIntvls:
         Returns intervals which are fully contained within start...end
         """
         # get all the intervals that start within the range, then keep those which also end within the range
-        for intvl in self._by_start.irange_key(min_key=(start, 0), max_key=(end, sys.maxsize)):
+        for intvl in self._by_start.irange_key(
+            min_key=(start, 0), max_key=(end, sys.maxsize)
+        ):
             if intvl[1] <= end:
                 yield intvl
 
@@ -98,7 +105,7 @@ class SortedIntvls:
         """
         Returns intervals  that start before offset.
         """
-        return self._by_start.irange_key(max_key=(offset-1, sys.maxsize))
+        return self._by_start.irange_key(max_key=(offset - 1, sys.maxsize))
 
     def ending_to(self, offset):
         """
@@ -110,7 +117,7 @@ class SortedIntvls:
         """
         Returns intervals the end after the given offset.
         """
-        return self._by_end.irange_key(min_key=offset+1)
+        return self._by_end.irange_key(min_key=offset + 1)
 
     def covering(self, start, end):
         """
@@ -133,8 +140,8 @@ class SortedIntvls:
         # Here we do this by looking at all intervals where the start offset is before the
         # end of the range. This still includes those which also end before the start of the range
         # so we check in addition that the end is larger than the start of the range.
-        for intvl in self._by_start.irange_key(max_key=(end-1, sys.maxsize)):
-            if intvl[1] > start+1:
+        for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
+            if intvl[1] > start + 1:
                 yield intvl
 
     def firsts(self):
@@ -196,7 +203,8 @@ class SortedIntvls:
 
         """
         return self._by_start.irange_key(
-            min_key=minoff, max_key=maxoff, reverse=reverse, inclusive=inclusive)
+            min_key=minoff, max_key=maxoff, reverse=reverse, inclusive=inclusive
+        )
 
     def __repr__(self):
         return "SortedIntvls({},{})".format(self._by_start, self._by_end)

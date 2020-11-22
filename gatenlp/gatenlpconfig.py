@@ -3,8 +3,10 @@ Module that provides the class GatenlpConfig and the instance gatenlpconfig whic
 global configuration options.
 """
 
+
 class GatenlpConfig:
     """ """
+
     def __init__(self):
         # The color to use for text in the generated viewer HTML for a document.#
         # So far this only applies to viewers where notebook=True

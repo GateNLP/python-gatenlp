@@ -1,4 +1,3 @@
-
 import os
 from gatenlp.lib_stanza import stanza2gatenlp
 from gatenlp import logger
@@ -8,7 +7,6 @@ from stanza.resources.common import DEFAULT_MODEL_DIR
 
 
 class TestStanza01:
-
     def test_stanza01a(self):
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")
         if not os.path.exists(modelfile):
