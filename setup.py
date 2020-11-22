@@ -51,6 +51,7 @@ def get_install_extras_require():
         'dev': ['pytest', 'pytest-pep8', 'pytest-cov', 
             'pytest-runner', 'sphinx', 'pdoc3', 'tox', 'mypy',  
             'pytest-tornasync',   # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
+            'black[d]', # for automatic code formatting
             ],
     }
     # Add automatically the 'all' target
