@@ -12,6 +12,25 @@ from gatenlp import Span
 
 # TODO: IMPORTANT!!! Result.result(matchtype) should always return a list?? Or always treet "all" differently?
 
+# TODO: Implement modifiers for Ann:
+# gap(min,max): only match if the start offset of the annotation is within this distance from the current text offset
+# findgap(min, max): find an annotation where the gap is in the range or fail.
+
+# TODO: figure out which parser parameters could better be implemented as parser modifiers???
+
+# TODO: implement backreferences: as a parser and modifier: equality of some part of the current data with
+# HOW??? to get access to all existing data so far: Need to change things so that all parsers which
+# produce an actual sequence invoke the next parser with the result so far as additional (optional?) parameter.
+# so we need to change the parse method.
+# the same part of some existing named data (nth named data).
+# e.g. Backref(parser, to_name=name, to_n=1/-1, to_field="text", eq=None, predicate=None)
+# to_name: the name of the data, if not exists, fail
+# to_n: the nth data with that name, if negate the nth from the end, if not exist, fail
+# to_field: the field of the data dict, if not exists, fail
+# eq: how to compare, if None use normal equality
+# predicate: a function x,y where x is all existing data and y is the data of parser
+
+
 # TODO: FindAll: return all matches as separate results in Success, even finding nothing is Success.
 # options for how to go over offsets or annotations and for how to advance after a match.
 # if by offsets, advance by one, by longest, if by annotation, advance to next ann or to next ann after longest match,
