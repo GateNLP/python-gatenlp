@@ -1,24 +1,26 @@
 # Python GateNLP 
 ## A Python package for NLP similar to the Java GATE NLP framework
 
-This is a Python package for representing the basic elements of text processing
-and NLP in a way that is very similar to the
-[Java GATE NLP](https://gate.ac.uk/)
-framework. 
+Python GateNLP is an NLP and text processing framework implemented in Python. 
 
-Processed documents exported from Java GATE can be used and processed documents
-exported from this package can be used by Java GATE. In addition this package:
-* can be used as a Python library to perform NLP tasks
-* run other NLP libraries like Stanford Stanza or Spacy and represent their processing results as 
-  GateNLP annotations. 
-* load GateNLP documents from various formats, including HTML, GATE XML, Bdoc Json, Bdoc Yaml, Bdoc MessagePack, Text and others and save
-  to most of these formats
-* Generate HTML that allows to view a document and selectively display annotations from certain annotation sets and with certain types and show
-  their features 
-* provides the code to allow using Python directly from GATE via the [GATE Python plugin](https://github.com/GateNLP/gateplugin-Python)
-* allows to execute Java GATE API calls directly from the Python call, e.g.
-  to run a Java GATE processing pipeline on a document and get back 
-  the Processed document via the `GateSlave` class.
+Python GateNLP represents documents and stand-off annotations very similar to 
+the [Java GATE framework](https://gate.ac.uk/): [Annotations](annotations) describe arbitrary character ranges in the text and each annotation can have an arbitrary number of _features_.  [Documents](documents) can have arbitrary features and an arbitrary number of named [_annotation sets_](annotationsets), where each annotation set can have an arbitrary number of annotations which can overlap in any way. Python GateNLP documents can be exchanged with Java GATE by using the bdocjs/bdocym/bdocmp formats which are supported in Java GATE via the [Format Bdoc Plugin](https://gatenlp.github.io/gateplugin-Format_Bdoc/)
+
+Other than many other Python NLP tools, GateNLP does not require a specific way of how text is split up into tokens, tokens can be represented by annotations in any way, and a document can have different ways of tokenization simultanously, if needed. Similarly, entities can be represented by annotations without restriction: they do not need to start or end at token boundaries and can overlap arbitrarily. 
+
+GateNLP provides ways to process text and create annotations using [annotating pipelines](processing), which are sequences of one or more annotators. 
+There are [gazetteer annotators](gazetteers) for matching text against gazetteer lists and annotators for a rule-like matching of complex annotation and text sequences (see [PAMPAC](pampac)).
+
+There is also support for creating GateNLP annotations with other NLP packages like Spacy or Stanford Stanza.
+
+The GateNLP document representation also optionally allows to track all changes
+done to the document in a ["change log"](changelogs). 
+Such changes can later be applied to other Python GateNLP or to  Java GATE documents.
+
+This library also implements the functionality for the interaction with
+a Java GATE process in two different ways:
+* The [Java GATE Python plugin](http://gatenlp.github.io/gateplugin-Python/) can invoke a process running Python GateNLP to annotate GATE documents.
+* Python code can remote-control a Jave GATE instance via the [GateNLP GateSlave](gateslave)
 
 ## Installation
 
@@ -56,5 +58,6 @@ for running on your own computer.
     * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
     * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
     * [Gazetteers](gazetteers) / [Gazetteers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [Notebook Download](gazetteers.ipyn)
+    * Complex Annoation Patterns for matching text and annotation sequences: [PAMPAC](pampac) / [PAMPAC Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [Notebook Download](pampac.ipynb)
 
 * [The Generated Python Documentation](pythondoc/gatenlp)

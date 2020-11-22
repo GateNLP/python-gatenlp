@@ -17,17 +17,21 @@ for interacting with GATE Java and the GATE python plugin.
 
 ## Overview
 
-This package is a Python implementation of text processing and NLP similar to
-[Java GATE NLP](https://gate.ac.uk/).
-Currently it is possible to load GATE documents from their BdocJS (JSON) representation
-or create GATE documents from scratch. This creates an object of type
-`gatenlp.Document` which offers an API for adding, retrieving and changing
-stand-off annotations and document features
-in much the same way as this is done in Java GATE.
+Python GateNLP is an NLP and text processing framework implemented in Python. 
 
-This document representation also optionally allows to track all changes
+Python GateNLP represents documents and stand-off annotations very similar to 
+the [Java GATE framework](https://gate.ac.uk/): Annotations describe arbitrary character ranges in the text and each annotation can have an arbitrary number of _features_.  Documents can have arbitrary features and an arbitrary number of named _annotation sets_, where each annotation set can have an arbitrary number of annotations which can overlap in any way. Python GateNLP documents can be exchanged with Java GATE by using the bdocjs/bdocym/bdocmp formats which are supported in Java GATE via the [Format Bdoc Plugin](https://gatenlp.github.io/gateplugin-Format_Bdoc/)
+
+Other than many other Python NLP tools, GateNLP does not require a specific way of how text is split up into tokens, tokens can be represented by annotations in any way, and a document can have different ways of tokenization simoultanously, if needed. Similarly, entities can be represented by annotations without restriction: they do not need to start or end at token boundaries and can overlap arbitrarily. 
+
+GateNLP provides ways to process text and create annotations using annotating pipelines, which are sequences of one or more annotators. 
+There are annotators for matching text against gazetteer lists and annotators for complex matching of annotation and text sequences (see [PAMPAC](pampac)).
+
+There is also support for creating GateNLP annotations with other NLP packages like Spacy or Stanford Stanza.
+
+The GateNLP document representation also optionally allows to track all changes
 done to the document in a "change log" (a `gatenlp.ChangeLog` instance).
-Such changes can later be applied to Java GATE documents.
+Such changes can later be applied to other Python GateNLP or to  Java GATE documents.
 
 This library also implements the functionality for the interaction with
 a Java GATE process in two different ways:
