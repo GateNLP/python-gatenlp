@@ -26,21 +26,18 @@ class Features(UserDict):
     logging feature changes. Any copy of an instance of Features will not receive the logger,
     in order to make sure that logging happens, the instance stored in the original owning
     object must be used.
-
-    Args:
-
-    Returns:
-
     """
 
     def __init__(self, *args, logger=None, **kwargs):
         """
         Initialize a Features object.
 
-        :param initialfeatures: the initial features, as for a dict.
-        :param logger: a function for logging any changes to the feature map. This should be
-          a method implemented in the owning object. It should take the following parameters:
-          command, featurename, featurevalue.
+        Args:
+            initialfeatures: the initial features, as for a dict.
+            logger: a function for logging any changes to the feature map. This should be
+                a method implemented in the owning object. It should take the following parameters:
+                command, featurename, featurevalue. NOTE: this is not related to the usual logging
+                from the loggin package, but for making use of tracking changes in a ChangeLog!
         """
         self._logger = logger
         if len(args) == 1:
@@ -57,8 +54,8 @@ class Features(UserDict):
         Remove the feature with the given feature name. This raises a key error if featurename is
         not in the Features. To silently remove a key, if it exists, use `pop(fname, None)`
 
-        :param featurename: name of the feature to remove
-        :return:
+        Args:
+            featurename: name of the feature to remove
         """
         if self._logger:
             self._logger("feature:remove", feature=featurename)
@@ -67,8 +64,6 @@ class Features(UserDict):
     def __repr__(self):
         """
         Return string representation of the Features object.
-
-        :return: string representation.
         """
         return f"Features({self.data.__repr__()})"
 
@@ -76,9 +71,9 @@ class Features(UserDict):
         """
         Set a feature with the given name to the given value.
 
-        :param featurename: feature name, must be string
-        :param featurevalue:  feature value
-        :return:
+        Args:
+            featurename: feature name, must be string
+            featurevalue:  feature value
         """
         if featurename is None or not isinstance(featurename, str):
             raise Exception(
@@ -89,14 +84,8 @@ class Features(UserDict):
         self.data[featurename] = featurevalue
 
     def clear(self):
-        """Remove all features.
-
-        :return:
-
-        Args:
-
-        Returns:
-
+        """
+        Remove all features.
         """
         if self._logger:
             self._logger("features:clear")
@@ -115,7 +104,6 @@ class Features(UserDict):
 
         Returns:
           a dictionary with the features
-
         """
         ret = Features()
         if deep:
@@ -138,7 +126,7 @@ class Features(UserDict):
         Args:
           deepcopy: if True, the dictionary is a deep copy so that mutable objects
               in the original are unaffected if they get modified in the copy. (Default value = False)
-          memo: if deepcopy is True, the memo object to use for deepcopy, if any
+        memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
