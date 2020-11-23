@@ -37,7 +37,38 @@ from gatenlp import Span
 # so we can use something like advance="next"/"longest" for both modes.
 
 # TODO re-think "Rule", FindAll sounds more like a rule so Rule(parser, function, **options) could be the
+# TODO: i think a rule should really be just a different way to write down a parser with a callback.
+# Something like:
+# r1 = Rule(AnnAt(..) >> AnnAt(..) >> Text(..) >> AnnAt(),
+#   priority = 100,
+#   lambda succ:
+#      some code
+#      some more code
+# )
+# where the skip value is used by the thing RUNNING the rule, e.g.
+# Pampac(r1, skip = "all") - have default skip etc but use local overrides from rule in case the rule fires.
 # equivalent of FindAll(parser, **options).call(function)
+# FindAll: collect everything that matches in success, then FindAll.call(..) would run on all those results
+# Pampac(listofrules, or, single rules, skip=skip, ): run all of the rules on the document "in parallel" using a
+#    strategy for preference, i.e. how to advance after a match.
+#    maybe use global running strategy
+# Example:  Pampac(Rule(parser, code), Rule(parser, code), strategyparms=something) would be one "phase" of matching
+# each parser could still contain findall etc to go over the whole document
+
+# TODO: IMPORTANT: the advancing strategy for rules could be different and more flexible from the way how we match sequences
+# within a rule, maybe?
+
+# TODO: think about rule priorities and matching styles similar to JAPE:
+# if several rules match at the same location, which one should be "fired"?
+# appelt style: use longest match, if more than one, use highest priority, if more than one with same p, use first
+#   after matching, advance to next position in document after the match
+# all style: use all matches, advance to next position in document (next offset)
+# brill style: use all matches, advance to position after longest match
+# first: no direct correspondence but we could just use the first rule in the list of rules
+# once: match once, then do not advance and repeat.
+
+# TODO: think VERY hard again about how to match against the annotation sequence when there are multiple annotations
+# at the same location.
 
 # Instead of rule priorities we have ordered or to prefer matches within FindAll
 # Or to find everything, use All/^
@@ -1426,3 +1457,95 @@ class N(PampacParser):
                     return Success(best, context)
                 else:
                     return Failure(context=context, location=location)
+
+
+class Rule(PampacParser):
+    """
+    Basically just a different way to write "parser(pattern).call(func)" plus set additional options for the
+    rule runner (priority).
+    """
+
+    def __init__(self, parser, func, priority=0):
+        self.parser = parser
+        self.func = func
+        self.priority = priority
+
+    def parse(self, location, context):
+        """
+        For a rule, we return the parse result and the result of the code running if we have success.
+
+        Args:
+            location: the document location
+            context: the parsing context
+
+        Returns:
+            tuple of parse result and if success, function return value, otherwise None
+
+        """
+        res = self.parser.parse(location, context)
+        if res.success():
+            if self.func:
+                val = self.func(res)
+            else:
+                val = None
+            return res, val
+        else:
+            return res, None
+
+class PampacRunner:
+    """
+    A runner for executing rules in some specific way.
+
+    E.g. PampacRunner(strategy="something", ...).rules(r1,r2,r3). or just
+    PampacRunner(strategy="something", ...)(r1,r2,r3)
+
+    """
+    def __init__(self, *rules, skip="longest", select="first", debug=False):
+        assert len(rules) > 0
+        self.rules = rules
+        self.skip = skip
+        self.select = select
+        self.debug = debug
+
+    def skip(self, val):
+        """
+        Different way to set the skip parameter.
+
+        Args:
+            val:
+
+        Returns:
+
+        """
+        self.skip = val
+
+    def select(self, val):
+        """
+        Different way to set the select parameter.
+
+        Args:
+            val:
+
+        Returns:
+
+        """
+        self.select = val
+
+    def run(self, doc, annotations, start=None, end=None):
+        """
+        Run the rules from location start to location end (default: full document), using the annotation set or list.
+
+        Args:
+            doc:
+            annotations:
+            start:
+            end:
+
+        Returns:
+            a flattened list of all non-None results of Rule functions that fired on the document.
+        """
+        pass
+
+
+
+    __call__ = run
