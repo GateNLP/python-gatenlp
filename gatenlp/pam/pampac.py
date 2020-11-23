@@ -8,7 +8,7 @@ import functools
 from collections.abc import Iterable, Sized
 from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
-from gatenlp import Span
+from gatenlp import Span, AnnotationSet
 
 # TODO: IMPORTANT!!! Result.result(matchtype) should always return a list?? Or always treet "all" differently?
 
@@ -366,6 +366,7 @@ class Context:
         self._memotable = {}
         self.max_recursion = max_recusion
         self.doc = doc
+        self._annset = None    # cache for the annotations as a detached immutable set, if needed
         # make sure the start and end offsets are plausible or set the default to start/end of document
         if start is None:
             self.start = 0
@@ -385,6 +386,19 @@ class Context:
         anns = [a for a in anns if a.start >= self.start and a.end <= self.end]
         self.anns = anns
         self.memoize = memoize
+
+    @property
+    def annset(self):
+        """
+        Return the annotations as a set.
+
+        Returns:
+            annotations as a detached immutable AnnotationSet
+
+        """
+        if self._annset is None:
+            self._annset = AnnotationSet.from_anns(self.anns)
+        return self._annset
 
     def get_ann(self, location):
         """
@@ -631,143 +645,204 @@ class PampacParser:
         else:
             raise Exception("Not an integer or tuple or list of two integers")
 
-    @support_annotation_or_set
-    def within(self, start, end, matchtype="first"):
+    def _make_constraint_predicate(self, matcher, matchtype, constraint):
         """
-        Parser that succeeds if there is a success for the current parser that is within the span given.
-        The span can also
-        be passed as an annotation or annotation set.
+        Create predicate that can be used to filter results according to one of the
+        annotation-based constraints like .within, .coextensive.
 
         Args:
-            start, end: the start and end offsets of the span or an annotation/annotation set representing the span.
+            matcher: the annotation matcher
+            matchtype: the matchtype for the filter
+            constraint: the constraint to use on the annotation set
+
+        Returns:
+            predicate function
+
+        """
+        def _predicate(result, context=None, **kwargs):
+            anns = set()
+            for d in result.data:
+                ann = d.get("ann")
+                if ann:
+                    anns.add(ann)
+            annset = context.annset
+            tocall = getattr(annset, constraint)
+            annstocheck = tocall(result.span)
+            for anntocheck in annstocheck:
+                if matcher(anntocheck, context.doc):
+                    if anntocheck in anns:
+                        continue
+                    return True
+            return False
+        return _predicate
+
+    def _make_notconstraint_predicate(self, matcher, matchtype, constraint):
+        """
+        Create predicate that can be used to filter results according to one of the
+        annotation-based negated constraints like .notwithin, .notcoextensive.
+
+        Args:
+            matcher: the annotation matcher
+            matchtype: the matchtype for the filter
+            constraint: the constraint to use on the annotation set
+
+        Returns:
+            predicate function
+
+        """
+        def _predicate(result, context=None, **kwargs):
+            anns = set()
+            for d in result.data:
+                ann = d.get("ann")
+                if ann:
+                    anns.add(ann)
+            annset = context.annset
+            tocall = getattr(annset, constraint)
+            annstocheck = tocall(result.span)
+            matched = False
+            for anntocheck in annstocheck:
+                if matcher(anntocheck, context.doc):
+                    if anntocheck in anns:
+                        continue
+                    matched = True
+            return not matched
+        return _predicate
+
+    def within(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is within any annotation
+        that matches the given properties and is different from that annotation.
+
+        Args:
+            type:
+            features:
+            features_eq:
+            text:
             matchtype: return matches of all that are within the span according to the given strategy
 
         Returns:
-            Parser modified to only match within the given span.
+            Parser modified to only match within a matching annotation
         """
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).iswithin(Span(start, end)),
-            matchtype=matchtype,
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_constraint_predicate(matcher, matchtype, "covering")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def notwithin(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_notconstraint_predicate(matcher, matchtype, "covering")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def coextensive(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_constraint_predicate(matcher, matchtype, "coextensive")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def notcoextensive(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_notconstraint_predicate(matcher, matchtype, "coextensive")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def overlapping(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_constraint_predicate(matcher, matchtype, "overlapping")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def notoverlapping(self,type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_notconstraint_predicate(matcher, matchtype, "overlapping")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def covering(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_constraint_predicate(matcher, matchtype, "within")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def notcovering(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_notconstraint_predicate(matcher, matchtype, "within")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def at(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_constraint_predicate(matcher, matchtype, "start_eq")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def noat(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
+        )
+        pred = self._make_notconstraint_predicate(matcher, matchtype, "start_eq")
+        return Filter(self, pred, matchtype=matchtype)
+
+    def before(self, type=None, features=None, features_eq=None, text=None, immediately=False, matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
         )
 
-    @support_annotation_or_set
-    def notwithin(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).iswithin(Span(start, end)),
-            matchtype=matchtype,
-        )
+        # predicate for this needs to check if there are matching annotations that start at or after
+        # the END of the result
+        def _predicate(result, context=None, **kwargs):
+            anns = set()
+            for d in result.data:
+                ann = d.get("ann")
+                if ann:
+                    anns.add(ann)
+            annset = context.annset
+            if immediately:
+                annstocheck = annset.start_eq(result.span[1])
+            else:
+                annstocheck = annset.start_ge(result.span[1])
+            for anntocheck in annstocheck:
+                if matcher(anntocheck, context.doc):
+                    if anntocheck in anns:
+                        continue
+                    return True
+            return False
+        return Filter(self, _predicate, matchtype=matchtype)
 
     @support_annotation_or_set
-    def notwithin(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).iswithin(Span(start, end)),
-            matchtype=matchtype,
+    def notbefore(self,  type=None, features=None, features_eq=None, text=None, immediately=False, matchtype="first"):
+        matcher = AnnMatcher(
+            type=type, features=features, features_eq=features_eq, text=text
         )
 
-    @support_annotation_or_set
-    def coextensive(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).iscoextensive(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def notcoextensive(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).iscoextensive(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def overlapping(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).isoverlapping(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def notoverlapping(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).isoverlapping(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def covering(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).iscovering(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def notcovering(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).iscovering(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def at(self, start, end, matchtype="first"):
-        return Filter(
-            self, lambda ret: Span(ret.span).isat(Span(start, end)), matchtype=matchtype
-        )
-
-    @support_annotation_or_set
-    def noat(self, start, end, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).isat(Span(start, end)),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def before(self, start, end, immediately=False, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).isbefore(
-                Span(start, end), immediately=immediately
-            ),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def notbefore(self, start, end, immediately=False, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).isbefore(
-                Span(start, end), immediately=immediately
-            ),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def after(self, start, end, immediately=False, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: Span(ret.span).isafter(
-                Span(start, end), immediately=immediately
-            ),
-            matchtype=matchtype,
-        )
-
-    @support_annotation_or_set
-    def notafter(self, start, end, immediately=False, matchtype="first"):
-        return Filter(
-            self,
-            lambda ret: not Span(ret.span).isafter(
-                Span(start, end), immediately=immediately
-            ),
-            matchtype=matchtype,
-        )
+        def _predicate(result, context=None, **kwargs):
+            anns = set()
+            for d in result.data:
+                ann = d.get("ann")
+                if ann:
+                    anns.add(ann)
+            annset = context.annset
+            if immediately:
+                annstocheck = annset.start_eq(result.span[1])
+            else:
+                annstocheck = annset.start_ge(result.span[1])
+            matched = False
+            for anntocheck in annstocheck:
+                if matcher(anntocheck, context.doc):
+                    if anntocheck in anns:
+                        continue
+                    matched = True
+            return not matched
+        return Filter(self, _predicate, matchtype=matchtype)
 
     def lookahead(self, parser):
         """
@@ -822,7 +897,7 @@ class Filter(PampacParser):
         if ret.issuccess():
             res = []
             for r in ret:
-                if self.predicate(r) == self.take_if:
+                if self.predicate(r, context=context, location=location) == self.take_if:
                     res.append(r)
             if len(r) == 0:
                 return Failure(

@@ -1153,3 +1153,32 @@ class AnnotationSet:
         else:
             annset._annotations = {}
         return annset
+
+    @staticmethod
+    def from_anns(anns, deep_copy=False, **kwargs):
+        """
+        Create a detached AnnotationSet from an iterable of annotations.
+
+        Args:
+          anns: an iterable of annotations
+          deep_copy: if the annotations should get added as copies (default) or deep copies.
+
+        Returns:
+            the annotation set
+        """
+        annset = AnnotationSet(name="", owner_doc=None)
+        annset._annotations = dict()
+        maxid = 0
+        for ann in anns:
+            if deep_copy:
+                addann = ann.deepcopy()
+            else:
+                addann = ann.copy()
+            annset._annotations[addann.id] = addann
+            if addann.id > maxid:
+                maxid = addann.id
+        annset._next_annid = maxid
+        annset._is_immutable = True
+
+        return annset
+
