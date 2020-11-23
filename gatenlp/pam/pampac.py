@@ -9,6 +9,7 @@ from collections.abc import Iterable, Sized
 from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
 from gatenlp import AnnotationSet
+from gatenlp.utils import init_logger
 
 # TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
 
@@ -307,7 +308,7 @@ class Context:
     """
 
     def __init__(
-        self, doc, anns, start=None, end=None, memoize=False, max_recusion=None
+        self, doc, anns, start=None, end=None, outset=None, memoize=False, max_recusion=None
     ):
         """
         Initialize a parse context.
@@ -317,12 +318,14 @@ class Context:
             anns: an iterable of annotations to use for the parsing
             start: the starting text offset for the parse
             end: the ending text offset for the parse
+            outset: an annotation set for where to add any new annotations in an action
             memoize: If memoization should be used (NOT YET IMPLEMENTED)
             max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
         """
         self._memotable = {}
         self.max_recursion = max_recusion
         self.doc = doc
+        self.outset = outset
         self._annset = None    # cache for the annotations as a detached immutable set, if needed
         # make sure the start and end offsets are plausible or set the default to start/end of document
         if start is None:
@@ -1568,91 +1571,173 @@ class N(PampacParser):
 
 class Rule(PampacParser):
     """
-    Basically just a different way to write "parser(pattern).call(func)" plus set additional options for the
-    rule runner (priority).
+    A matching rule: this defines the parser and some action (a function) to carry out if the rule matches
+    as it is tried as one of many rules with a Pampac instance. Depending on select setting for pampac
+    the action only fires under certain circumstances (e.g. the rule is the first that matches at a location).
+    Rule is thus different from pattern.call() or Call(pattern, func) as these always call the function if
+    there is a successful match.
     """
 
-    def __init__(self, parser, func, priority=0):
+    def __init__(self, parser, action, priority=0):
         self.parser = parser
-        self.func = func
+        self.action = action
         self.priority = priority
+
+    def set_priority(self, val):
+        """
+        Different way of setting the priority.
+        """
+        self.priority = val
+        return self
 
     def parse(self, location, context):
         """
-        For a rule, we return the parse result and the result of the code running if we have success.
-
-        Args:
-            location: the document location
-            context: the parsing context
+        Return the parse result. This does NOT automatically invoke the action if the parse result is a success.
+        The invoking Pampac instance decides, based on its setting, for which matching rules the action is
+        actually carried out.
 
         Returns:
-            tuple of parse result and if success, function return value, otherwise None
+            Success or failure of the parser
 
         """
-        res = self.parser.parse(location, context)
-        if res.success():
-            if self.func:
-                val = self.func(res)
-            else:
-                val = None
-            return res, val
-        else:
-            return res, None
+        return self.parser.parse(location, context)
 
-class PampacRunner:
+
+class Pampac:
     """
-    A runner for executing rules in some specific way.
-
-    E.g. PampacRunner(strategy="something", ...).rules(r1,r2,r3). or just
-    PampacRunner(strategy="something", ...)(r1,r2,r3)
+    A class for applying a sequence of rules to a document.
 
     """
-    def __init__(self, *rules, skip="longest", select="first", debug=False):
+    def __init__(self, *rules, skip="longest", select="first"):
+        """
+        Initialize Pampac.
+
+        Args:
+            *rules: one or more rules
+            skip:  how proceed after something has been matched at a position. One of: "longest" to proceed
+              at the next text offset after the end of the longest match. "next" to use a location with the highest
+              text and annotation index over all matches. "one" to increment the text offset by one and adjust
+              the annotation index to point to the next annotation at or after the new text offset.
+              "once": do not advance after the first location where a rule matches. NOTE: if skipping depends on
+              on the match(es), only those matches for which a rule fires are considered.
+            select: which of those rules that match to actually apply, i.e. call the action part of the rule.
+              One of: "first": try all rules in sequence and call only the first one that matches. "highest": try
+              all rules and only call the rules which has the highest priority, if there is more than one, the first
+              of those.
+        """
         assert len(rules) > 0
+        assert skip in ["one", "longest", "next", "once"]
+        assert select in ["first", "highest", "all"]
+        for r in rules:
+            assert isinstance(r, Rule)
         self.rules = rules
+        self.priorities = [r.priority for r in self.rules]
+        self.max_priority = max(self.priorities)
+        for idx, r in enumerate(rules):
+            if r.priority == self.max_priority:
+                self.hp_rule = r
+                self.hp_rule_idx = idx
+                break
         self.skip = skip
         self.select = select
-        self.debug = debug
 
-    def skip(self, val):
+    def set_skip(self, val):
         """
         Different way to set the skip parameter.
-
-        Args:
-            val:
-
-        Returns:
-
         """
         self.skip = val
+        return self
 
-    def select(self, val):
+    def set_select(self, val):
         """
         Different way to set the select parameter.
-
-        Args:
-            val:
-
-        Returns:
-
         """
         self.select = val
+        return self
 
-    def run(self, doc, annotations, start=None, end=None):
+    def run(self, doc, annotations, outset=None, start=None, end=None, debug=False):
         """
         Run the rules from location start to location end (default: full document), using the annotation set or list.
 
         Args:
-            doc:
-            annotations:
-            start:
-            end:
+            doc: the document to run on
+            annotations: the annotation set or iterable to use
+            outset: the output annotation set.
+            start: the text offset where to start matching
+            end: the text offset where to end matching
 
         Returns:
-            a flattened list of all non-None results of Rule functions that fired on the document.
+            a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
         """
-        pass
-
-
+        logger = init_logger(debug=debug)
+        ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
+        returntuples = []
+        location = Location(ctx.start, 0)
+        while True:
+            # try the rules at the current position
+            cur_offset = location.text_location
+            frets = []
+            rets = dict()
+            for idx, r in enumerate(self.rules):
+                logger.debug(f"Trying rule {idx} at location {location}")
+                ret = r.parse(location, ctx)
+                if ret.issuccess():
+                    rets[idx] = ret
+                    logger.debug(f"Success for rule {idx}, {len(ret)} results")
+                    if self.select == "first":
+                        break
+            # we now got all the matching results in rets
+            # if we have at least one matching ...
+            if len(rets) > 0:
+                fired_rets = []
+                # choose the rules to fire and call the actions
+                if self.select == "first":
+                    idx, ret = list(rets.items())[0]
+                    logger.debug(f"Firing rule {idx} at {location}")
+                    fret = self.rules[idx].action(ret, context=ctx, location=location)
+                    frets.append(fret)
+                    fired_rets.append(ret)
+                elif self.select == "all":
+                    for idx, ret in rets.items():
+                        logger.debug(f"Firing rule {idx} at {location}")
+                        fret = self.rules[idx].action(ret, context=ctx, location=location)
+                        frets.append(fret)
+                        fired_rets.append(ret)
+                elif self.select == "highest":
+                    for idx, ret in rets.items():
+                        if idx == self.hp_rule_idx:
+                            logger.debug(f"Firing rule {idx} at {location}")
+                            fret = self.rules[idx].action(ret, context=ctx, location=location)
+                            frets.append(fret)
+                            fired_rets.append(ret)
+                # now that we have fired rules, find out how to advance to the next position
+                if self.skip == "once":
+                    return frets
+                elif self.skip == "once":
+                    location = ctx.inc_location(location, by_offset=1)
+                elif self.skip == "longest":
+                    longest = 0
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location > longest:
+                                longest = res.location.text_location
+                    location.text_location = longest
+                    location = ctx.update_location_byoffset(location)
+                elif self.skip == "next":
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location > location.text_location:
+                                location.text_location = res.location.text_location
+                                location.ann_location = res.location.ann_location
+                            elif res.location.text_location == location.text_location and \
+                                    res.location.ann_location > location.ann_location:
+                                location.ann_location = res.location.ann_location
+                returntuples.append((cur_offset, frets))
+            else:
+                # we had no match, just continue from the next offset
+                location = ctx.inc_location(location, by_offset=1)
+            if ctx.at_endofanns(location) or ctx.at_endoftext(location):
+                break
+        return returntuples
 
     __call__ = run

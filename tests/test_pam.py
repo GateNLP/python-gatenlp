@@ -13,6 +13,8 @@ from gatenlp.pam.pampac import (
     Or,
     Success,
     Failure,
+    Rule,
+    Pampac
 )
 
 
@@ -476,5 +478,50 @@ class TestPampac01:
         assert ret[3].data[2]["ann"].id == 7
 
 
+    def test05(self):
+        # Rules and Pampac
+
+        doc = Document("Some test document")
+        doc.annset().add(0, 2, "Ann1")  # 0
+        doc.annset().add(2, 4, "Ann2")  # 1
+        doc.annset().add(3, 5, "Ann2")  # 2
+        doc.annset().add(4, 5, "Ann2")  # 3
+        doc.annset().add(8, 10, "Ann2")  # 4
+        annset = doc.annset()
+        orig_len = len(annset)
+        annlist = list(doc.annset())
+
+        # first make sure the pattern works as we want
+        ctx = Context(doc=doc, anns=annlist)
+        pat1 = AnnAt("Ann2", name="a1") >> AnnAt("Ann2", name="a2")
+        loc = ctx.inc_location(Location(0,0), by_offset=1)
+        ret = pat1.parse(location=loc, context=ctx)
+
+        def r1_action(succ, context=None, **kwargs):
+            span = succ[0].span
+            ann = succ.context.outset.add(span[0], span[1], "NEW")
+            return ann
+        r1 = Rule(
+            AnnAt("Ann2") >> AnnAt("Ann2"),
+            r1_action
+        )
+        pampac = Pampac(r1)
+        pampac.set_skip = "longest"
+        pampac.set_select = "first"
+        outset = doc.annset()
+        ret = pampac.run(doc, annlist, outset=outset, debug=True)
+        assert len(ret) == 1
+        assert len(ret[0]) == 2
+        idx, retlist = ret[0]
+        assert idx == 1
+        assert len(retlist) == 1
+        a = retlist[0]
+        assert isinstance(a, Annotation)
+        assert a.start == 2
+        assert a.end == 5
+        assert a.type == "NEW"
+        assert len(outset) == orig_len + 1
+
+
 if __name__ == "__main__":
-    TestPampac01().test04()
+    TestPampac01().test05()
