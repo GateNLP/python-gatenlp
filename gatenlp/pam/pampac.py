@@ -8,15 +8,11 @@ import functools
 from collections.abc import Iterable, Sized
 from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
-from gatenlp import Span, AnnotationSet
+from gatenlp import AnnotationSet
 
-# TODO: IMPORTANT!!! Result.result(matchtype) should always return a list?? Or always treet "all" differently?
+# TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
 
-# TODO: Implement modifiers for Ann:
-# gap(min,max): only match if the start offset of the annotation is within this distance from the current text offset
-# findgap(min, max): find an annotation where the gap is in the range or fail.
-
-# TODO: figure out which parser parameters could better be implemented as parser modifiers???
+# TODO: figure out which parser parameters could be implemented as parser modifiers instead/in addition???
 
 # TODO: implement backreferences: as a parser and modifier: equality of some part of the current data with
 # HOW??? to get access to all existing data so far: Need to change things so that all parsers which
@@ -31,29 +27,6 @@ from gatenlp import Span, AnnotationSet
 # predicate: a function x,y where x is all existing data and y is the data of parser
 
 
-# TODO: FindAll: return all matches as separate results in Success, even finding nothing is Success.
-# options for how to go over offsets or annotations and for how to advance after a match.
-# if by offsets, advance by one, by longest, if by annotation, advance to next ann or to next ann after longest match,
-# so we can use something like advance="next"/"longest" for both modes.
-
-# TODO re-think "Rule", FindAll sounds more like a rule so Rule(parser, function, **options) could be the
-# TODO: i think a rule should really be just a different way to write down a parser with a callback.
-# Something like:
-# r1 = Rule(AnnAt(..) >> AnnAt(..) >> Text(..) >> AnnAt(),
-#   priority = 100,
-#   lambda succ:
-#      some code
-#      some more code
-# )
-# where the skip value is used by the thing RUNNING the rule, e.g.
-# Pampac(r1, skip = "all") - have default skip etc but use local overrides from rule in case the rule fires.
-# equivalent of FindAll(parser, **options).call(function)
-# FindAll: collect everything that matches in success, then FindAll.call(..) would run on all those results
-# Pampac(listofrules, or, single rules, skip=skip, ): run all of the rules on the document "in parallel" using a
-#    strategy for preference, i.e. how to advance after a match.
-#    maybe use global running strategy
-# Example:  Pampac(Rule(parser, code), Rule(parser, code), strategyparms=something) would be one "phase" of matching
-# each parser could still contain findall etc to go over the whole document
 
 # TODO: IMPORTANT: the advancing strategy for rules could be different and more flexible from the way how we match sequences
 # within a rule, maybe?
@@ -67,29 +40,6 @@ from gatenlp import Span, AnnotationSet
 # first: no direct correspondence but we could just use the first rule in the list of rules
 # once: match once, then do not advance and repeat.
 
-# TODO: think VERY hard again about how to match against the annotation sequence when there are multiple annotations
-# at the same location.
-
-# Instead of rule priorities we have ordered or to prefer matches within FindAll
-# Or to find everything, use All/^
-
-# TODO: make matchtype a parameter of the innermost parser that can return multiple matches. These are
-# * AnnAt
-# * All / ^
-# An nothing else!
-
-# TODO: think about how to combine multiple matches
-# For now we have the following things that can return multiple matches: AnnAt, All
-# We have the following where we need to combine multiple matches somehow:
-# * Seq
-# * N
-# This essentially needs the monadic approach where we use generic code to combine the multiple matches with a reducer
-# function. For pairwaise we can do this easily, so for N we have to do this stepwise-pairwise somehow.
-# In other words, convert Seq(a,b,c,d) into (((a+b)+c)+d) or:
-# r1 = add(a,b)
-# r2 = add(r1, c)
-# r2 = add(r2, d)
-# and do the pairwise calculation each time!
 
 # TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
 # TODO: implement Forward() / fwd.set(fwd | Ann("X"))
@@ -106,21 +56,8 @@ from gatenlp import Span, AnnotationSet
 #   the memotable and return it. If not, calculate recursion depth and Fail if too deep, otherwise call wrapped
 #   parser and memoize (store Success or Failure)
 
-# TODO: Seq: to implement the more powerful optins AND support multiple results properly, need to refactor:
-# * have a helper function for combining all the results from the first and all the results of the next to return
-#   results after subseq
-# * use that helper for the >> operator
-# * in Seq, iterate over essentially applying the >> operator n times or failing
-# * use the same helper method inside N
-# TODO: add modifier parser.repeat(1,2) as Synonym for N(parser, 1, 2)
 
-# TODO: definitely ADD the matchtype option to those parsers where we can multiple results initially
-# TODO: BUT KEEP in SEQ, N, but now with the changed meaning: return according to matchtype, not USE!!!
-
-# TODO: !!! for Seq/N we could also do depth-first which may save memory for shortest, longest
-
-
-class ParseLocation:
+class Location:
     """
     A ParseLocation represents the next location in the text and annotation list where a parser will try to
     match, i.e. the location after everything that has been consumed by the parser so far.
@@ -140,7 +77,7 @@ class ParseLocation:
         return f"Location({self.text_location},{self.ann_location})"
 
     def __eq__(self, other):
-        if not isinstance(other, ParseLocation):
+        if not isinstance(other, Location):
             return False
         return (
             self.text_location == other.text_location
@@ -149,7 +86,19 @@ class ParseLocation:
 
 
 class Result:
+    """
+    Represents an individual parser result. A successful parse can have any number of parser results which
+    are alternate ways of how the parser can match the document.
+    """
     def __init__(self, data=None, location=None, span=None):
+        """
+        Creata parser result.
+
+        Args:
+            data: the data associated with the result, this should be a dictionary or None.
+            location: the location where the result was matched, i.e. the location *before* matching was done.
+            span: the span representing the start and end text offset for the match
+        """
         assert location is not None
         assert span is not None
         if data is not None:
@@ -165,7 +114,10 @@ class Result:
         self.span = span
 
     def data4name(self, name):
-        return [d for d in self.data if d.name == name]
+        """
+        Return a list of data dictionaries with the given name.
+        """
+        return [d for d in self.data if d.get("name") == name]
 
     def __str__(self):
         return f"Result(loc={self.location},span=({self.span[0]},{self.span[1]}),ndata={len(self.data)})"
@@ -351,17 +303,22 @@ class Success(Iterable, Sized):
 
 class Context:
     """
-    Context contains data and refers to data for carrying out the parse. Only the memoize data changes
-    in the context, all other fields are treated as immutable during a parse.
+    Context contains data and refers to data for carrying out the parse.
     """
 
     def __init__(
         self, doc, anns, start=None, end=None, memoize=False, max_recusion=None
     ):
         """
-        start is the offset in the original document to where we start parsing, text is the full
-        document text, start is the first offset from where we start parsing, end is the offset
-        which we should not parse anymore (one after the actual last offset to include).
+        Initialize a parse context.
+
+        Args:
+            doc: the document which should get parsed
+            anns: an iterable of annotations to use for the parsing
+            start: the starting text offset for the parse
+            end: the ending text offset for the parse
+            memoize: If memoization should be used (NOT YET IMPLEMENTED)
+            max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
         """
         self._memotable = {}
         self.max_recursion = max_recusion
@@ -402,7 +359,7 @@ class Context:
 
     def get_ann(self, location):
         """
-        Return the ann at the given location, or None if there is none.
+        Return the ann at the given location, or None if there is none (mainly for the end-of-anns index).
 
         Returns:
             annotation or None
@@ -458,7 +415,7 @@ class Context:
         Returns:
             new location
         """
-        newloc = ParseLocation(
+        newloc = Location(
             text_location=location.text_location, ann_location=location.ann_location
         )
         if by_index is not None:
@@ -501,8 +458,8 @@ class Context:
         """
         for i in range(location.ann_location, len(self.anns)):
             if self.anns[i].start >= location.text_location:
-                return ParseLocation(location.text_location, i)
-        return ParseLocation(location.text_location, len(self.anns))
+                return Location(location.text_location, i)
+        return Location(location.text_location, len(self.anns))
 
     def update_location_byindex(self, location):
         """
@@ -516,9 +473,9 @@ class Context:
             a new location with the text offset updated
         """
         if location.ann_location == len(self.anns):
-            return ParseLocation(len(self.doc.text), location.ann_location)
+            return Location(len(self.doc.text), location.ann_location)
         else:
-            return ParseLocation(
+            return Location(
                 location.text_location, self.anns[location.ann_location].end
             )
 
@@ -549,11 +506,11 @@ class Context:
 
 class PampacParser:
     """
-    An actual parser, something that takes a context and returns a result.
+    A Pampac parser, something that takes a context and returns a result.
     This can be used to decorate a function that should be used as the parser,
     or for subclassing specific parsers.
 
-    When subclassing, the parse(location, context) method must be overriden
+    When subclassing, the parse(location, context) method must be overriden!
     """
 
     def __init__(self, parser_function):
@@ -572,11 +529,13 @@ class PampacParser:
 
         Args:
             doc: the document to run matching on.
-            anns: (default: None) a set or list of annotations. Order of the annotations is important!!
+            anns: (default: None) a set or Iterable of annotations. If this is a list or Iterable, the annotations
+               will get matched in the order given. If it is a set the "natural" order of annotations used
+               by the annotation set iterator will be used.
             start:  the minimum text offset of a range where to look for matches. No annotations that start before
                that offset are included.
-            end: the maximum text offset of a range where to look for matches. No annotation that end after that
-               offset are included
+            end: the maximum text offset of a range where to look for matches. No annotation that ends after that
+               offset and not text that ends after that offset should get included in the result.
 
         Returns:
             Either Success or Failure
@@ -588,7 +547,7 @@ class PampacParser:
             anns = list(anns)
         ctx = Context(doc, anns, start=start, end=end)
         if location is None:
-            location = ParseLocation(ctx.start, 0)
+            location = Location(ctx.start, 0)
         return self.parse(location, ctx)
 
     __call__ = match
@@ -596,8 +555,12 @@ class PampacParser:
     def call(self, func, onfailure=None):
         """
         Returns a parser that is equivalent to this parser, but also calls the given function if there is success.
+
         Args:
-            func:
+            func: the function to call on the success. Should take the success object and arbitrary kwargs.
+                context and location are kwargs that get passed.
+            onfailure: the function to call on failure. Should take the failure object and arbitrary kwargs.
+                context and location are kwargs that get passed.
 
         Returns:
 
@@ -920,16 +883,76 @@ class Call(PampacParser):
     def parse(self, location, context):
         ret = self.parser.parse(location, context)
         if ret.issuccess():
-            self.func(ret, name=self.parser.name, parser=self.parser.__class__.__name__)
+            self.func(ret,
+                      context=context,
+                      location=location,
+                      name=self.parser.name,
+                      parser=self.parser.__class__.__name__)
         else:
             if self.onfailure:
                 self.onfailure(
-                    ret, name=self.parser.name, parser=self.parser.__class__.__name__
+                    ret,
+                    context=context,
+                    location=location,
+                    name=self.parser.name,
+                    parser=self.parser.__class__.__name__
                 )
         return ret
 
 
-class AnnAt(PampacParser):
+class _AnnBase(PampacParser):
+    """
+    Common code for both Ann and AnnAt"
+    """
+    def gap(self, min=0, max=0):
+        """
+        Return a parser which only matches self if the next annotation offset starts at this distance
+        from the current next text offset.
+
+        Args:
+            min: minimum gap size (default: 0)
+            max: maximum gap size (default: 0)
+
+        Returns:
+            parser that tries to match only if the next annotation is within the gap range
+        """
+        def _parse(location, context):
+            ann = context.get_ann(location.ann_location)
+            if ann is None:
+                return Failure(context=context, location=location, message="No annotation left")
+            if ann.start >= location.text_location + min and ann.start <= location.text_location + max:
+                return self.parse(location, context)
+            else:
+                return Failure(context=context, location=location, message="Next ann not withing gap")
+        return PampacParser(parser_function=_parse)
+
+    def findgap(self, min=0, max=0):
+        """
+        Return a parser which matches at the next location where an annotation satisfies the gap constraint
+        with respect to the current text location.
+
+        Args:
+            min: minimum gap size (default 0)
+            max: maximum gap size (default 0)
+
+        Returns:
+            parser that tries to match at the next annotation found within the gap range
+        """
+        def _parse(location, context):
+            idx = location.ann_location
+            while True:
+                ann = context.get_ann(idx)
+                if ann is None:
+                    return Failure(context=context, location=location, message="No annotation left")
+                if ann.start >= location.text_location + min and ann.start <= location.text_location + max:
+                    return self.parse(location, context)
+                if ann.ann.start > location.text_location + max:
+                    return Failure(context=context, location=location, message="No annotation found withing gap")
+                idx + 1
+        return PampacParser(parser_function=_parse)
+
+
+class AnnAt(_AnnBase):
     """
     Parser for matching the first or all annotations at the offset for the next annotation in the list.
     """
@@ -972,7 +995,7 @@ class AnnAt(PampacParser):
         while True:
             if self._matcher(next_ann):
                 matched = True
-                matchlocation = ParseLocation(
+                matchlocation = Location(
                     text_location=start, ann_location=location.ann_location
                 )
                 if self.name is None:
@@ -1012,7 +1035,7 @@ class AnnAt(PampacParser):
             return Success(res, context)
 
 
-class Ann(PampacParser):
+class Ann(_AnnBase):
     """
     Parser for matching the next annotation in the annotation list.
     """
@@ -1201,17 +1224,25 @@ class Or(PampacParser):
     Create a parser that accepts the first of all the parsers specified.
     """
 
-    def __init__(self, *parsers, matchtype="first"):
+    def __init__(self, *parsers, matchtype="all"):
+        """
+        Creates a parser that tries each of the given parsers in order and uses the first
+        one that finds a successful match only.
+
+        Args:
+            *parsers: two or more parsers to each try in sequence
+            matchtype: which of the results from the successful parser to return.
+        """
         assert len(parsers) > 0
         self.parsers = parsers
         self.matchtype = matchtype
-        if matchtype == "all":
-            raise NotImplemented()
 
     def parse(self, location, context):
         for p in self.parsers:
             ret = p.parse(location, context)
             if ret.issuccess():
+                if self.matchtype == "all":
+                    return ret
                 result = ret.result(self.matchtype)
                 newloc = result.location
                 return Success(
@@ -1389,18 +1420,18 @@ class N(PampacParser):
         self.select = select
 
     def parse(self, location, context):
-        if self.matchtype != "all":
+        start = location.text_location
+        end = start
+        if self.select != "all":
             datas = []
             i = 0
-            start = location.text_location
-            end = start
             first = True
             # location is the location where we try to match
             while True:
                 if self.until and i >= self.min:
                     ret = self.until.parse(location, context)
                     if ret.issuccess():
-                        res = ret.result(self.matchtype)
+                        res = ret.result(self.select)
                         data = res.data
                         for d in data:
                             datas.append(d)
@@ -1423,7 +1454,7 @@ class N(PampacParser):
                             context,
                         )
                 else:
-                    result = ret.result(self.matchtype)
+                    result = ret.result(self.select)
                     if first:
                         first = False
                         start = result.span[0]
@@ -1438,7 +1469,7 @@ class N(PampacParser):
             if self.until:
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
-                    res = ret.result(self.matchtype)
+                    res = ret.result(self.select)
                     data = res.data
                     loc = res.location
                     end = res.span[1]
@@ -1462,22 +1493,23 @@ class N(PampacParser):
             def depthfirst(lvl, result):
                 # if we already have min matches and we can terminate early, do it
                 if self.until and lvl >= self.min:
-                    ret = self.until.parse(location, context)
+                    ret = self.until.parse(result.location, context)
                     if ret.issuccess():
-                        res = ret.result(self.matchtype)
-                        data = result.data.copy()
-                        for d in res.data:
-                            data.append(d)
-                        loc = res.location
-                        end = res.span[1]
-                        yield Result(data, location=loc, span=(start, end))
+                        for res in ret:
+                            data = result.data.copy()
+                            for dtmp in res.data:
+                                data.append(dtmp)
+                            loc = res.location
+                            end = res.span[1]
+                            yield Result(data, location=loc, span=(start, end))
+                            return
                 # if we got here after the max number of matches, and self.until is set, then
                 # the parse we did above did not succeed, so we end without a result
                 if self.until and lvl > self.max:
                     return
                 # if we got here after the max number of matches and self.util is not set, we
                 # can yield the current result as we found max matches
-                if lvl > self.max:
+                if lvl >= self.max:
                     yield result
                     return
                 # lvl is still smaller than max, so we try to match more
