@@ -11,6 +11,15 @@ from gatenlp.utils import support_annotation_or_set
 from gatenlp import AnnotationSet
 from gatenlp.utils import init_logger
 
+# TODO: implement pre-canned actions:
+# ActionAddAnn(): default span is the first result
+# accessor functions: ResultData(0, "name", 2) - returns a function that accesses the 2nd data
+#   of all the datas in the 0th result that match the given name
+# ResultSpan(0), ResultAnn(0,"name",2), ResultText(0,"name",1)
+# or better ResultSpan("name") or ResultSpan(name="name", result=0, data=2) with defaults for result, data
+# ResultAnn("name") returns a function that returns the annotation later
+# ResultAnn("name") / ResultAnnFeatures / ResultAnnFeature / ResultAnnType
+
 # TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
 
 # TODO: figure out which parser parameters could be implemented as parser modifiers instead/in addition???
