@@ -11,6 +11,12 @@ from gatenlp.utils import support_annotation_or_set
 from gatenlp import AnnotationSet
 from gatenlp.utils import init_logger
 
+# TODO: IMPORTANT: implement data for named non-terminals: this data only has a name and a span. So
+# there will be a data for the entire result (which should always be datas[-1] ) and we can drop
+# span from the result and instead access it from there (still have a span method on the Result class for
+# simplicity)
+# TODO: also store spans in Span objects
+
 # TODO: implement pre-canned actions:
 # ActionAddAnn(): default span is the first result
 # accessor functions: ResultData(0, "name", 2) - returns a function that accesses the 2nd data
@@ -1750,3 +1756,31 @@ class Pampac:
         return returntuples
 
     __call__ = run
+
+# Helpers for easier declarations of Actions and for easier access to match results within actions
+
+class AddAnn:
+    def __init__(self, name, typeorann, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False):
+        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span at firing time
+        self.name = name
+        if isinstance(typeorann, str):
+            self.anntype = typeorann
+        else:
+            self.getann = typeorann
+        self.features = features
+        self.span = span
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx >= len(succ):
+            if not self.silent_fail:
+                raise Exception(f"No resultidx {self.resultidx}, only {len(succ)} results")
+        res = succ[self.resultidx]
+        if self.dataidx >= len(res.data):
+            if not self.silent_fail:
+                raise Exception(f"No dataidx {self.dataidx}, only {len(res.data)} data")
+        
+
