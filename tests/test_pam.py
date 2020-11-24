@@ -1,5 +1,5 @@
 import os
-from gatenlp import Document, Annotation
+from gatenlp import Document, Annotation, Span
 from gatenlp.pam.pampac import Context, Location
 
 from gatenlp.pam.pampac import (
@@ -278,6 +278,24 @@ class TestPampac01:
         assert ret[0].data[0]["ann"].id == 0
         assert ret[0].data[1]["ann"].id == 3
         assert ret[0].data[2]["ann"].id == 5
+
+        # Same as before, but with a name, so we should get one additional data for the whole sequence
+        # with a span
+        ret = N(
+            AnnAt("Ann", name="a1", matchtype="first"),
+            min=2,
+            max=3,
+            select="first",
+            matchtype="first",
+            name="n1"
+        ).match(doc, annlist)
+        assert ret.issuccess()
+        assert len(ret) == 1
+        assert len(ret[0].data) == 4
+        assert ret[0].data[0]["ann"].id == 0
+        assert ret[0].data[1]["ann"].id == 3
+        assert ret[0].data[2]["ann"].id == 5
+        assert ret[0].data[3]["span"] == Span(0, 6)
 
         # single Ann, single result from N
         # this should return annotation ids 0, 3, 5, 8

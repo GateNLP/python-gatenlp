@@ -10,12 +10,15 @@ from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
 from gatenlp import AnnotationSet
 from gatenlp.utils import init_logger
+from gatenlp import Span
 
 # TODO: IMPORTANT: implement data for named non-terminals: this data only has a name and a span. So
 # there will be a data for the entire result (which should always be datas[-1] ) and we can drop
 # span from the result and instead access it from there (still have a span method on the Result class for
 # simplicity)
+# TODO IMPORTANT !!! MAKE SURE ALL DATA has a span, the name, and maybe a location?
 # TODO: also store spans in Span objects
+# Stage one: first do this only for the NEW span stored in each data!
 
 # TODO: implement pre-canned actions:
 # ActionAddAnn(): default span is the first result
@@ -1020,10 +1023,10 @@ class AnnAt(_AnnBase):
                     data = None
                 else:
                     data = dict(
+                        span=Span(next_ann),
                         location=matchlocation,
                         ann=next_ann,
                         name=self.name,
-                        parser=self.__class__.__name__,
                     )
                 # update location
                 location = context.inc_location(location, by_index=1)
@@ -1117,10 +1120,10 @@ class Ann(_AnnBase):
             newlocation = context.inc_location(location, by_index=1)
             if self.name is not None:
                 data = dict(
+                    span=Span(next_ann),
                     location=location,
                     ann=next_ann,
                     name=self.name,
-                    parser=self.__class__.__name__,
                 )
             else:
                 data = None
@@ -1202,10 +1205,10 @@ class Text(PampacParser):
                 if self.name:
                     data = dict(
                         location=location,
+                        span=Span(location.text_location, location.text_location+len(m.group())),
                         text=m.group(),
                         groups=m.groups(),
                         name=self.name,
-                        parser=self.__class__.__name__,
                     )
                 else:
                     data = None
@@ -1221,10 +1224,10 @@ class Text(PampacParser):
             if txt.startswith(self.text):
                 if self.name:
                     data = dict(
+                        span=Span(location.text_location, location.text_location+len(self.text)),
                         location=location,
                         text=self.text,
                         name=self.name,
-                        parser=self.__class__.__name__,
                     )
                 else:
                     data = None
@@ -1272,6 +1275,11 @@ class Or(PampacParser):
 
 
 class And(PampacParser):
+    """
+    Return a parser that is successful if all the parsers match at some location, and
+    fails otherwise. Success always contains all results from all parsers.
+
+    """
     def __init__(self, *parsers):
         self.parsers = parsers
 
@@ -1292,6 +1300,10 @@ class And(PampacParser):
 
 
 class All(PampacParser):
+    """
+    Return a parser that succeeds if one or more parsers succeed at some location.
+    If success, all results from all succeeding parsers are included.
+    """
     def __init__(self, *parsers):
         self.parsers = parsers
 
@@ -1314,10 +1326,13 @@ class All(PampacParser):
 
 class Seq(PampacParser):
     """
-    A parser that represents a sequence of matching parsers. This parser will combine
+    A parser that represents a sequence of matching parsers. Each result of this parser combines
+    all the data from the sequence element parsers. For matchtype all and select all, all paths
+    through all the possible ways to match the sequence get combined into separate results of
+    a successful parse.
     """
 
-    def __init__(self, *parsers, matchtype="first", select="first"):
+    def __init__(self, *parsers, matchtype="first", select="first", name=None):
         """
 
         Args:
@@ -1327,6 +1342,8 @@ class Seq(PampacParser):
               generate an exponential number of combinations for all the results to select from.
             select: (default "first") one of "first", "longest", "shortest", "all": which match to choose from each
               of the parsers. Only if "all" is used will more than one result be generated.
+            name: if not None, a separate data element is added to the result with that name and
+              a span that represents the span of the result.
         """
         assert len(parsers) > 0
         self.parsers = parsers
@@ -1335,6 +1352,7 @@ class Seq(PampacParser):
         assert matchtype in ["first", "longest", "shortest", "all"]
         self.select = select
         self.matchtype = matchtype
+        self.name = name
 
     def parse(self, location, context):
         if self.select != "all":
@@ -1357,6 +1375,8 @@ class Seq(PampacParser):
                     return Failure(
                         context=context, location=location, message="Mismatch in Seq"
                     )
+            if self.name:
+                datas.append(dict(span=Span(start,end), name=self.name))
             return Success(
                 Result(data=datas, location=location, span=(start, end)), context
             )
@@ -1374,10 +1394,13 @@ class Seq(PampacParser):
                             datas.append(d)
                         loc = res.location
                         span = (location.text_location, res.location.text_location)
-                        newresult = Result(datas, location=loc, span=span)
                         if lvl == len(self.parsers) - 1:
+                            if self.name:
+                                datas.append(dict(span=Span(start, end), name=self.name))
+                            newresult = Result(datas, location=loc, span=span)
                             yield newresult
                         else:
+                            newresult = Result(datas, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
             gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
@@ -1416,7 +1439,7 @@ class N(PampacParser):
     """
 
     def __init__(
-        self, parser, min=1, max=1, matchtype="first", select="first", until=None
+        self, parser, min=1, max=1, matchtype="first", select="first", until=None, name=None
     ):
         """
         Return a parser that matches min to max matches of parser in sequence. If until is specified, that
@@ -1424,11 +1447,13 @@ class N(PampacParser):
         If after ming to max matches of the parser, until does not match, the parser fails.
 
         Args:
-            parser:
-            min:
-            max:
-            matchtype:
-            until:
+            parser: the parser that should match min to max times
+            min: minimum number of times to match for a success
+            max: maximum number of times to match for a success
+            matchtype: which results to include in a successful match, one of first, longest, shortest, all
+            until: parser that terminates the repetition
+            name: if not None, adds an additional data element to the result which contains the
+              and span of the whole sequence.
         """
         self.parser = parser
         self.min = min
@@ -1436,6 +1461,7 @@ class N(PampacParser):
         self.matchtype = matchtype
         self.until = until
         self.select = select
+        self.name = name
 
     def parse(self, location, context):
         start = location.text_location
@@ -1455,6 +1481,8 @@ class N(PampacParser):
                             datas.append(d)
                         loc = res.location
                         end = res.span[1]
+                        if self.name:
+                            datas.append(dict(span=Span(start,end), name=self.name))
                         return Success(
                             Result(datas, location=loc, span=(start, end)), context
                         )
@@ -1467,6 +1495,8 @@ class N(PampacParser):
                             message=f"Not at least {self.min} matches",
                         )
                     else:
+                        if self.name:
+                            datas.append(dict(span=Span(start,end), name=self.name))
                         return Success(
                             Result(data=datas, location=location, span=(start, end)),
                             context,
@@ -1493,6 +1523,8 @@ class N(PampacParser):
                     end = res.span[1]
                     for d in data:
                         datas.append(d)
+                    if self.name:
+                        datas.append(dict(span=Span(start, end), name=self.name))
                     return Success(
                         Result(datas, location=loc, span=(start, end)), context
                     )
@@ -1502,6 +1534,8 @@ class N(PampacParser):
                         location=location,
                         message="Until parser not successful",
                     )
+            if self.name:
+                datas.append(dict(span=Span(start, end), name=self.name))
             return Success(
                 Result(data=datas, location=location, span=(start, end)), context
             )
@@ -1519,6 +1553,8 @@ class N(PampacParser):
                                 data.append(dtmp)
                             loc = res.location
                             end = res.span[1]
+                            if self.name:
+                                data.append(dict(span=Span(start, end), name=self.name))
                             yield Result(data, location=loc, span=(start, end))
                             return
                 # if we got here after the max number of matches, and self.until is set, then
@@ -1548,6 +1584,10 @@ class N(PampacParser):
                     else:
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
+                            data = result.data
+                            end = result.span[1]
+                            if self.name:
+                                data.append(dict(span=Span(start, end), name=self.name))
                             yield result
                         else:
                             # if we have until, then the until above did not match so neither the normal parser
@@ -1759,6 +1799,7 @@ class Pampac:
 
 # Helpers for easier declarations of Actions and for easier access to match results within actions
 
+
 class AddAnn:
     def __init__(self, name, typeorann, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False):
         # span is either a span, the index of data to take the span from, or a callable that will return the
@@ -1782,5 +1823,6 @@ class AddAnn:
         if self.dataidx >= len(res.data):
             if not self.silent_fail:
                 raise Exception(f"No dataidx {self.dataidx}, only {len(res.data)} data")
-        
+        data = res.data[self.dataidx]
+
 

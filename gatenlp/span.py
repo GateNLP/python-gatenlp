@@ -10,11 +10,20 @@ from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import support_annotation_or_set
 from collections import namedtuple
 from recordclass import structclass
+from gatenlp.utils import support_annotation_or_set
 
 
 @total_ordering
 # class Span(namedtuple("Span", ["start", "end"])):
-class Span(structclass("Span", ("start", "end"))):
+# NOTE: we cannot use structlcass, since that does not work with wrapping the init method so
+# we can create a span from an annotation.
+# class Span(structclass("Span", ("start", "end"))):
+# Instead, we simply use slots for now.
+class Span:
+
+    __slots__ = ["start", "end"]
+
+    @support_annotation_or_set
     def __init__(self, start, end):
         self.start = start
         self.end = end
