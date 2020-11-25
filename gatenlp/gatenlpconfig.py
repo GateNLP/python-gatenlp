@@ -16,5 +16,14 @@ class GatenlpConfig:
         # the html-ann-viewer
         self.notebook_js_initialized = False
 
+        # The height to use for row1/row2 and row1 if stretch_height is True
+        self.doc_html_repr_height1_stretch = "height: 67vh;"
+        self.doc_html_repr_height2_stretch = "height: 30vh;"
+
+        # The height to use for row1/row2 and row1 if stretch_height is False
+        self.doc_html_repr_height1_nostretch = "max-height: 20em;"
+        self.doc_html_repr_height2_nostretch = "max-height: 14em;"
+
+
 
 gatenlpconfig = GatenlpConfig()

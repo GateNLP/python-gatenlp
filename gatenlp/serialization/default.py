@@ -662,6 +662,7 @@ class HtmlAnnViewerSerializer:
         offline=False,
         add_js=True,
         htmlid=None,
+        stretch_height=False,
         **kwargs,
     ):
         """Convert a document to HTML for visualizing it.
@@ -680,6 +681,12 @@ class HtmlAnnViewerSerializer:
              notebook=True).
           htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
              same HTML page and to style the output from a separate notebook cell
+          max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
+             given value (default: 20em). If this is None, then the height is set to
+          stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
+             min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
+             If True, no max haight is set and instead the height is set to a percentage (default is
+             67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
           kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
@@ -737,7 +744,14 @@ class HtmlAnnViewerSerializer:
                 js = ""
         else:
             js = JS_JQUERY + JS_GATENLP
+        if stretch_height:
+            height1 = gatenlpconfig.doc_html_repr_height1_stretch
+            height2 = gatenlpconfig.doc_html_repr_height2_stretch
+        else:
+            height1 = gatenlpconfig.doc_html_repr_height1_nostretch
+            height2 = gatenlpconfig.doc_html_repr_height2_nostretch
         html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)
+        html = html.replace("$$HEIGHT1$$", height1, 1).replace("$$HEIGHT2$$", height2, 1)
         if to_mem:
             return html
         else:
