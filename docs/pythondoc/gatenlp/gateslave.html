@@ -72,7 +72,9 @@ def classpath_sep(platform=None):
     if not platform:
         myplatform = sysplatform.system()
         if not myplatform:
-            raise Exception(&#34;Could not determine operating system, please use platform parameter&#34;)
+            raise Exception(
+                &#34;Could not determine operating system, please use platform parameter&#34;
+            )
         platform = myplatform
     if platform.lower() == &#34;windows&#34; or platform.lower() == &#34;win&#34;:
         return &#34;;&#34;
@@ -103,7 +105,9 @@ def gate_classpath(gatehome, platform=None):
     # logger.info(&#34;DEBUG checking for {}&#34;.format(cpfile))
     if os.path.exists(cpfile):
         if not os.path.exists(cpfile):
-            raise Exception(&#34;File not found {}, distribution may need compiling&#34;.format(cpfile))
+            raise Exception(
+                &#34;File not found {}, distribution may need compiling&#34;.format(cpfile)
+            )
         with open(cpfile, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fp:
             cp = fp.read()
             return cp + cpsep + bindir
@@ -112,7 +116,11 @@ def gate_classpath(gatehome, platform=None):
         libdir = os.path.join(gatehome, &#34;lib&#34;)
         bindir = os.path.join(gatehome, &#34;bin&#34;)
         if not os.path.isdir(libdir):
-            raise Exception(&#34;Could not determine class path from {}, no lib directory&#34;.format(gatehome))
+            raise Exception(
+                &#34;Could not determine class path from {}, no lib directory&#34;.format(
+                    gatehome
+                )
+            )
         jars = glob.glob(os.path.join(libdir, &#34;*.jar&#34;))
         libcp = cpsep.join(jars)
 
@@ -120,16 +128,16 @@ def gate_classpath(gatehome, platform=None):
 
 
 def start_gate_slave(
-        port=25333,
-        host=&#34;127.0.0.1&#34;,
-        auth_token=None,
-        use_auth_token=True,
-        java=&#34;java&#34;,
-        platform=None,
-        gatehome=None,
-        log_actions=False,
-        keep=False,
-        debug=False,
+    port=25333,
+    host=&#34;127.0.0.1&#34;,
+    auth_token=None,
+    use_auth_token=True,
+    java=&#34;java&#34;,
+    platform=None,
+    gatehome=None,
+    log_actions=False,
+    keep=False,
+    debug=False,
 ):
     &#34;&#34;&#34;
 
@@ -155,7 +163,9 @@ def start_gate_slave(
     if gatehome is None:
         gatehome = os.environ.get(&#34;GATE_HOME&#34;)
         if gatehome is None:
-            raise Exception(&#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;)
+            raise Exception(
+                &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
+            )
     if use_auth_token:
         if not auth_token:
             auth_token = secrets.token_urlsafe(20)
@@ -171,8 +181,12 @@ def start_gate_slave(
         keep = &#34;1&#34;
     else:
         keep = &#34;0&#34;
-    logger.debug(f&#34;Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;)
-    jarloc = os.path.join(os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;)
+    logger.debug(
+        f&#34;Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;
+    )
+    jarloc = os.path.join(
+        os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;
+    )
     if not os.path.exists(jarloc):
         raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
     logger.debug(f&#34;Using JAR: {jarloc}&#34;)
@@ -187,7 +201,9 @@ def start_gate_slave(
     os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34; + str(port)] = auth_token
     cmd = &#34; &#34;.join(cmdandparms)
     logger.debug(f&#34;Running command: {cmd}&#34;)
-    subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;)
+    subproc = subprocess.Popen(
+        cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
+    )
 
     def shutdown():
         &#34;&#34;&#34; &#34;&#34;&#34;
@@ -215,18 +231,21 @@ def start_gate_slave(
 
 class GateSlave:
     &#34;&#34;&#34; &#34;&#34;&#34;
-    def __init__(self, port=25333,
-                 start=True,
-                 java=&#34;java&#34;,
-                 host=&#34;127.0.0.1&#34;,
-                 gatehome=None,
-                 platform=None,
-                 auth_token=None,
-                 use_auth_token=True,
-                 log_actions=False,
-                 keep=False,
-                 debug=False,
-                 ):
+
+    def __init__(
+        self,
+        port=25333,
+        start=True,
+        java=&#34;java&#34;,
+        host=&#34;127.0.0.1&#34;,
+        gatehome=None,
+        platform=None,
+        auth_token=None,
+        use_auth_token=True,
+        log_actions=False,
+        keep=False,
+        debug=False,
+    ):
         &#34;&#34;&#34;
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -298,17 +317,25 @@ class GateSlave:
         if gatehome is None and start:
             gatehome = os.environ.get(&#34;GATE_HOME&#34;)
             if gatehome is None:
-                raise Exception(&#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;)
+                raise Exception(
+                    &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
+                )
             self.gatehome = gatehome
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
-            jarloc = os.path.join(os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;)
+            jarloc = os.path.join(
+                os.path.dirname(__file__),
+                &#34;_jars&#34;,
+                f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;,
+            )
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
             cmdandparms = [java, &#34;-cp&#34;]
             cpsep = classpath_sep(platform=platform)
-            cmdandparms.append(jarloc + cpsep + gate_classpath(self.gatehome, platform=platform))
+            cmdandparms.append(
+                jarloc + cpsep + gate_classpath(self.gatehome, platform=platform)
+            )
             cmdandparms.append(&#34;gate.tools.gatenlpslave.GatenlpSlave&#34;)
             cmdandparms.append(str(port))
             cmdandparms.append(host)
@@ -320,10 +347,12 @@ class GateSlave:
                 cmdandparms.append(&#34;1&#34;)
             else:
                 cmdandparms.append(&#34;0&#34;)
-            os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34;+str(self.port)] = self.auth_token
+            os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34; + str(self.port)] = self.auth_token
             cmd = &#34; &#34;.join(cmdandparms)
             self.logger.debug(f&#34;Running command: {cmd}&#34;)
-            subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;)
+            subproc = subprocess.Popen(
+                cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
+            )
             self.gateprocess = subproc
             while True:
                 line = subproc.stderr.readline()
@@ -337,13 +366,14 @@ class GateSlave:
                 print(line, file=sys.stderr)
             atexit.register(self.close)
         self.gateway = JavaGateway(
-            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token))
+            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
+        )
         self.jvm = self.gateway.jvm
         self.slave = self.gateway.entry_point
         self.gate_version = self.jvm.gate.Main.version
         self.gate_build = self.jvm.gate.Main.build
-        self.slave_version = self.slave.plugin_version()
-        self.slave_build = self.slave.plugin_build()
+        self.slave_version = self.slave.pluginVersion()
+        self.slave_build = self.slave.pluginBuild()
 
     @staticmethod
     def download():
@@ -364,7 +394,7 @@ class GateSlave:
         Clean up: if the gate slave process was started by us, we will shut it down.
         Otherwise we can still close it if it was started by the slaverunner, not the Lr
         Note: if it was started by us, it was started via the slaverunner.
-        
+
         :return:
 
         Args:
@@ -462,24 +492,26 @@ class GateSlave:
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
-    def del_gdoc(self, gdoc):
-        &#34;&#34;&#34;Delete/unload the GATE document from GATE.
-        This is necessary to do for each GATE document that is not used anymore, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+    def del_resource(self, resource):
+        &#34;&#34;&#34;
+        Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
         GATE document does not delete/unload the document!
 
         Args:
-          gdoc: the document to remove
+          resource: the Java GATE resource, e.g. a document to remove
 
         Returns:
 
         &#34;&#34;&#34;
-        self.jvm.gate.Factory.deleteResource(gdoc)
+        self.jvm.gate.Factory.deleteResource(resource)
 
     def show_gui(self):
         &#34;&#34;&#34;Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
         when closing down the GATE slave.
-        
+
         :return:
 
         Args:
@@ -493,15 +525,37 @@ class GateSlave:
 def main():
     &#34;&#34;&#34; &#34;&#34;&#34;
     ap = argparse.ArgumentParser(description=&#34;Start Java GATE Slave&#34;)
-    ap.add_argument(&#34;--download&#34;, action=&#34;store_true&#34;, help=&#34;Download GATE libraries to run GATE slave&#34;)
+    ap.add_argument(
+        &#34;--download&#34;,
+        action=&#34;store_true&#34;,
+        help=&#34;Download GATE libraries to run GATE slave&#34;,
+    )
     ap.add_argument(&#34;--port&#34;, default=25333, type=int, help=&#34;Port (25333)&#34;)
-    ap.add_argument(&#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;)
-    ap.add_argument(&#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;)
+    ap.add_argument(
+        &#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;
+    )
+    ap.add_argument(
+        &#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;
+    )
     ap.add_argument(&#34;--noauth&#34;, action=&#34;store_true&#34;, help=&#34;Do not use auth token&#34;)
-    ap.add_argument(&#34;--gatehome&#34;, default=None, type=str, help=&#34;Location of GATE (environment variable GATE_HOME)&#34;)
-    ap.add_argument(&#34;--platform&#34;, default=None, type=str, help=&#34;OS/Platform: windows or linux (autodetect)&#34;)
-    ap.add_argument(&#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If slave actions should be logged&#34;)
-    ap.add_argument(&#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the slave&#34;)
+    ap.add_argument(
+        &#34;--gatehome&#34;,
+        default=None,
+        type=str,
+        help=&#34;Location of GATE (environment variable GATE_HOME)&#34;,
+    )
+    ap.add_argument(
+        &#34;--platform&#34;,
+        default=None,
+        type=str,
+        help=&#34;OS/Platform: windows or linux (autodetect)&#34;,
+    )
+    ap.add_argument(
+        &#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If slave actions should be logged&#34;
+    )
+    ap.add_argument(
+        &#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the slave&#34;
+    )
     ap.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
     args = ap.parse_args()
     if args.download:
@@ -559,7 +613,9 @@ if __name__ == &#34;__main__&#34;:
     if not platform:
         myplatform = sysplatform.system()
         if not myplatform:
-            raise Exception(&#34;Could not determine operating system, please use platform parameter&#34;)
+            raise Exception(
+                &#34;Could not determine operating system, please use platform parameter&#34;
+            )
         platform = myplatform
     if platform.lower() == &#34;windows&#34; or platform.lower() == &#34;win&#34;:
         return &#34;;&#34;
@@ -609,7 +665,9 @@ for the operating system.</p>
     # logger.info(&#34;DEBUG checking for {}&#34;.format(cpfile))
     if os.path.exists(cpfile):
         if not os.path.exists(cpfile):
-            raise Exception(&#34;File not found {}, distribution may need compiling&#34;.format(cpfile))
+            raise Exception(
+                &#34;File not found {}, distribution may need compiling&#34;.format(cpfile)
+            )
         with open(cpfile, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fp:
             cp = fp.read()
             return cp + cpsep + bindir
@@ -618,7 +676,11 @@ for the operating system.</p>
         libdir = os.path.join(gatehome, &#34;lib&#34;)
         bindir = os.path.join(gatehome, &#34;bin&#34;)
         if not os.path.isdir(libdir):
-            raise Exception(&#34;Could not determine class path from {}, no lib directory&#34;.format(gatehome))
+            raise Exception(
+                &#34;Could not determine class path from {}, no lib directory&#34;.format(
+                    gatehome
+                )
+            )
         jars = glob.glob(os.path.join(libdir, &#34;*.jar&#34;))
         libcp = cpsep.join(jars)
 
@@ -637,15 +699,37 @@ for the operating system.</p>
 <pre><code class="python">def main():
     &#34;&#34;&#34; &#34;&#34;&#34;
     ap = argparse.ArgumentParser(description=&#34;Start Java GATE Slave&#34;)
-    ap.add_argument(&#34;--download&#34;, action=&#34;store_true&#34;, help=&#34;Download GATE libraries to run GATE slave&#34;)
+    ap.add_argument(
+        &#34;--download&#34;,
+        action=&#34;store_true&#34;,
+        help=&#34;Download GATE libraries to run GATE slave&#34;,
+    )
     ap.add_argument(&#34;--port&#34;, default=25333, type=int, help=&#34;Port (25333)&#34;)
-    ap.add_argument(&#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;)
-    ap.add_argument(&#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;)
+    ap.add_argument(
+        &#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;
+    )
+    ap.add_argument(
+        &#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;
+    )
     ap.add_argument(&#34;--noauth&#34;, action=&#34;store_true&#34;, help=&#34;Do not use auth token&#34;)
-    ap.add_argument(&#34;--gatehome&#34;, default=None, type=str, help=&#34;Location of GATE (environment variable GATE_HOME)&#34;)
-    ap.add_argument(&#34;--platform&#34;, default=None, type=str, help=&#34;OS/Platform: windows or linux (autodetect)&#34;)
-    ap.add_argument(&#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If slave actions should be logged&#34;)
-    ap.add_argument(&#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the slave&#34;)
+    ap.add_argument(
+        &#34;--gatehome&#34;,
+        default=None,
+        type=str,
+        help=&#34;Location of GATE (environment variable GATE_HOME)&#34;,
+    )
+    ap.add_argument(
+        &#34;--platform&#34;,
+        default=None,
+        type=str,
+        help=&#34;OS/Platform: windows or linux (autodetect)&#34;,
+    )
+    ap.add_argument(
+        &#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If slave actions should be logged&#34;
+    )
+    ap.add_argument(
+        &#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the slave&#34;
+    )
     ap.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
     args = ap.parse_args()
     if args.download:
@@ -697,16 +781,16 @@ for the operating system.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start_gate_slave(
-        port=25333,
-        host=&#34;127.0.0.1&#34;,
-        auth_token=None,
-        use_auth_token=True,
-        java=&#34;java&#34;,
-        platform=None,
-        gatehome=None,
-        log_actions=False,
-        keep=False,
-        debug=False,
+    port=25333,
+    host=&#34;127.0.0.1&#34;,
+    auth_token=None,
+    use_auth_token=True,
+    java=&#34;java&#34;,
+    platform=None,
+    gatehome=None,
+    log_actions=False,
+    keep=False,
+    debug=False,
 ):
     &#34;&#34;&#34;
 
@@ -732,7 +816,9 @@ for the operating system.</p>
     if gatehome is None:
         gatehome = os.environ.get(&#34;GATE_HOME&#34;)
         if gatehome is None:
-            raise Exception(&#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;)
+            raise Exception(
+                &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
+            )
     if use_auth_token:
         if not auth_token:
             auth_token = secrets.token_urlsafe(20)
@@ -748,8 +834,12 @@ for the operating system.</p>
         keep = &#34;1&#34;
     else:
         keep = &#34;0&#34;
-    logger.debug(f&#34;Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;)
-    jarloc = os.path.join(os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;)
+    logger.debug(
+        f&#34;Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;
+    )
+    jarloc = os.path.join(
+        os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;
+    )
     if not os.path.exists(jarloc):
         raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
     logger.debug(f&#34;Using JAR: {jarloc}&#34;)
@@ -764,7 +854,9 @@ for the operating system.</p>
     os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34; + str(port)] = auth_token
     cmd = &#34; &#34;.join(cmdandparms)
     logger.debug(f&#34;Running command: {cmd}&#34;)
-    subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;)
+    subproc = subprocess.Popen(
+        cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
+    )
 
     def shutdown():
         &#34;&#34;&#34; &#34;&#34;&#34;
@@ -849,18 +941,21 @@ the slave.
 </summary>
 <pre><code class="python">class GateSlave:
     &#34;&#34;&#34; &#34;&#34;&#34;
-    def __init__(self, port=25333,
-                 start=True,
-                 java=&#34;java&#34;,
-                 host=&#34;127.0.0.1&#34;,
-                 gatehome=None,
-                 platform=None,
-                 auth_token=None,
-                 use_auth_token=True,
-                 log_actions=False,
-                 keep=False,
-                 debug=False,
-                 ):
+
+    def __init__(
+        self,
+        port=25333,
+        start=True,
+        java=&#34;java&#34;,
+        host=&#34;127.0.0.1&#34;,
+        gatehome=None,
+        platform=None,
+        auth_token=None,
+        use_auth_token=True,
+        log_actions=False,
+        keep=False,
+        debug=False,
+    ):
         &#34;&#34;&#34;
         Create an instance of the GateSlave and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -932,17 +1027,25 @@ the slave.
         if gatehome is None and start:
             gatehome = os.environ.get(&#34;GATE_HOME&#34;)
             if gatehome is None:
-                raise Exception(&#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;)
+                raise Exception(
+                    &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
+                )
             self.gatehome = gatehome
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
-            jarloc = os.path.join(os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;)
+            jarloc = os.path.join(
+                os.path.dirname(__file__),
+                &#34;_jars&#34;,
+                f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;,
+            )
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
             cmdandparms = [java, &#34;-cp&#34;]
             cpsep = classpath_sep(platform=platform)
-            cmdandparms.append(jarloc + cpsep + gate_classpath(self.gatehome, platform=platform))
+            cmdandparms.append(
+                jarloc + cpsep + gate_classpath(self.gatehome, platform=platform)
+            )
             cmdandparms.append(&#34;gate.tools.gatenlpslave.GatenlpSlave&#34;)
             cmdandparms.append(str(port))
             cmdandparms.append(host)
@@ -954,10 +1057,12 @@ the slave.
                 cmdandparms.append(&#34;1&#34;)
             else:
                 cmdandparms.append(&#34;0&#34;)
-            os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34;+str(self.port)] = self.auth_token
+            os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34; + str(self.port)] = self.auth_token
             cmd = &#34; &#34;.join(cmdandparms)
             self.logger.debug(f&#34;Running command: {cmd}&#34;)
-            subproc = subprocess.Popen(cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;)
+            subproc = subprocess.Popen(
+                cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
+            )
             self.gateprocess = subproc
             while True:
                 line = subproc.stderr.readline()
@@ -971,13 +1076,14 @@ the slave.
                 print(line, file=sys.stderr)
             atexit.register(self.close)
         self.gateway = JavaGateway(
-            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token))
+            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
+        )
         self.jvm = self.gateway.jvm
         self.slave = self.gateway.entry_point
         self.gate_version = self.jvm.gate.Main.version
         self.gate_build = self.jvm.gate.Main.build
-        self.slave_version = self.slave.plugin_version()
-        self.slave_build = self.slave.plugin_build()
+        self.slave_version = self.slave.pluginVersion()
+        self.slave_build = self.slave.pluginBuild()
 
     @staticmethod
     def download():
@@ -998,7 +1104,7 @@ the slave.
         Clean up: if the gate slave process was started by us, we will shut it down.
         Otherwise we can still close it if it was started by the slaverunner, not the Lr
         Note: if it was started by us, it was started via the slaverunner.
-        
+
         :return:
 
         Args:
@@ -1096,24 +1202,26 @@ the slave.
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
-    def del_gdoc(self, gdoc):
-        &#34;&#34;&#34;Delete/unload the GATE document from GATE.
-        This is necessary to do for each GATE document that is not used anymore, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+    def del_resource(self, resource):
+        &#34;&#34;&#34;
+        Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
         GATE document does not delete/unload the document!
 
         Args:
-          gdoc: the document to remove
+          resource: the Java GATE resource, e.g. a document to remove
 
         Returns:
 
         &#34;&#34;&#34;
-        self.jvm.gate.Factory.deleteResource(gdoc)
+        self.jvm.gate.Factory.deleteResource(resource)
 
     def show_gui(self):
         &#34;&#34;&#34;Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
         when closing down the GATE slave.
-        
+
         :return:
 
         Args:
@@ -1172,7 +1280,7 @@ Note: if it was started by us, it was started via the slaverunner.</p>
     Clean up: if the gate slave process was started by us, we will shut it down.
     Otherwise we can still close it if it was started by the slaverunner, not the Lr
     Note: if it was started by us, it was started via the slaverunner.
-    
+
     :return:
 
     Args:
@@ -1189,37 +1297,40 @@ Note: if it was started by us, it was started via the slaverunner.</p>
             self.gateprocess.wait()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateslave.GateSlave.del_gdoc"><code class="name flex">
-<span>def <span class="ident">del_gdoc</span></span>(<span>self, gdoc)</span>
+<dt id="gatenlp.gateslave.GateSlave.del_resource"><code class="name flex">
+<span>def <span class="ident">del_resource</span></span>(<span>self, resource)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Delete/unload the GATE document from GATE.
-This is necessary to do for each GATE document that is not used anymore, otherwise the documents
-will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+<div class="desc"><p>Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+This is particularly important to do when processing a large number of documents for each document
+that is finished processing, otherwise the documents
+will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
 GATE document does not delete/unload the document!</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>gdoc</code></strong></dt>
-<dd>the document to remove</dd>
+<dt><strong><code>resource</code></strong></dt>
+<dd>the Java GATE resource, e.g. a document to remove</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def del_gdoc(self, gdoc):
-    &#34;&#34;&#34;Delete/unload the GATE document from GATE.
-    This is necessary to do for each GATE document that is not used anymore, otherwise the documents
-    will accumulate in the Java process and eat up all memory. NOTE: just removing all references to the
+<pre><code class="python">def del_resource(self, resource):
+    &#34;&#34;&#34;
+    Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+    This is particularly important to do when processing a large number of documents for each document
+    that is finished processing, otherwise the documents
+    will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
     GATE document does not delete/unload the document!
 
     Args:
-      gdoc: the document to remove
+      resource: the Java GATE resource, e.g. a document to remove
 
     Returns:
 
     &#34;&#34;&#34;
-    self.jvm.gate.Factory.deleteResource(gdoc)</code></pre>
+    self.jvm.gate.Factory.deleteResource(resource)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.gdoc2pdoc"><code class="name flex">
@@ -1429,7 +1540,7 @@ when closing down the GATE slave.</p>
 <pre><code class="python">def show_gui(self):
     &#34;&#34;&#34;Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
     when closing down the GATE slave.
-    
+
     :return:
 
     Args:
@@ -1470,7 +1581,7 @@ when closing down the GATE slave.</p>
 <h4><code><a title="gatenlp.gateslave.GateSlave" href="#gatenlp.gateslave.GateSlave">GateSlave</a></code></h4>
 <ul class="two-column">
 <li><code><a title="gatenlp.gateslave.GateSlave.close" href="#gatenlp.gateslave.GateSlave.close">close</a></code></li>
-<li><code><a title="gatenlp.gateslave.GateSlave.del_gdoc" href="#gatenlp.gateslave.GateSlave.del_gdoc">del_gdoc</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.del_resource" href="#gatenlp.gateslave.GateSlave.del_resource">del_resource</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.download" href="#gatenlp.gateslave.GateSlave.download">download</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.gdoc2pdoc" href="#gatenlp.gateslave.GateSlave.gdoc2pdoc">gdoc2pdoc</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.load_gdoc" href="#gatenlp.gateslave.GateSlave.load_gdoc">load_gdoc</a></code></li>

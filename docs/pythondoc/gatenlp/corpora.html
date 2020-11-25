@@ -49,7 +49,7 @@ import random
 from abc import ABC, abstractmethod
 import numbers
 from gatenlp.serialization.default import read_lines_from
-from gatenlp.document import  Document
+from gatenlp.document import Document
 
 __pdoc__ = {
     &#34;Corpus.__getitem__&#34;: True,
@@ -68,6 +68,7 @@ class Corpus(ABC):
     NOTE: assigning None to a corpus removes the element from the corpus.
 
     &#34;&#34;&#34;
+
     @abstractmethod
     def __getitem__(self, idx: int):
         &#34;&#34;&#34;
@@ -91,7 +92,7 @@ class Corpus(ABC):
         The item assigned must be a document or None.
 
         Args:
-            idx: the index of the document
+            key: the index of the document
             value: a document or None
 
         Throws:
@@ -197,7 +198,7 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
     and which do not start with a dot.
 
     Args:
-        dir: the directory to traverse
+        dirpath: the directory to traverse
         exts: a list of allowed extensions (inluding the dot)
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
@@ -210,7 +211,9 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
                     for ext in exts:
                         if fname.endswith(ext) and not fname.startswith(&#34;.&#34;):
                             if relative:
-                                yield os.path.relpath(os.path.join(root, fname), dirpath)
+                                yield os.path.relpath(
+                                    os.path.join(root, fname), dirpath
+                                )
                             else:
                                 yield os.path.join(root, fname)
                             break
@@ -253,21 +256,29 @@ def make_file_path_fromidx(digits=1, levels=1):
     Returns:
         a function that takes doc and idx and return a path name (str)
     &#34;&#34;&#34;
-    if not isinstance(digits, int) or not isinstance(levels, int) or digits &lt; 1 or levels &lt; 1 or digits &lt; levels:
-        raise Exception(f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;)
+    if (
+        not isinstance(digits, int)
+        or not isinstance(levels, int)
+        or digits &lt; 1
+        or levels &lt; 1
+        or digits &lt; levels
+    ):
+        raise Exception(
+            f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;
+        )
 
     def file_path_fromidx(doc=None, idx=None):
         if idx is None or not isinstance(idx, int) or idx &lt; 0:
             raise Exception(&#34;Index must be an integer &gt;= 0&#34;)
-        per = int(digits/levels)
+        per = int(digits / levels)
         asstr = str(idx)
-        digs = max(0, digits-len(asstr))
+        digs = max(0, digits - len(asstr))
         tmp = &#34;0&#34; * digs
         tmp += str(idx)
         path = &#34;&#34;
         fromdigit = len(tmp) - per
         todigit = len(tmp)
-        for lvl in range(levels-1):
+        for lvl in range(levels - 1):
             path = tmp[fromdigit:todigit] + path
             # print(&#34;per=&#34;, per, &#34;from=&#34;, fromdigit, &#34;to=&#34;, todigit, &#34;sec=&#34;, tmp[fromdigit:todigit])
             path = &#34;/&#34; + path
@@ -275,22 +286,30 @@ def make_file_path_fromidx(digits=1, levels=1):
             todigit = todigit - per
         path = tmp[:todigit] + path
         return path
+
     return file_path_fromidx
 
 
 def debug_maker(var1=22):
-
     def debug_closure():
         print(var1)
+
     return debug_closure
 
 
 class DirFilesSource(DocumentSource):
-
-    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
-                 fmt=None, recursive=True, sort=False,
-                 every_n=1, every_n_k=0,
-                 ):
+    def __init__(
+        self,
+        dirpath,
+        paths=None,
+        paths_from=None,
+        exts=None,
+        fmt=None,
+        recursive=True,
+        sort=False,
+        every_n=1,
+        every_n_k=0,
+    ):
         &#34;&#34;&#34;
         Create a DirFilesSource.
 
@@ -320,7 +339,11 @@ class DirFilesSource(DocumentSource):
         if sort or every_n &gt; 1:
             self.paths.sort()
         if every_n &gt; 1:
-            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - every_n_k) % every_n) == 0
+            ]
         self.every_n = every_n
         self.every_n_k = every_n_k
         self.fmt = fmt
@@ -342,6 +365,7 @@ class DirFilesDestination(DocumentDestination):
 
 
     &#34;&#34;&#34;
+
     def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
@@ -371,7 +395,9 @@ class DirFilesDestination(DocumentDestination):
         self.dirpath = dirpath
         self.idx = 0
         if path_from.startswith(&#34;idx&#34;):
-            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
+            rest = path_from[
+                3:
+            ]  # if we have digits or levels, there is a leading colon!
             if len(rest) == 0:
                 digits = 1
                 levels = 1
@@ -404,12 +430,14 @@ class DirFilesDestination(DocumentDestination):
 
     def append(self, doc):
         path = self.file_path_maker(doc=doc, idx=self.idx)
-        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.normpath(
+            path
+        )  # convert forward slashes to backslashes on windows
         path = os.path.join(self.dirpath, path) + self.ext
         # check if we need to create the directories. For this we first need to get the directories part of the path,
         # which is everything left of the last slash
         if os.path.sep in path:
-            dirs = path[:path.rindex(os.path.sep)]
+            dirs = path[: path.rindex(os.path.sep)]
             if not os.path.exists(os.path.normpath(dirs)):
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
@@ -423,6 +451,7 @@ class DirFilesCorpus(Corpus):
     &#34;&#34;&#34;
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
+
     def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
         &#34;&#34;&#34;
         Creates the DirCorpus.
@@ -466,7 +495,7 @@ class NumberedDirFilesCorpus:
     corresponding document gets deleted).
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath,  digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
+    def __init__(self, dirpath, digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
@@ -520,6 +549,7 @@ class TsvFileSource(DocumentSource):
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     &#34;&#34;&#34;
+
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None):
         &#34;&#34;&#34;
         Creates the TsvFileSource.
@@ -529,11 +559,15 @@ class TsvFileSource(DocumentSource):
             hdr: if True (default), expects a header line with the column names, if a list, should be the list
               of column names, if False/None, no header line is expected.
             text_col: the column which contains the text for creating the document. Either the column number,
-              or the name of the column (only possible if there is a header line)
+              or the name of the column (only possible if there is a header line) or a function that should
+              take the list of fields and arbitrary kwargs and return the text. Also passes &#34;cols&#34; and &#34;n&#34;
+              as keyward arguments.
             feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
-              column names of where to get the feature value from.
+              column names of where to get the feature value from of a function that should take the list of fields
+              and arbitrary kwargs and return a dictionary with the features. Also passes &#34;cols&#34; (dict
+              mapping column names to column indices, or None) and &#34;n&#34; (current line number) as keyword arguments.
         &#34;&#34;&#34;
-        assert text_col is not None and isinstance(text_col, str)
+        assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
@@ -552,15 +586,22 @@ class TsvFileSource(DocumentSource):
             fields = line.split(&#34;\t&#34;)
             if isinstance(self.text_col, int):
                 text = fields[self.text_col]
+            elif callable(self.text_col):
+                text = self.text_col(fields, cols=self.hdr2col, n=self.n)
             else:
                 text = fields[self.hdr2col[self.text_col]]
             doc = Document(text)
             if self.feature_cols:
-                for fname, colid in self.feature_cols.items():
-                    if isinstance(colid, int):
-                        value = fields[colid]
-                    else:
-                        value = fields[self.hdr2col[colid]]
+                if callable(self.feature_cols):
+                    doc.features.update(
+                        self.feature_cols(fields, cols=self.hdr2col, n=self.n)
+                    )
+                else:
+                    for fname, colid in self.feature_cols.items():
+                        if isinstance(colid, int):
+                            value = fields[colid]
+                        else:
+                            value = fields[self.hdr2col[colid]]
                     doc.features[fname] = value
             self.n += 1
             yield doc
@@ -571,6 +612,7 @@ class PandasDfSource(DocumentSource):
     A document source which creates documents from the text in some data frame column for each row, and
     sets features from arbitrary columns in the row.
     &#34;&#34;&#34;
+
     def __init__(self, df, text_col=None, feature_cols=None):
         &#34;&#34;&#34;
         Creates a PandasDfSource.
@@ -623,7 +665,9 @@ class EveryNthCorpus(Corpus):
             every_n_k: the offset, must be &lt; n
         &#34;&#34;&#34;
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception(&#34;n and k must be integers.&#34;)
         if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
             raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
@@ -674,7 +718,9 @@ class EveryNthSource(DocumentSource):
             every_n_k: the offset, must be &lt; n
         &#34;&#34;&#34;
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception(&#34;n and k must be integers.&#34;)
         if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
             raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
@@ -685,7 +731,7 @@ class EveryNthSource(DocumentSource):
     def __iter__(self):
         idx = 0
         for doc in self.source:
-            if (idx-self.every_n_k) % self.every_n == 0:
+            if (idx - self.every_n_k) % self.every_n == 0:
                 yield doc
 
 
@@ -717,7 +763,7 @@ class ShuffledCorpus(Corpus):
         If seed is None, no shuffling is carried out.
         :return:
         &#34;&#34;&#34;
-        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+        if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
             if seed != -1:
                 if seed == 0:
                     random.seed()
@@ -806,9 +852,9 @@ class CachedCorpus(Corpus):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def debug_maker(var1=22):
-
     def debug_closure():
         print(var1)
+
     return debug_closure</code></pre>
 </details>
 </dd>
@@ -845,21 +891,29 @@ and levels=3, the generated function will convert the index number 23 into 0/000
     Returns:
         a function that takes doc and idx and return a path name (str)
     &#34;&#34;&#34;
-    if not isinstance(digits, int) or not isinstance(levels, int) or digits &lt; 1 or levels &lt; 1 or digits &lt; levels:
-        raise Exception(f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;)
+    if (
+        not isinstance(digits, int)
+        or not isinstance(levels, int)
+        or digits &lt; 1
+        or levels &lt; 1
+        or digits &lt; levels
+    ):
+        raise Exception(
+            f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;
+        )
 
     def file_path_fromidx(doc=None, idx=None):
         if idx is None or not isinstance(idx, int) or idx &lt; 0:
             raise Exception(&#34;Index must be an integer &gt;= 0&#34;)
-        per = int(digits/levels)
+        per = int(digits / levels)
         asstr = str(idx)
-        digs = max(0, digits-len(asstr))
+        digs = max(0, digits - len(asstr))
         tmp = &#34;0&#34; * digs
         tmp += str(idx)
         path = &#34;&#34;
         fromdigit = len(tmp) - per
         todigit = len(tmp)
-        for lvl in range(levels-1):
+        for lvl in range(levels - 1):
             path = tmp[fromdigit:todigit] + path
             # print(&#34;per=&#34;, per, &#34;from=&#34;, fromdigit, &#34;to=&#34;, todigit, &#34;sec=&#34;, tmp[fromdigit:todigit])
             path = &#34;/&#34; + path
@@ -867,6 +921,7 @@ and levels=3, the generated function will convert the index number 23 into 0/000
             todigit = todigit - per
         path = tmp[:todigit] + path
         return path
+
     return file_path_fromidx</code></pre>
 </details>
 </dd>
@@ -878,7 +933,7 @@ and levels=3, the generated function will convert the index number 23 into 0/000
 and which do not start with a dot.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>dir</code></strong></dt>
+<dt><strong><code>dirpath</code></strong></dt>
 <dd>the directory to traverse</dd>
 <dt><strong><code>exts</code></strong></dt>
 <dd>a list of allowed extensions (inluding the dot)</dd>
@@ -898,7 +953,7 @@ only paths from the top directory.</dd>
     and which do not start with a dot.
 
     Args:
-        dir: the directory to traverse
+        dirpath: the directory to traverse
         exts: a list of allowed extensions (inluding the dot)
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
@@ -911,7 +966,9 @@ only paths from the top directory.</dd>
                     for ext in exts:
                         if fname.endswith(ext) and not fname.startswith(&#34;.&#34;):
                             if relative:
-                                yield os.path.relpath(os.path.join(root, fname), dirpath)
+                                yield os.path.relpath(
+                                    os.path.join(root, fname), dirpath
+                                )
                             else:
                                 yield os.path.join(root, fname)
                             break
@@ -1054,6 +1111,7 @@ the element is either a document or None.</p>
     NOTE: assigning None to a corpus removes the element from the corpus.
 
     &#34;&#34;&#34;
+
     @abstractmethod
     def __getitem__(self, idx: int):
         &#34;&#34;&#34;
@@ -1077,7 +1135,7 @@ the element is either a document or None.</p>
         The item assigned must be a document or None.
 
         Args:
-            idx: the index of the document
+            key: the index of the document
             value: a document or None
 
         Throws:
@@ -1165,7 +1223,7 @@ def __len__(self):
 The item assigned must be a document or None.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>idx</code></strong></dt>
+<dt><strong><code>key</code></strong></dt>
 <dd>the index of the document</dd>
 <dt><strong><code>value</code></strong></dt>
 <dd>a document or None</dd>
@@ -1183,7 +1241,7 @@ def __setitem__(self, key, value):
     The item assigned must be a document or None.
 
     Args:
-        idx: the index of the document
+        key: the index of the document
         value: a document or None
 
     Throws:
@@ -1220,6 +1278,7 @@ def __setitem__(self, key, value):
     &#34;&#34;&#34;
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
+
     def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
         &#34;&#34;&#34;
         Creates the DirCorpus.
@@ -1318,6 +1377,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
 
 
     &#34;&#34;&#34;
+
     def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
@@ -1347,7 +1407,9 @@ keyword arguments: doc (the document) and idx (the running index of the document
         self.dirpath = dirpath
         self.idx = 0
         if path_from.startswith(&#34;idx&#34;):
-            rest = path_from[3:]  # if we have digits or levels, there is a leading colon!
+            rest = path_from[
+                3:
+            ]  # if we have digits or levels, there is a leading colon!
             if len(rest) == 0:
                 digits = 1
                 levels = 1
@@ -1380,12 +1442,14 @@ keyword arguments: doc (the document) and idx (the running index of the document
 
     def append(self, doc):
         path = self.file_path_maker(doc=doc, idx=self.idx)
-        path = os.path.normpath(path)  # convert forward slashes to backslashes on windows
+        path = os.path.normpath(
+            path
+        )  # convert forward slashes to backslashes on windows
         path = os.path.join(self.dirpath, path) + self.ext
         # check if we need to create the directories. For this we first need to get the directories part of the path,
         # which is everything left of the last slash
         if os.path.sep in path:
-            dirs = path[:path.rindex(os.path.sep)]
+            dirs = path[: path.rindex(os.path.sep)]
             if not os.path.exists(os.path.normpath(dirs)):
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
@@ -1444,11 +1508,18 @@ but the file extensions does not indicate the format.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DirFilesSource(DocumentSource):
-
-    def __init__(self, dirpath, paths=None, paths_from=None, exts=None,
-                 fmt=None, recursive=True, sort=False,
-                 every_n=1, every_n_k=0,
-                 ):
+    def __init__(
+        self,
+        dirpath,
+        paths=None,
+        paths_from=None,
+        exts=None,
+        fmt=None,
+        recursive=True,
+        sort=False,
+        every_n=1,
+        every_n_k=0,
+    ):
         &#34;&#34;&#34;
         Create a DirFilesSource.
 
@@ -1478,7 +1549,11 @@ but the file extensions does not indicate the format.</dd>
         if sort or every_n &gt; 1:
             self.paths.sort()
         if every_n &gt; 1:
-            self.paths = [p for idx, p in enumerate(self.paths) if ((idx-every_n_k) % every_n) == 0]
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - every_n_k) % every_n) == 0
+            ]
         self.every_n = every_n
         self.every_n_k = every_n_k
         self.fmt = fmt
@@ -1674,7 +1749,9 @@ split a corpus into n subsets for other purposes.</p>
             every_n_k: the offset, must be &lt; n
         &#34;&#34;&#34;
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception(&#34;n and k must be integers.&#34;)
         if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
             raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
@@ -1764,7 +1841,9 @@ one client at the same time!</p>
             every_n_k: the offset, must be &lt; n
         &#34;&#34;&#34;
         super().__init__()
-        if (not isinstance(every_n, numbers.Integral)) or (not isinstance(every_n_k, numbers.Integral)):
+        if (not isinstance(every_n, numbers.Integral)) or (
+            not isinstance(every_n_k, numbers.Integral)
+        ):
             raise Exception(&#34;n and k must be integers.&#34;)
         if every_n &lt; 2 or every_n_k &lt; 0 or every_n_k &gt;= every_n:
             raise Exception(&#34;n must be &gt;= 2 and k must be &gt;= 0 and &lt; n&#34;)
@@ -1775,7 +1854,7 @@ one client at the same time!</p>
     def __iter__(self):
         idx = 0
         for doc in self.source:
-            if (idx-self.every_n_k) % self.every_n == 0:
+            if (idx - self.every_n_k) % self.every_n == 0:
                 yield doc</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1962,7 +2041,7 @@ first size elements if the directory contains more documents.</dd>
     corresponding document gets deleted).
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath,  digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
+    def __init__(self, dirpath, digits=1, levels=1, ext=&#34;bdocjs&#34;, fmt=None, size=None):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
@@ -2037,6 +2116,7 @@ feature value from (default: None)</dd>
     A document source which creates documents from the text in some data frame column for each row, and
     sets features from arbitrary columns in the row.
     &#34;&#34;&#34;
+
     def __init__(self, df, text_col=None, feature_cols=None):
         &#34;&#34;&#34;
         Creates a PandasDfSource.
@@ -2118,7 +2198,7 @@ carried out. If this is None or not an integer, same as 0.</dd>
         If seed is None, no shuffling is carried out.
         :return:
         &#34;&#34;&#34;
-        if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+        if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
             if seed != -1:
                 if seed == 0:
                     random.seed()
@@ -2171,7 +2251,7 @@ If seed is None, no shuffling is carried out.
     If seed is None, no shuffling is carried out.
     :return:
     &#34;&#34;&#34;
-    if isinstance(seed, numbers.Integral):   # also allow for np.int8(n) and the like
+    if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
         if seed != -1:
             if seed == 0:
                 random.seed()
@@ -2214,10 +2294,14 @@ document features can be set from arbitrary columns as well.</p>
 of column names, if False/None, no header line is expected.</dd>
 <dt><strong><code>text_col</code></strong></dt>
 <dd>the column which contains the text for creating the document. Either the column number,
-or the name of the column (only possible if there is a header line)</dd>
+or the name of the column (only possible if there is a header line) or a function that should
+take the list of fields and arbitrary kwargs and return the text. Also passes "cols" and "n"
+as keyward arguments.</dd>
 <dt><strong><code>feature_cols</code></strong></dt>
 <dd>if not None, must be a dictionary mapping document feature names to the column numbers or
-column names of where to get the feature value from.</dd>
+column names of where to get the feature value from of a function that should take the list of fields
+and arbitrary kwargs and return a dictionary with the features. Also passes "cols" (dict
+mapping column names to column indices, or None) and "n" (current line number) as keyword arguments.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -2229,6 +2313,7 @@ column names of where to get the feature value from.</dd>
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     &#34;&#34;&#34;
+
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None):
         &#34;&#34;&#34;
         Creates the TsvFileSource.
@@ -2238,11 +2323,15 @@ column names of where to get the feature value from.</dd>
             hdr: if True (default), expects a header line with the column names, if a list, should be the list
               of column names, if False/None, no header line is expected.
             text_col: the column which contains the text for creating the document. Either the column number,
-              or the name of the column (only possible if there is a header line)
+              or the name of the column (only possible if there is a header line) or a function that should
+              take the list of fields and arbitrary kwargs and return the text. Also passes &#34;cols&#34; and &#34;n&#34;
+              as keyward arguments.
             feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
-              column names of where to get the feature value from.
+              column names of where to get the feature value from of a function that should take the list of fields
+              and arbitrary kwargs and return a dictionary with the features. Also passes &#34;cols&#34; (dict
+              mapping column names to column indices, or None) and &#34;n&#34; (current line number) as keyword arguments.
         &#34;&#34;&#34;
-        assert text_col is not None and isinstance(text_col, str)
+        assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
@@ -2261,15 +2350,22 @@ column names of where to get the feature value from.</dd>
             fields = line.split(&#34;\t&#34;)
             if isinstance(self.text_col, int):
                 text = fields[self.text_col]
+            elif callable(self.text_col):
+                text = self.text_col(fields, cols=self.hdr2col, n=self.n)
             else:
                 text = fields[self.hdr2col[self.text_col]]
             doc = Document(text)
             if self.feature_cols:
-                for fname, colid in self.feature_cols.items():
-                    if isinstance(colid, int):
-                        value = fields[colid]
-                    else:
-                        value = fields[self.hdr2col[colid]]
+                if callable(self.feature_cols):
+                    doc.features.update(
+                        self.feature_cols(fields, cols=self.hdr2col, n=self.n)
+                    )
+                else:
+                    for fname, colid in self.feature_cols.items():
+                        if isinstance(colid, int):
+                            value = fields[colid]
+                        else:
+                            value = fields[self.hdr2col[colid]]
                     doc.features[fname] = value
             self.n += 1
             yield doc</code></pre>

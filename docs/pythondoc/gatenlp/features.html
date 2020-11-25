@@ -47,29 +47,26 @@ from collections import UserDict
 import copy as lib_copy
 
 
-
 class Features(UserDict):
-    &#34;&#34;&#34;A dict-like class for storing features, which are mappings from string feature names to
+    &#34;&#34;&#34;
+    A dict-like class for storing features, which are mappings from string feature names to
     arbitrary feature values. If the Features instance is a field in another object where
     changes are getting logged in a change log, it should pass on the logger, a method for
     logging feature changes. Any copy of an instance of Features will not receive the logger,
     in order to make sure that logging happens, the instance stored in the original owning
     object must be used.
-
-    Args:
-
-    Returns:
-
     &#34;&#34;&#34;
 
     def __init__(self, *args, logger=None, **kwargs):
         &#34;&#34;&#34;
         Initialize a Features object.
 
-        :param initialfeatures: the initial features, as for a dict.
-        :param logger: a function for logging any changes to the feature map. This should be
-          a method implemented in the owning object. It should take the following parameters:
-          command, featurename, featurevalue.
+        Args:
+            initialfeatures: the initial features, as for a dict.
+            logger: a function for logging any changes to the feature map. This should be
+                a method implemented in the owning object. It should take the following parameters:
+                command, featurename, featurevalue. NOTE: this is not related to the usual logging
+                from the loggin package, but for making use of tracking changes in a ChangeLog!
         &#34;&#34;&#34;
         self._logger = logger
         if len(args) == 1:
@@ -86,8 +83,8 @@ class Features(UserDict):
         Remove the feature with the given feature name. This raises a key error if featurename is
         not in the Features. To silently remove a key, if it exists, use `pop(fname, None)`
 
-        :param featurename: name of the feature to remove
-        :return:
+        Args:
+            featurename: name of the feature to remove
         &#34;&#34;&#34;
         if self._logger:
             self._logger(&#34;feature:remove&#34;, feature=featurename)
@@ -96,8 +93,6 @@ class Features(UserDict):
     def __repr__(self):
         &#34;&#34;&#34;
         Return string representation of the Features object.
-
-        :return: string representation.
         &#34;&#34;&#34;
         return f&#34;Features({self.data.__repr__()})&#34;
 
@@ -105,32 +100,29 @@ class Features(UserDict):
         &#34;&#34;&#34;
         Set a feature with the given name to the given value.
 
-        :param featurename: feature name, must be string
-        :param featurevalue:  feature value
-        :return:
+        Args:
+            featurename: feature name, must be string
+            featurevalue:  feature value
         &#34;&#34;&#34;
         if featurename is None or not isinstance(featurename, str):
-            raise Exception(&#34;A feature name must be a string, not {}&#34;.format(type(featurename)))
+            raise Exception(
+                &#34;A feature name must be a string, not {}&#34;.format(type(featurename))
+            )
         if self._logger:
             self._logger(&#34;feature:set&#34;, feature=featurename, value=featurevalue)
         self.data[featurename] = featurevalue
 
     def clear(self):
-        &#34;&#34;&#34;Remove all features.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Remove all features.
         &#34;&#34;&#34;
         if self._logger:
             self._logger(&#34;features:clear&#34;)
         self.data.clear()
 
     def copy(self, deep=False):
-        &#34;&#34;&#34;Return a shallow (or deep if deep=True) copy of the features. The result is another
+        &#34;&#34;&#34;
+        Return a shallow (or deep if deep=True) copy of the features. The result is another
         instance of Features which is detached from the owner and which does not log
         the changes. However, if the copy is shallow and feature values are references
         to mutable objects, they can still get modified in the original set (without
@@ -141,7 +133,6 @@ class Features(UserDict):
 
         Returns:
           a dictionary with the features
-
         &#34;&#34;&#34;
         ret = Features()
         if deep:
@@ -164,14 +155,14 @@ class Features(UserDict):
         Args:
           deepcopy: if True, the dictionary is a deep copy so that mutable objects
               in the original are unaffected if they get modified in the copy. (Default value = False)
-          memo: if deepcopy is True, the memo object to use for deepcopy, if any
+        memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
 
         &#34;&#34;&#34;
         ret = dict()
-        for k,v in self.data.items():
+        for k, v in self.data.items():
             if k.startswith(&#34;__&#34;):
                 continue
             if deepcopy:
@@ -184,7 +175,7 @@ class Features(UserDict):
     def from_dict(thedict, deepcopy=False, memo=None):
         &#34;&#34;&#34;
         Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
-        
+
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:
@@ -224,39 +215,41 @@ changes are getting logged in a change log, it should pass on the logger, a meth
 logging feature changes. Any copy of an instance of Features will not receive the logger,
 in order to make sure that logging happens, the instance stored in the original owning
 object must be used.</p>
-<p>Args:</p>
-<p>Returns:</p>
 <p>Initialize a Features object.</p>
-<p>:param initialfeatures: the initial features, as for a dict.
-:param logger: a function for logging any changes to the feature map. This should be
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>initialfeatures</code></strong></dt>
+<dd>the initial features, as for a dict.</dd>
+<dt><strong><code>logger</code></strong></dt>
+<dd>a function for logging any changes to the feature map. This should be
 a method implemented in the owning object. It should take the following parameters:
-command, featurename, featurevalue.</p></div>
+command, featurename, featurevalue. NOTE: this is not related to the usual logging
+from the loggin package, but for making use of tracking changes in a ChangeLog!</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Features(UserDict):
-    &#34;&#34;&#34;A dict-like class for storing features, which are mappings from string feature names to
+    &#34;&#34;&#34;
+    A dict-like class for storing features, which are mappings from string feature names to
     arbitrary feature values. If the Features instance is a field in another object where
     changes are getting logged in a change log, it should pass on the logger, a method for
     logging feature changes. Any copy of an instance of Features will not receive the logger,
     in order to make sure that logging happens, the instance stored in the original owning
     object must be used.
-
-    Args:
-
-    Returns:
-
     &#34;&#34;&#34;
 
     def __init__(self, *args, logger=None, **kwargs):
         &#34;&#34;&#34;
         Initialize a Features object.
 
-        :param initialfeatures: the initial features, as for a dict.
-        :param logger: a function for logging any changes to the feature map. This should be
-          a method implemented in the owning object. It should take the following parameters:
-          command, featurename, featurevalue.
+        Args:
+            initialfeatures: the initial features, as for a dict.
+            logger: a function for logging any changes to the feature map. This should be
+                a method implemented in the owning object. It should take the following parameters:
+                command, featurename, featurevalue. NOTE: this is not related to the usual logging
+                from the loggin package, but for making use of tracking changes in a ChangeLog!
         &#34;&#34;&#34;
         self._logger = logger
         if len(args) == 1:
@@ -273,8 +266,8 @@ command, featurename, featurevalue.</p></div>
         Remove the feature with the given feature name. This raises a key error if featurename is
         not in the Features. To silently remove a key, if it exists, use `pop(fname, None)`
 
-        :param featurename: name of the feature to remove
-        :return:
+        Args:
+            featurename: name of the feature to remove
         &#34;&#34;&#34;
         if self._logger:
             self._logger(&#34;feature:remove&#34;, feature=featurename)
@@ -283,8 +276,6 @@ command, featurename, featurevalue.</p></div>
     def __repr__(self):
         &#34;&#34;&#34;
         Return string representation of the Features object.
-
-        :return: string representation.
         &#34;&#34;&#34;
         return f&#34;Features({self.data.__repr__()})&#34;
 
@@ -292,32 +283,29 @@ command, featurename, featurevalue.</p></div>
         &#34;&#34;&#34;
         Set a feature with the given name to the given value.
 
-        :param featurename: feature name, must be string
-        :param featurevalue:  feature value
-        :return:
+        Args:
+            featurename: feature name, must be string
+            featurevalue:  feature value
         &#34;&#34;&#34;
         if featurename is None or not isinstance(featurename, str):
-            raise Exception(&#34;A feature name must be a string, not {}&#34;.format(type(featurename)))
+            raise Exception(
+                &#34;A feature name must be a string, not {}&#34;.format(type(featurename))
+            )
         if self._logger:
             self._logger(&#34;feature:set&#34;, feature=featurename, value=featurevalue)
         self.data[featurename] = featurevalue
 
     def clear(self):
-        &#34;&#34;&#34;Remove all features.
-        
-        :return:
-
-        Args:
-
-        Returns:
-
+        &#34;&#34;&#34;
+        Remove all features.
         &#34;&#34;&#34;
         if self._logger:
             self._logger(&#34;features:clear&#34;)
         self.data.clear()
 
     def copy(self, deep=False):
-        &#34;&#34;&#34;Return a shallow (or deep if deep=True) copy of the features. The result is another
+        &#34;&#34;&#34;
+        Return a shallow (or deep if deep=True) copy of the features. The result is another
         instance of Features which is detached from the owner and which does not log
         the changes. However, if the copy is shallow and feature values are references
         to mutable objects, they can still get modified in the original set (without
@@ -328,7 +316,6 @@ command, featurename, featurevalue.</p></div>
 
         Returns:
           a dictionary with the features
-
         &#34;&#34;&#34;
         ret = Features()
         if deep:
@@ -351,14 +338,14 @@ command, featurename, featurevalue.</p></div>
         Args:
           deepcopy: if True, the dictionary is a deep copy so that mutable objects
               in the original are unaffected if they get modified in the copy. (Default value = False)
-          memo: if deepcopy is True, the memo object to use for deepcopy, if any
+        memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
 
         &#34;&#34;&#34;
         ret = dict()
-        for k,v in self.data.items():
+        for k, v in self.data.items():
             if k.startswith(&#34;__&#34;):
                 continue
             if deepcopy:
@@ -371,7 +358,7 @@ command, featurename, featurevalue.</p></div>
     def from_dict(thedict, deepcopy=False, memo=None):
         &#34;&#34;&#34;
         Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
-        
+
         NOTE: no checks are done to make sure that feature names are string only!
 
         Args:
@@ -427,7 +414,7 @@ command, featurename, featurevalue.</p></div>
 def from_dict(thedict, deepcopy=False, memo=None):
     &#34;&#34;&#34;
     Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
-    
+
     NOTE: no checks are done to make sure that feature names are string only!
 
     Args:
@@ -454,23 +441,14 @@ def from_dict(thedict, deepcopy=False, memo=None):
 <span>def <span class="ident">clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Remove all features.</p>
-<p>:return:</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<div class="desc"><p>Remove all features.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def clear(self):
-    &#34;&#34;&#34;Remove all features.
-    
-    :return:
-
-    Args:
-
-    Returns:
-
+    &#34;&#34;&#34;
+    Remove all features.
     &#34;&#34;&#34;
     if self._logger:
         self._logger(&#34;features:clear&#34;)
@@ -498,7 +476,8 @@ any logging!).</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def copy(self, deep=False):
-    &#34;&#34;&#34;Return a shallow (or deep if deep=True) copy of the features. The result is another
+    &#34;&#34;&#34;
+    Return a shallow (or deep if deep=True) copy of the features. The result is another
     instance of Features which is detached from the owner and which does not log
     the changes. However, if the copy is shallow and feature values are references
     to mutable objects, they can still get modified in the original set (without
@@ -509,7 +488,6 @@ any logging!).</p>
 
     Returns:
       a dictionary with the features
-
     &#34;&#34;&#34;
     ret = Features()
     if deep:
@@ -535,9 +513,8 @@ do get saved/serialized.</p>
 <dt><strong><code>deepcopy</code></strong></dt>
 <dd>if True, the dictionary is a deep copy so that mutable objects
 in the original are unaffected if they get modified in the copy. (Default value = False)</dd>
-<dt><strong><code>memo</code></strong></dt>
-<dd>if deepcopy is True, the memo object to use for deepcopy, if any</dd>
 </dl>
+<p>memo: if deepcopy is True, the memo object to use for deepcopy, if any</p>
 <h2 id="returns">Returns</h2>
 <p>the dict representation of the features</p></div>
 <details class="source">
@@ -557,14 +534,14 @@ in the original are unaffected if they get modified in the copy. (Default value 
     Args:
       deepcopy: if True, the dictionary is a deep copy so that mutable objects
           in the original are unaffected if they get modified in the copy. (Default value = False)
-      memo: if deepcopy is True, the memo object to use for deepcopy, if any
+    memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
     Returns:
       the dict representation of the features
 
     &#34;&#34;&#34;
     ret = dict()
-    for k,v in self.data.items():
+    for k, v in self.data.items():
         if k.startswith(&#34;__&#34;):
             continue
         if deepcopy:

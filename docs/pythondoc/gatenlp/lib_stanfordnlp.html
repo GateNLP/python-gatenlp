@@ -50,8 +50,13 @@ def apply_stanfordnlp(nlp, gatenlpdoc, setname=&#34;&#34;):
     return stanfordnlp2gatenlp(doc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
-def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname=&#34;&#34;, word_type=&#34;Word&#34;,
-                  sentence_type=&#34;Sentence&#34;):
+def stanfordnlp2gatenlp(
+    stanfordnlpdoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    word_type=&#34;Word&#34;,
+    sentence_type=&#34;Sentence&#34;,
+):
     &#34;&#34;&#34;Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the StanfordNLP document to it. In this case the
     original gatenlpdoc is used and gets modified.
@@ -85,8 +90,9 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname=&#34;&#34;, wor
         # a sentence is a list of tokens and a list of words. Some tokens consist of several words.
         # dependency parsers are over words, so we create Word and Token annotations, but we only
         # set the features per Word annotation for now.
-        offsetinfos = utils.match_substrings(stanfordnlpdoc.text[notmatchedidx:],
-                                             sent.words, getstr=lambda x: x.text)
+        offsetinfos = utils.match_substrings(
+            stanfordnlpdoc.text[notmatchedidx:], sent.words, getstr=lambda x: x.text
+        )
         idx2annid = {}
         for oinfo in offsetinfos:
             word = oinfo[2]
@@ -96,18 +102,24 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname=&#34;&#34;, wor
                 &#34;upos&#34;: word.upos,
                 &#34;xpos&#34;: word.xpos,
                 &#34;dependency_relation&#34;: word.dependency_relation,
-                &#34;governor&#34;: int(word.governor)
+                &#34;governor&#34;: int(word.governor),
             }
             for feat in word.feats.split(&#34;|&#34;):
                 if feat and feat != &#34;_&#34;:
                     k, v = feat.split(&#34;=&#34;)
                     # TODO: maybe try to detect and convert bool/int values
-                    fm[&#34;feat_&#34;+k] = v
+                    fm[&#34;feat_&#34; + k] = v
             snlp_idx = int(word.index)
-            annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm).id
+            annid = annset.add(
+                oinfo[0] + notmatchedidx, oinfo[1] + notmatchedidx, word_type, fm
+            ).id
             idx2annid[snlp_idx] = annid
         # create a sentence annotation from beginning of first word to end of last
-        sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type).id
+        sentid = annset.add(
+            offsetinfos[0][0] + notmatchedidx,
+            offsetinfos[-1][1] + notmatchedidx,
+            sentence_type,
+        ).id
         # now replace the governor index with the corresponding annid, the governor index is
         # mapped to the sentence annotation
         idx2annid[0] = sentid
@@ -116,7 +128,7 @@ def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname=&#34;&#34;, wor
             gov = ann.features.get(&#34;governor&#34;)
             if gov is not None:
                 ann.features[&#34;governor&#34;] = idx2annid[gov]
-        notmatchedidx = offsetinfos[-1][1]+notmatchedidx + 1
+        notmatchedidx = offsetinfos[-1][1] + notmatchedidx + 1
     return retdoc</code></pre>
 </details>
 </section>
@@ -190,8 +202,13 @@ word_type:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def stanfordnlp2gatenlp(stanfordnlpdoc, gatenlpdoc=None, setname=&#34;&#34;, word_type=&#34;Word&#34;,
-                  sentence_type=&#34;Sentence&#34;):
+<pre><code class="python">def stanfordnlp2gatenlp(
+    stanfordnlpdoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    word_type=&#34;Word&#34;,
+    sentence_type=&#34;Sentence&#34;,
+):
     &#34;&#34;&#34;Convert a StanfordNLP document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the StanfordNLP document to it. In this case the
     original gatenlpdoc is used and gets modified.
@@ -225,8 +242,9 @@ word_type:
         # a sentence is a list of tokens and a list of words. Some tokens consist of several words.
         # dependency parsers are over words, so we create Word and Token annotations, but we only
         # set the features per Word annotation for now.
-        offsetinfos = utils.match_substrings(stanfordnlpdoc.text[notmatchedidx:],
-                                             sent.words, getstr=lambda x: x.text)
+        offsetinfos = utils.match_substrings(
+            stanfordnlpdoc.text[notmatchedidx:], sent.words, getstr=lambda x: x.text
+        )
         idx2annid = {}
         for oinfo in offsetinfos:
             word = oinfo[2]
@@ -236,18 +254,24 @@ word_type:
                 &#34;upos&#34;: word.upos,
                 &#34;xpos&#34;: word.xpos,
                 &#34;dependency_relation&#34;: word.dependency_relation,
-                &#34;governor&#34;: int(word.governor)
+                &#34;governor&#34;: int(word.governor),
             }
             for feat in word.feats.split(&#34;|&#34;):
                 if feat and feat != &#34;_&#34;:
                     k, v = feat.split(&#34;=&#34;)
                     # TODO: maybe try to detect and convert bool/int values
-                    fm[&#34;feat_&#34;+k] = v
+                    fm[&#34;feat_&#34; + k] = v
             snlp_idx = int(word.index)
-            annid = annset.add(oinfo[0]+notmatchedidx, oinfo[1]+notmatchedidx, word_type, fm).id
+            annid = annset.add(
+                oinfo[0] + notmatchedidx, oinfo[1] + notmatchedidx, word_type, fm
+            ).id
             idx2annid[snlp_idx] = annid
         # create a sentence annotation from beginning of first word to end of last
-        sentid = annset.add(offsetinfos[0][0]+notmatchedidx, offsetinfos[-1][1]+notmatchedidx, sentence_type).id
+        sentid = annset.add(
+            offsetinfos[0][0] + notmatchedidx,
+            offsetinfos[-1][1] + notmatchedidx,
+            sentence_type,
+        ).id
         # now replace the governor index with the corresponding annid, the governor index is
         # mapped to the sentence annotation
         idx2annid[0] = sentid
@@ -256,7 +280,7 @@ word_type:
             gov = ann.features.get(&#34;governor&#34;)
             if gov is not None:
                 ann.features[&#34;governor&#34;] = idx2annid[gov]
-        notmatchedidx = offsetinfos[-1][1]+notmatchedidx + 1
+        notmatchedidx = offsetinfos[-1][1] + notmatchedidx + 1
     return retdoc</code></pre>
 </details>
 </dd>

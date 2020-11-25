@@ -51,15 +51,20 @@ import requests
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
-from bs4 import GuessedAtParserWarning
 import warnings
 
-warnings.filterwarnings(&#39;ignore&#39;, category=GuessedAtParserWarning)
+try:
+    from bs4 import GuessedAtParserWarning
+
+    warnings.filterwarnings(&#34;ignore&#34;, category=GuessedAtParserWarning)
+except:
+    pass
+
 
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see
 # if  we have a loder registered for that and then let the loader do the rest of the work. This may
-# need loaders to be able to use an already open stream. 
+# need loaders to be able to use an already open stream.
 
 
 def is_url(ext):
@@ -127,12 +132,15 @@ def read_lines_from(url_or_file, encoding=&#34;utf-8&#34;):
         url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
         only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
     &#34;&#34;&#34;
-    if is_url(url_or_file):
-        for line in urlopen(url_or_file):
+    isurl, extstr = is_url(url_or_file)
+    if isurl is None:
+        return
+    if isurl:
+        for line in urlopen(extstr):
             line = line.decode(encoding)
             yield line
     else:
-        with open(url_or_file, &#34;rt&#34;, encoding=encoding) as infp:
+        with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
             for line in infp:
                 yield line
 
@@ -144,7 +152,16 @@ class JsonSerializer:
     &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
@@ -155,7 +172,7 @@ class JsonSerializer:
           offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
-          **kwargs: 
+          **kwargs:
         &#34;&#34;&#34;
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -179,16 +196,18 @@ class JsonSerializer:
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -232,8 +251,8 @@ class JsonSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -245,22 +264,29 @@ class PlainTextSerializer:
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             offset_type=None, offset_mapper=None,
-             encoding=&#34;UTF-8&#34;,
-             gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        encoding=&#34;UTF-8&#34;,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = &#34;UTF-8&#34;)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -286,9 +312,9 @@ class PlainTextSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -296,19 +322,25 @@ class PlainTextSerializer:
         PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
-             encoding=&#34;UTF-8&#34;,
-             gzip=False, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        offset_mapper=None,
+        encoding=&#34;UTF-8&#34;,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = &#34;UTF-8&#34;)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -341,8 +373,8 @@ class PlainTextSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -354,18 +386,27 @@ class YamlSerializer:
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -389,9 +430,9 @@ class YamlSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -399,16 +440,18 @@ class YamlSerializer:
         YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -422,7 +465,9 @@ class YamlSerializer:
                     from_mem = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
         if from_mem is not None:
             if gzip:
-                d = yaml.load(decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader)
+                d = yaml.load(
+                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+                )
             else:
                 d = yaml.load(from_mem, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
@@ -441,8 +486,8 @@ class YamlSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -462,8 +507,8 @@ class MsgPackSerializer:
 
         Args:
           doc: Document:
-          stream: 
-          doc: Document: 
+          stream:
+          doc: Document:
 
         Returns:
 
@@ -490,7 +535,7 @@ class MsgPackSerializer:
         &#34;&#34;&#34;
 
         Args:
-          stream: 
+          stream:
 
         Returns:
 
@@ -527,17 +572,25 @@ class MsgPackSerializer:
         return doc
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -563,11 +616,11 @@ class MsgPackSerializer:
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -590,6 +643,7 @@ class MsgPackSerializer:
         doc = reader(f)
         return doc
 
+
 JS_JQUERY = &#39;&lt;script src=&#34;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&#34;&gt;&lt;/script&gt;&#39;
 JS_GATENLP = &#39;&lt;script src=&#34;https://unpkg.com/gatenlp-ann-viewer@1.0.11/gatenlp-ann-viewer.js&#34;&gt;&lt;/script&gt;&#39;
 HTML_TEMPLATE_FILE_NAME = &#34;gatenlp-ann-viewer.html&#34;
@@ -609,26 +663,36 @@ class HtmlAnnViewerSerializer:
         Returns: Javascript string.
 
         &#34;&#34;&#34;
-        jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+        jsloc = os.path.join(
+            os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+        )
         if not os.path.exists(jsloc):
-            raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+            raise Exception(
+                &#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc)
+            )
         with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            js = infp.read();
+            js = infp.read()
             js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
         return js
 
     @staticmethod
     def init_javscript():
         import IPython
+
         IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             notebook=False,
-             offline=False,
-             add_js=True,
-             htmlid=None,
-             **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        notebook=False,
+        offline=False,
+        add_js=True,
+        htmlid=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
@@ -655,11 +719,15 @@ class HtmlAnnViewerSerializer:
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;)
-        htmlloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME)
+        htmlloc = os.path.join(
+            os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
+        )
         if not os.path.exists(htmlloc):
-            raise Exception(&#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc))
+            raise Exception(
+                &#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc)
+            )
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            html = infp.read();
+            html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
@@ -681,11 +749,17 @@ class HtmlAnnViewerSerializer:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
             if add_js:
-                jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+                jsloc = os.path.join(
+                    os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+                )
                 if not os.path.exists(jsloc):
-                    raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+                    raise Exception(
+                        &#34;Could not find JavsScript file, {} does not exist&#34;.format(
+                            jsloc
+                        )
+                    )
                 with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-                    js = infp.read();
+                    js = infp.read()
                     js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
                 # html_ann_viewer_serializer_js_loaded = True
             else:
@@ -704,19 +778,27 @@ class HtmlLoader:
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load_rendered(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name=&#34;Original markups&#34;,
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           parser: (Default value = None)
           markup_set_name: (Default value = &#34;Original markups&#34;)
           process_soup: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -724,8 +806,16 @@ class HtmlLoader:
         raise Exception(&#34;Rendered html parser not yet implemented&#34;)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name=&#34;Original markups&#34;,
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Load a HTML file.
 
         Args:
@@ -736,7 +826,7 @@ class HtmlLoader:
           offset_mapper: param kwargs: (Default value = None)
           from_ext: (Default value = None)
           parser: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -750,32 +840,66 @@ class HtmlLoader:
             if isurl:
                 from_mem = get_str_from_url(extstr)
         if from_mem:
-            bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
         nlels = {
-            &#34;pre&#34;, &#34;br&#34;, &#34;p&#34;, &#34;div&#34;, &#34;tr&#34;, &#34;h1&#34;, &#34;h2&#34;, &#34;h3&#34;, &#34;h4&#34;, &#34;h5&#34;, &#34;h6&#34;, &#34;li&#34;,
-            &#34;address&#34;, &#34;article&#34;, &#34;aside&#34;, &#34;blockquote&#34;, &#34;del&#34;, &#34;figure&#34;, &#34;figcaption&#34;,
-            &#34;footer&#34;, &#34;header&#34;, &#34;hr&#34;, &#34;ins&#34;, &#34;main&#34;, &#34;nav&#34;, &#34;section&#34;, &#34;summary&#34;, &#34;input&#34;, &#34;legend&#34;,
-            &#34;option&#34;, &#34;textarea&#34;, &#34;bdi&#34;, &#34;bdo&#34;, &#34;center&#34;, &#34;code&#34;, &#34;dfn&#34;, &#34;menu&#34;, &#34;dir&#34;, &#34;caption&#34;,
+            &#34;pre&#34;,
+            &#34;br&#34;,
+            &#34;p&#34;,
+            &#34;div&#34;,
+            &#34;tr&#34;,
+            &#34;h1&#34;,
+            &#34;h2&#34;,
+            &#34;h3&#34;,
+            &#34;h4&#34;,
+            &#34;h5&#34;,
+            &#34;h6&#34;,
+            &#34;li&#34;,
+            &#34;address&#34;,
+            &#34;article&#34;,
+            &#34;aside&#34;,
+            &#34;blockquote&#34;,
+            &#34;del&#34;,
+            &#34;figure&#34;,
+            &#34;figcaption&#34;,
+            &#34;footer&#34;,
+            &#34;header&#34;,
+            &#34;hr&#34;,
+            &#34;ins&#34;,
+            &#34;main&#34;,
+            &#34;nav&#34;,
+            &#34;section&#34;,
+            &#34;summary&#34;,
+            &#34;input&#34;,
+            &#34;legend&#34;,
+            &#34;option&#34;,
+            &#34;textarea&#34;,
+            &#34;bdi&#34;,
+            &#34;bdo&#34;,
+            &#34;center&#34;,
+            &#34;code&#34;,
+            &#34;dfn&#34;,
+            &#34;menu&#34;,
+            &#34;dir&#34;,
+            &#34;caption&#34;,
         }
-        ignoreels = {
-            &#34;script&#34;, &#34;style&#34;
-        }
+        ignoreels = {&#34;script&#34;, &#34;style&#34;}
         docinfo = {&#34;anninfos&#34;: [], &#34;curoffset&#34;: 0, &#34;curid&#34;: 0, &#34;text&#34;: &#34;&#34;}
+
         def walktree(el):
             &#34;&#34;&#34;
 
             Args:
-              el: 
+              el:
 
             Returns:
 
             &#34;&#34;&#34;
-            #print(&#34;DEBUG: type=&#34;, type(el))
+            # print(&#34;DEBUG: type=&#34;, type(el))
             if isinstance(el, bs4.element.Doctype):
                 # print(&#34;DEBUG: got doctype&#34;, type(el))
                 pass
@@ -791,25 +915,30 @@ class HtmlLoader:
                 if el.name in ignoreels:
                     return
                 # for some tags we insert a new line before, but only if we do not already have one
-                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                        el.name in nlels:
+                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                     docinfo[&#34;text&#34;] += &#34;\n&#34;
                     # print(&#34;DEBUG: adding newline before at &#34;, docinfo[&#34;curoffset&#34;])
                     docinfo[&#34;curoffset&#34;] += 1
-                ann = {&#34;type&#34;: el.name, &#34;features&#34;: el.attrs,
-                       &#34;id&#34;: docinfo[&#34;curid&#34;], &#34;event&#34;: &#34;start&#34;, &#34;start&#34;: docinfo[&#34;curoffset&#34;]}
+                ann = {
+                    &#34;type&#34;: el.name,
+                    &#34;features&#34;: el.attrs,
+                    &#34;id&#34;: docinfo[&#34;curid&#34;],
+                    &#34;event&#34;: &#34;start&#34;,
+                    &#34;start&#34;: docinfo[&#34;curoffset&#34;],
+                }
                 thisid = docinfo[&#34;curid&#34;]
                 docinfo[&#34;anninfos&#34;].append(ann)
                 docinfo[&#34;curid&#34;] += 1
                 for child in el.children:
                     walktree(child)
                 # for some tags we insert a new line after
-                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                        el.name in nlels:
+                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                     docinfo[&#34;text&#34;] += &#34;\n&#34;
                     # print(&#34;DEBUG: adding newline after at &#34;, docinfo[&#34;curoffset&#34;])
                     docinfo[&#34;curoffset&#34;] += 1
-                docinfo[&#34;anninfos&#34;].append({&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]})
+                docinfo[&#34;anninfos&#34;].append(
+                    {&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]}
+                )
             elif isinstance(el, bs4.element.NavigableString):
                 # print(&#34;DEBUG: got text: &#34;, el)
                 text = str(el)
@@ -819,6 +948,7 @@ class HtmlLoader:
                 docinfo[&#34;curoffset&#34;] += len(el)
             else:
                 print(&#34;WARNING: odd element type&#34;, type(el))
+
         walktree(bs)
         # need to add the end corresponding to bs
         # print(&#34;DEBUG: got docinfo:\n&#34;,docinfo)
@@ -843,8 +973,12 @@ class HtmlLoader:
         annset = doc.annset(markup_set_name)
         for i in range(nstart):
             anninfo = id2anninfo[i]
-            annset.add(start=anninfo[&#34;start&#34;], end=anninfo[&#34;end&#34;], anntype=anninfo[&#34;type&#34;],
-                       features=anninfo[&#34;features&#34;])
+            annset.add(
+                start=anninfo[&#34;start&#34;],
+                end=anninfo[&#34;end&#34;],
+                anntype=anninfo[&#34;type&#34;],
+                features=anninfo[&#34;features&#34;],
+            )
         return doc
 
 
@@ -862,14 +996,16 @@ class GateXmlLoader:
         Returns:
 
         &#34;&#34;&#34;
-        raise Exception(&#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;)
+        raise Exception(
+            &#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;
+        )
 
     @staticmethod
     def load(clazz, from_ext=None, ignore_unknown_types=False):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           ignore_unknown_types: (Default value = False)
 
@@ -879,6 +1015,7 @@ class GateXmlLoader:
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
+
         isurl, extstr = is_url(from_ext)
         if isurl:
             xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
@@ -898,7 +1035,7 @@ class GateXmlLoader:
             &#34;&#34;&#34;
 
             Args:
-              feats: 
+              feats:
 
             Returns:
 
@@ -912,7 +1049,9 @@ class GateXmlLoader:
                         if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
                             name = el.text
                         else:
-                            raise Exception(&#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;))
+                            raise Exception(
+                                &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                            )
                     elif el.tag == &#34;Value&#34;:
                         cls_name = el.get(&#34;className&#34;)
                         if cls_name == &#34;java.lang.String&#34;:
@@ -925,13 +1064,19 @@ class GateXmlLoader:
                             value = float(el.text)
                         elif cls_name == &#34;java.lang.Boolean&#34;:
                             value = bool(el.text)
-                        #elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                        # elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
                         #    value = GateXmlLoader.value4objectwrapper(el.text)
                         else:
                             if ignore_unknown_types:
-                                print(f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;, file=sys.stderr)
+                                print(
+                                    f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;,
+                                    file=sys.stderr,
+                                )
                             else:
-                                raise Exception(&#34;Unsupported serialization type: &#34; + el.get(&#34;className&#34;))
+                                raise Exception(
+                                    &#34;Unsupported serialization type: &#34;
+                                    + el.get(&#34;className&#34;)
+                                )
                 if name is not None and value is not None:
                     features[name] = value
             return features
@@ -984,29 +1129,44 @@ class GateXmlLoader:
                 features = parsefeatures(feats)
                 if len(features) == 0:
                     features = None
-                annotation = {&#34;id&#34;: annid, &#34;type&#34;: anntype, &#34;start&#34;: startoff, &#34;end&#34;: endoff,
-                              &#34;features&#34;: features}
+                annotation = {
+                    &#34;id&#34;: annid,
+                    &#34;type&#34;: anntype,
+                    &#34;start&#34;: startoff,
+                    &#34;end&#34;: endoff,
+                    &#34;features&#34;: features,
+                }
                 annotations.append(annotation)
-            annset = {&#34;name&#34;: setname, &#34;annotations&#34;: annotations, &#34;next_annid&#34;: maxannid + 1}
+            annset = {
+                &#34;name&#34;: setname,
+                &#34;annotations&#34;: annotations,
+                &#34;next_annid&#34;: maxannid + 1,
+            }
             annotation_sets[setname] = annset
 
-        docmap = {&#34;text&#34;: text, &#34;features&#34;: docfeatures, &#34;offset_type&#34;: &#34;p&#34;,
-                  &#34;annotation_sets&#34;: annotation_sets}
+        docmap = {
+            &#34;text&#34;: text,
+            &#34;features&#34;: docfeatures,
+            &#34;offset_type&#34;: &#34;p&#34;,
+            &#34;annotation_sets&#34;: annotation_sets,
+        }
 
         doc = Document.from_dict(docmap)
         return doc
 
 
-def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+def determine_loader(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -1018,35 +1178,43 @@ def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gz
         with open(from_ext, &#34;rt&#34;) as infp:
             first = infp.read(1)
     if first == &#34;{&#34;:
-        return JsonSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)
+        return JsonSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )
     else:
-        return MsgPackSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)
+        return MsgPackSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )
 
 
 DOCUMENT_SAVERS = {
     &#34;text/plain&#34;: PlainTextSerializer.save,
     &#34;text/plain+gzip&#34;: PlainTextSerializer.save_gzip,
     &#34;text&#34;: PlainTextSerializer.save,
-
     &#34;json&#34;: JsonSerializer.save,
     &#34;jsongz&#34;: JsonSerializer.save_gzip,
     &#34;bdocjs&#34;: JsonSerializer.save,
     &#34;bdocjsgz&#34;: JsonSerializer.save_gzip,
     &#34;text/bdocjs&#34;: JsonSerializer.save,
     &#34;text/bdocjs+gzip&#34;: JsonSerializer.save_gzip,
-
     &#34;yaml&#34;: YamlSerializer.save,
     &#34;yamlgz&#34;: YamlSerializer.save_gzip,
     &#34;text/bdocym&#34;: YamlSerializer.save,
     &#34;text/bdocym+gzip+&#34;: YamlSerializer.save_gzip,
-
     &#34;msgpack&#34;: MsgPackSerializer.save,
     &#34;bdocmp&#34;: MsgPackSerializer.save,
     &#34;text/bdocmp&#34;: MsgPackSerializer.save,
     &#34;application/msgpack&#34;: MsgPackSerializer.save,
-
     &#34;html-ann-viewer&#34;: HtmlAnnViewerSerializer.save,
 }
 DOCUMENT_LOADERS = {
@@ -1056,19 +1224,16 @@ DOCUMENT_LOADERS = {
     &#34;bdocjsgz&#34;: JsonSerializer.load_gzip,
     &#34;text/bdocjs&#34;: JsonSerializer.load,
     &#34;text/bdocjs+gzip&#34;: JsonSerializer.load_gzip,
-
     &#34;yaml&#34;: YamlSerializer.load,
     &#34;yamlgz&#34;: YamlSerializer.load_gzip,
     &#34;bdocym&#34;: YamlSerializer.load,
     &#34;bdocymzg: &#34;: YamlSerializer.load_gzip,
     &#34;text/bdocym&#34;: YamlSerializer.load,
     &#34;text/bdocym+gzip&#34;: YamlSerializer.load_gzip,
-
     &#34;msgpack&#34;: MsgPackSerializer.load,
     &#34;bdocmp&#34;: MsgPackSerializer.load,
     &#34;application/msgpack&#34;: MsgPackSerializer.load,
     &#34;text/bdocmp&#34;: MsgPackSerializer.load,
-
     &#34;jsonormsgpack&#34;: determine_loader,
     &#34;text/plain&#34;: PlainTextSerializer.load,
     &#34;text/plain+gzip&#34;: PlainTextSerializer.load_gzip,
@@ -1094,7 +1259,7 @@ EXTENSIONS = {
     &#34;bdocjs&#34;: &#34;json&#34;,
     &#34;bdocym&#34;: &#34;yaml&#34;,
     &#34;bdocym.gz&#34;: &#34;text/bdocym+gzip&#34;,
-    &#34;bdoc.gz&#34;: &#34;text/bdocjs+gzip&#34;, # lets assume it is compressed json
+    &#34;bdoc.gz&#34;: &#34;text/bdocjs+gzip&#34;,  # lets assume it is compressed json
     &#34;bdoc&#34;: &#34;jsonormsgpack&#34;,
     &#34;bdocjs.gz&#34;: &#34;text/bdocjs+gzip&#34;,
     &#34;bdocjson&#34;: &#34;json&#34;,
@@ -1110,11 +1275,11 @@ def get_handler(filespec, fmt, handlers, saveload, what):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
-      handlers: 
-      saveload: 
-      what: 
+      filespec:
+      fmt:
+      handlers:
+      saveload:
+      what:
 
     Returns:
 
@@ -1126,7 +1291,7 @@ def get_handler(filespec, fmt, handlers, saveload, what):
             raise Exception(msg)
         return handler
     else:
-        if not filespec: # in case of save_mem
+        if not filespec:  # in case of save_mem
             raise Exception(msg)
         if isinstance(filespec, os.PathLike):
             wf = os.fspath(filespec)
@@ -1156,8 +1321,8 @@ def get_document_saver(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1169,8 +1334,8 @@ def get_document_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1182,8 +1347,8 @@ def get_changelog_saver(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1195,8 +1360,8 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1217,8 +1382,7 @@ def get_changelog_loader(filespec, fmt):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
@@ -1227,24 +1391,25 @@ def get_changelog_loader(filespec, fmt):
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def determine_loader(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+<pre><code class="python">def determine_loader(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -1256,11 +1421,23 @@ def get_changelog_loader(filespec, fmt):
         with open(from_ext, &#34;rt&#34;) as infp:
             first = infp.read(1)
     if first == &#34;{&#34;:
-        return JsonSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)
+        return JsonSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )
     else:
-        return MsgPackSerializer.load(clazz, from_ext=from_ext, from_mem=from_mem, offset_mapper=offset_mapper,
-                            gzip=gzip, **kwargs)</code></pre>
+        return MsgPackSerializer.load(
+            clazz,
+            from_ext=from_ext,
+            from_mem=from_mem,
+            offset_mapper=offset_mapper,
+            gzip=gzip,
+            **kwargs,
+        )</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.serialization.default.get_bytes_from_url"><code class="name flex">
@@ -1298,13 +1475,9 @@ def get_changelog_loader(filespec, fmt):
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filespec</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>filespec:
+fmt:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1313,8 +1486,8 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1327,13 +1500,9 @@ def get_changelog_loader(filespec, fmt):
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filespec</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>filespec:
+fmt:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1342,8 +1511,8 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1356,13 +1525,9 @@ def get_changelog_loader(filespec, fmt):
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filespec</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>filespec:
+fmt:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1371,8 +1536,8 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1385,13 +1550,9 @@ def get_changelog_loader(filespec, fmt):
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filespec</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>filespec:
+fmt:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1400,8 +1561,8 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
+      filespec:
+      fmt:
 
     Returns:
 
@@ -1414,19 +1575,12 @@ def get_changelog_loader(filespec, fmt):
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>filespec</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>handlers</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>saveload</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>what</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>filespec:
+fmt:
+handlers:
+saveload:
+what:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1435,11 +1589,11 @@ def get_changelog_loader(filespec, fmt):
     &#34;&#34;&#34;
 
     Args:
-      filespec: 
-      fmt: 
-      handlers: 
-      saveload: 
-      what: 
+      filespec:
+      fmt:
+      handlers:
+      saveload:
+      what:
 
     Returns:
 
@@ -1451,7 +1605,7 @@ def get_changelog_loader(filespec, fmt):
             raise Exception(msg)
         return handler
     else:
-        if not filespec: # in case of save_mem
+        if not filespec:  # in case of save_mem
             raise Exception(msg)
         if isinstance(filespec, os.PathLike):
             wf = os.fspath(filespec)
@@ -1579,12 +1733,15 @@ or (False,pathstring)</p></div>
         url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
         only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
     &#34;&#34;&#34;
-    if is_url(url_or_file):
-        for line in urlopen(url_or_file):
+    isurl, extstr = is_url(url_or_file)
+    if isurl is None:
+        return
+    if isurl:
+        for line in urlopen(extstr):
             line = line.decode(encoding)
             yield line
     else:
-        with open(url_or_file, &#34;rt&#34;, encoding=encoding) as infp:
+        with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
             for line in infp:
                 yield line</code></pre>
 </details>
@@ -1617,14 +1774,16 @@ or (False,pathstring)</p></div>
         Returns:
 
         &#34;&#34;&#34;
-        raise Exception(&#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;)
+        raise Exception(
+            &#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;
+        )
 
     @staticmethod
     def load(clazz, from_ext=None, ignore_unknown_types=False):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           ignore_unknown_types: (Default value = False)
 
@@ -1634,6 +1793,7 @@ or (False,pathstring)</p></div>
         # TODO: the code below is just an outline and needs work!
         # TODO: make use of the test document created in repo project-python-gatenlp
         import xml.etree.ElementTree as ET
+
         isurl, extstr = is_url(from_ext)
         if isurl:
             xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
@@ -1653,7 +1813,7 @@ or (False,pathstring)</p></div>
             &#34;&#34;&#34;
 
             Args:
-              feats: 
+              feats:
 
             Returns:
 
@@ -1667,7 +1827,9 @@ or (False,pathstring)</p></div>
                         if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
                             name = el.text
                         else:
-                            raise Exception(&#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;))
+                            raise Exception(
+                                &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                            )
                     elif el.tag == &#34;Value&#34;:
                         cls_name = el.get(&#34;className&#34;)
                         if cls_name == &#34;java.lang.String&#34;:
@@ -1680,13 +1842,19 @@ or (False,pathstring)</p></div>
                             value = float(el.text)
                         elif cls_name == &#34;java.lang.Boolean&#34;:
                             value = bool(el.text)
-                        #elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                        # elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
                         #    value = GateXmlLoader.value4objectwrapper(el.text)
                         else:
                             if ignore_unknown_types:
-                                print(f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;, file=sys.stderr)
+                                print(
+                                    f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;,
+                                    file=sys.stderr,
+                                )
                             else:
-                                raise Exception(&#34;Unsupported serialization type: &#34; + el.get(&#34;className&#34;))
+                                raise Exception(
+                                    &#34;Unsupported serialization type: &#34;
+                                    + el.get(&#34;className&#34;)
+                                )
                 if name is not None and value is not None:
                     features[name] = value
             return features
@@ -1739,14 +1907,27 @@ or (False,pathstring)</p></div>
                 features = parsefeatures(feats)
                 if len(features) == 0:
                     features = None
-                annotation = {&#34;id&#34;: annid, &#34;type&#34;: anntype, &#34;start&#34;: startoff, &#34;end&#34;: endoff,
-                              &#34;features&#34;: features}
+                annotation = {
+                    &#34;id&#34;: annid,
+                    &#34;type&#34;: anntype,
+                    &#34;start&#34;: startoff,
+                    &#34;end&#34;: endoff,
+                    &#34;features&#34;: features,
+                }
                 annotations.append(annotation)
-            annset = {&#34;name&#34;: setname, &#34;annotations&#34;: annotations, &#34;next_annid&#34;: maxannid + 1}
+            annset = {
+                &#34;name&#34;: setname,
+                &#34;annotations&#34;: annotations,
+                &#34;next_annid&#34;: maxannid + 1,
+            }
             annotation_sets[setname] = annset
 
-        docmap = {&#34;text&#34;: text, &#34;features&#34;: docfeatures, &#34;offset_type&#34;: &#34;p&#34;,
-                  &#34;annotation_sets&#34;: annotation_sets}
+        docmap = {
+            &#34;text&#34;: text,
+            &#34;features&#34;: docfeatures,
+            &#34;offset_type&#34;: &#34;p&#34;,
+            &#34;annotation_sets&#34;: annotation_sets,
+        }
 
         doc = Document.from_dict(docmap)
         return doc</code></pre>
@@ -1759,8 +1940,7 @@ or (False,pathstring)</p></div>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>ignore_unknown_types</code></strong></dt>
@@ -1776,7 +1956,7 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       ignore_unknown_types: (Default value = False)
 
@@ -1786,6 +1966,7 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
     # TODO: the code below is just an outline and needs work!
     # TODO: make use of the test document created in repo project-python-gatenlp
     import xml.etree.ElementTree as ET
+
     isurl, extstr = is_url(from_ext)
     if isurl:
         xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
@@ -1805,7 +1986,7 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
         &#34;&#34;&#34;
 
         Args:
-          feats: 
+          feats:
 
         Returns:
 
@@ -1819,7 +2000,9 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
                     if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
                         name = el.text
                     else:
-                        raise Exception(&#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;))
+                        raise Exception(
+                            &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                        )
                 elif el.tag == &#34;Value&#34;:
                     cls_name = el.get(&#34;className&#34;)
                     if cls_name == &#34;java.lang.String&#34;:
@@ -1832,13 +2015,19 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
                         value = float(el.text)
                     elif cls_name == &#34;java.lang.Boolean&#34;:
                         value = bool(el.text)
-                    #elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                    # elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
                     #    value = GateXmlLoader.value4objectwrapper(el.text)
                     else:
                         if ignore_unknown_types:
-                            print(f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;, file=sys.stderr)
+                            print(
+                                f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;,
+                                file=sys.stderr,
+                            )
                         else:
-                            raise Exception(&#34;Unsupported serialization type: &#34; + el.get(&#34;className&#34;))
+                            raise Exception(
+                                &#34;Unsupported serialization type: &#34;
+                                + el.get(&#34;className&#34;)
+                            )
             if name is not None and value is not None:
                 features[name] = value
         return features
@@ -1891,14 +2080,27 @@ def load(clazz, from_ext=None, ignore_unknown_types=False):
             features = parsefeatures(feats)
             if len(features) == 0:
                 features = None
-            annotation = {&#34;id&#34;: annid, &#34;type&#34;: anntype, &#34;start&#34;: startoff, &#34;end&#34;: endoff,
-                          &#34;features&#34;: features}
+            annotation = {
+                &#34;id&#34;: annid,
+                &#34;type&#34;: anntype,
+                &#34;start&#34;: startoff,
+                &#34;end&#34;: endoff,
+                &#34;features&#34;: features,
+            }
             annotations.append(annotation)
-        annset = {&#34;name&#34;: setname, &#34;annotations&#34;: annotations, &#34;next_annid&#34;: maxannid + 1}
+        annset = {
+            &#34;name&#34;: setname,
+            &#34;annotations&#34;: annotations,
+            &#34;next_annid&#34;: maxannid + 1,
+        }
         annotation_sets[setname] = annset
 
-    docmap = {&#34;text&#34;: text, &#34;features&#34;: docfeatures, &#34;offset_type&#34;: &#34;p&#34;,
-              &#34;annotation_sets&#34;: annotation_sets}
+    docmap = {
+        &#34;text&#34;: text,
+        &#34;features&#34;: docfeatures,
+        &#34;offset_type&#34;: &#34;p&#34;,
+        &#34;annotation_sets&#34;: annotation_sets,
+    }
 
     doc = Document.from_dict(docmap)
     return doc</code></pre>
@@ -1931,7 +2133,9 @@ def value4objectwrapper(text):
     Returns:
 
     &#34;&#34;&#34;
-    raise Exception(&#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;)</code></pre>
+    raise Exception(
+        &#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;
+    )</code></pre>
 </details>
 </dd>
 </dl>
@@ -1956,26 +2160,36 @@ def value4objectwrapper(text):
         Returns: Javascript string.
 
         &#34;&#34;&#34;
-        jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+        jsloc = os.path.join(
+            os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+        )
         if not os.path.exists(jsloc):
-            raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+            raise Exception(
+                &#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc)
+            )
         with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            js = infp.read();
+            js = infp.read()
             js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
         return js
 
     @staticmethod
     def init_javscript():
         import IPython
+
         IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             notebook=False,
-             offline=False,
-             add_js=True,
-             htmlid=None,
-             **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        notebook=False,
+        offline=False,
+        add_js=True,
+        htmlid=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
@@ -2002,11 +2216,15 @@ def value4objectwrapper(text):
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;)
-        htmlloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME)
+        htmlloc = os.path.join(
+            os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
+        )
         if not os.path.exists(htmlloc):
-            raise Exception(&#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc))
+            raise Exception(
+                &#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc)
+            )
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            html = infp.read();
+            html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
@@ -2028,11 +2246,17 @@ def value4objectwrapper(text):
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
             if add_js:
-                jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+                jsloc = os.path.join(
+                    os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+                )
                 if not os.path.exists(jsloc):
-                    raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+                    raise Exception(
+                        &#34;Could not find JavsScript file, {} does not exist&#34;.format(
+                            jsloc
+                        )
+                    )
                 with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-                    js = infp.read();
+                    js = infp.read()
                     js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
                 # html_ann_viewer_serializer_js_loaded = True
             else:
@@ -2060,6 +2284,7 @@ def value4objectwrapper(text):
 <pre><code class="python">@staticmethod
 def init_javscript():
     import IPython
+
     IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)</code></pre>
 </details>
 </dd>
@@ -2081,11 +2306,15 @@ def javascript():
     Returns: Javascript string.
 
     &#34;&#34;&#34;
-    jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+    jsloc = os.path.join(
+        os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+    )
     if not os.path.exists(jsloc):
-        raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+        raise Exception(
+            &#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc)
+        )
     with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-        js = infp.read();
+        js = infp.read()
         js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
     return js</code></pre>
 </details>
@@ -2127,12 +2356,17 @@ same HTML page and to style the output from a separate notebook cell</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">    @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             notebook=False,
-             offline=False,
-             add_js=True,
-             htmlid=None,
-             **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        notebook=False,
+        offline=False,
+        add_js=True,
+        htmlid=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
@@ -2159,11 +2393,15 @@ same HTML page and to style the output from a separate notebook cell</dd>
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;)
-        htmlloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME)
+        htmlloc = os.path.join(
+            os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
+        )
         if not os.path.exists(htmlloc):
-            raise Exception(&#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc))
+            raise Exception(
+                &#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc)
+            )
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            html = infp.read();
+            html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
@@ -2185,11 +2423,17 @@ same HTML page and to style the output from a separate notebook cell</dd>
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
             if add_js:
-                jsloc = os.path.join(os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME)
+                jsloc = os.path.join(
+                    os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
+                )
                 if not os.path.exists(jsloc):
-                    raise Exception(&#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc))
+                    raise Exception(
+                        &#34;Could not find JavsScript file, {} does not exist&#34;.format(
+                            jsloc
+                        )
+                    )
                 with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-                    js = infp.read();
+                    js = infp.read()
                     js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
                 # html_ann_viewer_serializer_js_loaded = True
             else:
@@ -2219,19 +2463,27 @@ same HTML page and to style the output from a separate notebook cell</dd>
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load_rendered(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name=&#34;Original markups&#34;,
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           parser: (Default value = None)
           markup_set_name: (Default value = &#34;Original markups&#34;)
           process_soup: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -2239,8 +2491,16 @@ same HTML page and to style the output from a separate notebook cell</dd>
         raise Exception(&#34;Rendered html parser not yet implemented&#34;)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-             process_soup=None, offset_mapper=None, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        parser=None,
+        markup_set_name=&#34;Original markups&#34;,
+        process_soup=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Load a HTML file.
 
         Args:
@@ -2251,7 +2511,7 @@ same HTML page and to style the output from a separate notebook cell</dd>
           offset_mapper: param kwargs: (Default value = None)
           from_ext: (Default value = None)
           parser: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -2265,32 +2525,66 @@ same HTML page and to style the output from a separate notebook cell</dd>
             if isurl:
                 from_mem = get_str_from_url(extstr)
         if from_mem:
-            bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser,  multi_valued_attributes=None)
+            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
         nlels = {
-            &#34;pre&#34;, &#34;br&#34;, &#34;p&#34;, &#34;div&#34;, &#34;tr&#34;, &#34;h1&#34;, &#34;h2&#34;, &#34;h3&#34;, &#34;h4&#34;, &#34;h5&#34;, &#34;h6&#34;, &#34;li&#34;,
-            &#34;address&#34;, &#34;article&#34;, &#34;aside&#34;, &#34;blockquote&#34;, &#34;del&#34;, &#34;figure&#34;, &#34;figcaption&#34;,
-            &#34;footer&#34;, &#34;header&#34;, &#34;hr&#34;, &#34;ins&#34;, &#34;main&#34;, &#34;nav&#34;, &#34;section&#34;, &#34;summary&#34;, &#34;input&#34;, &#34;legend&#34;,
-            &#34;option&#34;, &#34;textarea&#34;, &#34;bdi&#34;, &#34;bdo&#34;, &#34;center&#34;, &#34;code&#34;, &#34;dfn&#34;, &#34;menu&#34;, &#34;dir&#34;, &#34;caption&#34;,
+            &#34;pre&#34;,
+            &#34;br&#34;,
+            &#34;p&#34;,
+            &#34;div&#34;,
+            &#34;tr&#34;,
+            &#34;h1&#34;,
+            &#34;h2&#34;,
+            &#34;h3&#34;,
+            &#34;h4&#34;,
+            &#34;h5&#34;,
+            &#34;h6&#34;,
+            &#34;li&#34;,
+            &#34;address&#34;,
+            &#34;article&#34;,
+            &#34;aside&#34;,
+            &#34;blockquote&#34;,
+            &#34;del&#34;,
+            &#34;figure&#34;,
+            &#34;figcaption&#34;,
+            &#34;footer&#34;,
+            &#34;header&#34;,
+            &#34;hr&#34;,
+            &#34;ins&#34;,
+            &#34;main&#34;,
+            &#34;nav&#34;,
+            &#34;section&#34;,
+            &#34;summary&#34;,
+            &#34;input&#34;,
+            &#34;legend&#34;,
+            &#34;option&#34;,
+            &#34;textarea&#34;,
+            &#34;bdi&#34;,
+            &#34;bdo&#34;,
+            &#34;center&#34;,
+            &#34;code&#34;,
+            &#34;dfn&#34;,
+            &#34;menu&#34;,
+            &#34;dir&#34;,
+            &#34;caption&#34;,
         }
-        ignoreels = {
-            &#34;script&#34;, &#34;style&#34;
-        }
+        ignoreels = {&#34;script&#34;, &#34;style&#34;}
         docinfo = {&#34;anninfos&#34;: [], &#34;curoffset&#34;: 0, &#34;curid&#34;: 0, &#34;text&#34;: &#34;&#34;}
+
         def walktree(el):
             &#34;&#34;&#34;
 
             Args:
-              el: 
+              el:
 
             Returns:
 
             &#34;&#34;&#34;
-            #print(&#34;DEBUG: type=&#34;, type(el))
+            # print(&#34;DEBUG: type=&#34;, type(el))
             if isinstance(el, bs4.element.Doctype):
                 # print(&#34;DEBUG: got doctype&#34;, type(el))
                 pass
@@ -2306,25 +2600,30 @@ same HTML page and to style the output from a separate notebook cell</dd>
                 if el.name in ignoreels:
                     return
                 # for some tags we insert a new line before, but only if we do not already have one
-                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                        el.name in nlels:
+                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                     docinfo[&#34;text&#34;] += &#34;\n&#34;
                     # print(&#34;DEBUG: adding newline before at &#34;, docinfo[&#34;curoffset&#34;])
                     docinfo[&#34;curoffset&#34;] += 1
-                ann = {&#34;type&#34;: el.name, &#34;features&#34;: el.attrs,
-                       &#34;id&#34;: docinfo[&#34;curid&#34;], &#34;event&#34;: &#34;start&#34;, &#34;start&#34;: docinfo[&#34;curoffset&#34;]}
+                ann = {
+                    &#34;type&#34;: el.name,
+                    &#34;features&#34;: el.attrs,
+                    &#34;id&#34;: docinfo[&#34;curid&#34;],
+                    &#34;event&#34;: &#34;start&#34;,
+                    &#34;start&#34;: docinfo[&#34;curoffset&#34;],
+                }
                 thisid = docinfo[&#34;curid&#34;]
                 docinfo[&#34;anninfos&#34;].append(ann)
                 docinfo[&#34;curid&#34;] += 1
                 for child in el.children:
                     walktree(child)
                 # for some tags we insert a new line after
-                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                        el.name in nlels:
+                if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                     docinfo[&#34;text&#34;] += &#34;\n&#34;
                     # print(&#34;DEBUG: adding newline after at &#34;, docinfo[&#34;curoffset&#34;])
                     docinfo[&#34;curoffset&#34;] += 1
-                docinfo[&#34;anninfos&#34;].append({&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]})
+                docinfo[&#34;anninfos&#34;].append(
+                    {&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]}
+                )
             elif isinstance(el, bs4.element.NavigableString):
                 # print(&#34;DEBUG: got text: &#34;, el)
                 text = str(el)
@@ -2334,6 +2633,7 @@ same HTML page and to style the output from a separate notebook cell</dd>
                 docinfo[&#34;curoffset&#34;] += len(el)
             else:
                 print(&#34;WARNING: odd element type&#34;, type(el))
+
         walktree(bs)
         # need to add the end corresponding to bs
         # print(&#34;DEBUG: got docinfo:\n&#34;,docinfo)
@@ -2358,8 +2658,12 @@ same HTML page and to style the output from a separate notebook cell</dd>
         annset = doc.annset(markup_set_name)
         for i in range(nstart):
             anninfo = id2anninfo[i]
-            annset.add(start=anninfo[&#34;start&#34;], end=anninfo[&#34;end&#34;], anntype=anninfo[&#34;type&#34;],
-                       features=anninfo[&#34;features&#34;])
+            annset.add(
+                start=anninfo[&#34;start&#34;],
+                end=anninfo[&#34;end&#34;],
+                anntype=anninfo[&#34;type&#34;],
+                features=anninfo[&#34;features&#34;],
+            )
         return doc</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -2385,17 +2689,24 @@ same HTML page and to style the output from a separate notebook cell</dd>
 <dd>(Default value = None)</dd>
 <dt><strong><code>parser</code></strong></dt>
 <dd>(Default value = None)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-         process_soup=None, offset_mapper=None, **kwargs):
+def load(
+    clazz,
+    from_ext=None,
+    from_mem=None,
+    parser=None,
+    markup_set_name=&#34;Original markups&#34;,
+    process_soup=None,
+    offset_mapper=None,
+    **kwargs,
+):
     &#34;&#34;&#34;Load a HTML file.
 
     Args:
@@ -2406,7 +2717,7 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
       offset_mapper: param kwargs: (Default value = None)
       from_ext: (Default value = None)
       parser: (Default value = None)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -2420,32 +2731,66 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
         if isurl:
             from_mem = get_str_from_url(extstr)
     if from_mem:
-        bs = BeautifulSoup(from_mem, parser,  multi_valued_attributes=None)
+        bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
     else:
-        bs = BeautifulSoup(extstr, parser,  multi_valued_attributes=None)
+        bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
     # we recursively iterate the tree depth first, going through the children
     # and adding to a list that either contains the text or a dict with the information
     # about annotations we want to add
     nlels = {
-        &#34;pre&#34;, &#34;br&#34;, &#34;p&#34;, &#34;div&#34;, &#34;tr&#34;, &#34;h1&#34;, &#34;h2&#34;, &#34;h3&#34;, &#34;h4&#34;, &#34;h5&#34;, &#34;h6&#34;, &#34;li&#34;,
-        &#34;address&#34;, &#34;article&#34;, &#34;aside&#34;, &#34;blockquote&#34;, &#34;del&#34;, &#34;figure&#34;, &#34;figcaption&#34;,
-        &#34;footer&#34;, &#34;header&#34;, &#34;hr&#34;, &#34;ins&#34;, &#34;main&#34;, &#34;nav&#34;, &#34;section&#34;, &#34;summary&#34;, &#34;input&#34;, &#34;legend&#34;,
-        &#34;option&#34;, &#34;textarea&#34;, &#34;bdi&#34;, &#34;bdo&#34;, &#34;center&#34;, &#34;code&#34;, &#34;dfn&#34;, &#34;menu&#34;, &#34;dir&#34;, &#34;caption&#34;,
+        &#34;pre&#34;,
+        &#34;br&#34;,
+        &#34;p&#34;,
+        &#34;div&#34;,
+        &#34;tr&#34;,
+        &#34;h1&#34;,
+        &#34;h2&#34;,
+        &#34;h3&#34;,
+        &#34;h4&#34;,
+        &#34;h5&#34;,
+        &#34;h6&#34;,
+        &#34;li&#34;,
+        &#34;address&#34;,
+        &#34;article&#34;,
+        &#34;aside&#34;,
+        &#34;blockquote&#34;,
+        &#34;del&#34;,
+        &#34;figure&#34;,
+        &#34;figcaption&#34;,
+        &#34;footer&#34;,
+        &#34;header&#34;,
+        &#34;hr&#34;,
+        &#34;ins&#34;,
+        &#34;main&#34;,
+        &#34;nav&#34;,
+        &#34;section&#34;,
+        &#34;summary&#34;,
+        &#34;input&#34;,
+        &#34;legend&#34;,
+        &#34;option&#34;,
+        &#34;textarea&#34;,
+        &#34;bdi&#34;,
+        &#34;bdo&#34;,
+        &#34;center&#34;,
+        &#34;code&#34;,
+        &#34;dfn&#34;,
+        &#34;menu&#34;,
+        &#34;dir&#34;,
+        &#34;caption&#34;,
     }
-    ignoreels = {
-        &#34;script&#34;, &#34;style&#34;
-    }
+    ignoreels = {&#34;script&#34;, &#34;style&#34;}
     docinfo = {&#34;anninfos&#34;: [], &#34;curoffset&#34;: 0, &#34;curid&#34;: 0, &#34;text&#34;: &#34;&#34;}
+
     def walktree(el):
         &#34;&#34;&#34;
 
         Args:
-          el: 
+          el:
 
         Returns:
 
         &#34;&#34;&#34;
-        #print(&#34;DEBUG: type=&#34;, type(el))
+        # print(&#34;DEBUG: type=&#34;, type(el))
         if isinstance(el, bs4.element.Doctype):
             # print(&#34;DEBUG: got doctype&#34;, type(el))
             pass
@@ -2461,25 +2806,30 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
             if el.name in ignoreels:
                 return
             # for some tags we insert a new line before, but only if we do not already have one
-            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                    el.name in nlels:
+            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                 docinfo[&#34;text&#34;] += &#34;\n&#34;
                 # print(&#34;DEBUG: adding newline before at &#34;, docinfo[&#34;curoffset&#34;])
                 docinfo[&#34;curoffset&#34;] += 1
-            ann = {&#34;type&#34;: el.name, &#34;features&#34;: el.attrs,
-                   &#34;id&#34;: docinfo[&#34;curid&#34;], &#34;event&#34;: &#34;start&#34;, &#34;start&#34;: docinfo[&#34;curoffset&#34;]}
+            ann = {
+                &#34;type&#34;: el.name,
+                &#34;features&#34;: el.attrs,
+                &#34;id&#34;: docinfo[&#34;curid&#34;],
+                &#34;event&#34;: &#34;start&#34;,
+                &#34;start&#34;: docinfo[&#34;curoffset&#34;],
+            }
             thisid = docinfo[&#34;curid&#34;]
             docinfo[&#34;anninfos&#34;].append(ann)
             docinfo[&#34;curid&#34;] += 1
             for child in el.children:
                 walktree(child)
             # for some tags we insert a new line after
-            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and \
-                    el.name in nlels:
+            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
                 docinfo[&#34;text&#34;] += &#34;\n&#34;
                 # print(&#34;DEBUG: adding newline after at &#34;, docinfo[&#34;curoffset&#34;])
                 docinfo[&#34;curoffset&#34;] += 1
-            docinfo[&#34;anninfos&#34;].append({&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]})
+            docinfo[&#34;anninfos&#34;].append(
+                {&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]}
+            )
         elif isinstance(el, bs4.element.NavigableString):
             # print(&#34;DEBUG: got text: &#34;, el)
             text = str(el)
@@ -2489,6 +2839,7 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
             docinfo[&#34;curoffset&#34;] += len(el)
         else:
             print(&#34;WARNING: odd element type&#34;, type(el))
+
     walktree(bs)
     # need to add the end corresponding to bs
     # print(&#34;DEBUG: got docinfo:\n&#34;,docinfo)
@@ -2513,8 +2864,12 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
     annset = doc.annset(markup_set_name)
     for i in range(nstart):
         anninfo = id2anninfo[i]
-        annset.add(start=anninfo[&#34;start&#34;], end=anninfo[&#34;end&#34;], anntype=anninfo[&#34;type&#34;],
-                   features=anninfo[&#34;features&#34;])
+        annset.add(
+            start=anninfo[&#34;start&#34;],
+            end=anninfo[&#34;end&#34;],
+            anntype=anninfo[&#34;type&#34;],
+            features=anninfo[&#34;features&#34;],
+        )
     return doc</code></pre>
 </details>
 </dd>
@@ -2524,8 +2879,7 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
@@ -2538,28 +2892,35 @@ def load(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;
 <dd>(Default value = None)</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
 <dd>(Default value = None)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load_rendered(clazz, from_ext=None, from_mem=None, parser=None, markup_set_name=&#34;Original markups&#34;,
-         process_soup=None, offset_mapper=None, **kwargs):
+def load_rendered(
+    clazz,
+    from_ext=None,
+    from_mem=None,
+    parser=None,
+    markup_set_name=&#34;Original markups&#34;,
+    process_soup=None,
+    offset_mapper=None,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       parser: (Default value = None)
       markup_set_name: (Default value = &#34;Original markups&#34;)
       process_soup: (Default value = None)
       offset_mapper: (Default value = None)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -2586,7 +2947,16 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
     &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
@@ -2597,7 +2967,7 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
           offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
-          **kwargs: 
+          **kwargs:
         &#34;&#34;&#34;
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
@@ -2621,16 +2991,18 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
         JsonSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -2674,8 +3046,8 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -2690,8 +3062,7 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
@@ -2700,25 +3071,26 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+def load(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -2763,13 +3135,9 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>clazz:
+**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2779,8 +3147,8 @@ def load_gzip(clazz, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      **kwargs: 
+      clazz:
+      **kwargs:
 
     Returns:
 
@@ -2815,7 +3183,16 @@ def load_gzip(clazz, **kwargs):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+def save(
+    clazz,
+    inst,
+    to_ext=None,
+    to_mem=None,
+    offset_type=None,
+    offset_mapper=None,
+    gzip=False,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
@@ -2826,7 +3203,7 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
       offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
       offset_mapper: the offset mapper to use, only needed if the type needs to get converted
       gzip: if True, the JSON gets gzip compressed
-      **kwargs: 
+      **kwargs:
     &#34;&#34;&#34;
     d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
     if to_mem:
@@ -2880,8 +3257,8 @@ def save_gzip(clazz, inst, **kwargs):
 
         Args:
           doc: Document:
-          stream: 
-          doc: Document: 
+          stream:
+          doc: Document:
 
         Returns:
 
@@ -2908,7 +3285,7 @@ def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          stream: 
+          stream:
 
         Returns:
 
@@ -2945,17 +3322,25 @@ def save_gzip(clazz, inst, **kwargs):
         return doc
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -2981,11 +3366,11 @@ def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -3018,10 +3403,9 @@ def save_gzip(clazz, inst, **kwargs):
 <dl>
 <dt><strong><code>doc</code></strong></dt>
 <dd>Document:</dd>
-<dt><strong><code>stream</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>stream:</dt>
 <dt><strong><code>doc</code></strong></dt>
-<dd>Document: </dd>
+<dd>Document:</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
@@ -3034,8 +3418,8 @@ def document2stream(doc: Document, stream):
 
     Args:
       doc: Document:
-      stream: 
-      doc: Document: 
+      stream:
+      doc: Document:
 
     Returns:
 
@@ -3064,18 +3448,16 @@ def document2stream(doc: Document, stream):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
 <dd>(Default value = None)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3085,11 +3467,11 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3119,10 +3501,8 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
+<dt>inst:</dt>
 <dt><strong><code>to_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>to_mem</code></strong></dt>
@@ -3131,26 +3511,33 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
 <dd>(Default value = None)</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
 <dd>(Default value = None)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs):
+def save(
+    clazz,
+    inst,
+    to_ext=None,
+    to_mem=None,
+    offset_type=None,
+    offset_mapper=None,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
+      clazz:
+      inst:
       to_ext: (Default value = None)
       to_mem: (Default value = None)
       offset_type: (Default value = None)
       offset_mapper: (Default value = None)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3177,11 +3564,8 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>stream</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>stream:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3191,7 +3575,7 @@ def stream2document(stream):
     &#34;&#34;&#34;
 
     Args:
-      stream: 
+      stream:
 
     Returns:
 
@@ -3243,22 +3627,29 @@ def stream2document(stream):
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None,
-             offset_type=None, offset_mapper=None,
-             encoding=&#34;UTF-8&#34;,
-             gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        encoding=&#34;UTF-8&#34;,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = &#34;UTF-8&#34;)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -3284,9 +3675,9 @@ def stream2document(stream):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -3294,19 +3685,25 @@ def stream2document(stream):
         PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
-             encoding=&#34;UTF-8&#34;,
-             gzip=False, **kwargs):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        offset_mapper=None,
+        encoding=&#34;UTF-8&#34;,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           encoding: (Default value = &#34;UTF-8&#34;)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -3339,8 +3736,8 @@ def stream2document(stream):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -3355,8 +3752,7 @@ def stream2document(stream):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
@@ -3367,28 +3763,33 @@ def stream2document(stream):
 <dd>(Default value = "UTF-8")</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
-         encoding=&#34;UTF-8&#34;,
-         gzip=False, **kwargs):
+def load(
+    clazz,
+    from_ext=None,
+    from_mem=None,
+    offset_mapper=None,
+    encoding=&#34;UTF-8&#34;,
+    gzip=False,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       encoding: (Default value = &#34;UTF-8&#34;)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3422,13 +3823,9 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None,
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>clazz:
+**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3438,8 +3835,8 @@ def load_gzip(clazz, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      **kwargs: 
+      clazz:
+      **kwargs:
 
     Returns:
 
@@ -3453,10 +3850,8 @@ def load_gzip(clazz, **kwargs):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
+<dt>inst:</dt>
 <dt><strong><code>to_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>to_mem</code></strong></dt>
@@ -3469,31 +3864,37 @@ def load_gzip(clazz, **kwargs):
 <dd>(Default value = "UTF-8")</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def save(clazz, inst, to_ext=None, to_mem=None,
-         offset_type=None, offset_mapper=None,
-         encoding=&#34;UTF-8&#34;,
-         gzip=False, **kwargs):
+def save(
+    clazz,
+    inst,
+    to_ext=None,
+    to_mem=None,
+    offset_type=None,
+    offset_mapper=None,
+    encoding=&#34;UTF-8&#34;,
+    gzip=False,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
+      clazz:
+      inst:
       to_ext: (Default value = None)
       to_mem: (Default value = None)
       offset_type: (Default value = None)
       offset_mapper: (Default value = None)
       encoding: (Default value = &#34;UTF-8&#34;)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3520,15 +3921,10 @@ def save(clazz, inst, to_ext=None, to_mem=None,
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>clazz:
+inst:
+**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3538,9 +3934,9 @@ def save_gzip(clazz, inst, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
-      **kwargs: 
+      clazz:
+      inst:
+      **kwargs:
 
     Returns:
 
@@ -3563,18 +3959,27 @@ def save_gzip(clazz, inst, **kwargs):
     &#34;&#34;&#34; &#34;&#34;&#34;
 
     @staticmethod
-    def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
+          clazz:
+          inst:
           to_ext: (Default value = None)
           to_mem: (Default value = None)
           offset_type: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -3598,9 +4003,9 @@ def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          inst: 
-          **kwargs: 
+          clazz:
+          inst:
+          **kwargs:
 
         Returns:
 
@@ -3608,16 +4013,18 @@ def save_gzip(clazz, inst, **kwargs):
         YamlSerializer.save(clazz, inst, gzip=True, **kwargs)
 
     @staticmethod
-    def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
+          clazz:
           from_ext: (Default value = None)
           from_mem: (Default value = None)
           offset_mapper: (Default value = None)
           gzip: (Default value = False)
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -3631,7 +4038,9 @@ def save_gzip(clazz, inst, **kwargs):
                     from_mem = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
         if from_mem is not None:
             if gzip:
-                d = yaml.load(decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader)
+                d = yaml.load(
+                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+                )
             else:
                 d = yaml.load(from_mem, Loader=yaml.FullLoader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
@@ -3650,8 +4059,8 @@ def save_gzip(clazz, inst, **kwargs):
         &#34;&#34;&#34;
 
         Args:
-          clazz: 
-          **kwargs: 
+          clazz:
+          **kwargs:
 
         Returns:
 
@@ -3666,8 +4075,7 @@ def save_gzip(clazz, inst, **kwargs):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
 <dt><strong><code>from_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>from_mem</code></strong></dt>
@@ -3676,25 +4084,26 @@ def save_gzip(clazz, inst, **kwargs):
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs):
+def load(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
+      clazz:
       from_ext: (Default value = None)
       from_mem: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3708,7 +4117,9 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **
                 from_mem = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
     if from_mem is not None:
         if gzip:
-            d = yaml.load(decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader)
+            d = yaml.load(
+                decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+            )
         else:
             d = yaml.load(from_mem, Loader=yaml.FullLoader)
         doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
@@ -3728,13 +4139,9 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>clazz:
+**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3744,8 +4151,8 @@ def load_gzip(clazz, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      **kwargs: 
+      clazz:
+      **kwargs:
 
     Returns:
 
@@ -3759,10 +4166,8 @@ def load_gzip(clazz, **kwargs):
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
+<dt>clazz:</dt>
+<dt>inst:</dt>
 <dt><strong><code>to_ext</code></strong></dt>
 <dd>(Default value = None)</dd>
 <dt><strong><code>to_mem</code></strong></dt>
@@ -3773,27 +4178,35 @@ def load_gzip(clazz, **kwargs):
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs):
+def save(
+    clazz,
+    inst,
+    to_ext=None,
+    to_mem=None,
+    offset_type=None,
+    offset_mapper=None,
+    gzip=False,
+    **kwargs,
+):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
+      clazz:
+      inst:
       to_ext: (Default value = None)
       to_mem: (Default value = None)
       offset_type: (Default value = None)
       offset_mapper: (Default value = None)
       gzip: (Default value = False)
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -3818,15 +4231,10 @@ def save(clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>&nbsp;</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
-</dl>
-<p>Returns:</p></div>
+<p>clazz:
+inst:
+**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3836,9 +4244,9 @@ def save_gzip(clazz, inst, **kwargs):
     &#34;&#34;&#34;
 
     Args:
-      clazz: 
-      inst: 
-      **kwargs: 
+      clazz:
+      inst:
+      **kwargs:
 
     Returns:
 

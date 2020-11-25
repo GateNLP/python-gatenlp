@@ -52,15 +52,16 @@ class GateCloudAnnotator(Annotator):
     returned result to create annotations.
     &#34;&#34;&#34;
 
-    def __init__(self,
-                 api_key=None,
-                 api_password=None,
-                 url=None,
-                 ann_types=None,
-                 map_types=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 ):
+    def __init__(
+        self,
+        api_key=None,
+        api_password=None,
+        url=None,
+        ann_types=None,
+        map_types=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+    ):
         &#34;&#34;&#34;
         Create a GateCloudAnnotator.
 
@@ -89,9 +90,13 @@ class GateCloudAnnotator(Annotator):
             if isinstance(ann_types, str):
                 self.ann_types = ann_types
             elif isinstance(ann_types, list):
-                self.ann_types = &#34;,&#34;.join([at if at.startswith(&#34;:&#34;) else &#34;:&#34;+at for at in ann_types])
+                self.ann_types = &#34;,&#34;.join(
+                    [at if at.startswith(&#34;:&#34;) else &#34;:&#34; + at for at in ann_types]
+                )
             else:
-                raise Exception(&#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;)
+                raise Exception(
+                    &#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;
+                )
         else:
             self.ann_types = None
         self.logger = init_logger()
@@ -107,19 +112,29 @@ class GateCloudAnnotator(Annotator):
         else:
             url = self.url
         text = doc.text
-        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        hdrs = {
+            &#34;Content-Type&#34;: &#34;text/plain; charset=UTF-8&#34;,
+            &#34;Accept&#34;: &#34;application/gate+json&#34;,
+        }
         params = {}
         if self.ann_types:
             params[&#34;annotations&#34;] = self.ann_types
         # NOTE: not sure when this is needed, for now, disabled
-        #next_annid = doc.annset(self.out_annset)._next_annid
-        #params[&#34;nextAnnotationId&#34;] = str(next_annid)
+        # next_annid = doc.annset(self.out_annset)._next_annid
+        # params[&#34;nextAnnotationId&#34;] = str(next_annid)
         # self.logger.debug(f&#34;Sending text={text}, params={params}&#34;)
         if self.api_key:
-            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params,
-                                     auth=HTTPBasicAuth(self.api_key, self.api_password))
+            response = requests.post(
+                url,
+                data=text.encode(&#34;utf-8&#34;),
+                headers=hdrs,
+                params=params,
+                auth=HTTPBasicAuth(self.api_key, self.api_password),
+            )
         else:
-            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params)
+            response = requests.post(
+                url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params
+            )
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -129,7 +144,10 @@ class GateCloudAnnotator(Annotator):
         for typename, anns in ents.items():
             for anndata in anns:
                 feats = {}
-                start, end = None, None   # cause an exception if the return data does not have indices
+                start, end = (
+                    None,
+                    None,
+                )  # cause an exception if the return data does not have indices
                 for fname, fval in anndata.items():
                     if fname == &#34;indices&#34;:
                         start, end = fval[0], fval[1]
@@ -147,20 +165,22 @@ class TagMeAnnotator(Annotator):
     An annotator that sends text to the TagMe Annotation service (https://sobigdata.d4science.org/group/tagme/tagme)
     and uses the result to annotate the document.
     &#34;&#34;&#34;
-    def __init__(self,
-                 lang=&#34;en&#34;,
-                 ann_type=&#34;Mention&#34;,
-                 auth_token=None,
-                 url=None,
-                 task=&#34;tag&#34;, # or spot
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 tweet=False,
-                 include_all_spots=False,
-                 long_text=None,
-                 epsilon=None,
-                 link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;
-                 ):
+
+    def __init__(
+        self,
+        lang=&#34;en&#34;,
+        ann_type=&#34;Mention&#34;,
+        auth_token=None,
+        url=None,
+        task=&#34;tag&#34;,  # or spot
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+        tweet=False,
+        include_all_spots=False,
+        long_text=None,
+        epsilon=None,
+        link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;,
+    ):
         &#34;&#34;&#34;
         Create a TagMeAnnotator.
 
@@ -187,7 +207,7 @@ class TagMeAnnotator(Annotator):
                 url = &#34;https://tagme.d4science.org/tagme/spot&#34;
             else:
                 raise Exception(&#34;task must be &#39;tag&#39; or &#39;spot&#39;&#34;)
-        assert lang in [&#39;en&#39;, &#39;de&#39;, &#39;it&#39;]
+        assert lang in [&#34;en&#34;, &#34;de&#34;, &#34;it&#34;]
         if long_text is not None:
             assert isinstance(long_text, int)
         if epsilon is not None:
@@ -208,7 +228,7 @@ class TagMeAnnotator(Annotator):
         self.link_pattern = link_pattern
 
     def __call__(self, doc, **kwargs):
-        if &#39;tweet&#39; in kwargs:
+        if &#34;tweet&#34; in kwargs:
             tweet = kwargs[&#34;tweet&#34;]
         else:
             tweet = self.tweet
@@ -216,9 +236,14 @@ class TagMeAnnotator(Annotator):
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         text = doc.text
-        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        hdrs = {
+            &#34;Content-Type&#34;: &#34;text/plain; charset=UTF-8&#34;,
+            &#34;Accept&#34;: &#34;application/gate+json&#34;,
+        }
         params = {
-            &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
+            &#34;text&#34;: text,
+            &#34;gcube-token&#34;: self.auth_token,
+            &#34;lang&#34;: self.lang,
         }
         if self.include_all_spots:
             params[&#34;include_all_spots&#34;] = &#34;true&#34;
@@ -264,14 +289,16 @@ class TextRazorTextAnnotator(Annotator):
 
     NOTE: this annotator and how it can get parametrized will still change!
     &#34;&#34;&#34;
-    def __init__(self,
-                 lang=None,  # if None/not specified, TextRazor auto-detects
-                 auth_token=None,
-                 url=None,  # use default
-                 extractors=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 ):
+
+    def __init__(
+        self,
+        lang=None,  # if None/not specified, TextRazor auto-detects
+        auth_token=None,
+        url=None,  # use default
+        extractors=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+    ):
         &#34;&#34;&#34;
         Create a TextRazorTextAnnotator.
 
@@ -317,11 +344,9 @@ class TextRazorTextAnnotator(Annotator):
             # &#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;,
             # &#39;Accept-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed responses
             # &#39;Content-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed requests
-            &#39;X-TextRazor-Key&#39;: self.auth_token
+            &#34;X-TextRazor-Key&#34;: self.auth_token
         }
-        data = {
-            &#39;text&#39;: text.encode(&#34;UTF-8&#34;)
-        }
+        data = {&#34;text&#34;: text.encode(&#34;UTF-8&#34;)}
         if self.extractors:
             data[&#34;extractors&#34;] = self.extractors
         if self.lang:
@@ -331,7 +356,8 @@ class TextRazorTextAnnotator(Annotator):
             self.url,
             # params=params,
             data=data,
-            headers=hdrs)
+            headers=hdrs,
+        )
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -377,8 +403,17 @@ class TextRazorTextAnnotator(Annotator):
                 annset.add(sentstart, sentend, &#34;Sentence&#34;)
         for ent in entities:
             feats = {}
-            for fname in [&#34;wikiLink&#34;, &#34;entityEnglishId&#34;, &#34;wikidataId&#34;, &#34;relevanceScore&#34;, &#34;confidenceScore&#34;, &#34;type&#34;,
-                          &#34;freebaseId&#34;, &#34;entityId&#34;, &#34;freebaseTypes&#34;]:
+            for fname in [
+                &#34;wikiLink&#34;,
+                &#34;entityEnglishId&#34;,
+                &#34;wikidataId&#34;,
+                &#34;relevanceScore&#34;,
+                &#34;confidenceScore&#34;,
+                &#34;type&#34;,
+                &#34;freebaseId&#34;,
+                &#34;entityId&#34;,
+                &#34;freebaseTypes&#34;,
+            ]:
                 if fname in ent:
                     feats[fname] = ent[fname]
             annset.add(ent[&#34;startingPos&#34;], ent[&#34;endingPos&#34;], &#34;Entity&#34;, feats)
@@ -392,13 +427,15 @@ class ElgTextAnnotator(Annotator):
 
     NOTE: This is maybe not properly implemented and not properly tested yet!
     &#34;&#34;&#34;
-    def __init__(self,
-                 auth_token=None,
-                 url=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 anntypes_map=None,
-                 ):
+
+    def __init__(
+        self,
+        auth_token=None,
+        url=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+        anntypes_map=None,
+    ):
         &#34;&#34;&#34;
         Create an ElgTextAnnotator.
 
@@ -425,14 +462,18 @@ class ElgTextAnnotator(Annotator):
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         om = OffsetMapper(doc.text)
-        request_json = json.dumps({&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;})
-        hdrs = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        request_json = json.dumps(
+            {&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;}
+        )
+        hdrs = {&#34;Content-Type&#34;: &#34;application/json&#34;}
         if self.auth_token:
             hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
         response = requests.post(self.url, data=request_json, headers=hdrs)
         scode = response.status_code
         if scode != 200:
-            raise Exception(f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;)
+            raise Exception(
+                f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;
+            )
         response_json = response.json()
         # self.logger.debug(f&#34;Response JSON: {json}&#34;)
         # TODO: check that we have got
@@ -499,13 +540,15 @@ the annotated document.</dd>
 
     NOTE: This is maybe not properly implemented and not properly tested yet!
     &#34;&#34;&#34;
-    def __init__(self,
-                 auth_token=None,
-                 url=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 anntypes_map=None,
-                 ):
+
+    def __init__(
+        self,
+        auth_token=None,
+        url=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+        anntypes_map=None,
+    ):
         &#34;&#34;&#34;
         Create an ElgTextAnnotator.
 
@@ -532,14 +575,18 @@ the annotated document.</dd>
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         om = OffsetMapper(doc.text)
-        request_json = json.dumps({&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;})
-        hdrs = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+        request_json = json.dumps(
+            {&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;}
+        )
+        hdrs = {&#34;Content-Type&#34;: &#34;application/json&#34;}
         if self.auth_token:
             hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
         response = requests.post(self.url, data=request_json, headers=hdrs)
         scode = response.status_code
         if scode != 200:
-            raise Exception(f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;)
+            raise Exception(
+                f&#34;Something went wrong, received status code/text {scode} / {response.text}&#34;
+            )
         response_json = response.json()
         # self.logger.debug(f&#34;Response JSON: {json}&#34;)
         # TODO: check that we have got
@@ -620,15 +667,16 @@ any type name not in the map will remain unchanged.</dd>
     returned result to create annotations.
     &#34;&#34;&#34;
 
-    def __init__(self,
-                 api_key=None,
-                 api_password=None,
-                 url=None,
-                 ann_types=None,
-                 map_types=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 ):
+    def __init__(
+        self,
+        api_key=None,
+        api_password=None,
+        url=None,
+        ann_types=None,
+        map_types=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+    ):
         &#34;&#34;&#34;
         Create a GateCloudAnnotator.
 
@@ -657,9 +705,13 @@ any type name not in the map will remain unchanged.</dd>
             if isinstance(ann_types, str):
                 self.ann_types = ann_types
             elif isinstance(ann_types, list):
-                self.ann_types = &#34;,&#34;.join([at if at.startswith(&#34;:&#34;) else &#34;:&#34;+at for at in ann_types])
+                self.ann_types = &#34;,&#34;.join(
+                    [at if at.startswith(&#34;:&#34;) else &#34;:&#34; + at for at in ann_types]
+                )
             else:
-                raise Exception(&#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;)
+                raise Exception(
+                    &#34;ann_types mist be a string of types like &#39;:Person,:Location&#39; or a list of types&#34;
+                )
         else:
             self.ann_types = None
         self.logger = init_logger()
@@ -675,19 +727,29 @@ any type name not in the map will remain unchanged.</dd>
         else:
             url = self.url
         text = doc.text
-        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        hdrs = {
+            &#34;Content-Type&#34;: &#34;text/plain; charset=UTF-8&#34;,
+            &#34;Accept&#34;: &#34;application/gate+json&#34;,
+        }
         params = {}
         if self.ann_types:
             params[&#34;annotations&#34;] = self.ann_types
         # NOTE: not sure when this is needed, for now, disabled
-        #next_annid = doc.annset(self.out_annset)._next_annid
-        #params[&#34;nextAnnotationId&#34;] = str(next_annid)
+        # next_annid = doc.annset(self.out_annset)._next_annid
+        # params[&#34;nextAnnotationId&#34;] = str(next_annid)
         # self.logger.debug(f&#34;Sending text={text}, params={params}&#34;)
         if self.api_key:
-            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params,
-                                     auth=HTTPBasicAuth(self.api_key, self.api_password))
+            response = requests.post(
+                url,
+                data=text.encode(&#34;utf-8&#34;),
+                headers=hdrs,
+                params=params,
+                auth=HTTPBasicAuth(self.api_key, self.api_password),
+            )
         else:
-            response = requests.post(url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params)
+            response = requests.post(
+                url, data=text.encode(&#34;utf-8&#34;), headers=hdrs, params=params
+            )
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -697,7 +759,10 @@ any type name not in the map will remain unchanged.</dd>
         for typename, anns in ents.items():
             for anndata in anns:
                 feats = {}
-                start, end = None, None   # cause an exception if the return data does not have indices
+                start, end = (
+                    None,
+                    None,
+                )  # cause an exception if the return data does not have indices
                 for fname, fval in anndata.items():
                     if fname == &#34;indices&#34;:
                         start, end = fval[0], fval[1]
@@ -772,20 +837,22 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
     An annotator that sends text to the TagMe Annotation service (https://sobigdata.d4science.org/group/tagme/tagme)
     and uses the result to annotate the document.
     &#34;&#34;&#34;
-    def __init__(self,
-                 lang=&#34;en&#34;,
-                 ann_type=&#34;Mention&#34;,
-                 auth_token=None,
-                 url=None,
-                 task=&#34;tag&#34;, # or spot
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 tweet=False,
-                 include_all_spots=False,
-                 long_text=None,
-                 epsilon=None,
-                 link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;
-                 ):
+
+    def __init__(
+        self,
+        lang=&#34;en&#34;,
+        ann_type=&#34;Mention&#34;,
+        auth_token=None,
+        url=None,
+        task=&#34;tag&#34;,  # or spot
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+        tweet=False,
+        include_all_spots=False,
+        long_text=None,
+        epsilon=None,
+        link_pattern=&#34;https://{0}.wikipedia.org/wiki/{1}&#34;,
+    ):
         &#34;&#34;&#34;
         Create a TagMeAnnotator.
 
@@ -812,7 +879,7 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
                 url = &#34;https://tagme.d4science.org/tagme/spot&#34;
             else:
                 raise Exception(&#34;task must be &#39;tag&#39; or &#39;spot&#39;&#34;)
-        assert lang in [&#39;en&#39;, &#39;de&#39;, &#39;it&#39;]
+        assert lang in [&#34;en&#34;, &#34;de&#34;, &#34;it&#34;]
         if long_text is not None:
             assert isinstance(long_text, int)
         if epsilon is not None:
@@ -833,7 +900,7 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
         self.link_pattern = link_pattern
 
     def __call__(self, doc, **kwargs):
-        if &#39;tweet&#39; in kwargs:
+        if &#34;tweet&#34; in kwargs:
             tweet = kwargs[&#34;tweet&#34;]
         else:
             tweet = self.tweet
@@ -841,9 +908,14 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         text = doc.text
-        hdrs = {&#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;, &#39;Accept&#39;: &#39;application/gate+json&#39;}
+        hdrs = {
+            &#34;Content-Type&#34;: &#34;text/plain; charset=UTF-8&#34;,
+            &#34;Accept&#34;: &#34;application/gate+json&#34;,
+        }
         params = {
-            &#39;text&#39;: text, &#39;gcube-token&#39;: self.auth_token, &#39;lang&#39;: self.lang,
+            &#34;text&#34;: text,
+            &#34;gcube-token&#34;: self.auth_token,
+            &#34;lang&#34;: self.lang,
         }
         if self.include_all_spots:
             params[&#34;include_all_spots&#34;] = &#34;true&#34;
@@ -936,14 +1008,16 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
 
     NOTE: this annotator and how it can get parametrized will still change!
     &#34;&#34;&#34;
-    def __init__(self,
-                 lang=None,  # if None/not specified, TextRazor auto-detects
-                 auth_token=None,
-                 url=None,  # use default
-                 extractors=None,
-                 out_annset=&#34;&#34;,
-                 min_delay_ms=501,
-                 ):
+
+    def __init__(
+        self,
+        lang=None,  # if None/not specified, TextRazor auto-detects
+        auth_token=None,
+        url=None,  # use default
+        extractors=None,
+        out_annset=&#34;&#34;,
+        min_delay_ms=501,
+    ):
         &#34;&#34;&#34;
         Create a TextRazorTextAnnotator.
 
@@ -989,11 +1063,9 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
             # &#39;Content-Type&#39;: &#39;text/plain; charset=UTF-8&#39;,
             # &#39;Accept-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed responses
             # &#39;Content-encoding&#39;: &#39;gzip&#39;  # TODO: to enable compressed requests
-            &#39;X-TextRazor-Key&#39;: self.auth_token
+            &#34;X-TextRazor-Key&#34;: self.auth_token
         }
-        data = {
-            &#39;text&#39;: text.encode(&#34;UTF-8&#34;)
-        }
+        data = {&#34;text&#34;: text.encode(&#34;UTF-8&#34;)}
         if self.extractors:
             data[&#34;extractors&#34;] = self.extractors
         if self.lang:
@@ -1003,7 +1075,8 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
             self.url,
             # params=params,
             data=data,
-            headers=hdrs)
+            headers=hdrs,
+        )
         scode = response.status_code
         if scode != 200:
             raise Exception(f&#34;Something went wrong, received status code {scode}&#34;)
@@ -1049,8 +1122,17 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
                 annset.add(sentstart, sentend, &#34;Sentence&#34;)
         for ent in entities:
             feats = {}
-            for fname in [&#34;wikiLink&#34;, &#34;entityEnglishId&#34;, &#34;wikidataId&#34;, &#34;relevanceScore&#34;, &#34;confidenceScore&#34;, &#34;type&#34;,
-                          &#34;freebaseId&#34;, &#34;entityId&#34;, &#34;freebaseTypes&#34;]:
+            for fname in [
+                &#34;wikiLink&#34;,
+                &#34;entityEnglishId&#34;,
+                &#34;wikidataId&#34;,
+                &#34;relevanceScore&#34;,
+                &#34;confidenceScore&#34;,
+                &#34;type&#34;,
+                &#34;freebaseId&#34;,
+                &#34;entityId&#34;,
+                &#34;freebaseTypes&#34;,
+            ]:
                 if fname in ent:
                     feats[fname] = ent[fname]
             annset.add(ent[&#34;startingPos&#34;], ent[&#34;endingPos&#34;], &#34;Entity&#34;, feats)

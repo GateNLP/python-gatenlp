@@ -28,19 +28,27 @@
 </summary>
 <pre><code class="python"># NOTE: do not place a comment at the end of the version assignment
 # line since we parse that line in a shell script!
-__version__ = &#34;0.9.6&#34;
+__version__ = &#34;0.9.7&#34;
 import logging
 import sys
+
 try:
     import sortedcontainers
 except Exception as ex:
     import sys
-    print(&#34;ERROR: required package sortedcontainers cannot be imported!&#34;, file=sys.stderr)
-    print(&#34;Please install it, using e.g. &#39;pip install -U sortedcontainers&#39;&#34;, file=sys.stderr)
+
+    print(
+        &#34;ERROR: required package sortedcontainers cannot be imported!&#34;, file=sys.stderr
+    )
+    print(
+        &#34;Please install it, using e.g. &#39;pip install -U sortedcontainers&#39;&#34;,
+        file=sys.stderr,
+    )
     sys.exit(1)
 # TODO: check version of sortedcontainers (we have 2.1.0)
 
 from gatenlp.utils import init_logger
+
 logger = init_logger(&#34;gatenlp&#34;)
 
 # this attribute globally holds the processing resource last defined
@@ -52,17 +60,25 @@ from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.gateslave import GateSlave
+from gatenlp.span import Span
 
 
-def  init_notebook():
+def init_notebook():
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
     from gatenlp.gatenlpconfig import gatenlpconfig
+
     HtmlAnnViewerSerializer.init_javscript()
     gatenlpconfig.notebook_js_initialized = True
 
 
-__all__ = [&#34;GateNlpPr&#34;, &#34;Annotation&#34;, &#34;Document&#34;, &#34;AnnotationSet&#34;,
-           &#34;ChangeLog&#34;, &#34;logger&#34;]
+__all__ = [
+    &#34;GateNlpPr&#34;,
+    &#34;Annotation&#34;,
+    &#34;Document&#34;,
+    &#34;AnnotationSet&#34;,
+    &#34;ChangeLog&#34;,
+    &#34;logger&#34;,
+]
 
 gate_python_plugin_pr = None</code></pre>
 </details>
@@ -139,6 +155,10 @@ convert from stanford Stanza output to gatenlp documents and annotations.</p></d
 <div class="desc"><p>Module that implements the OffsetMapper class for mapping between Java-style and Python-style string offsets.
 Java strings are represented as UTF16 …</p></div>
 </dd>
+<dt><code class="name"><a title="gatenlp.pam" href="pam/index.html">gatenlp.pam</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gatenlp.processing" href="processing/index.html">gatenlp.processing</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -146,6 +166,10 @@ Java strings are represented as UTF16 …</p></div>
 <dt><code class="name"><a title="gatenlp.serialization" href="serialization/index.html">gatenlp.serialization</a></code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gatenlp.span" href="span.html">gatenlp.span</a></code></dt>
+<dd>
+<div class="desc"><p>Module for Span class</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.utils" href="utils.html">gatenlp.utils</a></code></dt>
 <dd>
@@ -184,7 +208,7 @@ wrapper.</p>
     This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
     package.
-    
+
     This creates an instance of PRWrapper and registers all the relevant
     functions of the decorated class or the decorated function in the
     wrapper.
@@ -201,8 +225,10 @@ wrapper.</p>
     wrapper = _PrWrapper()
     if inspect.isclass(what) or _has_method(what, &#34;__call__&#34;):
         if inspect.isclass(what):
-            what = what()   # if it is a class, create an instance, otherwise assume it is already an instance
-        # TODO: instead of this we could just as well store the instance and 
+            what = (
+                what()
+            )  # if it is a class, create an instance, otherwise assume it is already an instance
+        # TODO: instead of this we could just as well store the instance and
         # directly call the instance methods from the wrapper!
         execmethod = _has_method(what, &#34;__call__&#34;)
         if not execmethod:
@@ -231,7 +257,9 @@ wrapper.</p>
         wrapper.func_execute = what
         wrapper.func_execute_allowkws = allowkws
     else:
-        raise Exception(f&#34;Decorator applied to something that is not a function or class: {what}&#34;)
+        raise Exception(
+            f&#34;Decorator applied to something that is not a function or class: {what}&#34;
+        )
     gatenlp.gate_python_plugin_pr = wrapper
     return wrapper</code></pre>
 </details>
@@ -286,9 +314,7 @@ and instead the method AnnotationSet.add should be used.</p>
     &#34;&#34;&#34;
 
     def __init__(
-            self, start: int, end: int, anntype: str,
-            features=None,
-            annid: int = 0
+        self, start: int, end: int, anntype: str, features=None, annid: int = 0
     ):
         &#34;&#34;&#34;
         This constructor creates a new annotation instance. Once an annotation has been created,
@@ -305,16 +331,24 @@ and instead the method AnnotationSet.add should be used.</p>
             annid: the id of the annotation
         &#34;&#34;&#34;
         if end &lt; start:
-            raise Exception(f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start &gt; end&#34;)
+            raise Exception(
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start &gt; end&#34;
+            )
         if not isinstance(annid, int):
-            raise Exception(f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int&#34;)
+            raise Exception(
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int&#34;
+            )
         if isinstance(features, int):
-            raise Exception(f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int&#34;)
+            raise Exception(
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int&#34;
+            )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
             raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
         if features is not None and isinstance(features, int):
-            raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+            raise Exception(
+                &#34;Parameter features must not be an int: mixed up with annid?&#34;
+            )
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
         self._type = anntype
@@ -375,11 +409,13 @@ and instead the method AnnotationSet.add should be used.</p>
     # serialisable (except None keys for maps).
     # For performance reasons we check the feature name but not the value (maybe make checking optional
     # on by default but still optional?)
-    def _log_feature_change(self, command: str, feature: str = None, value=None) -&gt; None:
+    def _log_feature_change(
+        self, command: str, feature: str = None, value=None
+    ) -&gt; None:
         &#34;&#34;&#34;
 
         Args:
-          command: str: 
+          command: str:
           feature: str:  (Default value = None)
           value:  (Default value = None)
 
@@ -388,12 +424,13 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         if self._changelog() is None:
             return
-        command = &#34;ann-&#34;+command
+        command = &#34;ann-&#34; + command
         ch = {
             &#34;command&#34;: command,
             &#34;type&#34;: &#34;annotation&#34;,
             &#34;set&#34;: self._owner_set.name,
-            &#34;id&#34;: self.id}
+            &#34;id&#34;: self.id,
+        }
         if feature is not None:
             ch[&#34;feature&#34;] = feature
         if value is not None:
@@ -403,14 +440,19 @@ and instead the method AnnotationSet.add should be used.</p>
     def __eq__(self, other) -&gt; bool:
         &#34;&#34;&#34;
         Two annotations are identical if they are the same object or if all the fields
-        are equal.
+        are equal (including the annotation id)!
         &#34;&#34;&#34;
         if not isinstance(other, Annotation):
             return False
         if self is other:
             return True
-        return self.start == other.start and self.end == other.end and \
-               self.type == other.type and self.id == other.id and self._features == other._features
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.type == other.type
+            and self.id == other.id
+            and self._features == other._features
+        )
 
     def __hash__(self):
         &#34;&#34;&#34;
@@ -439,7 +481,9 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         String representation of the annotation.
         &#34;&#34;&#34;
-        return &#34;Annotation({},{},{},features={},id={})&#34;.format(self.start, self.end, self.type, self._features, self.id)
+        return &#34;Annotation({},{},{},features={},id={})&#34;.format(
+            self.start, self.end, self.type, self._features, self.id
+        )
 
     @property
     def length(self) -&gt; int:
@@ -563,7 +607,7 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
         the last character of the first annotation and the first character of the second annotation in
         sequence, so it is always independent of the order of the two annotations.
-        
+
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
@@ -594,7 +638,7 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;Checks if this annotation is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
         are after the start of this annotation and before the end of this annotation.
-        
+
         If end is not given, then the method checks if start is an offset of a character
         contained in the span.
 
@@ -628,7 +672,9 @@ and instead the method AnnotationSet.add should be used.</p>
             the dictionary representation of the Annotation
         &#34;&#34;&#34;
         if (offset_mapper and not offset_type) or (not offset_mapper and offset_type):
-            raise Exception(&#34;offset_mapper and offset_type must be specified both or none&#34;)
+            raise Exception(
+                &#34;offset_mapper and offset_type must be specified both or none&#34;
+            )
         if offset_mapper is not None:
             if offset_type == OFFSET_TYPE_JAVA:
                 start = offset_mapper.convert_to_java(self._start)
@@ -637,7 +683,9 @@ and instead the method AnnotationSet.add should be used.</p>
                 start = offset_mapper.convert_to_python(self._start)
                 end = offset_mapper.convert_to_python(self._end)
             else:
-                raise Exception(f&#34;Not a valid offset type: {offset_type}, must be &#39;p&#39; or &#39;j&#39;&#34;)
+                raise Exception(
+                    f&#34;Not a valid offset type: {offset_type}, must be &#39;p&#39; or &#39;j&#39;&#34;
+                )
         else:
             start = self._start
             end = self._end
@@ -664,13 +712,15 @@ and instead the method AnnotationSet.add should be used.</p>
             end=dictrepr.get(&#34;end&#34;),
             anntype=dictrepr.get(&#34;type&#34;),
             annid=dictrepr.get(&#34;id&#34;),
-            features=dictrepr.get(&#34;features&#34;)
+            features=dictrepr.get(&#34;features&#34;),
         )
         ann._owner_set = owner_set
         return ann
 
     def __copy__(self):
-        return Annotation(self._start, self._end, self._type, annid=self._id, features=self._features)
+        return Annotation(
+            self._start, self._end, self._type, annid=self._id, features=self._features
+        )
 
     def copy(self):
         &#34;&#34;&#34;
@@ -683,7 +733,9 @@ and instead the method AnnotationSet.add should be used.</p>
             fts = lib_copy.deepcopy(self._features.to_dict(), memo=memo)
         else:
             fts = None
-        return Annotation(self._start, self._end, self._type, annid=self._id, features=fts)
+        return Annotation(
+            self._start, self._end, self._type, annid=self._id, features=fts
+        )
 
     def deepcopy(self, memo=None):
         &#34;&#34;&#34;
@@ -726,7 +778,7 @@ def from_dict(dictrepr, owner_set=None, **kwargs):
         end=dictrepr.get(&#34;end&#34;),
         anntype=dictrepr.get(&#34;type&#34;),
         annid=dictrepr.get(&#34;id&#34;),
-        features=dictrepr.get(&#34;features&#34;)
+        features=dictrepr.get(&#34;features&#34;),
     )
     ann._owner_set = owner_set
     return ann</code></pre>
@@ -913,7 +965,7 @@ def gap(self, start: int, end: int):
     &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
     the last character of the first annotation and the first character of the second annotation in
     sequence, so it is always independent of the order of the two annotations.
-    
+
     This is negative if the annotations overlap.
 
     Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
@@ -1103,7 +1155,7 @@ def iscovering(self, start: int, end: int = None) -&gt; bool:
     &#34;&#34;&#34;Checks if this annotation is covering the given span, annotation or
     annotation set, i.e. both the given start and end offsets
     are after the start of this annotation and before the end of this annotation.
-    
+
     If end is not given, then the method checks if start is an offset of a character
     contained in the span.
 
@@ -1246,7 +1298,9 @@ used for several serialization methods.</p>
         the dictionary representation of the Annotation
     &#34;&#34;&#34;
     if (offset_mapper and not offset_type) or (not offset_mapper and offset_type):
-        raise Exception(&#34;offset_mapper and offset_type must be specified both or none&#34;)
+        raise Exception(
+            &#34;offset_mapper and offset_type must be specified both or none&#34;
+        )
     if offset_mapper is not None:
         if offset_type == OFFSET_TYPE_JAVA:
             start = offset_mapper.convert_to_java(self._start)
@@ -1255,7 +1309,9 @@ used for several serialization methods.</p>
             start = offset_mapper.convert_to_python(self._start)
             end = offset_mapper.convert_to_python(self._end)
         else:
-            raise Exception(f&#34;Not a valid offset type: {offset_type}, must be &#39;p&#39; or &#39;j&#39;&#34;)
+            raise Exception(
+                f&#34;Not a valid offset type: {offset_type}, must be &#39;p&#39; or &#39;j&#39;&#34;
+            )
     else:
         start = self._start
         end = self._end
@@ -1347,7 +1403,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
             if self.__dict__.get(key, None) is None:
                 super().__setattr__(key, value)
             else:
-                raise Exception(&#34;AnnotationSet attribute cannot get changed after being set&#34;)
+                raise Exception(
+                    &#34;AnnotationSet attribute cannot get changed after being set&#34;
+                )
         else:
             super().__setattr__(key, value)
 
@@ -1365,12 +1423,16 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         Returns:
           an immutable annotation set
         &#34;&#34;&#34;
-        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset = AnnotationSet(name=&#34;detached-from:&#34; + self.name)
         annset._is_immutable = True
         if restrict_to is None:
-            annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+            annset._annotations = {
+                annid: self._annotations[annid] for annid in self._annotations.keys()
+            }
         else:
-            annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+            annset._annotations = {
+                annid: self._annotations[annid] for annid in restrict_to
+            }
         annset._next_annid = self._next_annid
         return annset
 
@@ -1379,7 +1441,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         Creates an immutable detached annotation set from the annotations in anns which could by
         either a collection of annotations or annotation ids (int numbers) which are assumed to
         be the annotation ids from this set.
-        
+
         The next annotation id for the created set is the highest seen annotation id from anns plus one.
 
         Args:
@@ -1388,7 +1450,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         Returns:
           an immutable detached annotation set
         &#34;&#34;&#34;
-        annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+        annset = AnnotationSet(name=&#34;detached-from:&#34; + self.name)
         annset._is_immutable = True
         annset._annotations = {}
         nextid = -1
@@ -1449,7 +1511,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
 
         Args:
           annotation: the annotation to add to the indices.
-          annotation: Annotation: 
+          annotation: Annotation:
         &#34;&#34;&#34;
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].add(annotation.id)
@@ -1461,10 +1523,12 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
 
         Args:
           annotation: the annotation to remove.
-          annotation: Annotation: 
+          annotation: Annotation:
         &#34;&#34;&#34;
         if self._index_by_offset is not None:
-            self._index_by_offset.remove(annotation.start, annotation.end, annotation.id)
+            self._index_by_offset.remove(
+                annotation.start, annotation.end, annotation.id
+            )
         if self._index_by_type is not None:
             self._index_by_type[annotation.type].remove(annotation.id)
 
@@ -1509,13 +1573,15 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
 
         Args:
-          intvs: 
+          intvs:
           ignore:  (Default value = None)
 
         Returns:
 
         &#34;&#34;&#34;
-        return self.detach(restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore))
+        return self.detach(
+            restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore)
+        )
 
     def __len__(self) -&gt; int:
         &#34;&#34;&#34;
@@ -1546,8 +1612,8 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         document and if the owning document has text.
 
         Args:
-          start: int: 
-          end: int: 
+          start: int:
+          end: int:
           annid:  (Default value = None)
         &#34;&#34;&#34;
         if self._owner_doc is None:
@@ -1564,10 +1630,16 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
             raise InvalidOffsetError(&#34;Annotation ends before it starts&#34;)
         if start &gt; doc_size:
             raise InvalidOffsetError(
-                &#34;Annotation starts after document ends: start={}, docsize={}&#34;.format(start, doc_size))
+                &#34;Annotation starts after document ends: start={}, docsize={}&#34;.format(
+                    start, doc_size
+                )
+            )
         if end &gt; doc_size:
             raise InvalidOffsetError(
-                &#34;Annotation ends after document ends: end={}, docsize={}&#34;.format(end, doc_size))
+                &#34;Annotation ends after document ends: end={}, docsize={}&#34;.format(
+                    end, doc_size
+                )
+            )
 
     @property
     def start(self):
@@ -1588,7 +1660,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
         This needs the index and creates it if necessary.
-        
+
         Throws:
           an exception if there are no annotations in the set.
         &#34;&#34;&#34;
@@ -1607,7 +1679,14 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return self.end() - self.start()
 
-    def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+    def add(
+        self,
+        start: int,
+        end: int,
+        anntype: str,
+        features: Dict[str, Any] = None,
+        annid: int = None,
+    ):
         &#34;&#34;&#34;
         Adds an annotation to the set. Once an annotation has been added, the start and end offsets,
         the type, and the annotation id of the annotation are immutable.
@@ -1628,12 +1707,16 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         if annid is not None and not isinstance(annid, int):
             raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
         if features is not None and isinstance(features, int):
-            raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+            raise Exception(
+                &#34;Parameter features must not be an int: mixed up with annid?&#34;
+            )
         if self._is_immutable:
             raise Exception(&#34;Cannot add an annotation to an immutable annotation set&#34;)
         self._check_offsets(start, end)
         if annid and annid in self._annotations:
-            raise Exception(&#34;Cannot add annotation with id {}, already in set&#34;.format(annid))
+            raise Exception(
+                &#34;Cannot add annotation with id {}, already in set&#34;.format(annid)
+            )
         if annid is None:
             annid = self._next_annid
             self._next_annid = self._next_annid + 1
@@ -1645,14 +1728,14 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         self._add_to_indices(ann)
         if self.changelog is not None:
             entry = {
-                    &#34;command&#34;: &#34;annotation:add&#34;,
-                    &#34;set&#34;: self.name,
-                    &#34;start&#34;: ann.start,
-                    &#34;end&#34;: ann.end,
-                    &#34;type&#34;: ann.type,
-                    &#34;features&#34;: ann._features.to_dict(),
-                    &#34;id&#34;: ann.id
-                }
+                &#34;command&#34;: &#34;annotation:add&#34;,
+                &#34;set&#34;: self.name,
+                &#34;start&#34;: ann.start,
+                &#34;end&#34;: ann.end,
+                &#34;type&#34;: ann.type,
+                &#34;features&#34;: ann._features.to_dict(),
+                &#34;id&#34;: ann.id,
+            }
             self.changelog.append(entry)
         return ann
 
@@ -1671,39 +1754,58 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
-    def remove(self, annotation: Union[int, Annotation]) -&gt; None:
+    def remove(
+        self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
+    ) -&gt; None:
         &#34;&#34;&#34;
-        Removes the given annotation which is either the id or the annotation instance.
+        Removes the given annotation which is either the id or the annotation instance or
+        recursively all annotations in the iterable.
 
         Throws:
             exception if the annotation set is immutable or the annotation is not in the set
 
         Args:
-          annotation: either the id (int) or the annotation instance (Annotation)
+          annoriter: either the id (int) or the annotation instance (Annotation) or an iterable of
+            id or annotation instance or iterable ...
+          raise_on_notexisting: (default: True) if false, silently accepts non-existing annotations/ids and does nothing.
+            Note: if this is True, but the annotation set is immutable, an Exception is still raised.
         &#34;&#34;&#34;
-        annid = None  # make pycharm happy
         if self._is_immutable:
-            raise Exception(&#34;Cannot remove an annotation from an immutable annotation set&#34;)
-        if isinstance(annotation, int):
-            annid = annotation
+            raise Exception(
+                &#34;Cannot remove an annotation from an immutable annotation set&#34;
+            )
+        if isinstance(annoriter, Iterable):
+            for a in annoriter:
+                self.remove(a, raise_on_notexisting=raise_on_notexisting)
+            return
+        annid = None  # make pycharm happy
+        if isinstance(annoriter, int):
+            annid = annoriter
             if annid not in self._annotations:
-                raise Exception(&#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(annid))
-            annotation = self._annotations[annid]
-        elif isinstance(annotation, Annotation):
-            annid = annotation.id
+                raise Exception(
+                    &#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(
+                        annid
+                    )
+                )
+            annoriter = self._annotations[annid]
+        elif isinstance(annoriter, Annotation):
+            annid = annoriter.id
             if annid not in self._annotations:
-                raise Exception(&#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(annid))
+                raise Exception(
+                    &#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(
+                        annid
+                    )
+                )
         # NOTE: once the annotation has been removed from the set, it could still be referenced
         # somewhere else and its features could get modified. In order to prevent logging of such changes,
         # the owning set gets cleared for the annotation
-        annotation._owner_set = None
+        annoriter._owner_set = None
         del self._annotations[annid]
         if self.changelog is not None:
-            self.changelog.append({
-                &#34;command&#34;: &#34;annotation:remove&#34;,
-                &#34;set&#34;: self.name,
-                &#34;id&#34;: annid})
-        self._remove_from_indices(annotation)
+            self.changelog.append(
+                {&#34;command&#34;: &#34;annotation:remove&#34;, &#34;set&#34;: self.name, &#34;id&#34;: annid}
+            )
+        self._remove_from_indices(annoriter)
 
     def clear(self) -&gt; None:
         &#34;&#34;&#34;
@@ -1713,9 +1815,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         self._index_by_offset = None
         self._index_by_type = None
         if self.changelog is not None:
-            self.changelog.append({
-                &#34;command&#34;: &#34;annotations:clear&#34;,
-                &#34;set&#34;: self.name})
+            self.changelog.append({&#34;command&#34;: &#34;annotations:clear&#34;, &#34;set&#34;: self.name})
 
     def clone_anns(self, memo=None):
         &#34;&#34;&#34;
@@ -1785,11 +1885,13 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
             for annid, ann in self._annotations.items():
                 yield ann
 
-    def iter(self,
-             start_ge: Union[int, None] = None,
-             start_lt: Union[None, int] = None,
-             with_type: str = None,
-             reverse: bool = False) -&gt; Generator:
+    def iter(
+        self,
+        start_ge: Union[int, None] = None,
+        start_lt: Union[None, int] = None,
+        with_type: str = None,
+        reverse: bool = False,
+    ) -&gt; Generator:
         &#34;&#34;&#34;
         Yields annotations in document order, otionally limited
         by the other parameters. If two annoations start at the same offset, they are always
@@ -1826,8 +1928,13 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         if start_lt is not None and start_ge is not None:
             assert start_lt &gt; start_ge
         self._create_index_by_offset()
-        for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
-            if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+        for _start, _end, annid in self._index_by_offset.irange(
+            minoff=start_ge, maxoff=maxoff, reverse=reverse
+        ):
+            if (
+                allowedtypes is not None
+                and self._annotations[annid].type not in allowedtypes
+            ):
                 continue
             yield self._annotations[annid]
 
@@ -1845,16 +1952,18 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return self.iter(reverse=True, **kwargs)
 
-    def get(self, annid: Union[int, Annotation], default=None) -&gt; Union[Annotation, None]:
+    def get(
+        self, annid: Union[int, Annotation], default=None
+    ) -&gt; Union[Annotation, None]:
         &#34;&#34;&#34;Gets the annotation with the given annotation id or returns the given default.
-        
+
         NOTE: for handling cases where legacy code still expects the add method to return
         an id and not the annotation, this will accept an annotation so the the frequent
         pattern still works:
-        
+
            annid = annset.add(b,e,t).id
            ann = annset.get(annid)
-        
+
         If an annotation is passed the annotation from the set with the id of that annotation is
         returned, if the annotation is from that set, this will return the same object, if it is
         still in the set (or return the default value).
@@ -1862,8 +1971,8 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         Args:
           annid: the annotation id of the annotation to retrieve.
           default: what to return if an annotation with the given id is not found. (Default value = None)
-          annid: Union[int: 
-          Annotation]: 
+          annid: Union[int:
+          Annotation]:
 
         Returns:
           the annotation or the default value.
@@ -1921,8 +2030,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return self._annotations[annid]
 
-    def with_type(self, *anntype: Union[str, Iterable],
-                  non_overlapping: bool = False) -&gt; &#34;AnnotationSet&#34;:
+    def with_type(
+        self, *anntype: Union[str, Iterable], non_overlapping: bool = False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
@@ -1979,7 +2089,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
             # then skip to the next group that does not overlap with the one we just selected
             typepriority = dict()
             for i, atype in enumerate(atypes):
-                typepriority[atype] = len(atypes)-i
+                typepriority[atype] = len(atypes) - i
             curminoffset = 0
             for group in allannsgrouped:
                 # instead of sorting, go through the group and find the top priority one
@@ -1994,7 +2104,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
                         if ann.start &gt;= curminoffset:
                             topann = ann
                             break
-                    for ann in group[i+1:]:
+                    for ann in group[i + 1 :]:
                         if ann.start &lt; curminoffset:
                             continue
                         if typepriority[ann.type] &gt; typepriority[topann.type]:
@@ -2058,7 +2168,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._index_by_type.keys()
 
     @support_annotation_or_set
-    def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def start_eq(
+        self, start: int, ignored: Any = None, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Gets all annotations starting at the given offset (empty if none) and returns them in a detached
         annotation set.
@@ -2084,7 +2196,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def start_min_ge(
+        self, offset: int, ignored: Any = None, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
         annotation set.
@@ -2127,7 +2241,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def start_ge(
+        self, start: int, ignored: Any = None, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;Return the annotations that start at or after the given start offset.
 
         Args:
@@ -2167,13 +2283,14 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         intvs = self._index_by_offset.starting_before(offset)
         return self._restrict_intvs(intvs)
 
-
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def overlapping(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
-        
+
         For each annotation ann in the result set, ann.overlapping(span) is True
 
         Args:
@@ -2196,11 +2313,13 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def covering(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Gets the annotations which contain the given offset range (or annotation/annotation set),
         i.e. annotations such that the given offset range is within the annotation.
-        
+
         For each annotation ann in the result set, ann.covering(span) is True.
 
         Args:
@@ -2223,11 +2342,13 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def within(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Gets annotations that fall completely within the given offset range, i.e. annotations
         such that the offset range is covering each of the annotation.
-        
+
         For each annotation ann in the result set, ann.within(span) is True.
 
         Args:
@@ -2255,10 +2376,12 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+    def coextensive(
+        self, start: int, end: int, annid=None, include_self=False
+    ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Returns a detached annotation set with all annotations that start and end at the given offsets.
-        
+
         For each annotation ann in the result set, ann.coextensive(span) is True.
 
         Args:
@@ -2301,7 +2424,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         if isinstance(annorannid, Annotation):
             return annorannid.id in self._annotations
-        return annorannid in self._annotations  # On the off chance someone passed an ID in directly
+        return (
+            annorannid in self._annotations
+        )  # On the off chance someone passed an ID in directly
 
     contains = __contains__
 
@@ -2324,8 +2449,9 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
             &#34;name&#34;: self.name,
-            &#34;annotations&#34;: list(val.to_dict(**kwargs)
-                                for val in self._annotations.values()),
+            &#34;annotations&#34;: list(
+                val.to_dict(**kwargs) for val in self._annotations.values()
+            ),
             &#34;next_annid&#34;: self._next_annid,
         }
 
@@ -2347,13 +2473,89 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         if dictrepr.get(&#34;annotations&#34;):
             annset._annotations = dict(
                 (int(a[&#34;id&#34;]), Annotation.from_dict(a, owner_set=annset, **kwargs))
-                for a in dictrepr.get(&#34;annotations&#34;))
+                for a in dictrepr.get(&#34;annotations&#34;)
+            )
         else:
             annset._annotations = {}
+        return annset
+
+    @staticmethod
+    def from_anns(anns, deep_copy=False, **kwargs):
+        &#34;&#34;&#34;
+        Create a detached AnnotationSet from an iterable of annotations.
+
+        Args:
+          anns: an iterable of annotations
+          deep_copy: if the annotations should get added as copies (default) or deep copies.
+
+        Returns:
+            the annotation set
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=&#34;&#34;, owner_doc=None)
+        annset._annotations = dict()
+        maxid = 0
+        for ann in anns:
+            if deep_copy:
+                addann = ann.deepcopy()
+            else:
+                addann = ann.copy()
+            annset._annotations[addann.id] = addann
+            if addann.id &gt; maxid:
+                maxid = addann.id
+        annset._next_annid = maxid
+        annset._is_immutable = True
+
         return annset</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
+<dt id="gatenlp.AnnotationSet.from_anns"><code class="name flex">
+<span>def <span class="ident">from_anns</span></span>(<span>anns, deep_copy=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a detached AnnotationSet from an iterable of annotations.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anns</code></strong></dt>
+<dd>an iterable of annotations</dd>
+<dt><strong><code>deep_copy</code></strong></dt>
+<dd>if the annotations should get added as copies (default) or deep copies.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>the annotation set</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_anns(anns, deep_copy=False, **kwargs):
+    &#34;&#34;&#34;
+    Create a detached AnnotationSet from an iterable of annotations.
+
+    Args:
+      anns: an iterable of annotations
+      deep_copy: if the annotations should get added as copies (default) or deep copies.
+
+    Returns:
+        the annotation set
+    &#34;&#34;&#34;
+    annset = AnnotationSet(name=&#34;&#34;, owner_doc=None)
+    annset._annotations = dict()
+    maxid = 0
+    for ann in anns:
+        if deep_copy:
+            addann = ann.deepcopy()
+        else:
+            addann = ann.copy()
+        annset._annotations[addann.id] = addann
+        if addann.id &gt; maxid:
+            maxid = addann.id
+    annset._next_annid = maxid
+    annset._is_immutable = True
+
+    return annset</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.AnnotationSet.from_dict"><code class="name flex">
 <span>def <span class="ident">from_dict</span></span>(<span>dictrepr, owner_doc=None, **kwargs)</span>
 </code></dt>
@@ -2392,7 +2594,8 @@ def from_dict(dictrepr, owner_doc=None, **kwargs):
     if dictrepr.get(&#34;annotations&#34;):
         annset._annotations = dict(
             (int(a[&#34;id&#34;]), Annotation.from_dict(a, owner_set=annset, **kwargs))
-            for a in dictrepr.get(&#34;annotations&#34;))
+            for a in dictrepr.get(&#34;annotations&#34;)
+        )
     else:
         annset._annotations = {}
     return annset</code></pre>
@@ -2448,7 +2651,7 @@ def end(self):
     &#34;&#34;&#34;
     Returns the end offset of the annotation set, i.e. the biggest end offset of any annotation.
     This needs the index and creates it if necessary.
-    
+
     Throws:
       an exception if there are no annotations in the set.
     &#34;&#34;&#34;
@@ -2623,7 +2826,14 @@ normally left unspecified and get assigned automatically.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add(self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None):
+<pre><code class="python">def add(
+    self,
+    start: int,
+    end: int,
+    anntype: str,
+    features: Dict[str, Any] = None,
+    annid: int = None,
+):
     &#34;&#34;&#34;
     Adds an annotation to the set. Once an annotation has been added, the start and end offsets,
     the type, and the annotation id of the annotation are immutable.
@@ -2644,12 +2854,16 @@ normally left unspecified and get assigned automatically.</dd>
     if annid is not None and not isinstance(annid, int):
         raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
     if features is not None and isinstance(features, int):
-        raise Exception(&#34;Parameter features must not be an int: mixed up with annid?&#34;)
+        raise Exception(
+            &#34;Parameter features must not be an int: mixed up with annid?&#34;
+        )
     if self._is_immutable:
         raise Exception(&#34;Cannot add an annotation to an immutable annotation set&#34;)
     self._check_offsets(start, end)
     if annid and annid in self._annotations:
-        raise Exception(&#34;Cannot add annotation with id {}, already in set&#34;.format(annid))
+        raise Exception(
+            &#34;Cannot add annotation with id {}, already in set&#34;.format(annid)
+        )
     if annid is None:
         annid = self._next_annid
         self._next_annid = self._next_annid + 1
@@ -2661,14 +2875,14 @@ normally left unspecified and get assigned automatically.</dd>
     self._add_to_indices(ann)
     if self.changelog is not None:
         entry = {
-                &#34;command&#34;: &#34;annotation:add&#34;,
-                &#34;set&#34;: self.name,
-                &#34;start&#34;: ann.start,
-                &#34;end&#34;: ann.end,
-                &#34;type&#34;: ann.type,
-                &#34;features&#34;: ann._features.to_dict(),
-                &#34;id&#34;: ann.id
-            }
+            &#34;command&#34;: &#34;annotation:add&#34;,
+            &#34;set&#34;: self.name,
+            &#34;start&#34;: ann.start,
+            &#34;end&#34;: ann.end,
+            &#34;type&#34;: ann.type,
+            &#34;features&#34;: ann._features.to_dict(),
+            &#34;id&#34;: ann.id,
+        }
         self.changelog.append(entry)
     return ann</code></pre>
 </details>
@@ -2784,9 +2998,7 @@ the id should normally left unspecified and get assigned automatically.</dd>
     self._index_by_offset = None
     self._index_by_type = None
     if self.changelog is not None:
-        self.changelog.append({
-            &#34;command&#34;: &#34;annotations:clear&#34;,
-            &#34;set&#34;: self.name})</code></pre>
+        self.changelog.append({&#34;command&#34;: &#34;annotations:clear&#34;, &#34;set&#34;: self.name})</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.clone_anns"><code class="name flex">
@@ -2850,10 +3062,12 @@ annotation in the result set.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def coextensive(
+    self, start: int, end: int, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Returns a detached annotation set with all annotations that start and end at the given offsets.
-    
+
     For each annotation ann in the result set, ann.coextensive(span) is True.
 
     Args:
@@ -2900,7 +3114,9 @@ def coextensive(self, start: int, end: int, annid=None, include_self=False) -&gt
     &#34;&#34;&#34;
     if isinstance(annorannid, Annotation):
         return annorannid.id in self._annotations
-    return annorannid in self._annotations  # On the off chance someone passed an ID in directly</code></pre>
+    return (
+        annorannid in self._annotations
+    )  # On the off chance someone passed an ID in directly</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.copy"><code class="name flex">
@@ -2945,11 +3161,13 @@ annotation in the result set. (Default value = False)</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def covering(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def covering(
+    self, start: int, end: int, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Gets the annotations which contain the given offset range (or annotation/annotation set),
     i.e. annotations such that the given offset range is within the annotation.
-    
+
     For each annotation ann in the result set, ann.covering(span) is True.
 
     Args:
@@ -3022,12 +3240,16 @@ in the document as well.</p>
     Returns:
       an immutable annotation set
     &#34;&#34;&#34;
-    annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+    annset = AnnotationSet(name=&#34;detached-from:&#34; + self.name)
     annset._is_immutable = True
     if restrict_to is None:
-        annset._annotations = {annid: self._annotations[annid] for annid in self._annotations.keys()}
+        annset._annotations = {
+            annid: self._annotations[annid] for annid in self._annotations.keys()
+        }
     else:
-        annset._annotations = {annid: self._annotations[annid] for annid in restrict_to}
+        annset._annotations = {
+            annid: self._annotations[annid] for annid in restrict_to
+        }
     annset._next_annid = self._next_annid
     return annset</code></pre>
 </details>
@@ -3056,7 +3278,7 @@ be the annotation ids from this set.</p>
     Creates an immutable detached annotation set from the annotations in anns which could by
     either a collection of annotations or annotation ids (int numbers) which are assumed to
     be the annotation ids from this set.
-    
+
     The next annotation id for the created set is the highest seen annotation id from anns plus one.
 
     Args:
@@ -3065,7 +3287,7 @@ be the annotation ids from this set.</p>
     Returns:
       an immutable detached annotation set
     &#34;&#34;&#34;
-    annset = AnnotationSet(name=&#34;detached-from:&#34;+self.name)
+    annset = AnnotationSet(name=&#34;detached-from:&#34; + self.name)
     annset._is_immutable = True
     annset._annotations = {}
     nextid = -1
@@ -3152,25 +3374,27 @@ still in the set (or return the default value).</p>
 <dt><strong><code>default</code></strong></dt>
 <dd>what to return if an annotation with the given id is not found. (Default value = None)</dd>
 <dt><strong><code>annid</code></strong></dt>
-<dd>Union[int: </dd>
+<dd>Union[int:</dd>
 </dl>
-<p>Annotation]: </p>
+<p>Annotation]:</p>
 <h2 id="returns">Returns</h2>
 <p>the annotation or the default value.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, annid: Union[int, Annotation], default=None) -&gt; Union[Annotation, None]:
+<pre><code class="python">def get(
+    self, annid: Union[int, Annotation], default=None
+) -&gt; Union[Annotation, None]:
     &#34;&#34;&#34;Gets the annotation with the given annotation id or returns the given default.
-    
+
     NOTE: for handling cases where legacy code still expects the add method to return
     an id and not the annotation, this will accept an annotation so the the frequent
     pattern still works:
-    
+
        annid = annset.add(b,e,t).id
        ann = annset.get(annid)
-    
+
     If an annotation is passed the annotation from the set with the id of that annotation is
     returned, if the annotation is from that set, this will return the same object, if it is
     still in the set (or return the default value).
@@ -3178,8 +3402,8 @@ still in the set (or return the default value).</p>
     Args:
       annid: the annotation id of the annotation to retrieve.
       default: what to return if an annotation with the given id is not found. (Default value = None)
-      annid: Union[int: 
-      Annotation]: 
+      annid: Union[int:
+      Annotation]:
 
     Returns:
       the annotation or the default value.
@@ -3230,11 +3454,13 @@ ordered by increasing annotation id.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def iter(self,
-         start_ge: Union[int, None] = None,
-         start_lt: Union[None, int] = None,
-         with_type: str = None,
-         reverse: bool = False) -&gt; Generator:
+<pre><code class="python">def iter(
+    self,
+    start_ge: Union[int, None] = None,
+    start_lt: Union[None, int] = None,
+    with_type: str = None,
+    reverse: bool = False,
+) -&gt; Generator:
     &#34;&#34;&#34;
     Yields annotations in document order, otionally limited
     by the other parameters. If two annoations start at the same offset, they are always
@@ -3271,8 +3497,13 @@ ordered by increasing annotation id.</p>
     if start_lt is not None and start_ge is not None:
         assert start_lt &gt; start_ge
     self._create_index_by_offset()
-    for _start, _end, annid in self._index_by_offset.irange(minoff=start_ge, maxoff=maxoff, reverse=reverse):
-        if allowedtypes is not None and self._annotations[annid].type not in allowedtypes:
+    for _start, _end, annid in self._index_by_offset.irange(
+        minoff=start_ge, maxoff=maxoff, reverse=reverse
+    ):
+        if (
+            allowedtypes is not None
+            and self._annotations[annid].type not in allowedtypes
+        ):
             continue
         yield self._annotations[annid]</code></pre>
 </details>
@@ -3333,11 +3564,13 @@ annotation in the result set. (Default value = False)</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def overlapping(
+    self, start: int, end: int, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Gets annotations overlapping with the given span. Instead of the start and end offsets,
     also accepts an annotation or annotation set.
-    
+
     For each annotation ann in the result set, ann.overlapping(span) is True
 
     Args:
@@ -3361,54 +3594,78 @@ def overlapping(self, start: int, end: int, annid=None, include_self=False) -&gt
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.remove"><code class="name flex">
-<span>def <span class="ident">remove</span></span>(<span>self, annotation: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>]) ‑> NoneType</span>
+<span>def <span class="ident">remove</span></span>(<span>self, annoriter: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>, collections.abc.Iterable], raise_on_notexisting=True) ‑> NoneType</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Removes the given annotation which is either the id or the annotation instance.</p>
+<div class="desc"><p>Removes the given annotation which is either the id or the annotation instance or
+recursively all annotations in the iterable.</p>
 <h2 id="throws">Throws</h2>
 <p>exception if the annotation set is immutable or the annotation is not in the set</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>annotation</code></strong></dt>
-<dd>either the id (int) or the annotation instance (Annotation)</dd>
+<dt><strong><code>annoriter</code></strong></dt>
+<dd>either the id (int) or the annotation instance (Annotation) or an iterable of
+id or annotation instance or iterable &hellip;</dd>
+<dt><strong><code>raise_on_notexisting</code></strong></dt>
+<dd>(default: True) if false, silently accepts non-existing annotations/ids and does nothing.
+Note: if this is True, but the annotation set is immutable, an Exception is still raised.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def remove(self, annotation: Union[int, Annotation]) -&gt; None:
+<pre><code class="python">def remove(
+    self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
+) -&gt; None:
     &#34;&#34;&#34;
-    Removes the given annotation which is either the id or the annotation instance.
+    Removes the given annotation which is either the id or the annotation instance or
+    recursively all annotations in the iterable.
 
     Throws:
         exception if the annotation set is immutable or the annotation is not in the set
 
     Args:
-      annotation: either the id (int) or the annotation instance (Annotation)
+      annoriter: either the id (int) or the annotation instance (Annotation) or an iterable of
+        id or annotation instance or iterable ...
+      raise_on_notexisting: (default: True) if false, silently accepts non-existing annotations/ids and does nothing.
+        Note: if this is True, but the annotation set is immutable, an Exception is still raised.
     &#34;&#34;&#34;
-    annid = None  # make pycharm happy
     if self._is_immutable:
-        raise Exception(&#34;Cannot remove an annotation from an immutable annotation set&#34;)
-    if isinstance(annotation, int):
-        annid = annotation
+        raise Exception(
+            &#34;Cannot remove an annotation from an immutable annotation set&#34;
+        )
+    if isinstance(annoriter, Iterable):
+        for a in annoriter:
+            self.remove(a, raise_on_notexisting=raise_on_notexisting)
+        return
+    annid = None  # make pycharm happy
+    if isinstance(annoriter, int):
+        annid = annoriter
         if annid not in self._annotations:
-            raise Exception(&#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(annid))
-        annotation = self._annotations[annid]
-    elif isinstance(annotation, Annotation):
-        annid = annotation.id
+            raise Exception(
+                &#34;Annotation with id {} not in annotation set, cannot remove&#34;.format(
+                    annid
+                )
+            )
+        annoriter = self._annotations[annid]
+    elif isinstance(annoriter, Annotation):
+        annid = annoriter.id
         if annid not in self._annotations:
-            raise Exception(&#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(annid))
+            raise Exception(
+                &#34;Annotation with id {} does not belong to this set, cannot remove&#34;.format(
+                    annid
+                )
+            )
     # NOTE: once the annotation has been removed from the set, it could still be referenced
     # somewhere else and its features could get modified. In order to prevent logging of such changes,
     # the owning set gets cleared for the annotation
-    annotation._owner_set = None
+    annoriter._owner_set = None
     del self._annotations[annid]
     if self.changelog is not None:
-        self.changelog.append({
-            &#34;command&#34;: &#34;annotation:remove&#34;,
-            &#34;set&#34;: self.name,
-            &#34;id&#34;: annid})
-    self._remove_from_indices(annotation)</code></pre>
+        self.changelog.append(
+            {&#34;command&#34;: &#34;annotation:remove&#34;, &#34;set&#34;: self.name, &#34;id&#34;: annid}
+        )
+    self._remove_from_indices(annoriter)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.reverse_iter"><code class="name flex">
@@ -3470,7 +3727,9 @@ with an annotation, this annotation is not included in the result set if <code>i
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def start_eq(
+    self, start: int, ignored: Any = None, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Gets all annotations starting at the given offset (empty if none) and returns them in a detached
     annotation set.
@@ -3519,7 +3778,9 @@ def start_eq(self, start: int, ignored: Any = None, annid=None, include_self=Fal
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def start_ge(
+    self, start: int, ignored: Any = None, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;Return the annotations that start at or after the given start offset.
 
     Args:
@@ -3607,7 +3868,9 @@ annotation set.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def start_min_ge(
+    self, offset: int, ignored: Any = None, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;Gets all annotations starting at the first possible offset
     at or after the given offset and returns them in an immutable
     annotation set.
@@ -3679,8 +3942,9 @@ def start_min_ge(self, offset: int, ignored: Any = None, annid=None, include_sel
     return {
         # NOTE: Changelog is not getting added as it is stored in the document part!
         &#34;name&#34;: self.name,
-        &#34;annotations&#34;: list(val.to_dict(**kwargs)
-                            for val in self._annotations.values()),
+        &#34;annotations&#34;: list(
+            val.to_dict(**kwargs) for val in self._annotations.values()
+        ),
         &#34;next_annid&#34;: self._next_annid,
     }</code></pre>
 </details>
@@ -3708,8 +3972,9 @@ than one of that type, use the one that would come first in the usual sort order
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def with_type(self, *anntype: Union[str, Iterable],
-              non_overlapping: bool = False) -&gt; &#34;AnnotationSet&#34;:
+<pre><code class="python">def with_type(
+    self, *anntype: Union[str, Iterable], non_overlapping: bool = False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Gets annotations of the specified type(s).
     Creates the type index if necessary.
@@ -3766,7 +4031,7 @@ than one of that type, use the one that would come first in the usual sort order
         # then skip to the next group that does not overlap with the one we just selected
         typepriority = dict()
         for i, atype in enumerate(atypes):
-            typepriority[atype] = len(atypes)-i
+            typepriority[atype] = len(atypes) - i
         curminoffset = 0
         for group in allannsgrouped:
             # instead of sorting, go through the group and find the top priority one
@@ -3781,7 +4046,7 @@ than one of that type, use the one that would come first in the usual sort order
                     if ann.start &gt;= curminoffset:
                         topann = ann
                         break
-                for ann in group[i+1:]:
+                for ann in group[i + 1 :]:
                     if ann.start &lt; curminoffset:
                         continue
                     if typepriority[ann.type] &gt; typepriority[topann.type]:
@@ -3825,11 +4090,13 @@ annotation in the result set. (Default value = False)</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@support_annotation_or_set
-def within(self, start: int, end: int, annid=None, include_self=False) -&gt; &#34;AnnotationSet&#34;:
+def within(
+    self, start: int, end: int, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Gets annotations that fall completely within the given offset range, i.e. annotations
     such that the offset range is covering each of the annotation.
-    
+
     For each annotation ann in the result set, ann.within(span) is True.
 
     Args:
@@ -3920,7 +4187,7 @@ the document from its initial version in a different process or at a later time.
           change: dict describing the action/modification
         &#34;&#34;&#34;
         assert isinstance(change, dict)
-        action = change.get(&#34;command&#34;,None)
+        action = change.get(&#34;command&#34;, None)
         if action is None:
             raise Exception(&#34;Odd change, does not have &#39;command&#39; key&#34;)
         if self._store:
@@ -3942,7 +4209,7 @@ the document from its initial version in a different process or at a later time.
         Args:
           method: an object method method for converting offsets from or to python.
           replace: if True, modifies the original change objects in the changelog, otherwise, uses copies (Default value = False)
-          method: Callable: 
+          method: Callable:
 
         Returns:
           the modified changes, a reference to the modified changes list of the instance
@@ -4019,16 +4286,15 @@ the document from its initial version in a different process or at a later time.
         if &#34;offset_type&#34; in kwargs and kwargs[&#34;offset_type&#34;] != offset_type:
             om = kwargs.get(&#34;offset_mapper&#34;)
             if om is None:
-                raise Exception(&#34;Need to convert offsets, but no offset_mapper parameter given&#34;)
+                raise Exception(
+                    &#34;Need to convert offsets, but no offset_mapper parameter given&#34;
+                )
             offset_type = kwargs[&#34;offset_type&#34;]
             if offset_type == OFFSET_TYPE_JAVA:
                 changes = self._fixup_changes(om.convert_to_java, replace=False)
             else:
                 changes = self._fixup_changes(om.convert_to_python, replace=False)
-        return {
-            &#34;changes&#34;: changes,
-            &#34;offset_type&#34;: offset_type
-        }
+        return {&#34;changes&#34;: changes, &#34;offset_type&#34;: offset_type}
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
@@ -4051,14 +4317,24 @@ the document from its initial version in a different process or at a later time.
             elif &#34;document&#34; in kwargs:
                 om = OffsetMapper(kwargs.get(&#34;document&#34;))
             else:
-                raise Exception(&#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;)
+                raise Exception(
+                    &#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;
+                )
             cl._fixup_changes(om.convert_to_python)
         return cl
 
-    def save(self, whereto, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def save(
+        self,
+        whereto,
+        fmt=&#34;json&#34;,
+        offset_type=None,
+        offset_mapper=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
         Save the document in the given format.
-        
+
         Additional keyword parameters for format &#34;json&#34;:
             as_array: boolean, if True stores as array instead of dictionary
 
@@ -4072,12 +4348,26 @@ the document from its initial version in a different process or at a later time.
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(whereto, fmt)
-        saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        saver(
+            ChangeLog,
+            self,
+            to_ext=whereto,
+            offset_type=offset_type,
+            offset_mapper=offset_mapper,
+            **kwargs,
+        )
 
-    def save_mem(self, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def save_mem(
+        self,
+        fmt=&#34;json&#34;,
+        offset_type=None,
+        offset_mapper=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
         Serialize and save to a string.
-        
+
         Additional keyword parameters for format &#34;json&#34;:
             as_array: boolean, if True stores as array instead of dictionary, using to
 
@@ -4090,10 +4380,23 @@ the document from its initial version in a different process or at a later time.
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         saver = m.get_changelog_saver(None, fmt)
-        return saver(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        return saver(
+            ChangeLog,
+            self,
+            to_mem=True,
+            offset_type=offset_type,
+            offset_mapper=offset_mapper,
+            **kwargs,
+        )
 
     @staticmethod
-    def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def load(
+        wherefrom,
+        fmt=&#34;json&#34;,
+        offset_mapper=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
         Load ChangeLog from some serialization.
 
@@ -4109,13 +4412,23 @@ the document from its initial version in a different process or at a later time.
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(wherefrom, fmt)
-        chl = loader(ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        chl = loader(
+            ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs
+        )
         if chl.offset_type == OFFSET_TYPE_JAVA:
-            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+            chl.fixup_changes(
+                offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+            )
         return chl
 
     @staticmethod
-    def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def load_mem(
+        wherefrom,
+        fmt=&#34;json&#34;,
+        offset_mapper=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;
         Load a ChangeLog from a string representation in the given format.
 
@@ -4133,9 +4446,13 @@ the document from its initial version in a different process or at a later time.
         &#34;&#34;&#34;
         m = importlib.import_module(mod)
         loader = m.get_changelog_loader(None, fmt)
-        chl = loader(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
+        chl = loader(
+            ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs
+        )
         if chl.offset_type == OFFSET_TYPE_JAVA:
-            chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+            chl.fixup_changes(
+                offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+            )
         return chl
 
     def pprint(self, out=None):
@@ -4194,7 +4511,9 @@ def from_dict(dictrepr, **kwargs):
         elif &#34;document&#34; in kwargs:
             om = OffsetMapper(kwargs.get(&#34;document&#34;))
         else:
-            raise Exception(&#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;)
+            raise Exception(
+                &#34;Loading a changelog with offset_type JAVA, need kwarg &#39;offset_mapper&#39; or &#39;document&#39;&#34;
+            )
         cl._fixup_changes(om.convert_to_python)
     return cl</code></pre>
 </details>
@@ -4224,7 +4543,13 @@ def from_dict(dictrepr, **kwargs):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+def load(
+    wherefrom,
+    fmt=&#34;json&#34;,
+    offset_mapper=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;
     Load ChangeLog from some serialization.
 
@@ -4240,9 +4565,13 @@ def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.ser
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     loader = m.get_changelog_loader(wherefrom, fmt)
-    chl = loader(ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs)
+    chl = loader(
+        ChangeLog, from_ext=wherefrom, offset_mapper=offset_mapper, **kwargs
+    )
     if chl.offset_type == OFFSET_TYPE_JAVA:
-        chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+        chl.fixup_changes(
+            offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+        )
     return chl</code></pre>
 </details>
 </dd>
@@ -4272,7 +4601,13 @@ def load(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.ser
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+def load_mem(
+    wherefrom,
+    fmt=&#34;json&#34;,
+    offset_mapper=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;
     Load a ChangeLog from a string representation in the given format.
 
@@ -4290,9 +4625,13 @@ def load_mem(wherefrom, fmt=&#34;json&#34;, offset_mapper=None, mod=&#34;gatenlp
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     loader = m.get_changelog_loader(None, fmt)
-    chl = loader(ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs)
+    chl = loader(
+        ChangeLog, from_mem=wherefrom, offset_mapper=offset_mapper, **kwargs
+    )
     if chl.offset_type == OFFSET_TYPE_JAVA:
-        chl.fixup_changes(offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True)
+        chl.fixup_changes(
+            offset_mapper, offset_type=OFFSET_TYPE_PYTHON, replace=True
+        )
     return chl</code></pre>
 </details>
 </dd>
@@ -4359,7 +4698,7 @@ conventions of how to represent changes. This is not using an abstraction yet.</
       change: dict describing the action/modification
     &#34;&#34;&#34;
     assert isinstance(change, dict)
-    action = change.get(&#34;command&#34;,None)
+    action = change.get(&#34;command&#34;, None)
     if action is None:
         raise Exception(&#34;Odd change, does not have &#39;command&#39; key&#34;)
     if self._store:
@@ -4505,10 +4844,18 @@ as_array: boolean, if True stores as array instead of dictionary</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save(self, whereto, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+<pre><code class="python">def save(
+    self,
+    whereto,
+    fmt=&#34;json&#34;,
+    offset_type=None,
+    offset_mapper=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;
     Save the document in the given format.
-    
+
     Additional keyword parameters for format &#34;json&#34;:
         as_array: boolean, if True stores as array instead of dictionary
 
@@ -4522,7 +4869,14 @@ as_array: boolean, if True stores as array instead of dictionary</p>
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     saver = m.get_changelog_saver(whereto, fmt)
-    saver(ChangeLog, self, to_ext=whereto, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)</code></pre>
+    saver(
+        ChangeLog,
+        self,
+        to_ext=whereto,
+        offset_type=offset_type,
+        offset_mapper=offset_mapper,
+        **kwargs,
+    )</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.ChangeLog.save_mem"><code class="name flex">
@@ -4549,10 +4903,17 @@ as_array: boolean, if True stores as array instead of dictionary, using to</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_mem(self, fmt=&#34;json&#34;, offset_type=None, offset_mapper=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+<pre><code class="python">def save_mem(
+    self,
+    fmt=&#34;json&#34;,
+    offset_type=None,
+    offset_mapper=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;
     Serialize and save to a string.
-    
+
     Additional keyword parameters for format &#34;json&#34;:
         as_array: boolean, if True stores as array instead of dictionary, using to
 
@@ -4565,7 +4926,14 @@ as_array: boolean, if True stores as array instead of dictionary, using to</p>
     &#34;&#34;&#34;
     m = importlib.import_module(mod)
     saver = m.get_changelog_saver(None, fmt)
-    return saver(ChangeLog, self, to_mem=True, offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)</code></pre>
+    return saver(
+        ChangeLog,
+        self,
+        to_mem=True,
+        offset_type=offset_type,
+        offset_mapper=offset_mapper,
+        **kwargs,
+    )</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.ChangeLog.to_dict"><code class="name flex">
@@ -4594,16 +4962,15 @@ as_array: boolean, if True stores as array instead of dictionary, using to</p>
     if &#34;offset_type&#34; in kwargs and kwargs[&#34;offset_type&#34;] != offset_type:
         om = kwargs.get(&#34;offset_mapper&#34;)
         if om is None:
-            raise Exception(&#34;Need to convert offsets, but no offset_mapper parameter given&#34;)
+            raise Exception(
+                &#34;Need to convert offsets, but no offset_mapper parameter given&#34;
+            )
         offset_type = kwargs[&#34;offset_type&#34;]
         if offset_type == OFFSET_TYPE_JAVA:
             changes = self._fixup_changes(om.convert_to_java, replace=False)
         else:
             changes = self._fixup_changes(om.convert_to_python, replace=False)
-    return {
-        &#34;changes&#34;: changes,
-        &#34;offset_type&#34;: offset_type
-    }</code></pre>
+    return {&#34;changes&#34;: changes, &#34;offset_type&#34;: offset_type}</code></pre>
 </details>
 </dd>
 </dl>
@@ -4652,12 +5019,12 @@ changelog: a ChangeLog instance to use to log changes.</p>
 </summary>
 <pre><code class="python">class Document:
     &#34;&#34;&#34;Represent a GATE document. This is different from the original Java GATE representation in several ways:
-    
+
     * the text is not mutable and can only be set at creation time, so there is no &#34;edit&#34; method
-    
+
     * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
       no separate &#34;FeatureMap&#34; to store them
-    
+
     * does not support listener callbacks
     * there is no separate abstraction for &#34;content&#34;, the only content possible is text which is a unicode string
       that can be acessed with the &#34;text()&#34; method
@@ -4703,7 +5070,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
 
         Args:
-          val: 
+          val:
 
         Returns:
 
@@ -4721,13 +5088,15 @@ changelog: a ChangeLog instance to use to log changes.</p>
     def _ensure_type_python(self) -&gt; None:
         &#34;&#34;&#34; &#34;&#34;&#34;
         if self.offset_type != OFFSET_TYPE_PYTHON:
-            raise Exception(&#34;Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first&#34;)
+            raise Exception(
+                &#34;Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first&#34;
+            )
 
     def _fixup_annotations(self, method: Callable) -&gt; None:
         &#34;&#34;&#34;
 
         Args:
-          method: Callable: 
+          method: Callable:
 
         Returns:
 
@@ -4744,15 +5113,15 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
-        
+
         NOTE: if the document has a ChangeLog, it is NOT also converted!
-        
+
         The method returns the offset mapper if anything actually was converted,
         otherwise None.
 
         Args:
           offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
-          offsettype: str: 
+          offsettype: str:
 
         Returns:
           offset mapper or None
@@ -4778,7 +5147,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
     def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
         &#34;&#34;&#34;Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
         a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
-        
+
         The document is modified in-place.
 
         Args:
@@ -4847,7 +5216,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
                 if ann is not None:
                     ann.features.clear()
                 else:
-                    pass # ignore, could happen with a detached annotation
+                    pass  # ignore, could happen with a detached annotation
             elif cmd == ACTION_CLEAR_DOC_FEATURES:
                 self.features.clear()
             elif cmd == ACTION_SET_ANN_FEATURE:
@@ -4889,7 +5258,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
     def features(self):
         &#34;&#34;&#34;Accesses the features as a FeatureViewer instance. Changes made on this object are
         reflected in the document and recorded in the change log, if there is one.
-        
+
         :return: A FeatureViewer view of the document features.
 
         Args:
@@ -4899,11 +5268,10 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         return self._features
 
-
     @property
     def changelog(self):
         &#34;&#34;&#34;Get the ChangeLog or None if no ChangeLog has been set.
-        
+
         :return: the changelog
 
         Args:
@@ -4932,7 +5300,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
     @property
     def text(self) -&gt; str:
         &#34;&#34;&#34;Get the text of the document. For a partial document, the text may be None.
-        
+
         :return: the text of the document
 
         Args:
@@ -4950,7 +5318,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
           value: the text for the document
-          value: str: 
+          value: str:
 
         Returns:
 
@@ -4960,11 +5328,13 @@ changelog: a ChangeLog instance to use to log changes.</p>
         else:
             raise NotImplementedError(&#34;Text cannot be modified&#34;)
 
-    def _log_feature_change(self, command: str, feature: str = None, value=None) -&gt; None:
+    def _log_feature_change(
+        self, command: str, feature: str = None, value=None
+    ) -&gt; None:
         &#34;&#34;&#34;
 
         Args:
-          command: str: 
+          command: str:
           feature: str:  (Default value = None)
           value:  (Default value = None)
 
@@ -4973,7 +5343,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         if self._changelog is None:
             return
-        command = &#34;doc-&#34;+command
+        command = &#34;doc-&#34; + command
         ch = {&#34;command&#34;: command}
         if command == &#34;doc-feature:set&#34;:
             ch[&#34;feature&#34;] = feature
@@ -5003,9 +5373,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span._start:span._end]
+            return self.text[span._start : span._end]
         if isinstance(span, AnnotationSet):
-            return self.text[span.start():span.end()]
+            return self.text[span.start() : span.end()]
+        if hasattr(span, &#34;start&#34;) and hasattr(span, &#34;end&#34;):
+            return self.text[span.start, span.end]
         return self.text[span]
 
     def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
@@ -5025,9 +5397,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             annset = AnnotationSet(owner_doc=self, name=name)
             self._annotation_sets[name] = annset
             if self._changelog:
-                self._changelog.append({
-                    &#34;command&#34;: &#34;annotations:add&#34;,
-                    &#34;set&#34;: name})
+                self._changelog.append({&#34;command&#34;: &#34;annotations:add&#34;, &#34;set&#34;: name})
             return annset
         else:
             return self._annotation_sets[name]
@@ -5043,13 +5413,13 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         self._ensure_type_python()
         return list(self._annotation_sets.keys())
-    
+
     def remove_annset(self, name: str):
         &#34;&#34;&#34;Completely remove the annotation set.
 
         Args:
           name: name of the annotation set to remove
-          name: str: 
+          name: str:
 
         Returns:
 
@@ -5058,9 +5428,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             raise Exception(f&#34;AnnotationSet with name {name} does not exist&#34;)
         del self._annotation_sets[name]
         if self._changelog:
-            self._changelog.append({
-                &#34;command&#34;: &#34;annotations:remove&#34;,
-                &#34;set&#34;: name})
+            self._changelog.append({&#34;command&#34;: &#34;annotations:remove&#34;, &#34;set&#34;: name})
 
     def __repr__(self) -&gt; str:
         &#34;&#34;&#34;
@@ -5068,11 +5436,19 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         :return: string representation
         &#34;&#34;&#34;
-        return &#34;Document({},features={},anns={})&#34;.format(self.text, self._features, self._annotation_sets.__repr__())
+        return &#34;Document({},features={},anns={})&#34;.format(
+            self.text, self._features, self._annotation_sets.__repr__()
+        )
 
     def __str__(self) -&gt; str:
-        asets = &#34;[&#34;+&#34;,&#34;.join([f&#34;&#39;{k}&#39;:{len(v)}&#34; for k, v in self._annotation_sets.items()])+&#34;]&#34;
-        return &#34;Document({},features={},anns={})&#34;.format(self.text, self._features, asets)
+        asets = (
+            &#34;[&#34;
+            + &#34;,&#34;.join([f&#34;&#39;{k}&#39;:{len(v)}&#34; for k, v in self._annotation_sets.items()])
+            + &#34;]&#34;
+        )
+        return &#34;Document({},features={},anns={})&#34;.format(
+            self.text, self._features, asets
+        )
 
     def to_dict(self, offset_type=None, **kwargs):
         &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
@@ -5082,7 +5458,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
-          **kwargs: 
+          **kwargs:
 
         Returns:
           the dictionary representation of this instance
@@ -5103,7 +5479,10 @@ changelog: a ChangeLog instance to use to log changes.</p>
             offset_type = self.offset_type
 
         return {
-            &#34;annotation_sets&#34;: {name: aset.to_dict(**kwargs) for name, aset in self._annotation_sets.items() },
+            &#34;annotation_sets&#34;: {
+                name: aset.to_dict(**kwargs)
+                for name, aset in self._annotation_sets.items()
+            },
             &#34;text&#34;: self._text,
             &#34;features&#34;: self._features.to_dict(),
             &#34;offset_type&#34;: offset_type,
@@ -5126,14 +5505,26 @@ changelog: a ChangeLog instance to use to log changes.</p>
         doc = Document(dictrepr.get(&#34;text&#34;), features=feats)
         doc.name = dictrepr.get(&#34;name&#34;)
         doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
-        if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
+        if (
+            doc.offset_type != OFFSET_TYPE_JAVA
+            and doc.offset_type != OFFSET_TYPE_PYTHON
+        ):
             raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
-        annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
-                   for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()}
+        annsets = {
+            name: AnnotationSet.from_dict(adict, owner_doc=doc)
+            for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+        }
         doc._annotation_sets = annsets
         return doc
 
-    def save(self, destination, fmt=None, offset_type=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def save(
+        self,
+        destination,
+        fmt=None,
+        offset_type=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Save the document to the destination file.
 
         Args:
@@ -5142,7 +5533,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
           kwargs: additional parameters for the document saver.
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -5155,7 +5546,13 @@ changelog: a ChangeLog instance to use to log changes.</p>
             # assume fmt is a callable to get used directly
             fmt(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
 
-    def save_mem(self, fmt=&#34;json&#34;, offset_type=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    def save_mem(
+        self,
+        fmt=&#34;json&#34;,
+        offset_type=None,
+        mod=&#34;gatenlp.serialization.default&#34;,
+        **kwargs,
+    ):
         &#34;&#34;&#34;Serialize to a string or bytes in the given format.
 
         Args:
@@ -5163,7 +5560,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
           kwargs: additional parameters for the format.
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -5183,11 +5580,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
         a URL. If the type of the source is str, then if it starts with &#34;http[s]://&#34; it will get treated
         as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
         deliberately use URL instead of a file parse the URL using urllib.
-        
+
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
-        
+
         Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
-        
+
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
         Args:
@@ -5196,7 +5593,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
         The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type like &#34;text/bdocjs&#34;.
           mod: the name of a module where the document loader is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
           kwargs: additional format specific keyword arguments to pass to the loader
-          **kwargs: 
+          **kwargs:
 
         Returns:
           the loaded document
@@ -5216,7 +5613,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
     def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
         &#34;&#34;&#34;Create a document from the in-memory serialization in source. Source can be a string or
         bytes, depending on the format.
-        
+
         Note: the offset type is always converted to PYTHON when loading!
 
         Args:
@@ -5224,7 +5621,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
           fmt: the format (Default value = &#34;json&#34;)
           mod: the name of the module where the loader is implemented (Default value = &#34;gatenlp.serialization.default&#34;)
           kwargs: additional arguments to pass to the loader
-          **kwargs: 
+          **kwargs:
 
         Returns:
 
@@ -5255,7 +5652,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
     def copy(self):
         &#34;&#34;&#34;Creates a shallow copy except the changelog which is set to None.
-        
+
         :return: shallow copy of the document
 
         Args:
@@ -5320,14 +5717,17 @@ changelog: a ChangeLog instance to use to log changes.</p>
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
+
         if not gatenlpconfig.notebook_js_initialized:
             HtmlAnnViewerSerializer.init_javscript()
             gatenlpconfig.notebook_js_initialized = True
-        html = self.save_mem(fmt=&#34;html-ann-viewer&#34;,
-                             notebook=True,
-                             add_js = False,
-                             offline=True,
-                             htmlid=htmlid)
+        html = self.save_mem(
+            fmt=&#34;html-ann-viewer&#34;,
+            notebook=True,
+            add_js=False,
+            offline=True,
+            htmlid=htmlid,
+        )
         if display:
             display_html(html, raw=True)
         else:
@@ -5372,10 +5772,15 @@ def from_dict(dictrepr, **kwargs):
     doc = Document(dictrepr.get(&#34;text&#34;), features=feats)
     doc.name = dictrepr.get(&#34;name&#34;)
     doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
-    if doc.offset_type != OFFSET_TYPE_JAVA and doc.offset_type != OFFSET_TYPE_PYTHON:
+    if (
+        doc.offset_type != OFFSET_TYPE_JAVA
+        and doc.offset_type != OFFSET_TYPE_PYTHON
+    ):
         raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
-    annsets = {name: AnnotationSet.from_dict(adict, owner_doc=doc)
-               for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()}
+    annsets = {
+        name: AnnotationSet.from_dict(adict, owner_doc=doc)
+        for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+    }
     doc._annotation_sets = annsets
     return doc</code></pre>
 </details>
@@ -5401,7 +5806,7 @@ deliberately use URL instead of a file parse the URL using urllib.</p>
 <p>The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
 mod: the name of a module where the document loader is implemented. (Default value = "gatenlp.serialization.default")
 kwargs: additional format specific keyword arguments to pass to the loader
-**kwargs: </p>
+**kwargs:</p>
 <h2 id="returns">Returns</h2>
 <p>the loaded document</p></div>
 <details class="source">
@@ -5414,11 +5819,11 @@ def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs
     a URL. If the type of the source is str, then if it starts with &#34;http[s]://&#34; it will get treated
     as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
     deliberately use URL instead of a file parse the URL using urllib.
-    
+
     Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
-    
+
     Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
-    
+
     NOTE: the offset type of the document is always converted to PYTHON when loading!
 
     Args:
@@ -5427,7 +5832,7 @@ def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs
     The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type like &#34;text/bdocjs&#34;.
       mod: the name of a module where the document loader is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
       kwargs: additional format specific keyword arguments to pass to the loader
-      **kwargs: 
+      **kwargs:
 
     Returns:
       the loaded document
@@ -5461,10 +5866,9 @@ bytes, depending on the format.</p>
 <dd>the name of the module where the loader is implemented (Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional arguments to pass to the loader</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -5473,7 +5877,7 @@ bytes, depending on the format.</p>
 def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
     &#34;&#34;&#34;Create a document from the in-memory serialization in source. Source can be a string or
     bytes, depending on the format.
-    
+
     Note: the offset type is always converted to PYTHON when loading!
 
     Args:
@@ -5481,7 +5885,7 @@ def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&
       fmt: the format (Default value = &#34;json&#34;)
       mod: the name of the module where the loader is implemented (Default value = &#34;gatenlp.serialization.default&#34;)
       kwargs: additional arguments to pass to the loader
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -5515,7 +5919,7 @@ def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&
 <pre><code class="python">@property
 def changelog(self):
     &#34;&#34;&#34;Get the ChangeLog or None if no ChangeLog has been set.
-    
+
     :return: the changelog
 
     Args:
@@ -5541,7 +5945,7 @@ reflected in the document and recorded in the change log, if there is one.</p>
 def features(self):
     &#34;&#34;&#34;Accesses the features as a FeatureViewer instance. Changes made on this object are
     reflected in the document and recorded in the change log, if there is one.
-    
+
     :return: A FeatureViewer view of the document features.
 
     Args:
@@ -5578,7 +5982,7 @@ def name(self):
 <pre><code class="python">@property
 def text(self) -&gt; str:
     &#34;&#34;&#34;Get the text of the document. For a partial document, the text may be None.
-    
+
     :return: the text of the document
 
     Args:
@@ -5630,9 +6034,7 @@ If the annotation set does not already exist, it is created.</p>
         annset = AnnotationSet(owner_doc=self, name=name)
         self._annotation_sets[name] = annset
         if self._changelog:
-            self._changelog.append({
-                &#34;command&#34;: &#34;annotations:add&#34;,
-                &#34;set&#34;: name})
+            self._changelog.append({&#34;command&#34;: &#34;annotations:add&#34;, &#34;set&#34;: name})
         return annset
     else:
         return self._annotation_sets[name]</code></pre>
@@ -5685,7 +6087,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 <pre><code class="python">def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
     &#34;&#34;&#34;Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
     a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
-    
+
     The document is modified in-place.
 
     Args:
@@ -5754,7 +6156,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
             if ann is not None:
                 ann.features.clear()
             else:
-                pass # ignore, could happen with a detached annotation
+                pass  # ignore, could happen with a detached annotation
         elif cmd == ACTION_CLEAR_DOC_FEATURES:
             self.features.clear()
         elif cmd == ACTION_SET_ANN_FEATURE:
@@ -5807,7 +6209,7 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 </summary>
 <pre><code class="python">def copy(self):
     &#34;&#34;&#34;Creates a shallow copy except the changelog which is set to None.
-    
+
     :return: shallow copy of the document
 
     Args:
@@ -5886,7 +6288,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dt><strong><code>name</code></strong></dt>
 <dd>name of the annotation set to remove</dd>
 <dt><strong><code>name</code></strong></dt>
-<dd>str: </dd>
+<dd>str:</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
@@ -5898,7 +6300,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 
     Args:
       name: name of the annotation set to remove
-      name: str: 
+      name: str:
 
     Returns:
 
@@ -5907,9 +6309,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
         raise Exception(f&#34;AnnotationSet with name {name} does not exist&#34;)
     del self._annotation_sets[name]
     if self._changelog:
-        self._changelog.append({
-            &#34;command&#34;: &#34;annotations:remove&#34;,
-            &#34;set&#34;: name})</code></pre>
+        self._changelog.append({&#34;command&#34;: &#34;annotations:remove&#34;, &#34;set&#34;: name})</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Document.save"><code class="name flex">
@@ -5929,15 +6329,21 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the document saver.</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save(self, destination, fmt=None, offset_type=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+<pre><code class="python">def save(
+    self,
+    destination,
+    fmt=None,
+    offset_type=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;Save the document to the destination file.
 
     Args:
@@ -5946,7 +6352,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
       kwargs: additional parameters for the document saver.
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -5975,15 +6381,20 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the format.</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
-<p>Returns:</p></div>
+<p>**kwargs:
+Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_mem(self, fmt=&#34;json&#34;, offset_type=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+<pre><code class="python">def save_mem(
+    self,
+    fmt=&#34;json&#34;,
+    offset_type=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
     &#34;&#34;&#34;Serialize to a string or bytes in the given format.
 
     Args:
@@ -5991,7 +6402,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
       kwargs: additional parameters for the format.
-      **kwargs: 
+      **kwargs:
 
     Returns:
 
@@ -6018,9 +6429,8 @@ field is considered a transient field!</p>
 <dl>
 <dt><strong><code>offset_type</code></strong></dt>
 <dd>convert to the given offset type on the fly (Default value = None)</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>&nbsp;</dd>
 </dl>
+<p>**kwargs:</p>
 <h2 id="returns">Returns</h2>
 <p>the dictionary representation of this instance</p></div>
 <details class="source">
@@ -6035,7 +6445,7 @@ field is considered a transient field!</p>
 
     Args:
       offset_type: convert to the given offset type on the fly (Default value = None)
-      **kwargs: 
+      **kwargs:
 
     Returns:
       the dictionary representation of this instance
@@ -6056,7 +6466,10 @@ field is considered a transient field!</p>
         offset_type = self.offset_type
 
     return {
-        &#34;annotation_sets&#34;: {name: aset.to_dict(**kwargs) for name, aset in self._annotation_sets.items() },
+        &#34;annotation_sets&#34;: {
+            name: aset.to_dict(**kwargs)
+            for name, aset in self._annotation_sets.items()
+        },
         &#34;text&#34;: self._text,
         &#34;features&#34;: self._features.to_dict(),
         &#34;offset_type&#34;: offset_type,
@@ -6079,7 +6492,7 @@ otherwise None.</p>
 <dt><strong><code>offsettype</code></strong></dt>
 <dd>either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON</dd>
 <dt><strong><code>offsettype</code></strong></dt>
-<dd>str: </dd>
+<dd>str:</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>offset mapper or None</p></div>
@@ -6091,15 +6504,15 @@ otherwise None.</p>
     &#34;&#34;&#34;Convert all the offsets of all the annotations in this document to the
     required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
     are already of that type, this does nothing.
-    
+
     NOTE: if the document has a ChangeLog, it is NOT also converted!
-    
+
     The method returns the offset mapper if anything actually was converted,
     otherwise None.
 
     Args:
       offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
-      offsettype: str: 
+      offsettype: str:
 
     Returns:
       offset mapper or None
@@ -6151,8 +6564,10 @@ otherwise None.</p>
 <li><code><a title="gatenlp.lib_stanfordnlp" href="lib_stanfordnlp.html">gatenlp.lib_stanfordnlp</a></code></li>
 <li><code><a title="gatenlp.lib_stanza" href="lib_stanza.html">gatenlp.lib_stanza</a></code></li>
 <li><code><a title="gatenlp.offsetmapper" href="offsetmapper.html">gatenlp.offsetmapper</a></code></li>
+<li><code><a title="gatenlp.pam" href="pam/index.html">gatenlp.pam</a></code></li>
 <li><code><a title="gatenlp.processing" href="processing/index.html">gatenlp.processing</a></code></li>
 <li><code><a title="gatenlp.serialization" href="serialization/index.html">gatenlp.serialization</a></code></li>
+<li><code><a title="gatenlp.span" href="span.html">gatenlp.span</a></code></li>
 <li><code><a title="gatenlp.utils" href="utils.html">gatenlp.utils</a></code></li>
 </ul>
 </li>
@@ -6207,6 +6622,7 @@ otherwise None.</p>
 <li><code><a title="gatenlp.AnnotationSet.end" href="#gatenlp.AnnotationSet.end">end</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.fast_iter" href="#gatenlp.AnnotationSet.fast_iter">fast_iter</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.first" href="#gatenlp.AnnotationSet.first">first</a></code></li>
+<li><code><a title="gatenlp.AnnotationSet.from_anns" href="#gatenlp.AnnotationSet.from_anns">from_anns</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.from_dict" href="#gatenlp.AnnotationSet.from_dict">from_dict</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.get" href="#gatenlp.AnnotationSet.get">get</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.immutable" href="#gatenlp.AnnotationSet.immutable">immutable</a></code></li>

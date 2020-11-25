@@ -67,7 +67,7 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     if getstr is None:
         getstr = lambda x: x
     if cmp is None:
-        cmp = lambda x,y: x == y
+        cmp = lambda x, y: x == y
     ltxt = len(text)
     ret = []
     ret2 = []
@@ -92,7 +92,9 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
         else:
             start += 1
     if item_idx != len(items):
-        raise Exception(&#34;Not all items matched but {} of {}&#34;.format(item_idx, len(items)))
+        raise Exception(
+            &#34;Not all items matched but {} of {}&#34;.format(item_idx, len(items))
+        )
     if unmatched and lastunmatched != ltxt:
         ret2.append((lastunmatched, ltxt))
     if unmatched:
@@ -102,10 +104,10 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
 
 
 start = 0
-LOGGING_FORMAT = &#39;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#39;
+LOGGING_FORMAT = &#34;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#34;
 
 
-def init_logger(name=None, file=None, lvl=None, config=None, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
     &#34;&#34;&#34;
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -132,7 +134,10 @@ def init_logger(name=None, file=None, lvl=None, config=None, args=None):
     if name is None:
         name = sys.argv[0]
     if lvl is None:
-        lvl = logging.INFO
+        if debug:
+            lvl = logging.DEBUG
+        else:
+            lvl = logging.INFO
     if config:
         # NOTE we could also configure from a yaml file or a dictionary, see
         # http://zetcode.com/python/logging/
@@ -140,6 +145,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, args=None):
         logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
+    rl.setLevel(lvl)
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
     # handler for the file, if needed, only if the root logger has no handlers yet as well
     addhandlers = []
@@ -167,7 +173,9 @@ def run_start(logger=None, name=None, lvl=None):
     global start
     if logger is None:
         logger = init_logger(name=name, lvl=lvl)
-    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    logger.info(
+        &#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
     start = time.time()
     return start
 
@@ -181,10 +189,12 @@ def run_stop(logger=None, name=None):
     &#34;&#34;&#34;
     if logger is None:
         logger = init_logger(name=name)
-    logger.info(&#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    logger.info(
+        &#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
     if start == 0:
         logger.warning(&#34;Run timing not set up properly, no time!&#34;)
-        return &#34;&#34;,0
+        return &#34;&#34;, 0
     stop = time.time()
     delta = stop - start
     deltastr = str(datetime.timedelta(seconds=delta))
@@ -226,9 +236,11 @@ def support_annotation_or_set(method):
     Returns:
         the adapted method which now takes an annotation or annotation set as well as start/end offsets.
     &#34;&#34;&#34;
+
     @wraps(method)
     def _support_annotation_or_set(self, *args, **kwargs):
         from gatenlp.annotation import Annotation
+
         annid = None
         if len(args) == 1:
             obj = args[0]
@@ -237,9 +249,11 @@ def support_annotation_or_set(method):
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
             elif isinstance(obj, numbers.Integral):
-                left, right = obj, obj+1
+                left, right = obj, obj + 1
             else:
-                raise Exception(&#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0]))
+                raise Exception(
+                    &#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0])
+                )
             if isinstance(obj, Annotation):
                 annid = obj.id
         else:
@@ -298,7 +312,7 @@ def support_annotation_or_set(method):
 </details>
 </dd>
 <dt id="gatenlp.utils.init_logger"><code class="name flex">
-<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, args=None)</span>
+<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, debug=False, args=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Configure the root logger (this only works the very first time, all subsequent
@@ -328,7 +342,7 @@ file "outpref.DATETIME.log" as well.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def init_logger(name=None, file=None, lvl=None, config=None, args=None):
+<pre><code class="python">def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
     &#34;&#34;&#34;
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -355,7 +369,10 @@ file "outpref.DATETIME.log" as well.</p>
     if name is None:
         name = sys.argv[0]
     if lvl is None:
-        lvl = logging.INFO
+        if debug:
+            lvl = logging.DEBUG
+        else:
+            lvl = logging.INFO
     if config:
         # NOTE we could also configure from a yaml file or a dictionary, see
         # http://zetcode.com/python/logging/
@@ -363,6 +380,7 @@ file "outpref.DATETIME.log" as well.</p>
         logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
+    rl.setLevel(lvl)
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
     # handler for the file, if needed, only if the root logger has no handlers yet as well
     addhandlers = []
@@ -440,7 +458,7 @@ start and end offsets of a substring in the text and item is the item for that s
     if getstr is None:
         getstr = lambda x: x
     if cmp is None:
-        cmp = lambda x,y: x == y
+        cmp = lambda x, y: x == y
     ltxt = len(text)
     ret = []
     ret2 = []
@@ -465,7 +483,9 @@ start and end offsets of a substring in the text and item is the item for that s
         else:
             start += 1
     if item_idx != len(items):
-        raise Exception(&#34;Not all items matched but {} of {}&#34;.format(item_idx, len(items)))
+        raise Exception(
+            &#34;Not all items matched but {} of {}&#34;.format(item_idx, len(items))
+        )
     if unmatched and lastunmatched != ltxt:
         ret2.append((lastunmatched, ltxt))
     if unmatched:
@@ -495,7 +515,9 @@ start and end offsets of a substring in the text and item is the item for that s
     global start
     if logger is None:
         logger = init_logger(name=name, lvl=lvl)
-    logger.info(&#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    logger.info(
+        &#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
     start = time.time()
     return start</code></pre>
 </details>
@@ -520,10 +542,12 @@ start and end offsets of a substring in the text and item is the item for that s
     &#34;&#34;&#34;
     if logger is None:
         logger = init_logger(name=name)
-    logger.info(&#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;)))
+    logger.info(
+        &#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
     if start == 0:
         logger.warning(&#34;Run timing not set up properly, no time!&#34;)
-        return &#34;&#34;,0
+        return &#34;&#34;, 0
     stop = time.time()
     delta = stop - start
     deltastr = str(datetime.timedelta(seconds=delta))
@@ -565,9 +589,11 @@ to create a length one span (start is the original offset, end is the original o
     Returns:
         the adapted method which now takes an annotation or annotation set as well as start/end offsets.
     &#34;&#34;&#34;
+
     @wraps(method)
     def _support_annotation_or_set(self, *args, **kwargs):
         from gatenlp.annotation import Annotation
+
         annid = None
         if len(args) == 1:
             obj = args[0]
@@ -576,9 +602,11 @@ to create a length one span (start is the original offset, end is the original o
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
             elif isinstance(obj, numbers.Integral):
-                left, right = obj, obj+1
+                left, right = obj, obj + 1
             else:
-                raise Exception(&#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0]))
+                raise Exception(
+                    &#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0])
+                )
             if isinstance(obj, Annotation):
                 annid = obj.id
         else:

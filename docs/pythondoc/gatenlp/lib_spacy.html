@@ -38,20 +38,23 @@ import spacy
 
 class AnnSpacy(Annotator):
     &#34;&#34;&#34; &#34;&#34;&#34;
-    def __init__(self, pipeline=None,
-                 outsetname=&#34;&#34;,
-                 token_type=&#34;Token&#34;,
-                 spacetoken_type=&#34;SpaceToken&#34;,
-                 sentence_type=&#34;Sentence&#34;,
-                 nounchunk_type=&#34;NounChunk&#34;,
-                 add_tokens=True,
-                 # add_spacetokens=True, # not sure how to do this yet
-                 add_entities=True,
-                 add_sentences=True,
-                 add_nounchunks=True,
-                 add_deps=True,
-                 ent_prefix=None,
-                ):
+
+    def __init__(
+        self,
+        pipeline=None,
+        outsetname=&#34;&#34;,
+        token_type=&#34;Token&#34;,
+        spacetoken_type=&#34;SpaceToken&#34;,
+        sentence_type=&#34;Sentence&#34;,
+        nounchunk_type=&#34;NounChunk&#34;,
+        add_tokens=True,
+        # add_spacetokens=True, # not sure how to do this yet
+        add_entities=True,
+        add_sentences=True,
+        add_nounchunks=True,
+        add_deps=True,
+        ent_prefix=None,
+    ):
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
@@ -90,19 +93,21 @@ class AnnSpacy(Annotator):
 
     def __call__(self, doc, **kwargs):
         spacy_doc = self.pipeline(doc.text)
-        spacy2gatenlp(spacy_doc, doc,
-                      setname=self.outsetname,
-                      token_type=self.token_type,
-                      spacetoken_type=self.spacetoken_type,
-                      sentence_type=self.sentence_type,
-                      nounchunk_type=self.nounchunk_type,
-                      add_tokens=self.add_tokens,
-                      add_ents=self.add_entities,
-                      add_nounchunks=self.add_nounchunks,
-                      add_sents=self.add_sentences,
-                      add_dep=self.add_deps,
-                      ent_prefix=self.ent_prefix,
-                      )
+        spacy2gatenlp(
+            spacy_doc,
+            doc,
+            setname=self.outsetname,
+            token_type=self.token_type,
+            spacetoken_type=self.spacetoken_type,
+            sentence_type=self.sentence_type,
+            nounchunk_type=self.nounchunk_type,
+            add_tokens=self.add_tokens,
+            add_ents=self.add_entities,
+            add_nounchunks=self.add_nounchunks,
+            add_sents=self.add_sentences,
+            add_dep=self.add_deps,
+            ent_prefix=self.ent_prefix,
+        )
         return doc
 
 
@@ -123,17 +128,22 @@ def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;):
     return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
-def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname=&#34;&#34;, token_type=&#34;Token&#34;,
-                  spacetoken_type=&#34;SpaceToken&#34;, sentence_type=&#34;Sentence&#34;,
-                  nounchunk_type=&#34;NounChunk&#34;,
-                  add_tokens=True,
-                  # add_spacetokens=True, # not sure how to do this yet
-                  add_ents=True,
-                  add_sents=True,
-                  add_nounchunks=True,
-                  add_dep=True,
-                  ent_prefix=None,
-                  ):
+def spacy2gatenlp(
+    spacydoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    token_type=&#34;Token&#34;,
+    spacetoken_type=&#34;SpaceToken&#34;,
+    sentence_type=&#34;Sentence&#34;,
+    nounchunk_type=&#34;NounChunk&#34;,
+    add_tokens=True,
+    # add_spacetokens=True, # not sure how to do this yet
+    add_ents=True,
+    add_sents=True,
+    add_nounchunks=True,
+    add_dep=True,
+    ent_prefix=None,
+):
     &#34;&#34;&#34;Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
     original gatenlpdoc is used and gets modified.
@@ -173,36 +183,36 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname=&#34;&#34;, token_type=&#34
         to_off = tok.idx + len(tok)
         is_space = tok.is_space
         fm = {
-                &#34;_i&#34;: tok.i,
-                &#34;is_alpha&#34;: tok.is_alpha,
-                &#34;is_bracket&#34;: tok.is_bracket,
-                &#34;is_currency&#34;: tok.is_currency,
-                &#34;is_digit&#34;: tok.is_digit,
-                &#34;is_left_punct&#34;: tok.is_left_punct,
-                &#34;is_lower&#34;: tok.is_lower,
-                &#34;is_oov&#34;: tok.is_oov,
-                &#34;is_punct&#34;: tok.is_punct,
-                &#34;is_quote&#34;: tok.is_quote,
-                &#34;is_right_punct&#34;: tok.is_right_punct,
-                &#34;is_sent_start&#34;: tok.is_sent_start,
-                &#34;is_space&#34;: tok.is_space,
-                &#34;is_stop&#34;: tok.is_stop,
-                &#34;is_title&#34;: tok.is_title,
-                &#34;is_upper&#34;: tok.is_upper,
-                &#34;lang&#34;: tok.lang_,
-                &#34;lemma&#34;: tok.lemma_,
-                &#34;like_email&#34;: tok.like_email,
-                &#34;like_num&#34;: tok.like_num,
-                &#34;like_url&#34;: tok.like_url,
-                &#34;orth&#34;: tok.orth,
-                &#34;pos&#34;: tok.pos_,
-                &#34;prefix&#34;: tok.prefix_,
-                &#34;prob&#34;: tok.prob,
-                &#34;rank&#34;: tok.rank,
-                &#34;sentiment&#34;: tok.sentiment,
-                &#34;tag&#34;: tok.tag_,
-                &#34;shape&#34;: tok.shape_,
-                &#34;suffix&#34;: tok.suffix_,
+            &#34;_i&#34;: tok.i,
+            &#34;is_alpha&#34;: tok.is_alpha,
+            &#34;is_bracket&#34;: tok.is_bracket,
+            &#34;is_currency&#34;: tok.is_currency,
+            &#34;is_digit&#34;: tok.is_digit,
+            &#34;is_left_punct&#34;: tok.is_left_punct,
+            &#34;is_lower&#34;: tok.is_lower,
+            &#34;is_oov&#34;: tok.is_oov,
+            &#34;is_punct&#34;: tok.is_punct,
+            &#34;is_quote&#34;: tok.is_quote,
+            &#34;is_right_punct&#34;: tok.is_right_punct,
+            &#34;is_sent_start&#34;: tok.is_sent_start,
+            &#34;is_space&#34;: tok.is_space,
+            &#34;is_stop&#34;: tok.is_stop,
+            &#34;is_title&#34;: tok.is_title,
+            &#34;is_upper&#34;: tok.is_upper,
+            &#34;lang&#34;: tok.lang_,
+            &#34;lemma&#34;: tok.lemma_,
+            &#34;like_email&#34;: tok.like_email,
+            &#34;like_num&#34;: tok.like_num,
+            &#34;like_url&#34;: tok.like_url,
+            &#34;orth&#34;: tok.orth,
+            &#34;pos&#34;: tok.pos_,
+            &#34;prefix&#34;: tok.prefix_,
+            &#34;prob&#34;: tok.prob,
+            &#34;rank&#34;: tok.rank,
+            &#34;sentiment&#34;: tok.sentiment,
+            &#34;tag&#34;: tok.tag_,
+            &#34;shape&#34;: tok.shape_,
+            &#34;suffix&#34;: tok.suffix_,
         }
         if spacydoc.is_nered and add_ents:
             fm[&#34;ent_type&#34;] = tok.ent_type_
@@ -217,7 +227,7 @@ def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname=&#34;&#34;, token_type=&#34
         # print(&#34;Added annotation with id: {} for token {}&#34;.format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) &gt; 0:
-            annset.add(to_off, to_off+len(ws), spacetoken_type, {&#34;is_space&#34;: True})
+            annset.add(to_off, to_off + len(ws), spacetoken_type, {&#34;is_space&#34;: True})
     # if we have a dependency parse, now also add the parse edges
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
@@ -326,17 +336,22 @@ ent_prefix:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def spacy2gatenlp(spacydoc, gatenlpdoc=None, setname=&#34;&#34;, token_type=&#34;Token&#34;,
-                  spacetoken_type=&#34;SpaceToken&#34;, sentence_type=&#34;Sentence&#34;,
-                  nounchunk_type=&#34;NounChunk&#34;,
-                  add_tokens=True,
-                  # add_spacetokens=True, # not sure how to do this yet
-                  add_ents=True,
-                  add_sents=True,
-                  add_nounchunks=True,
-                  add_dep=True,
-                  ent_prefix=None,
-                  ):
+<pre><code class="python">def spacy2gatenlp(
+    spacydoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    token_type=&#34;Token&#34;,
+    spacetoken_type=&#34;SpaceToken&#34;,
+    sentence_type=&#34;Sentence&#34;,
+    nounchunk_type=&#34;NounChunk&#34;,
+    add_tokens=True,
+    # add_spacetokens=True, # not sure how to do this yet
+    add_ents=True,
+    add_sents=True,
+    add_nounchunks=True,
+    add_dep=True,
+    ent_prefix=None,
+):
     &#34;&#34;&#34;Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
     original gatenlpdoc is used and gets modified.
@@ -376,36 +391,36 @@ ent_prefix:
         to_off = tok.idx + len(tok)
         is_space = tok.is_space
         fm = {
-                &#34;_i&#34;: tok.i,
-                &#34;is_alpha&#34;: tok.is_alpha,
-                &#34;is_bracket&#34;: tok.is_bracket,
-                &#34;is_currency&#34;: tok.is_currency,
-                &#34;is_digit&#34;: tok.is_digit,
-                &#34;is_left_punct&#34;: tok.is_left_punct,
-                &#34;is_lower&#34;: tok.is_lower,
-                &#34;is_oov&#34;: tok.is_oov,
-                &#34;is_punct&#34;: tok.is_punct,
-                &#34;is_quote&#34;: tok.is_quote,
-                &#34;is_right_punct&#34;: tok.is_right_punct,
-                &#34;is_sent_start&#34;: tok.is_sent_start,
-                &#34;is_space&#34;: tok.is_space,
-                &#34;is_stop&#34;: tok.is_stop,
-                &#34;is_title&#34;: tok.is_title,
-                &#34;is_upper&#34;: tok.is_upper,
-                &#34;lang&#34;: tok.lang_,
-                &#34;lemma&#34;: tok.lemma_,
-                &#34;like_email&#34;: tok.like_email,
-                &#34;like_num&#34;: tok.like_num,
-                &#34;like_url&#34;: tok.like_url,
-                &#34;orth&#34;: tok.orth,
-                &#34;pos&#34;: tok.pos_,
-                &#34;prefix&#34;: tok.prefix_,
-                &#34;prob&#34;: tok.prob,
-                &#34;rank&#34;: tok.rank,
-                &#34;sentiment&#34;: tok.sentiment,
-                &#34;tag&#34;: tok.tag_,
-                &#34;shape&#34;: tok.shape_,
-                &#34;suffix&#34;: tok.suffix_,
+            &#34;_i&#34;: tok.i,
+            &#34;is_alpha&#34;: tok.is_alpha,
+            &#34;is_bracket&#34;: tok.is_bracket,
+            &#34;is_currency&#34;: tok.is_currency,
+            &#34;is_digit&#34;: tok.is_digit,
+            &#34;is_left_punct&#34;: tok.is_left_punct,
+            &#34;is_lower&#34;: tok.is_lower,
+            &#34;is_oov&#34;: tok.is_oov,
+            &#34;is_punct&#34;: tok.is_punct,
+            &#34;is_quote&#34;: tok.is_quote,
+            &#34;is_right_punct&#34;: tok.is_right_punct,
+            &#34;is_sent_start&#34;: tok.is_sent_start,
+            &#34;is_space&#34;: tok.is_space,
+            &#34;is_stop&#34;: tok.is_stop,
+            &#34;is_title&#34;: tok.is_title,
+            &#34;is_upper&#34;: tok.is_upper,
+            &#34;lang&#34;: tok.lang_,
+            &#34;lemma&#34;: tok.lemma_,
+            &#34;like_email&#34;: tok.like_email,
+            &#34;like_num&#34;: tok.like_num,
+            &#34;like_url&#34;: tok.like_url,
+            &#34;orth&#34;: tok.orth,
+            &#34;pos&#34;: tok.pos_,
+            &#34;prefix&#34;: tok.prefix_,
+            &#34;prob&#34;: tok.prob,
+            &#34;rank&#34;: tok.rank,
+            &#34;sentiment&#34;: tok.sentiment,
+            &#34;tag&#34;: tok.tag_,
+            &#34;shape&#34;: tok.shape_,
+            &#34;suffix&#34;: tok.suffix_,
         }
         if spacydoc.is_nered and add_ents:
             fm[&#34;ent_type&#34;] = tok.ent_type_
@@ -420,7 +435,7 @@ ent_prefix:
         # print(&#34;Added annotation with id: {} for token {}&#34;.format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) &gt; 0:
-            annset.add(to_off, to_off+len(ws), spacetoken_type, {&#34;is_space&#34;: True})
+            annset.add(to_off, to_off + len(ws), spacetoken_type, {&#34;is_space&#34;: True})
     # if we have a dependency parse, now also add the parse edges
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
@@ -476,20 +491,23 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
 </summary>
 <pre><code class="python">class AnnSpacy(Annotator):
     &#34;&#34;&#34; &#34;&#34;&#34;
-    def __init__(self, pipeline=None,
-                 outsetname=&#34;&#34;,
-                 token_type=&#34;Token&#34;,
-                 spacetoken_type=&#34;SpaceToken&#34;,
-                 sentence_type=&#34;Sentence&#34;,
-                 nounchunk_type=&#34;NounChunk&#34;,
-                 add_tokens=True,
-                 # add_spacetokens=True, # not sure how to do this yet
-                 add_entities=True,
-                 add_sentences=True,
-                 add_nounchunks=True,
-                 add_deps=True,
-                 ent_prefix=None,
-                ):
+
+    def __init__(
+        self,
+        pipeline=None,
+        outsetname=&#34;&#34;,
+        token_type=&#34;Token&#34;,
+        spacetoken_type=&#34;SpaceToken&#34;,
+        sentence_type=&#34;Sentence&#34;,
+        nounchunk_type=&#34;NounChunk&#34;,
+        add_tokens=True,
+        # add_spacetokens=True, # not sure how to do this yet
+        add_entities=True,
+        add_sentences=True,
+        add_nounchunks=True,
+        add_deps=True,
+        ent_prefix=None,
+    ):
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
@@ -528,19 +546,21 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
 
     def __call__(self, doc, **kwargs):
         spacy_doc = self.pipeline(doc.text)
-        spacy2gatenlp(spacy_doc, doc,
-                      setname=self.outsetname,
-                      token_type=self.token_type,
-                      spacetoken_type=self.spacetoken_type,
-                      sentence_type=self.sentence_type,
-                      nounchunk_type=self.nounchunk_type,
-                      add_tokens=self.add_tokens,
-                      add_ents=self.add_entities,
-                      add_nounchunks=self.add_nounchunks,
-                      add_sents=self.add_sentences,
-                      add_dep=self.add_deps,
-                      ent_prefix=self.ent_prefix,
-                      )
+        spacy2gatenlp(
+            spacy_doc,
+            doc,
+            setname=self.outsetname,
+            token_type=self.token_type,
+            spacetoken_type=self.spacetoken_type,
+            sentence_type=self.sentence_type,
+            nounchunk_type=self.nounchunk_type,
+            add_tokens=self.add_tokens,
+            add_ents=self.add_entities,
+            add_nounchunks=self.add_nounchunks,
+            add_sents=self.add_sentences,
+            add_dep=self.add_deps,
+            ent_prefix=self.ent_prefix,
+        )
         return doc</code></pre>
 </details>
 <h3>Ancestors</h3>

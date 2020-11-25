@@ -56,17 +56,18 @@ instream = io.TextIOWrapper(sys.stdin.buffer, encoding=&#34;utf-8&#34;)
 ostream = sys.stdout
 sys.stdout = sys.stderr
 
+
 class _PrWrapper:
     def __init__(self):
-        self.func_execute = None   # the function to process each doc
+        self.func_execute = None  # the function to process each doc
         self.func_execute_allowkws = False
-        self.func_start   = None   # called when processing starts
+        self.func_start = None  # called when processing starts
         self.func_start_allowkws = False
-        self.func_finish  = None   # called when processing finishes
+        self.func_finish = None  # called when processing finishes
         self.func_finish_allowkws = False
-        self.func_reduce = None    # function for combining results
+        self.func_reduce = None  # function for combining results
         self.func_reduce_allowkws = False
-        self.script_parms = {}   # Script parms to pass to each execute
+        self.script_parms = {}  # Script parms to pass to each execute
         self.logger = None
 
     def execute(self, doc):
@@ -121,12 +122,17 @@ def _check_exec(func):
 
     &#34;&#34;&#34;
     argspec = inspect.getfullargspec(func)
-    if len(argspec.args) == 1 \
-          or len(argspec.args) == 2 and argspec.args[0] == &#34;self&#34; \
-          or argspec.varargs is not None:
+    if (
+        len(argspec.args) == 1
+        or len(argspec.args) == 2
+        and argspec.args[0] == &#34;self&#34;
+        or argspec.varargs is not None
+    ):
         pass
     else:
-        raise Exception(&#34;Processing resource execution function does not accept exactly one or any number of arguments&#34;)
+        raise Exception(
+            &#34;Processing resource execution function does not accept exactly one or any number of arguments&#34;
+        )
     if argspec.varkw is not None:
         return True
     else:
@@ -158,7 +164,7 @@ def _pr_decorator(what):
     This is the decorator to identify a class or function as a processing
     resource. This is made available with the name PR in the gatenlp
     package.
-    
+
     This creates an instance of PRWrapper and registers all the relevant
     functions of the decorated class or the decorated function in the
     wrapper.
@@ -175,8 +181,10 @@ def _pr_decorator(what):
     wrapper = _PrWrapper()
     if inspect.isclass(what) or _has_method(what, &#34;__call__&#34;):
         if inspect.isclass(what):
-            what = what()   # if it is a class, create an instance, otherwise assume it is already an instance
-        # TODO: instead of this we could just as well store the instance and 
+            what = (
+                what()
+            )  # if it is a class, create an instance, otherwise assume it is already an instance
+        # TODO: instead of this we could just as well store the instance and
         # directly call the instance methods from the wrapper!
         execmethod = _has_method(what, &#34;__call__&#34;)
         if not execmethod:
@@ -205,44 +213,66 @@ def _pr_decorator(what):
         wrapper.func_execute = what
         wrapper.func_execute_allowkws = allowkws
     else:
-        raise Exception(f&#34;Decorator applied to something that is not a function or class: {what}&#34;)
+        raise Exception(
+            f&#34;Decorator applied to something that is not a function or class: {what}&#34;
+        )
     gatenlp.gate_python_plugin_pr = wrapper
     return wrapper
 
 
 class DefaultPr:
     def __call__(self, doc, **kwargs):
-        logger.debug(&#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs))
+        logger.debug(
+            &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
+        )
         return doc
 
     def start(self, **kwargs):
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-        logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+        logger.warning(
+            &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return None
 
     def finish(self, **kwargs):
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-        logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+        logger.warning(
+            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return None
 
     def reduce(self, resultlist, **kwargs):
-        logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-            resultlist, kwargs))
+        logger.debug(
+            &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
+                resultlist, kwargs
+            )
+        )
         return None
 
 
 def get_arguments(from_main=False):
     argparser = ArgumentParser()
-    argparser.add_argument(&#34;--mode&#34;, default=&#34;check&#34;,
-                           help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;)
-    argparser.add_argument(&#34;--format&#34;, default=&#34;json&#34;,
-                           help=&#34;Exchange format: json|json.gz|cjson&#34;)
+    argparser.add_argument(
+        &#34;--mode&#34;,
+        default=&#34;check&#34;,
+        help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;,
+    )
+    argparser.add_argument(
+        &#34;--format&#34;, default=&#34;json&#34;, help=&#34;Exchange format: json|json.gz|cjson&#34;
+    )
     argparser.add_argument(&#34;--path&#34;, help=&#34;File/directory path for modes file/dir&#34;)
-    argparser.add_argument(&#34;--out&#34;, help=&#34;Output file/directory path for modes file/dir&#34;)
-    argparser.add_argument(&#34;-d&#34;, action=&#34;store_true&#34;,
-                           help=&#34;Enable debugging: log to stderr&#34;)
-    argparser.add_argument(&#34;--log_lvl&#34;, type=str, help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;)
-    if(from_main):
+    argparser.add_argument(
+        &#34;--out&#34;, help=&#34;Output file/directory path for modes file/dir&#34;
+    )
+    argparser.add_argument(
+        &#34;-d&#34;, action=&#34;store_true&#34;, help=&#34;Enable debugging: log to stderr&#34;
+    )
+    argparser.add_argument(
+        &#34;--log_lvl&#34;,
+        type=str,
+        help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;,
+    )
+    if from_main:
         argparser.add_argument(&#34;pythonfile&#34;)
     args = argparser.parse_args()
     return args
@@ -252,12 +282,12 @@ def interact(args=None, annotator=None):
     &#34;&#34;&#34;Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
-    
+
     This MUST be called in the user&#39;s python file!
     The python file should also have one class or function decorated
     with the @gatenlp.PR  decorator to identify it as the
     processing resource to the system.
-    
+
     :return:
 
     Args:
@@ -272,12 +302,14 @@ def interact(args=None, annotator=None):
         &#34;INFO&#34;: logging.INFO,
         &#34;WARNING&#34;: logging.WARNING,
         &#34;ERROR&#34;: logging.ERROR,
-        &#34;CRITICAL&#34;: logging.CRITICAL
+        &#34;CRITICAL&#34;: logging.CRITICAL,
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None and annotator is None:
-        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;)
+        logger.warning(
+            &#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;
+        )
         _pr_decorator(DefaultPr)
     if annotator is not None:
         pr = _pr_decorator(annotator)
@@ -324,7 +356,9 @@ def interact(args=None, annotator=None):
                     # if we got an offset mapper earlier, we had to convert, so we convert back to JAVA
                     if om:
                         # replace True is faster, and we do not need the ChangeLog any more!
-                        chlog.fixup_changes(offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True)
+                        chlog.fixup_changes(
+                            offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True
+                        )
                     ret = doc.changelog.to_dict()
                     logger.debug(&#34;Returning CHANGELOG: {}&#34;.format(ret))
                 elif cmd == &#34;start&#34;:
@@ -345,19 +379,26 @@ def interact(args=None, annotator=None):
                 }
             except Exception as ex:
                 error = repr(ex)
-                tb_str = traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)
+                tb_str = traceback.format_exception(
+                    etype=type(ex), value=ex, tb=ex.__traceback__
+                )
                 print(&#34;ERROR when running python code:&#34;, file=sys.stderr)
                 for line in tb_str:
-                    print(line, file=sys.stderr, end=&#34;&#34;)  # what we get from traceback already has new lines
+                    print(
+                        line, file=sys.stderr, end=&#34;&#34;
+                    )  # what we get from traceback already has new lines
                 info = &#34;&#34;.join(tb_str)
                 # in case we want the actual stacktrace data as well:
-                st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
+                st = [
+                    (f.filename, f.lineno, f.name, f.line)
+                    for f in traceback.extract_tb(ex.__traceback__)
+                ]
                 response = {
                     &#34;data&#34;: None,
                     &#34;status&#34;: &#34;error&#34;,
                     &#34;error&#34;: error,
                     &#34;info&#34;: info,
-                    &#34;stacktrace&#34;: st
+                    &#34;stacktrace&#34;: st,
                 }
             logger.debug(&#34;Sending back response: {}&#34;.format(response))
             print(json.dumps(response), file=ostream)
@@ -378,7 +419,9 @@ def interact(args=None, annotator=None):
         if args.mode == &#34;file&#34; and not os.path.isfile(args.path):
             raise Exception(&#34;Mode file but path is not a file: {}&#34;.format(args.path))
         elif args.mode == &#34;dir&#34; and not os.path.isdir(args.path):
-            raise Exception(&#34;Mode dir but path is not a directory: {}&#34;.format(args.path))
+            raise Exception(
+                &#34;Mode dir but path is not a directory: {}&#34;.format(args.path)
+            )
         if args.mode == &#34;file&#34;:
             pr.start({})
             logger.info(f&#34;Loading file {args.path}&#34;)
@@ -393,8 +436,9 @@ def interact(args=None, annotator=None):
                 doc.save(args.path)
         else:
             import glob
+
             pr.start({})
-            files = glob.glob(args.path+os.path.sep+&#34;*&#34;+fileext)
+            files = glob.glob(args.path + os.path.sep + &#34;*&#34; + fileext)
             for file in files:
                 logger.info(&#34;Loading file {}&#34;.format(file))
                 doc = Document.load(file)
@@ -416,6 +460,7 @@ if __name__ == &#34;__main__&#34;:
     args = get_arguments(from_main=True)
     logger = init_logger(__name__)
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, args.pythonfile)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
@@ -440,16 +485,27 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def get_arguments(from_main=False):
     argparser = ArgumentParser()
-    argparser.add_argument(&#34;--mode&#34;, default=&#34;check&#34;,
-                           help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;)
-    argparser.add_argument(&#34;--format&#34;, default=&#34;json&#34;,
-                           help=&#34;Exchange format: json|json.gz|cjson&#34;)
+    argparser.add_argument(
+        &#34;--mode&#34;,
+        default=&#34;check&#34;,
+        help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;,
+    )
+    argparser.add_argument(
+        &#34;--format&#34;, default=&#34;json&#34;, help=&#34;Exchange format: json|json.gz|cjson&#34;
+    )
     argparser.add_argument(&#34;--path&#34;, help=&#34;File/directory path for modes file/dir&#34;)
-    argparser.add_argument(&#34;--out&#34;, help=&#34;Output file/directory path for modes file/dir&#34;)
-    argparser.add_argument(&#34;-d&#34;, action=&#34;store_true&#34;,
-                           help=&#34;Enable debugging: log to stderr&#34;)
-    argparser.add_argument(&#34;--log_lvl&#34;, type=str, help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;)
-    if(from_main):
+    argparser.add_argument(
+        &#34;--out&#34;, help=&#34;Output file/directory path for modes file/dir&#34;
+    )
+    argparser.add_argument(
+        &#34;-d&#34;, action=&#34;store_true&#34;, help=&#34;Enable debugging: log to stderr&#34;
+    )
+    argparser.add_argument(
+        &#34;--log_lvl&#34;,
+        type=str,
+        help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;,
+    )
+    if from_main:
         argparser.add_argument(&#34;pythonfile&#34;)
     args = argparser.parse_args()
     return args</code></pre>
@@ -482,12 +538,12 @@ processing resource to the system.</p>
     &#34;&#34;&#34;Starts and handles the interaction with a GATE python plugin process.
     This will get started by the GATE plugin if the interaction uses
     pipes, but can also be started separately for http/websockets.
-    
+
     This MUST be called in the user&#39;s python file!
     The python file should also have one class or function decorated
     with the @gatenlp.PR  decorator to identify it as the
     processing resource to the system.
-    
+
     :return:
 
     Args:
@@ -502,12 +558,14 @@ processing resource to the system.</p>
         &#34;INFO&#34;: logging.INFO,
         &#34;WARNING&#34;: logging.WARNING,
         &#34;ERROR&#34;: logging.ERROR,
-        &#34;CRITICAL&#34;: logging.CRITICAL
+        &#34;CRITICAL&#34;: logging.CRITICAL,
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
     if gatenlp.gate_python_plugin_pr is None and annotator is None:
-        logger.warning(&#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;)
+        logger.warning(
+            &#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;
+        )
         _pr_decorator(DefaultPr)
     if annotator is not None:
         pr = _pr_decorator(annotator)
@@ -554,7 +612,9 @@ processing resource to the system.</p>
                     # if we got an offset mapper earlier, we had to convert, so we convert back to JAVA
                     if om:
                         # replace True is faster, and we do not need the ChangeLog any more!
-                        chlog.fixup_changes(offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True)
+                        chlog.fixup_changes(
+                            offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True
+                        )
                     ret = doc.changelog.to_dict()
                     logger.debug(&#34;Returning CHANGELOG: {}&#34;.format(ret))
                 elif cmd == &#34;start&#34;:
@@ -575,19 +635,26 @@ processing resource to the system.</p>
                 }
             except Exception as ex:
                 error = repr(ex)
-                tb_str = traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)
+                tb_str = traceback.format_exception(
+                    etype=type(ex), value=ex, tb=ex.__traceback__
+                )
                 print(&#34;ERROR when running python code:&#34;, file=sys.stderr)
                 for line in tb_str:
-                    print(line, file=sys.stderr, end=&#34;&#34;)  # what we get from traceback already has new lines
+                    print(
+                        line, file=sys.stderr, end=&#34;&#34;
+                    )  # what we get from traceback already has new lines
                 info = &#34;&#34;.join(tb_str)
                 # in case we want the actual stacktrace data as well:
-                st = [(f.filename, f.lineno, f.name, f.line) for f in traceback.extract_tb(ex.__traceback__)]
+                st = [
+                    (f.filename, f.lineno, f.name, f.line)
+                    for f in traceback.extract_tb(ex.__traceback__)
+                ]
                 response = {
                     &#34;data&#34;: None,
                     &#34;status&#34;: &#34;error&#34;,
                     &#34;error&#34;: error,
                     &#34;info&#34;: info,
-                    &#34;stacktrace&#34;: st
+                    &#34;stacktrace&#34;: st,
                 }
             logger.debug(&#34;Sending back response: {}&#34;.format(response))
             print(json.dumps(response), file=ostream)
@@ -608,7 +675,9 @@ processing resource to the system.</p>
         if args.mode == &#34;file&#34; and not os.path.isfile(args.path):
             raise Exception(&#34;Mode file but path is not a file: {}&#34;.format(args.path))
         elif args.mode == &#34;dir&#34; and not os.path.isdir(args.path):
-            raise Exception(&#34;Mode dir but path is not a directory: {}&#34;.format(args.path))
+            raise Exception(
+                &#34;Mode dir but path is not a directory: {}&#34;.format(args.path)
+            )
         if args.mode == &#34;file&#34;:
             pr.start({})
             logger.info(f&#34;Loading file {args.path}&#34;)
@@ -623,8 +692,9 @@ processing resource to the system.</p>
                 doc.save(args.path)
         else:
             import glob
+
             pr.start({})
-            files = glob.glob(args.path+os.path.sep+&#34;*&#34;+fileext)
+            files = glob.glob(args.path + os.path.sep + &#34;*&#34; + fileext)
             for file in files:
                 logger.info(&#34;Loading file {}&#34;.format(file))
                 doc = Document.load(file)
@@ -657,22 +727,31 @@ processing resource to the system.</p>
 </summary>
 <pre><code class="python">class DefaultPr:
     def __call__(self, doc, **kwargs):
-        logger.debug(&#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs))
+        logger.debug(
+            &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
+        )
         return doc
 
     def start(self, **kwargs):
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-        logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+        logger.warning(
+            &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return None
 
     def finish(self, **kwargs):
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-        logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+        logger.warning(
+            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return None
 
     def reduce(self, resultlist, **kwargs):
-        logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-            resultlist, kwargs))
+        logger.debug(
+            &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
+                resultlist, kwargs
+            )
+        )
         return None</code></pre>
 </details>
 <h3>Methods</h3>
@@ -688,7 +767,9 @@ processing resource to the system.</p>
 </summary>
 <pre><code class="python">def finish(self, **kwargs):
     logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-    logger.warning(&#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+    logger.warning(
+        &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
+    )
     return None</code></pre>
 </details>
 </dd>
@@ -702,8 +783,11 @@ processing resource to the system.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reduce(self, resultlist, **kwargs):
-    logger.debug(&#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-        resultlist, kwargs))
+    logger.debug(
+        &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
+            resultlist, kwargs
+        )
+    )
     return None</code></pre>
 </details>
 </dd>
@@ -718,7 +802,9 @@ processing resource to the system.</p>
 </summary>
 <pre><code class="python">def start(self, **kwargs):
     logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-    logger.warning(&#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;)
+    logger.warning(
+        &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
+    )
     return None</code></pre>
 </details>
 </dd>
