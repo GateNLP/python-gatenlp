@@ -12,11 +12,13 @@ from gatenlp import AnnotationSet
 from gatenlp.utils import init_logger
 from gatenlp import Span
 
-# TODO: also store spans in Span objects
-# Stage one: first do this only for the NEW span stored in each data!
+# NOTES: Backreferences: to hard to implement this in a flexible way, simply use Filter on the final result
 
 # TODO: implement pre-canned actions:
-# ActionAddAnn(): default span is the first result
+# AddAnn(): default span is the first result
+# UpdateAnn(features, data=...)
+
+# TODO: implement accessor functions
 # accessor functions: ResultData(0, "name", 2) - returns a function that accesses the 2nd data
 #   of all the datas in the 0th result that match the given name
 # ResultSpan(0), ResultAnn(0,"name",2), ResultText(0,"name",1)
@@ -27,33 +29,6 @@ from gatenlp import Span
 # TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
 
 # TODO: figure out which parser parameters could be implemented as parser modifiers instead/in addition???
-
-# TODO: implement backreferences: as a parser and modifier: equality of some part of the current data with
-# HOW??? to get access to all existing data so far: Need to change things so that all parsers which
-# produce an actual sequence invoke the next parser with the result so far as additional (optional?) parameter.
-# so we need to change the parse method.
-# the same part of some existing named data (nth named data).
-# e.g. Backref(parser, to_name=name, to_n=1/-1, to_field="text", eq=None, predicate=None)
-# to_name: the name of the data, if not exists, fail
-# to_n: the nth data with that name, if negate the nth from the end, if not exist, fail
-# to_field: the field of the data dict, if not exists, fail
-# eq: how to compare, if None use normal equality
-# predicate: a function x,y where x is all existing data and y is the data of parser
-
-
-
-# TODO: IMPORTANT: the advancing strategy for rules could be different and more flexible from the way how we match sequences
-# within a rule, maybe?
-
-# TODO: think about rule priorities and matching styles similar to JAPE:
-# if several rules match at the same location, which one should be "fired"?
-# appelt style: use longest match, if more than one, use highest priority, if more than one with same p, use first
-#   after matching, advance to next position in document after the match
-# all style: use all matches, advance to next position in document (next offset)
-# brill style: use all matches, advance to position after longest match
-# first: no direct correspondence but we could just use the first rule in the list of rules
-# once: match once, then do not advance and repeat.
-
 
 # TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
 # TODO: implement Forward() / fwd.set(fwd | Ann("X"))
@@ -855,6 +830,7 @@ class Lookahead(PampacParser):
 class Filter(PampacParser):
     """
     Select only some of the results returned by a parser success, call the predicate function on each to check.
+    This can also be used to check a single result and decide if it should be a success or failure.
     """
 
     def __init__(self, parser, predicate, take_if=True, matchtype="first"):
@@ -1644,9 +1620,9 @@ class Rule(PampacParser):
     there is a successful match.
     """
 
-    def __init__(self, parser, action, priority=0):
+    def __init__(self, parser, *actions, priority=0):
         self.parser = parser
-        self.action = action
+        self.actions = actions
         self.priority = priority
 
     def set_priority(self, val):
@@ -1808,18 +1784,59 @@ class Pampac:
 
     __call__ = run
 
-# Helpers for easier declarations of Actions and for easier access to match results within actions
 
+def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
+    """
+    Helper method to return the data for the given result index and name, or None.
+
+    Args:
+        succ: success instance
+        name: name of the data
+        resultidx: index of the result in success
+        dataidx: if there is more than one matching data with that name, which one to return
+        silent_fail: if True, return None, if False, raise an exception if the data is not present
+
+    Returns:
+        the data or None
+
+    """
+    if resultidx >= len(succ):
+        if not silent_fail:
+            raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
+        else:
+            return
+    res = succ[resultidx]
+    data = res.data4name(name)
+    if not data:
+        if not silent_fail:
+            raise Exception(f"No data with name {name} in result")
+        else:
+            return
+    if dataidx >= len(dataidx):
+        if not silent_fail:
+            raise Exception(f"No data with index {dataidx}, length is {len(data)}")
+        else:
+            return
+    return data[dataidx]
+
+
+# ACTIONS:
 
 class AddAnn:
-    def __init__(self, name, typeorann, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name,
+                 ann=None,   # create a copy of this ann retrieved with GetAnn
+                 anntype=None,  # or create a new annotation with this type
+                 features=None,
+                 span=None,   # use literal span, GetSpan, if none, span from match
+                 resultidx=0, dataidx=0,
+                 silent_fail=False,
+                 ):
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
+        assert anntype is not None or ann is not None
         self.name = name
-        if isinstance(typeorann, str):
-            self.anntype = typeorann
-        else:
-            self.getann = typeorann
+        self.anntype = anntype
+        self.ann = ann
         self.features = features
         self.span = span
         self.resultidx = resultidx
@@ -1827,13 +1844,201 @@ class AddAnn:
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        if self.resultidx >= len(succ):
-            if not self.silent_fail:
-                raise Exception(f"No resultidx {self.resultidx}, only {len(succ)} results")
-        res = succ[self.resultidx]
-        if self.dataidx >= len(res.data):
-            if not self.silent_fail:
-                raise Exception(f"No dataidx {self.dataidx}, only {len(res.data)} data")
-        data = res.data[self.dataidx]
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        span = data["span"]
+        outset = context.outset
+        if self.ann:
+            ann = self.ann(succ)
+            if ann is None:
+                if self.silent_fail:
+                    return
+                else:
+                    raise Exception("No matching annotation found")
+            outset.add_ann(ann)
+        else:
+            if self.span:
+                if callable(self.span):
+                    span = self.span(succ, context=context, location=location)
+                else:
+                    span = self.span
+            if callable(self.anntype):
+                anntype = self.anntype(succ, context=context, location=location)
+            else:
+                anntype = self.anntype
+            if self.features:
+                if callable(self.features):
+                    features = self.features(succ, context=context, location=location)
+                else:
+                    features = self.features
+            else:
+                features = None
+            outset.add(span.start, span.end, anntype, features=features)
 
+
+class UpdateAnnFeatures:
+    def __init__(self, name,
+                 ann=None,  # ann to update
+                 features=None,
+                 replace=False,  # replace existing features rather than updating
+                 resultidx=0, dataidx=0,
+                 silent_fail=False,
+                 ):
+        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span at firing time
+        assert isinstance(ann, GetAnn)
+        assert features is not None
+        self.name = name
+        self.ann = ann
+        self.replace = replace
+        self.features = features
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        ann = self.ann(succ)
+        if ann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception("No matching annotation found")
+        if callable(self.features):
+            features = self.features(succ, context=context, location=location)
+        else:
+            features = self.features
+        if self.replace:
+            ann.features.clear()
+        ann.features.update(features)
+
+# GETTERS
+
+
+class GetAnn:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        ann = data.get("ann")
+        if ann is None:
+            if not self.silent_fail:
+                raise Exception(f"No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}")
+        return ann
+
+
+class GetFeatures:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        ann = data.get("ann")
+        if ann is None:
+            if not self.silent_fail:
+                raise Exception(f"No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}")
+        return ann.features
+
+
+class GetType:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        ann = data.get("ann")
+        if ann is None:
+            if not self.silent_fail:
+                raise Exception(f"No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}")
+        return ann.type
+
+
+class GetStart:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        span = data["span"]
+        return span.start
+
+
+class GetEnd:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        span = data["span"]
+        return span.end
+
+
+class GetFeature:
+    def __init__(self, name, featurename, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+        self.featurename = featurename
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        ann = data.get("ann")
+        if ann is None:
+            if not self.silent_fail:
+                raise Exception(f"No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}")
+        return ann.features.get(self.featurename)
+
+
+class GetText:
+    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        span = data.get("span")
+        if span:
+            return context.doc[span]
+        else:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception("Could not find a span for data")
+
+
+class GetRegexGroup:
+    def __init__(self, name, group=0, resultidx=0, dataidx=0, silent_fail=False):
+        self.name = name
+        self.resultidx = resultidx
+        self.dataidx = dataidx
+        self.group = group
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        groups = data.get("groups")
+        if groups:
+            return groups[self.group]
+        else:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception("Could not find regexp groups for data")
 
