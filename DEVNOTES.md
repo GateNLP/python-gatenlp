@@ -1,6 +1,10 @@
 # Various Notes about Development
 
+## Use a prepared environment in a Jupyter notebook
 
+* `pip install ipykernel`
+* within the env: `python -m ipykernel install --user --name envname --display-name "Python (envname)`
+* To list which are already there: `jupyter kernelspec list`
 
 
 ## Prepare a release
