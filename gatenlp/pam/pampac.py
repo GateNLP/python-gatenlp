@@ -1620,9 +1620,9 @@ class Rule(PampacParser):
     there is a successful match.
     """
 
-    def __init__(self, parser, *actions, priority=0):
+    def __init__(self, parser, action, priority=0):
         self.parser = parser
-        self.actions = actions
+        self.action = action
         self.priority = priority
 
     def set_priority(self, val):
@@ -1812,7 +1812,7 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             raise Exception(f"No data with name {name} in result")
         else:
             return
-    if dataidx >= len(dataidx):
+    if dataidx >= len(data):
         if not silent_fail:
             raise Exception(f"No data with index {dataidx}, length is {len(data)}")
         else:
@@ -1823,7 +1823,8 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
 # ACTIONS:
 
 class AddAnn:
-    def __init__(self, name,
+    def __init__(self,
+                 name=None,
                  ann=None,   # create a copy of this ann retrieved with GetAnn
                  anntype=None,  # or create a new annotation with this type
                  features=None,
@@ -1833,6 +1834,7 @@ class AddAnn:
                  ):
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
+        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype

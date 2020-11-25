@@ -33,7 +33,7 @@ doc = ann(doc)
 doc
 ```
 
-    2020-11-22 17:17:15,581|INFO|stanza|Loading these models for language: en (English):
+    2020-11-25 14:42:01,409|INFO|stanza|Loading these models for language: en (English):
     =======================
     | Processor | Package |
     -----------------------
@@ -41,10 +41,10 @@ doc
     | pos       | ewt     |
     =======================
     
-    2020-11-22 17:17:15,583|INFO|stanza|Use device: cpu
-    2020-11-22 17:17:15,583|INFO|stanza|Loading: tokenize
-    2020-11-22 17:17:15,590|INFO|stanza|Loading: pos
-    2020-11-22 17:17:16,334|INFO|stanza|Done loading processors!
+    2020-11-25 14:42:01,411|INFO|stanza|Use device: cpu
+    2020-11-25 14:42:01,412|INFO|stanza|Loading: tokenize
+    2020-11-25 14:42:01,417|INFO|stanza|Loading: pos
+    2020-11-25 14:42:02,131|INFO|stanza|Done loading processors!
 
 
 
@@ -505,25 +505,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#CPJPMZLDRA-wrapper { color: black !important; }</style>
-<div id="CPJPMZLDRA-wrapper">
+<div><style>#MFUCUHKXLD-wrapper { color: black !important; }</style>
+<div id="MFUCUHKXLD-wrapper">
 
 <div>
 <style>
-#CPJPMZLDRA-content {
+#MFUCUHKXLD-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.CPJPMZLDRA-row {
+.MFUCUHKXLD-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.CPJPMZLDRA-col {
+.MFUCUHKXLD-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -533,23 +533,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.CPJPMZLDRA-hdr {
+.MFUCUHKXLD-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.CPJPMZLDRA-label {
+.MFUCUHKXLD-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.CPJPMZLDRA-input {
+.MFUCUHKXLD-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#CPJPMZLDRA-popup {
+#MFUCUHKXLD-popup {
     display: none;
     color: black;
     position: absolute;
@@ -564,45 +564,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.CPJPMZLDRA-selection {
+.MFUCUHKXLD-selection {
     margin-bottom: 5px;
 }
 
-.CPJPMZLDRA-featuretable {
+.MFUCUHKXLD-featuretable {
     margin-top: 10px;
 }
 
-.CPJPMZLDRA-fname {
+.MFUCUHKXLD-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.CPJPMZLDRA-fvalue {
+.MFUCUHKXLD-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="CPJPMZLDRA-content">
-        <div id="CPJPMZLDRA-popup" style="display: none;">
+  <div id="MFUCUHKXLD-content">
+        <div id="MFUCUHKXLD-popup" style="display: none;">
         </div>
-        <div class="CPJPMZLDRA-row" id="CPJPMZLDRA-row1" style="height:67vh; min-height:100px;">
-            <div id="CPJPMZLDRA-text-wrapper" class="CPJPMZLDRA-col" style="width:70%;">
-                <div class="CPJPMZLDRA-hdr" id="CPJPMZLDRA-dochdr"></div>
-                <div id="CPJPMZLDRA-text">
+        <div class="MFUCUHKXLD-row" id="MFUCUHKXLD-row1" style="height:67vh; min-height:100px;">
+            <div id="MFUCUHKXLD-text-wrapper" class="MFUCUHKXLD-col" style="width:70%;">
+                <div class="MFUCUHKXLD-hdr" id="MFUCUHKXLD-dochdr"></div>
+                <div id="MFUCUHKXLD-text">
                 </div>
             </div>
-            <div id="CPJPMZLDRA-chooser" class="CPJPMZLDRA-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MFUCUHKXLD-chooser" class="MFUCUHKXLD-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="CPJPMZLDRA-row" id="CPJPMZLDRA-row2" style="height:30vh; min-height: 100px;">
-            <div id="CPJPMZLDRA-details" class="CPJPMZLDRA-col" style="width:100%; border-top-width: 0px;">
+        <div class="MFUCUHKXLD-row" id="MFUCUHKXLD-row2" style="height:30vh; min-height: 100px;">
+            <div id="MFUCUHKXLD-details" class="MFUCUHKXLD-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="CPJPMZLDRA-data">
+    <script type="application/json" id="MFUCUHKXLD-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"id": 1, "text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"id": 2, "text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"id": 3, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"id": 4, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"id": 5, "text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"id": 6, "text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"id": 7, "text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"id": 8, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"id": 9, "text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"id": 10, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"id": 11, "text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"id": 12, "text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"id": 13, "text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"id": 14, "text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"id": 15, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"id": 16, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"id": 17, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"id": 18, "text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"id": 19, "text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"id": 20, "text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"id": 21, "text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"id": 22, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"id": 1, "text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"id": 2, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"id": 3, "text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"id": 4, "text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"id": 5, "text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"id": 6, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"id": 7, "text": "president", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"id": 8, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}], "next_annid": 32}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("CPJPMZLDRA-");
+        gatenlp_run("MFUCUHKXLD-");
     </script>
   </div>
 
@@ -656,25 +656,25 @@ doc
 
 
 
-<div><style>#MFZDAIGOQB-wrapper { color: black !important; }</style>
-<div id="MFZDAIGOQB-wrapper">
+<div><style>#EFOKNQNMSK-wrapper { color: black !important; }</style>
+<div id="EFOKNQNMSK-wrapper">
 
 <div>
 <style>
-#MFZDAIGOQB-content {
+#EFOKNQNMSK-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MFZDAIGOQB-row {
+.EFOKNQNMSK-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MFZDAIGOQB-col {
+.EFOKNQNMSK-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -684,23 +684,23 @@ doc
     overflow-y: auto;
 }
 
-.MFZDAIGOQB-hdr {
+.EFOKNQNMSK-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MFZDAIGOQB-label {
+.EFOKNQNMSK-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MFZDAIGOQB-input {
+.EFOKNQNMSK-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MFZDAIGOQB-popup {
+#EFOKNQNMSK-popup {
     display: none;
     color: black;
     position: absolute;
@@ -715,45 +715,45 @@ doc
     overflow: auto;
 }
 
-.MFZDAIGOQB-selection {
+.EFOKNQNMSK-selection {
     margin-bottom: 5px;
 }
 
-.MFZDAIGOQB-featuretable {
+.EFOKNQNMSK-featuretable {
     margin-top: 10px;
 }
 
-.MFZDAIGOQB-fname {
+.EFOKNQNMSK-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MFZDAIGOQB-fvalue {
+.EFOKNQNMSK-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MFZDAIGOQB-content">
-        <div id="MFZDAIGOQB-popup" style="display: none;">
+  <div id="EFOKNQNMSK-content">
+        <div id="EFOKNQNMSK-popup" style="display: none;">
         </div>
-        <div class="MFZDAIGOQB-row" id="MFZDAIGOQB-row1" style="height:67vh; min-height:100px;">
-            <div id="MFZDAIGOQB-text-wrapper" class="MFZDAIGOQB-col" style="width:70%;">
-                <div class="MFZDAIGOQB-hdr" id="MFZDAIGOQB-dochdr"></div>
-                <div id="MFZDAIGOQB-text">
+        <div class="EFOKNQNMSK-row" id="EFOKNQNMSK-row1" style="height:67vh; min-height:100px;">
+            <div id="EFOKNQNMSK-text-wrapper" class="EFOKNQNMSK-col" style="width:70%;">
+                <div class="EFOKNQNMSK-hdr" id="EFOKNQNMSK-dochdr"></div>
+                <div id="EFOKNQNMSK-text">
                 </div>
             </div>
-            <div id="MFZDAIGOQB-chooser" class="MFZDAIGOQB-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="EFOKNQNMSK-chooser" class="EFOKNQNMSK-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MFZDAIGOQB-row" id="MFZDAIGOQB-row2" style="height:30vh; min-height: 100px;">
-            <div id="MFZDAIGOQB-details" class="MFZDAIGOQB-col" style="width:100%; border-top-width: 0px;">
+        <div class="EFOKNQNMSK-row" id="EFOKNQNMSK-row2" style="height:30vh; min-height: 100px;">
+            <div id="EFOKNQNMSK-details" class="EFOKNQNMSK-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="MFZDAIGOQB-data">
+    <script type="application/json" id="EFOKNQNMSK-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"id": 1, "text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"id": 2, "text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"id": 3, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"id": 4, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"id": 5, "text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"id": 6, "text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"id": 7, "text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"id": 8, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"id": 9, "text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"id": 10, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"id": 11, "text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"id": 12, "text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"id": 13, "text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"id": 14, "text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"id": 15, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"id": 16, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"id": 17, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"id": 18, "text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"id": 19, "text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"id": 20, "text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"id": 21, "text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"id": 22, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"id": 1, "text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"id": 2, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"id": 3, "text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"id": 4, "text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"id": 5, "text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"id": 6, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"id": 7, "text": "president", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"id": 8, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "UIToken", "start": 0, "end": 6, "id": 32, "features": {}}, {"type": "UIToken", "start": 7, "end": 12, "id": 33, "features": {}}, {"type": "UIToken", "start": 62, "end": 68, "id": 34, "features": {}}, {"type": "UIToken", "start": 72, "end": 76, "id": 35, "features": {}}, {"type": "UIToken", "start": 99, "end": 105, "id": 36, "features": {}}, {"type": "UIToken", "start": 106, "end": 111, "id": 37, "features": {}}, {"type": "UIToken", "start": 113, "end": 119, "id": 38, "features": {}}, {"type": "UIToken", "start": 120, "end": 124, "id": 39, "features": {}}, {"type": "UIToken", "start": 126, "end": 130, "id": 40, "features": {}}, {"type": "UIToken", "start": 131, "end": 138, "id": 41, "features": {}}], "next_annid": 42}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("MFZDAIGOQB-");
+        gatenlp_run("EFOKNQNMSK-");
     </script>
   </div>
 
@@ -809,8 +809,219 @@ Let us try to annotate all sequences of one or more Tokens where the pos tag is 
 
 
 ```python
-from gatenlp.pam.pampac import Ann, AnnAt
+from gatenlp.pam.pampac import Ann, AnnAt, Rule, Pampac, AddAnn
 ```
+
+## How to use Pampac
+
+Pampac works by running the Pampac matcher on a document an a list of annotations and specifying the output annotation set:
+
+```
+Pampac(rule1, rule2, rule3).run(doc, anns, outset=myoutset)
+```
+
+This runs all the rules in the list on the document and if rules match, executes the action defined for each matching rule. Pampac has additional arguments to influence how rules are matched and for which of the matching rules the actions are fired.
+
+Each rule used with Pampac should be an instance of `Rule`. A rule is created by specifying a pattern to match in the document and one or more actions: 
+
+```
+rule1 = Rule(pattern1, AddAnn(name="p1match", anntype="Test"))
+```
+
+Each action can either be one of the predefined actions available from the pampac module or an arbitrary function which gets called with parse result of a successful match of the pattern if the rule fires.
+The `name` parameter for predefined actions is used to choose the named part of pattern match one is interested in. Most patterns allow to give names to the data they create for whatever is matched by them. 
+
+There are various buildings block for creating patterns. The first set of building blocks are "Terminal Parsers" which match something present in the document, e.g. the next annotation in the sequence of annotations to process:
+
+The following pattern matches successfully if the next annotation in the annotation sequence has type "Person" 
+and has a feature `gender` which has the value `"male"`:
+
+```
+pattern1 = Ann("Person", features=dict(gender="male"))
+```
+
+Sometimes it is possible that several annotations are located at the same starting offset. The follogin pattern matches any of the annotations at the same offset as the next annotation in the annotation sequence:
+
+```
+pattern1 = AnnAt("Person", features=dict(gender="male"))
+```
+
+The following pattern matches text at the next offset thats get matched: 
+
+```
+pattern = Text("Some text", matchcase=True)
+```
+
+The same class can be used to match arbitrary regular expressions instead. 
+
+```
+pattern = Text(re.compile(r"[0-9]+"))
+```
+
+### Complex Patterns
+
+More complex patterns can be created from the simple Terminal Parsers, for example, matching a sequence of terminal parsers: 
+
+```
+Seq(Ann(anntype="Person"), Ann(anntype="Token"), Ann(anntype="Person"))
+```
+
+would match only if the annotation sequence contains annotations of exactly those types in sequence. 
+This can also be written down using operator syntax, using the "Pampac sequence operator": 
+
+```
+Ann(anntype="Person") >> Ann(anntype="Token") >> Ann(anntype="Person")
+```
+
+Another complex pattern is `N` which specifies how a given pattern should occur a certain number of times, 
+e.g. the following would match a sequence of two to three annotations of type "Type1":
+
+``` 
+N(Ann(anntype="Type1"), min=2, max=3)
+```
+
+These and other basic parser types can be combined and nested arbitrarily to create more complex patterns. 
+
+Let us try some simple examples:
+
+
+
+
+
+```python
+# Find any sequence of 2 to 5 Token annotations, where the xpos feature equals NNP and create a new annotation
+# with annotation type for the span matched.
+
+# Define a rule for matching that pattern and adding an annotation with the AddAnn action. Note that the names
+# used for the N matcher and for the action are the same.
+
+r1 = Rule(
+    N(Ann("Token", features=dict(xpos="NNP")), min=2, max=5, name="seq1"),
+    AddAnn(name="seq1", anntype="Name")
+)
+```
+
+
+```python
+# Create the annotation set for the annotations we want to match (just the tokens)
+anns = doc.annset().with_type("Token")
+
+# Get the annotation set where we want to put new annotations
+outset = doc.annset("Out1")
+
+# Run Pampac
+Pampac(r1).run(doc, anns, outset=outset)
+
+doc
+```
+
+
+
+
+<div><style>#BCSTSTJXOJ-wrapper { color: black !important; }</style>
+<div id="BCSTSTJXOJ-wrapper">
+
+<div>
+<style>
+#BCSTSTJXOJ-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.BCSTSTJXOJ-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.BCSTSTJXOJ-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.BCSTSTJXOJ-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.BCSTSTJXOJ-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.BCSTSTJXOJ-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#BCSTSTJXOJ-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.BCSTSTJXOJ-selection {
+    margin-bottom: 5px;
+}
+
+.BCSTSTJXOJ-featuretable {
+    margin-top: 10px;
+}
+
+.BCSTSTJXOJ-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.BCSTSTJXOJ-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="BCSTSTJXOJ-content">
+        <div id="BCSTSTJXOJ-popup" style="display: none;">
+        </div>
+        <div class="BCSTSTJXOJ-row" id="BCSTSTJXOJ-row1" style="height:67vh; min-height:100px;">
+            <div id="BCSTSTJXOJ-text-wrapper" class="BCSTSTJXOJ-col" style="width:70%;">
+                <div class="BCSTSTJXOJ-hdr" id="BCSTSTJXOJ-dochdr"></div>
+                <div id="BCSTSTJXOJ-text">
+                </div>
+            </div>
+            <div id="BCSTSTJXOJ-chooser" class="BCSTSTJXOJ-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="BCSTSTJXOJ-row" id="BCSTSTJXOJ-row2" style="height:30vh; min-height: 100px;">
+            <div id="BCSTSTJXOJ-details" class="BCSTSTJXOJ-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="BCSTSTJXOJ-data">
+    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"id": 1, "text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"id": 2, "text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"id": 3, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"id": 4, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"id": 5, "text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"id": 6, "text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"id": 7, "text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"id": 8, "text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"id": 9, "text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"id": 10, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"id": 11, "text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"id": 12, "text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"id": 13, "text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"id": 14, "text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"id": 15, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"id": 16, "text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"id": 17, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"id": 18, "text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"id": 19, "text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"id": 20, "text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"id": 21, "text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"id": 22, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"id": 1, "text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"id": 2, "text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"id": 3, "text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"id": 4, "text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"id": 5, "text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"id": 6, "text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"id": 7, "text": "president", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"id": 8, "text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "UIToken", "start": 0, "end": 6, "id": 32, "features": {}}, {"type": "UIToken", "start": 7, "end": 12, "id": 33, "features": {}}, {"type": "UIToken", "start": 62, "end": 68, "id": 34, "features": {}}, {"type": "UIToken", "start": 72, "end": 76, "id": 35, "features": {}}, {"type": "UIToken", "start": 99, "end": 105, "id": 36, "features": {}}, {"type": "UIToken", "start": 106, "end": 111, "id": 37, "features": {}}, {"type": "UIToken", "start": 113, "end": 119, "id": 38, "features": {}}, {"type": "UIToken", "start": 120, "end": 124, "id": 39, "features": {}}, {"type": "UIToken", "start": 126, "end": 130, "id": 40, "features": {}}, {"type": "UIToken", "start": 131, "end": 138, "id": 41, "features": {}}], "next_annid": 42}, "Out1": {"name": "detached-from:Out1", "annotations": [{"type": "Name", "start": 0, "end": 12, "id": 0, "features": {}}, {"type": "Name", "start": 62, "end": 76, "id": 1, "features": {}}, {"type": "Name", "start": 99, "end": 111, "id": 2, "features": {}}, {"type": "Name", "start": 126, "end": 138, "id": 3, "features": {}}], "next_annid": 4}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
+    </script>
+    <script type="text/javascript">
+        gatenlp_run("BCSTSTJXOJ-");
+    </script>
+  </div>
+
+</div></div>
+
+
 
 
 ```python
