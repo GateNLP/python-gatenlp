@@ -376,6 +376,8 @@ class Document:
             return self.text[span._start : span._end]
         if isinstance(span, AnnotationSet):
             return self.text[span.start() : span.end()]
+        if hasattr(span, "start") and hasattr(span, "end"):
+            return self.text[span.start, span.end]
         return self.text[span]
 
     def annset(self, name: str = "") -> AnnotationSet:

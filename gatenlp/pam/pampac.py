@@ -12,11 +12,6 @@ from gatenlp import AnnotationSet
 from gatenlp.utils import init_logger
 from gatenlp import Span
 
-# TODO: IMPORTANT: implement data for named non-terminals: this data only has a name and a span. So
-# there will be a data for the entire result (which should always be datas[-1] ) and we can drop
-# span from the result and instead access it from there (still have a span method on the Result class for
-# simplicity)
-# TODO IMPORTANT !!! MAKE SURE ALL DATA has a span, the name, and maybe a location?
 # TODO: also store spans in Span objects
 # Stage one: first do this only for the NEW span stored in each data!
 
@@ -139,10 +134,10 @@ class Result:
         return [d for d in self.data if d.get("name") == name]
 
     def __str__(self):
-        return f"Result(loc={self.location},span=({self.span[0]},{self.span[1]}),ndata={len(self.data)})"
+        return f"Result(loc={self.location},span=({self.span.start},{self.span.end}),ndata={len(self.data)})"
 
     def __repr__(self):
-        return f"Result(loc={self.location},span=({self.span[0]},{self.span[1]}),data={self.data})"
+        return f"Result(loc={self.location},span=({self.span.start},{self.span.end}),data={self.data})"
 
 
 class Failure:
@@ -650,6 +645,7 @@ class PampacParser:
                 if ann:
                     anns.add(ann)
             annset = context.annset
+            # TODO: !!!!!!!  CHECK IF THIS IS CORRECT
             tocall = getattr(annset, constraint)
             annstocheck = tocall(result.span)
             for anntocheck in annstocheck:
@@ -681,6 +677,7 @@ class PampacParser:
                 if ann:
                     anns.add(ann)
             annset = context.annset
+            # TODO: !!!!!!!!!!!!! CHECK IF CORRECT, SPAN CORRECT?
             tocall = getattr(annset, constraint)
             annstocheck = tocall(result.span)
             matched = False
@@ -791,9 +788,9 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span[1])
+                annstocheck = annset.start_eq(result.span.end)
             else:
-                annstocheck = annset.start_ge(result.span[1])
+                annstocheck = annset.start_ge(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -816,9 +813,9 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span[1])
+                annstocheck = annset.start_eq(result.span.end)
             else:
-                annstocheck = annset.start_ge(result.span[1])
+                annstocheck = annset.start_ge(result.span.end)
             matched = False
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
@@ -1031,7 +1028,7 @@ class AnnAt(_AnnBase):
                 # update location
                 location = context.inc_location(location, by_index=1)
                 result = Result(
-                    data=data, location=location, span=(next_ann.start, next_ann.end)
+                    data=data, location=location, span=Span(next_ann.start, next_ann.end)
                 )
                 if self.matchtype == "first":
                     return Success(result, context)
@@ -1127,7 +1124,7 @@ class Ann(_AnnBase):
                 )
             else:
                 data = None
-            span = (next_ann.start, next_ann.end)
+            span = Span(next_ann.start, next_ann.end)
             return Success(Result(data=data, span=span, location=newlocation), context)
         else:
             return Failure(location=location, context=context, parser=self)
@@ -1212,7 +1209,7 @@ class Text(PampacParser):
                     )
                 else:
                     data = None
-                span = (location.text_location, location.text_location + len(m.group()))
+                span = Span(location.text_location, location.text_location + len(m.group()))
                 return Success(
                     Result(data=data, location=newlocation, span=span), context
                 )
@@ -1232,7 +1229,7 @@ class Text(PampacParser):
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
-                span = (location.text_location, location.text_location + len(self.text))
+                span = Span(location.text_location, location.text_location + len(self.text))
                 return Success(
                     Result(data=data, location=newlocation, span=span), context
                 )
@@ -1369,16 +1366,16 @@ class Seq(PampacParser):
                     location = result.location
                     if first:
                         first = False
-                        start = result.span[0]
-                    end = result.span[1]
+                        start = result.span.start
+                    end = result.span.end
                 else:
                     return Failure(
                         context=context, location=location, message="Mismatch in Seq"
                     )
             if self.name:
-                datas.append(dict(span=Span(start,end), name=self.name))
+                datas.append(dict(span=Span(start,end), name=self.name, location=location))
             return Success(
-                Result(data=datas, location=location, span=(start, end)), context
+                Result(data=datas, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -1393,17 +1390,19 @@ class Seq(PampacParser):
                         for d in res.data:
                             datas.append(d)
                         loc = res.location
-                        span = (location.text_location, res.location.text_location)
+                        span = Span(location.text_location, res.location.text_location)
                         if lvl == len(self.parsers) - 1:
                             if self.name:
-                                datas.append(dict(span=Span(start, end), name=self.name))
+                                datas.append(dict(span=Span(start, end),
+                                                  location=loc,
+                                                  name=self.name))
                             newresult = Result(datas, location=loc, span=span)
                             yield newresult
                         else:
                             newresult = Result(datas, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
-            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            gen = depthfirst(0, Result(data=[], location=location, span=Span(None, None)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -1414,12 +1413,12 @@ class Seq(PampacParser):
                 elif self.matchtype == "longest":
                     if best is None:
                         best = result
-                    elif result.span[1] > best.span[1]:
+                    elif result.span.end> best.span.end:
                         best = result
                 elif self.matchtype == "shortest":
                     if best is None:
                         best = result
-                    elif result.span[1] < best.span[1]:
+                    elif result.span.end < best.span.end:
                         best = result
             if self.matchtype == "all":
                 if len(all) > 0:
@@ -1480,11 +1479,13 @@ class N(PampacParser):
                         for d in data:
                             datas.append(d)
                         loc = res.location
-                        end = res.span[1]
+                        end = res.span.end
                         if self.name:
-                            datas.append(dict(span=Span(start,end), name=self.name))
+                            datas.append(dict(span=Span(start,end),
+                                              location=loc,
+                                              name=self.name))
                         return Success(
-                            Result(datas, location=loc, span=(start, end)), context
+                            Result(datas, location=loc, span=Span(start, end)), context
                         )
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
@@ -1496,17 +1497,19 @@ class N(PampacParser):
                         )
                     else:
                         if self.name:
-                            datas.append(dict(span=Span(start,end), name=self.name))
+                            datas.append(dict(span=Span(start,end),
+                                              location=location,
+                                              name=self.name))
                         return Success(
-                            Result(data=datas, location=location, span=(start, end)),
+                            Result(data=datas, location=location, span=Span(start, end)),
                             context,
                         )
                 else:
                     result = ret.result(self.select)
                     if first:
                         first = False
-                        start = result.span[0]
-                    end = result.span[1]
+                        start = result.span.start
+                    end = result.span.end
                     data = result.data
                     for d in data:
                         datas.append(d)
@@ -1520,13 +1523,15 @@ class N(PampacParser):
                     res = ret.result(self.select)
                     data = res.data
                     loc = res.location
-                    end = res.span[1]
+                    end = res.span.end
                     for d in data:
                         datas.append(d)
                     if self.name:
-                        datas.append(dict(span=Span(start, end), name=self.name))
+                        datas.append(dict(span=Span(start, end),
+                                          location=loc,
+                                          name=self.name))
                     return Success(
-                        Result(datas, location=loc, span=(start, end)), context
+                        Result(datas, location=loc, span=Span(start, end)), context
                     )
                 else:
                     return Failure(
@@ -1535,9 +1540,11 @@ class N(PampacParser):
                         message="Until parser not successful",
                     )
             if self.name:
-                datas.append(dict(span=Span(start, end), name=self.name))
+                datas.append(dict(span=Span(start, end),
+                                  location=location,
+                                  name=self.name))
             return Success(
-                Result(data=datas, location=location, span=(start, end)), context
+                Result(data=datas, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -1552,10 +1559,12 @@ class N(PampacParser):
                             for dtmp in res.data:
                                 data.append(dtmp)
                             loc = res.location
-                            end = res.span[1]
+                            end = res.span.end
                             if self.name:
-                                data.append(dict(span=Span(start, end), name=self.name))
-                            yield Result(data, location=loc, span=(start, end))
+                                data.append(dict(span=Span(start, end),
+                                                 location=location,
+                                                 name=self.name))
+                            yield Result(data, location=loc, span=Span(start, end))
                             return
                 # if we got here after the max number of matches, and self.until is set, then
                 # the parse we did above did not succeed, so we end without a result
@@ -1575,7 +1584,7 @@ class N(PampacParser):
                         for d in res.data:
                             datas.append(d)
                         loc = res.location
-                        span = (location.text_location, res.location.text_location)
+                        span = Span(location.text_location, res.location.text_location)
                         newresult = Result(datas, location=loc, span=span)
                         yield from depthfirst(lvl + 1, newresult)
                 else:
@@ -1585,9 +1594,11 @@ class N(PampacParser):
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
                             data = result.data
-                            end = result.span[1]
+                            end = result.span.end
                             if self.name:
-                                data.append(dict(span=Span(start, end), name=self.name))
+                                data.append(dict(span=Span(start, end),
+                                                 location=result.location,
+                                                 name=self.name))
                             yield result
                         else:
                             # if we have until, then the until above did not match so neither the normal parser
@@ -1605,12 +1616,12 @@ class N(PampacParser):
                 elif self.matchtype == "longest":
                     if best is None:
                         best = result
-                    elif result.span[1] > best.span[1]:
+                    elif result.span.end > best.span.end:
                         best = result
                 elif self.matchtype == "shortest":
                     if best is None:
                         best = result
-                    elif result.span[1] < best.span[1]:
+                    elif result.span.end < best.span.end:
                         best = result
             if self.matchtype == "all":
                 if len(all) > 0:

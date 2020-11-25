@@ -517,7 +517,7 @@ class TestPampac01:
 
         def r1_action(succ, context=None, **kwargs):
             span = succ[0].span
-            ann = succ.context.outset.add(span[0], span[1], "NEW")
+            ann = succ.context.outset.add(span.start, span.end, "NEW")
             return ann
         r1 = Rule(
             AnnAt("Ann2") >> AnnAt("Ann2"),
