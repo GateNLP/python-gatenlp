@@ -1,5 +1,5 @@
 .idea
-
+/tmpdebug
 /gatenlp/_version.py
 /gate-downloader/gate.classpath
 

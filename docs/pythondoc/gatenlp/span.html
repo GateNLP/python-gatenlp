@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<title>gatenlp.span API documentation</title>
+<meta name="description" content="Module for Span class" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.span</code></h1>
+</header>
+<section id="section-intro">
+<p>Module for Span class</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module for Span class
+&#34;&#34;&#34;
+import sys
+from typing import List, Union, Dict, Set, Tuple
+import copy as lib_copy
+from functools import total_ordering
+from gatenlp.features import Features
+from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
+from gatenlp.utils import support_annotation_or_set
+from collections import namedtuple
+from recordclass import structclass
+from gatenlp.utils import support_annotation_or_set
+
+
+@total_ordering
+# class Span(namedtuple(&#34;Span&#34;, [&#34;start&#34;, &#34;end&#34;])):
+# NOTE: we cannot use structlcass, since that does not work with wrapping the init method so
+# we can create a span from an annotation.
+# class Span(structclass(&#34;Span&#34;, (&#34;start&#34;, &#34;end&#34;))):
+# Instead, we simply use slots for now.
+class Span:
+
+    __slots__ = [&#34;start&#34;, &#34;end&#34;]
+
+    @support_annotation_or_set
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __eq__(self, other) -&gt; bool:
+        if not isinstance(other, Span):
+            return False
+        if self is other:
+            return True
+        return self.start == other.start and self.end == other.end
+
+    def __lt__(self, other) -&gt; bool:
+        if not isinstance(other, Span):
+            raise Exception(&#34;Cannot compare to non-Annotation&#34;)
+        if self.start &lt; other.start:
+            return True
+        elif self.start &gt; other.start:
+            return False
+        else:
+            return self.end &lt; other.end
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Span({self.start},{self.end})&#34;
+
+    @property
+    def length(self) -&gt; int:
+        return self.end - self.start
+
+    @support_annotation_or_set
+    def isoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is overlapping with the given span, annotation or
+        annotation set.
+        An annotation is overlapping with a span if the first or last character
+        is inside that span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.iscovering(start) or self.iscovering(end - 1)
+
+    @support_annotation_or_set
+    def iscoextensive(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is coextensive with the given span, annotation or
+        annotation set, i.e. has exactly the same start and end offsets.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if coextensive, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start == start and self.end == end
+
+    @support_annotation_or_set
+    def iswithin(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is within the given span, annotation or
+        annotation set, i.e. both the start and end offsets of this annotation
+        are after the given start and before the given end.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if within, `False` otherwise
+
+        &#34;&#34;&#34;
+        return start &lt;= self.start and end &gt;= self.end
+
+    @support_annotation_or_set
+    def isbefore(self, start: int, end: int, immediately=False) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is before the other span, i.e. the end of this annotation
+        is before the start of the other annotation or span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+
+        Returns:
+          True if before, False otherwise
+
+        &#34;&#34;&#34;
+        if immediately:
+            return self.end == start
+        else:
+            return self.end &lt;= start
+
+    @support_annotation_or_set
+    def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is after the other span, i.e. the start of this annotation
+        is after the end of the other annotation or span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+
+        Returns:
+          True if after, False otherwise
+
+        &#34;&#34;&#34;
+        if immediately:
+            return self.start == end
+        else:
+            return self.start &gt;= end
+
+    @support_annotation_or_set
+    def gap(self, start: int, end: int):
+        &#34;&#34;&#34;
+        Return the gep between this span and the other span. This is the distance between
+        the last character of the first span and the first character of the second span in
+        sequence, so it is always independent of the order of the two span.
+
+        This is negative if the spans overlap.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of span
+          end: end offset of span
+
+        Returns:
+          size of gap
+
+        &#34;&#34;&#34;
+        if self.start &lt; start:
+            ann1start = self.start
+            ann1end = self.end
+            ann2start = start
+            ann2end = end
+        else:
+            ann2start = self.start
+            ann2end = self.end
+            ann1start = start
+            ann1end = end
+        return ann2start - ann1end
+
+    @support_annotation_or_set
+    def iscovering(self, start: int, end: int = None) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is covering the given span, annotation or
+        annotation set, i.e. both the given start and end offsets
+        are after the start of this span and before the end of this span.
+
+        If end is not given, then the method checks if start is an offset of a character
+        contained in the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          True if covering, False otherwise
+
+        &#34;&#34;&#34;
+        if end is None:
+            return self.start &lt;= start &lt; self.end
+        else:
+            return self.start &lt;= start and self.end &gt;= end
+
+    @support_annotation_or_set
+    def isat(self, start, end):
+        return self.start == start</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.span.Span"><code class="flex name class">
+<span>class <span class="ident">Span</span></span>
+<span>(</span><span>start, end)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Span:
+
+    __slots__ = [&#34;start&#34;, &#34;end&#34;]
+
+    @support_annotation_or_set
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __eq__(self, other) -&gt; bool:
+        if not isinstance(other, Span):
+            return False
+        if self is other:
+            return True
+        return self.start == other.start and self.end == other.end
+
+    def __lt__(self, other) -&gt; bool:
+        if not isinstance(other, Span):
+            raise Exception(&#34;Cannot compare to non-Annotation&#34;)
+        if self.start &lt; other.start:
+            return True
+        elif self.start &gt; other.start:
+            return False
+        else:
+            return self.end &lt; other.end
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Span({self.start},{self.end})&#34;
+
+    @property
+    def length(self) -&gt; int:
+        return self.end - self.start
+
+    @support_annotation_or_set
+    def isoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is overlapping with the given span, annotation or
+        annotation set.
+        An annotation is overlapping with a span if the first or last character
+        is inside that span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.iscovering(start) or self.iscovering(end - 1)
+
+    @support_annotation_or_set
+    def iscoextensive(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is coextensive with the given span, annotation or
+        annotation set, i.e. has exactly the same start and end offsets.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if coextensive, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start == start and self.end == end
+
+    @support_annotation_or_set
+    def iswithin(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is within the given span, annotation or
+        annotation set, i.e. both the start and end offsets of this annotation
+        are after the given start and before the given end.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if within, `False` otherwise
+
+        &#34;&#34;&#34;
+        return start &lt;= self.start and end &gt;= self.end
+
+    @support_annotation_or_set
+    def isbefore(self, start: int, end: int, immediately=False) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is before the other span, i.e. the end of this annotation
+        is before the start of the other annotation or span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+
+        Returns:
+          True if before, False otherwise
+
+        &#34;&#34;&#34;
+        if immediately:
+            return self.end == start
+        else:
+            return self.end &lt;= start
+
+    @support_annotation_or_set
+    def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is after the other span, i.e. the start of this annotation
+        is after the end of the other annotation or span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+
+        Returns:
+          True if after, False otherwise
+
+        &#34;&#34;&#34;
+        if immediately:
+            return self.start == end
+        else:
+            return self.start &gt;= end
+
+    @support_annotation_or_set
+    def gap(self, start: int, end: int):
+        &#34;&#34;&#34;
+        Return the gep between this span and the other span. This is the distance between
+        the last character of the first span and the first character of the second span in
+        sequence, so it is always independent of the order of the two span.
+
+        This is negative if the spans overlap.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of span
+          end: end offset of span
+
+        Returns:
+          size of gap
+
+        &#34;&#34;&#34;
+        if self.start &lt; start:
+            ann1start = self.start
+            ann1end = self.end
+            ann2start = start
+            ann2end = end
+        else:
+            ann2start = self.start
+            ann2end = self.end
+            ann1start = start
+            ann1end = end
+        return ann2start - ann1end
+
+    @support_annotation_or_set
+    def iscovering(self, start: int, end: int = None) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this span is covering the given span, annotation or
+        annotation set, i.e. both the given start and end offsets
+        are after the start of this span and before the end of this span.
+
+        If end is not given, then the method checks if start is an offset of a character
+        contained in the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          True if covering, False otherwise
+
+        &#34;&#34;&#34;
+        if end is None:
+            return self.start &lt;= start &lt; self.end
+        else:
+            return self.start &lt;= start and self.end &gt;= end
+
+    @support_annotation_or_set
+    def isat(self, start, end):
+        return self.start == start</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.span.Span.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="gatenlp.span.Span.length"><code class="name">property/get <span class="ident">length</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def length(self) -&gt; int:
+    return self.end - self.start</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.span.Span.gap"><code class="name flex">
+<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the gep between this span and the other span. This is the distance between
+the last character of the first span and the first character of the second span in
+sequence, so it is always independent of the order of the two span.</p>
+<p>This is negative if the spans overlap.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>size of gap</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def gap(self, start: int, end: int):
+    &#34;&#34;&#34;
+    Return the gep between this span and the other span. This is the distance between
+    the last character of the first span and the first character of the second span in
+    sequence, so it is always independent of the order of the two span.
+
+    This is negative if the spans overlap.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of span
+      end: end offset of span
+
+    Returns:
+      size of gap
+
+    &#34;&#34;&#34;
+    if self.start &lt; start:
+        ann1start = self.start
+        ann1end = self.end
+        ann2start = start
+        ann2end = end
+    else:
+        ann2start = self.start
+        ann2end = self.end
+        ann1start = start
+        ann1end = end
+    return ann2start - ann1end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.isafter"><code class="name flex">
+<span>def <span class="ident">isafter</span></span>(<span>self, start: int, end: int, immediately=False) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is after the other span, i.e. the start of this annotation
+is after the end of the other annotation or span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>immediately</code></strong></dt>
+<dd>if true checks if this annotation starts immediately after the other one (Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if after, False otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is after the other span, i.e. the start of this annotation
+    is after the end of the other annotation or span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+      immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+
+    Returns:
+      True if after, False otherwise
+
+    &#34;&#34;&#34;
+    if immediately:
+        return self.start == end
+    else:
+        return self.start &gt;= end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.isat"><code class="name flex">
+<span>def <span class="ident">isat</span></span>(<span>self, start, end)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isat(self, start, end):
+    return self.start == start</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.isbefore"><code class="name flex">
+<span>def <span class="ident">isbefore</span></span>(<span>self, start: int, end: int, immediately=False) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is before the other span, i.e. the end of this annotation
+is before the start of the other annotation or span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>immediately</code></strong></dt>
+<dd>if true checks if this annotation ends immediately before the other one (Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if before, False otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isbefore(self, start: int, end: int, immediately=False) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is before the other span, i.e. the end of this annotation
+    is before the start of the other annotation or span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+      immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+
+    Returns:
+      True if before, False otherwise
+
+    &#34;&#34;&#34;
+    if immediately:
+        return self.end == start
+    else:
+        return self.end &lt;= start</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.iscoextensive"><code class="name flex">
+<span>def <span class="ident">iscoextensive</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is coextensive with the given span, annotation or
+annotation set, i.e. has exactly the same start and end offsets.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if coextensive, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def iscoextensive(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is coextensive with the given span, annotation or
+    annotation set, i.e. has exactly the same start and end offsets.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if coextensive, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.start == start and self.end == end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.iscovering"><code class="name flex">
+<span>def <span class="ident">iscovering</span></span>(<span>self, start: int, end: int = None) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is covering the given span, annotation or
+annotation set, i.e. both the given start and end offsets
+are after the start of this span and before the end of this span.</p>
+<p>If end is not given, then the method checks if start is an offset of a character
+contained in the span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if covering, False otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def iscovering(self, start: int, end: int = None) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is covering the given span, annotation or
+    annotation set, i.e. both the given start and end offsets
+    are after the start of this span and before the end of this span.
+
+    If end is not given, then the method checks if start is an offset of a character
+    contained in the span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      True if covering, False otherwise
+
+    &#34;&#34;&#34;
+    if end is None:
+        return self.start &lt;= start &lt; self.end
+    else:
+        return self.start &lt;= start and self.end &gt;= end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.isoverlapping"><code class="name flex">
+<span>def <span class="ident">isoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is overlapping with the given span, annotation or
+annotation set.
+An annotation is overlapping with a span if the first or last character
+is inside that span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if overlapping, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isoverlapping(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is overlapping with the given span, annotation or
+    annotation set.
+    An annotation is overlapping with a span if the first or last character
+    is inside that span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if overlapping, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.iscovering(start) or self.iscovering(end - 1)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.span.Span.iswithin"><code class="name flex">
+<span>def <span class="ident">iswithin</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this span is within the given span, annotation or
+annotation set, i.e. both the start and end offsets of this annotation
+are after the given start and before the given end.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if within, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def iswithin(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this span is within the given span, annotation or
+    annotation set, i.e. both the start and end offsets of this annotation
+    are after the given start and before the given end.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if within, `False` otherwise
+
+    &#34;&#34;&#34;
+    return start &lt;= self.start and end &gt;= self.end</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp" href="index.html">gatenlp</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.span.Span" href="#gatenlp.span.Span">Span</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gatenlp.span.Span.end" href="#gatenlp.span.Span.end">end</a></code></li>
+<li><code><a title="gatenlp.span.Span.gap" href="#gatenlp.span.Span.gap">gap</a></code></li>
+<li><code><a title="gatenlp.span.Span.isafter" href="#gatenlp.span.Span.isafter">isafter</a></code></li>
+<li><code><a title="gatenlp.span.Span.isat" href="#gatenlp.span.Span.isat">isat</a></code></li>
+<li><code><a title="gatenlp.span.Span.isbefore" href="#gatenlp.span.Span.isbefore">isbefore</a></code></li>
+<li><code><a title="gatenlp.span.Span.iscoextensive" href="#gatenlp.span.Span.iscoextensive">iscoextensive</a></code></li>
+<li><code><a title="gatenlp.span.Span.iscovering" href="#gatenlp.span.Span.iscovering">iscovering</a></code></li>
+<li><code><a title="gatenlp.span.Span.isoverlapping" href="#gatenlp.span.Span.isoverlapping">isoverlapping</a></code></li>
+<li><code><a title="gatenlp.span.Span.iswithin" href="#gatenlp.span.Span.iswithin">iswithin</a></code></li>
+<li><code><a title="gatenlp.span.Span.length" href="#gatenlp.span.Span.length">length</a></code></li>
+<li><code><a title="gatenlp.span.Span.start" href="#gatenlp.span.Span.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+</footer>
+</body>
+</html>

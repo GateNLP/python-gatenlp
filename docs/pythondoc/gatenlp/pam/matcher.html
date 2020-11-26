@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<title>gatenlp.pam.matcher API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.pam.matcher</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import re
+
+_tmp_re_pattern = re.compile(&#34;x&#34;)
+CLASS_RE_PATTERN = _tmp_re_pattern.__class__
+try:
+    import regex
+
+    _tmp_regex_pattern = regex.compile(&#34;x&#34;)
+    CLASS_REGEX_PATTERN = _tmp_regex_pattern.__class__
+except:
+    # if the regex module is not available, make our  code still work by introducing a dummy type
+    class RegexPattern:
+        pass
+
+    CLASS_REGEX_PATTERN = RegexPattern
+
+from gatenlp.utils import init_logger
+
+logger = init_logger(debug=True)
+
+
+class FeatureMatcher:
+    &#34;&#34;&#34;
+    Callable that matches the given dictionary against features.
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        self.fm = kwargs  # &#34;featurematcher&#34;
+
+    def __call__(self, features):
+        for fmn in self.fm.keys():  # &#34;featurematchername&#34;
+            if fmn not in features:
+                # logger.debug(f&#34;Feature {fmn} not in features&#34;)
+                return False
+        for fmn, fmv in self.fm.items():  # &#34;featurematchername&#34;/&#34;featurematchervalue&#34;
+            feature = features[fmn]
+            if callable(fmv):
+                if not fmv(feature):
+                    # logger.debug(f&#34;Callable {fmn} did not return True for {feature}&#34;)
+                    return False
+            elif isinstance(fmv, CLASS_RE_PATTERN) or isinstance(
+                fmv, CLASS_REGEX_PATTERN
+            ):
+                fstr = str(feature)
+                if not fmv.match(fstr):
+                    return False
+            else:
+                fstr = str(feature)
+                tmp = str(fmv)
+                if tmp != fstr:
+                    return False
+        return True
+
+
+class FeatureEqMatcher:
+    &#34;&#34;&#34;
+    Callable that matches the given dictionary against features and returns True only if all features
+    match and there are no additional features.
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        self.features = kwargs
+        self._fm = FeatureMatcher(**kwargs)
+
+    def __call__(self, features):
+        for f in features.keys():
+            if f not in self.features:
+                return False
+        if not self._fm(features):
+            return False
+        return True
+
+
+class AnnMatcher:
+    &#34;&#34;&#34;
+    A callable that matches an ann.
+    &#34;&#34;&#34;
+
+    def __init__(self, type=None, features=None, features_eq=None, text=None):
+        self.type = type
+        if features_eq is not None:
+            self.features_matcher = FeatureEqMatcher(**features_eq)
+        elif features is not None:
+            self.features_matcher = FeatureMatcher(**features)
+        else:
+            self.features_matcher = None
+        self.text = text
+
+    def __call__(self, ann, doc=None):
+        if self.type is not None:
+            if isinstance(self.type, str):
+                if self.type != ann.type:
+                    return False
+            elif callable(self.type):
+                if not self.type(ann.type):
+                    return False
+            elif isinstance(self.type, CLASS_RE_PATTERN) or isinstance(
+                self.type, CLASS_REGEX_PATTERN
+            ):
+                if not self.type.match(ann.type):
+                    return False
+            else:
+                tmp = str(self.type)
+                if tmp != self.type:
+                    return False
+        if self.features_matcher is not None:
+            if not self.features_matcher(ann.features):
+                return False
+        if self.text is not None:
+            if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
+                self.text, CLASS_REGEX_PATTERN
+            ):
+                if not self.text.match(doc[ann]):
+                    return False
+        return True
+
+
+# Helpers for the Feature and Ann matchers: these are callables which provide a simple way to match
+# text case insensitive or negate matching text or features
+
+
+class nocase:
+    def __init__(self, text):
+        self.text = text.upper()
+
+    def __call__(self, text):
+        return text.upper() == self.text
+
+
+class ifnot:
+    def __init__(self, other):
+        self.other = other
+
+    def __call__(self, *args, **kwargs):
+        return not self.other(*args, **kwargs)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.pam.matcher.AnnMatcher"><code class="flex name class">
+<span>class <span class="ident">AnnMatcher</span></span>
+<span>(</span><span>type=None, features=None, features_eq=None, text=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A callable that matches an ann.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnnMatcher:
+    &#34;&#34;&#34;
+    A callable that matches an ann.
+    &#34;&#34;&#34;
+
+    def __init__(self, type=None, features=None, features_eq=None, text=None):
+        self.type = type
+        if features_eq is not None:
+            self.features_matcher = FeatureEqMatcher(**features_eq)
+        elif features is not None:
+            self.features_matcher = FeatureMatcher(**features)
+        else:
+            self.features_matcher = None
+        self.text = text
+
+    def __call__(self, ann, doc=None):
+        if self.type is not None:
+            if isinstance(self.type, str):
+                if self.type != ann.type:
+                    return False
+            elif callable(self.type):
+                if not self.type(ann.type):
+                    return False
+            elif isinstance(self.type, CLASS_RE_PATTERN) or isinstance(
+                self.type, CLASS_REGEX_PATTERN
+            ):
+                if not self.type.match(ann.type):
+                    return False
+            else:
+                tmp = str(self.type)
+                if tmp != self.type:
+                    return False
+        if self.features_matcher is not None:
+            if not self.features_matcher(ann.features):
+                return False
+        if self.text is not None:
+            if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
+                self.text, CLASS_REGEX_PATTERN
+            ):
+                if not self.text.match(doc[ann]):
+                    return False
+        return True</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.matcher.FeatureEqMatcher"><code class="flex name class">
+<span>class <span class="ident">FeatureEqMatcher</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callable that matches the given dictionary against features and returns True only if all features
+match and there are no additional features.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureEqMatcher:
+    &#34;&#34;&#34;
+    Callable that matches the given dictionary against features and returns True only if all features
+    match and there are no additional features.
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        self.features = kwargs
+        self._fm = FeatureMatcher(**kwargs)
+
+    def __call__(self, features):
+        for f in features.keys():
+            if f not in self.features:
+                return False
+        if not self._fm(features):
+            return False
+        return True</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.matcher.FeatureMatcher"><code class="flex name class">
+<span>class <span class="ident">FeatureMatcher</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callable that matches the given dictionary against features.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureMatcher:
+    &#34;&#34;&#34;
+    Callable that matches the given dictionary against features.
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        self.fm = kwargs  # &#34;featurematcher&#34;
+
+    def __call__(self, features):
+        for fmn in self.fm.keys():  # &#34;featurematchername&#34;
+            if fmn not in features:
+                # logger.debug(f&#34;Feature {fmn} not in features&#34;)
+                return False
+        for fmn, fmv in self.fm.items():  # &#34;featurematchername&#34;/&#34;featurematchervalue&#34;
+            feature = features[fmn]
+            if callable(fmv):
+                if not fmv(feature):
+                    # logger.debug(f&#34;Callable {fmn} did not return True for {feature}&#34;)
+                    return False
+            elif isinstance(fmv, CLASS_RE_PATTERN) or isinstance(
+                fmv, CLASS_REGEX_PATTERN
+            ):
+                fstr = str(feature)
+                if not fmv.match(fstr):
+                    return False
+            else:
+                fstr = str(feature)
+                tmp = str(fmv)
+                if tmp != fstr:
+                    return False
+        return True</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern"><code class="flex name class">
+<span>class <span class="ident">CLASS_REGEX_PATTERN</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compiled regex object</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.pam.matcher.Pattern.flags"><code class="name">var <span class="ident">flags</span></code></dt>
+<dd>
+<div class="desc"><p>The regex matching flags.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.groupindex"><code class="name">var <span class="ident">groupindex</span></code></dt>
+<dd>
+<div class="desc"><p>A dictionary mapping group names to group numbers.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.groups"><code class="name">var <span class="ident">groups</span></code></dt>
+<dd>
+<div class="desc"><p>The number of capturing groups in the pattern.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.named_lists"><code class="name">var <span class="ident">named_lists</span></code></dt>
+<dd>
+<div class="desc"><p>The named lists used by the regex.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.pattern"><code class="name">var <span class="ident">pattern</span></code></dt>
+<dd>
+<div class="desc"><p>The pattern string from which the regex object was compiled.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.matcher.Pattern.findall"><code class="name flex">
+<span>def <span class="ident">findall</span></span>(<span>string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>findall(string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None) &ndash;&gt; list.
+Return a list of all matches of pattern in string.
+The matches may be
+overlapped if overlapped is True.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.finditer"><code class="name flex">
+<span>def <span class="ident">finditer</span></span>(<span>string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>finditer(string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None) &ndash;&gt; iterator.
+Return an iterator over all matches for the RE pattern in string.
+The
+matches may be overlapped if overlapped is True.
+For each match, the
+iterator returns a MatchObject.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.fullmatch"><code class="name flex">
+<span>def <span class="ident">fullmatch</span></span>(<span>string, pos=None, endpos=None, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>fullmatch(string, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; MatchObject or None.
+Match zero or more characters against all of the string.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.match"><code class="name flex">
+<span>def <span class="ident">match</span></span>(<span>string, pos=None, endpos=None, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>match(string, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; MatchObject or None.
+Match zero or more characters at the beginning of the string.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.scanner"><code class="name flex">
+<span>def <span class="ident">scanner</span></span>(<span>string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>scanner(string, pos=None, endpos=None, overlapped=False, concurrent=None, timeout=None) &ndash;&gt; scanner.
+Return an scanner for the RE pattern in string.
+The matches may be overlapped
+if overlapped is True.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.search"><code class="name flex">
+<span>def <span class="ident">search</span></span>(<span>string, pos=None, endpos=None, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>search(string, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; MatchObject or None.
+Search through string looking for a match, and return a corresponding
+match object instance.
+Return None if no match is found.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.split"><code class="name flex">
+<span>def <span class="ident">split</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>split(string, string, maxsplit=0, concurrent=None, timeout=None) &ndash;&gt; list.
+Split string by the occurrences of pattern.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.splititer"><code class="name flex">
+<span>def <span class="ident">splititer</span></span>(<span>string, maxsplit=0, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>splititer(string, maxsplit=0, concurrent=None, timeout=None) &ndash;&gt; iterator.
+Return an iterator yielding the parts of a split string.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.sub"><code class="name flex">
+<span>def <span class="ident">sub</span></span>(<span>repl, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>sub(repl, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; newstring
+Return the string obtained by replacing the leftmost (or rightmost with a
+reverse pattern) non-overlapping occurrences of pattern in string by the
+replacement repl.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.subf"><code class="name flex">
+<span>def <span class="ident">subf</span></span>(<span>format, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>subf(format, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; newstring
+Return the string obtained by replacing the leftmost (or rightmost with a
+reverse pattern) non-overlapping occurrences of pattern in string by the
+replacement format.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.subfn"><code class="name flex">
+<span>def <span class="ident">subfn</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>subfn(format, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; (newstring, number of subs)
+Return the tuple (new_string, number_of_subs_made) found by replacing the
+leftmost (or rightmost with a reverse pattern) non-overlapping occurrences
+of pattern with the replacement format.</p></div>
+</dd>
+<dt id="gatenlp.pam.matcher.Pattern.subn"><code class="name flex">
+<span>def <span class="ident">subn</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>subn(repl, string, count=0, flags=0, pos=None, endpos=None, concurrent=None, timeout=None) &ndash;&gt; (newstring, number of subs)
+Return the tuple (new_string, number_of_subs_made) found by replacing the
+leftmost (or rightmost with a reverse pattern) non-overlapping occurrences
+of pattern with the replacement repl.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.pam.matcher.ifnot"><code class="flex name class">
+<span>class <span class="ident">ifnot</span></span>
+<span>(</span><span>other)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ifnot:
+    def __init__(self, other):
+        self.other = other
+
+    def __call__(self, *args, **kwargs):
+        return not self.other(*args, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.matcher.nocase"><code class="flex name class">
+<span>class <span class="ident">nocase</span></span>
+<span>(</span><span>text)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class nocase:
+    def __init__(self, text):
+        self.text = text.upper()
+
+    def __call__(self, text):
+        return text.upper() == self.text</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.pam" href="index.html">gatenlp.pam</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.AnnMatcher" href="#gatenlp.pam.matcher.AnnMatcher">AnnMatcher</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.FeatureEqMatcher" href="#gatenlp.pam.matcher.FeatureEqMatcher">FeatureEqMatcher</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.FeatureMatcher" href="#gatenlp.pam.matcher.FeatureMatcher">FeatureMatcher</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.Pattern" href="#gatenlp.pam.matcher.Pattern">Pattern</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gatenlp.pam.matcher.Pattern.findall" href="#gatenlp.pam.matcher.Pattern.findall">findall</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.finditer" href="#gatenlp.pam.matcher.Pattern.finditer">finditer</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.flags" href="#gatenlp.pam.matcher.Pattern.flags">flags</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.fullmatch" href="#gatenlp.pam.matcher.Pattern.fullmatch">fullmatch</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.groupindex" href="#gatenlp.pam.matcher.Pattern.groupindex">groupindex</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.groups" href="#gatenlp.pam.matcher.Pattern.groups">groups</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.match" href="#gatenlp.pam.matcher.Pattern.match">match</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.named_lists" href="#gatenlp.pam.matcher.Pattern.named_lists">named_lists</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.pattern" href="#gatenlp.pam.matcher.Pattern.pattern">pattern</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.scanner" href="#gatenlp.pam.matcher.Pattern.scanner">scanner</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.search" href="#gatenlp.pam.matcher.Pattern.search">search</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.split" href="#gatenlp.pam.matcher.Pattern.split">split</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.splititer" href="#gatenlp.pam.matcher.Pattern.splititer">splititer</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.sub" href="#gatenlp.pam.matcher.Pattern.sub">sub</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.subf" href="#gatenlp.pam.matcher.Pattern.subf">subf</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.subfn" href="#gatenlp.pam.matcher.Pattern.subfn">subfn</a></code></li>
+<li><code><a title="gatenlp.pam.matcher.Pattern.subn" href="#gatenlp.pam.matcher.Pattern.subn">subn</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.ifnot" href="#gatenlp.pam.matcher.ifnot">ifnot</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.nocase" href="#gatenlp.pam.matcher.nocase">nocase</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+</footer>
+</body>
+</html>
