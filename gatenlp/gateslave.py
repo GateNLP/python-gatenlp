@@ -491,6 +491,32 @@ class GateSlave:
         self.slave.showGui()
 
 
+class GateSlaveAnnotator:
+    # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
+    # sends over document
+    # or document and selection of annotation sets/annotation types, runs pipeline,
+    # and then fetches one or more annotation sets and updates the local document with them.
+    # TODO: parameter to influence how exceptions are handled
+    def __init__(self, pipeline, gatehome=None, port=None):
+        self.pipeline = pipeline
+        self.gs = GateSlave(port=port, start=True, gatehome=gatehome)
+        self.controller = self.gs.slave.loadPipelineFromFile(self.pipeline)
+        # create corpus
+
+    def close(self):
+        self.gs.close()
+
+    def __call__(self, doc, **kwargs):
+        # TODO: how to handle exceptions?
+        gdoc = self.gs.pdoc2gdoc(doc)
+        # add document to corpus
+        # run pipeline on gdoc
+        self.controller.execute()
+        # retrieve annotations from gdoc and add to doc
+        # remove document from corpus
+        self.gs.del_resource(gdoc)
+
+
 def main():
     """ """
     ap = argparse.ArgumentParser(description="Start Java GATE Slave")
@@ -541,15 +567,6 @@ def main():
             keep=args.keep,
             debug=args.debug,
         )
-
-class GateSlaveAnnotator:
-    # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
-    # sends over document
-    # or document and selection of annotation sets/annotation types, runs pipeline,
-    # and then fetches one or more annotation sets and updates the local document with them.
-    pass
-
-
 
 
 if __name__ == "__main__":
