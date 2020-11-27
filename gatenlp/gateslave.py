@@ -20,6 +20,7 @@ import glob
 # from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
 from gatenlp.utils import init_logger
+from gatenlp.processing.annotator import Annotator
 
 JARVERSION = "1.0"
 
@@ -491,30 +492,78 @@ class GateSlave:
         self.slave.showGui()
 
 
-class GateSlaveAnnotator:
+class GateSlaveAnnotator(Annotator):
     # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
     # sends over document
     # or document and selection of annotation sets/annotation types, runs pipeline,
     # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
-    def __init__(self, pipeline, gatehome=None, port=None):
+    def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None):
+        """
+        Create a GateSlave annotator: this starts the gate slave, loads the pipeline and
+        can then be used to annotate Python gatenlp Document instances with the Java GATE
+        pipeline.
+
+        Note: to make sure tha start/finish callbacks on the Java side are invoked, the annotator
+        start() method should be invoked once before processing documents and finish() should
+        get called once after processing documents.
+        If the GateSlaveAnnotator is not used any more, close() should be invoked to terminate
+        the Java GATE Slave process.
+
+        Args:
+            pipeline: the path to a Java GATE pipeline to load into the GATE slave
+            gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            port: the port to use (25333)
+            sets_send: a dictionary of the names of sets to send and their names to use for the
+               Java GATE document (True can be used to stand for the identical name).
+               For example sets_send={"": "Tokens", "Entities": True} sends the set with the name ""
+               but the name of that set in the GATE Slave document is "Tokens", and it sends the set
+               "Entities" which keeps the same name.
+               (NOT YET IMPLEMENTED)
+            sets_receive: a dictionary of the names of sets to receive and their names to use for the
+               Python GateNLP document.
+               (NOT YET IMPLEMENTED)
+        """
         self.pipeline = pipeline
+        if sets_send is not None or sets_receive is not None:
+            raise NotImplemented
+        self.sets_send = sets_send
+        self.sets_receive = sets_receive
         self.gs = GateSlave(port=port, start=True, gatehome=gatehome)
         self.controller = self.gs.slave.loadPipelineFromFile(self.pipeline)
-        # create corpus
+        self.corpus = self.gs.slave.newCorpus()
+        self.controller.setCorpus(self.corpus)
+        self.controller.setControllerCallbacksEnabled(False)
 
     def close(self):
         self.gs.close()
 
+    def start(self):
+        self.controller.invokeControllerExecutionStarted()
+
+    def finish(self):
+        self.controller.invokeControllerExecutionFinished()
+
     def __call__(self, doc, **kwargs):
         # TODO: how to handle exceptions?
+        if self.sets_send is not None:
+            # TODO: create the json for the pdoc restricted to these sets, and with setnames renamed
+            # TODO: then send the document as JSON directly
+            pass
         gdoc = self.gs.pdoc2gdoc(doc)
-        # add document to corpus
-        # run pipeline on gdoc
+        self.corpus.add(gdoc)
         self.controller.execute()
-        # retrieve annotations from gdoc and add to doc
-        # remove document from corpus
+        if self.sets_receive is not None:
+            # TODO: retrieve the JSON limited to just the specified sets, then rename them locally
+            # and replace them in the local document
+            pass
+        else:
+            # TODO: retrieve the JSON for all sets
+            # TODO: by default replace the local sets by the ones retrieved
+            # TODO: NOTE: FOR NOW we just retrieve the updated full document and convert it back
+            doc = self.gs.gdoc2pdoc(gdoc)
         self.gs.del_resource(gdoc)
+        return doc
 
 
 def main():

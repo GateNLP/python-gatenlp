@@ -16,20 +16,25 @@ connecting to it from the Python side.
 
 1. Start GATE
 2. Load the Python plugin using the CREOLE Plugin Manager
-3. Create a new Language Resource: "PythonSlaveLr"
+3. Create a new Language Resource (NOTE: not a Processing Reource!): "PythonSlaveLr"
 
 When creating the PyhonSlaveLr, the following initialization parameters can be specified:
 * `authToken`: this is used to prevent other processes from connecting to the slave. You can either specify 
   some string here or with `useAuthToken` set to `true` let GATE choose a random one and display it in the 
   message pane after the resource has been created. 
+  * for testing this, enter "verysecretauthtoken" 
 * `host`:  The host name or address to bind to. The default 127.0.0.1 makes the slave only visible on the same
   machine. In order to make it visible on other machines, use the host name or IP address on the network
   or use 0.0.0.0 
+  * for testing, keep the default of 127.0.0.1
 * `logActions`: if this is set to true, the actions requested by the Python process are logged to the message pane. 
+  * for testing, change to "true"
 * `port`: the port number to use. Each slave requires their own port number so if more than one slave is running
   on a machine, they need to use different, unused port numbers. 
+  * for testing, keep the default
 * `useAuthToken`: if this is set to false, no auth token is generated and used, and the connection can be 
   established by any process connecting to that port number. 
+  * for testing, keep the default
 
 A GATE Slave started via the PythonSlaveLr keeps running until the resource is deleted or GATE is ended.
 
@@ -49,7 +54,7 @@ In addition the auth token must be provided and the port and host, if they diffe
 
 
 ```python
-gs = GateSlave(start=False, auth_token="841e634a-d1f0-4768-b763-a7738ddee003")
+gs = GateSlave(start=False, auth_token="verysecretauthtoken")
 ```
 
 The gate slave instance can now be used to run arbitrary Java methods on the Java side. 
@@ -80,6 +85,7 @@ In addition, there is a larger number of utility methods which are available thr
 
 ```python
 # Create a new Java document from a string
+# You should see how the document gets created in the GATE GUI
 gdoc1 = gs.slave.createDocument("This is a 💩 document. It mentions Barack Obama and George Bush and New York.")
 gdoc1
 ```
@@ -98,7 +104,7 @@ print(gdoc1.getName())
 print(gdoc1.getFeatures())
 ```
 
-    GATE Document_00016
+    GATE Document_00015
     {'gate.SourceURL': 'created from String'}
 
 
@@ -609,26 +615,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#HCCVNIECCC-wrapper { color: black !important; }</style>
-<div id="HCCVNIECCC-wrapper">
+<div><style>#IXOZXRAOYG-wrapper { color: black !important; }</style>
+<div id="IXOZXRAOYG-wrapper">
 
 <div>
-
 <style>
-#HCCVNIECCC-content {
+#IXOZXRAOYG-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HCCVNIECCC-row {
+.IXOZXRAOYG-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HCCVNIECCC-col {
+.IXOZXRAOYG-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -638,23 +643,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.HCCVNIECCC-hdr {
+.IXOZXRAOYG-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HCCVNIECCC-label {
+.IXOZXRAOYG-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HCCVNIECCC-input {
+.IXOZXRAOYG-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HCCVNIECCC-popup {
+#IXOZXRAOYG-popup {
     display: none;
     color: black;
     position: absolute;
@@ -669,45 +674,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.HCCVNIECCC-selection {
+.IXOZXRAOYG-selection {
     margin-bottom: 5px;
 }
 
-.HCCVNIECCC-featuretable {
+.IXOZXRAOYG-featuretable {
     margin-top: 10px;
 }
 
-.HCCVNIECCC-fname {
+.IXOZXRAOYG-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HCCVNIECCC-fvalue {
+.IXOZXRAOYG-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HCCVNIECCC-content">
-        <div id="HCCVNIECCC-popup" style="display: none;">
+  <div id="IXOZXRAOYG-content">
+        <div id="IXOZXRAOYG-popup" style="display: none;">
         </div>
-        <div class="HCCVNIECCC-row" id="HCCVNIECCC-row1" style="height:67vh; min-height:100px;">
-            <div id="HCCVNIECCC-text-wrapper" class="HCCVNIECCC-col" style="width:70%;">
-                <div class="HCCVNIECCC-hdr" id="HCCVNIECCC-dochdr"></div>
-                <div id="HCCVNIECCC-text">
+        <div class="IXOZXRAOYG-row" id="IXOZXRAOYG-row1" style="max-height: 20em; min-height:5em;">
+            <div id="IXOZXRAOYG-text-wrapper" class="IXOZXRAOYG-col" style="width:70%;">
+                <div class="IXOZXRAOYG-hdr" id="IXOZXRAOYG-dochdr"></div>
+                <div id="IXOZXRAOYG-text">
                 </div>
             </div>
-            <div id="HCCVNIECCC-chooser" class="HCCVNIECCC-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="IXOZXRAOYG-chooser" class="IXOZXRAOYG-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HCCVNIECCC-row" id="HCCVNIECCC-row2" style="height:30vh; min-height: 100px;">
-            <div id="HCCVNIECCC-details" class="HCCVNIECCC-col" style="width:100%; border-top-width: 0px;">
+        <div class="IXOZXRAOYG-row" id="IXOZXRAOYG-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="IXOZXRAOYG-details" class="IXOZXRAOYG-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="HCCVNIECCC-data">
+    <script type="application/json" id="IXOZXRAOYG-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 1, "features": {"orth": "upperInitial", "string": "This", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 4, "end": 5, "id": 2, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 5, "end": 7, "id": 3, "features": {"orth": "lowercase", "string": "is", "kind": "word", "length": "2", "category": "VBZ"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 9, "id": 5, "features": {"orth": "lowercase", "string": "a", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 9, "end": 10, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 10, "end": 12, "id": 7, "features": {"string": "\ud83d\udca9", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 13, "end": 21, "id": 9, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 21, "end": 22, "id": 10, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 11, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 25, "id": 12, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 25, "end": 26, "id": 13, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 26, "end": 34, "id": 14, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 34, "end": 35, "id": 15, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 35, "end": 41, "id": 16, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 41, "end": 42, "id": 17, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 42, "end": 47, "id": 18, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 51, "end": 52, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 52, "end": 58, "id": 22, "features": {"orth": "upperInitial", "string": "George", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 58, "end": 59, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 59, "end": 63, "id": 24, "features": {"orth": "upperInitial", "string": "Bush", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 67, "id": 26, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 67, "end": 68, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 68, "end": 71, "id": 28, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 71, "end": 72, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 72, "end": 76, "id": 30, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "Token", "start": 76, "end": 77, "id": 31, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 0, "end": 4, "id": 32, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 5, "end": 7, "id": 33, "features": {"majorType": "country_code"}}, {"type": "Lookup", "start": 23, "end": 25, "id": 34, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 35, "end": 47, "id": 35, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 42, "end": 47, "id": 36, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 52, "end": 63, "id": 37, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 68, "end": 76, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Split", "start": 21, "end": 22, "id": 40, "features": {"kind": "internal"}}, {"type": "Split", "start": 76, "end": 77, "id": 41, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 22, "id": 42, "features": {}}, {"type": "Sentence", "start": 23, "end": 77, "id": 43, "features": {}}, {"type": "Person", "start": 35, "end": 47, "id": 56, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Person", "start": 52, "end": 63, "id": 57, "features": {"firstName": "George", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Bush", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Location", "start": 68, "end": 76, "id": 58, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}], "next_annid": 59}}, "text": "This is a \ud83d\udca9 document. It mentions Barack Obama and George Bush and New York.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("HCCVNIECCC-");
+        gatenlp_run("IXOZXRAOYG-");
     </script>
   </div>
 
@@ -759,7 +764,7 @@ gs
 
 
 
-    <gatenlp.gateslave.GateSlave at 0x7fcf544e9b90>
+    <gatenlp.gateslave.GateSlave at 0x7fdc8ba2ff60>
 
 
 
@@ -801,4 +806,185 @@ gdoc1
 ```python
 # when done, the gate slave should get closed:
 gs.close()
+```
+
+## Using the GateSlaveAnnotator
+
+The GateSlaveAnnotator is an annotator that simplifies the common task of letting a GATE Java annotation pipeline annotate a bunch of Pythong gatenlp documents.  It can be used like other annotators (see [Processing](https://gatenlp.github.io/python-gatenlp/processing))
+
+To run the GateSlaveAnnotator, Java must be installed and the `java` command must be on the path. Currently only Java version 8 has been tested. 
+
+A simple way to install Java on Linux and choose from various Java versions is [SDKMan](https://sdkman.io/)
+
+Also, the GATE_HOME environment variable must be set, or the path to an
+installed Java GATE must get passed on using the `gatehome` parameter. 
+
+An installed Java GATE can be one of:
+
+* a GATE release downloaded from https://github.com/GateNLP/gate-core/releases/ and installed
+  * the GATE release will get installed into some directory 
+  * the `GATE_HOME` environment variable or the `gatehome` parameter should point to that directory
+* the [gate-core](https://github.com/GateNLP/gate-core) repository checked out locally and installed using Maven (`mvn install`)
+  * the `GATE_HOME` environment variable or the `gatehome` parameter should point to the `distro` subdirectory of that repository directory
+
+
+```python
+from gatenlp import Document
+# Create a small corpus of documents to process
+texts = [
+    "A very simple document.",
+    "Another document, this one mentions New York and Washington. It also mentions the person Barack Obama.",
+    "One more document for this little test."
+]
+corpus = [Document(t) for t in texts]
+```
+
+
+```python
+from gatenlp.gateslave import GateSlaveAnnotator
+```
+
+
+```python
+# use the path of your GATE pipeline instead of annie.xgapp
+# Creating the GateSlaveAnnotator will start the Java GATE Slave or fail
+pipeline = GateSlaveAnnotator("annie.xgapp")
+
+# To run the pipeline on a corpus, first initialize the pipeline using start(), then annotate all documents, 
+# then finish the pipeline using finish().
+# At this point the same annotator can be used in the same way again to run on another corpus.
+# If the GateSlaveAnnotator is not used any more, use close() to stop the GateSlave (the GATE slave is also
+# stopped automatically when the Python process ends)
+
+pipeline.start()
+for idx, doc in enumerate(corpus):
+    # the return value MUST be used as the returned document is not identical to the 
+    # document passed on 
+    doc = pipeline(doc)   
+    corpus[idx] = doc
+    
+    
+```
+
+    Trying to start GATE Slave on port=25333 host=127.0.0.1 log=false keep=false
+    PythonSlaveRunning: starting server with 25333/127.0.0.1/AgiD4602Gh-v-7usaYgLv53EfF0/false
+
+
+
+```python
+# Show the second document
+corpus[1]
+```
+
+
+
+
+<div><style>#RCUCFAEVDB-wrapper { color: black !important; }</style>
+<div id="RCUCFAEVDB-wrapper">
+
+<div>
+<style>
+#RCUCFAEVDB-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.RCUCFAEVDB-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.RCUCFAEVDB-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.RCUCFAEVDB-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.RCUCFAEVDB-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.RCUCFAEVDB-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#RCUCFAEVDB-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.RCUCFAEVDB-selection {
+    margin-bottom: 5px;
+}
+
+.RCUCFAEVDB-featuretable {
+    margin-top: 10px;
+}
+
+.RCUCFAEVDB-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.RCUCFAEVDB-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="RCUCFAEVDB-content">
+        <div id="RCUCFAEVDB-popup" style="display: none;">
+        </div>
+        <div class="RCUCFAEVDB-row" id="RCUCFAEVDB-row1" style="max-height: 20em; min-height:5em;">
+            <div id="RCUCFAEVDB-text-wrapper" class="RCUCFAEVDB-col" style="width:70%;">
+                <div class="RCUCFAEVDB-hdr" id="RCUCFAEVDB-dochdr"></div>
+                <div id="RCUCFAEVDB-text">
+                </div>
+            </div>
+            <div id="RCUCFAEVDB-chooser" class="RCUCFAEVDB-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="RCUCFAEVDB-row" id="RCUCFAEVDB-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="RCUCFAEVDB-details" class="RCUCFAEVDB-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="RCUCFAEVDB-data">
+    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 7, "id": 0, "features": {"orth": "upperInitial", "string": "Another", "kind": "word", "length": "7", "category": "DT"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 1, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 16, "id": 2, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 16, "end": 17, "id": 3, "features": {"string": ",", "kind": "punctuation", "length": "1", "category": ","}}, {"type": "SpaceToken", "start": 17, "end": 18, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 18, "end": 22, "id": 5, "features": {"orth": "lowercase", "string": "this", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 26, "id": 7, "features": {"orth": "lowercase", "string": "one", "kind": "word", "length": "3", "category": "CD"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 27, "end": 35, "id": 9, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 35, "end": 36, "id": 10, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 36, "end": 39, "id": 11, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 39, "end": 40, "id": 12, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 40, "end": 44, "id": 13, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 14, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 45, "end": 48, "id": 15, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 48, "end": 49, "id": 16, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 49, "end": 59, "id": 17, "features": {"orth": "upperInitial", "string": "Washington", "kind": "word", "length": "10", "category": "NNP"}}, {"type": "Token", "start": 59, "end": 60, "id": 18, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 60, "end": 61, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 61, "end": 63, "id": 20, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 68, "id": 22, "features": {"orth": "lowercase", "string": "also", "kind": "word", "length": "4", "category": "RB"}}, {"type": "SpaceToken", "start": 68, "end": 69, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 69, "end": 77, "id": 24, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 77, "end": 78, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 78, "end": 81, "id": 26, "features": {"orth": "lowercase", "string": "the", "kind": "word", "length": "3", "category": "DT"}}, {"type": "SpaceToken", "start": 81, "end": 82, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 82, "end": 88, "id": 28, "features": {"orth": "lowercase", "string": "person", "kind": "word", "length": "6", "category": "NN"}}, {"type": "SpaceToken", "start": 88, "end": 89, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 89, "end": 95, "id": 30, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 31, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 96, "end": 101, "id": 32, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "Token", "start": 101, "end": 102, "id": 33, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 18, "end": 22, "id": 34, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 35, "features": {"majorType": "time", "minorType": "hour"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 36, "features": {"majorType": "number"}}, {"type": "Lookup", "start": 36, "end": 44, "id": 37, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 40, "end": 44, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 49, "end": 59, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 61, "end": 63, "id": 40, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 89, "end": 101, "id": 41, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 96, "end": 101, "id": 42, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Split", "start": 59, "end": 60, "id": 43, "features": {"kind": "internal"}}, {"type": "Split", "start": 101, "end": 102, "id": 44, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 60, "id": 45, "features": {}}, {"type": "Sentence", "start": 61, "end": 102, "id": 46, "features": {}}, {"type": "Location", "start": 36, "end": 44, "id": 61, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Location", "start": 49, "end": 59, "id": 62, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Person", "start": 89, "end": 101, "id": 63, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}], "next_annid": 64}}, "text": "Another document, this one mentions New York and Washington. It also mentions the person Barack Obama.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""}
+    </script>
+    <script type="text/javascript">
+        gatenlp_run("RCUCFAEVDB-");
+    </script>
+  </div>
+
+</div></div>
+
+
+
+
+```python
+
 ```
