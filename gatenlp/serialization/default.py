@@ -31,6 +31,11 @@ try:
 except:
     pass
 
+# TODO: for ALL save options, allow to filter the annotations that get saved!
+# TODO: then use this show only limited set of annotations in the viewer
+# TODO: create Document.display(....) to show document in various ways in the current
+#   environment, e.g. Jupyter notebook, select anns, configure colour palette, size etc.
+
 
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see

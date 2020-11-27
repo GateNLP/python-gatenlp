@@ -542,6 +542,15 @@ def main():
             debug=args.debug,
         )
 
+class GateSlaveAnnotator:
+    # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
+    # sends over document
+    # or document and selection of annotation sets/annotation types, runs pipeline,
+    # and then fetches one or more annotation sets and updates the local document with them.
+    pass
+
+
+
 
 if __name__ == "__main__":
     main()
