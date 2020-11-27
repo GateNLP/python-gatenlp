@@ -498,7 +498,7 @@ class GateSlaveAnnotator(Annotator):
     # or document and selection of annotation sets/annotation types, runs pipeline,
     # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
-    def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None):
+    def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None, replace_anns=False):
         """
         Create a GateSlave annotator: this starts the gate slave, loads the pipeline and
         can then be used to annotate Python gatenlp Document instances with the Java GATE
@@ -514,15 +514,18 @@ class GateSlaveAnnotator(Annotator):
             pipeline: the path to a Java GATE pipeline to load into the GATE slave
             gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
             port: the port to use (25333)
-            sets_send: a dictionary of the names of sets to send and their names to use for the
-               Java GATE document (True can be used to stand for the identical name).
-               For example sets_send={"": "Tokens", "Entities": True} sends the set with the name ""
-               but the name of that set in the GATE Slave document is "Tokens", and it sends the set
-               "Entities" which keeps the same name.
-               (NOT YET IMPLEMENTED)
-            sets_receive: a dictionary of the names of sets to receive and their names to use for the
-               Python GateNLP document.
-               (NOT YET IMPLEMENTED)
+            sets_send: a dictionary where the keys are the name of the target annotation set at the
+              Java side and the values are either the source annotation set name or a list of
+              tuples of the form (setname, typename).
+            sets_receive: a dictionary where the keys are the name of the target annotation set at the
+              Python side and the values are either the source annotation set name in Java or ta list
+              of tuples of the form (setname, typename).
+            replace_anns (default: False) if True, existing annotations (in the sets, of the types
+              specified in sets_receive or all) are removed before the retrieved annotations are added.
+              In this case, the annotation ids of the retrieved annotations are kept.
+              If False, the retrieved annotations are added to the existing sets and may get new, different
+              annotation ids.
+
         """
         self.pipeline = pipeline
         if sets_send is not None or sets_receive is not None:
@@ -551,17 +554,16 @@ class GateSlaveAnnotator(Annotator):
             # TODO: then send the document as JSON directly
             pass
         gdoc = self.gs.pdoc2gdoc(doc)
-        self.corpus.add(gdoc)
-        self.controller.execute()
+        self.gs.slave.run4Document(self.controller, gdoc)
         if self.sets_receive is not None:
-            # TODO: retrieve the JSON limited to just the specified sets, then rename them locally
-            # and replace them in the local document
+            # TODO: retrieve the JSON limited to just the specified sets
             pass
         else:
             # TODO: retrieve the JSON for all sets
-            # TODO: by default replace the local sets by the ones retrieved
-            # TODO: NOTE: FOR NOW we just retrieve the updated full document and convert it back
+            # NOTE: for now we always retrieve back the whole annotated document
             doc = self.gs.gdoc2pdoc(gdoc)
+        # TODO: once we have the set or sets, add them to the existing python document
+        # TODO: as specified via the sets_receive and replace_anns parameters
         self.gs.del_resource(gdoc)
         return doc
 
