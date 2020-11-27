@@ -1,15 +1,7 @@
 """
 Module for Span class
 """
-import sys
-from typing import List, Union, Dict, Set, Tuple
-import copy as lib_copy
 from functools import total_ordering
-from gatenlp.features import Features
-from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp.utils import support_annotation_or_set
-from collections import namedtuple
-from recordclass import structclass
 from gatenlp.utils import support_annotation_or_set
 
 
