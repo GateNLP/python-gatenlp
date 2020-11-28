@@ -1652,9 +1652,9 @@ class Rule(PampacParser):
     there is a successful match.
     &#34;&#34;&#34;
 
-    def __init__(self, parser, *actions, priority=0):
+    def __init__(self, parser, action, priority=0):
         self.parser = parser
-        self.actions = actions
+        self.action = action
         self.priority = priority
 
     def set_priority(self, val):
@@ -1844,7 +1844,7 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             raise Exception(f&#34;No data with name {name} in result&#34;)
         else:
             return
-    if dataidx &gt;= len(dataidx):
+    if dataidx &gt;= len(data):
         if not silent_fail:
             raise Exception(f&#34;No data with index {dataidx}, length is {len(data)}&#34;)
         else:
@@ -1855,7 +1855,8 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
 # ACTIONS:
 
 class AddAnn:
-    def __init__(self, name,
+    def __init__(self,
+                 name=None,
                  ann=None,   # create a copy of this ann retrieved with GetAnn
                  anntype=None,  # or create a new annotation with this type
                  features=None,
@@ -1865,6 +1866,7 @@ class AddAnn:
                  ):
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
+        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype
@@ -2086,7 +2088,7 @@ class GetRegexGroup:
 <dl>
 <dt id="gatenlp.pam.pampac.AddAnn"><code class="flex name class">
 <span>class <span class="ident">AddAnn</span></span>
-<span>(</span><span>name, ann=None, anntype=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name=None, ann=None, anntype=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2095,7 +2097,8 @@ class GetRegexGroup:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AddAnn:
-    def __init__(self, name,
+    def __init__(self,
+                 name=None,
                  ann=None,   # create a copy of this ann retrieved with GetAnn
                  anntype=None,  # or create a new annotation with this type
                  features=None,
@@ -2105,6 +2108,7 @@ class GetRegexGroup:
                  ):
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
+        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype
@@ -5771,7 +5775,7 @@ are alternate ways of how the parser can match the document.</p>
 </dd>
 <dt id="gatenlp.pam.pampac.Rule"><code class="flex name class">
 <span>class <span class="ident">Rule</span></span>
-<span>(</span><span>parser, *actions, priority=0)</span>
+<span>(</span><span>parser, action, priority=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A matching rule: this defines the parser and some action (a function) to carry out if the rule matches
@@ -5792,9 +5796,9 @@ there is a successful match.</p></div>
     there is a successful match.
     &#34;&#34;&#34;
 
-    def __init__(self, parser, *actions, priority=0):
+    def __init__(self, parser, action, priority=0):
         self.parser = parser
-        self.actions = actions
+        self.action = action
         self.priority = priority
 
     def set_priority(self, val):

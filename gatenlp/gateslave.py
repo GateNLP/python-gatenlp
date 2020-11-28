@@ -15,7 +15,7 @@ import argparse
 import signal
 import glob
 
-# NOTE: we delay imporint py4j to the class initializer. This allows us to make GateSlave available via gatenlp
+# NOTE: we delay importing py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
 # from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
@@ -28,15 +28,19 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+__pdoc__ = {"GateSlaveAnnotator.__call__": True}
+
 
 def classpath_sep(platform=None):
     """
+    Get the system-specific classpath separator character.
 
     Args:
-      platform:  (Default value = None)
+      platform:  (Default value = None) win/windows for Windows, anything else for non-windows
+        If not specified, tries to determine automatically (which may fail)
 
     Returns:
-      :return: classpath separator character
+      classpath separator character
 
     """
     if not platform:
@@ -53,15 +57,19 @@ def classpath_sep(platform=None):
 
 
 def gate_classpath(gatehome, platform=None):
-    """Return the GATE classpath components as a string, with the element seperator characters appropriate
+    """
+    Return the GATE classpath components as a string, with the path seperator characters appropriate
     for the operating system.
 
     Args:
       gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
-      platform:  (Default value = None)
+      platform:  (Default value = None) win/windows for Windows, anything else for non-Windows.
 
     Returns:
       GATE classpath
+
+    Raises:
+        Exception if classpath could not be determined.
 
     """
     # check which kind of GATE home we have: if there is a distro subdirectory, assume cloned git repo
@@ -110,21 +118,26 @@ def start_gate_slave(
     debug=False,
 ):
     """
+    Run the gate slave program. This starts the Java program included with gatenlp to
+    run GATE and execute the gate slave within GATE so that Python can connect to it.
 
     Args:
-      port:  (Default value = 25333)
-      host:  (Default value = "127.0.0.1")
-      auth_token:  (Default value = None)
-      use_auth_token:  (Default value = True)
-      java:  (Default value = "java")
-      platform:  (Default value = None)
-      gatehome:  (Default value = None)
-      log_actions:  (Default value = False)
-      keep:  (Default value = False)
+      port:  (Default value = 25333) Port number to use
+      host:  (Default value = "127.0.0.1") Host address to bind to
+      auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
+      use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
+         This allows anyone who can connect to the host address to connect and use the gate slave process.
+      java:  (Default value = "java") Java command (if on the binary path) or full path to the binary
+         to use for running the gate slave program.
+      platform:  (Default value = None) "win"/"windows" for Windows, anything else for non-Windows.
+         If None, tries to determine automatically.
+      gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
+         variable "GATE_HOME" is used.
+      log_actions:  (Default value = False) If True, the GATE Slave process will log everything it is
+         ordered to do.
+      keep:  (Default value = False) passed on to the gate slave process and tells the process if it should
+         report to the using Pythong process that it can be closed or not.
       debug: (Default valuye = False) Show debug messages.
-
-    Returns:
-
     """
     logger = init_logger(__name__)
     if debug:
@@ -176,7 +189,10 @@ def start_gate_slave(
     )
 
     def shutdown():
-        """ """
+        """
+        Handler that gets invoked when the calling Python program exits.
+        This terminates the gate slave by sending the SIGINT signal to it.
+        """
         subproc.send_signal(signal.SIGINT)
         for line in subproc.stderr:
             print(line, file=sys.stderr, end="")
@@ -200,7 +216,10 @@ def start_gate_slave(
 
 
 class GateSlave:
-    """ """
+    """
+    Gate slave for remotely running arbitrary GATE and other JAVA operations in a separate
+    Java GATE process.
+    """
 
     def __init__(
         self,
@@ -232,33 +251,35 @@ class GateSlave:
         stderr gets captured and used for communication between the Java and Python processes. At least
         part of the output to stderr may only be passed on after the GATE process has ended.
 
-        Example: ::
+        Example:
 
+            ```python
             gs = GateSlave()
             pipeline = gs.slave.loadPipelineFromFile("thePipeline.xgapp")
             doc = gs.slave.createDocument("Some document text")
             gs.slave.run4doc(pipeline,doc)
             pdoc = gs.gdoc2pdoc(doc)
             gs.slave.deleteResource(doc)
-            # process the gatenlp Document pdoc ...
+            # process the document pdoc ...
+            ```
 
-        :param port: port to use
-        :param start: if True, try to start our own GATE process, otherwise expect an already started
+        port: port to use
+        start: if True, try to start our own GATE process, otherwise expect an already started
            process at the host/port address
-        :param java: path to the java binary to run or the java command to use from the PATH (for start=True)
-        :param host: host an existing Java GATE process is running on (only relevant for start=False)
-        :param gatehome: where GATE is installed (only relevant if start=True). If None, expects
+        java: path to the java binary to run or the java command to use from the PATH (for start=True)
+        host: host an existing Java GATE process is running on (only relevant for start=False)
+        gatehome: where GATE is installed (only relevant if start=True). If None, expects
                environment variable GATE_HOME to be set.
-        :param platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
-        :param auth_token: if None or "" and use_auth_token is True, generate a random token which
+        platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
+        auth_token: if None or "" and use_auth_token is True, generate a random token which
                is then accessible via the auth_token attribute, otherwise use the given auth token.
-        :param use_auth_token: if False, do not use an auth token, otherwise either use the one specified
+        use_auth_token: if False, do not use an auth token, otherwise either use the one specified
                via auth_token or generate a random one.
-        :param log_actions: if the gate slave should log the actions it is doing
-        :param keep: normally if gs.close() is called and we are not connected to the PythonSlaveLr,
+        log_actions: if the gate slave should log the actions it is doing
+        keep: normally if gs.close() is called and we are not connected to the PythonSlaveLr,
                the slave will be shut down. If this is True, the gs.close() method does not shut down
                the slave.
-        :param debug: show debug messages (default: False)
+        debug: show debug messages (default: False)
         """
         self.logger = init_logger(__name__)
 
@@ -350,6 +371,8 @@ class GateSlave:
         """
         Download GATE libraries into a standard location so we can run the GATE slave even if GATE_HOME
         is not set.
+
+        NOTE YET IMPLEMENTED.
         """
         # TODO: this should use the command and bootstrapping jar in gate-downloader:
         # copy the whole directory into the standard per-user config directory for the system
@@ -364,13 +387,6 @@ class GateSlave:
         Clean up: if the gate slave process was started by us, we will shut it down.
         Otherwise we can still close it if it was started by the slaverunner, not the Lr
         Note: if it was started by us, it was started via the slaverunner.
-
-        :return:
-
-        Args:
-
-        Returns:
-
         """
         if not self.closed and self.slave.isClosable():
             self.closed = True
@@ -381,75 +397,73 @@ class GateSlave:
                 self.gateprocess.wait()
 
     def log_actions(self, onoff):
-        """Swith logging actions at the slave on or off.
+        """
+        Swith logging actions at the slave on or off.
 
         Args:
           onoff: True to log actions, False to not log them
-
-        Returns:
-
         """
         self.slave.logActions(onoff)
 
     def load_gdoc(self, path, mimetype=None):
-        """Let GATE load a document from the given path and return a handle to it.
+        """
+        Let GATE load a document from the given path and return a handle to it.
 
         Args:
           path: path to the gate document to load.
           mimetype: a mimetype to use when loading. (Default value = None)
 
         Returns:
-          a handle to the GATE document
-
+          a handle to the Java GATE document
         """
         if mimetype is None:
             mimetype = ""
         return self.slave.loadDocumentFromFile(path, mimetype)
 
     def save_gdoc(self, gdoc, path, mimetype=None):
-        """Save GATE document to the given path.
+        """
+        Save GATE document to the given path.
 
         Args:
           gdoc: GATE document handle
           path: destination path
           mimetype: mimtetype, only the following types are allowed: ""/None: GATE XML,
-        application/fastinfoset, and all mimetypes supported by the Format_Bdoc plugin. (Default value = None)
-
-        Returns:
-
+                application/fastinfoset, and all mimetypes supported by the
+                Format_Bdoc plugin. (Default value = None)
         """
         if mimetype is None:
             mimetype = ""
         self.slave.saveDocumentToFile(path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
-        """Convert the GATE document to a python document and return it.
+        """
+        Convert the GATE document to a python document and return it.
 
         Args:
           gdoc: the handle to a GATE document
 
         Returns:
           a gatenlp Document instance
-
         """
         bjs = self.slave.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt="bdocjs")
 
     def pdoc2gdoc(self, pdoc):
-        """Convert the Python gatenlp document to a GATE document and return a handle to it.
+        """
+        Convert the Python gatenlp document to a GATE document and return a handle to it.
 
         Args:
           pdoc: python gatenlp Document
 
         Returns:
           handle to GATE document
-
         """
         json = pdoc.save_mem(fmt="bdocjs")
         return self.slave.getDocument4BdocJson(json)
 
     def load_pdoc(self, path, mimetype=None):
-        """Load a document from the given path, using GATE and convert and return as gatenlp Python document.
+        """
+        Load a document from the given path, using GATE and convert and return as gatenlp Python document.
 
         Args:
           path: path to load document from
@@ -457,7 +471,6 @@ class GateSlave:
 
         Returns:
           gatenlp document
-
         """
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
@@ -472,22 +485,15 @@ class GateSlave:
 
         Args:
           resource: the Java GATE resource, e.g. a document to remove
-
-        Returns:
-
         """
         self.jvm.gate.Factory.deleteResource(resource)
 
     def show_gui(self):
-        """Show the GUI for the started GATE process. NOTE: this is more of a hack and may cause sync problems
+        """
+        Show the GUI for the started GATE process.
+
+        NOTE: this is more of a hack and may cause sync problems
         when closing down the GATE slave.
-
-        :return:
-
-        Args:
-
-        Returns:
-
         """
         self.slave.showGui()
 
@@ -500,13 +506,16 @@ class GateSlaveAnnotator(Annotator):
     # TODO: parameter to influence how exceptions are handled
     def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None, replace_anns=False):
         """
-        Create a GateSlave annotator: this starts the gate slave, loads the pipeline and
+        Create a GateSlave annotator.
+
+        This starts the gate slave, loads the pipeline and
         can then be used to annotate Python gatenlp Document instances with the Java GATE
         pipeline.
 
         Note: to make sure tha start/finish callbacks on the Java side are invoked, the annotator
         start() method should be invoked once before processing documents and finish() should
         get called once after processing documents.
+
         If the GateSlaveAnnotator is not used any more, close() should be invoked to terminate
         the Java GATE Slave process.
 
@@ -525,7 +534,6 @@ class GateSlaveAnnotator(Annotator):
               In this case, the annotation ids of the retrieved annotations are kept.
               If False, the retrieved annotations are added to the existing sets and may get new, different
               annotation ids.
-
         """
         self.pipeline = pipeline
         if sets_send is not None or sets_receive is not None:
@@ -539,15 +547,45 @@ class GateSlaveAnnotator(Annotator):
         self.controller.setControllerCallbacksEnabled(False)
 
     def close(self):
+        """
+        Shut down the GateSlave used by this annotator.
+
+        After calling this, the GateSlaveAnnotator instance cannot be used any more.
+        """
         self.gs.close()
 
     def start(self):
+        """
+        Invoke the controller execution started method on the GATE controller.
+        """
         self.controller.invokeControllerExecutionStarted()
 
     def finish(self):
+        """
+        Invoke the controller execution finished method on the GATE controller.
+        """
         self.controller.invokeControllerExecutionFinished()
 
     def __call__(self, doc, **kwargs):
+        """
+        Run the GATE controller on the given document.
+
+        This runs the GATE pipeline (controller) on the given document by first sending the document
+        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
+        and sending the document back and converting back to a new gatenlp Document.
+
+        IMPORTANT: the exact way of how the final document that gets returned by this method is created
+        may change or depend on how the annotator is configured: it may or may not be the original document
+        which gets modified in place or new document with the original document unchanged.
+
+        Args:
+            doc: the document to process
+            **kwargs: ignored so far
+
+        Returns:
+            the processed gatenlp document which may be the original one passed to this method
+            or a new one.
+        """
         # TODO: how to handle exceptions?
         if self.sets_send is not None:
             # TODO: create the json for the pdoc restricted to these sets, and with setnames renamed
@@ -569,7 +607,12 @@ class GateSlaveAnnotator(Annotator):
 
 
 def main():
-    """ """
+    """
+    Start a GATE slave from the command line.
+
+    This is available as command `gatenlp-gate-slave`.
+    Use option `--help` to get help about command line arguments.
+    """
     ap = argparse.ArgumentParser(description="Start Java GATE Slave")
     ap.add_argument(
         "--download",
