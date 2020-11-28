@@ -324,6 +324,16 @@ get called once after processing documents.
 If the GateSlaveAnnotator is not used any more, close() should be invoked to terminate
 the Java GATE Slave process.
 
+**Example**:
+
+  
+  ```python
+  pipeline = GateSlaveAnnotator("annie.xgapp")
+  for idx, doc in enumerate(mycorpus):
+  corpus[idx] = pipeline(doc)
+  ```
+  
+
 **Arguments**:
 
 - `pipeline` - the path to a Java GATE pipeline to load into the GATE slave

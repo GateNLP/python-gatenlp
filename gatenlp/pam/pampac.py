@@ -5,26 +5,25 @@ patterns in annotations and text and carry out actions if a match occurs.
 NOTE: this implementation has been inspired by https://github.com/google/compynator
 """
 import functools
+from copy import deepcopy
 from collections.abc import Iterable, Sized
 from .matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.utils import support_annotation_or_set
-from gatenlp import AnnotationSet
+from gatenlp import AnnotationSet, Annotation
 from gatenlp.utils import init_logger
 from gatenlp import Span
 
+__pdoc__ = {
+    "PampacParser.__or__": True,
+    "PampacParser.__xor__": True,
+    "PampacParser.__rshift__": True,
+    "PampacParser.__and__": True,
+    "PampacParser.__mul__": True,
+    "_AnnBase": True,
+}
+
+
 # NOTES: Backreferences: to hard to implement this in a flexible way, simply use Filter on the final result
-
-# TODO: implement pre-canned actions:
-# AddAnn(): default span is the first result
-# UpdateAnn(features, data=...)
-
-# TODO: implement accessor functions
-# accessor functions: ResultData(0, "name", 2) - returns a function that accesses the 2nd data
-#   of all the datas in the 0th result that match the given name
-# ResultSpan(0), ResultAnn(0,"name",2), ResultText(0,"name",1)
-# or better ResultSpan("name") or ResultSpan(name="name", result=0, data=2) with defaults for result, data
-# ResultAnn("name") returns a function that returns the annotation later
-# ResultAnn("name") / ResultAnnFeatures / ResultAnnFeature / ResultAnnType
 
 # TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
 
@@ -56,6 +55,13 @@ class Location:
     """
 
     def __init__(self, text_location=0, ann_location=0):
+        """
+        Create a parser location.
+
+        Args:
+            text_location: the next text offset from which on to parse.
+            ann_location:  the next annotation index from which on to parse.
+        """
         self.text_location = text_location
         self.ann_location = ann_location
 
@@ -81,10 +87,11 @@ class Result:
     """
     def __init__(self, data=None, location=None, span=None):
         """
-        Creata parser result.
+        Create a parser result.
 
         Args:
-            data: the data associated with the result, this should be a dictionary or None.
+            data: the data associated with the result, this can be a single item or a list of items.
+                Each item must be either a dictionary that describes an individual match or None.
             location: the location where the result was matched, i.e. the location *before* matching was done.
             span: the span representing the start and end text offset for the match
         """
@@ -128,6 +135,18 @@ class Failure:
         causes=None,
         context=None,
     ):
+        """
+        Create a Failure instance.
+
+        Args:
+            message: the message to describe the parse failure.
+            parser (str): the class name of the parser
+            location: the location at which the parser failed.
+            causes:  another failure instance or a list of other failure instances which
+                can be used to describe the failure of nested parsers in more detail
+            context: the context at the point of failure. This is stored as a reference so
+                the context should not get modified after the failure is constructed.
+        """
         self.context = context
         self._parser = parser
         if not message:
@@ -145,6 +164,13 @@ class Failure:
             self._causes = causes
 
     def issuccess(self):
+        """
+        Method for success and failure results which indicates if we have a success or failure.
+
+        Returns:
+            False
+
+        """
         return False
 
     def _get_causes(self):
@@ -156,6 +182,16 @@ class Failure:
                 yield from cause._get_causes()
 
     def describe(self, indent=4, level=0):
+        """
+        Return a string with information about the failure.
+
+        Args:
+            indent: number of characters to indent for each recursive failure.
+            level: recursive level of failure
+
+        Returns:
+            String with information about the failure
+        """
         lead = " " * indent * level
         desc = (
             f"{lead}{self._parser} at {self._cur_text}/{self._cur_ann}: "
@@ -180,10 +216,26 @@ class Failure:
 
 class Success(Iterable, Sized):
     """
-    Represents a parse success as a possibly empty list of result elements.
+    Represents a parse success as a (possibly empty) list of result elements.
+
+    Each success is a list of result elements, and each result element contains a list
+    of matching data. A result represents a match at the top/outermost level of a parser.
+    A parser that is made of sub parsers and sub-sub-parsers returns one or more matches
+    over all the different ways how those sub-parsers can match at a specific location,
+    and each result contains a result element for all the named sub- and sub-sub-parsers
+    the main parser is made of.
     """
 
     def __init__(self, results, context):
+        """
+        Create a Success instance.
+
+        Args:
+            results: a result or a list of results which may be empty
+            context: the context used when parsing that result. A reference to the context is stored
+               so the context may change after the result has been produced if it is used for more
+               parsing.
+        """
         if results is None:
             self._results = []
         elif isinstance(results, Iterable):
@@ -193,23 +245,47 @@ class Success(Iterable, Sized):
         self.context = context
 
     def issuccess(self):
+        """
+        Method for success and failure results which indicates if we have a success or failure.
+
+        Returns:
+            True
+        """
         return True
 
-    def add(self, result, ifnew=False):
-        # TODO: not sure if the ifnew parameter and treatment makes sense: do we ever not want
-        # to add a result if it is already there (meaning, the same match and the same remaining text/anns).
-        if isinstance(result, Iterable):
-            for re in result:
-                self.add(re, ifnew=ifnew)
-        else:
-            if ifnew:
-                if result not in self._results:
-                    self._results.append(result)
-            else:
-                self._results.append(result)
-        return self
+
+    # TODO: the following method may not be needed! Consider removing!
+    # def add(self, result, ifnew=False):
+    #     """
+    #     Add a result.
+    #
+    #     Args:
+    #         result:
+    #         ifnew:
+    #
+    #     Returns:
+    #
+    #     """
+    #     # TODO: not sure if the ifnew parameter and treatment makes sense: do we ever not want
+    #     # to add a result if it is already there (meaning, the same match and the same remaining text/anns).
+    #     if isinstance(result, Iterable):
+    #         for re in result:
+    #             self.add(re, ifnew=ifnew)
+    #     else:
+    #         if ifnew:
+    #             if result not in self._results:
+    #                 self._results.append(result)
+    #         else:
+    #             self._results.append(result)
+    #     return self
 
     def pprint(self, file=None):
+        """
+        Pretty print the success instance to the file or stdout if no file is specified.
+
+        Args:
+            file: open file handle for use with print.
+        """
         for idx, res in enumerate(self._results):
             if file:
                 print(f"Result {idx}, location={res.location}:", file=file)
@@ -224,15 +300,18 @@ class Success(Iterable, Sized):
     @staticmethod
     def select_result(results, matchtype="first"):
         """
-        Return the result described by parameter matchtype. If "all" returns the whole list of matches.
+        Return the result described by parameter matchtype.
+
+        If "all" returns the whole list of matches.
 
         Args:
             results: list of results to select from
-            matchtype: one of  "first", "shortest", "longest", "all". If there is more than one longest or shortest
-               result, the first one of those in the list is returned.
+            matchtype: one of  "first", "shortest", "longest", "all".
+                If there is more than one longest or shortest
+                result, the first one of those in the list is returned.
 
         Returns:
-            the filtered match or matches
+            the filtered result or all results
         """
         if matchtype == None:
             matchtype = "first"
@@ -264,11 +343,12 @@ class Success(Iterable, Sized):
         Return the result described by parameter matchtype. If "all" returns the whole list of matches.
 
         Args:
-            matchtype: one of  "first", "shortest", "longest", "all". If there is more than one longest or shortest
-               result, the first one of those in the list is returned.
+            matchtype: one of  "first", "shortest", "longest", "all".
+                If there is more than one longest or shortest
+                result, the first one of those in the list is returned.
 
         Returns:
-            the filtered match or matches
+            the filtered result or all results
         """
         return Success.select_result(self._results, matchtype)
 
@@ -293,6 +373,15 @@ class Success(Iterable, Sized):
 class Context:
     """
     Context contains data and refers to data for carrying out the parse.
+
+    A context contains a reference to the document being parsed, the list of annotations to use,
+    the start and end text offsets the parsing should be restricted to, the output annotation set
+    to use, the maximum recursion depth and a data structure for memoization.
+
+    All these fields are immutable, i.e. the references stored do not usually change during parsing or
+    when Pampac executes rules on a document. However, all the referenced data apart from start and
+    end may change.
+
     """
 
     def __init__(
@@ -342,7 +431,6 @@ class Context:
 
         Returns:
             annotations as a detached immutable AnnotationSet
-
         """
         if self._annset is None:
             self._annset = AnnotationSet.from_anns(self.anns)
@@ -501,22 +589,44 @@ class PampacParser:
     This can be used to decorate a function that should be used as the parser,
     or for subclassing specific parsers.
 
-    When subclassing, the parse(location, context) method must be overriden!
+    When subclassing, the method `parse(location, context)`  must be overriden!
+
+    All parsers are callables where the `__call__` method has the same signature as the
+    `match` method. So `SomeParser(...)(doc, anns)` is the same as `SomeParser(...).match(doc, anns)`
+
     """
 
     def __init__(self, parser_function):
+        """
+        Create a parser from the given function.
+
+        Args:
+            parser_function: the function to wrap into a parser.
+        """
         self.name = None
         self._parser_function = parser_function
         self.name = parser_function.__name__
         functools.update_wrapper(self, parser_function)
 
     def parse(self, location, context):
+        """
+        Invoking the parser function. This invokes the wrapped function for the root PampacParser
+        class and should be overriden/implemented for PampacParser subclasses.
+
+        Args:
+            location: where to start parsing
+            context: the parsing context
+
+        Returns:
+            Success or Failure
+        """
         return self._parser_function(location, context)
 
     def match(self, doc, anns=None, start=None, end=None, location=None):
         """
-        Runs the matcher on the given document and the given annotations. Annotations may be empty in which
-        case only matching on text makes sense.
+        Runs the matcher/parser on the given document and the given annotations.
+
+        Annotations may be empty in which case only matching on text makes sense.
 
         Args:
             doc: the document to run matching on.
@@ -529,8 +639,7 @@ class PampacParser:
                offset and not text that ends after that offset should get included in the result.
 
         Returns:
-            Either Success or Failure
-
+            Success or Failure
         """
         if anns is None:
             anns = []
@@ -559,37 +668,115 @@ class PampacParser:
         return Call(self, func, onfailure=onfailure)
 
     def __or__(self, other):
+        """
+        Binary Or via the `|` operator.
+
+        This allows to write `Parser1(..) | Parser2(..)` instead of `Or(Parser1(..), Parser2(...))`
+
+        Args:
+            other: the other parser
+
+        Returns:
+            A parser that succeeds if either this or the other parser succeeds.
+        """
         return Or(self, other)
 
     def __rshift__(self, other):
+        """
+        Binary Seq via the `>>` operator.
+
+        This allows to write `Parser1(..) >> Parser2(..)` instead of `Seq(Parser1(..), Parser2(...))`
+
+        Args:
+            other: the other parser
+
+        Returns:
+            A parser that succeeds if this parser succeeds and then the other parser succeeds
+            after it.
+        """
         return Seq(self, other)
 
     def __and__(self, other):
+        """
+        Binary And via the `&` operator.
+
+        This allows to write `Parser1(..) & Parser2(..)` instead of `And(Parser1(..), Parser2(...))`
+
+        Args:
+            other: the other parser
+
+        Returns:
+            A parser that succeeds if this parser and the other parser both succeed at the same location.
+        """
         return And(self, other)
 
     def __xor__(self, other):
         """
-        Return a parser that succeeds if this or the other parser succeeds and return the union of all results.
-        Fails if both parsers fail.
+        Binary All via the `^` operator.
+
+        This allows to write `Parser1(...) ^ Parser2(...)` instead of `All(Parser1(...), Parser2(...))`
 
         NOTE: `a ^ b ^ c` is NOT the same as All(a,b,c) as the first will fail if b fails but the second will
         still return `a ^ c`
 
         Args:
-            other:
+            other: the other parser
 
         Returns:
-
+            Returns if this and the other parser succeeds at the current location and returns the
+            union of all results.
         """
         return All(self, other)
 
     def where(self, predicate, take_if=True):
+        """
+        Return a parser that only succeeds if the predicate is true on at least one result of
+        a success of this parser.
+
+        Args:
+            predicate: the predicate to call on each result which should accept the result and arbitrary
+                keyword arguments. The kwargs `context` and `location` are also passed. The predicate
+                should return true if a result should get accepted.
+            take_if: if False the result is accepted if the predicate function returns False for it
+
+        Returns:
+            Success with all the results that have been accepted or Failure if no result was accepted
+        """
         return Filter(self, predicate, take_if=take_if)
 
     def repeat(self, min=1, max=1):
+        """
+        Return a parser where the current parser is successful at least `min` and at most `max` times.
+
+        `Parser1(...).repeat(min=a, max=b)` is the same as `N(Parser1(...), min=a, max=b)`
+
+        NOTE: this is also the same as `Parser1(...) * (a, b)`
+
+        Args:
+            min: minimum number of times the parser must be successful in sequence
+            max: maximum number of times the parser may be successfull in sequence
+
+        Returns:
+            Parser to match this parser min to max times.
+        """
         return N(self, min=min, max=max)
 
     def __mul__(self, n):
+        """
+        Return a parser where the current parser is successful n times.
+
+        If n is a tuple (a,b)
+        return a parser where the current parser is successful a minimum of a and a maximum of b times.
+
+        `Parser1(...) * (a,b)` is the same as `N(Parser1(...), min=a, max=b)`
+
+        Args:
+            n: either an integer used for min and max, or a tuple (min, max)
+
+        Returns:
+            Parser to match this parser min to max times.
+        """
+
         if isinstance(n, int):
             return N(self, min=n, max=n)
         elif isinstance(n, tuple) and len(n) == 2:
@@ -599,14 +786,13 @@ class PampacParser:
         else:
             raise Exception("Not an integer or tuple or list of two integers")
 
-    def _make_constraint_predicate(self, matcher, matchtype, constraint):
+    def _make_constraint_predicate(self, matcher, constraint):
         """
         Create predicate that can be used to filter results according to one of the
         annotation-based constraints like .within, .coextensive.
 
         Args:
             matcher: the annotation matcher
-            matchtype: the matchtype for the filter
             constraint: the constraint to use on the annotation set
 
         Returns:
@@ -620,7 +806,6 @@ class PampacParser:
                 if ann:
                     anns.add(ann)
             annset = context.annset
-            # TODO: !!!!!!!  CHECK IF THIS IS CORRECT
             tocall = getattr(annset, constraint)
             annstocheck = tocall(result.span)
             for anntocheck in annstocheck:
@@ -631,14 +816,13 @@ class PampacParser:
             return False
         return _predicate
 
-    def _make_notconstraint_predicate(self, matcher, matchtype, constraint):
+    def _make_notconstraint_predicate(self, matcher, constraint):
         """
         Create predicate that can be used to filter results according to one of the
         annotation-based negated constraints like .notwithin, .notcoextensive.
 
         Args:
             matcher: the annotation matcher
-            matchtype: the matchtype for the filter
             constraint: the constraint to use on the annotation set
 
         Returns:
@@ -652,7 +836,6 @@ class PampacParser:
                 if ann:
                     anns.add(ann)
             annset = context.annset
-            # TODO: !!!!!!!!!!!!! CHECK IF CORRECT, SPAN CORRECT?
             tocall = getattr(annset, constraint)
             annstocheck = tocall(result.span)
             matched = False
@@ -667,14 +850,17 @@ class PampacParser:
     def within(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
         """
         Parser that succeeds if there is a success for the current parser that is within any annotation
-        that matches the given properties and is different from that annotation.
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
 
         Args:
-            type:
-            features:
-            features_eq:
-            text:
-            matchtype: return matches of all that are within the span according to the given strategy
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
 
         Returns:
             Parser modified to only match within a matching annotation
@@ -682,77 +868,250 @@ class PampacParser:
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, matchtype, "covering")
+        pred = self._make_constraint_predicate(matcher, "covering")
         return Filter(self, pred, matchtype=matchtype)
 
     def notwithin(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not within any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not within a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, matchtype, "covering")
+        pred = self._make_notconstraint_predicate(matcher, "covering")
         return Filter(self, pred, matchtype=matchtype)
 
     def coextensive(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is coextensive with
+        any annotation that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match when coextensive with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, matchtype, "coextensive")
+        pred = self._make_constraint_predicate(matcher, "coextensive")
         return Filter(self, pred, matchtype=matchtype)
 
     def notcoextensive(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not coextensive
+        with any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not coextensive with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, matchtype, "coextensive")
+        pred = self._make_notconstraint_predicate(matcher, "coextensive")
         return Filter(self, pred, matchtype=matchtype)
 
     def overlapping(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is overlapping with
+        any annotation that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match overlapping with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, matchtype, "overlapping")
+        pred = self._make_constraint_predicate(matcher, "overlapping")
         return Filter(self, pred, matchtype=matchtype)
 
     def notoverlapping(self,type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not overlapping
+        within any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not overlapping with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, matchtype, "overlapping")
+        pred = self._make_notconstraint_predicate(matcher, "overlapping")
         return Filter(self, pred, matchtype=matchtype)
 
     def covering(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is covering any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if there is a covering matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, matchtype, "within")
+        pred = self._make_constraint_predicate(matcher, "within")
         return Filter(self, pred, matchtype=matchtype)
 
     def notcovering(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not covering
+        any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not covering a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, matchtype, "within")
+        pred = self._make_notconstraint_predicate(matcher, "within")
         return Filter(self, pred, matchtype=matchtype)
 
     def at(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is starting
+        at the same offset as an annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if starting with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, matchtype, "start_eq")
+        pred = self._make_constraint_predicate(matcher, "start_eq")
         return Filter(self, pred, matchtype=matchtype)
 
-    def noat(self, type=None, features=None, features_eq=None, text=None,  matchtype="first"):
+    def notat(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not starting
+        with any annotation
+        that matches the given properties.
+
+        NOTE: all the annotations matched in any of the results of this parser are excluded from
+        the candidates for checking this constraint!
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not starting with a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, matchtype, "start_eq")
+        pred = self._make_notconstraint_predicate(matcher, "start_eq")
         return Filter(self, pred, matchtype=matchtype)
 
-    def before(self, type=None, features=None, features_eq=None, text=None, immediately=False, matchtype="first"):
+    def before(self, type=None, features=None, features_eq=None, text=None,
+               immediately=False, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is before any annotation
+        that matches the given properties.
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            immediately: limit checking to annotations that start right after the end of the current match
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match (immediately) before a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
@@ -775,7 +1134,23 @@ class PampacParser:
         return Filter(self, _predicate, matchtype=matchtype)
 
     @support_annotation_or_set
-    def notbefore(self,  type=None, features=None, features_eq=None, text=None, immediately=False, matchtype="first"):
+    def notbefore(self,  type=None, features=None, features_eq=None, text=None,
+                  immediately=False, matchtype="first"):
+        """
+        Parser that succeeds if there is a success for the current parser that is not before any annotation
+        that matches the given properties.
+
+        Args:
+            type: as for AnnMatcher
+            features: as for AnnMatcher
+            features_eq: as for AnnMatcher
+            text: as for AnnMatcher
+            immediately: limit checking to annotations that start right after the end of the current match
+            matchtype: matchtype to use for filtering
+
+        Returns:
+            Parser modified to only match if not (immediately) before a matching annotation
+        """
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
@@ -800,31 +1175,74 @@ class PampacParser:
             return not matched
         return Filter(self, _predicate, matchtype=matchtype)
 
-    def lookahead(self, parser):
+    def lookahead(self, other):
         """
-        Return a parser that makes sure the given parser has at least one match before returning success.
+        Return a parser that only matches the current parser if the given parser can be matched
+        afterwards.
+
+        The match of the given parser is not part of the success and does not increment the
+        next parsing location.
 
         Args:
-            parser:
+            other: a parser that must match after this parser but the match is discarded.
 
         Returns:
-
+            a parser that mast be followed by a match of the other parser
         """
-        return Lookahead(self, parser)
+        return Lookahead(self, other)
 
 
 class Lookahead(PampacParser):
-    def __init__(self, parser, laparser):
+    """
+    A parser that succeeds for a parser A only if another parser B succeeds right after it.
+    However the success of parser B is discarded and does not influence the success nor the
+    next parse location.
+
+    If there is more than one result for the success of the parser A, then the result is only
+    included in the success if the lookahead parser matches and there is only overall success
+    if at least one result remains. This also depends on the matchtype.
+    """
+    def __init__(self, parser, laparser, matchtype="first"):
+        """
+        Create a Lookahead parser.
+
+        Args:
+            parser: the parser for which to return a success or failure
+            laparser:  the parser that must match after the first parser, but it's success is discarded.
+            matchtype: which matches to include in the result, one of "first", "longest", "shortest", "all".
+        """
         self.parser = parser
         self.laparser = laparser
+        self.matchtype = matchtype
 
     def parse(self, location, context):
-        if context.parse(location, context).issuccess():
-            return self.parser.parse(location, context)
+        ret = self.parser.parse(location, context).issuccess()
+        if ret.issuccess():
+            res = ret.result(self.matchtype)
+            if isinstance(res, list):
+                # we need to check each of the results
+                allres = []
+                for r in res:
+                    newlocation = r.location
+                    laret = self.laparser.parse(newlocation, context)
+                    if laret.issuccess():
+                        allres = []
+                if len(allres) > 0:
+                    return Success(results=allres, context=context)
+                else:
+                    return Failure(context=context, message="Lookahead failed for all results",
+                                   location=location)
+            else:
+                newlocation = res.location
+                laret = self.laparser.parse(newlocation, context)
+                if laret.issuccess():
+                    return ret
+                else:
+                    return Failure(
+                        context=context, message="Lookahead failed", location=location
+                    )
         else:
-            return Failure(
-                context=context, message="Lookahead failed", location=location
-            )
+            return ret
 
 
 class Filter(PampacParser):
@@ -869,7 +1287,27 @@ class Filter(PampacParser):
 
 
 class Call(PampacParser):
+    """
+    A parser that calls a function on success (and optionally on failure).
+
+    This parser is identical to the original parser but calls the given function
+    on success. The function must accept the success instance and arbitrary keyword arguments.
+    The kwargs `context`, `location`, `name` and `parser` are passed on.
+
+    If the `onfailure` parameter is not none, this is a function that is called on Failure with the
+    Failure instance and the same kwargs.
+
+    The parsing result of this parser is the same as the parsing result of the original parser.
+    """
     def __init__(self, parser, func, onfailure=None):
+        """
+        Create a Call parser.
+
+        Args:
+            parser: the original parser to use
+            func:  the function to call if the original parser returns success
+            onfailure: the function to call if the original parser returns failure
+        """
         self.parser = parser
         self.func = func
         self.onfailure = onfailure
@@ -896,7 +1334,7 @@ class Call(PampacParser):
 
 class _AnnBase(PampacParser):
     """
-    Common code for both Ann and AnnAt"
+    Common base class with common methods for both Ann and AnnAt.
     """
     def gap(self, min=0, max=0):
         """
@@ -961,6 +1399,20 @@ class AnnAt(_AnnBase):
         name=None,
         useoffset=True,
     ):
+        """
+        Create an AnnAt parser.
+
+        Args:
+            type: the type to match, can be None, a string, a regular expression or a callable
+            features: the features that must be matched, a dictionary as the FeatureMatcher arguments
+            features_eq: the features that must be matched and no other features may exist, a dictionary as
+               the FeatureEqMatcher arguments.
+            text: the covered document text to match
+            matchtype: which matches to return in a success, one of "all", "first" (default), "longest", "shortest"
+            name: the name of the match. If specified, a dictionary describing the match is added to the result.
+            useoffset: if True, tries to match at the current text offset, not the start offset of the
+                next annotation to match.
+        """
         self.type = type
         self.features = features
         self.features_eq = features_eq
@@ -980,7 +1432,7 @@ class AnnAt(_AnnBase):
             return Failure(
                 context=context,
                 location=location,
-                parser=self,
+                parser=self.__class__.__name__,
                 message="No annotation left",
             )
         results = []
@@ -1020,7 +1472,7 @@ class AnnAt(_AnnBase):
         if not matched:
             return Failure(
                 context=context,
-                parser=self,
+                parser=self.__class__.__name__,
                 location=location,
                 message="No matching annotation",
             )
@@ -1068,23 +1520,13 @@ class Ann(_AnnBase):
         )
 
     def parse(self, location, context):
-        """
-        Try to match the given annotation at the current context location. If we succeed,
-
-        Args:
-            location: the location of where to parse next
-            context: parser context
-
-        Returns:
-            Success or Failure
-        """
         if self.useoffset:
             location = context.update_location_byoffset(location)
         next_ann = context.get_ann(location)
         if not next_ann:
             return Failure(
                 context=context,
-                parser=self,
+                parser=self.__class__.__name__,
                 location=location,
                 message="No annotation left",
             )
@@ -1103,12 +1545,13 @@ class Ann(_AnnBase):
             span = Span(next_ann.start, next_ann.end)
             return Success(Result(data=data, span=span, location=newlocation), context)
         else:
-            return Failure(location=location, context=context, parser=self)
+            return Failure(location=location, context=context, parser=self.__class__.__name__)
 
 
 class Find(PampacParser):
     """
-    A parser that tries another parser until it matches.
+    A parser that tries another parser at successive offsets or annotations until it matches
+    the end of the document / parsing range is reached.
     """
 
     def __init__(self, parser, by_anns=True):
@@ -1148,7 +1591,7 @@ class Find(PampacParser):
 
 class Text(PampacParser):
     """
-    A parser that matches some text or regular expression
+    A parser that matches some text or regular expression.
     """
 
     def __init__(self, text, name=None, matchcase=True):
@@ -1215,19 +1658,19 @@ class Text(PampacParser):
 
 class Or(PampacParser):
     """
-    Create a parser that accepts the first of all the parsers specified.
+    Create a parser that accepts the first seccessful one of all the parsers specified.
     """
 
     def __init__(self, *parsers, matchtype="all"):
         """
         Creates a parser that tries each of the given parsers in order and uses the first
-        one that finds a successful match only.
+        one that finds a successful match.
 
         Args:
             *parsers: two or more parsers to each try in sequence
             matchtype: which of the results from the successful parser to return.
         """
-        assert len(parsers) > 0
+        assert len(parsers) > 1
         self.parsers = parsers
         self.matchtype = matchtype
 
@@ -1251,9 +1694,15 @@ class And(PampacParser):
     """
     Return a parser that is successful if all the parsers match at some location, and
     fails otherwise. Success always contains all results from all parsers.
-
     """
     def __init__(self, *parsers):
+        """
+        Create an And parser.
+
+        Args:
+            *parsers: a list of two or more parsers.
+        """
+        assert len(parsers) > 1
         self.parsers = parsers
 
     def parse(self, location, context):
@@ -1278,6 +1727,13 @@ class All(PampacParser):
     If success, all results from all succeeding parsers are included.
     """
     def __init__(self, *parsers):
+        """
+        Create an All parser.
+
+        Args:
+            *parsers: list of two ore more parsers.
+        """
+        assert len(parsers) > 1
         self.parsers = parsers
 
     def parse(self, location, context):
@@ -1309,7 +1765,7 @@ class Seq(PampacParser):
         """
 
         Args:
-            *parsers: one or more parsers
+            *parsers: two or more parsers
             matchtype: (default "first") one of "first", "longest", "shortest", "all": which match to return.
               Note that even if a matchtype for a single match is specified, the parser may still need to
               generate an exponential number of combinations for all the results to select from.
@@ -1318,7 +1774,7 @@ class Seq(PampacParser):
             name: if not None, a separate data element is added to the result with that name and
               a span that represents the span of the result.
         """
-        assert len(parsers) > 0
+        assert len(parsers) > 1
         self.parsers = parsers
         if matchtype is None:
             matchtype = "first"
@@ -1410,7 +1866,10 @@ class Seq(PampacParser):
 
 class N(PampacParser):
     """
-    A parser that represents a sequence of k to l matching parsers, greedy.
+    A parser that represents a sequence of k to l matching parsers.
+
+    If no until parser is given, the parser matches greedily as many times as possible.
+    The until parser can be used to make the matching stop as soon as the until parser succeeds.
     """
 
     def __init__(
@@ -1621,6 +2080,14 @@ class Rule(PampacParser):
     """
 
     def __init__(self, parser, action, priority=0):
+        """
+        Create a Rule.
+
+        Args:
+            parser: the parser to match for the rule
+            action:  the action to perform, or a function to call
+            priority: the priority of the rule
+        """
         self.parser = parser
         self.action = action
         self.priority = priority
@@ -1648,7 +2115,6 @@ class Rule(PampacParser):
 class Pampac:
     """
     A class for applying a sequence of rules to a document.
-
     """
     def __init__(self, *rules, skip="longest", select="first"):
         """
@@ -1823,6 +2289,9 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
 # ACTIONS:
 
 class AddAnn:
+    """
+    Action for adding an annotation.
+    """
     def __init__(self,
                  name=None,
                  ann=None,   # create a copy of this ann retrieved with GetAnn
@@ -1832,6 +2301,24 @@ class AddAnn:
                  resultidx=0, dataidx=0,
                  silent_fail=False,
                  ):
+        """
+        Create an action for adding a new annotation to the outset.
+
+        Args:
+            name: the name of the match to use for getting the annotation span
+            ann:  either an Annotation which will be (deep) copied to create the new annotation, or
+                a GetAnn helper for copying the annoation the helper returns. If this is specified the
+                other parameters for creating a new annotation are ignored.
+            anntype: the type of a new annotation to create
+            features: the features of a new annotation to create. This can be a GetFeatures helper for copying
+                the features from another annotation in the results
+            span: the span of the annotation, this can be a GetSpan helper for copying the span from another
+                annotation in the results
+            resultidx: the index of the result to use if more than one result is in the Success
+            dataidx: the index of the data item to use if more than one item matches the given name
+            silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
+                otherwise raises an Exception.
+        """
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
         assert name
@@ -1850,13 +2337,16 @@ class AddAnn:
         span = data["span"]
         outset = context.outset
         if self.ann:
-            ann = self.ann(succ)
-            if ann is None:
-                if self.silent_fail:
-                    return
-                else:
-                    raise Exception("No matching annotation found")
-            outset.add_ann(ann)
+            if isinstance(self.ann, Annotation):
+                outset.add_ann(self.ann.deepcopy())
+            else:
+                ann = self.ann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception("No matching annotation found")
+                outset.add_ann(ann)
         else:
             if self.span:
                 if callable(self.span):
@@ -1878,13 +2368,29 @@ class AddAnn:
 
 
 class UpdateAnnFeatures:
+    """
+    Action for updating the features of an annotation.
+    """
     def __init__(self, name,
-                 ann=None,  # ann to update
+                 ann=None,
                  features=None,
                  replace=False,  # replace existing features rather than updating
                  resultidx=0, dataidx=0,
                  silent_fail=False,
                  ):
+        """
+        Create an UpdateAnnFeatures action.
+
+        Args:
+            name: the name of the match to use for getting the annotation span
+            ann: if specified use the features from this annotation. This can be either a literal annotation
+                or a GetAnn helper to access another annotation from the result.
+            features: the features to use for updating, either literal  features or a GetFeatures helper.
+            replace: if True, replace the existing features with the new ones, otherwise update the existing features.
+            resultidx: the index of the result to use, if there is more than one
+            dataidx: the index of a matching data element to use, if more than one matches the given name
+            silent_fail: if True, do not raise an exception if the features cannot be updated
+        """
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
         assert isinstance(ann, GetAnn)
@@ -1898,25 +2404,54 @@ class UpdateAnnFeatures:
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        ann = self.ann(succ)
-        if ann is None:
+        data = _get_data(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        if not data:
             if self.silent_fail:
                 return
             else:
-                raise Exception("No matching annotation found")
-        if callable(self.features):
-            features = self.features(succ, context=context, location=location)
+                raise Exception(f"Could not find the name {self.name}")
+        theann = data.get("ann")
+        if theann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(f"Could not find an annotation for the name {self.name}")
+        if isinstance(self.ann, Annotation):
+            feats = deepcopy(self.ann.features)
         else:
-            features = self.features
+            ann = self.ann(succ)
+            if ann is None:
+                if self.silent_fail:
+                    return
+                else:
+                    raise Exception("No matching annotation found")
+            feats = deepcopy(ann.features)
+        if not feats and callable(self.features):
+            feats = self.features(succ, context=context, location=location)
+        elif not feats:
+            feats = deepcopy(self.features)
         if self.replace:
-            ann.features.clear()
-        ann.features.update(features)
+            theann.features.clear()
+        theann.features.update(feats)
 
 # GETTERS
 
 
 class GetAnn:
+    """
+    Helper to access an annoation from a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetAnn helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx:  the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None.
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -1932,7 +2467,20 @@ class GetAnn:
 
 
 class GetFeatures:
+    """
+    Helper to access the features of an annotation in a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetFeatures helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -1948,7 +2496,20 @@ class GetFeatures:
 
 
 class GetType:
+    """
+    Helper to access the type of an annotation in a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetType helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -1964,7 +2525,20 @@ class GetType:
 
 
 class GetStart:
+    """
+    Helper to access the start offset of the annotation in a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetStart helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -1977,7 +2551,20 @@ class GetStart:
 
 
 class GetEnd:
+    """
+    Helper to access the end offset of the annotation in a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetEnd helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -1990,7 +2577,20 @@ class GetEnd:
 
 
 class GetFeature:
+    """
+    Helper to access the features of the annotation in a match with the given name.
+    """
     def __init__(self, name, featurename, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetFeatures helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -2007,7 +2607,20 @@ class GetFeature:
 
 
 class GetText:
+    """
+    Helper to access the covered document text of the annotation in a match with the given name.
+    """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetText helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx
@@ -2026,7 +2639,20 @@ class GetText:
 
 
 class GetRegexGroup:
+    """
+    Helper to access the given regular expression matching group in a match with the given name.
+    """
     def __init__(self, name, group=0, resultidx=0, dataidx=0, silent_fail=False):
+        """
+        Create a GetText helper.
+
+        Args:
+            name: the name of the match to use.
+            resultidx: the index of the result to use if there is more than one.
+            dataidx:  the index of the data element with the given name to use if there is more than one
+            silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
+                None
+        """
         self.name = name
         self.resultidx = resultidx
         self.dataidx = dataidx

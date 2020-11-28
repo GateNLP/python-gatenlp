@@ -46,16 +46,70 @@ from gatenlp.utils import init_logger
 
 logger = init_logger(debug=True)
 
+__pdoc__ = {
+    &#34;FeatureMatcher.__call__&#34;: True,
+    &#34;FeatureEqMatcher.__call__&#34;: True,
+    &#34;AnnMatcher.__call__&#34;: True,
+}
+
 
 class FeatureMatcher:
     &#34;&#34;&#34;
     Callable that matches the given dictionary against features.
+
+    This creates a callable that can be used to easily check if features match the
+    features and feature constraint defined by the matcher. When a matcher is created,
+    the argument names are used as feature names and the argument values are either
+    literal values to compare with or compiled regular expressions or callables.
+
+    A FeatureMatcher matches as soon as all specified features match, no matter if the
+    features we compare with contain additional features.
+
+    In this example, the feature matcher will check if there are two features with the
+    given names and values.
+
+    Example:
+        ```python
+        fmatcher1 = FeatureMatcher(feature1 = &#34;somevalue&#34;, feature2 = 999)
+        if fmatcher(ann.features):
+            print(&#34;Yay, both features are in ann.features!&#34;)
+        ```
+
+    In this example `feature1` matches if it matches the regular expression, and feature2
+    matches if the given callable returns true.
+
+    Example:
+        ```python
+        def checksize(x):
+            return 12 &lt;= x &lt; 33
+        NAMEPATTERN = re.compile(r&#34;[A-Z][a-z_0-9]+&#34;)
+        fmatcher2 = FeatureMatcher(name = NAMEPATTERN, size = checksize)
+        ```
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
+        &#34;&#34;&#34;
+        Create a FeatureMatcher instance.
+
+        Args:
+            **kwargs: arbitrary key/value pairs to use for matching features.
+        &#34;&#34;&#34;
         self.fm = kwargs  # &#34;featurematcher&#34;
 
     def __call__(self, features):
+        &#34;&#34;&#34;
+        Check if the passed features match the constraints for this FeatureMatcher.
+
+        This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+        even if the features contain additional features not included in the constraints.
+
+        Args:
+            features: the features to check
+
+        Returns:
+            True if the feature constraints are satisfied
+
+        &#34;&#34;&#34;
         for fmn in self.fm.keys():  # &#34;featurematchername&#34;
             if fmn not in features:
                 # logger.debug(f&#34;Feature {fmn} not in features&#34;)
@@ -84,13 +138,34 @@ class FeatureEqMatcher:
     &#34;&#34;&#34;
     Callable that matches the given dictionary against features and returns True only if all features
     match and there are no additional features.
+
+    This works like FeatureMatcher, but all the features that get checked must satisfy the constraints
+    and there must be no additional features.
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
+        &#34;&#34;&#34;
+        Create a FeatureEqMatcher instance.
+
+        Args:
+            **kwargs: arbitrary key/value pairs to use for matching features.
+        &#34;&#34;&#34;
         self.features = kwargs
         self._fm = FeatureMatcher(**kwargs)
 
     def __call__(self, features):
+        &#34;&#34;&#34;
+        Check if the passed features match the constraints for this FeatureMatcher.
+
+        This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+        ONLY if the features do not contain additional features not included in the constraints.
+
+        Args:
+            features: the features to check
+
+        Returns:
+            True if the feature constraints are satisfied
+        &#34;&#34;&#34;
         for f in features.keys():
             if f not in self.features:
                 return False
@@ -101,10 +176,28 @@ class FeatureEqMatcher:
 
 class AnnMatcher:
     &#34;&#34;&#34;
-    A callable that matches an ann.
+    A callable that matches an annotation.
+
+    This creates a callable that can be used to check if an annotation satisfies all the constraints
+    defined.
     &#34;&#34;&#34;
 
     def __init__(self, type=None, features=None, features_eq=None, text=None):
+        &#34;&#34;&#34;
+        Create an AnnMatcher instance.
+
+        Args:
+            type: if not None, match the type. If this is a string, match the literal string, if it is
+                a compiled regular expression, match that expression, if it is a callable, call it and
+                use the return value.
+            features: if specified, it must be a dictionary which is used as the kwargs  to create
+                a FeatureMatcher instance for matching the features of the annotation.
+            features_eq:  if specified, it must be a dictionary which is used as the kwargs  to create
+                a FeatureEqMatcher instance for matching the features of the annotation.
+                Only one of features or features_eq should be used.
+            text: if not None, match the document text covered by the annotation. For this the
+                matcher must be called with the optional `doc` parameter.
+        &#34;&#34;&#34;
         self.type = type
         if features_eq is not None:
             self.features_matcher = FeatureEqMatcher(**features_eq)
@@ -115,6 +208,18 @@ class AnnMatcher:
         self.text = text
 
     def __call__(self, ann, doc=None):
+        &#34;&#34;&#34;
+        Check if the annotation matches.
+
+        Args:
+            ann: the annotation to check
+            doc: the document the annotation refers to, only needed if the matcher contains a &#34;text&#34;
+                constraint.
+
+        Returns:
+            True if the annotation matches, False otherwise.
+
+        &#34;&#34;&#34;
         if self.type is not None:
             if isinstance(self.type, str):
                 if self.type != ann.type:
@@ -148,14 +253,52 @@ class AnnMatcher:
 
 
 class nocase:
+    &#34;&#34;&#34;
+    A matcher for comparing text in a case insensitive way.
+
+    This carries out the matching by using the upper-case versions of the text compared and the
+    text to compare with. This makes sure that cases like German &#34;ß&#34; which expands to &#34;SS&#34; are
+    handled correctly (while uppercase &#34;SS&#34; often should NOT get converted to lowercase &#34;ß&#34;).
+
+    Example:
+        ```python
+        m1 = nocase(&#34;sometext&#34;)
+        assert m1(&#34;SomeText&#34;)
+        assert m1(&#34;SOMETEXT&#34;)
+        ```
+    &#34;&#34;&#34;
     def __init__(self, text):
+        &#34;&#34;&#34;
+        Create a case insensitive text matcher.
+
+        Args:
+            text: the text to match against.
+        &#34;&#34;&#34;
         self.text = text.upper()
 
     def __call__(self, text):
+        &#34;&#34;&#34;
+        Check if the text matches.
+
+        Args:
+            text: the text to check
+
+        Returns:
+            True if the text matches
+        &#34;&#34;&#34;
         return text.upper() == self.text
 
 
 class ifnot:
+    &#34;&#34;&#34;
+    A matcher that returns the negation of another matcher.
+
+    Example:
+        ```python
+        m1 = FeatureMatcher(f1=&#34;x&#34;, f2=22)
+        m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
+        ```
+    &#34;&#34;&#34;
     def __init__(self, other):
         self.other = other
 
@@ -177,17 +320,57 @@ class ifnot:
 <span>(</span><span>type=None, features=None, features_eq=None, text=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A callable that matches an ann.</p></div>
+<div class="desc"><p>A callable that matches an annotation.</p>
+<p>This creates a callable that can be used to check if an annotation satisfies all the constraints
+defined.</p>
+<p>Create an AnnMatcher instance.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>type</code></strong></dt>
+<dd>if not None, match the type. If this is a string, match the literal string, if it is
+a compiled regular expression, match that expression, if it is a callable, call it and
+use the return value.</dd>
+<dt><strong><code>features</code></strong></dt>
+<dd>if specified, it must be a dictionary which is used as the kwargs
+to create
+a FeatureMatcher instance for matching the features of the annotation.</dd>
+<dt><strong><code>features_eq</code></strong></dt>
+<dd>if specified, it must be a dictionary which is used as the kwargs
+to create
+a FeatureEqMatcher instance for matching the features of the annotation.
+Only one of features or features_eq should be used.</dd>
+<dt><strong><code>text</code></strong></dt>
+<dd>if not None, match the document text covered by the annotation. For this the
+matcher must be called with the optional <code>doc</code> parameter.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnnMatcher:
     &#34;&#34;&#34;
-    A callable that matches an ann.
+    A callable that matches an annotation.
+
+    This creates a callable that can be used to check if an annotation satisfies all the constraints
+    defined.
     &#34;&#34;&#34;
 
     def __init__(self, type=None, features=None, features_eq=None, text=None):
+        &#34;&#34;&#34;
+        Create an AnnMatcher instance.
+
+        Args:
+            type: if not None, match the type. If this is a string, match the literal string, if it is
+                a compiled regular expression, match that expression, if it is a callable, call it and
+                use the return value.
+            features: if specified, it must be a dictionary which is used as the kwargs  to create
+                a FeatureMatcher instance for matching the features of the annotation.
+            features_eq:  if specified, it must be a dictionary which is used as the kwargs  to create
+                a FeatureEqMatcher instance for matching the features of the annotation.
+                Only one of features or features_eq should be used.
+            text: if not None, match the document text covered by the annotation. For this the
+                matcher must be called with the optional `doc` parameter.
+        &#34;&#34;&#34;
         self.type = type
         if features_eq is not None:
             self.features_matcher = FeatureEqMatcher(**features_eq)
@@ -198,6 +381,18 @@ class ifnot:
         self.text = text
 
     def __call__(self, ann, doc=None):
+        &#34;&#34;&#34;
+        Check if the annotation matches.
+
+        Args:
+            ann: the annotation to check
+            doc: the document the annotation refers to, only needed if the matcher contains a &#34;text&#34;
+                constraint.
+
+        Returns:
+            True if the annotation matches, False otherwise.
+
+        &#34;&#34;&#34;
         if self.type is not None:
             if isinstance(self.type, str):
                 if self.type != ann.type:
@@ -225,6 +420,69 @@ class ifnot:
                     return False
         return True</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.matcher.AnnMatcher.__call__"><code class="name flex">
+<span>def <span class="ident">__call__</span></span>(<span>self, ann, doc=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the annotation matches.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ann</code></strong></dt>
+<dd>the annotation to check</dd>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document the annotation refers to, only needed if the matcher contains a "text"
+constraint.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if the annotation matches, False otherwise.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __call__(self, ann, doc=None):
+    &#34;&#34;&#34;
+    Check if the annotation matches.
+
+    Args:
+        ann: the annotation to check
+        doc: the document the annotation refers to, only needed if the matcher contains a &#34;text&#34;
+            constraint.
+
+    Returns:
+        True if the annotation matches, False otherwise.
+
+    &#34;&#34;&#34;
+    if self.type is not None:
+        if isinstance(self.type, str):
+            if self.type != ann.type:
+                return False
+        elif callable(self.type):
+            if not self.type(ann.type):
+                return False
+        elif isinstance(self.type, CLASS_RE_PATTERN) or isinstance(
+            self.type, CLASS_REGEX_PATTERN
+        ):
+            if not self.type.match(ann.type):
+                return False
+        else:
+            tmp = str(self.type)
+            if tmp != self.type:
+                return False
+    if self.features_matcher is not None:
+        if not self.features_matcher(ann.features):
+            return False
+    if self.text is not None:
+        if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
+            self.text, CLASS_REGEX_PATTERN
+        ):
+            if not self.text.match(doc[ann]):
+                return False
+    return True</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="gatenlp.pam.matcher.FeatureEqMatcher"><code class="flex name class">
 <span>class <span class="ident">FeatureEqMatcher</span></span>
@@ -232,7 +490,15 @@ class ifnot:
 </code></dt>
 <dd>
 <div class="desc"><p>Callable that matches the given dictionary against features and returns True only if all features
-match and there are no additional features.</p></div>
+match and there are no additional features.</p>
+<p>This works like FeatureMatcher, but all the features that get checked must satisfy the constraints
+and there must be no additional features.</p>
+<p>Create a FeatureEqMatcher instance.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>arbitrary key/value pairs to use for matching features.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -241,13 +507,34 @@ match and there are no additional features.</p></div>
     &#34;&#34;&#34;
     Callable that matches the given dictionary against features and returns True only if all features
     match and there are no additional features.
+
+    This works like FeatureMatcher, but all the features that get checked must satisfy the constraints
+    and there must be no additional features.
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
+        &#34;&#34;&#34;
+        Create a FeatureEqMatcher instance.
+
+        Args:
+            **kwargs: arbitrary key/value pairs to use for matching features.
+        &#34;&#34;&#34;
         self.features = kwargs
         self._fm = FeatureMatcher(**kwargs)
 
     def __call__(self, features):
+        &#34;&#34;&#34;
+        Check if the passed features match the constraints for this FeatureMatcher.
+
+        This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+        ONLY if the features do not contain additional features not included in the constraints.
+
+        Args:
+            features: the features to check
+
+        Returns:
+            True if the feature constraints are satisfied
+        &#34;&#34;&#34;
         for f in features.keys():
             if f not in self.features:
                 return False
@@ -255,13 +542,82 @@ match and there are no additional features.</p></div>
             return False
         return True</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.matcher.FeatureEqMatcher.__call__"><code class="name flex">
+<span>def <span class="ident">__call__</span></span>(<span>self, features)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the passed features match the constraints for this FeatureMatcher.</p>
+<p>This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+ONLY if the features do not contain additional features not included in the constraints.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>features</code></strong></dt>
+<dd>the features to check</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if the feature constraints are satisfied</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __call__(self, features):
+    &#34;&#34;&#34;
+    Check if the passed features match the constraints for this FeatureMatcher.
+
+    This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+    ONLY if the features do not contain additional features not included in the constraints.
+
+    Args:
+        features: the features to check
+
+    Returns:
+        True if the feature constraints are satisfied
+    &#34;&#34;&#34;
+    for f in features.keys():
+        if f not in self.features:
+            return False
+    if not self._fm(features):
+        return False
+    return True</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="gatenlp.pam.matcher.FeatureMatcher"><code class="flex name class">
 <span>class <span class="ident">FeatureMatcher</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Callable that matches the given dictionary against features.</p></div>
+<div class="desc"><p>Callable that matches the given dictionary against features.</p>
+<p>This creates a callable that can be used to easily check if features match the
+features and feature constraint defined by the matcher. When a matcher is created,
+the argument names are used as feature names and the argument values are either
+literal values to compare with or compiled regular expressions or callables.</p>
+<p>A FeatureMatcher matches as soon as all specified features match, no matter if the
+features we compare with contain additional features.</p>
+<p>In this example, the feature matcher will check if there are two features with the
+given names and values.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">fmatcher1 = FeatureMatcher(feature1 = &quot;somevalue&quot;, feature2 = 999)
+if fmatcher(ann.features):
+    print(&quot;Yay, both features are in ann.features!&quot;)
+</code></pre>
+<p>In this example <code>feature1</code> matches if it matches the regular expression, and feature2
+matches if the given callable returns true.</p>
+<h2 id="example_1">Example</h2>
+<pre><code class="language-python">def checksize(x):
+    return 12 &lt;= x &lt; 33
+NAMEPATTERN = re.compile(r&quot;[A-Z][a-z_0-9]+&quot;)
+fmatcher2 = FeatureMatcher(name = NAMEPATTERN, size = checksize)
+</code></pre>
+<p>Create a FeatureMatcher instance.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>arbitrary key/value pairs to use for matching features.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -269,12 +625,60 @@ match and there are no additional features.</p></div>
 <pre><code class="python">class FeatureMatcher:
     &#34;&#34;&#34;
     Callable that matches the given dictionary against features.
+
+    This creates a callable that can be used to easily check if features match the
+    features and feature constraint defined by the matcher. When a matcher is created,
+    the argument names are used as feature names and the argument values are either
+    literal values to compare with or compiled regular expressions or callables.
+
+    A FeatureMatcher matches as soon as all specified features match, no matter if the
+    features we compare with contain additional features.
+
+    In this example, the feature matcher will check if there are two features with the
+    given names and values.
+
+    Example:
+        ```python
+        fmatcher1 = FeatureMatcher(feature1 = &#34;somevalue&#34;, feature2 = 999)
+        if fmatcher(ann.features):
+            print(&#34;Yay, both features are in ann.features!&#34;)
+        ```
+
+    In this example `feature1` matches if it matches the regular expression, and feature2
+    matches if the given callable returns true.
+
+    Example:
+        ```python
+        def checksize(x):
+            return 12 &lt;= x &lt; 33
+        NAMEPATTERN = re.compile(r&#34;[A-Z][a-z_0-9]+&#34;)
+        fmatcher2 = FeatureMatcher(name = NAMEPATTERN, size = checksize)
+        ```
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
+        &#34;&#34;&#34;
+        Create a FeatureMatcher instance.
+
+        Args:
+            **kwargs: arbitrary key/value pairs to use for matching features.
+        &#34;&#34;&#34;
         self.fm = kwargs  # &#34;featurematcher&#34;
 
     def __call__(self, features):
+        &#34;&#34;&#34;
+        Check if the passed features match the constraints for this FeatureMatcher.
+
+        This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+        even if the features contain additional features not included in the constraints.
+
+        Args:
+            features: the features to check
+
+        Returns:
+            True if the feature constraints are satisfied
+
+        &#34;&#34;&#34;
         for fmn in self.fm.keys():  # &#34;featurematchername&#34;
             if fmn not in features:
                 # logger.debug(f&#34;Feature {fmn} not in features&#34;)
@@ -298,6 +702,65 @@ match and there are no additional features.</p></div>
                     return False
         return True</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.matcher.FeatureMatcher.__call__"><code class="name flex">
+<span>def <span class="ident">__call__</span></span>(<span>self, features)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the passed features match the constraints for this FeatureMatcher.</p>
+<p>This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+even if the features contain additional features not included in the constraints.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>features</code></strong></dt>
+<dd>the features to check</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>True if the feature constraints are satisfied</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __call__(self, features):
+    &#34;&#34;&#34;
+    Check if the passed features match the constraints for this FeatureMatcher.
+
+    This returns true if all the constraints defined for this FeatureMatcher are satisfied,
+    even if the features contain additional features not included in the constraints.
+
+    Args:
+        features: the features to check
+
+    Returns:
+        True if the feature constraints are satisfied
+
+    &#34;&#34;&#34;
+    for fmn in self.fm.keys():  # &#34;featurematchername&#34;
+        if fmn not in features:
+            # logger.debug(f&#34;Feature {fmn} not in features&#34;)
+            return False
+    for fmn, fmv in self.fm.items():  # &#34;featurematchername&#34;/&#34;featurematchervalue&#34;
+        feature = features[fmn]
+        if callable(fmv):
+            if not fmv(feature):
+                # logger.debug(f&#34;Callable {fmn} did not return True for {feature}&#34;)
+                return False
+        elif isinstance(fmv, CLASS_RE_PATTERN) or isinstance(
+            fmv, CLASS_REGEX_PATTERN
+        ):
+            fstr = str(feature)
+            if not fmv.match(fstr):
+                return False
+        else:
+            fstr = str(feature)
+            tmp = str(fmv)
+            if tmp != fstr:
+                return False
+    return True</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="gatenlp.pam.matcher.Pattern"><code class="flex name class">
 <span>class <span class="ident">CLASS_REGEX_PATTERN</span></span>
@@ -438,12 +901,25 @@ of pattern with the replacement repl.</p></div>
 <span>(</span><span>other)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A matcher that returns the negation of another matcher.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">m1 = FeatureMatcher(f1=&quot;x&quot;, f2=22)
+m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&quot;x&quot; and not f2=22
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ifnot:
+    &#34;&#34;&#34;
+    A matcher that returns the negation of another matcher.
+
+    Example:
+        ```python
+        m1 = FeatureMatcher(f1=&#34;x&#34;, f2=22)
+        m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
+        ```
+    &#34;&#34;&#34;
     def __init__(self, other):
         self.other = other
 
@@ -456,16 +932,59 @@ of pattern with the replacement repl.</p></div>
 <span>(</span><span>text)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A matcher for comparing text in a case insensitive way.</p>
+<p>This carries out the matching by using the upper-case versions of the text compared and the
+text to compare with. This makes sure that cases like German "ß" which expands to "SS" are
+handled correctly (while uppercase "SS" often should NOT get converted to lowercase "ß").</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">m1 = nocase(&quot;sometext&quot;)
+assert m1(&quot;SomeText&quot;)
+assert m1(&quot;SOMETEXT&quot;)
+</code></pre>
+<p>Create a case insensitive text matcher.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>text</code></strong></dt>
+<dd>the text to match against.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class nocase:
+    &#34;&#34;&#34;
+    A matcher for comparing text in a case insensitive way.
+
+    This carries out the matching by using the upper-case versions of the text compared and the
+    text to compare with. This makes sure that cases like German &#34;ß&#34; which expands to &#34;SS&#34; are
+    handled correctly (while uppercase &#34;SS&#34; often should NOT get converted to lowercase &#34;ß&#34;).
+
+    Example:
+        ```python
+        m1 = nocase(&#34;sometext&#34;)
+        assert m1(&#34;SomeText&#34;)
+        assert m1(&#34;SOMETEXT&#34;)
+        ```
+    &#34;&#34;&#34;
     def __init__(self, text):
+        &#34;&#34;&#34;
+        Create a case insensitive text matcher.
+
+        Args:
+            text: the text to match against.
+        &#34;&#34;&#34;
         self.text = text.upper()
 
     def __call__(self, text):
+        &#34;&#34;&#34;
+        Check if the text matches.
+
+        Args:
+            text: the text to check
+
+        Returns:
+            True if the text matches
+        &#34;&#34;&#34;
         return text.upper() == self.text</code></pre>
 </details>
 </dd>
@@ -487,12 +1006,21 @@ of pattern with the replacement repl.</p></div>
 <ul>
 <li>
 <h4><code><a title="gatenlp.pam.matcher.AnnMatcher" href="#gatenlp.pam.matcher.AnnMatcher">AnnMatcher</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.pam.matcher.AnnMatcher.__call__" href="#gatenlp.pam.matcher.AnnMatcher.__call__">__call__</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.pam.matcher.FeatureEqMatcher" href="#gatenlp.pam.matcher.FeatureEqMatcher">FeatureEqMatcher</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.pam.matcher.FeatureEqMatcher.__call__" href="#gatenlp.pam.matcher.FeatureEqMatcher.__call__">__call__</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.pam.matcher.FeatureMatcher" href="#gatenlp.pam.matcher.FeatureMatcher">FeatureMatcher</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.pam.matcher.FeatureMatcher.__call__" href="#gatenlp.pam.matcher.FeatureMatcher.__call__">__call__</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.pam.matcher.Pattern" href="#gatenlp.pam.matcher.Pattern">Pattern</a></code></h4>

@@ -519,6 +519,14 @@ class GateSlaveAnnotator(Annotator):
         If the GateSlaveAnnotator is not used any more, close() should be invoked to terminate
         the Java GATE Slave process.
 
+        Example:
+
+            ```python
+            pipeline = GateSlaveAnnotator("annie.xgapp")
+            for idx, doc in enumerate(mycorpus):
+                corpus[idx] = pipeline(doc)
+            ```
+
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE slave
             gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
