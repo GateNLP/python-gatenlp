@@ -237,3 +237,39 @@ def support_annotation_or_set(method):
             return method(self, left, right, **kwargs)
 
     return _support_annotation_or_set
+
+
+class _CheckHtml:
+
+    def _repr_html_(self):
+        return "yes"
+
+    def __repr__(self):
+        return "no"
+
+
+_checkhtml = _CheckHtml()
+
+_in_notebook = [None]
+
+
+def in_notebook():
+    if _in_notebook[0] is not None:
+        return _in_notebook[0]
+    try:
+        from IPython import get_ipython
+        ip = get_ipython()
+        if ip is None:
+            # we have IPython installed but not running from IPython
+            _in_notebook[0] = False
+        else:
+            from IPython.core.interactiveshell import InteractiveShell
+            format = InteractiveShell.instance().display_formatter.format
+            if len(format(_checkhtml, include="text/html")[0]):
+                _in_notebook[0] = True
+            else:
+                _in_notebook[0] = False
+    except:
+        # We do not even have IPython installed
+        _in_notebook[0] = False
+    return _in_notebook[0]

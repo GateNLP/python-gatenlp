@@ -599,6 +599,8 @@ class GateSlaveAnnotator(Annotator):
             # TODO: create the json for the pdoc restricted to these sets, and with setnames renamed
             # TODO: then send the document as JSON directly
             pass
+        # TODO: LIMIT the sets to send by directly sending the JSON using
+        # TODO: doc.save_mem(fmt="json", annsets=["set",  ("set2", ["Type1", "Type2"])])
         gdoc = self.gs.pdoc2gdoc(doc)
         self.gs.slave.run4Document(self.controller, gdoc)
         if self.sets_receive is not None:

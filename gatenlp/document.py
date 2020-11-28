@@ -3,10 +3,12 @@ Module that implements the Document class for representing gatenlp documents wit
 """
 
 from typing import KeysView
+from collections import defaultdict
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
 from gatenlp.features import Features
+from gatenlp.utils import in_notebook
 import logging
 import importlib
 import copy as lib_copy
@@ -450,7 +452,7 @@ class Document:
             self.text, self._features, asets
         )
 
-    def to_dict(self, offset_type=None, **kwargs):
+    def to_dict(self, offset_type=None, annsets=None, **kwargs):
         """Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
@@ -458,6 +460,11 @@ class Document:
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
+          annsets: if not None, a list of annotation set/type specifications: each element
+              is either a string, the name of the annotation set to include, or a tuple where the
+              first element is the annotation set name and the second element is either a type name or
+              a list of type names. The same annotation set name should not be used in more than one
+              specification.
           **kwargs:
 
         Returns:
@@ -478,11 +485,25 @@ class Document:
         else:
             offset_type = self.offset_type
 
-        return {
-            "annotation_sets": {
+        # create the annotation sets map
+        if annsets is not None:
+            annsets_dict = {}
+            for spec in annsets:
+                if isinstance(spec, str):
+                    annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+                else:
+                    setname, types = spec
+                    if isinstance(types, str):
+                        types = [types]
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+        else:
+            annsets_dict = {
                 name: aset.to_dict(**kwargs)
                 for name, aset in self._annotation_sets.items()
-            },
+            }
+
+        return {
+            "annotation_sets": annsets_dict,
             "text": self._text,
             "features": self._features.to_dict(),
             "offset_type": offset_type,
@@ -523,6 +544,7 @@ class Document:
         fmt=None,
         offset_type=None,
         mod="gatenlp.serialization.default",
+        annsets=None,
         **kwargs,
     ):
         """Save the document to the destination file.
@@ -532,12 +554,13 @@ class Document:
           fmt: serialization format, by default the format is inferred from the file extension.
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
+          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+              to include in the serialized document.
           kwargs: additional parameters for the document saver.
           **kwargs:
-
-        Returns:
-
         """
+        if annsets is not None:
+            kwargs["annsets"] = annsets
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(destination, fmt)
@@ -701,7 +724,9 @@ class Document:
         """
         return self._notebook_show()
 
-    def notebook_show(self, htmlid=None):
+    # TODO: maybe allow manual selection of how to show the document, e.g. also by
+    # writing to a tmp file and browsing in a browser, or pprint etc.
+    def show(self, htmlid=None, annsets=None):
         """
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -709,11 +734,17 @@ class Document:
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
+            annsets: if not None, a list of annotation set/type specifications. Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as the first element
+                and with a single type name or a list of type names as the second element
 
         """
-        self._notebook_show(htmlid=htmlid, display=True)
+        if in_notebook():
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+        else:
+            return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -727,6 +758,7 @@ class Document:
             add_js=False,
             offline=True,
             htmlid=htmlid,
+            annsets=annsets,
         )
         if display:
             display_html(html, raw=True)

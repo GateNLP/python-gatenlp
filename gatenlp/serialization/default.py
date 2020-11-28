@@ -701,7 +701,7 @@ class HtmlAnnViewerSerializer:
             raise Exception("Not a document!")
         doccopy = inst.deepcopy()
         doccopy.to_offset_type("j")
-        json = doccopy.save_mem(fmt="json")
+        json = doccopy.save_mem(fmt="json", **kwargs)
         htmlloc = os.path.join(
             os.path.dirname(__file__), "_htmlviewer", HTML_TEMPLATE_FILE_NAME
         )

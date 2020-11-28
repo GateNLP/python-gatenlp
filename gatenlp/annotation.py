@@ -368,7 +368,7 @@ class Annotation:
         else:
             return self.start <= start and self.end >= end
 
-    def to_dict(self, offset_mapper=None, offset_type=None):
+    def to_dict(self, offset_mapper=None, offset_type=None, **kwargs):
         """
         Return a representation of this annotation as a nested map. This representation is
         used for several serialization methods.

@@ -1111,22 +1111,30 @@ class AnnotationSet:
         """
         return "AnnotationSet({})".format(repr(list(self.iter())))
 
-    def to_dict(self, **kwargs):
+    def to_dict(self, anntypes=None, **kwargs):
         """
         Convert an annotation set to its dict representation.
 
         Args:
-          **kwargs: passed on to the dict creation of contained annotations.
+            anntypes: if not None, an iterable of annotation types to include
+            **kwargs: passed on to the dict creation of contained annotations.
 
         Returns:
             the dict representation of the annotation set.
         """
+        if anntypes is not None:
+            anntypesset = set(anntypes)
+            anns_list = list(
+                val.to_dict(**kwargs) for val in self._annotations.values() if val.type in anntypesset
+            )
+        else:
+            anns_list = list(
+                val.to_dict(**kwargs) for val in self._annotations.values()
+            )
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
             "name": self.name,
-            "annotations": list(
-                val.to_dict(**kwargs) for val in self._annotations.values()
-            ),
+            "annotations": anns_list,
             "next_annid": self._next_annid,
         }
 
