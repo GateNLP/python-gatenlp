@@ -60,7 +60,7 @@ class SerialCorpusExecutor:
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, "start"):
-            self.annotator.init()
+            self.annotator.start()
         if self.corpus:
             for idx, doc in enumerate(self.corpus):
                 self.n_in += 1
@@ -76,11 +76,17 @@ class SerialCorpusExecutor:
                     else:
                         continue
                 if self.destination is None:
-                    if id(ret) != id(doc):
-                        raise Exception(
-                            "Cannot update corpus if Annotator does not return the processed document"
-                        )
-                    self.corpus[idx] = doc
+                    if ret is None:
+                        self.n_out += 1
+                        continue
+                    if isinstance(ret, list):
+                        if len(ret) != 1:
+                            raise Exception(
+                                "Cannot update corpus if Annotator returns not exactly one document"
+                            )
+                        else:
+                            ret = ret[0]
+                    self.corpus[idx] = ret
                 else:
                     if ret is not None:
                         if isinstance(ret, list):
@@ -113,7 +119,7 @@ class SerialCorpusExecutor:
                         self.destination.append(ret)
                         self.n_out += 1
         if _has_method(self.annotator, "finish"):
-            rets = self.annotator.init()
+            rets = self.annotator.finish()
             return rets
         else:
             return None

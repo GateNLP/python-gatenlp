@@ -768,7 +768,7 @@ class Document:
 
 class MultiDocument(Document):
     """
-    NOTE: This is not implemented fully yet!
+    NOTE: This is just experimental for now, DO NOT USE!
 
     A MultiDocument can store more than one document, each identified by their ids. One of those
     documents is always the "active" one and the MultiDocument can be used just like a Document
@@ -792,6 +792,7 @@ class MultiDocument(Document):
     def __init__(
         self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
     ):
+        logger.warning("Experimental feature, DO NOT USE")
         self.documents = {}  # map from document id to document
         self._mappings = None  # TODO: we need to implement this
         self._docid = None
@@ -852,6 +853,16 @@ class MultiDocument(Document):
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
+        """
+        Create a MultiDocument from the dictionary representation.
+
+        Args:
+            dictrepr: the dictionary representation
+            **kwargs: additional kwargs to pass on
+
+        Returns:
+
+        """
         feats = dictrepr.get("features")
         docid = dictrepr.get("docid")
         doc = MultiDocument(dictrepr.get("text"), features=feats, docid=docid)
@@ -871,7 +882,5 @@ class MultiDocument(Document):
             did: Document.from_dict(d)
             for did, d in dictrepr.get("documents", {}).items()
         }
-        # mappingsrepr = dictrepr.get("mappings")
-        # if mappingsrepr:
-        #    doc._mappings = AnnotationMappingsOrWhatever.from_dict()
+        # TODO: get the mappings back!
         return doc
