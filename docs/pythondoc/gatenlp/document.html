@@ -32,10 +32,12 @@ Module that implements the Document class for representing gatenlp documents wit
 &#34;&#34;&#34;
 
 from typing import KeysView
+from collections import defaultdict
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import *
 from gatenlp.features import Features
+from gatenlp.utils import in_notebook
 import logging
 import importlib
 import copy as lib_copy
@@ -479,7 +481,7 @@ class Document:
             self.text, self._features, asets
         )
 
-    def to_dict(self, offset_type=None, **kwargs):
+    def to_dict(self, offset_type=None, annsets=None, **kwargs):
         &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
@@ -487,6 +489,11 @@ class Document:
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
+          annsets: if not None, a list of annotation set/type specifications: each element
+              is either a string, the name of the annotation set to include, or a tuple where the
+              first element is the annotation set name and the second element is either a type name or
+              a list of type names. The same annotation set name should not be used in more than one
+              specification.
           **kwargs:
 
         Returns:
@@ -507,11 +514,25 @@ class Document:
         else:
             offset_type = self.offset_type
 
-        return {
-            &#34;annotation_sets&#34;: {
+        # create the annotation sets map
+        if annsets is not None:
+            annsets_dict = {}
+            for spec in annsets:
+                if isinstance(spec, str):
+                    annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+                else:
+                    setname, types = spec
+                    if isinstance(types, str):
+                        types = [types]
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+        else:
+            annsets_dict = {
                 name: aset.to_dict(**kwargs)
                 for name, aset in self._annotation_sets.items()
-            },
+            }
+
+        return {
+            &#34;annotation_sets&#34;: annsets_dict,
             &#34;text&#34;: self._text,
             &#34;features&#34;: self._features.to_dict(),
             &#34;offset_type&#34;: offset_type,
@@ -552,6 +573,7 @@ class Document:
         fmt=None,
         offset_type=None,
         mod=&#34;gatenlp.serialization.default&#34;,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Save the document to the destination file.
@@ -561,12 +583,13 @@ class Document:
           fmt: serialization format, by default the format is inferred from the file extension.
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+              to include in the serialized document.
           kwargs: additional parameters for the document saver.
           **kwargs:
-
-        Returns:
-
         &#34;&#34;&#34;
+        if annsets is not None:
+            kwargs[&#34;annsets&#34;] = annsets
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(destination, fmt)
@@ -730,7 +753,9 @@ class Document:
         &#34;&#34;&#34;
         return self._notebook_show()
 
-    def notebook_show(self, htmlid=None):
+    # TODO: maybe allow manual selection of how to show the document, e.g. also by
+    # writing to a tmp file and browsing in a browser, or pprint etc.
+    def show(self, htmlid=None, annsets=None):
         &#34;&#34;&#34;
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -738,11 +763,17 @@ class Document:
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
+            annsets: if not None, a list of annotation set/type specifications. Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as the first element
+                and with a single type name or a list of type names as the second element
 
         &#34;&#34;&#34;
-        self._notebook_show(htmlid=htmlid, display=True)
+        if in_notebook():
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+        else:
+            return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -756,6 +787,7 @@ class Document:
             add_js=False,
             offline=True,
             htmlid=htmlid,
+            annsets=annsets,
         )
         if display:
             display_html(html, raw=True)
@@ -765,7 +797,7 @@ class Document:
 
 class MultiDocument(Document):
     &#34;&#34;&#34;
-    NOTE: This is not implemented fully yet!
+    NOTE: This is just experimental for now, DO NOT USE!
 
     A MultiDocument can store more than one document, each identified by their ids. One of those
     documents is always the &#34;active&#34; one and the MultiDocument can be used just like a Document
@@ -789,6 +821,7 @@ class MultiDocument(Document):
     def __init__(
         self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
     ):
+        logger.warning(&#34;Experimental feature, DO NOT USE&#34;)
         self.documents = {}  # map from document id to document
         self._mappings = None  # TODO: we need to implement this
         self._docid = None
@@ -849,6 +882,16 @@ class MultiDocument(Document):
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
+        &#34;&#34;&#34;
+        Create a MultiDocument from the dictionary representation.
+
+        Args:
+            dictrepr: the dictionary representation
+            **kwargs: additional kwargs to pass on
+
+        Returns:
+
+        &#34;&#34;&#34;
         feats = dictrepr.get(&#34;features&#34;)
         docid = dictrepr.get(&#34;docid&#34;)
         doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
@@ -868,9 +911,7 @@ class MultiDocument(Document):
             did: Document.from_dict(d)
             for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
         }
-        # mappingsrepr = dictrepr.get(&#34;mappings&#34;)
-        # if mappingsrepr:
-        #    doc._mappings = AnnotationMappingsOrWhatever.from_dict()
+        # TODO: get the mappings back!
         return doc</code></pre>
 </details>
 </section>
@@ -1358,7 +1399,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             self.text, self._features, asets
         )
 
-    def to_dict(self, offset_type=None, **kwargs):
+    def to_dict(self, offset_type=None, annsets=None, **kwargs):
         &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
@@ -1366,6 +1407,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
+          annsets: if not None, a list of annotation set/type specifications: each element
+              is either a string, the name of the annotation set to include, or a tuple where the
+              first element is the annotation set name and the second element is either a type name or
+              a list of type names. The same annotation set name should not be used in more than one
+              specification.
           **kwargs:
 
         Returns:
@@ -1386,11 +1432,25 @@ changelog: a ChangeLog instance to use to log changes.</p>
         else:
             offset_type = self.offset_type
 
-        return {
-            &#34;annotation_sets&#34;: {
+        # create the annotation sets map
+        if annsets is not None:
+            annsets_dict = {}
+            for spec in annsets:
+                if isinstance(spec, str):
+                    annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+                else:
+                    setname, types = spec
+                    if isinstance(types, str):
+                        types = [types]
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+        else:
+            annsets_dict = {
                 name: aset.to_dict(**kwargs)
                 for name, aset in self._annotation_sets.items()
-            },
+            }
+
+        return {
+            &#34;annotation_sets&#34;: annsets_dict,
             &#34;text&#34;: self._text,
             &#34;features&#34;: self._features.to_dict(),
             &#34;offset_type&#34;: offset_type,
@@ -1431,6 +1491,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
         fmt=None,
         offset_type=None,
         mod=&#34;gatenlp.serialization.default&#34;,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Save the document to the destination file.
@@ -1440,12 +1501,13 @@ changelog: a ChangeLog instance to use to log changes.</p>
           fmt: serialization format, by default the format is inferred from the file extension.
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+              to include in the serialized document.
           kwargs: additional parameters for the document saver.
           **kwargs:
-
-        Returns:
-
         &#34;&#34;&#34;
+        if annsets is not None:
+            kwargs[&#34;annsets&#34;] = annsets
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(destination, fmt)
@@ -1609,7 +1671,9 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         return self._notebook_show()
 
-    def notebook_show(self, htmlid=None):
+    # TODO: maybe allow manual selection of how to show the document, e.g. also by
+    # writing to a tmp file and browsing in a browser, or pprint etc.
+    def show(self, htmlid=None, annsets=None):
         &#34;&#34;&#34;
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -1617,11 +1681,17 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
+            annsets: if not None, a list of annotation set/type specifications. Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as the first element
+                and with a single type name or a list of type names as the second element
 
         &#34;&#34;&#34;
-        self._notebook_show(htmlid=htmlid, display=True)
+        if in_notebook():
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+        else:
+            return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -1635,6 +1705,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             add_js=False,
             offline=True,
             htmlid=htmlid,
+            annsets=annsets,
         )
         if display:
             display_html(html, raw=True)
@@ -2157,35 +2228,6 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
     return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.document.Document.notebook_show"><code class="name flex">
-<span>def <span class="ident">notebook_show</span></span>(<span>self, htmlid=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
-the generated HTML can be directly styled afterwards.
-This directly sends the rendered document to the cell (no display/HTML necessary).</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>htmlid</code></strong></dt>
-<dd>the HTML id prefix to use for classes and element ids.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def notebook_show(self, htmlid=None):
-    &#34;&#34;&#34;
-    Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
-    the generated HTML can be directly styled afterwards.
-    This directly sends the rendered document to the cell (no display/HTML necessary).
-
-    Args:
-        htmlid: the HTML id prefix to use for classes and element ids.
-
-    &#34;&#34;&#34;
-    self._notebook_show(htmlid=htmlid, display=True)</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.document.Document.remove_annset"><code class="name flex">
 <span>def <span class="ident">remove_annset</span></span>(<span>self, name: str)</span>
 </code></dt>
@@ -2221,7 +2263,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 </details>
 </dd>
 <dt id="gatenlp.document.Document.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>self, destination, fmt=None, offset_type=None, mod='gatenlp.serialization.default', **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>self, destination, fmt=None, offset_type=None, mod='gatenlp.serialization.default', annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save the document to the destination file.</p>
@@ -2235,11 +2277,13 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dd>store using the given offset type or keep the current if None (Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set names or tuples of set name and a list of annotation types
+to include in the serialized document.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the document saver.</dd>
 </dl>
-<p>**kwargs:
-Returns:</p></div>
+<p>**kwargs:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2250,6 +2294,7 @@ Returns:</p></div>
     fmt=None,
     offset_type=None,
     mod=&#34;gatenlp.serialization.default&#34;,
+    annsets=None,
     **kwargs,
 ):
     &#34;&#34;&#34;Save the document to the destination file.
@@ -2259,12 +2304,13 @@ Returns:</p></div>
       fmt: serialization format, by default the format is inferred from the file extension.
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+      annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+          to include in the serialized document.
       kwargs: additional parameters for the document saver.
       **kwargs:
-
-    Returns:
-
     &#34;&#34;&#34;
+    if annsets is not None:
+        kwargs[&#34;annsets&#34;] = annsets
     if fmt is None or isinstance(fmt, str):
         m = importlib.import_module(mod)
         saver = m.get_document_saver(destination, fmt)
@@ -2325,8 +2371,47 @@ Returns:</p></div>
         fmt(Document, self, to_mem=True, offset_type=offset_type, **kwargs)</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.document.Document.show"><code class="name flex">
+<span>def <span class="ident">show</span></span>(<span>self, htmlid=None, annsets=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+the generated HTML can be directly styled afterwards.
+This directly sends the rendered document to the cell (no display/HTML necessary).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>htmlid</code></strong></dt>
+<dd>the HTML id prefix to use for classes and element ids.</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set/type specifications. Each element is either
+the name of a set to fully include, or a tuple with the name of the set as the first element
+and with a single type name or a list of type names as the second element</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show(self, htmlid=None, annsets=None):
+    &#34;&#34;&#34;
+    Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+    the generated HTML can be directly styled afterwards.
+    This directly sends the rendered document to the cell (no display/HTML necessary).
+
+    Args:
+        htmlid: the HTML id prefix to use for classes and element ids.
+        annsets: if not None, a list of annotation set/type specifications. Each element is either
+            the name of a set to fully include, or a tuple with the name of the set as the first element
+            and with a single type name or a list of type names as the second element
+
+    &#34;&#34;&#34;
+    if in_notebook():
+        self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+    else:
+        return self.__str__()</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.document.Document.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, offset_type=None, **kwargs)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, offset_type=None, annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert this instance to a dictionary that can be used to re-create the instance with
@@ -2337,6 +2422,12 @@ field is considered a transient field!</p>
 <dl>
 <dt><strong><code>offset_type</code></strong></dt>
 <dd>convert to the given offset type on the fly (Default value = None)</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set/type specifications: each element
+is either a string, the name of the annotation set to include, or a tuple where the
+first element is the annotation set name and the second element is either a type name or
+a list of type names. The same annotation set name should not be used in more than one
+specification.</dd>
 </dl>
 <p>**kwargs:</p>
 <h2 id="returns">Returns</h2>
@@ -2345,7 +2436,7 @@ field is considered a transient field!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, offset_type=None, **kwargs):
+<pre><code class="python">def to_dict(self, offset_type=None, annsets=None, **kwargs):
     &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
     from_dict.
     NOTE: if there is an active changelog, it is not included in the output as this
@@ -2353,6 +2444,11 @@ field is considered a transient field!</p>
 
     Args:
       offset_type: convert to the given offset type on the fly (Default value = None)
+      annsets: if not None, a list of annotation set/type specifications: each element
+          is either a string, the name of the annotation set to include, or a tuple where the
+          first element is the annotation set name and the second element is either a type name or
+          a list of type names. The same annotation set name should not be used in more than one
+          specification.
       **kwargs:
 
     Returns:
@@ -2373,11 +2469,25 @@ field is considered a transient field!</p>
     else:
         offset_type = self.offset_type
 
-    return {
-        &#34;annotation_sets&#34;: {
+    # create the annotation sets map
+    if annsets is not None:
+        annsets_dict = {}
+        for spec in annsets:
+            if isinstance(spec, str):
+                annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+    else:
+        annsets_dict = {
             name: aset.to_dict(**kwargs)
             for name, aset in self._annotation_sets.items()
-        },
+        }
+
+    return {
+        &#34;annotation_sets&#34;: annsets_dict,
         &#34;text&#34;: self._text,
         &#34;features&#34;: self._features.to_dict(),
         &#34;offset_type&#34;: offset_type,
@@ -2451,7 +2561,7 @@ otherwise None.</p>
 <span>(</span><span>text: str = None, features=None, changelog: <a title="gatenlp.changelog.ChangeLog" href="changelog.html#gatenlp.changelog.ChangeLog">ChangeLog</a> = None, docid=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>NOTE: This is not implemented fully yet!</p>
+<div class="desc"><p>NOTE: This is just experimental for now, DO NOT USE!</p>
 <p>A MultiDocument can store more than one document, each identified by their ids. One of those
 documents is always the "active" one and the MultiDocument can be used just like a Document
 with that content. In addition, there are methods to make each of the other documents active
@@ -2467,7 +2577,7 @@ until the mapping is modified or removed.</p></div>
 </summary>
 <pre><code class="python">class MultiDocument(Document):
     &#34;&#34;&#34;
-    NOTE: This is not implemented fully yet!
+    NOTE: This is just experimental for now, DO NOT USE!
 
     A MultiDocument can store more than one document, each identified by their ids. One of those
     documents is always the &#34;active&#34; one and the MultiDocument can be used just like a Document
@@ -2491,6 +2601,7 @@ until the mapping is modified or removed.</p></div>
     def __init__(
         self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
     ):
+        logger.warning(&#34;Experimental feature, DO NOT USE&#34;)
         self.documents = {}  # map from document id to document
         self._mappings = None  # TODO: we need to implement this
         self._docid = None
@@ -2551,6 +2662,16 @@ until the mapping is modified or removed.</p></div>
 
     @staticmethod
     def from_dict(dictrepr, **kwargs):
+        &#34;&#34;&#34;
+        Create a MultiDocument from the dictionary representation.
+
+        Args:
+            dictrepr: the dictionary representation
+            **kwargs: additional kwargs to pass on
+
+        Returns:
+
+        &#34;&#34;&#34;
         feats = dictrepr.get(&#34;features&#34;)
         docid = dictrepr.get(&#34;docid&#34;)
         doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
@@ -2570,15 +2691,68 @@ until the mapping is modified or removed.</p></div>
             did: Document.from_dict(d)
             for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
         }
-        # mappingsrepr = dictrepr.get(&#34;mappings&#34;)
-        # if mappingsrepr:
-        #    doc._mappings = AnnotationMappingsOrWhatever.from_dict()
+        # TODO: get the mappings back!
         return doc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="gatenlp.document.Document" href="#gatenlp.document.Document">Document</a></li>
 </ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.document.MultiDocument.from_dict"><code class="name flex">
+<span>def <span class="ident">from_dict</span></span>(<span>dictrepr, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a MultiDocument from the dictionary representation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dictrepr</code></strong></dt>
+<dd>the dictionary representation</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>additional kwargs to pass on</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_dict(dictrepr, **kwargs):
+    &#34;&#34;&#34;
+    Create a MultiDocument from the dictionary representation.
+
+    Args:
+        dictrepr: the dictionary representation
+        **kwargs: additional kwargs to pass on
+
+    Returns:
+
+    &#34;&#34;&#34;
+    feats = dictrepr.get(&#34;features&#34;)
+    docid = dictrepr.get(&#34;docid&#34;)
+    doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
+    doc.name = dictrepr.get(&#34;name&#34;)
+    doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
+    if (
+        doc.offset_type != OFFSET_TYPE_JAVA
+        and doc.offset_type != OFFSET_TYPE_PYTHON
+    ):
+        raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
+    annsets = {
+        name: AnnotationSet.from_dict(adict, owner_doc=doc)
+        for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+    }
+    doc._annotation_sets = annsets
+    doc.documents = {
+        did: Document.from_dict(d)
+        for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
+    }
+    # TODO: get the mappings back!
+    return doc</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gatenlp.document.MultiDocument.docid"><code class="name">property/get <span class="ident">docid</span></code></dt>
@@ -2652,13 +2826,12 @@ def docid(self):
 <li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
 <li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
 <li><code><a title="gatenlp.document.Document.features" href="#gatenlp.document.Document.features">features</a></code></li>
-<li><code><a title="gatenlp.document.Document.from_dict" href="#gatenlp.document.Document.from_dict">from_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.load" href="#gatenlp.document.Document.load">load</a></code></li>
 <li><code><a title="gatenlp.document.Document.load_mem" href="#gatenlp.document.Document.load_mem">load_mem</a></code></li>
-<li><code><a title="gatenlp.document.Document.notebook_show" href="#gatenlp.document.Document.notebook_show">notebook_show</a></code></li>
 <li><code><a title="gatenlp.document.Document.remove_annset" href="#gatenlp.document.Document.remove_annset">remove_annset</a></code></li>
 <li><code><a title="gatenlp.document.Document.save" href="#gatenlp.document.Document.save">save</a></code></li>
 <li><code><a title="gatenlp.document.Document.save_mem" href="#gatenlp.document.Document.save_mem">save_mem</a></code></li>
+<li><code><a title="gatenlp.document.Document.show" href="#gatenlp.document.Document.show">show</a></code></li>
 <li><code><a title="gatenlp.document.Document.text" href="#gatenlp.document.Document.text">text</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_dict" href="#gatenlp.document.Document.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_offset_type" href="#gatenlp.document.Document.to_offset_type">to_offset_type</a></code></li>
@@ -2696,10 +2869,10 @@ def docid(self):
 <li><code><a title="gatenlp.document.Document.load" href="#gatenlp.document.Document.load">load</a></code></li>
 <li><code><a title="gatenlp.document.Document.load_mem" href="#gatenlp.document.Document.load_mem">load_mem</a></code></li>
 <li><code><a title="gatenlp.document.Document.name" href="#gatenlp.document.Document.name">name</a></code></li>
-<li><code><a title="gatenlp.document.Document.notebook_show" href="#gatenlp.document.Document.notebook_show">notebook_show</a></code></li>
 <li><code><a title="gatenlp.document.Document.remove_annset" href="#gatenlp.document.Document.remove_annset">remove_annset</a></code></li>
 <li><code><a title="gatenlp.document.Document.save" href="#gatenlp.document.Document.save">save</a></code></li>
 <li><code><a title="gatenlp.document.Document.save_mem" href="#gatenlp.document.Document.save_mem">save_mem</a></code></li>
+<li><code><a title="gatenlp.document.Document.show" href="#gatenlp.document.Document.show">show</a></code></li>
 <li><code><a title="gatenlp.document.Document.text" href="#gatenlp.document.Document.text">text</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_dict" href="#gatenlp.document.Document.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_offset_type" href="#gatenlp.document.Document.to_offset_type">to_offset_type</a></code></li>
@@ -2711,6 +2884,7 @@ def docid(self):
 <li><code><a title="gatenlp.document.MultiDocument.activate" href="#gatenlp.document.MultiDocument.activate">activate</a></code></li>
 <li><code><a title="gatenlp.document.MultiDocument.add_document" href="#gatenlp.document.MultiDocument.add_document">add_document</a></code></li>
 <li><code><a title="gatenlp.document.MultiDocument.docid" href="#gatenlp.document.MultiDocument.docid">docid</a></code></li>
+<li><code><a title="gatenlp.document.MultiDocument.from_dict" href="#gatenlp.document.MultiDocument.from_dict">from_dict</a></code></li>
 </ul>
 </li>
 </ul>

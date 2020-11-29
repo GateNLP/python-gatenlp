@@ -730,7 +730,7 @@ class HtmlAnnViewerSerializer:
             raise Exception(&#34;Not a document!&#34;)
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
-        json = doccopy.save_mem(fmt=&#34;json&#34;)
+        json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
             os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
         )
@@ -2241,7 +2241,7 @@ def value4objectwrapper(text):
             raise Exception(&#34;Not a document!&#34;)
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
-        json = doccopy.save_mem(fmt=&#34;json&#34;)
+        json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
             os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
         )
@@ -2440,7 +2440,7 @@ If True, no max haight is set and instead the height is set to a percentage (def
             raise Exception(&#34;Not a document!&#34;)
         doccopy = inst.deepcopy()
         doccopy.to_offset_type(&#34;j&#34;)
-        json = doccopy.save_mem(fmt=&#34;json&#34;)
+        json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
             os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
         )

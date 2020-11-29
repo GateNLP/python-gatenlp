@@ -265,7 +265,55 @@ def support_annotation_or_set(method):
         else:
             return method(self, left, right, **kwargs)
 
-    return _support_annotation_or_set</code></pre>
+    return _support_annotation_or_set
+
+
+class _CheckHtml:
+
+    def _repr_html_(self):
+        return &#34;yes&#34;
+
+    def __repr__(self):
+        return &#34;no&#34;
+
+
+_checkhtml = _CheckHtml()
+
+_in_notebook = [None]
+
+
+def in_notebook():
+    if _in_notebook[0] is not None:
+        return _in_notebook[0]
+    try:
+        from IPython import get_ipython
+        ip = get_ipython()
+        if ip is None:
+            # we have IPython installed but not running from IPython
+            _in_notebook[0] = False
+        else:
+            from IPython.core.interactiveshell import InteractiveShell
+            format = InteractiveShell.instance().display_formatter.format
+            if len(format(_checkhtml, include=&#34;text/html&#34;)[0]):
+                _in_notebook[0] = True
+            else:
+                _in_notebook[0] = False
+    except:
+        # We do not even have IPython installed
+        _in_notebook[0] = False
+    return _in_notebook[0]
+
+
+def allowspan(method):
+    @wraps(method)
+    def _allowspan(self, *args, **kwargs):
+        assert len(args) &gt; 1
+        maybespan = args[0]
+        if hasattr(maybespan, &#34;start&#34;) and hasattr(maybespan, &#34;end&#34;):
+            return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
+        else:
+            return method(self, *args, **kwargs)
+    return _allowspan</code></pre>
 </details>
 </section>
 <section>
@@ -275,6 +323,27 @@ def support_annotation_or_set(method):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="gatenlp.utils.allowspan"><code class="name flex">
+<span>def <span class="ident">allowspan</span></span>(<span>method)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def allowspan(method):
+    @wraps(method)
+    def _allowspan(self, *args, **kwargs):
+        assert len(args) &gt; 1
+        maybespan = args[0]
+        if hasattr(maybespan, &#34;start&#34;) and hasattr(maybespan, &#34;end&#34;):
+            return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
+        else:
+            return method(self, *args, **kwargs)
+    return _allowspan</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.utils.file4logger"><code class="name flex">
 <span>def <span class="ident">file4logger</span></span>(<span>thelogger, noext=False)</span>
 </code></dt>
@@ -309,6 +378,37 @@ def support_annotation_or_set(method):
                 lpath = os.path.splitext(lpath)[0]
             break
     return lpath</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.in_notebook"><code class="name flex">
+<span>def <span class="ident">in_notebook</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def in_notebook():
+    if _in_notebook[0] is not None:
+        return _in_notebook[0]
+    try:
+        from IPython import get_ipython
+        ip = get_ipython()
+        if ip is None:
+            # we have IPython installed but not running from IPython
+            _in_notebook[0] = False
+        else:
+            from IPython.core.interactiveshell import InteractiveShell
+            format = InteractiveShell.instance().display_formatter.format
+            if len(format(_checkhtml, include=&#34;text/html&#34;)[0]):
+                _in_notebook[0] = True
+            else:
+                _in_notebook[0] = False
+    except:
+        # We do not even have IPython installed
+        _in_notebook[0] = False
+    return _in_notebook[0]</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.utils.init_logger"><code class="name flex">
@@ -639,7 +739,9 @@ to create a length one span (start is the original offset, end is the original o
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="gatenlp.utils.allowspan" href="#gatenlp.utils.allowspan">allowspan</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
+<li><code><a title="gatenlp.utils.in_notebook" href="#gatenlp.utils.in_notebook">in_notebook</a></code></li>
 <li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
 <li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>

@@ -313,6 +313,7 @@ and instead the method AnnotationSet.add should be used.</p>
     only the features can be changed.
     &#34;&#34;&#34;
 
+    @allowspan
     def __init__(
         self, start: int, end: int, anntype: str, features=None, annid: int = 0
     ):
@@ -392,11 +393,11 @@ and instead the method AnnotationSet.add should be used.</p>
         return self._id
 
     @property
-    def span(self) -&gt; Tuple[int, int]:
+    def span(self) -&gt; Span:
         &#34;&#34;&#34;
         Returns a tuple with the start and end offset of the annotation.
         &#34;&#34;&#34;
-        return self.start, self.end
+        return Span(self._start, self._end)
 
     def _changelog(self):
         if self._owner_set is not None:
@@ -658,7 +659,7 @@ and instead the method AnnotationSet.add should be used.</p>
         else:
             return self.start &lt;= start and self.end &gt;= end
 
-    def to_dict(self, offset_mapper=None, offset_type=None):
+    def to_dict(self, offset_mapper=None, offset_type=None, **kwargs):
         &#34;&#34;&#34;
         Return a representation of this annotation as a nested map. This representation is
         used for several serialization methods.
@@ -708,9 +709,9 @@ and instead the method AnnotationSet.add should be used.</p>
           kwargs: ignored
         &#34;&#34;&#34;
         ann = Annotation(
-            start=dictrepr.get(&#34;start&#34;),
-            end=dictrepr.get(&#34;end&#34;),
-            anntype=dictrepr.get(&#34;type&#34;),
+            dictrepr.get(&#34;start&#34;),
+            dictrepr.get(&#34;end&#34;),
+            dictrepr.get(&#34;type&#34;),
             annid=dictrepr.get(&#34;id&#34;),
             features=dictrepr.get(&#34;features&#34;),
         )
@@ -774,9 +775,9 @@ def from_dict(dictrepr, owner_set=None, **kwargs):
       kwargs: ignored
     &#34;&#34;&#34;
     ann = Annotation(
-        start=dictrepr.get(&#34;start&#34;),
-        end=dictrepr.get(&#34;end&#34;),
-        anntype=dictrepr.get(&#34;type&#34;),
+        dictrepr.get(&#34;start&#34;),
+        dictrepr.get(&#34;end&#34;),
+        dictrepr.get(&#34;type&#34;),
         annid=dictrepr.get(&#34;id&#34;),
         features=dictrepr.get(&#34;features&#34;),
     )
@@ -857,7 +858,7 @@ def length(self) -&gt; int:
     return self.end - self.start</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.Annotation.span"><code class="name">property/get <span class="ident">span</span> : Tuple[int, int]</code></dt>
+<dt id="gatenlp.Annotation.span"><code class="name">property/get <span class="ident">span</span> : <a title="gatenlp.span.Span" href="span.html#gatenlp.span.Span">Span</a></code></dt>
 <dd>
 <div class="desc"><p>Returns a tuple with the start and end offset of the annotation.</p></div>
 <details class="source">
@@ -865,11 +866,11 @@ def length(self) -&gt; int:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def span(self) -&gt; Tuple[int, int]:
+def span(self) -&gt; Span:
     &#34;&#34;&#34;
     Returns a tuple with the start and end offset of the annotation.
     &#34;&#34;&#34;
-    return self.start, self.end</code></pre>
+    return Span(self._start, self._end)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Annotation.start"><code class="name">property/get <span class="ident">start</span> : int</code></dt>
@@ -1265,7 +1266,7 @@ def iswithin(self, start: int, end: int) -&gt; bool:
 </details>
 </dd>
 <dt id="gatenlp.Annotation.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, offset_mapper=None, offset_type=None)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, offset_mapper=None, offset_type=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a representation of this annotation as a nested map. This representation is
@@ -1284,7 +1285,7 @@ used for several serialization methods.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, offset_mapper=None, offset_type=None):
+<pre><code class="python">def to_dict(self, offset_mapper=None, offset_type=None, **kwargs):
     &#34;&#34;&#34;
     Return a representation of this annotation as a nested map. This representation is
     used for several serialization methods.
@@ -1679,6 +1680,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return self.end() - self.start()
 
+    @allowspan
     def add(
         self,
         start: int,
@@ -2403,14 +2405,14 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @property
-    def span(self) -&gt; Tuple[int, int]:
+    def span(self) -&gt; Span:
         &#34;&#34;&#34;
         Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
         and the largest end offset of any annotation.
         (Builds the offset index)
         &#34;&#34;&#34;
         self._create_index_by_offset()
-        return self._index_by_offset.min_start(), self._index_by_offset.max_end()
+        return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())
 
     def __contains__(self, annorannid: Union[int, Annotation]) -&gt; bool:
         &#34;&#34;&#34;
@@ -2436,22 +2438,30 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         return &#34;AnnotationSet({})&#34;.format(repr(list(self.iter())))
 
-    def to_dict(self, **kwargs):
+    def to_dict(self, anntypes=None, **kwargs):
         &#34;&#34;&#34;
         Convert an annotation set to its dict representation.
 
         Args:
-          **kwargs: passed on to the dict creation of contained annotations.
+            anntypes: if not None, an iterable of annotation types to include
+            **kwargs: passed on to the dict creation of contained annotations.
 
         Returns:
             the dict representation of the annotation set.
         &#34;&#34;&#34;
+        if anntypes is not None:
+            anntypesset = set(anntypes)
+            anns_list = list(
+                val.to_dict(**kwargs) for val in self._annotations.values() if val.type in anntypesset
+            )
+        else:
+            anns_list = list(
+                val.to_dict(**kwargs) for val in self._annotations.values()
+            )
         return {
             # NOTE: Changelog is not getting added as it is stored in the document part!
             &#34;name&#34;: self.name,
-            &#34;annotations&#34;: list(
-                val.to_dict(**kwargs) for val in self._annotations.values()
-            ),
+            &#34;annotations&#34;: anns_list,
             &#34;next_annid&#34;: self._next_annid,
         }
 
@@ -2734,7 +2744,7 @@ def size(self) -&gt; int:
     return len(self._annotations)</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.AnnotationSet.span"><code class="name">property/get <span class="ident">span</span> : Tuple[int, int]</code></dt>
+<dt id="gatenlp.AnnotationSet.span"><code class="name">property/get <span class="ident">span</span> : <a title="gatenlp.span.Span" href="span.html#gatenlp.span.Span">Span</a></code></dt>
 <dd>
 <div class="desc"><p>Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
 and the largest end offset of any annotation.
@@ -2744,14 +2754,14 @@ and the largest end offset of any annotation.
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def span(self) -&gt; Tuple[int, int]:
+def span(self) -&gt; Span:
     &#34;&#34;&#34;
     Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
     and the largest end offset of any annotation.
     (Builds the offset index)
     &#34;&#34;&#34;
     self._create_index_by_offset()
-    return self._index_by_offset.min_start(), self._index_by_offset.max_end()</code></pre>
+    return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.start"><code class="name">property/get <span class="ident">start</span></code></dt>
@@ -2826,7 +2836,8 @@ normally left unspecified and get assigned automatically.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add(
+<pre><code class="python">@allowspan
+def add(
     self,
     start: int,
     end: int,
@@ -3914,12 +3925,14 @@ def start_min_ge(
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, **kwargs)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, anntypes=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert an annotation set to its dict representation.</p>
 <h2 id="args">Args</h2>
 <dl>
+<dt><strong><code>anntypes</code></strong></dt>
+<dd>if not None, an iterable of annotation types to include</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>passed on to the dict creation of contained annotations.</dd>
 </dl>
@@ -3929,22 +3942,30 @@ def start_min_ge(
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, **kwargs):
+<pre><code class="python">def to_dict(self, anntypes=None, **kwargs):
     &#34;&#34;&#34;
     Convert an annotation set to its dict representation.
 
     Args:
-      **kwargs: passed on to the dict creation of contained annotations.
+        anntypes: if not None, an iterable of annotation types to include
+        **kwargs: passed on to the dict creation of contained annotations.
 
     Returns:
         the dict representation of the annotation set.
     &#34;&#34;&#34;
+    if anntypes is not None:
+        anntypesset = set(anntypes)
+        anns_list = list(
+            val.to_dict(**kwargs) for val in self._annotations.values() if val.type in anntypesset
+        )
+    else:
+        anns_list = list(
+            val.to_dict(**kwargs) for val in self._annotations.values()
+        )
     return {
         # NOTE: Changelog is not getting added as it is stored in the document part!
         &#34;name&#34;: self.name,
-        &#34;annotations&#34;: list(
-            val.to_dict(**kwargs) for val in self._annotations.values()
-        ),
+        &#34;annotations&#34;: anns_list,
         &#34;next_annid&#34;: self._next_annid,
     }</code></pre>
 </details>
@@ -5450,7 +5471,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             self.text, self._features, asets
         )
 
-    def to_dict(self, offset_type=None, **kwargs):
+    def to_dict(self, offset_type=None, annsets=None, **kwargs):
         &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
@@ -5458,6 +5479,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
+          annsets: if not None, a list of annotation set/type specifications: each element
+              is either a string, the name of the annotation set to include, or a tuple where the
+              first element is the annotation set name and the second element is either a type name or
+              a list of type names. The same annotation set name should not be used in more than one
+              specification.
           **kwargs:
 
         Returns:
@@ -5478,11 +5504,25 @@ changelog: a ChangeLog instance to use to log changes.</p>
         else:
             offset_type = self.offset_type
 
-        return {
-            &#34;annotation_sets&#34;: {
+        # create the annotation sets map
+        if annsets is not None:
+            annsets_dict = {}
+            for spec in annsets:
+                if isinstance(spec, str):
+                    annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+                else:
+                    setname, types = spec
+                    if isinstance(types, str):
+                        types = [types]
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+        else:
+            annsets_dict = {
                 name: aset.to_dict(**kwargs)
                 for name, aset in self._annotation_sets.items()
-            },
+            }
+
+        return {
+            &#34;annotation_sets&#34;: annsets_dict,
             &#34;text&#34;: self._text,
             &#34;features&#34;: self._features.to_dict(),
             &#34;offset_type&#34;: offset_type,
@@ -5523,6 +5563,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
         fmt=None,
         offset_type=None,
         mod=&#34;gatenlp.serialization.default&#34;,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Save the document to the destination file.
@@ -5532,12 +5573,13 @@ changelog: a ChangeLog instance to use to log changes.</p>
           fmt: serialization format, by default the format is inferred from the file extension.
           offset_type: store using the given offset type or keep the current if None (Default value = None)
           mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+              to include in the serialized document.
           kwargs: additional parameters for the document saver.
           **kwargs:
-
-        Returns:
-
         &#34;&#34;&#34;
+        if annsets is not None:
+            kwargs[&#34;annsets&#34;] = annsets
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(destination, fmt)
@@ -5701,7 +5743,9 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         return self._notebook_show()
 
-    def notebook_show(self, htmlid=None):
+    # TODO: maybe allow manual selection of how to show the document, e.g. also by
+    # writing to a tmp file and browsing in a browser, or pprint etc.
+    def show(self, htmlid=None, annsets=None):
         &#34;&#34;&#34;
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -5709,11 +5753,17 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
+            annsets: if not None, a list of annotation set/type specifications. Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as the first element
+                and with a single type name or a list of type names as the second element
 
         &#34;&#34;&#34;
-        self._notebook_show(htmlid=htmlid, display=True)
+        if in_notebook():
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+        else:
+            return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -5727,6 +5777,7 @@ changelog: a ChangeLog instance to use to log changes.</p>
             add_js=False,
             offline=True,
             htmlid=htmlid,
+            annsets=annsets,
         )
         if display:
             display_html(html, raw=True)
@@ -6249,35 +6300,6 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
     return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.Document.notebook_show"><code class="name flex">
-<span>def <span class="ident">notebook_show</span></span>(<span>self, htmlid=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
-the generated HTML can be directly styled afterwards.
-This directly sends the rendered document to the cell (no display/HTML necessary).</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>htmlid</code></strong></dt>
-<dd>the HTML id prefix to use for classes and element ids.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def notebook_show(self, htmlid=None):
-    &#34;&#34;&#34;
-    Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
-    the generated HTML can be directly styled afterwards.
-    This directly sends the rendered document to the cell (no display/HTML necessary).
-
-    Args:
-        htmlid: the HTML id prefix to use for classes and element ids.
-
-    &#34;&#34;&#34;
-    self._notebook_show(htmlid=htmlid, display=True)</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.Document.remove_annset"><code class="name flex">
 <span>def <span class="ident">remove_annset</span></span>(<span>self, name: str)</span>
 </code></dt>
@@ -6313,7 +6335,7 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 </details>
 </dd>
 <dt id="gatenlp.Document.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>self, destination, fmt=None, offset_type=None, mod='gatenlp.serialization.default', **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>self, destination, fmt=None, offset_type=None, mod='gatenlp.serialization.default', annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save the document to the destination file.</p>
@@ -6327,11 +6349,13 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dd>store using the given offset type or keep the current if None (Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
 <dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set names or tuples of set name and a list of annotation types
+to include in the serialized document.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the document saver.</dd>
 </dl>
-<p>**kwargs:
-Returns:</p></div>
+<p>**kwargs:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6342,6 +6366,7 @@ Returns:</p></div>
     fmt=None,
     offset_type=None,
     mod=&#34;gatenlp.serialization.default&#34;,
+    annsets=None,
     **kwargs,
 ):
     &#34;&#34;&#34;Save the document to the destination file.
@@ -6351,12 +6376,13 @@ Returns:</p></div>
       fmt: serialization format, by default the format is inferred from the file extension.
       offset_type: store using the given offset type or keep the current if None (Default value = None)
       mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+      annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
+          to include in the serialized document.
       kwargs: additional parameters for the document saver.
       **kwargs:
-
-    Returns:
-
     &#34;&#34;&#34;
+    if annsets is not None:
+        kwargs[&#34;annsets&#34;] = annsets
     if fmt is None or isinstance(fmt, str):
         m = importlib.import_module(mod)
         saver = m.get_document_saver(destination, fmt)
@@ -6417,8 +6443,47 @@ Returns:</p></div>
         fmt(Document, self, to_mem=True, offset_type=offset_type, **kwargs)</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.Document.show"><code class="name flex">
+<span>def <span class="ident">show</span></span>(<span>self, htmlid=None, annsets=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+the generated HTML can be directly styled afterwards.
+This directly sends the rendered document to the cell (no display/HTML necessary).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>htmlid</code></strong></dt>
+<dd>the HTML id prefix to use for classes and element ids.</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set/type specifications. Each element is either
+the name of a set to fully include, or a tuple with the name of the set as the first element
+and with a single type name or a list of type names as the second element</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show(self, htmlid=None, annsets=None):
+    &#34;&#34;&#34;
+    Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+    the generated HTML can be directly styled afterwards.
+    This directly sends the rendered document to the cell (no display/HTML necessary).
+
+    Args:
+        htmlid: the HTML id prefix to use for classes and element ids.
+        annsets: if not None, a list of annotation set/type specifications. Each element is either
+            the name of a set to fully include, or a tuple with the name of the set as the first element
+            and with a single type name or a list of type names as the second element
+
+    &#34;&#34;&#34;
+    if in_notebook():
+        self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+    else:
+        return self.__str__()</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.Document.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, offset_type=None, **kwargs)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, offset_type=None, annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert this instance to a dictionary that can be used to re-create the instance with
@@ -6429,6 +6494,12 @@ field is considered a transient field!</p>
 <dl>
 <dt><strong><code>offset_type</code></strong></dt>
 <dd>convert to the given offset type on the fly (Default value = None)</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if not None, a list of annotation set/type specifications: each element
+is either a string, the name of the annotation set to include, or a tuple where the
+first element is the annotation set name and the second element is either a type name or
+a list of type names. The same annotation set name should not be used in more than one
+specification.</dd>
 </dl>
 <p>**kwargs:</p>
 <h2 id="returns">Returns</h2>
@@ -6437,7 +6508,7 @@ field is considered a transient field!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, offset_type=None, **kwargs):
+<pre><code class="python">def to_dict(self, offset_type=None, annsets=None, **kwargs):
     &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
     from_dict.
     NOTE: if there is an active changelog, it is not included in the output as this
@@ -6445,6 +6516,11 @@ field is considered a transient field!</p>
 
     Args:
       offset_type: convert to the given offset type on the fly (Default value = None)
+      annsets: if not None, a list of annotation set/type specifications: each element
+          is either a string, the name of the annotation set to include, or a tuple where the
+          first element is the annotation set name and the second element is either a type name or
+          a list of type names. The same annotation set name should not be used in more than one
+          specification.
       **kwargs:
 
     Returns:
@@ -6465,11 +6541,25 @@ field is considered a transient field!</p>
     else:
         offset_type = self.offset_type
 
-    return {
-        &#34;annotation_sets&#34;: {
+    # create the annotation sets map
+    if annsets is not None:
+        annsets_dict = {}
+        for spec in annsets:
+            if isinstance(spec, str):
+                annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+    else:
+        annsets_dict = {
             name: aset.to_dict(**kwargs)
             for name, aset in self._annotation_sets.items()
-        },
+        }
+
+    return {
+        &#34;annotation_sets&#34;: annsets_dict,
         &#34;text&#34;: self._text,
         &#34;features&#34;: self._features.to_dict(),
         &#34;offset_type&#34;: offset_type,
@@ -6677,10 +6767,10 @@ otherwise None.</p>
 <li><code><a title="gatenlp.Document.load" href="#gatenlp.Document.load">load</a></code></li>
 <li><code><a title="gatenlp.Document.load_mem" href="#gatenlp.Document.load_mem">load_mem</a></code></li>
 <li><code><a title="gatenlp.Document.name" href="#gatenlp.Document.name">name</a></code></li>
-<li><code><a title="gatenlp.Document.notebook_show" href="#gatenlp.Document.notebook_show">notebook_show</a></code></li>
 <li><code><a title="gatenlp.Document.remove_annset" href="#gatenlp.Document.remove_annset">remove_annset</a></code></li>
 <li><code><a title="gatenlp.Document.save" href="#gatenlp.Document.save">save</a></code></li>
 <li><code><a title="gatenlp.Document.save_mem" href="#gatenlp.Document.save_mem">save_mem</a></code></li>
+<li><code><a title="gatenlp.Document.show" href="#gatenlp.Document.show">show</a></code></li>
 <li><code><a title="gatenlp.Document.text" href="#gatenlp.Document.text">text</a></code></li>
 <li><code><a title="gatenlp.Document.to_dict" href="#gatenlp.Document.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.Document.to_offset_type" href="#gatenlp.Document.to_offset_type">to_offset_type</a></code></li>
