@@ -39,6 +39,12 @@ a Java GATE process in two different ways:
   with python code
 * the python code can remote-control a Jave GATE instance
 
+## Versions and Roadmap
+
+* Versions 0.x are unpublished
+* Versions 1.0.x are public releases with feedback that may change APIs and change main parts of the software
+* Versions 1.x are public stable releases
+
 ## More information and documentation
 
 * [Documentation](https://gatenlp.github.io/python-gatenlp/) with
