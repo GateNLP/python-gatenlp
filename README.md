@@ -48,7 +48,7 @@ a Java GATE process in two different ways:
 ## More information and documentation
 
 * [Documentation](https://gatenlp.github.io/python-gatenlp/) 
-* [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/)
+* [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
 
 ---
 
