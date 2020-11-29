@@ -27,6 +27,7 @@ class TestOffsetMapper01:
 class TestDocument01:
     def test_document01m01(self):
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
+        from gatenlp.span import Span
 
         doc1 = Document(
             "This is a \U0001F4A9 document.\n이것은 문서입니다 \U0001F4A9\nЭто \U0001F4A9 документ\nاین یک سند \U0001F4A9 است"
@@ -44,7 +45,7 @@ class TestDocument01:
         ann3 = annset1.add(0, 22, "Type2", {"feat1": True})
         ann3id = ann3.id
         assert ann3id in annset1
-        assert annset1.span == (0, 22)
+        assert annset1.span == Span(0, 22)
         retset1 = annset1.within(0, 10)
         # print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG: ", retset1)
         assert retset1.isdetached()
