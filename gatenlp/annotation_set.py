@@ -6,9 +6,10 @@ from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Gener
 from collections.abc import Iterable
 from collections import defaultdict
 import copy
+from gatenlp.span import Span
 from gatenlp.annotation import Annotation
 from gatenlp.impl import SortedIntvls
-from gatenlp.utils import support_annotation_or_set
+from gatenlp.utils import support_annotation_or_set, allowspan
 
 __pdoc__ = {
     "AnnotationSet.__iter__": True,
@@ -354,6 +355,7 @@ class AnnotationSet:
         """
         return self.end() - self.start()
 
+    @allowspan
     def add(
         self,
         start: int,
@@ -1078,14 +1080,14 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @property
-    def span(self) -> Tuple[int, int]:
+    def span(self) -> Span:
         """
         Returns a tuple with the start and end offset the corresponds to the smallest start offset of any annotation
         and the largest end offset of any annotation.
         (Builds the offset index)
         """
         self._create_index_by_offset()
-        return self._index_by_offset.min_start(), self._index_by_offset.max_end()
+        return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())
 
     def __contains__(self, annorannid: Union[int, Annotation]) -> bool:
         """

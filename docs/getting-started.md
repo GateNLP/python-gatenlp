@@ -601,26 +601,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#PSTNCHIUEG-wrapper { color: black !important; }</style>
-<div id="PSTNCHIUEG-wrapper">
+<div><style>#XOJKUGCHGZ-wrapper { color: black !important; }</style>
+<div id="XOJKUGCHGZ-wrapper">
 
 <div>
-
 <style>
-#PSTNCHIUEG-content {
+#XOJKUGCHGZ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.PSTNCHIUEG-row {
+.XOJKUGCHGZ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.PSTNCHIUEG-col {
+.XOJKUGCHGZ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -630,23 +629,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.PSTNCHIUEG-hdr {
+.XOJKUGCHGZ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.PSTNCHIUEG-label {
+.XOJKUGCHGZ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.PSTNCHIUEG-input {
+.XOJKUGCHGZ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#PSTNCHIUEG-popup {
+#XOJKUGCHGZ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -661,45 +660,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.PSTNCHIUEG-selection {
+.XOJKUGCHGZ-selection {
     margin-bottom: 5px;
 }
 
-.PSTNCHIUEG-featuretable {
+.XOJKUGCHGZ-featuretable {
     margin-top: 10px;
 }
 
-.PSTNCHIUEG-fname {
+.XOJKUGCHGZ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.PSTNCHIUEG-fvalue {
+.XOJKUGCHGZ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="PSTNCHIUEG-content">
-        <div id="PSTNCHIUEG-popup" style="display: none;">
+  <div id="XOJKUGCHGZ-content">
+        <div id="XOJKUGCHGZ-popup" style="display: none;">
         </div>
-        <div class="PSTNCHIUEG-row" id="PSTNCHIUEG-row1" style="height:67vh; min-height:100px;">
-            <div id="PSTNCHIUEG-text-wrapper" class="PSTNCHIUEG-col" style="width:70%;">
-                <div class="PSTNCHIUEG-hdr" id="PSTNCHIUEG-dochdr"></div>
-                <div id="PSTNCHIUEG-text">
+        <div class="XOJKUGCHGZ-row" id="XOJKUGCHGZ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="XOJKUGCHGZ-text-wrapper" class="XOJKUGCHGZ-col" style="width:70%;">
+                <div class="XOJKUGCHGZ-hdr" id="XOJKUGCHGZ-dochdr"></div>
+                <div id="XOJKUGCHGZ-text">
                 </div>
             </div>
-            <div id="PSTNCHIUEG-chooser" class="PSTNCHIUEG-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="XOJKUGCHGZ-chooser" class="XOJKUGCHGZ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="PSTNCHIUEG-row" id="PSTNCHIUEG-row2" style="height:30vh; min-height: 100px;">
-            <div id="PSTNCHIUEG-details" class="PSTNCHIUEG-col" style="width:100%; border-top-width: 0px;">
+        <div class="XOJKUGCHGZ-row" id="XOJKUGCHGZ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="XOJKUGCHGZ-details" class="XOJKUGCHGZ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="PSTNCHIUEG-data">
+    <script type="application/json" id="XOJKUGCHGZ-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("PSTNCHIUEG-");
+        gatenlp_run("XOJKUGCHGZ-");
     </script>
   </div>
 

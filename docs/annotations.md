@@ -575,25 +575,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#DMGMPMXALZ-wrapper { color: black !important; }</style>
-<div id="DMGMPMXALZ-wrapper">
+<div><style>#QAAKPJICDI-wrapper { color: black !important; }</style>
+<div id="QAAKPJICDI-wrapper">
 
 <div>
 <style>
-#DMGMPMXALZ-content {
+#QAAKPJICDI-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.DMGMPMXALZ-row {
+.QAAKPJICDI-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.DMGMPMXALZ-col {
+.QAAKPJICDI-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -603,23 +603,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.DMGMPMXALZ-hdr {
+.QAAKPJICDI-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.DMGMPMXALZ-label {
+.QAAKPJICDI-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.DMGMPMXALZ-input {
+.QAAKPJICDI-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#DMGMPMXALZ-popup {
+#QAAKPJICDI-popup {
     display: none;
     color: black;
     position: absolute;
@@ -634,50 +634,94 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.DMGMPMXALZ-selection {
+.QAAKPJICDI-selection {
     margin-bottom: 5px;
 }
 
-.DMGMPMXALZ-featuretable {
+.QAAKPJICDI-featuretable {
     margin-top: 10px;
 }
 
-.DMGMPMXALZ-fname {
+.QAAKPJICDI-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.DMGMPMXALZ-fvalue {
+.QAAKPJICDI-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="DMGMPMXALZ-content">
-        <div id="DMGMPMXALZ-popup" style="display: none;">
+  <div id="QAAKPJICDI-content">
+        <div id="QAAKPJICDI-popup" style="display: none;">
         </div>
-        <div class="DMGMPMXALZ-row" id="DMGMPMXALZ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="DMGMPMXALZ-text-wrapper" class="DMGMPMXALZ-col" style="width:70%;">
-                <div class="DMGMPMXALZ-hdr" id="DMGMPMXALZ-dochdr"></div>
-                <div id="DMGMPMXALZ-text">
+        <div class="QAAKPJICDI-row" id="QAAKPJICDI-row1" style="max-height: 20em; min-height:5em;">
+            <div id="QAAKPJICDI-text-wrapper" class="QAAKPJICDI-col" style="width:70%;">
+                <div class="QAAKPJICDI-hdr" id="QAAKPJICDI-dochdr"></div>
+                <div id="QAAKPJICDI-text">
                 </div>
             </div>
-            <div id="DMGMPMXALZ-chooser" class="DMGMPMXALZ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="QAAKPJICDI-chooser" class="QAAKPJICDI-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="DMGMPMXALZ-row" id="DMGMPMXALZ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="DMGMPMXALZ-details" class="DMGMPMXALZ-col" style="width:100%; border-top-width: 0px;">
+        <div class="QAAKPJICDI-row" id="QAAKPJICDI-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="QAAKPJICDI-details" class="QAAKPJICDI-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="DMGMPMXALZ-data">
+    <script type="application/json" id="QAAKPJICDI-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("DMGMPMXALZ-");
+        gatenlp_run("QAAKPJICDI-");
     </script>
   </div>
 
 </div></div>
 
+
+
+## Spans 
+
+Span objects just represent a an offset span. Sometimes it is necessary to keep around just spans without the additional information represented in an Annotation. This is what Span objects can be used for.
+
+Span objects have the same methods for checking overlap, coextensiveness etc. as Annotations. 
+
+In addition, Spans can often be used with methods where start,end offsets can be used.
+
+
+```python
+from gatenlp import Span
+
+span1 = Span(0,3)
+span2 = Span(2,3)
+span3 = Span(2,3)
+span4 = Span(3,5)
+
+# Create a span from an Annotation
+span5 = Span(ann_tok1)
+```
+
+
+```python
+assert span1.isoverlapping(span2)
+assert span1.iscovering(span2)
+assert span2.iscoextensive(span3)
+assert span2.iswithin(span1)
+```
+
+
+```python
+# Create a (detached) Annotation using a span
+ann1 = Annotation(span1, "Type")
+print(ann1)
+
+# Create a document Annotation using a span
+ann2 = doc.annset().add(span1, "Type")
+print(ann2)
+```
+
+    Annotation(0,3,Type,features=Features({}),id=0)
+    Annotation(0,3,Type,features=Features({}),id=6)
 
 
 

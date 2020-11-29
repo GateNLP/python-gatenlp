@@ -542,26 +542,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#QTCIHAQBHQ-wrapper { color: black !important; }</style>
-<div id="QTCIHAQBHQ-wrapper">
+<div><style>#SOYZVLKZWF-wrapper { color: black !important; }</style>
+<div id="SOYZVLKZWF-wrapper">
 
 <div>
-
 <style>
-#QTCIHAQBHQ-content {
+#SOYZVLKZWF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.QTCIHAQBHQ-row {
+.SOYZVLKZWF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.QTCIHAQBHQ-col {
+.SOYZVLKZWF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -571,23 +570,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.QTCIHAQBHQ-hdr {
+.SOYZVLKZWF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.QTCIHAQBHQ-label {
+.SOYZVLKZWF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.QTCIHAQBHQ-input {
+.SOYZVLKZWF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#QTCIHAQBHQ-popup {
+#SOYZVLKZWF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -602,45 +601,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.QTCIHAQBHQ-selection {
+.SOYZVLKZWF-selection {
     margin-bottom: 5px;
 }
 
-.QTCIHAQBHQ-featuretable {
+.SOYZVLKZWF-featuretable {
     margin-top: 10px;
 }
 
-.QTCIHAQBHQ-fname {
+.SOYZVLKZWF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.QTCIHAQBHQ-fvalue {
+.SOYZVLKZWF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="QTCIHAQBHQ-content">
-        <div id="QTCIHAQBHQ-popup" style="display: none;">
+  <div id="SOYZVLKZWF-content">
+        <div id="SOYZVLKZWF-popup" style="display: none;">
         </div>
-        <div class="QTCIHAQBHQ-row" id="QTCIHAQBHQ-row1" style="height:67vh; min-height:100px;">
-            <div id="QTCIHAQBHQ-text-wrapper" class="QTCIHAQBHQ-col" style="width:70%;">
-                <div class="QTCIHAQBHQ-hdr" id="QTCIHAQBHQ-dochdr"></div>
-                <div id="QTCIHAQBHQ-text">
+        <div class="SOYZVLKZWF-row" id="SOYZVLKZWF-row1" style="max-height: 20em; min-height:5em;">
+            <div id="SOYZVLKZWF-text-wrapper" class="SOYZVLKZWF-col" style="width:70%;">
+                <div class="SOYZVLKZWF-hdr" id="SOYZVLKZWF-dochdr"></div>
+                <div id="SOYZVLKZWF-text">
                 </div>
             </div>
-            <div id="QTCIHAQBHQ-chooser" class="QTCIHAQBHQ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="SOYZVLKZWF-chooser" class="SOYZVLKZWF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="QTCIHAQBHQ-row" id="QTCIHAQBHQ-row2" style="height:30vh; min-height: 100px;">
-            <div id="QTCIHAQBHQ-details" class="QTCIHAQBHQ-col" style="width:100%; border-top-width: 0px;">
+        <div class="SOYZVLKZWF-row" id="SOYZVLKZWF-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="SOYZVLKZWF-details" class="SOYZVLKZWF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="QTCIHAQBHQ-data">
+    <script type="application/json" id="SOYZVLKZWF-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 3}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("QTCIHAQBHQ-");
+        gatenlp_run("SOYZVLKZWF-");
     </script>
   </div>
 
@@ -651,26 +650,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#WHSWSWSLIY-wrapper { color: black !important; }</style>
-<div id="WHSWSWSLIY-wrapper">
+<div><style>#NQCMTNZWYF-wrapper { color: black !important; }</style>
+<div id="NQCMTNZWYF-wrapper">
 
 <div>
-
 <style>
-#WHSWSWSLIY-content {
+#NQCMTNZWYF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.WHSWSWSLIY-row {
+.NQCMTNZWYF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.WHSWSWSLIY-col {
+.NQCMTNZWYF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -680,23 +678,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.WHSWSWSLIY-hdr {
+.NQCMTNZWYF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.WHSWSWSLIY-label {
+.NQCMTNZWYF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.WHSWSWSLIY-input {
+.NQCMTNZWYF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#WHSWSWSLIY-popup {
+#NQCMTNZWYF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -711,45 +709,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.WHSWSWSLIY-selection {
+.NQCMTNZWYF-selection {
     margin-bottom: 5px;
 }
 
-.WHSWSWSLIY-featuretable {
+.NQCMTNZWYF-featuretable {
     margin-top: 10px;
 }
 
-.WHSWSWSLIY-fname {
+.NQCMTNZWYF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.WHSWSWSLIY-fvalue {
+.NQCMTNZWYF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="WHSWSWSLIY-content">
-        <div id="WHSWSWSLIY-popup" style="display: none;">
+  <div id="NQCMTNZWYF-content">
+        <div id="NQCMTNZWYF-popup" style="display: none;">
         </div>
-        <div class="WHSWSWSLIY-row" id="WHSWSWSLIY-row1" style="height:67vh; min-height:100px;">
-            <div id="WHSWSWSLIY-text-wrapper" class="WHSWSWSLIY-col" style="width:70%;">
-                <div class="WHSWSWSLIY-hdr" id="WHSWSWSLIY-dochdr"></div>
-                <div id="WHSWSWSLIY-text">
+        <div class="NQCMTNZWYF-row" id="NQCMTNZWYF-row1" style="max-height: 20em; min-height:5em;">
+            <div id="NQCMTNZWYF-text-wrapper" class="NQCMTNZWYF-col" style="width:70%;">
+                <div class="NQCMTNZWYF-hdr" id="NQCMTNZWYF-dochdr"></div>
+                <div id="NQCMTNZWYF-text">
                 </div>
             </div>
-            <div id="WHSWSWSLIY-chooser" class="WHSWSWSLIY-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="NQCMTNZWYF-chooser" class="NQCMTNZWYF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="WHSWSWSLIY-row" id="WHSWSWSLIY-row2" style="height:30vh; min-height: 100px;">
-            <div id="WHSWSWSLIY-details" class="WHSWSWSLIY-col" style="width:100%; border-top-width: 0px;">
+        <div class="NQCMTNZWYF-row" id="NQCMTNZWYF-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="NQCMTNZWYF-details" class="NQCMTNZWYF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="WHSWSWSLIY-data">
+    <script type="application/json" id="NQCMTNZWYF-data">
     {"annotation_sets": {}, "text": "This is some text", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("WHSWSWSLIY-");
+        gatenlp_run("NQCMTNZWYF-");
     </script>
   </div>
 
@@ -765,26 +763,25 @@ display(doc2)
 ```
 
 
-<div><style>#RSJGOFYGAN-wrapper { color: black !important; }</style>
-<div id="RSJGOFYGAN-wrapper">
+<div><style>#EUEEXXCJJX-wrapper { color: black !important; }</style>
+<div id="EUEEXXCJJX-wrapper">
 
 <div>
-
 <style>
-#RSJGOFYGAN-content {
+#EUEEXXCJJX-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RSJGOFYGAN-row {
+.EUEEXXCJJX-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RSJGOFYGAN-col {
+.EUEEXXCJJX-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -794,23 +791,23 @@ display(doc2)
     overflow-y: auto;
 }
 
-.RSJGOFYGAN-hdr {
+.EUEEXXCJJX-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RSJGOFYGAN-label {
+.EUEEXXCJJX-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RSJGOFYGAN-input {
+.EUEEXXCJJX-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RSJGOFYGAN-popup {
+#EUEEXXCJJX-popup {
     display: none;
     color: black;
     position: absolute;
@@ -825,45 +822,45 @@ display(doc2)
     overflow: auto;
 }
 
-.RSJGOFYGAN-selection {
+.EUEEXXCJJX-selection {
     margin-bottom: 5px;
 }
 
-.RSJGOFYGAN-featuretable {
+.EUEEXXCJJX-featuretable {
     margin-top: 10px;
 }
 
-.RSJGOFYGAN-fname {
+.EUEEXXCJJX-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RSJGOFYGAN-fvalue {
+.EUEEXXCJJX-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RSJGOFYGAN-content">
-        <div id="RSJGOFYGAN-popup" style="display: none;">
+  <div id="EUEEXXCJJX-content">
+        <div id="EUEEXXCJJX-popup" style="display: none;">
         </div>
-        <div class="RSJGOFYGAN-row" id="RSJGOFYGAN-row1" style="height:67vh; min-height:100px;">
-            <div id="RSJGOFYGAN-text-wrapper" class="RSJGOFYGAN-col" style="width:70%;">
-                <div class="RSJGOFYGAN-hdr" id="RSJGOFYGAN-dochdr"></div>
-                <div id="RSJGOFYGAN-text">
+        <div class="EUEEXXCJJX-row" id="EUEEXXCJJX-row1" style="max-height: 20em; min-height:5em;">
+            <div id="EUEEXXCJJX-text-wrapper" class="EUEEXXCJJX-col" style="width:70%;">
+                <div class="EUEEXXCJJX-hdr" id="EUEEXXCJJX-dochdr"></div>
+                <div id="EUEEXXCJJX-text">
                 </div>
             </div>
-            <div id="RSJGOFYGAN-chooser" class="RSJGOFYGAN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="EUEEXXCJJX-chooser" class="EUEEXXCJJX-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RSJGOFYGAN-row" id="RSJGOFYGAN-row2" style="height:30vh; min-height: 100px;">
-            <div id="RSJGOFYGAN-details" class="RSJGOFYGAN-col" style="width:100%; border-top-width: 0px;">
+        <div class="EUEEXXCJJX-row" id="EUEEXXCJJX-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="EUEEXXCJJX-details" class="EUEEXXCJJX-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="RSJGOFYGAN-data">
+    <script type="application/json" id="EUEEXXCJJX-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 0}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("RSJGOFYGAN-");
+        gatenlp_run("EUEEXXCJJX-");
     </script>
   </div>
 

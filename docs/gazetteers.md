@@ -497,26 +497,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#HITOHKSZJE-wrapper { color: black !important; }</style>
-<div id="HITOHKSZJE-wrapper">
+<div><style>#MEITWTNYEO-wrapper { color: black !important; }</style>
+<div id="MEITWTNYEO-wrapper">
 
 <div>
-
 <style>
-#HITOHKSZJE-content {
+#MEITWTNYEO-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HITOHKSZJE-row {
+.MEITWTNYEO-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HITOHKSZJE-col {
+.MEITWTNYEO-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -526,23 +525,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.HITOHKSZJE-hdr {
+.MEITWTNYEO-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HITOHKSZJE-label {
+.MEITWTNYEO-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HITOHKSZJE-input {
+.MEITWTNYEO-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HITOHKSZJE-popup {
+#MEITWTNYEO-popup {
     display: none;
     color: black;
     position: absolute;
@@ -557,45 +556,45 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.HITOHKSZJE-selection {
+.MEITWTNYEO-selection {
     margin-bottom: 5px;
 }
 
-.HITOHKSZJE-featuretable {
+.MEITWTNYEO-featuretable {
     margin-top: 10px;
 }
 
-.HITOHKSZJE-fname {
+.MEITWTNYEO-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HITOHKSZJE-fvalue {
+.MEITWTNYEO-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HITOHKSZJE-content">
-        <div id="HITOHKSZJE-popup" style="display: none;">
+  <div id="MEITWTNYEO-content">
+        <div id="MEITWTNYEO-popup" style="display: none;">
         </div>
-        <div class="HITOHKSZJE-row" id="HITOHKSZJE-row1" style="height:67vh; min-height:100px;">
-            <div id="HITOHKSZJE-text-wrapper" class="HITOHKSZJE-col" style="width:70%;">
-                <div class="HITOHKSZJE-hdr" id="HITOHKSZJE-dochdr"></div>
-                <div id="HITOHKSZJE-text">
+        <div class="MEITWTNYEO-row" id="MEITWTNYEO-row1" style="max-height: 20em; min-height:5em;">
+            <div id="MEITWTNYEO-text-wrapper" class="MEITWTNYEO-col" style="width:70%;">
+                <div class="MEITWTNYEO-hdr" id="MEITWTNYEO-dochdr"></div>
+                <div id="MEITWTNYEO-text">
                 </div>
             </div>
-            <div id="HITOHKSZJE-chooser" class="HITOHKSZJE-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MEITWTNYEO-chooser" class="MEITWTNYEO-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HITOHKSZJE-row" id="HITOHKSZJE-row2" style="height:30vh; min-height: 100px;">
-            <div id="HITOHKSZJE-details" class="HITOHKSZJE-col" style="width:100%; border-top-width: 0px;">
+        <div class="MEITWTNYEO-row" id="MEITWTNYEO-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="MEITWTNYEO-details" class="MEITWTNYEO-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="HITOHKSZJE-data">
+    <script type="application/json" id="MEITWTNYEO-data">
     {"annotation_sets": {}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("HITOHKSZJE-");
+        gatenlp_run("MEITWTNYEO-");
     </script>
   </div>
 
@@ -616,26 +615,25 @@ doc
 
 
 
-<div><style>#HSLVYBLURS-wrapper { color: black !important; }</style>
-<div id="HSLVYBLURS-wrapper">
+<div><style>#VKMWVPNCDE-wrapper { color: black !important; }</style>
+<div id="VKMWVPNCDE-wrapper">
 
 <div>
-
 <style>
-#HSLVYBLURS-content {
+#VKMWVPNCDE-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HSLVYBLURS-row {
+.VKMWVPNCDE-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HSLVYBLURS-col {
+.VKMWVPNCDE-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -645,23 +643,23 @@ doc
     overflow-y: auto;
 }
 
-.HSLVYBLURS-hdr {
+.VKMWVPNCDE-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HSLVYBLURS-label {
+.VKMWVPNCDE-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HSLVYBLURS-input {
+.VKMWVPNCDE-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HSLVYBLURS-popup {
+#VKMWVPNCDE-popup {
     display: none;
     color: black;
     position: absolute;
@@ -676,45 +674,45 @@ doc
     overflow: auto;
 }
 
-.HSLVYBLURS-selection {
+.VKMWVPNCDE-selection {
     margin-bottom: 5px;
 }
 
-.HSLVYBLURS-featuretable {
+.VKMWVPNCDE-featuretable {
     margin-top: 10px;
 }
 
-.HSLVYBLURS-fname {
+.VKMWVPNCDE-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HSLVYBLURS-fvalue {
+.VKMWVPNCDE-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HSLVYBLURS-content">
-        <div id="HSLVYBLURS-popup" style="display: none;">
+  <div id="VKMWVPNCDE-content">
+        <div id="VKMWVPNCDE-popup" style="display: none;">
         </div>
-        <div class="HSLVYBLURS-row" id="HSLVYBLURS-row1" style="height:67vh; min-height:100px;">
-            <div id="HSLVYBLURS-text-wrapper" class="HSLVYBLURS-col" style="width:70%;">
-                <div class="HSLVYBLURS-hdr" id="HSLVYBLURS-dochdr"></div>
-                <div id="HSLVYBLURS-text">
+        <div class="VKMWVPNCDE-row" id="VKMWVPNCDE-row1" style="max-height: 20em; min-height:5em;">
+            <div id="VKMWVPNCDE-text-wrapper" class="VKMWVPNCDE-col" style="width:70%;">
+                <div class="VKMWVPNCDE-hdr" id="VKMWVPNCDE-dochdr"></div>
+                <div id="VKMWVPNCDE-text">
                 </div>
             </div>
-            <div id="HSLVYBLURS-chooser" class="HSLVYBLURS-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="VKMWVPNCDE-chooser" class="VKMWVPNCDE-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HSLVYBLURS-row" id="HSLVYBLURS-row2" style="height:30vh; min-height: 100px;">
-            <div id="HSLVYBLURS-details" class="HSLVYBLURS-col" style="width:100%; border-top-width: 0px;">
+        <div class="VKMWVPNCDE-row" id="VKMWVPNCDE-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="VKMWVPNCDE-details" class="VKMWVPNCDE-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="HSLVYBLURS-data">
+    <script type="application/json" id="VKMWVPNCDE-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {}}, {"type": "Token", "start": 106, "end": 112, "id": 20, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 21, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 22, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 23, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 24, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 25, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 26, "features": {}}, {"type": "Token", "start": 143, "end": 152, "id": 27, "features": {}}, {"type": "Token", "start": 152, "end": 153, "id": 28, "features": {}}], "next_annid": 29}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("HSLVYBLURS-");
+        gatenlp_run("VKMWVPNCDE-");
     </script>
   </div>
 
@@ -768,26 +766,25 @@ doc
 
 
 
-<div><style>#WSFZWSJIDF-wrapper { color: black !important; }</style>
-<div id="WSFZWSJIDF-wrapper">
+<div><style>#MAHLSIOYOH-wrapper { color: black !important; }</style>
+<div id="MAHLSIOYOH-wrapper">
 
 <div>
-
 <style>
-#WSFZWSJIDF-content {
+#MAHLSIOYOH-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.WSFZWSJIDF-row {
+.MAHLSIOYOH-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.WSFZWSJIDF-col {
+.MAHLSIOYOH-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -797,23 +794,23 @@ doc
     overflow-y: auto;
 }
 
-.WSFZWSJIDF-hdr {
+.MAHLSIOYOH-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.WSFZWSJIDF-label {
+.MAHLSIOYOH-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.WSFZWSJIDF-input {
+.MAHLSIOYOH-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#WSFZWSJIDF-popup {
+#MAHLSIOYOH-popup {
     display: none;
     color: black;
     position: absolute;
@@ -828,45 +825,45 @@ doc
     overflow: auto;
 }
 
-.WSFZWSJIDF-selection {
+.MAHLSIOYOH-selection {
     margin-bottom: 5px;
 }
 
-.WSFZWSJIDF-featuretable {
+.MAHLSIOYOH-featuretable {
     margin-top: 10px;
 }
 
-.WSFZWSJIDF-fname {
+.MAHLSIOYOH-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.WSFZWSJIDF-fvalue {
+.MAHLSIOYOH-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="WSFZWSJIDF-content">
-        <div id="WSFZWSJIDF-popup" style="display: none;">
+  <div id="MAHLSIOYOH-content">
+        <div id="MAHLSIOYOH-popup" style="display: none;">
         </div>
-        <div class="WSFZWSJIDF-row" id="WSFZWSJIDF-row1" style="height:67vh; min-height:100px;">
-            <div id="WSFZWSJIDF-text-wrapper" class="WSFZWSJIDF-col" style="width:70%;">
-                <div class="WSFZWSJIDF-hdr" id="WSFZWSJIDF-dochdr"></div>
-                <div id="WSFZWSJIDF-text">
+        <div class="MAHLSIOYOH-row" id="MAHLSIOYOH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="MAHLSIOYOH-text-wrapper" class="MAHLSIOYOH-col" style="width:70%;">
+                <div class="MAHLSIOYOH-hdr" id="MAHLSIOYOH-dochdr"></div>
+                <div id="MAHLSIOYOH-text">
                 </div>
             </div>
-            <div id="WSFZWSJIDF-chooser" class="WSFZWSJIDF-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MAHLSIOYOH-chooser" class="MAHLSIOYOH-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="WSFZWSJIDF-row" id="WSFZWSJIDF-row2" style="height:30vh; min-height: 100px;">
-            <div id="WSFZWSJIDF-details" class="WSFZWSJIDF-col" style="width:100%; border-top-width: 0px;">
+        <div class="MAHLSIOYOH-row" id="MAHLSIOYOH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="MAHLSIOYOH-details" class="MAHLSIOYOH-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="WSFZWSJIDF-data">
+    <script type="application/json" id="MAHLSIOYOH-data">
     {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {}}, {"type": "Token", "start": 106, "end": 112, "id": 20, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 21, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 22, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 23, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 24, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 25, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 26, "features": {}}, {"type": "Token", "start": 143, "end": 152, "id": 27, "features": {}}, {"type": "Token", "start": 152, "end": 153, "id": 28, "features": {}}, {"type": "Lookup", "start": 0, "end": 12, "id": 29, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 7, "end": 12, "id": 30, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 62, "end": 76, "id": 31, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 32, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 120, "end": 124, "id": 33, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 126, "end": 138, "id": 34, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 131, "end": 138, "id": 35, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}], "next_annid": 36}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""}
     </script>
     <script type="text/javascript">
-        gatenlp_run("WSFZWSJIDF-");
+        gatenlp_run("MAHLSIOYOH-");
     </script>
   </div>
 

@@ -1845,7 +1845,7 @@ class Seq(PampacParser):
                 elif self.matchtype == "longest":
                     if best is None:
                         best = result
-                    elif result.span.end> best.span.end:
+                    elif result.span.end > best.span.end:
                         best = result
                 elif self.matchtype == "shortest":
                     if best is None:

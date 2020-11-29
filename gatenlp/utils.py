@@ -273,3 +273,16 @@ def in_notebook():
         # We do not even have IPython installed
         _in_notebook[0] = False
     return _in_notebook[0]
+
+
+def allowspan(method):
+    @wraps(method)
+    def _allowspan(self, *args, **kwargs):
+        assert len(args) > 1
+        maybespan = args[0]
+        if hasattr(maybespan, "start") and hasattr(maybespan, "end"):
+            return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
+        else:
+            return method(self, *args, **kwargs)
+    return _allowspan
+

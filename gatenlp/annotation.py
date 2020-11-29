@@ -4,10 +4,11 @@ Module for Annotation class which represents information about a span of text in
 import sys
 from typing import List, Union, Dict, Set, Tuple
 import copy as lib_copy
-from functools import total_ordering
+from functools import total_ordering, wraps
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp.utils import support_annotation_or_set
+from gatenlp.utils import support_annotation_or_set, allowspan
+from gatenlp.span import Span
 
 
 @total_ordering
@@ -23,6 +24,7 @@ class Annotation:
     only the features can be changed.
     """
 
+    @allowspan
     def __init__(
         self, start: int, end: int, anntype: str, features=None, annid: int = 0
     ):
@@ -102,11 +104,11 @@ class Annotation:
         return self._id
 
     @property
-    def span(self) -> Tuple[int, int]:
+    def span(self) -> Span:
         """
         Returns a tuple with the start and end offset of the annotation.
         """
-        return self.start, self.end
+        return Span(self._start, self._end)
 
     def _changelog(self):
         if self._owner_set is not None:
@@ -418,9 +420,9 @@ class Annotation:
           kwargs: ignored
         """
         ann = Annotation(
-            start=dictrepr.get("start"),
-            end=dictrepr.get("end"),
-            anntype=dictrepr.get("type"),
+            dictrepr.get("start"),
+            dictrepr.get("end"),
+            dictrepr.get("type"),
             annid=dictrepr.get("id"),
             features=dictrepr.get("features"),
         )
