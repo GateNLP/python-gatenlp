@@ -73,7 +73,8 @@ class Pipeline(Annotator):
 
     def __init__(self, *annotators, **kwargs):
         """
-        Creates a pipeline annotator.
+        Creates a pipeline annotator. Individual annotators can be added at a later time to the front or back
+        using the add method.
 
         Args:
             annotators: each parameter can be an annotator or callable, if it is an iterable,
@@ -94,6 +95,20 @@ class Pipeline(Annotator):
                 self.annotators.append(ann)
         if len(self.annotators) == 0:
             self.logger.warn("Pipeline is a do-nothing pipeline: no annotators")
+
+    def add(self, annotator, tofront=False):
+        """
+        Add an annotator to list of annotators for this pipeline.
+
+        Args:
+            annotator: the annotator to add
+            tofront: if True adds to the front of the list instead of appending to the end
+        """
+        a = _check_and_ret_callable(annotator)
+        if tofront:
+            self.annotators.insert(0, a)
+        else:
+            self.annotators.append(a)
 
     def __call__(self, doc, **kwargs):
         """

@@ -2434,6 +2434,7 @@ class UpdateAnnFeatures:
             theann.features.clear()
         theann.features.update(feats)
 
+
 # GETTERS
 
 
@@ -2608,7 +2609,7 @@ class GetFeature:
 
 class GetText:
     """
-    Helper to access the covered document text of the annotation in a match with the given name.
+    Helper to access text, either covered document text of the annotation or matched text.
     """
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
         """
