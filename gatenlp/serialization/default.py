@@ -964,8 +964,8 @@ class HtmlLoader:
         for i in range(nstart):
             anninfo = id2anninfo[i]
             annset.add(
-                start=anninfo["start"],
-                end=anninfo["end"],
+                anninfo["start"],
+                anninfo["end"],
                 anntype=anninfo["type"],
                 features=anninfo["features"],
             )
