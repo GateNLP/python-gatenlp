@@ -76,39 +76,65 @@ class Pipeline(Annotator):
         Creates a pipeline annotator. Individual annotators can be added at a later time to the front or back
         using the add method.
 
+        Note: each annotator can be assigned a name in a pipeline, either when using the add method or
+        by passing a tuple (annotator, name) instead of just the annotator.
+
         Args:
-            annotators: each parameter can be an annotator or callable, if it is an iterable,
-                it is assumed to be an iterable of callables or lists. If it is not an iterable, it can
-                be either a class or an already initialized instance of a class which must be a callable
-                or some other callable.
+            annotators: each parameter can be an annotator, a callable, a tuple where the first item is
+                an annotator or callable and the second a string(name), or a list of these things.
+                An annotator can be given as an instance or class, if it is a class, the kwargs are used
+                to construct an instance.
             **kwargs: these arguments are passed to the constructor of any class in the annotators list
         """
         self.annotators = []
-        self.logger = init_logger(__name__)
+        self.names = []
+        self.names2annotators = dict()
+        self.logger = init_logger("Pipeline")
         for ann in annotators:
-            if isinstance(ann, Iterable):
-                for a in ann:
-                    a = _check_and_ret_callable(a)
-                    self.annotators.append(a)
-            else:
-                a = _check_and_ret_callable(a, **kwargs)
-                self.annotators.append(ann)
+            if not isinstance(ann, list):
+                anns = [ann]
+            for a in anns:
+                if isinstance(a, tuple) and len(a) == 2:
+                    a, name = a
+                else:
+                    name = f"{len(self.annotators)}"
+                a = _check_and_ret_callable(a)
+                if name in self.names2annotators:
+                    raise Exception(f"Duplicate name: {name}")
+                self.names2annotators[name] = a
+                self.annotators.append(a)
+                self.names.append(name)
         if len(self.annotators) == 0:
             self.logger.warn("Pipeline is a do-nothing pipeline: no annotators")
 
-    def add(self, annotator, tofront=False):
+    def add(self, annotator, name=None, tofront=False):
         """
         Add an annotator to list of annotators for this pipeline.
 
         Args:
             annotator: the annotator to add
+            name: an optional name of the annotator, if None, uses a string representation of the
+                number of the annotator as added (not the index in the pipeline!)
             tofront: if True adds to the front of the list instead of appending to the end
         """
         a = _check_and_ret_callable(annotator)
+        if name is None:
+            name = f"{len(self.annotators)}"
+        if name in self.names2annotators:
+            raise Exception(f"Duplicate name: {name}")
         if tofront:
             self.annotators.insert(0, a)
+            self.names.insert(0, name)
         else:
             self.annotators.append(a)
+            self.names.append(name)
+        self.names2annotators[name] = a
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            return self.names2annotators[item]
+        else:
+            return self.annotators[item]
 
     def __call__(self, doc, **kwargs):
         """
@@ -184,3 +210,15 @@ class Pipeline(Annotator):
             else:
                 results.append(reslist)
         return results
+
+    def __repr__(self):
+        reprs = []
+        for name, ann in zip(self.names, self.annotators):
+            if hasattr(ann, "__name__"):
+                arepr = ann.__name__
+            else:
+                arepr = ann.__class__.__name__
+            repr = name + ":" + arepr
+            reprs.append(repr)
+        reprs = ",".join(reprs)
+        return f"Pipeline({reprs})"
