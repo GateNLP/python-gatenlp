@@ -14,6 +14,7 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.features import Features
+from gatenlp.utils import get_nested
 from gzip import open as gopen, compress, decompress
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -41,6 +42,23 @@ except:
 # So if we do not have the format, we should get the header for the file, check the mime type and see
 # if  we have a loder registered for that and then let the loader do the rest of the work. This may
 # need loaders to be able to use an already open stream.
+
+TWITTER_DEFAULT_INCLUDE_FIELDS = [
+    "id_str",
+    "user.id_str",
+    "user.screen_name",
+    "user.name"
+    "created_at",
+    "is_quote_status",
+    "quote_count",
+    "retweet_count",
+    "favourite_count",
+    "favourited",
+    "retweeted",
+    "lang",
+    "$is_retweet_status",
+    "retweeted_status.user.screen_name",
+]
 
 
 def is_url(ext):
@@ -972,6 +990,96 @@ class HtmlLoader:
         return doc
 
 
+class TweetLoader:
+    @staticmethod
+    def load(clazz,
+             from_ext=None,
+             from_mem=None,
+             include_fields=None,
+             include_entities=True,
+             include_quote=False,
+             outsetname="Original markups",
+             tweet_ann="Tweet"):
+        """
+        Load a tweet from Twitter JSON format.
+
+        Args:
+            clazz: internal use
+            from_ext: the file/url to load from
+            from_mem: string to load from
+            include_fields: a list of fields to include where nested field names are dot-separated, e.g.
+               "user.location". All these fields are included using the nested field name in either the
+               features of the tweet annotation with the Type specified, or the features of the document
+               if `tweet_ann` is None.
+            include_entities: create annotations for the tweet entities in the set with outsetname
+            include_quote: if True, add the quoted tweet after an empty line and treat it as a separate
+               tweet just like the original tweet.
+            outset: the annotation set where to put entity annotations and the tweet annotation(s)
+            tweet_ann: the annotation type to use to span the tweet and contain all the features.
+
+        Returns:
+            document representing the tweet
+        """
+        if from_ext is not None:
+            isurl, extstr = is_url(from_ext)
+            if isurl:
+                jsonstr = get_str_from_url(extstr, encoding="utf-8")
+                tweet = json.loads(jsonstr)
+            else:
+                with open(extstr, "rt", encoding="utf-8") as infp:
+                    tweet = json.load(infp)
+        elif from_mem is not None:
+            tweet = json.loads(from_mem)
+        else:
+            raise Exception("Cannot load from None")
+        if tweet is None:
+            raise Exception("Could not decode Tweet JSON")
+        if tweet.get("truncated"):
+            text = get_nested(tweet, "extended_tweet.full_text")
+        else:
+            text = get_nested(tweet, "text")
+        if text is None:
+            raise Exception("No text field found")
+        quoted_status = None
+        if include_quote:
+            quoted_status = tweet.get("quoted_status")
+            if quoted_status is not None:
+                qtext = quoted_status.get("text", "")
+                text += "\n" + qtext
+        doc = Document(text)
+        anns = doc.annset(outsetname)
+        if tweet_ann:
+            ann = anns.add(0, len(text), tweet_ann)
+            features = ann.features
+        else:
+            features = doc.features
+        if include_fields is None:
+            include_fields = TWITTER_DEFAULT_INCLUDE_FIELDS
+        for field in include_fields:
+            if field.startswith("$"):
+                if field == "$is_retweet_status":
+                    rs = get_nested(tweet, "retweeted_status", silent=True)
+                    if rs is not None:
+                        features[field] = True
+                continue
+            val = get_nested(tweet, field, silent=True)
+            if val is not None:
+                features[field] = val
+        if include_entities:
+            if tweet.get("truncated"):
+                entities = get_nested(tweet, "extended_tweet.entities", default={})
+            else:
+                entities = get_nested(tweet, "entities", default={})
+        for etype, elist in entities.items():
+            for ent in elist:
+                start, end = ent["indices"]
+                anns.add(start, end, etype)
+        # TODO: if we have a quoted_status, add features and entities from there:
+        # Essentially the same processing as for the original tweet, but at document offset
+        # len(tweet)+1 (2?)
+        return doc
+
+
 class GateXmlLoader:
     """ """
 
@@ -1232,6 +1340,7 @@ DOCUMENT_LOADERS = {
     "html": HtmlLoader.load,
     "html-rendered": HtmlLoader.load_rendered,
     "gatexml": GateXmlLoader.load,
+    "tweet": TweetLoader.load,
 }
 CHANGELOG_SAVERS = {
     "json": JsonSerializer.save,

@@ -291,3 +291,36 @@ def allowspan(method):
             return method(self, *args, **kwargs)
     return _allowspan
 
+
+def get_nested(adict, name, default=None, silent=False):
+    """
+    Get a field from a nested map or return the default if the submap/field does not exist.
+
+    Args:
+        adict: a dictionary with possibly nested dictionaries
+        name:  the key to access where dots are used to separate keys for nested maps, e.g.
+            "key1.key2.key3" would access the value of key3 in the map stored under key2 in
+            the map stored under key1 in adict. If key1 returns something that is not a map,
+            an excpetion is raised unless silent is True
+        default: the default value to return if a field with the given name cannot be accessed
+
+    Returns:
+        The value for the field or None if not found
+
+    Raises:
+        Exception if an expected nested dictionary is not a dictionary and silent is False
+    """
+    origname = name
+    names = name.split(".")
+    for name in names:
+        if not isinstance(adict, dict):
+            if silent:
+                return None
+            else:
+                raise Exception(f"Not a dictionary for {name}, original name was {origname}, got {type(adict)}")
+        ret = adict.get(name)
+        adict = ret
+    if ret is None:
+        return default
+    else:
+        return ret
