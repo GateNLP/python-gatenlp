@@ -278,7 +278,12 @@ def in_notebook():
 def allowspan(method):
     @wraps(method)
     def _allowspan(self, *args, **kwargs):
-        assert len(args) > 1
+        if len(args) == 0:
+            # maybe the start and end parameters are given as kwargs?
+            if "start" in kwargs and "end" in kwargs:
+                return method(self, **kwargs)
+            else:
+                raise Exception("Need a span, or start and end parameters!")
         maybespan = args[0]
         if hasattr(maybespan, "start") and hasattr(maybespan, "end"):
             return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
