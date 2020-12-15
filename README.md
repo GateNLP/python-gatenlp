@@ -50,6 +50,10 @@ a Java GATE process in two different ways:
 * [Documentation](https://gatenlp.github.io/python-gatenlp/) 
 * [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
 
+If you find bugs, want to requrest a feature or change, please use the [issue tracker](https://github.com/GateNLP/python-gatenlp/issues)
+
+For more general discussions about the package and communication within current and future users, please use the [Dicussions](https://github.com/GateNLP/python-gatenlp/discussions)
+
 ---
 
 **NOTE: The previous Pypi project "gatenlp" has moved to [gatenlphiltlab](https://github.com/nickwbarber/gatenlphiltlab)**
