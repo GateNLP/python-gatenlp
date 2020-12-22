@@ -15,6 +15,16 @@ framework,
 for manipulating GateNLP documents and
 for interacting with GATE Java and the GATE python plugin.
 
+## Documentation and feedback
+
+* [Documentation](https://gatenlp.github.io/python-gatenlp/) 
+* [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
+
+If you find bugs, want to requrest a feature or change, please use the [issue tracker](https://github.com/GateNLP/python-gatenlp/issues)
+
+For more general discussions about the package and communication within current and future users, please use the [Dicussions](https://github.com/GateNLP/python-gatenlp/discussions)
+
+
 ## Overview
 
 Python GateNLP is an NLP and text processing framework implemented in Python. 
@@ -45,10 +55,6 @@ a Java GATE process in two different ways:
 * Versions 1.0.x are public releases with feedback that may change APIs and change main parts of the software
 * Versions 1.x are public stable releases
 
-## More information and documentation
-
-* [Documentation](https://gatenlp.github.io/python-gatenlp/) 
-* [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
 
 ---
 
