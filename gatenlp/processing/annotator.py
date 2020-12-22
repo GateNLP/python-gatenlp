@@ -12,10 +12,10 @@ __pdoc__ = {"Annotator.__call__": True}
 class Annotator(ABC):
 
     @abstractmethod
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc, context=None, **kwargs):
         """
         This method must get implemented in a concrete subclass to do the actual processing
-        and annotation. It must accept a document and return a document which may be
+        and annotation. It must accept a document and return a document which may or may not be
         the same that got passed.
 
         If it returns a list of documents, all of them are used as processing results, if
@@ -26,12 +26,37 @@ class Annotator(ABC):
 
         Args:
           doc: the document to process
+          context: some arbitrary context/data related to the document.
           kwargs: return: a document or a list of documents
 
         Returns:
             a document or a list of documents
         """
         raise Exception("This method must be implemented!")
+
+    def pipe(self, documents, with_context=False, **kwargs):
+        """
+        If this method gets overridden, it should take an iterable of documents and yield processed documents.
+        This allows for batching, caching, and other optimizations over streams of documents.
+        If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
+
+        Args:
+            documents: an iterable over documents or (document, context) tuples if with_context=True
+            with_context: if True, the iterable is over (document, context) tuples
+            **kwargs: arbitrary other keyword arguments must be accepted
+
+        Yields:
+            processed documents. If with_context is True, yields tuples (processed_document, context)
+        """
+        for el in documents:
+            if with_context:
+                doc, context = el
+                doc, context = self.__call__(doc, context=context, **kwargs)
+                yield doc, context
+            else:
+                doc, context = el, None
+                doc = self.__call__(doc, **kwargs)
+                yield doc
 
     def start(self):
         """
