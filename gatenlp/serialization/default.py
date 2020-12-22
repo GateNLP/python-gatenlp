@@ -1003,6 +1003,8 @@ class TweetLoader:
         """
         Load a tweet from Twitter JSON format.
 
+        IMPORTANT: this is still very experimental, will change in the future!
+
         Args:
             clazz: internal use
             from_ext: the file/url to load from
