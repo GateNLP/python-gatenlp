@@ -24,7 +24,10 @@ __pdoc__ = {
     "DocumentSource.__iter__": True,
 }
 
+# TODO: maybe rename append to store to make it more logical for destination AND corpus?
 
+# TODO: either always set special features on get and add an "append" method so we can use the corpus as
+# TODO: a destination, or allow to create a source/destination pair from the corpus which does this.
 class Corpus(ABC):
     """
     A corpus represents a collection of documents with a fixed number of elements which can be read and written
@@ -36,7 +39,7 @@ class Corpus(ABC):
     """
 
     @abstractmethod
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx):
         """
         Retrieve a document from the corpus.
 
@@ -72,6 +75,19 @@ class Corpus(ABC):
         Returns the size of the corpus.
         """
         pass
+
+    @abstractmethod
+    def append(self, doc):
+        """
+        Allows using the corpus like a destination, but this method expects the id/path/idx of the document
+        to be set as a special feature and the document to come from the corpus.
+
+        Args:
+            doc: the document to store back into the corpus
+
+        Returns:
+
+        """
 
 
 class DocumentSource(ABC):
@@ -262,7 +278,7 @@ def debug_maker(var1=22):
 
     return debug_closure
 
-
+# TODO: set the special features for the relative path, index number, document id?
 class DirFilesSource(DocumentSource):
     def __init__(
         self,
@@ -322,6 +338,8 @@ class DirFilesSource(DocumentSource):
             yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
 
 
+# TODO: allow to set the path from the special features in the document: relative path, id, index number
+# TODO: if index number features, use something like feature_idx:10:2 for final path
 class DirFilesDestination(DocumentDestination):
     """
     A destination where each document is stored in a file in a directory or directory tree in some

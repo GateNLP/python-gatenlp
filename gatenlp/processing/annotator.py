@@ -12,29 +12,31 @@ __pdoc__ = {"Annotator.__call__": True}
 class Annotator(ABC):
 
     @abstractmethod
-    def __call__(self, doc, context=None, **kwargs):
+    def __call__(self, doc, **kwargs):
         """
         This method must get implemented in a concrete subclass to do the actual processing
         and annotation. It must accept a document and return a document which may or may not be
-        the same that got passed.
+        the same that got passed. It may also return None or an empty list to indicate that the
+        document could not be processed, or a list with one or more documents to indicate that
+        the document was split into that many document to process downstream.
 
-        If it returns a list of documents, all of them are used as processing results, if
-        the list is empty, the processing does not yield a result.
+        The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
+        may be used to configure or parametrize processing.
 
-        The method must accept arbitrary keyword arguments which will be used for handling
-        non-standard situations.
+        NOTE: some annotators may set or use special document features in order to handle
+        document context or the document id when processing a corpus or streams where a document id
+        is important.
 
         Args:
           doc: the document to process
-          context: some arbitrary context/data related to the document.
-          kwargs: return: a document or a list of documents
+          kwargs: any arguments to pass to the annotator or sub-annotators called by this annotator
 
         Returns:
-            a document or a list of documents
+            a document, None, or a possibly empty list of documents
         """
         raise Exception("This method must be implemented!")
 
-    def pipe(self, documents, with_context=False, **kwargs):
+    def pipe(self, documents, **kwargs):
         """
         If this method gets overridden, it should take an iterable of documents and yield processed documents.
         This allows for batching, caching, and other optimizations over streams of documents.
@@ -49,14 +51,8 @@ class Annotator(ABC):
             processed documents. If with_context is True, yields tuples (processed_document, context)
         """
         for el in documents:
-            if with_context:
-                doc, context = el
-                doc, context = self.__call__(doc, context=context, **kwargs)
-                yield doc, context
-            else:
-                doc, context = el, None
-                doc = self.__call__(doc, **kwargs)
-                yield doc
+            doc = self.__call__(el, **kwargs)
+            yield doc
 
     def start(self):
         """

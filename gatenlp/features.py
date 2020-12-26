@@ -113,7 +113,7 @@ class Features(UserDict):
         ret._logger = None
         return ret
 
-    def to_dict(self, deepcopy=False, memo=None):
+    def to_dict(self, deepcopy=False, include_internal=False, memo=None):
         """
         Return a dictionary representation of the features. The returned dictionary is always a shallow
         copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
@@ -124,9 +124,11 @@ class Features(UserDict):
             do get saved/serialized.
 
         Args:
-          deepcopy: if True, the dictionary is a deep copy so that mutable objects
-              in the original are unaffected if they get modified in the copy. (Default value = False)
-        memo: if deepcopy is True, the memo object to use for deepcopy, if any
+            deepcopy: if True, the dictionary is a deep copy so that mutable objects
+                in the original are unaffected if they get modified in the copy. (Default value = False)
+            include_internal: if True, all features, even those with names that start with double underscore ("__")
+                are included in the result dictionary, these features are usually dropped.
+            memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
@@ -134,7 +136,7 @@ class Features(UserDict):
         """
         ret = dict()
         for k, v in self.data.items():
-            if k.startswith("__"):
+            if not include_internal and k.startswith("__"):
                 continue
             if deepcopy:
                 ret[k] = lib_copy.deepcopy(v)
