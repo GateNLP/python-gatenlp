@@ -14,11 +14,15 @@ class Annotator(ABC):
     @abstractmethod
     def __call__(self, doc, **kwargs):
         """
-        This method must get implemented in a concrete subclass to do the actual processing
-        and annotation. It must accept a document and return a document which may or may not be
-        the same that got passed. It may also return None or an empty list to indicate that the
-        document could not be processed, or a list with one or more documents to indicate that
-        the document was split into that many document to process downstream.
+        This method MUST get implemented in a concrete subclass to do the actual processing
+        and annotation. It must accept a document and arbitrary keyword arguments and it must
+        return either a document which may be the same or a different object than the document passed,
+        or None or an empty list or a list of one or more documents. The method also may raise an
+        exception.
+
+        The semantics of returning None or an empty list are not strictly defined: this may be used to
+        handle processing errors where documents which cannot be processed are quietly ignored or
+        filtering.
 
         The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
         may be used to configure or parametrize processing.
@@ -44,11 +48,10 @@ class Annotator(ABC):
 
         Args:
             documents: an iterable over documents or (document, context) tuples if with_context=True
-            with_context: if True, the iterable is over (document, context) tuples
             **kwargs: arbitrary other keyword arguments must be accepted
 
         Yields:
-            processed documents. If with_context is True, yields tuples (processed_document, context)
+            processed documents
         """
         for el in documents:
             doc = self.__call__(el, **kwargs)

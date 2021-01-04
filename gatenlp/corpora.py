@@ -28,13 +28,22 @@ __pdoc__ = {
 
 # TODO: either always set special features on get and add an "append" method so we can use the corpus as
 # TODO: a destination, or allow to create a source/destination pair from the corpus which does this.
+
+
 class Corpus(ABC):
     """
     A corpus represents a collection of documents with a fixed number of elements which can be read and written
     using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
     the element is either a document or None.
 
-    NOTE: assigning None to a corpus removes the element from the corpus.
+    The index is an int with range 0 to N-1 where N is the number of documents in the corpus. Specific implementations
+    may also allow to use a string key in addition where the string key is a unique document identifier.
+
+    TODO/NOTE: the semantics of assigning None to an element in a corpus may differ for different corpora.
+    Possible options are: the original element/document remains unchanged or the element gets actually replaced
+    with something that represents "no document", i.e. accessing the element returns None and the corresponding
+    storage is removed or nulled. A conrete corpus implementation may have options that control the meaning
+    of setting an element to None.
 
     """
 
@@ -76,18 +85,21 @@ class Corpus(ABC):
         """
         pass
 
-    @abstractmethod
     def append(self, doc):
         """
         Allows using the corpus like a destination, but this method expects the id/path/idx of the document
-        to be set as a special feature and the document to come from the corpus.
+        to be set as a special feature and the document to come from the corpus. Which feature(s) are used to
+        store the id information is implementation specific. This means that this method should only be used
+        on documents which originated from this corpus.
 
         Args:
-            doc: the document to store back into the corpus
-
-        Returns:
-
+            doc: the document to store back into the corpus, should be a document that was retrieved from the same
+                 corpus.
         """
+        idx = doc.features.get("__idx")
+        if idx is None:
+            raise Exception("Cannot append document, no __idx feature")
+        self.__setitem__(idx, doc)
 
 
 class DocumentSource(ABC):
@@ -144,7 +156,7 @@ class JsonLinesFileDestination(DocumentDestination):
         """
 
         Args:
-            file: the file to write to. If it exsits, it gets overwritten without warning.
+            file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
         """
         if isinstance(file, str):
@@ -271,12 +283,6 @@ def make_file_path_fromidx(digits=1, levels=1):
 
     return file_path_fromidx
 
-
-def debug_maker(var1=22):
-    def debug_closure():
-        print(var1)
-
-    return debug_closure
 
 # TODO: set the special features for the relative path, index number, document id?
 class DirFilesSource(DocumentSource):
@@ -461,7 +467,11 @@ class DirFilesCorpus(Corpus):
     def __getitem__(self, idx):
         assert isinstance(idx, int)
         path = self.paths[idx]
-        doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+        abspath = os.path.join(self.dirpath, path)
+        doc = Document.load(abspath, fmt=self.fmt)
+        doc.features["__idx"] = idx
+        doc.features["__relpath"] = path
+        doc.features["__abspath"] = abspath
         return doc
 
     def __setitem__(self, idx, doc):
@@ -471,7 +481,7 @@ class DirFilesCorpus(Corpus):
         doc.save(os.path.join(self.dirpath, path), fmt=self.fmt)
 
 
-class NumberedDirFilesCorpus:
+class NumberedDirFilesCorpus(Corpus):
     """
     A corpus that represents files from a (nested) directory, where the filename is derived from
     the index number of the document. This corpus can represent missing elements as None, both
@@ -624,6 +634,30 @@ class PandasDfSource(DocumentSource):
                     doc.features[fname] = value
             self.n += 1
             yield doc
+
+
+class ListCorpus(Corpus):
+    def __init__(self, list):
+        """
+        Provides a corpus interface to a list or list-like data structure.
+        Note that this provides the proper implementation of append which stores back to the index
+        provided in the document feature "__idx" instead of actually appending a new element to the list!
+
+        Args:
+            list: the list to wrap as a corpus
+        """
+        super().__init__()
+        self.list = list
+
+    def __getitem__(self, item):
+        self.list[item].features["__idx"] = item
+        return self.list[item]
+
+    def __setitem__(self, key, value):
+        self.list[key] = value
+
+    def __len__(self):
+        return len(self.list)
 
 
 class EveryNthCorpus(Corpus):
