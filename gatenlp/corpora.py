@@ -85,7 +85,7 @@ class Corpus(ABC):
         """
         pass
 
-    def append(self, doc):
+    def store(self, doc):
         """
         Allows using the corpus like a destination, but this method expects the id/path/idx of the document
         to be set as a special feature and the document to come from the corpus. Which feature(s) are used to
@@ -96,9 +96,9 @@ class Corpus(ABC):
             doc: the document to store back into the corpus, should be a document that was retrieved from the same
                  corpus.
         """
-        idx = doc.features.get("__idx")
+        idx = doc.features.get("__idx_"+str(id(self)))
         if idx is None:
-            raise Exception("Cannot append document, no __idx feature")
+            raise Exception("Cannot append document, no __idx_ID feature")
         self.__setitem__(idx, doc)
 
 
@@ -703,7 +703,9 @@ class EveryNthCorpus(Corpus):
         if idx >= self.len or idx < 0:
             raise Exception("Index idx must be >= 0 and < {}".format(self.len))
         # the index to access in the original dataset is int(n*item)+k
-        return self.corpus[idx * self.every_n + self.every_n_k]
+        doc = self.corpus[idx * self.every_n + self.every_n_k]
+        doc.features["__idx"] = idx
+        return doc
 
     def __setitem__(self, idx, doc):
         if not isinstance(idx, numbers.Integral):
