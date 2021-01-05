@@ -90,14 +90,18 @@ class Corpus(ABC):
 
     def store(self, doc):
         """
-        Allows using the corpus like a destination, but this method expects the id/path/idx of the document
-        to be set as a special feature and the document to come from the corpus. Which feature(s) are used to
-        store the id information is implementation specific. This means that this method should only be used
-        on documents which originated from this corpus.
+        This method allows to store a document that comes from the same corpus back without the need to specify
+        the index. This is useful for processing documents in batches or in streams. For this to work, all
+        corpus implementations MUST make sure to store the index as part of returning a document with
+        `__getitem__`. The index must be stored in document features `__idx` and `self.idxfeatname()`.
+
 
         Args:
             doc: the document to store back into the corpus, should be a document that was retrieved from the same
                  corpus.
+
+        Raises:
+            Exception: if the index is not stored in a document feature `self.idxfeatname()`
         """
         idx = doc.features.get(self.idxfeatname())
         if idx is None:
