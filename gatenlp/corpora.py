@@ -85,6 +85,9 @@ class Corpus(ABC):
         """
         pass
 
+    def idxfeatname(self):
+        return "__idx_"+str(id(self))
+
     def store(self, doc):
         """
         Allows using the corpus like a destination, but this method expects the id/path/idx of the document
@@ -96,7 +99,7 @@ class Corpus(ABC):
             doc: the document to store back into the corpus, should be a document that was retrieved from the same
                  corpus.
         """
-        idx = doc.features.get("__idx_"+str(id(self)))
+        idx = doc.features.get(self.idxfeatname())
         if idx is None:
             raise Exception("Cannot append document, no __idx_ID feature")
         self.__setitem__(idx, doc)
@@ -469,6 +472,7 @@ class DirFilesCorpus(Corpus):
         path = self.paths[idx]
         abspath = os.path.join(self.dirpath, path)
         doc = Document.load(abspath, fmt=self.fmt)
+        doc.features[self.idxfeatname()] = idx
         doc.features["__idx"] = idx
         doc.features["__relpath"] = path
         doc.features["__abspath"] = abspath
@@ -519,8 +523,13 @@ class NumberedDirFilesCorpus(Corpus):
         assert isinstance(idx, int)
         path = self.file_path_maker(idx)
         path = path + self.ext
+        abspath = os.path.join(self.dirpath, path)
         if os.path.exists(path):
-            doc = Document.load(os.path.join(self.dirpath, path), fmt=self.fmt)
+            doc = Document.load(abspath, fmt=self.fmt)
+            doc.features[self.idxfeatname()] = idx
+            doc.features["__idx"] = idx
+            doc.features["__relpath"] = path
+            doc.features["__abspath"] = abspath
         else:
             doc = None
         return doc
@@ -649,9 +658,11 @@ class ListCorpus(Corpus):
         super().__init__()
         self.list = list
 
-    def __getitem__(self, item):
-        self.list[item].features["__idx"] = item
-        return self.list[item]
+    def __getitem__(self, idx):
+        doc = self.list[idx]
+        doc.features["__idx"] = idx
+        doc.features[self.idxfeatname()] = idx
+        return doc
 
     def __setitem__(self, key, value):
         self.list[key] = value
@@ -705,6 +716,7 @@ class EveryNthCorpus(Corpus):
         # the index to access in the original dataset is int(n*item)+k
         doc = self.corpus[idx * self.every_n + self.every_n_k]
         doc.features["__idx"] = idx
+        doc.features[self.idxfeatname()] = idx
         return doc
 
     def __setitem__(self, idx, doc):
@@ -796,6 +808,9 @@ class ShuffledCorpus(Corpus):
             random.shuffle(self.idxs)
 
     def __getitem__(self, idx):
+        doc = self.corpus[self.idxs[idx]]
+        doc.features["__idx"] = idx
+        doc.features[self.idxfeatname()] = idx
         return self.corpus[self.idxs[idx]]
 
     def __setitem__(self, idx, doc):
@@ -846,9 +861,11 @@ class CachedCorpus(Corpus):
     def __getitem__(self, index):
         tmp = self.cachecorpus[index]
         if tmp is None:
-            tmp = self.basecorpus
+            tmp = self.basecorpus[index]
             if self.cacheonread:
-                self[index] = tmp
+                self.basecorpus[index] = tmp
+        tmp.features["__idx"] = index
+        tmp.features[self.idxfeatname()] = index
         return tmp
 
     def __setitem__(self, index, value):
