@@ -88,6 +88,11 @@ class Corpus(ABC):
     def idxfeatname(self):
         return "__idx_"+str(id(self))
 
+    def setidxfeature(self, doc, idx):
+        if doc is not None:
+            doc.features["__idx"] = idx
+            doc.features[self.idxfeatname()] = idx
+
     def store(self, doc):
         """
         This method allows to store a document that comes from the same corpus back without the need to specify
@@ -650,6 +655,21 @@ class PandasDfSource(DocumentSource):
 
 
 class ListCorpus(Corpus):
+
+    @classmethod
+    def empty(cls, n):
+        """
+        Create an empty corpus of size n where all elements are None.
+
+        Args:
+            n: size of corpus
+
+        Returns:
+            a ListCorpus instance with n elements which are all None
+        """
+        l = [None] * n
+        return cls(l)
+
     def __init__(self, list):
         """
         Provides a corpus interface to a list or list-like data structure.
@@ -664,8 +684,7 @@ class ListCorpus(Corpus):
 
     def __getitem__(self, idx):
         doc = self.list[idx]
-        doc.features["__idx"] = idx
-        doc.features[self.idxfeatname()] = idx
+        self.setidxfeature(doc, idx)
         return doc
 
     def __setitem__(self, key, value):
@@ -719,8 +738,7 @@ class EveryNthCorpus(Corpus):
             raise Exception("Index idx must be >= 0 and < {}".format(self.len))
         # the index to access in the original dataset is int(n*item)+k
         doc = self.corpus[idx * self.every_n + self.every_n_k]
-        doc.features["__idx"] = idx
-        doc.features[self.idxfeatname()] = idx
+        self.setidxfeature(doc, idx)
         return doc
 
     def __setitem__(self, idx, doc):
@@ -813,15 +831,14 @@ class ShuffledCorpus(Corpus):
 
     def __getitem__(self, idx):
         doc = self.corpus[self.idxs[idx]]
-        doc.features["__idx"] = idx
-        doc.features[self.idxfeatname()] = idx
+        self.setidxfeature(doc, idx)
         return self.corpus[self.idxs[idx]]
 
     def __setitem__(self, idx, doc):
         # TODO: refactor into separate utility function
         if not isinstance(idx, numbers.Integral):
             raise Exception("Item must be an integer")
-        if idx >= self.len or idx < 0:
+        if idx >= len(self.idxs) or idx < 0:
             raise Exception("Index idx must be >= 0 and < {}".format(self.len))
         # the index to access in the original dataset is int(n*item)+k
         self.corpus[self.idxs[idx]] = doc
@@ -868,8 +885,7 @@ class CachedCorpus(Corpus):
             tmp = self.basecorpus[index]
             if self.cacheonread:
                 self.basecorpus[index] = tmp
-        tmp.features["__idx"] = index
-        tmp.features[self.idxfeatname()] = index
+        self.setidxfeature(tmp, index)
         return tmp
 
     def __setitem__(self, index, value):

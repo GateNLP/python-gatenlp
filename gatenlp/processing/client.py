@@ -139,10 +139,10 @@ class TagMeAnnotator(Annotator):
 
     def __init__(
         self,
+        url=None,
+        auth_token=None,
         lang="en",
         ann_type="Mention",
-        auth_token=None,
-        url=None,
         task="tag",  # or spot
         out_annset="",
         min_delay_ms=501,
@@ -263,9 +263,9 @@ class TextRazorTextAnnotator(Annotator):
 
     def __init__(
         self,
-        lang=None,  # if None/not specified, TextRazor auto-detects
-        auth_token=None,
         url=None,  # use default
+        auth_token=None,
+        lang=None,  # if None/not specified, TextRazor auto-detects
         extractors=None,
         out_annset="",
         min_delay_ms=501,
@@ -401,8 +401,8 @@ class ElgTextAnnotator(Annotator):
 
     def __init__(
         self,
-        auth_token=None,
         url=None,
+        auth_token=None,
         out_annset="",
         min_delay_ms=501,
         anntypes_map=None,
