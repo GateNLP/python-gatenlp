@@ -83,7 +83,8 @@ class Pipeline(Annotator):
             annotators: each parameter can be an annotator, a callable, a tuple where the first item is
                 an annotator or callable and the second a string(name), or a list of these things.
                 An annotator can be given as an instance or class, if it is a class, the kwargs are used
-                to construct an instance.
+                to construct an instance. If no annotators are specified at construction, they can still
+                be added later and incrementally using the `add` method.
             **kwargs: these arguments are passed to the constructor of any class in the annotators list
         """
         self.annotators = []
@@ -109,7 +110,8 @@ class Pipeline(Annotator):
 
     def add(self, annotator, name=None, tofront=False):
         """
-        Add an annotator to list of annotators for this pipeline.
+        Add an annotator to list of annotators for this pipeline. The annotator must be an initialized instance,
+        not a class.
 
         Args:
             annotator: the annotator to add
@@ -163,6 +165,25 @@ class Pipeline(Annotator):
             return results[0]
         else:
             return results
+
+    def pipe(self, documents, **kwargs):
+        """
+        Iterate over each of the documents process them by all the annotators in the pipeline
+        and yield all the final  non-None result documents. Documents are processed by in turn
+        invoking their `pipe` method on the generator created by the previous step.
+
+        Args:
+            documents: an iterable of documents or None (None values are ignored)
+            **kwargs: arguments to be passed to each of the annotators
+
+        Yields:
+            documents for which processing did not return None
+
+        """
+        gen = documents
+        for antr in self.annotators:
+            gen = antr.pipe(gen, **kwargs)
+        return gen
 
     def start(self):
         """

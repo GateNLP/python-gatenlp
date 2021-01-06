@@ -54,8 +54,9 @@ class Annotator(ABC):
             processed documents
         """
         for el in documents:
-            doc = self.__call__(el, **kwargs)
-            yield doc
+            if el is not None:
+                doc = self.__call__(el, **kwargs)
+                yield doc
 
     def start(self):
         """
