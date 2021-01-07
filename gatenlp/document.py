@@ -1,18 +1,27 @@
 """
-Module that implements the Document class for representing gatenlp documents with features and annotation sets.
+Module that implements the Document class for representing gatenlp documents with
+features and annotation sets.
 """
 
-from typing import KeysView
-from collections import defaultdict
-from gatenlp.annotation_set import AnnotationSet
-from gatenlp.annotation import Annotation
-from gatenlp.changelog import *
-from gatenlp.features import Features
-from gatenlp.utils import in_notebook
+from typing import KeysView, Callable
 import logging
 import importlib
 import copy as lib_copy
-from gatenlp.gatenlpconfig import gatenlpconfig
+from gatenlp.annotation_set import AnnotationSet
+from gatenlp.annotation import Annotation
+from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
+from gatenlp.features import Features
+from gatenlp.utils import in_notebook
+from gatenlp.changelog import ChangeLog
+
+from gatenlp.changelog_consts import (
+    ACTION_ADD_ANN, ACTION_ADD_ANNSET, ACTION_CLEAR_ANNS, ADDANN_UPDATE_FEATURES,
+    ACTION_CLEAR_ANN_FEATURES, ACTION_CLEAR_DOC_FEATURES,
+    ACTION_DEL_ANN, ACTION_DEL_ANN_FEATURE, ACTION_DEL_DOC_FEATURE,
+    ACTION_SET_ANN_FEATURE, ACTION_SET_DOC_FEATURE, ADDANN_ADD_NEW_FEATURES, ADDANN_ADD_WITH_NEW_ID,
+    ADDANN_IGNORE, ADDANN_REPLACE_ANNOTATION, ADDANN_REPLACE_FEATURES
+)
+
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -20,34 +29,36 @@ logger.setLevel(logging.INFO)
 
 
 class Document:
-    """Represent a GATE document. This is different from the original Java GATE representation in several ways:
+    """
+    Represent a GATE document. This is different from the original Java GATE representation in
+    several ways:
 
     * the text is not mutable and can only be set at creation time, so there is no "edit" method
 
-    * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
+    * as a feature bearer, all the methods to set, get and manipulate features are part of this
+      class, there is
       no separate "FeatureMap" to store them
 
     * does not support listener callbacks
-    * there is no separate abstraction for "content", the only content possible is text which is a unicode string
-      that can be acessed with the "text()" method
+    * there is no separate abstraction for "content", the only content possible is text which
+      is a unicode string that can be acessed with the "text()" method
     * Spans of text can be directly accessed using doc[from:to]
     * Features may only have string keys and values which can be json-serialised
-    * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
-      are UTF-16 Unicode code units
-    * Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
-      of UTF-16 code unit and back)
-    * No part of the document has to be present, not even the text (this allows saving just the annotations separately
-      from the text)
-    * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
+    * Annotation offsets by default are number of Unicde code points, this is different from Java
+      where the offsets are UTF-16 Unicode code units
+    * Offsets of all annotations can be changed from/to Java (from python index of unicode
+      codepoint to Java index of UTF-16 code unit and back)
+    * No part of the document has to be present, not even the text (this allows saving just
+      the annotations separately from the text)
+    * Once the text has been set, it is immutable (no support to edit text and change annotation
+      offsets accordingly)
 
     Args:
-      text: the text of the document. The text can be None to indicate that no initial text should be set. Once
-    the text has been set for a document, it is immutable and cannot be changed.
+        text: the text of the document. The text can be None to indicate that no initial text
+          should be set. Once the text has been set for a document, it is immutable and cannot
+          be changed.
       features: the initial document features to set, a sequence of key/value tuples
       changelog: a ChangeLog instance to use to log changes.
-
-    Returns:
-
     """
 
     def __init__(self, text: str = None, features=None, changelog: ChangeLog = None):
@@ -91,7 +102,8 @@ class Document:
         """ """
         if self.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception(
-                "Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first"
+                "Document cannot be used if it is not type PYTHON, " +
+                "use to_type(OFFSET_TYPE_PYTHON) first"
             )
 
     def _fixup_annotations(self, method: Callable) -> None:
@@ -148,16 +160,16 @@ class Document:
 
     def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
         """Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
-        a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
+        a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single
+        change object.
 
         The document is modified in-place.
 
         Args:
           changes: one or more changes
-          handle_existing_anns: what to do if the change from the changelog tries to add an annotation
-        with an annotation id that already exists in the target set. (Default value = ADDANN_ADD_WITH_NEW_ID)
-
-        Returns:
+          handle_existing_anns: what to do if the change from the changelog tries to
+              add an annotation with an annotation id that already exists in the target set.
+              (Default value = ADDANN_ADD_WITH_NEW_ID)
 
         """
         if isinstance(changes, dict):
@@ -375,20 +387,23 @@ class Document:
         """
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span._start : span._end]
+            return self.text[span._start: span._end]
         if isinstance(span, AnnotationSet):
-            return self.text[span.start() : span.end()]
+            return self.text[span.start(): span.end()]
         if hasattr(span, "start") and hasattr(span, "end"):
             return self.text[span.start, span.end]
         return self.text[span]
 
     def annset(self, name: str = "") -> AnnotationSet:
-        """Get the named annotation set, if name is not given or the empty string, the default annotation set.
+        """
+        Get the named annotation set, if name is not given or the empty string,
+        the default annotation set.
         If the annotation set does not already exist, it is created.
 
         Args:
-          name: the annotation set name, the empty string is used for the "default annotation set".
-          name: str:  (Default value = "")
+            name: the annotation set name, the empty string is used for the
+                "default annotation set".
+            name: str:  (Default value = "")
 
         Returns:
           the specified annotation set.
@@ -462,9 +477,9 @@ class Document:
           offset_type: convert to the given offset type on the fly (Default value = None)
           annsets: if not None, a list of annotation set/type specifications: each element
               is either a string, the name of the annotation set to include, or a tuple where the
-              first element is the annotation set name and the second element is either a type name or
-              a list of type names. The same annotation set name should not be used in more than one
-              specification.
+              first element is the annotation set name and the second element is either a
+              type name or a list of type names. The same annotation set name should not be used
+              in more than one specification.
           **kwargs:
 
         Returns:
@@ -495,7 +510,8 @@ class Document:
                     setname, types = spec
                     if isinstance(types, str):
                         types = [types]
-                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+                    annsets_dict[setname] = \
+                        self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
         else:
             annsets_dict = {
                 name: aset.to_dict(**kwargs)
@@ -550,14 +566,15 @@ class Document:
         """Save the document to the destination file.
 
         Args:
-          destination: either a file name or something that has a write(string) method.
-          fmt: serialization format, by default the format is inferred from the file extension.
-          offset_type: store using the given offset type or keep the current if None (Default value = None)
-          mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
-          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
-              to include in the serialized document.
-          kwargs: additional parameters for the document saver.
-          **kwargs:
+            destination: either a file name or something that has a write(string) method.
+            fmt: serialization format, by default the format is inferred from the file extension.
+            offset_type: store using the given offset type or keep the current if None
+                (Default value = None)
+            mod: module where the document saver is implemented.
+                (Default value = "gatenlp.serialization.default")
+            annsets: if not None, a list of annotation set names or tuples of set name and a
+                list of annotation types to include in the serialized document.
+            kwargs: additional parameters for the document saver.
         """
         if annsets is not None:
             kwargs["annsets"] = annsets
@@ -579,14 +596,12 @@ class Document:
         """Serialize to a string or bytes in the given format.
 
         Args:
-          fmt: serialization format to use. (Default value = "json")
-          offset_type: store using the given offset type or keep the current if None (Default value = None)
-          mod: module where the document saver is implemented. (Default value = "gatenlp.serialization.default")
-          kwargs: additional parameters for the format.
-          **kwargs:
-
-        Returns:
-
+            fmt: serialization format to use. (Default value = "json")
+            offset_type: store using the given offset type or keep the current if None
+                (Default value = None)
+            mod: module where the document saver is implemented.
+                (Default value = "gatenlp.serialization.default")
+            kwargs: additional parameters for the format.
         """
         if not fmt:
             raise Exception("Format required.")
@@ -599,10 +614,12 @@ class Document:
 
     @staticmethod
     def load(source, fmt=None, mod="gatenlp.serialization.default", **kwargs):
-        """Load or import a document from the given source. The source can be a file path or file name or
-        a URL. If the type of the source is str, then if it starts with "http[s]://" it will get treated
-        as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
-        deliberately use URL instead of a file parse the URL using urllib.
+        """
+        Load or import a document from the given source. The source can be a file path or
+        file name or a URL. If the type of the source is str, then if it starts with
+        "http[s]://" it will get treated as a URL. In order to deliberatly use a file instead of
+        a URL, create a pathlib Path, in order to deliberately use URL instead of a file parse
+        the URL using urllib.
 
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
 
@@ -611,16 +628,16 @@ class Document:
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
         Args:
-          source: the URL or file path to load from.
-          fmt: the format of the source. By default the format is inferred by the file extension.
-        The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
-          mod: the name of a module where the document loader is implemented. (Default value = "gatenlp.serialization.default")
+            source: the URL or file path to load from.
+            fmt: the format of the source. By default the format is inferred by the file extension.
+                The format can be a format memnonic like "json", "html", or a known mime type
+                like "text/bdocjs".
+          mod: the name of a module where the document loader is implemented.
+              (Default value = "gatenlp.serialization.default")
           kwargs: additional format specific keyword arguments to pass to the loader
-          **kwargs:
 
         Returns:
           the loaded document
-
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
@@ -634,20 +651,18 @@ class Document:
 
     @staticmethod
     def load_mem(source, fmt="json", mod="gatenlp.serialization.default", **kwargs):
-        """Create a document from the in-memory serialization in source. Source can be a string or
+        """
+        Create a document from the in-memory serialization in source. Source can be a string or
         bytes, depending on the format.
 
         Note: the offset type is always converted to PYTHON when loading!
 
         Args:
-          source: the string/bytes to deserialize
-          fmt: the format (Default value = "json")
-          mod: the name of the module where the loader is implemented (Default value = "gatenlp.serialization.default")
-          kwargs: additional arguments to pass to the loader
-          **kwargs:
-
-        Returns:
-
+            source: the string/bytes to deserialize
+            fmt: the format (Default value = "json")
+            mod: the name of the module where the loader is implemented
+                (Default value = "gatenlp.serialization.default")
+            kwargs: additional arguments to pass to the loader
         """
         if not fmt:
             raise Exception("Format required.")
@@ -665,7 +680,8 @@ class Document:
         """
         Creates a shallow copy except the changelog which is set to None.
 
-        :return: shallow copy of the document
+        Returns:
+            shallow copy of the document
         """
         doc = Document(self._text)
         doc._annotation_sets = self._annotation_sets
@@ -674,14 +690,11 @@ class Document:
         return doc
 
     def copy(self):
-        """Creates a shallow copy except the changelog which is set to None.
-
-        :return: shallow copy of the document
-
-        Args:
+        """
+        Creates a shallow copy except the changelog which is set to None.
 
         Returns:
-
+            shallow copy of the document
         """
         return self.__copy__()
 
@@ -689,9 +702,11 @@ class Document:
         """
         Creates a deep copy, except the changelog which is set to None.
 
-        :param memo: the memoization dictionary to use.
+        Args:
+            memo: the memoization dictionary to use.
 
-        :return: a deep copy of the document.
+        Returns:
+            a deep copy of the document.
         """
         if self._features is not None:
             fts = lib_copy.deepcopy(self._features.to_dict(), memo)
@@ -704,14 +719,14 @@ class Document:
         return doc
 
     def deepcopy(self, memo=None):
-        """Creates a deep copy, except the changelog which is set to None.
+        """
+        Creates a deep copy, except the changelog which is set to None.
 
         Args:
-          memo: the memoization dictionary to use.
+            memo: the memoization dictionary to use.
 
         Returns:
-          a deep copy of the document.
-
+            a deep copy of the document.
         """
         return lib_copy.deepcopy(self, memo=memo)
 
@@ -734,8 +749,10 @@ class Document:
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
-            annsets: if not None, a list of annotation set/type specifications. Each element is either
-                the name of a set to fully include, or a tuple with the name of the set as the first element
+            annsets: if not None, a list of annotation set/type specifications.
+                Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as
+                the first element
                 and with a single type name or a list of type names as the second element
 
         """
@@ -777,9 +794,9 @@ class MultiDocument(Document):
 
     An AnnotationMapping is something that maps annotations to annotations, either for the same
     document, from the same or different sets, of for different documents. Once an annotation
-    becomes part of a mapping, that annotation is becoming immutable. Even if the original annotation
-    in the document changes or gets removed, the mapping retains the original copy of the annotation
-    until the mapping is modified or removed.
+    becomes part of a mapping, that annotation is becoming immutable. Even if the original
+    annotation in the document changes or gets removed, the mapping retains the original copy of
+    the annotation until the mapping is modified or removed.
     """
 
     # TODO: ALL necessary fields of the document must be references of mutable objects so that
