@@ -113,6 +113,19 @@ class Corpus(ABC):
             raise Exception("Cannot append document, no __idx_ID feature")
         self.__setitem__(idx, doc)
 
+    def append(self, document):
+        """
+        Some corpus implementations may provide the append method to allow for adding documents (i.e.
+        use the corpus like a DocumentDestination).
+
+        Important: this will probably not work properly in situations where another
+        corpus wraps a corpus that allows appending. Use with care!
+
+        Args:
+            document: the document to add to the corpus
+        """
+        raise NotImplemented("Corpus does not allow appending")
+
 
 class DocumentSource(ABC):
     @abstractmethod
@@ -692,6 +705,10 @@ class ListCorpus(Corpus):
 
     def __len__(self):
         return len(self.list)
+
+    def append(self, doc):
+        self.list.append(doc)
+
 
 
 class EveryNthCorpus(Corpus):
