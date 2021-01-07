@@ -392,6 +392,17 @@ class TextRazorTextAnnotator(Annotator):
 
 
 class ElgTextAnnotator(Annotator):
+
+    ELG_SC_LIVE_URL_PREFIX = "https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
+    ELG_SC_LIVE_URL_PREFIX += "client_id=gatenlp&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + "&scope=offline_access"
+    ELG_SC_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + "&scope=openid"
+
+    ELG_SC_DEV_URL_PREFIX = "https://dev.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
+    ELG_SC_DEV_URL_PREFIX += "client_id=gatenlp&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + "&scope=offline_access"
+    ELG_SC_URL_OPENID = ELG_SC_DEV_URL_PREFIX + "&scope=openid"
+
     """
     An annotator that sends text to one of the services registered with the European Language Grid
     (https://live.european-language-grid.eu/) and uses the result to create annotations.
@@ -402,7 +413,11 @@ class ElgTextAnnotator(Annotator):
     def __init__(
         self,
         url=None,
-        auth_token=None,
+        service=None,
+        auth=None,
+        success_code=None,
+        access_token=None,
+        refresh_access=False,
         out_annset="",
         min_delay_ms=501,
         anntypes_map=None,
@@ -410,17 +425,78 @@ class ElgTextAnnotator(Annotator):
         """
         Create an ElgTextAnnotator.
 
+        NOTE: error handling is not properly implemented yet since we do not know yet how exactly the various
+        error conditions are represented in the result returned from the ELG services. For now, any error will
+        throw an exception when `__call__` is invoked.
+
+        NOTE: initialization can fail with an exception if success_code is specified and retrieving the
+        authentification information fails.
+
         Args:
-            auth_token: the authentication token from ELG
-            url:  the annotation service URL to use
+            url:  the annotation service URL to use. If not specified, the service parameter must be specified.
+            service: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
+                This may raise an exception. If successful, the url and service_meta attributes are set.
+            auth: a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
+                success_code or access_token parameter must be specified.
+            success_code: the success code returned from the ELG web page for one of the URLs to obtain
+                success codes. This will try to obtain the authentication information and store it in the
+                `auth` attribute.  Requires the elg package
+            access_token: the access token token for the ELG service. Only used if auth or success_code are not
+                specified. The access token is probably only valid for a limited amount of time. No refresh
+                will be done and once the access token is invalid, the
+            refresh_access: if True, will try to refresh the access token if auth or success_code was specified and
+                refreshing is possible. Ignored if only access_token was specified
             out_annset: the name of the annotation set where to create the annotations (default: "")
             min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         """
-        assert url is not None
-        self.auth_token = auth_token
+        if [x is not None for x in [url, service]] != 1:
+            raise Exception("Exactly one of service or url must be specified")
+        if [x is not None for x in [auth, success_code, access_token]] != 1:
+            raise Exception("Exactly one of auth, success_code, or access_token must be specified")
+        self.access_token = access_token
+        self.success_code = success_code
+        self.auth = auth
         self.url = url
+        self.service = service
+        self.service_meta = None
+        self.refresh_access = refresh_access
+        # first check if we need to import the elg package
+        import_elg = False
+        if access_token:
+            self.refresh_access = False
+        if service is not None:
+            import_elg = True
+        if auth or success_code:
+            import_elg = True
+        if import_elg:
+            try:
+                from elg import Authentication
+                from elg.utils import get_domain, get_metadatarecord
+            except Exception as ex:
+                raise Exception("For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]", ex)
+        if service is not None:
+            if isinstance(service, tuple):
+                service_id, domain = service
+            else:
+                service_id = service
+                domain = get_domain("live")
+            self.service_meta = get_metadatarecord(service_id, domain)
+            # TODO: use elg_execution_location_sync instead?
+            self.url = self.service_meta["service_info"]["elg_execution_location"]
+        if success_code is not None:
+            auth = Authentication()
+            auth._requesting_oauth_token(
+                {
+                    "grant_type": "authorization_code",
+                    "code": success_code,
+                    "redirect_uri": auth.redirect_uri,
+                    "client_id": auth.client
+                })
+            self.auth = auth
+        if self.auth:
+            self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.anntypes_map = anntypes_map
         self.out_annset = out_annset
@@ -429,6 +505,9 @@ class ElgTextAnnotator(Annotator):
         self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
+        # if necessary and possible, refresh the access token
+        if self.refresh_access and self.auth:
+            self.auth.refresh_if_needed()
         delay = time.time() - self._last_call_time
         if delay < self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
@@ -437,8 +516,8 @@ class ElgTextAnnotator(Annotator):
             {"type": "text", "content": doc.text, "mimeType": "text/plain"}
         )
         hdrs = {"Content-Type": "application/json"}
-        if self.auth_token:
-            hdrs["Authorization"] = f"Bearer {self.auth_token}"
+        if self.access_token:
+            hdrs["Authorization"] = f"Bearer {self.access_token}"
         response = requests.post(self.url, data=request_json, headers=hdrs)
         scode = response.status_code
         if scode != 200:
