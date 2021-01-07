@@ -1,10 +1,8 @@
 """
 Module for Annotation class which represents information about a span of text in  a document.
 """
-import sys
-from typing import List, Union, Dict, Set, Tuple
 import copy as lib_copy
-from functools import total_ordering, wraps
+from functools import total_ordering
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import support_annotation_or_set, allowspan
@@ -44,15 +42,18 @@ class Annotation:
         """
         if end < start:
             raise Exception(
-                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start > end"
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, "
+                "id={annid}, features={features}: start > end"
             )
         if not isinstance(annid, int):
             raise Exception(
-                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int"
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, "
+                "id={annid}, features={features}: annid is not an int"
             )
         if isinstance(features, int):
             raise Exception(
-                f"Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int"
+                f"Cannot create annotation start={start}, end={end}, type={anntype}, "
+                "id={annid}, features={features}: features must not be an int"
             )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
@@ -115,11 +116,14 @@ class Annotation:
             return self._owner_set.changelog
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
-    # allow any user specific types in order to make sure what we create is interchangeable with GATE.
+    # allow any user specific types in order to make sure what we create is interchangeable
+    # with GATE.
     # In addition we do NOT allow None features.
-    # So a feature name always has to be a string (not None), the value has to be anything that is json
+    # So a feature name always has to be a string (not None), the value has to be anything
+    # that is json
     # serialisable (except None keys for maps).
-    # For performance reasons we check the feature name but not the value (maybe make checking optional
+    # For performance reasons we check the feature name but not the value (maybe make checking
+    # optional
     # on by default but still optional?)
     def _log_feature_change(
         self, command: str, feature: str = None, value=None
@@ -174,11 +178,14 @@ class Annotation:
 
     def __lt__(self, other) -> bool:
         """
-        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
-        Since annotation ids within a set are unique, this guarantees a unique order of annotations that
+        Comparison for sorting: this sorts by increasing start offset,
+        then increasing annotation id.
+        Since annotation ids within a set are unique, this guarantees a unique order of
+        annotations that
         come from an annotation set.
 
-        Note: for now the other object has to be an instance of Annotation, duck typing is not supported!
+        Note: for now the other object has to be an instance of Annotation, duck typing is
+        not supported!
         """
         if not isinstance(other, Annotation):
             raise Exception("Cannot compare to non-Annotation")
@@ -203,8 +210,10 @@ class Annotation:
         Returns the length of the annotation: this is the length of the offset span.
         Since the end offset is one after the last
         element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-        len(annset) returns the number of annotations in the set but annset.length() also returns the
-        span length of the annotation set, so the method name for this is identical between annotations
+        len(annset) returns the number of annotations in the set but annset.length()
+        also returns the
+        span length of the annotation set, so the method name for this is identical between
+        annotations
         and annotation sets.
         """
         return self.end - self.start
@@ -279,9 +288,10 @@ class Annotation:
           (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of the span
-          end: end offset of the span
-          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+            start: start offset of the span
+            end: end offset of the span
+            immediately: if true checks if this annotation ends immediately before the
+                other one (Default value = False)
 
         Returns:
           True if before, False otherwise
@@ -303,7 +313,8 @@ class Annotation:
         Args:
           start: start offset of the span
           end: end offset of the span
-          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+          immediately: if true checks if this annotation starts immediately after the other one
+              (Default value = False)
 
         Returns:
           True if after, False otherwise
@@ -316,32 +327,35 @@ class Annotation:
 
     @support_annotation_or_set
     def gap(self, start: int, end: int):
-        """Return the gep between this annotation and the other annotation. This is the distance between
-        the last character of the first annotation and the first character of the second annotation in
+        """
+        Return the gep between this annotation and the other annotation.
+        This is the distance between
+        the last character of the first annotation and the first character of the
+        second annotation in
         sequence, so it is always independent of the order of the two annotations.
 
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-          (see gatenlp._utils.support_annotation_or_set)
+            (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of span
-          end: end offset of span
+            start: start offset of span
+            end: end offset of span
 
         Returns:
           size of gap
 
         """
         if self.start < start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -376,9 +390,10 @@ class Annotation:
         used for several serialization methods.
 
         Args:
-            offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+            offset_mapper: the offset mapper to use, must be specified if
+                `offset_type` is specified.
             offset_type: the offset type to be used for the conversionm must be specified if
-               `offset_mapper` is specified
+                `offset_mapper` is specified
 
         Returns:
             the dictionary representation of the Annotation
