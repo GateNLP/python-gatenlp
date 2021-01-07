@@ -394,14 +394,14 @@ class TextRazorTextAnnotator(Annotator):
 class ElgTextAnnotator(Annotator):
 
     ELG_SC_LIVE_URL_PREFIX = "https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
-    ELG_SC_LIVE_URL_PREFIX += "client_id=gatenlp&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
-    ELG_SC_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + "&scope=offline_access"
-    ELG_SC_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + "&scope=openid"
+    ELG_SC_LIVE_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_LIVE_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + "&scope=offline_access"
+    ELG_SC_LIVE_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + "&scope=openid"
 
     ELG_SC_DEV_URL_PREFIX = "https://dev.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
-    ELG_SC_DEV_URL_PREFIX += "client_id=gatenlp&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
-    ELG_SC_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + "&scope=offline_access"
-    ELG_SC_URL_OPENID = ELG_SC_DEV_URL_PREFIX + "&scope=openid"
+    ELG_SC_DEV_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_DEV_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + "&scope=offline_access"
+    ELG_SC_DEV_URL_OPENID = ELG_SC_DEV_URL_PREFIX + "&scope=openid"
 
     """
     An annotator that sends text to one of the services registered with the European Language Grid
@@ -451,9 +451,9 @@ class ElgTextAnnotator(Annotator):
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         """
-        if [x is not None for x in [url, service]] != 1:
+        if [x is not None for x in [url, service]].count(True) != 1:
             raise Exception("Exactly one of service or url must be specified")
-        if [x is not None for x in [auth, success_code, access_token]] != 1:
+        if [x is not None for x in [auth, success_code, access_token]].count(True) != 1:
             raise Exception("Exactly one of auth, success_code, or access_token must be specified")
         self.access_token = access_token
         self.success_code = success_code
@@ -483,10 +483,12 @@ class ElgTextAnnotator(Annotator):
                 service_id = service
                 domain = get_domain("live")
             self.service_meta = get_metadatarecord(service_id, domain)
-            # TODO: use elg_execution_location_sync instead?
-            self.url = self.service_meta["service_info"]["elg_execution_location"]
+            # NOTE: there is also elg_execution_location for async requests!
+            self.url = self.service_meta["service_info"]["elg_execution_location_sync"]
         if success_code is not None:
             auth = Authentication()
+            auth.client = "python-sdk"
+            auth.domain = get_domain("live")
             auth._requesting_oauth_token(
                 {
                     "grant_type": "authorization_code",
