@@ -102,3 +102,12 @@ class Annotator(ABC):
             The combined overall result or None if there are no individual results
         """
         return results
+
+
+class AnnotatorFunction(Annotator):
+
+    def __init__(self, funct):
+        self.funct = funct
+
+    def __call__(self, doc, **kwargs):
+        return self.funct(doc, **kwargs)
