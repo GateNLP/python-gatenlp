@@ -108,6 +108,17 @@ class Pipeline(Annotator):
         if len(self.annotators) == 0:
             self.logger.warn("Pipeline is a do-nothing pipeline: no annotators")
 
+    def copy(self):
+        """
+        Return a shallow copy of the pipeline: the annotators and the annotator data is identical, but
+        the pipeline data itself is copied, so that an existing pipeline can be modified or extendet.
+
+        Returns:
+            a shallow copy of this pipeline
+        """
+        new = Pipeline([(name, ann) for name, ann in self.names2annotators.items()])
+        return new
+
     def add(self, annotator, name=None, tofront=False):
         """
         Add an annotator to list of annotators for this pipeline. The annotator must be an initialized instance,
