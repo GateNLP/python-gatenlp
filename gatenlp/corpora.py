@@ -67,7 +67,12 @@ class Corpus(ABC):
     def __setitem__(self, key, value):
         """
         A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
-        The item assigned must be a document or None.
+        The item assigned must be a document or None. If a corpus item is set to None,
+        one of two things may happen: either the existing document at that index is left
+        unchanged or the element is actually set to None, indicating that there is no Document
+        stored at this position. Which of these behaviours is used may depend on the implementation
+        of the corpus or may be something that can be changed at init time with a boolean keyword
+        parameter that should be called `store_none`.
 
         Args:
             key: the index of the document
@@ -103,11 +108,14 @@ class Corpus(ABC):
 
         Args:
             doc: the document to store back into the corpus, should be a document that was retrieved from the same
-                 corpus.
+                 corpus or None. If None, no action is performed.
 
         Raises:
             Exception: if the index is not stored in a document feature `self.idxfeatname()`
         """
+        if doc is None:
+            return
+        assert isinstance(doc, Document)
         idx = doc.features.get(self.idxfeatname())
         if idx is None:
             raise Exception("Cannot append document, no __idx_ID feature")
@@ -122,7 +130,9 @@ class Corpus(ABC):
         corpus wraps a corpus that allows appending. Use with care!
 
         Args:
-            document: the document to add to the corpus
+            document: the document to add to the corpus or None. If None, the default behaviour is that
+                no action is performed, but specific implementation may change this behaviour.
+
         """
         raise NotImplemented("Corpus does not allow appending")
 
@@ -141,7 +151,8 @@ class DocumentDestination(ABC):
         to the destination.
 
         Args:
-            doc: the document to add
+            doc: the document to add, if this is None, by default nothing is actually added to the destination,
+                but specific implementations may change this behaviour.
         """
         pass
 
@@ -201,8 +212,11 @@ class JsonLinesFileDestination(DocumentDestination):
         Append a document to the destination.
 
         Args:
-            doc: the document
+            doc: the document, if None, no action is performed.
         """
+        if doc is None:
+            return
+        assert isinstance(doc, Document)
         self.fh.write(doc.save_mem(fmt="json"))
         self.fh.write("\n")
         self.n += 1
@@ -444,6 +458,15 @@ class DirFilesDestination(DocumentDestination):
         pass
 
     def append(self, doc):
+        """
+        Add a document to the destination.
+
+        Args:
+            doc: the document or None, if None, no action is performed.
+        """
+        if doc is None:
+            return
+        assert isinstance(doc, Document)
         path = self.file_path_maker(doc=doc, idx=self.idx)
         path = os.path.normpath(
             path
@@ -501,6 +524,15 @@ class DirFilesCorpus(Corpus):
         return doc
 
     def __setitem__(self, idx, doc):
+        """
+        Set the document for a specific index.
+
+        Args:
+            idx: the index of the document
+            doc: the Document, if None, no action is performed and the existing document is left unchanged
+        """
+        if doc is None:
+            return
         assert isinstance(idx, int)
         assert isinstance(doc, Document)
         path = self.paths[idx]
@@ -515,9 +547,13 @@ class NumberedDirFilesCorpus(Corpus):
     corresponding document gets deleted).
     """
 
-    def __init__(self, dirpath, digits=1, levels=1, ext="bdocjs", fmt=None, size=None):
+    def __init__(self, dirpath, digits=1, levels=1,
+                 ext="bdocjs", fmt=None, size=None,
+                 store_none=True,
+                 ):
         """
-        Creates the DirCorpus.
+        Creates the NumberedDirFilesCorpus. This corpus, is able to return None for non-existing documents
+        and remove document files by setting to None depending on the parameters.
 
         Args:
             dirpath: the directory path
@@ -526,8 +562,10 @@ class NumberedDirFilesCorpus(Corpus):
             ext: the file extension used for all files in the corpus
             fmt: the format to use, if None, determined from the extension
             size: the size of the corpus. This can be used to create a corpus from an empty directory
-              to contain only None elements initially.  It can also be used to limit access to only the
-              first size elements if the directory contains more documents.
+                to contain only None elements initially.  It can also be used to limit access to only the
+                first size elements if the directory contains more documents.
+            store_none: if True, will store None in the corpus, i.e. remove the corresponding file from
+                the directory. If False, will ignore the action and leave whatever is at the index unchanged.
         """
         if not ext.startswith("."):
             ext = "." + ext
@@ -535,6 +573,7 @@ class NumberedDirFilesCorpus(Corpus):
         self.ext = ext
         self.fmt = fmt
         self.size = size
+        self.store_none = store_none
         self.file_path_maker = make_file_path_fromidx(digits, levels)
         pass
 
@@ -562,8 +601,9 @@ class NumberedDirFilesCorpus(Corpus):
         path = self.file_path_maker(idx)
         path = path + self.ext
         if doc is None:
-            if os.path.exists(path):
-                os.remove(path)
+            if self.store_none:
+                if os.path.exists(path):
+                    os.remove(path)
         else:
             doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
 
@@ -683,7 +723,7 @@ class ListCorpus(Corpus):
         l = [None] * n
         return cls(l)
 
-    def __init__(self, list):
+    def __init__(self, list, store_none=True):
         """
         Provides a corpus interface to a list or list-like data structure.
         Note that this provides the proper implementation of append which stores back to the index
@@ -691,9 +731,12 @@ class ListCorpus(Corpus):
 
         Args:
             list: the list to wrap as a corpus
+            store_none: if True, a None value is stored into the corpus, otherwise, None will leave the
+                entry unchanged.
         """
         super().__init__()
         self.list = list
+        self.store_none = store_none
 
     def __getitem__(self, idx):
         doc = self.list[idx]
@@ -701,14 +744,23 @@ class ListCorpus(Corpus):
         return doc
 
     def __setitem__(self, key, value):
-        self.list[key] = value
+        if value is None:
+            if self.store_none:
+                self.list[key] = value
+        else:
+            assert isinstance(value, Document)
+            self.list[key] = value
 
     def __len__(self):
         return len(self.list)
 
-    def append(self, doc):
-        self.list.append(doc)
-
+    def append(self, doc: Document):
+        if doc is None:
+            if self.store_none:
+                list.append(doc)
+        else:
+            assert isinstance(doc, Document)
+            self.list.append(doc)
 
 
 class EveryNthCorpus(Corpus):
@@ -722,6 +774,7 @@ class EveryNthCorpus(Corpus):
     processes (in that case, the wrapped corpus must allow concurrent access!) or
     split a corpus into n subsets for other purposes.
 
+    What happens when a corpus element is set to None depends on the underlying corpus.
     """
 
     def __init__(self, corpus, every_n, every_n_k):
@@ -853,6 +906,7 @@ class ShuffledCorpus(Corpus):
 
     def __setitem__(self, idx, doc):
         # TODO: refactor into separate utility function
+        # TODO: why did I make this numbers.Integral instead of int???
         if not isinstance(idx, numbers.Integral):
             raise Exception("Item must be an integer")
         if idx >= len(self.idxs) or idx < 0:
