@@ -23,4 +23,6 @@ gets run:
 
 which should download all the necessary JARs into the maven standard location for the system. 
 
+## Alternatives
 
+The (Scala-based) Coursier approach could also work: https://get-coursier.io/docs/api

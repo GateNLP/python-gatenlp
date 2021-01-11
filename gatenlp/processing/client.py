@@ -392,7 +392,10 @@ class TextRazorTextAnnotator(Annotator):
 
 
 class ElgTextAnnotator(Annotator):
+    # TODO: maybe we should eventually always use the elg package and the elg Service class!
+    # TODO: however, currently their way how handling auth is done is too limiting see issues #8, #9
 
+    # TODO: use template and return the URL from a method or use elg.utils
     ELG_SC_LIVE_URL_PREFIX = "https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
     ELG_SC_LIVE_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
     ELG_SC_LIVE_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + "&scope=offline_access"
@@ -402,7 +405,6 @@ class ElgTextAnnotator(Annotator):
     ELG_SC_DEV_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
     ELG_SC_DEV_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + "&scope=offline_access"
     ELG_SC_DEV_URL_OPENID = ELG_SC_DEV_URL_PREFIX + "&scope=openid"
-
     """
     An annotator that sends text to one of the services registered with the European Language Grid
     (https://live.european-language-grid.eu/) and uses the result to create annotations.
@@ -440,10 +442,14 @@ class ElgTextAnnotator(Annotator):
                 success_code or access_token parameter must be specified.
             success_code: the success code returned from the ELG web page for one of the URLs to obtain
                 success codes. This will try to obtain the authentication information and store it in the
-                `auth` attribute.  Requires the elg package
+                `auth` attribute.  Requires the elg package.
+                To obtain a success code, go the the ELG_SC_LIVE_URL_OPENID or ELG_SC_LIVE_URL_OFFLINE url
+                and log in with your ELG user id, this will show the success code that can be copy-pasted.
             access_token: the access token token for the ELG service. Only used if auth or success_code are not
                 specified. The access token is probably only valid for a limited amount of time. No refresh
-                will be done and once the access token is invalid, the
+                will be done and once the access token is invalid, calling `__call__` will fail with an exception.
+                The access token can be obtained using the elg package or copied from the "Code samples" tab
+                on the web page for a service after logging in.
             refresh_access: if True, will try to refresh the access token if auth or success_code was specified and
                 refreshing is possible. Ignored if only access_token was specified
             out_annset: the name of the annotation set where to create the annotations (default: "")
