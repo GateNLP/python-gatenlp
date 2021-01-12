@@ -4,7 +4,6 @@ Module that implements the various ways of how to save and load documents and ch
 import io
 import os
 import sys
-import json
 import yaml
 from random import choice
 from string import ascii_uppercase
@@ -24,13 +23,56 @@ from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
 import warnings
-
+import pickle
 try:
     from bs4 import GuessedAtParserWarning
 
     warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
 except:
     pass
+
+
+# import orjson as usejson
+# import json as usejson
+# import rapidjson as usejson
+# import ujson as usejson
+# import hyperjson as usejson
+import json
+JSON_WRITE = "wt"
+JSON_READ = "rt"
+
+# # for replacing json by orjson
+# class json:
+#     @staticmethod
+#     def load(fp):
+#         data = fp.read()
+#         return usejson.loads(data)
+#     @staticmethod
+#     def loads(data):
+#         return usejson.loads(data)
+#     @staticmethod
+#     def dump(obj, fp):
+#         buf = usejson.dumps(obj)
+#         fp.write(buf)
+#     @staticmethod
+#     def dumps(obj):
+#         return usejson.dumps(obj)
+
+# # for replacing json with one of the other implementations
+# class json:
+#     @staticmethod
+#     def load(fp):
+#         return usejson.load(fp)
+#     @staticmethod
+#     def loads(data):
+#         return usejson.loads(data)
+#     @staticmethod
+#     def dump(obj, fp):
+#         buf = usejson.dump(obj, fp)
+#     @staticmethod
+#     def dumps(obj):
+#         return usejson.dumps(obj)
+
 
 # TODO: for ALL save options, allow to filter the annotations that get saved!
 # TODO: then use this show only limited set of annotations in the viewer
@@ -176,10 +218,10 @@ class JsonSerializer:
                 return json.dumps(d)
         else:
             if gzip:
-                with gopen(to_ext, "wt") as outfp:
+                with gopen(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
             else:
-                with open(to_ext, "wt") as outfp:
+                with open(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
 
     @staticmethod
@@ -232,10 +274,10 @@ class JsonSerializer:
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:  # from_ext must have been not None and a path
             if gzip:
-                with gopen(extstr, "rt") as infp:
+                with gopen(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             else:
-                with open(extstr, "rt") as infp:
+                with open(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -252,6 +294,82 @@ class JsonSerializer:
 
         """
         return JsonSerializer.load(clazz, gzip=True, **kwargs)
+
+
+class PickleSerializer:
+    """
+    This class performs the saving and load of Documents and ChangeLog instances to and from pickle format.
+    """
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
+        """
+
+        Args:
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use "p" (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: must be False, gzip is not supported
+          **kwargs:
+        """
+        if gzip:
+            raise Exception("Gzip not supported for pickle")
+        if to_mem:
+            return pickle.dumps(inst, protocol=-1)
+        else:
+            with open(to_ext, "wb") as outfp:
+                pickle.dump(inst, outfp, protocol=-1)
+
+
+    @staticmethod
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
+        """
+
+        Args:
+          clazz:
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False) must be False, True not supported
+          **kwargs:
+
+        Returns:
+
+        """
+        # print("RUNNING load with from_ext=", from_ext, " from_mem=", from_mem)
+
+        if from_ext is not None and from_mem is not None:
+            raise Exception("Exactly one of from_ext and from_mem must be specified ")
+        if from_ext is None and from_mem is None:
+            raise Exception("Exactly one of from_ext and from_mem must be specified ")
+
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                from_mem = get_bytes_from_url(extstr)
+            else:
+                # print("DEBUG: not a URL !!!")
+                pass
+        if from_mem is not None:
+            doc = pickle.loads(from_mem)
+        else:  # from_ext must have been not None and a path
+            with open(extstr, "rb") as infp:
+                doc = pickle.load(infp)
+        return doc
 
 
 class PlainTextSerializer:
@@ -1304,10 +1422,12 @@ DOCUMENT_SAVERS = {
     "json": JsonSerializer.save,
     "jsongz": JsonSerializer.save_gzip,
     "bdocjs": JsonSerializer.save,
+    "pickle": PickleSerializer.save,
     "bdocjsgz": JsonSerializer.save_gzip,
     "text/bdocjs": JsonSerializer.save,
     "text/bdocjs+gzip": JsonSerializer.save_gzip,
     "yaml": YamlSerializer.save,
+    "bdocym": YamlSerializer.save,
     "yamlgz": YamlSerializer.save_gzip,
     "text/bdocym": YamlSerializer.save,
     "text/bdocym+gzip+": YamlSerializer.save_gzip,
@@ -1343,6 +1463,8 @@ DOCUMENT_LOADERS = {
     "html-rendered": HtmlLoader.load_rendered,
     "gatexml": GateXmlLoader.load,
     "tweet": TweetLoader.load,
+    "pickle": PickleSerializer.load,
+
 }
 CHANGELOG_SAVERS = {
     "json": JsonSerializer.save,
@@ -1369,6 +1491,7 @@ EXTENSIONS = {
     "txt.gz": "text/plain+gzip",
     "html": "text/html",
     "htm": "text/html",
+    "pickle": "pickle",
 }
 
 
