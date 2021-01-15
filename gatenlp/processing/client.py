@@ -492,17 +492,7 @@ class ElgTextAnnotator(Annotator):
             # NOTE: there is also elg_execution_location for async requests!
             self.url = self.service_meta["service_info"]["elg_execution_location_sync"]
         if success_code is not None:
-            auth = Authentication()
-            auth.client = "python-sdk"
-            auth.domain = get_domain("live")
-            auth._requesting_oauth_token(
-                {
-                    "grant_type": "authorization_code",
-                    "code": success_code,
-                    "redirect_uri": auth.redirect_uri,
-                    "client_id": auth.client
-                })
-            self.auth = auth
+            self.auth = Authentication.from_success_code(success_code, domain="live")
         if self.auth:
             self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
