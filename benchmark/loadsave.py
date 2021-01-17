@@ -52,6 +52,7 @@ if __name__ == "__main__":
         doc = Document.load(relpath, fmt=args.infmt)
         total_readorig += time.time() - start
         relpath = relpath.replace(os.path.sep, "_")
+        relpath = relpath.replace(".bdocjs", args.fmt)
         newfile = os.path.join(args.outdir, relpath)
         newfiles.append(newfile)
         start = time.time()

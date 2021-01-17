@@ -5,6 +5,13 @@ import io
 import os
 import sys
 import yaml
+# import ruyaml as yaml
+try:
+    from yaml import CFullLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import FullLoader as Loader, Dumper
+yaml_loader = yaml.Loader
+yaml_dumper = yaml.Dumper
 from random import choice
 from string import ascii_uppercase
 from msgpack import pack, Unpacker
@@ -526,16 +533,16 @@ class YamlSerializer:
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode("UTF-8"))
+                compress(yaml.dump(d).encode("UTF-8"), Dumper=yaml_dumper)
             else:
-                return yaml.dump(d)
+                return yaml.dump(d, Dumper=yaml_dumper)
         else:
             if gzip:
                 with gopen(to_ext, "wt") as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
             else:
                 with open(to_ext, "wt") as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
@@ -578,18 +585,18 @@ class YamlSerializer:
         if from_mem is not None:
             if gzip:
                 d = yaml.load(
-                    decompress(from_mem).decode("UTF-8"), Loader=yaml.FullLoader
+                    decompress(from_mem).decode("UTF-8"), Loader=yaml_loader
                 )
             else:
-                d = yaml.load(from_mem, Loader=yaml.FullLoader)
+                d = yaml.load(from_mem, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
                 with gopen(extstr, "rt") as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             else:
                 with open(extstr, "rt") as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
 

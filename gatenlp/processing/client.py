@@ -483,6 +483,8 @@ class ElgTextAnnotator(Annotator):
             except Exception as ex:
                 raise Exception("For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]", ex)
         if service is not None:
+            # update this to use the new method:
+            # https://gitlab.com/european-language-grid/platform/python-client/-/issues/9
             if isinstance(service, tuple):
                 service_id, domain = service
             else:
