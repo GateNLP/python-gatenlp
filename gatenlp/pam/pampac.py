@@ -1064,7 +1064,7 @@ class PampacParser:
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "start_eq")
+        pred = self._make_constraint_predicate(matcher, "startingat")
         return Filter(self, pred, matchtype=matchtype)
 
     def notat(self, type=None, features=None, features_eq=None, text=None, matchtype="first"):
@@ -1089,7 +1089,7 @@ class PampacParser:
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "start_eq")
+        pred = self._make_notconstraint_predicate(matcher, "startingat")
         return Filter(self, pred, matchtype=matchtype)
 
     def before(self, type=None, features=None, features_eq=None, text=None,
@@ -1122,9 +1122,9 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.start_ge(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -1163,7 +1163,7 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
                 annstocheck = annset.start_ge(result.span.end)
             matched = False

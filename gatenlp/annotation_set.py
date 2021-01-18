@@ -845,7 +845,7 @@ class AnnotationSet:
         return self._index_by_type.keys()
 
     @support_annotation_or_set
-    def start_eq(
+    def startingat(
         self, start: int, ignored: Any = None, annid=None, include_self=False
     ) -> "AnnotationSet":
         """
@@ -1073,6 +1073,68 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.at(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    def before(self, start: int, end: int, annid=None, include_self=False,
+               immediately=False) -> "AnnotationSet":
+        """
+        Returns a detached annotation set with all annotations that end before the given offsets.
+
+        For each annotation ann in the result set, ann.isbefore(span) is True.
+
+        Args:
+            start: start offset of the span
+            end: end offset of the span
+            annid: the annotation id of the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation id for the span is given, do not include that
+                annotation in the result set.
+            immediately: if True, the end offset of the annotations return must coincide with the
+                start offset of the span (default=False)
+
+        Returns:
+          annotation set with all annotations that end before the given span
+        """
+        self._create_index_by_offset()
+        if immediately:
+            intvs = self._index_by_offset.ending_at(start)
+        else:
+            intvs = self._index_by_offset.ending_to(start)
+        # we need to filter self if self is zero-length!
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    def after(self, start: int, end: int, annid=None, include_self=False,
+              immediately=False) -> "AnnotationSet":
+        """
+        Returns a detached annotation set with all annotations that start after the given span.
+
+        For each annotation ann in the result set, ann.isafter(span) is True.
+
+        Args:
+            start: start offset of the span
+            end: end offset of the span
+            annid: the annotation id of the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation id for the span is given, do not include that
+                annotation in the result set.
+            immediately: if True, the start offset of the annotations returned must coincide with the
+                end offset of the span (default=False)
+
+        Returns:
+          annotation set with all annotations that start after the given span
+        """
+        self._create_index_by_offset()
+        if immediately:
+            intvs = self._index_by_offset.starting_at(end)
+        else:
+            intvs = self._index_by_offset.starting_from(end)
+        # we need to filter self if self is zero-length!
         if not include_self and annid is not None:
             ignore = annid
         else:

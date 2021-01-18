@@ -65,7 +65,7 @@ class TestDocument01:
         assert doc2.features["docfeat1"] == 33
         d2annset1 = doc2.annset("")
         assert len(d2annset1) == 3
-        at8 = d2annset1.start_eq(8)
+        at8 = d2annset1.startingat(8)
         # print("AT8: {}".format(at8), file=sys.stderr)
         assert len(at8) == 1
 
