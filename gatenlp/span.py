@@ -215,6 +215,17 @@ class Span:
 
     @support_annotation_or_set
     def isstartingat(self, start: int, end: int) -> bool:
+        """
+        Check if this span is starting at the same offset as the other span or annotation.
+
+        Args:
+            start: start of other span/annotaiton
+            end: end of other span/annotation, ignored
+
+        Returns:
+            True if span is starting at the same offset as the other span or annotation
+
+        """
         return self.start == start
 
     @support_annotation_or_set
@@ -231,3 +242,42 @@ class Span:
 
         """
         return self.end == end
+
+    @support_annotation_or_set
+    def isleftoverlapping(self, start: int, end: int) -> bool:
+        """
+        Checks if this span is overlapping with the given span, annotation or
+        annotation set on the left, i.e. the last character is inside the span and the
+        first character is before the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if left-overlapping, `False` otherwise
+
+        """
+        return self.start <= start and self.end <= end
+
+    @support_annotation_or_set
+    def isrightoverlapping(self, start: int, end: int) -> bool:
+        """
+        Checks if this span is overlapping with the given span, annotation or
+        annotation set on the right, i.e. the first character is inside the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if right-overlapping, `False` otherwise
+
+        """
+        return self.start >= start and self.end >= end

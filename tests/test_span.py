@@ -23,7 +23,7 @@ class TestSpanRels:
         assert span1.iscovering(span1.end-1)
 
         assert span1.isoverlapping(span2)
-        # assert span1.isrightoverlapping(span1)
+        assert span1.isrightoverlapping(span1)
         assert span1.iscovering(span3)
         assert not span1.iscovering(span2)
         assert span1.isendingwith(span12)
@@ -42,7 +42,7 @@ class TestSpanRels:
 
         assert not span2.isbefore(span1)
         assert span2.isbefore(span3)
-        # assert span2.isleftoverlapping(span1)
+        assert span2.isleftoverlapping(span1)
         assert span2.isoverlapping(span1)
         assert span2.isoverlapping(span10)
         assert not span2.isoverlapping(span5)
@@ -61,8 +61,8 @@ class TestSpanRels:
 
         assert span4.isafter(span3)
         assert not span4.isafter(span1)
-        # assert span4.isrightoverlapping(span1)
-        # assert span4.isrightoverlapping(span12)
+        assert span4.isrightoverlapping(span1)
+        assert span4.isrightoverlapping(span12)
 
         assert span5.isbefore(span3)
         assert span5.isbefore(span3, immediately=True)
@@ -84,12 +84,12 @@ class TestSpanRels:
         assert span7.isoverlapping(span11)
         assert span7.iswithin(span9)
         assert span7.iswithin(span11)
-        # assert span7.isleftoverlapping(span11)
-        # assert span7.isrightoverlapping(span11)
+        assert span7.isleftoverlapping(span11)
+        assert span7.isrightoverlapping(span11)
         assert span7.iscovering(span11)
         assert span11.iscovering(span7)
-        # assert span11.isleftoverlapping(span7)
-        # assert span11.isrightoverlapping(span7)
+        assert span11.isleftoverlapping(span7)
+        assert span11.isrightoverlapping(span7)
 
         assert span11.isstartingat(span7)
         assert span11.isafter(span5)
