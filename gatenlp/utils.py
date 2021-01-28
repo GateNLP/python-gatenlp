@@ -198,8 +198,9 @@ def support_annotation_or_set(method):
     Decorator to allow a method that normally takes a start and end
     offset to take an annotation or annotation set, or any other object that has
     "start" and "end" attributes, or a pair of offsets instead.
-    It also allows to take a single offset instead which will then be used
-    to create a length one span (start is the original offset, end is the original offset plus one)
+    It also allows to take a single offset instead in which case the end offset will
+    get passed on as None: this is to support those methods which can take a span or a single
+    offset.
 
     Args:
       method: the method that gets converted by this decorator.
@@ -220,7 +221,7 @@ def support_annotation_or_set(method):
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
             elif isinstance(obj, numbers.Integral):
-                left, right = obj, obj + 1
+                left, right = obj, None
             else:
                 raise Exception(
                     "Not an annotation or an annotation set or pair: {}".format(args[0])

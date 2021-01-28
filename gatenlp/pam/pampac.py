@@ -1834,7 +1834,7 @@ class Seq(PampacParser):
                             newresult = Result(datas, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
-            gen = depthfirst(0, Result(data=[], location=location, span=Span(None, None)))
+            gen = depthfirst(0, Result(data=[], location=location, span=Span(0, 0)))
             all = []
             best = None
             for idx, result in enumerate(gen):

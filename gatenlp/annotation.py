@@ -1,6 +1,7 @@
 """
 Module for Annotation class which represents information about a span of text in  a document.
 """
+import sys
 import copy as lib_copy
 from functools import total_ordering
 from gatenlp.features import Features
@@ -418,7 +419,7 @@ class Annotation:
         return ann2start - ann1end
 
     @support_annotation_or_set
-    def iscovering(self, start: int, end: int = None) -> bool:
+    def iscovering(self, start: int, end=None) -> bool:
         """Checks if this annotation is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
         are after the start of this annotation and before the end of this annotation.
@@ -438,7 +439,10 @@ class Annotation:
 
         """
         if end is None:
-            return self.start <= start < self.end
+            if self.end == self.start:
+                return self.start == start
+            else:
+                return self.start <= start < self.end
         else:
             return self.start <= start and self.end >= end
 

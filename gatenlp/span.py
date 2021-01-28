@@ -17,6 +17,8 @@ class Span:
 
     @support_annotation_or_set
     def __init__(self, start, end):
+        assert start is not None
+        assert end is not None
         self.start = start
         self.end = end
 
@@ -183,7 +185,7 @@ class Span:
         return ann2start - ann1end
 
     @support_annotation_or_set
-    def iscovering(self, start: int, end: int = None) -> bool:
+    def iscovering(self, start, end=None) -> bool:
         """
         Checks if this span is covering the given span, annotation or
         annotation set, i.e. both the given start and end offsets
@@ -204,10 +206,28 @@ class Span:
 
         """
         if end is None:
-            return self.start <= start < self.end
+            if self.start == self.end:
+                return self.start == start
+            else:
+                return self.start <= start < self.end
         else:
             return self.start <= start and self.end >= end
 
     @support_annotation_or_set
-    def isat(self, start, end):
+    def isstartingat(self, start: int, end: int) -> bool:
         return self.start == start
+
+    @support_annotation_or_set
+    def isendingwith(self, start: int, end: int) -> bool:
+        """
+        Checks if this span is ending at the same offset as the given span or annotation.
+
+        Args:
+            start: start of the span (ignored)
+            end: end of the span
+
+        Returns:
+            True if ending at the same offset as the span or annotation
+
+        """
+        return self.end == end
