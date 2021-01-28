@@ -341,6 +341,7 @@ class Annotation:
         else:
             return self.end <= start
 
+
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -> bool:
         """Checks if this annotation is after the other span, i.e. the start of this annotation
@@ -369,7 +370,18 @@ class Annotation:
         return self._start == start
 
     @support_annotation_or_set
-    def isendingat(self, start: int, end: int) -> bool:
+    def isendingwith(self, start: int, end: int) -> bool:
+        """
+        Checks if this annotation is ending at the same offset as the given span or annotation.
+
+        Args:
+            start: start of the span (ignored)
+            end: end of the span
+
+        Returns:
+            True if ending at the same offset as the span or annotation
+
+        """
         return self._end == end
 
     def gap(self, start: int, end: int) -> bool:

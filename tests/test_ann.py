@@ -46,3 +46,34 @@ class TestAnnotationRels:
         ann12 = set1.with_type("Ann12").by_idx(0)
 
         assert ann1.isoverlapping(ann2)
+        assert ann1.isrightoverlapping(ann1)
+        assert ann1.iscovering(ann3)
+        assert not ann1.iscovering(ann2)
+        assert ann1.isendingwith(ann12)
+        assert not ann1.isafter(ann2)
+        assert ann1.isstartingat(ann10)
+        assert ann1.iscovering(ann5)
+        assert ann1.iscovering(ann7)
+        assert ann1.iscovering(ann11)
+        assert ann1.iscovering(ann10)
+        assert ann1.iscovering(ann12)
+        assert ann1.isoverlapping(ann3)
+        assert ann1.isoverlapping(ann7)
+        assert ann1.isoverlapping(ann10)
+        assert ann1.isoverlapping(ann12)
+        assert ann1.isoverlapping(ann4)
+
+        assert not ann2.isbefore(ann1)
+        assert ann2.isbefore(ann3)
+        assert ann2.isleftoverlapping(ann1)
+
+        assert ann3.iscoextensive(ann9)
+        assert ann3.iswithin(ann1)
+        assert ann3.isafter(ann2)
+        assert ann3.isafter(ann5)
+        assert ann3.isafter(ann5, immediately=True)
+
+        assert ann5.isbefore(ann3)
+        assert ann5.isbefore(ann3, immediately=True)
+
+
