@@ -43,27 +43,53 @@ __pdoc__ = {&#34;Annotator.__call__&#34;: True}
 
 
 class Annotator(ABC):
+
     @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
-        This method must get implemented in a concrete subclass to do the actual processing
-        and annotation. It must accept a document and return a document which may be
-        the same that got passed.
+        This method MUST get implemented in a concrete subclass to do the actual processing
+        and annotation. It must accept a document and arbitrary keyword arguments and it must
+        return either a document which may be the same or a different object than the document passed,
+        or None or an empty list or a list of one or more documents. The method also may raise an
+        exception.
 
-        If it returns a list of documents, all of them are used as processing results, if
-        the list is empty, the processing does not yield a result.
+        The semantics of returning None or an empty list are not strictly defined: this may be used to
+        handle processing errors where documents which cannot be processed are quietly ignored or
+        filtering.
 
-        The method must accept arbitrary keyword arguments which will be used for handling
-        non-standard situations.
+        The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
+        may be used to configure or parametrize processing.
+
+        NOTE: some annotators may set or use special document features in order to handle
+        document context or the document id when processing a corpus or streams where a document id
+        is important.
 
         Args:
           doc: the document to process
-          kwargs: return: a document or a list of documents
+          kwargs: any arguments to pass to the annotator or sub-annotators called by this annotator
 
         Returns:
-            a document or a list of documents
+            a document, None, or a possibly empty list of documents
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
+
+    def pipe(self, documents, **kwargs):
+        &#34;&#34;&#34;
+        If this method gets overridden, it should take an iterable of documents and yield processed documents.
+        This allows for batching, caching, and other optimizations over streams of documents.
+        If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
+
+        Args:
+            documents: an iterable over documents or (document, context) tuples if with_context=True
+            **kwargs: arbitrary other keyword arguments must be accepted
+
+        Yields:
+            processed documents
+        &#34;&#34;&#34;
+        for el in documents:
+            if el is not None:
+                doc = self.__call__(el, **kwargs)
+                yield doc
 
     def start(self):
         &#34;&#34;&#34;
@@ -108,7 +134,16 @@ class Annotator(ABC):
         Returns:
             The combined overall result or None if there are no individual results
         &#34;&#34;&#34;
-        return results</code></pre>
+        return results
+
+
+class AnnotatorFunction(Annotator):
+
+    def __init__(self, funct):
+        self.funct = funct
+
+    def __call__(self, doc, **kwargs):
+        return self.funct(doc, **kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -131,27 +166,53 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Annotator(ABC):
+
     @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
-        This method must get implemented in a concrete subclass to do the actual processing
-        and annotation. It must accept a document and return a document which may be
-        the same that got passed.
+        This method MUST get implemented in a concrete subclass to do the actual processing
+        and annotation. It must accept a document and arbitrary keyword arguments and it must
+        return either a document which may be the same or a different object than the document passed,
+        or None or an empty list or a list of one or more documents. The method also may raise an
+        exception.
 
-        If it returns a list of documents, all of them are used as processing results, if
-        the list is empty, the processing does not yield a result.
+        The semantics of returning None or an empty list are not strictly defined: this may be used to
+        handle processing errors where documents which cannot be processed are quietly ignored or
+        filtering.
 
-        The method must accept arbitrary keyword arguments which will be used for handling
-        non-standard situations.
+        The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
+        may be used to configure or parametrize processing.
+
+        NOTE: some annotators may set or use special document features in order to handle
+        document context or the document id when processing a corpus or streams where a document id
+        is important.
 
         Args:
           doc: the document to process
-          kwargs: return: a document or a list of documents
+          kwargs: any arguments to pass to the annotator or sub-annotators called by this annotator
 
         Returns:
-            a document or a list of documents
+            a document, None, or a possibly empty list of documents
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
+
+    def pipe(self, documents, **kwargs):
+        &#34;&#34;&#34;
+        If this method gets overridden, it should take an iterable of documents and yield processed documents.
+        This allows for batching, caching, and other optimizations over streams of documents.
+        If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
+
+        Args:
+            documents: an iterable over documents or (document, context) tuples if with_context=True
+            **kwargs: arbitrary other keyword arguments must be accepted
+
+        Yields:
+            processed documents
+        &#34;&#34;&#34;
+        for el in documents:
+            if el is not None:
+                doc = self.__call__(el, **kwargs)
+                yield doc
 
     def start(self):
         &#34;&#34;&#34;
@@ -207,6 +268,7 @@ inheritance.</p></div>
 <li><a title="gatenlp.gateslave.GateSlaveAnnotator" href="../gateslave.html#gatenlp.gateslave.GateSlaveAnnotator">GateSlaveAnnotator</a></li>
 <li><a title="gatenlp.lib_spacy.AnnSpacy" href="../lib_spacy.html#gatenlp.lib_spacy.AnnSpacy">AnnSpacy</a></li>
 <li><a title="gatenlp.lib_stanza.AnnStanza" href="../lib_stanza.html#gatenlp.lib_stanza.AnnStanza">AnnStanza</a></li>
+<li><a title="gatenlp.processing.annotator.AnnotatorFunction" href="#gatenlp.processing.annotator.AnnotatorFunction">AnnotatorFunction</a></li>
 <li><a title="gatenlp.processing.client.ElgTextAnnotator" href="client.html#gatenlp.processing.client.ElgTextAnnotator">ElgTextAnnotator</a></li>
 <li><a title="gatenlp.processing.client.GateCloudAnnotator" href="client.html#gatenlp.processing.client.GateCloudAnnotator">GateCloudAnnotator</a></li>
 <li><a title="gatenlp.processing.client.TagMeAnnotator" href="client.html#gatenlp.processing.client.TagMeAnnotator">TagMeAnnotator</a></li>
@@ -222,22 +284,28 @@ inheritance.</p></div>
 <span>def <span class="ident">__call__</span></span>(<span>self, doc, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This method must get implemented in a concrete subclass to do the actual processing
-and annotation. It must accept a document and return a document which may be
-the same that got passed.</p>
-<p>If it returns a list of documents, all of them are used as processing results, if
-the list is empty, the processing does not yield a result.</p>
-<p>The method must accept arbitrary keyword arguments which will be used for handling
-non-standard situations.</p>
+<div class="desc"><p>This method MUST get implemented in a concrete subclass to do the actual processing
+and annotation. It must accept a document and arbitrary keyword arguments and it must
+return either a document which may be the same or a different object than the document passed,
+or None or an empty list or a list of one or more documents. The method also may raise an
+exception.</p>
+<p>The semantics of returning None or an empty list are not strictly defined: this may be used to
+handle processing errors where documents which cannot be processed are quietly ignored or
+filtering.</p>
+<p>The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
+may be used to configure or parametrize processing.</p>
+<p>NOTE: some annotators may set or use special document features in order to handle
+document context or the document id when processing a corpus or streams where a document id
+is important.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>doc</code></strong></dt>
 <dd>the document to process</dd>
 <dt><strong><code>kwargs</code></strong></dt>
-<dd>return: a document or a list of documents</dd>
+<dd>any arguments to pass to the annotator or sub-annotators called by this annotator</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>a document or a list of documents</p></div>
+<p>a document, None, or a possibly empty list of documents</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -245,22 +313,29 @@ non-standard situations.</p>
 <pre><code class="python">@abstractmethod
 def __call__(self, doc, **kwargs):
     &#34;&#34;&#34;
-    This method must get implemented in a concrete subclass to do the actual processing
-    and annotation. It must accept a document and return a document which may be
-    the same that got passed.
+    This method MUST get implemented in a concrete subclass to do the actual processing
+    and annotation. It must accept a document and arbitrary keyword arguments and it must
+    return either a document which may be the same or a different object than the document passed,
+    or None or an empty list or a list of one or more documents. The method also may raise an
+    exception.
 
-    If it returns a list of documents, all of them are used as processing results, if
-    the list is empty, the processing does not yield a result.
+    The semantics of returning None or an empty list are not strictly defined: this may be used to
+    handle processing errors where documents which cannot be processed are quietly ignored or
+    filtering.
 
-    The method must accept arbitrary keyword arguments which will be used for handling
-    non-standard situations.
+    The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
+    may be used to configure or parametrize processing.
+
+    NOTE: some annotators may set or use special document features in order to handle
+    document context or the document id when processing a corpus or streams where a document id
+    is important.
 
     Args:
       doc: the document to process
-      kwargs: return: a document or a list of documents
+      kwargs: any arguments to pass to the annotator or sub-annotators called by this annotator
 
     Returns:
-        a document or a list of documents
+        a document, None, or a possibly empty list of documents
     &#34;&#34;&#34;
     raise Exception(&#34;This method must be implemented!&#34;)</code></pre>
 </details>
@@ -288,6 +363,45 @@ it has seen - that result may be None.</p>
         The overall result of processing all documents or None
     &#34;&#34;&#34;
     pass</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.processing.annotator.Annotator.pipe"><code class="name flex">
+<span>def <span class="ident">pipe</span></span>(<span>self, documents, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>If this method gets overridden, it should take an iterable of documents and yield processed documents.
+This allows for batching, caching, and other optimizations over streams of documents.
+If with_context is True, then the documents parameter should be an iterable over tuples (document, context).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>documents</code></strong></dt>
+<dd>an iterable over documents or (document, context) tuples if with_context=True</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>arbitrary other keyword arguments must be accepted</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<p>processed documents</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pipe(self, documents, **kwargs):
+    &#34;&#34;&#34;
+    If this method gets overridden, it should take an iterable of documents and yield processed documents.
+    This allows for batching, caching, and other optimizations over streams of documents.
+    If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
+
+    Args:
+        documents: an iterable over documents or (document, context) tuples if with_context=True
+        **kwargs: arbitrary other keyword arguments must be accepted
+
+    Yields:
+        processed documents
+    &#34;&#34;&#34;
+    for el in documents:
+        if el is not None:
+            doc = self.__call__(el, **kwargs)
+            yield doc</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.reduce"><code class="name flex">
@@ -366,6 +480,43 @@ can be reused even if the same annotator instance is run several times over docu
 </dd>
 </dl>
 </dd>
+<dt id="gatenlp.processing.annotator.AnnotatorFunction"><code class="flex name class">
+<span>class <span class="ident">AnnotatorFunction</span></span>
+<span>(</span><span>funct)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnnotatorFunction(Annotator):
+
+    def __init__(self, funct):
+        self.funct = funct
+
+    def __call__(self, doc, **kwargs):
+        return self.funct(doc, **kwargs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -387,9 +538,13 @@ can be reused even if the same annotator instance is run several times over docu
 <ul class="">
 <li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.start" href="#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.annotator.AnnotatorFunction" href="#gatenlp.processing.annotator.AnnotatorFunction">AnnotatorFunction</a></code></h4>
 </li>
 </ul>
 </li>

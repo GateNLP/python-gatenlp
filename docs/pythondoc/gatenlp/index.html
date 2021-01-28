@@ -100,13 +100,18 @@ a document.</p></div>
 <div class="desc"><p>Module for ChangeLog class which represents a log of changes to any of the components of
 a Document: document features, annotations, annotation features.</p></div>
 </dd>
+<dt><code class="name"><a title="gatenlp.changelog_consts" href="changelog_consts.html">gatenlp.changelog_consts</a></code></dt>
+<dd>
+<div class="desc"><p>Module for defining the constants used in the changelog module</p></div>
+</dd>
 <dt><code class="name"><a title="gatenlp.corpora" href="corpora.html">gatenlp.corpora</a></code></dt>
 <dd>
 <div class="desc"><p>Module that defines base and implementation classes for representing document collections …</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.document" href="document.html">gatenlp.document</a></code></dt>
 <dd>
-<div class="desc"><p>Module that implements the Document class for representing gatenlp documents with features and annotation sets.</p></div>
+<div class="desc"><p>Module that implements the Document class for representing gatenlp documents with
+features and annotation sets.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.features" href="features.html">gatenlp.features</a></code></dt>
 <dd>
@@ -333,15 +338,18 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         if end &lt; start:
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start &gt; end&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: start &gt; end&#34;
             )
         if not isinstance(annid, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: annid is not an int&#34;
             )
         if isinstance(features, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: features must not be an int&#34;
             )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
@@ -404,11 +412,14 @@ and instead the method AnnotationSet.add should be used.</p>
             return self._owner_set.changelog
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
-    # allow any user specific types in order to make sure what we create is interchangeable with GATE.
+    # allow any user specific types in order to make sure what we create is interchangeable
+    # with GATE.
     # In addition we do NOT allow None features.
-    # So a feature name always has to be a string (not None), the value has to be anything that is json
+    # So a feature name always has to be a string (not None), the value has to be anything
+    # that is json
     # serialisable (except None keys for maps).
-    # For performance reasons we check the feature name but not the value (maybe make checking optional
+    # For performance reasons we check the feature name but not the value (maybe make checking
+    # optional
     # on by default but still optional?)
     def _log_feature_change(
         self, command: str, feature: str = None, value=None
@@ -463,11 +474,14 @@ and instead the method AnnotationSet.add should be used.</p>
 
     def __lt__(self, other) -&gt; bool:
         &#34;&#34;&#34;
-        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
-        Since annotation ids within a set are unique, this guarantees a unique order of annotations that
+        Comparison for sorting: this sorts by increasing start offset,
+        then increasing annotation id.
+        Since annotation ids within a set are unique, this guarantees a unique order of
+        annotations that
         come from an annotation set.
 
-        Note: for now the other object has to be an instance of Annotation, duck typing is not supported!
+        Note: for now the other object has to be an instance of Annotation, duck typing is
+        not supported!
         &#34;&#34;&#34;
         if not isinstance(other, Annotation):
             raise Exception(&#34;Cannot compare to non-Annotation&#34;)
@@ -492,8 +506,10 @@ and instead the method AnnotationSet.add should be used.</p>
         Returns the length of the annotation: this is the length of the offset span.
         Since the end offset is one after the last
         element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-        len(annset) returns the number of annotations in the set but annset.length() also returns the
-        span length of the annotation set, so the method name for this is identical between annotations
+        len(annset) returns the number of annotations in the set but annset.length()
+        also returns the
+        span length of the annotation set, so the method name for this is identical between
+        annotations
         and annotation sets.
         &#34;&#34;&#34;
         return self.end - self.start
@@ -518,6 +534,45 @@ and instead the method AnnotationSet.add should be used.</p>
 
         &#34;&#34;&#34;
         return self.iscovering(start) or self.iscovering(end - 1)
+
+    @support_annotation_or_set
+    def isleftoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the left, i.e. the last character is inside the span and the
+        first character is before the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if left-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &lt;= start and self.end &lt;= end
+
+    @support_annotation_or_set
+    def isrightoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the right, i.e. the first character is inside the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if right-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &gt;= start and self.end &gt;= end
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -&gt; bool:
@@ -568,9 +623,10 @@ and instead the method AnnotationSet.add should be used.</p>
           (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of the span
-          end: end offset of the span
-          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+            start: start offset of the span
+            end: end offset of the span
+            immediately: if true checks if this annotation ends immediately before the
+                other one (Default value = False)
 
         Returns:
           True if before, False otherwise
@@ -592,7 +648,8 @@ and instead the method AnnotationSet.add should be used.</p>
         Args:
           start: start offset of the span
           end: end offset of the span
-          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+          immediately: if true checks if this annotation starts immediately after the other one
+              (Default value = False)
 
         Returns:
           True if after, False otherwise
@@ -604,33 +661,43 @@ and instead the method AnnotationSet.add should be used.</p>
             return self.start &gt;= end
 
     @support_annotation_or_set
-    def gap(self, start: int, end: int):
-        &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
-        the last character of the first annotation and the first character of the second annotation in
+    def isstartingat(self, start: int, end: int) -&gt; bool:
+        return self._start == start
+
+    @support_annotation_or_set
+    def isendingat(self, start: int, end: int) -&gt; bool:
+        return self._end == end
+
+    def gap(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Return the gep between this annotation and the other annotation.
+        This is the distance between
+        the last character of the first annotation and the first character of the
+        second annotation in
         sequence, so it is always independent of the order of the two annotations.
 
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-          (see gatenlp._utils.support_annotation_or_set)
+            (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of span
-          end: end offset of span
+            start: start offset of span
+            end: end offset of span
 
         Returns:
           size of gap
 
         &#34;&#34;&#34;
         if self.start &lt; start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -665,9 +732,10 @@ and instead the method AnnotationSet.add should be used.</p>
         used for several serialization methods.
 
         Args:
-            offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+            offset_mapper: the offset mapper to use, must be specified if
+                `offset_type` is specified.
             offset_type: the offset type to be used for the conversionm must be specified if
-               `offset_mapper` is specified
+                `offset_mapper` is specified
 
         Returns:
             the dictionary representation of the Annotation
@@ -838,8 +906,10 @@ def id(self):
 <div class="desc"><p>Returns the length of the annotation: this is the length of the offset span.
 Since the end offset is one after the last
 element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-len(annset) returns the number of annotations in the set but annset.length() also returns the
-span length of the annotation set, so the method name for this is identical between annotations
+len(annset) returns the number of annotations in the set but annset.length()
+also returns the
+span length of the annotation set, so the method name for this is identical between
+annotations
 and annotation sets.</p></div>
 <details class="source">
 <summary>
@@ -851,8 +921,10 @@ def length(self) -&gt; int:
     Returns the length of the annotation: this is the length of the offset span.
     Since the end offset is one after the last
     element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-    len(annset) returns the number of annotations in the set but annset.length() also returns the
-    span length of the annotation set, so the method name for this is identical between annotations
+    len(annset) returns the number of annotations in the set but annset.length()
+    also returns the
+    span length of the annotation set, so the method name for this is identical between
+    annotations
     and annotation sets.
     &#34;&#34;&#34;
     return self.end - self.start</code></pre>
@@ -939,11 +1011,13 @@ def type(self) -&gt; str:
 </details>
 </dd>
 <dt id="gatenlp.Annotation.gap"><code class="name flex">
-<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int)</span>
+<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the gep between this annotation and the other annotation. This is the distance between
-the last character of the first annotation and the first character of the second annotation in
+<div class="desc"><p>Return the gep between this annotation and the other annotation.
+This is the distance between
+the last character of the first annotation and the first character of the
+second annotation in
 sequence, so it is always independent of the order of the two annotations.</p>
 <p>This is negative if the annotations overlap.</p>
 <p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
@@ -961,34 +1035,36 @@ sequence, so it is always independent of the order of the two annotations.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@support_annotation_or_set
-def gap(self, start: int, end: int):
-    &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
-    the last character of the first annotation and the first character of the second annotation in
+<pre><code class="python">def gap(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Return the gep between this annotation and the other annotation.
+    This is the distance between
+    the last character of the first annotation and the first character of the
+    second annotation in
     sequence, so it is always independent of the order of the two annotations.
 
     This is negative if the annotations overlap.
 
     Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-      (see gatenlp._utils.support_annotation_or_set)
+        (see gatenlp._utils.support_annotation_or_set)
 
     Args:
-      start: start offset of span
-      end: end offset of span
+        start: start offset of span
+        end: end offset of span
 
     Returns:
       size of gap
 
     &#34;&#34;&#34;
     if self.start &lt; start:
-        ann1start = self.start
+        # ann1start = self.start
         ann1end = self.end
         ann2start = start
-        ann2end = end
+        # ann2end = end
     else:
         ann2start = self.start
-        ann2end = self.end
-        ann1start = start
+        # ann2end = self.end
+        # ann1start = start
         ann1end = end
     return ann2start - ann1end</code></pre>
 </details>
@@ -1008,7 +1084,8 @@ is after the end of the other annotation or span.</p>
 <dt><strong><code>end</code></strong></dt>
 <dd>end offset of the span</dd>
 <dt><strong><code>immediately</code></strong></dt>
-<dd>if true checks if this annotation starts immediately after the other one (Default value = False)</dd>
+<dd>if true checks if this annotation starts immediately after the other one
+(Default value = False)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if after, False otherwise</p></div>
@@ -1027,7 +1104,8 @@ def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
     Args:
       start: start offset of the span
       end: end offset of the span
-      immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+      immediately: if true checks if this annotation starts immediately after the other one
+          (Default value = False)
 
     Returns:
       True if after, False otherwise
@@ -1054,7 +1132,8 @@ is before the start of the other annotation or span.</p>
 <dt><strong><code>end</code></strong></dt>
 <dd>end offset of the span</dd>
 <dt><strong><code>immediately</code></strong></dt>
-<dd>if true checks if this annotation ends immediately before the other one (Default value = False)</dd>
+<dd>if true checks if this annotation ends immediately before the
+other one (Default value = False)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if before, False otherwise</p></div>
@@ -1072,9 +1151,10 @@ def isbefore(self, start: int, end: int, immediately=False) -&gt; bool:
       (see gatenlp._utils.support_annotation_or_set)
 
     Args:
-      start: start offset of the span
-      end: end offset of the span
-      immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+        start: start offset of the span
+        end: end offset of the span
+        immediately: if true checks if this annotation ends immediately before the
+            other one (Default value = False)
 
     Returns:
       True if before, False otherwise
@@ -1177,6 +1257,63 @@ def iscovering(self, start: int, end: int = None) -&gt; bool:
         return self.start &lt;= start and self.end &gt;= end</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.Annotation.isendingat"><code class="name flex">
+<span>def <span class="ident">isendingat</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isendingat(self, start: int, end: int) -&gt; bool:
+    return self._end == end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.Annotation.isleftoverlapping"><code class="name flex">
+<span>def <span class="ident">isleftoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set on the left, i.e. the last character is inside the span and the
+first character is before the span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if left-overlapping, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isleftoverlapping(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this annotation is overlapping with the given span, annotation or
+    annotation set on the left, i.e. the last character is inside the span and the
+    first character is before the span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if left-overlapping, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.start &lt;= start and self.end &lt;= end</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.Annotation.isoverlapping"><code class="name flex">
 <span>def <span class="ident">isoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
 </code></dt>
@@ -1220,6 +1357,61 @@ def isoverlapping(self, start: int, end: int) -&gt; bool:
 
     &#34;&#34;&#34;
     return self.iscovering(start) or self.iscovering(end - 1)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.Annotation.isrightoverlapping"><code class="name flex">
+<span>def <span class="ident">isrightoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set on the right, i.e. the first character is inside the span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if right-overlapping, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isrightoverlapping(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this annotation is overlapping with the given span, annotation or
+    annotation set on the right, i.e. the first character is inside the span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if right-overlapping, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.start &gt;= start and self.end &gt;= end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.Annotation.isstartingat"><code class="name flex">
+<span>def <span class="ident">isstartingat</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isstartingat(self, start: int, end: int) -&gt; bool:
+    return self._start == start</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.Annotation.iswithin"><code class="name flex">
@@ -1274,7 +1466,8 @@ used for several serialization methods.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>offset_mapper</code></strong></dt>
-<dd>the offset mapper to use, must be specified if <code>offset_type</code> is specified.</dd>
+<dd>the offset mapper to use, must be specified if
+<code>offset_type</code> is specified.</dd>
 <dt><strong><code>offset_type</code></strong></dt>
 <dd>the offset type to be used for the conversionm must be specified if
 <code>offset_mapper</code> is specified</dd>
@@ -1291,9 +1484,10 @@ used for several serialization methods.</p>
     used for several serialization methods.
 
     Args:
-        offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+        offset_mapper: the offset mapper to use, must be specified if
+            `offset_type` is specified.
         offset_type: the offset type to be used for the conversionm must be specified if
-           `offset_mapper` is specified
+            `offset_mapper` is specified
 
     Returns:
         the dictionary representation of the Annotation
@@ -1986,11 +2180,10 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
 
     def first(self):
         &#34;&#34;&#34;
-
-        Args:
+        Return the first (or only) annotation in the set by offset.
 
         Returns:
-          :return: first annotation
+          first annotation
 
         &#34;&#34;&#34;
         sz = len(self._annotations)
@@ -2004,11 +2197,10 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
 
     def last(self):
         &#34;&#34;&#34;
-
-        Args:
+        Return the last (or only) annotation by offset.
 
         Returns:
-          :return: first annotation
+          last annotation
 
         &#34;&#34;&#34;
         sz = len(self._annotations)
@@ -2019,6 +2211,26 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         self._create_index_by_offset()
         _, _, annid = next(self._index_by_offset.irange(reverse=True))
         return self._annotations[annid]
+
+    def by_idx(self, idx, default=None):
+        &#34;&#34;&#34;
+        Return the annotation corresponding to the index idx in the set. This returns the
+        annotation stored at the index, as added to the set. The order usually depends on the insertion time.
+        If no annotation with the given index is specified, the value specified for `default` is returned.
+
+        Args:
+            idx:  index of the annotation in the set
+            default: default value to return if now annotation with the given index exists
+
+        Returns:
+            the annotation with the given index or the default value
+        &#34;&#34;&#34;
+        # TODO: we could make this more memory efficient (but slower) by iterating over values until getting idxth
+        tmplist = list(self._annotations.values())
+        if idx &lt; len(tmplist):
+            return tmplist[idx]
+        else:
+            return default
 
     def __getitem__(self, annid):
         &#34;&#34;&#34;
@@ -2170,7 +2382,7 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         return self._index_by_type.keys()
 
     @support_annotation_or_set
-    def start_eq(
+    def startingat(
         self, start: int, ignored: Any = None, annid=None, include_self=False
     ) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
@@ -2398,6 +2610,68 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         &#34;&#34;&#34;
         self._create_index_by_offset()
         intvs = self._index_by_offset.at(start, end)
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    def before(self, start: int, end: int, annid=None, include_self=False,
+               immediately=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;
+        Returns a detached annotation set with all annotations that end before the given offsets.
+
+        For each annotation ann in the result set, ann.isbefore(span) is True.
+
+        Args:
+            start: start offset of the span
+            end: end offset of the span
+            annid: the annotation id of the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation id for the span is given, do not include that
+                annotation in the result set.
+            immediately: if True, the end offset of the annotations return must coincide with the
+                start offset of the span (default=False)
+
+        Returns:
+          annotation set with all annotations that end before the given span
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        if immediately:
+            intvs = self._index_by_offset.ending_at(start)
+        else:
+            intvs = self._index_by_offset.ending_to(start)
+        # we need to filter self if self is zero-length!
+        if not include_self and annid is not None:
+            ignore = annid
+        else:
+            ignore = None
+        return self._restrict_intvs(intvs, ignore=ignore)
+
+    def after(self, start: int, end: int, annid=None, include_self=False,
+              immediately=False) -&gt; &#34;AnnotationSet&#34;:
+        &#34;&#34;&#34;
+        Returns a detached annotation set with all annotations that start after the given span.
+
+        For each annotation ann in the result set, ann.isafter(span) is True.
+
+        Args:
+            start: start offset of the span
+            end: end offset of the span
+            annid: the annotation id of the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation id for the span is given, do not include that
+                annotation in the result set.
+            immediately: if True, the start offset of the annotations returned must coincide with the
+                end offset of the span (default=False)
+
+        Returns:
+          annotation set with all annotations that start after the given span
+        &#34;&#34;&#34;
+        self._create_index_by_offset()
+        if immediately:
+            intvs = self._index_by_offset.starting_at(end)
+        else:
+            intvs = self._index_by_offset.starting_from(end)
+        # we need to filter self if self is zero-length!
         if not include_self and annid is not None:
             ignore = annid
         else:
@@ -2934,6 +3208,165 @@ the id should normally left unspecified and get assigned automatically.</dd>
     return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.AnnotationSet.after"><code class="name flex">
+<span>def <span class="ident">after</span></span>(<span>self, start: int, end: int, annid=None, include_self=False, immediately=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a detached annotation set with all annotations that start after the given span.</p>
+<p>For each annotation ann in the result set, ann.isafter(span) is True.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that
+annotation in the result set.</dd>
+<dt><strong><code>immediately</code></strong></dt>
+<dd>if True, the start offset of the annotations returned must coincide with the
+end offset of the span (default=False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>annotation set with all annotations that start after the given span</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def after(self, start: int, end: int, annid=None, include_self=False,
+          immediately=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;
+    Returns a detached annotation set with all annotations that start after the given span.
+
+    For each annotation ann in the result set, ann.isafter(span) is True.
+
+    Args:
+        start: start offset of the span
+        end: end offset of the span
+        annid: the annotation id of the annotation representing the span. (Default value = None)
+        include_self: if True and the annotation id for the span is given, do not include that
+            annotation in the result set.
+        immediately: if True, the start offset of the annotations returned must coincide with the
+            end offset of the span (default=False)
+
+    Returns:
+      annotation set with all annotations that start after the given span
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    if immediately:
+        intvs = self._index_by_offset.starting_at(end)
+    else:
+        intvs = self._index_by_offset.starting_from(end)
+    # we need to filter self if self is zero-length!
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.AnnotationSet.before"><code class="name flex">
+<span>def <span class="ident">before</span></span>(<span>self, start: int, end: int, annid=None, include_self=False, immediately=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a detached annotation set with all annotations that end before the given offsets.</p>
+<p>For each annotation ann in the result set, ann.isbefore(span) is True.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>the annotation id of the annotation representing the span. (Default value = None)</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>if True and the annotation id for the span is given, do not include that
+annotation in the result set.</dd>
+<dt><strong><code>immediately</code></strong></dt>
+<dd>if True, the end offset of the annotations return must coincide with the
+start offset of the span (default=False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>annotation set with all annotations that end before the given span</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def before(self, start: int, end: int, annid=None, include_self=False,
+           immediately=False) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;
+    Returns a detached annotation set with all annotations that end before the given offsets.
+
+    For each annotation ann in the result set, ann.isbefore(span) is True.
+
+    Args:
+        start: start offset of the span
+        end: end offset of the span
+        annid: the annotation id of the annotation representing the span. (Default value = None)
+        include_self: if True and the annotation id for the span is given, do not include that
+            annotation in the result set.
+        immediately: if True, the end offset of the annotations return must coincide with the
+            start offset of the span (default=False)
+
+    Returns:
+      annotation set with all annotations that end before the given span
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    if immediately:
+        intvs = self._index_by_offset.ending_at(start)
+    else:
+        intvs = self._index_by_offset.ending_to(start)
+    # we need to filter self if self is zero-length!
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.AnnotationSet.by_idx"><code class="name flex">
+<span>def <span class="ident">by_idx</span></span>(<span>self, idx, default=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the annotation corresponding to the index idx in the set. This returns the
+annotation stored at the index, as added to the set. The order usually depends on the insertion time.
+If no annotation with the given index is specified, the value specified for <code>default</code> is returned.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>idx</code></strong></dt>
+<dd>index of the annotation in the set</dd>
+<dt><strong><code>default</code></strong></dt>
+<dd>default value to return if now annotation with the given index exists</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>the annotation with the given index or the default value</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def by_idx(self, idx, default=None):
+    &#34;&#34;&#34;
+    Return the annotation corresponding to the index idx in the set. This returns the
+    annotation stored at the index, as added to the set. The order usually depends on the insertion time.
+    If no annotation with the given index is specified, the value specified for `default` is returned.
+
+    Args:
+        idx:  index of the annotation in the set
+        default: default value to return if now annotation with the given index exists
+
+    Returns:
+        the annotation with the given index or the default value
+    &#34;&#34;&#34;
+    # TODO: we could make this more memory efficient (but slower) by iterating over values until getting idxth
+    tmplist = list(self._annotations.values())
+    if idx &lt; len(tmplist):
+        return tmplist[idx]
+    else:
+        return default</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.AnnotationSet.by_offset"><code class="name flex">
 <span>def <span class="ident">by_offset</span></span>(<span>self)</span>
 </code></dt>
@@ -3339,20 +3772,19 @@ need to index (so if the index does not exist, it will not be built).</p></div>
 <span>def <span class="ident">first</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Args:</p>
+<div class="desc"><p>Return the first (or only) annotation in the set by offset.</p>
 <h2 id="returns">Returns</h2>
-<p>:return: first annotation</p></div>
+<p>first annotation</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def first(self):
     &#34;&#34;&#34;
-
-    Args:
+    Return the first (or only) annotation in the set by offset.
 
     Returns:
-      :return: first annotation
+      first annotation
 
     &#34;&#34;&#34;
     sz = len(self._annotations)
@@ -3523,20 +3955,19 @@ ordered by increasing annotation id.</p>
 <span>def <span class="ident">last</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Args:</p>
+<div class="desc"><p>Return the last (or only) annotation by offset.</p>
 <h2 id="returns">Returns</h2>
-<p>:return: first annotation</p></div>
+<p>last annotation</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def last(self):
     &#34;&#34;&#34;
-
-    Args:
+    Return the last (or only) annotation by offset.
 
     Returns:
-      :return: first annotation
+      last annotation
 
     &#34;&#34;&#34;
     sz = len(self._annotations)
@@ -3712,60 +4143,6 @@ Note: if this is True, but the annotation set is immutable, an Exception is stil
     return self.iter(reverse=True, **kwargs)</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.AnnotationSet.start_eq"><code class="name flex">
-<span>def <span class="ident">start_eq</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Gets all annotations starting at the given offset (empty if none) and returns them in a detached
-annotation set.</p>
-<p>Note: this can be called with an annotation or annotation set instead of the start offset. If called
-with an annotation, this annotation is not included in the result set if <code>include_self</code> is <code>False</code></p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start</code></strong></dt>
-<dd>the offset where annotations should start</dd>
-<dt><strong><code>ignored</code></strong></dt>
-<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
-<dt><strong><code>annid</code></strong></dt>
-<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
-<dt><strong><code>include_self</code></strong></dt>
-<dd>should annotation passed be included in the result</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>detached annotation set of matching annotations</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@support_annotation_or_set
-def start_eq(
-    self, start: int, ignored: Any = None, annid=None, include_self=False
-) -&gt; &#34;AnnotationSet&#34;:
-    &#34;&#34;&#34;
-    Gets all annotations starting at the given offset (empty if none) and returns them in a detached
-    annotation set.
-
-    Note: this can be called with an annotation or annotation set instead of the start offset. If called
-    with an annotation, this annotation is not included in the result set if `include_self` is `False`
-
-    Args:
-      start: the offset where annotations should start
-      ignored: dummy parameter to allow the use of annotations and annotation sets
-      annid:  dummy parameter to allow the use of annotations and annotation sets
-      include_self:  should annotation passed be included in the result
-
-    Returns:
-        detached annotation set of matching annotations
-    &#34;&#34;&#34;
-    self._create_index_by_offset()
-    intvs = self._index_by_offset.starting_from(start)
-    if not include_self and annid is not None:
-        ignore = annid
-    else:
-        ignore = None
-    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.AnnotationSet.start_ge"><code class="name flex">
 <span>def <span class="ident">start_ge</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
 </code></dt>
@@ -3922,6 +4299,60 @@ def start_min_ge(
         else:
             break
     return self.detach(restrict_to=retids)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.AnnotationSet.startingat"><code class="name flex">
+<span>def <span class="ident">startingat</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets all annotations starting at the given offset (empty if none) and returns them in a detached
+annotation set.</p>
+<p>Note: this can be called with an annotation or annotation set instead of the start offset. If called
+with an annotation, this annotation is not included in the result set if <code>include_self</code> is <code>False</code></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>the offset where annotations should start</dd>
+<dt><strong><code>ignored</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>annid</code></strong></dt>
+<dd>dummy parameter to allow the use of annotations and annotation sets</dd>
+<dt><strong><code>include_self</code></strong></dt>
+<dd>should annotation passed be included in the result</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>detached annotation set of matching annotations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def startingat(
+    self, start: int, ignored: Any = None, annid=None, include_self=False
+) -&gt; &#34;AnnotationSet&#34;:
+    &#34;&#34;&#34;
+    Gets all annotations starting at the given offset (empty if none) and returns them in a detached
+    annotation set.
+
+    Note: this can be called with an annotation or annotation set instead of the start offset. If called
+    with an annotation, this annotation is not included in the result set if `include_self` is `False`
+
+    Args:
+      start: the offset where annotations should start
+      ignored: dummy parameter to allow the use of annotations and annotation sets
+      annid:  dummy parameter to allow the use of annotations and annotation sets
+      include_self:  should annotation passed be included in the result
+
+    Returns:
+        detached annotation set of matching annotations
+    &#34;&#34;&#34;
+    self._create_index_by_offset()
+    intvs = self._index_by_offset.starting_from(start)
+    if not include_self and annid is not None:
+        ignore = annid
+    else:
+        ignore = None
+    return self._restrict_intvs(intvs, ignore=ignore)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.AnnotationSet.to_dict"><code class="name flex">
@@ -5001,72 +5432,78 @@ as_array: boolean, if True stores as array instead of dictionary, using to</p>
 <span>(</span><span>text: str = None, features=None, changelog: <a title="gatenlp.changelog.ChangeLog" href="changelog.html#gatenlp.changelog.ChangeLog">ChangeLog</a> = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Represent a GATE document. This is different from the original Java GATE representation in several ways:</p>
+<div class="desc"><p>Represent a GATE document. This is different from the original Java GATE representation in
+several ways:</p>
 <ul>
 <li>
 <p>the text is not mutable and can only be set at creation time, so there is no "edit" method</p>
 </li>
 <li>
-<p>as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
+<p>as a feature bearer, all the methods to set, get and manipulate features are part of this
+class, there is
 no separate "FeatureMap" to store them</p>
 </li>
 <li>
 <p>does not support listener callbacks</p>
 </li>
-<li>there is no separate abstraction for "content", the only content possible is text which is a unicode string
-that can be acessed with the "text()" method</li>
+<li>there is no separate abstraction for "content", the only content possible is text which
+is a unicode string that can be acessed with the "text()" method</li>
 <li>Spans of text can be directly accessed using doc[from:to]</li>
 <li>Features may only have string keys and values which can be json-serialised</li>
-<li>Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
-are UTF-16 Unicode code units</li>
-<li>Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
-of UTF-16 code unit and back)</li>
-<li>No part of the document has to be present, not even the text (this allows saving just the annotations separately
-from the text)</li>
-<li>Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)</li>
+<li>Annotation offsets by default are number of Unicde code points, this is different from Java
+where the offsets are UTF-16 Unicode code units</li>
+<li>Offsets of all annotations can be changed from/to Java (from python index of unicode
+codepoint to Java index of UTF-16 code unit and back)</li>
+<li>No part of the document has to be present, not even the text (this allows saving just
+the annotations separately from the text)</li>
+<li>Once the text has been set, it is immutable (no support to edit text and change annotation
+offsets accordingly)</li>
 </ul>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>text</code></strong></dt>
-<dd>the text of the document. The text can be None to indicate that no initial text should be set. Once</dd>
-</dl>
-<p>the text has been set for a document, it is immutable and cannot be changed.
-features: the initial document features to set, a sequence of key/value tuples
-changelog: a ChangeLog instance to use to log changes.</p>
-<p>Returns:</p></div>
+<dt>text: the text of the document. The text can be None to indicate that no initial text</dt>
+<dt>should be set. Once the text has been set for a document, it is immutable and cannot</dt>
+<dt>be changed.</dt>
+<dt><strong><code>features</code></strong></dt>
+<dd>the initial document features to set, a sequence of key/value tuples</dd>
+<dt><strong><code>changelog</code></strong></dt>
+<dd>a ChangeLog instance to use to log changes.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Document:
-    &#34;&#34;&#34;Represent a GATE document. This is different from the original Java GATE representation in several ways:
+    &#34;&#34;&#34;
+    Represent a GATE document. This is different from the original Java GATE representation in
+    several ways:
 
     * the text is not mutable and can only be set at creation time, so there is no &#34;edit&#34; method
 
-    * as a feature bearer, all the methods to set, get and manipulate features are part of this class, there is
+    * as a feature bearer, all the methods to set, get and manipulate features are part of this
+      class, there is
       no separate &#34;FeatureMap&#34; to store them
 
     * does not support listener callbacks
-    * there is no separate abstraction for &#34;content&#34;, the only content possible is text which is a unicode string
-      that can be acessed with the &#34;text()&#34; method
+    * there is no separate abstraction for &#34;content&#34;, the only content possible is text which
+      is a unicode string that can be acessed with the &#34;text()&#34; method
     * Spans of text can be directly accessed using doc[from:to]
     * Features may only have string keys and values which can be json-serialised
-    * Annotation offsets by default are number of Unicde code points, this is different from Java where the offsets
-      are UTF-16 Unicode code units
-    * Offsets of all annotations can be changed from/to Java (from python index of unicode codepoint to Java index
-      of UTF-16 code unit and back)
-    * No part of the document has to be present, not even the text (this allows saving just the annotations separately
-      from the text)
-    * Once the text has been set, it is immutable (no support to edit text and change annotation offsets accordingly)
+    * Annotation offsets by default are number of Unicde code points, this is different from Java
+      where the offsets are UTF-16 Unicode code units
+    * Offsets of all annotations can be changed from/to Java (from python index of unicode
+      codepoint to Java index of UTF-16 code unit and back)
+    * No part of the document has to be present, not even the text (this allows saving just
+      the annotations separately from the text)
+    * Once the text has been set, it is immutable (no support to edit text and change annotation
+      offsets accordingly)
 
     Args:
-      text: the text of the document. The text can be None to indicate that no initial text should be set. Once
-    the text has been set for a document, it is immutable and cannot be changed.
+        text: the text of the document. The text can be None to indicate that no initial text
+          should be set. Once the text has been set for a document, it is immutable and cannot
+          be changed.
       features: the initial document features to set, a sequence of key/value tuples
       changelog: a ChangeLog instance to use to log changes.
-
-    Returns:
-
     &#34;&#34;&#34;
 
     def __init__(self, text: str = None, features=None, changelog: ChangeLog = None):
@@ -5110,7 +5547,8 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34; &#34;&#34;&#34;
         if self.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception(
-                &#34;Document cannot be used if it is not type PYTHON, use to_type(OFFSET_TYPE_PYTHON) first&#34;
+                &#34;Document cannot be used if it is not type PYTHON, &#34; +
+                &#34;use to_type(OFFSET_TYPE_PYTHON) first&#34;
             )
 
     def _fixup_annotations(self, method: Callable) -&gt; None:
@@ -5167,16 +5605,16 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
     def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
         &#34;&#34;&#34;Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
-        a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
+        a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single
+        change object.
 
         The document is modified in-place.
 
         Args:
           changes: one or more changes
-          handle_existing_anns: what to do if the change from the changelog tries to add an annotation
-        with an annotation id that already exists in the target set. (Default value = ADDANN_ADD_WITH_NEW_ID)
-
-        Returns:
+          handle_existing_anns: what to do if the change from the changelog tries to
+              add an annotation with an annotation id that already exists in the target set.
+              (Default value = ADDANN_ADD_WITH_NEW_ID)
 
         &#34;&#34;&#34;
         if isinstance(changes, dict):
@@ -5394,20 +5832,23 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span._start : span._end]
+            return self.text[span._start: span._end]
         if isinstance(span, AnnotationSet):
-            return self.text[span.start() : span.end()]
+            return self.text[span.start(): span.end()]
         if hasattr(span, &#34;start&#34;) and hasattr(span, &#34;end&#34;):
             return self.text[span.start, span.end]
         return self.text[span]
 
     def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
-        &#34;&#34;&#34;Get the named annotation set, if name is not given or the empty string, the default annotation set.
+        &#34;&#34;&#34;
+        Get the named annotation set, if name is not given or the empty string,
+        the default annotation set.
         If the annotation set does not already exist, it is created.
 
         Args:
-          name: the annotation set name, the empty string is used for the &#34;default annotation set&#34;.
-          name: str:  (Default value = &#34;&#34;)
+            name: the annotation set name, the empty string is used for the
+                &#34;default annotation set&#34;.
+            name: str:  (Default value = &#34;&#34;)
 
         Returns:
           the specified annotation set.
@@ -5481,9 +5922,9 @@ changelog: a ChangeLog instance to use to log changes.</p>
           offset_type: convert to the given offset type on the fly (Default value = None)
           annsets: if not None, a list of annotation set/type specifications: each element
               is either a string, the name of the annotation set to include, or a tuple where the
-              first element is the annotation set name and the second element is either a type name or
-              a list of type names. The same annotation set name should not be used in more than one
-              specification.
+              first element is the annotation set name and the second element is either a
+              type name or a list of type names. The same annotation set name should not be used
+              in more than one specification.
           **kwargs:
 
         Returns:
@@ -5514,7 +5955,8 @@ changelog: a ChangeLog instance to use to log changes.</p>
                     setname, types = spec
                     if isinstance(types, str):
                         types = [types]
-                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+                    annsets_dict[setname] = \
+                        self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
         else:
             annsets_dict = {
                 name: aset.to_dict(**kwargs)
@@ -5569,14 +6011,15 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;Save the document to the destination file.
 
         Args:
-          destination: either a file name or something that has a write(string) method.
-          fmt: serialization format, by default the format is inferred from the file extension.
-          offset_type: store using the given offset type or keep the current if None (Default value = None)
-          mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
-          annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
-              to include in the serialized document.
-          kwargs: additional parameters for the document saver.
-          **kwargs:
+            destination: either a file name or something that has a write(string) method.
+            fmt: serialization format, by default the format is inferred from the file extension.
+            offset_type: store using the given offset type or keep the current if None
+                (Default value = None)
+            mod: module where the document saver is implemented.
+                (Default value = &#34;gatenlp.serialization.default&#34;)
+            annsets: if not None, a list of annotation set names or tuples of set name and a
+                list of annotation types to include in the serialized document.
+            kwargs: additional parameters for the document saver.
         &#34;&#34;&#34;
         if annsets is not None:
             kwargs[&#34;annsets&#34;] = annsets
@@ -5598,14 +6041,12 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;Serialize to a string or bytes in the given format.
 
         Args:
-          fmt: serialization format to use. (Default value = &#34;json&#34;)
-          offset_type: store using the given offset type or keep the current if None (Default value = None)
-          mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional parameters for the format.
-          **kwargs:
-
-        Returns:
-
+            fmt: serialization format to use. (Default value = &#34;json&#34;)
+            offset_type: store using the given offset type or keep the current if None
+                (Default value = None)
+            mod: module where the document saver is implemented.
+                (Default value = &#34;gatenlp.serialization.default&#34;)
+            kwargs: additional parameters for the format.
         &#34;&#34;&#34;
         if not fmt:
             raise Exception(&#34;Format required.&#34;)
@@ -5618,10 +6059,12 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
     @staticmethod
     def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Load or import a document from the given source. The source can be a file path or file name or
-        a URL. If the type of the source is str, then if it starts with &#34;http[s]://&#34; it will get treated
-        as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
-        deliberately use URL instead of a file parse the URL using urllib.
+        &#34;&#34;&#34;
+        Load or import a document from the given source. The source can be a file path or
+        file name or a URL. If the type of the source is str, then if it starts with
+        &#34;http[s]://&#34; it will get treated as a URL. In order to deliberatly use a file instead of
+        a URL, create a pathlib Path, in order to deliberately use URL instead of a file parse
+        the URL using urllib.
 
         Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
 
@@ -5630,16 +6073,16 @@ changelog: a ChangeLog instance to use to log changes.</p>
         NOTE: the offset type of the document is always converted to PYTHON when loading!
 
         Args:
-          source: the URL or file path to load from.
-          fmt: the format of the source. By default the format is inferred by the file extension.
-        The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type like &#34;text/bdocjs&#34;.
-          mod: the name of a module where the document loader is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+            source: the URL or file path to load from.
+            fmt: the format of the source. By default the format is inferred by the file extension.
+                The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type
+                like &#34;text/bdocjs&#34;.
+          mod: the name of a module where the document loader is implemented.
+              (Default value = &#34;gatenlp.serialization.default&#34;)
           kwargs: additional format specific keyword arguments to pass to the loader
-          **kwargs:
 
         Returns:
           the loaded document
-
         &#34;&#34;&#34;
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
@@ -5653,20 +6096,18 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
     @staticmethod
     def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-        &#34;&#34;&#34;Create a document from the in-memory serialization in source. Source can be a string or
+        &#34;&#34;&#34;
+        Create a document from the in-memory serialization in source. Source can be a string or
         bytes, depending on the format.
 
         Note: the offset type is always converted to PYTHON when loading!
 
         Args:
-          source: the string/bytes to deserialize
-          fmt: the format (Default value = &#34;json&#34;)
-          mod: the name of the module where the loader is implemented (Default value = &#34;gatenlp.serialization.default&#34;)
-          kwargs: additional arguments to pass to the loader
-          **kwargs:
-
-        Returns:
-
+            source: the string/bytes to deserialize
+            fmt: the format (Default value = &#34;json&#34;)
+            mod: the name of the module where the loader is implemented
+                (Default value = &#34;gatenlp.serialization.default&#34;)
+            kwargs: additional arguments to pass to the loader
         &#34;&#34;&#34;
         if not fmt:
             raise Exception(&#34;Format required.&#34;)
@@ -5684,7 +6125,8 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         Creates a shallow copy except the changelog which is set to None.
 
-        :return: shallow copy of the document
+        Returns:
+            shallow copy of the document
         &#34;&#34;&#34;
         doc = Document(self._text)
         doc._annotation_sets = self._annotation_sets
@@ -5693,14 +6135,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
         return doc
 
     def copy(self):
-        &#34;&#34;&#34;Creates a shallow copy except the changelog which is set to None.
-
-        :return: shallow copy of the document
-
-        Args:
+        &#34;&#34;&#34;
+        Creates a shallow copy except the changelog which is set to None.
 
         Returns:
-
+            shallow copy of the document
         &#34;&#34;&#34;
         return self.__copy__()
 
@@ -5708,9 +6147,11 @@ changelog: a ChangeLog instance to use to log changes.</p>
         &#34;&#34;&#34;
         Creates a deep copy, except the changelog which is set to None.
 
-        :param memo: the memoization dictionary to use.
+        Args:
+            memo: the memoization dictionary to use.
 
-        :return: a deep copy of the document.
+        Returns:
+            a deep copy of the document.
         &#34;&#34;&#34;
         if self._features is not None:
             fts = lib_copy.deepcopy(self._features.to_dict(), memo)
@@ -5723,14 +6164,14 @@ changelog: a ChangeLog instance to use to log changes.</p>
         return doc
 
     def deepcopy(self, memo=None):
-        &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
+        &#34;&#34;&#34;
+        Creates a deep copy, except the changelog which is set to None.
 
         Args:
-          memo: the memoization dictionary to use.
+            memo: the memoization dictionary to use.
 
         Returns:
-          a deep copy of the document.
-
+            a deep copy of the document.
         &#34;&#34;&#34;
         return lib_copy.deepcopy(self, memo=memo)
 
@@ -5753,8 +6194,10 @@ changelog: a ChangeLog instance to use to log changes.</p>
 
         Args:
             htmlid: the HTML id prefix to use for classes and element ids.
-            annsets: if not None, a list of annotation set/type specifications. Each element is either
-                the name of a set to fully include, or a tuple with the name of the set as the first element
+            annsets: if not None, a list of annotation set/type specifications.
+                Each element is either
+                the name of a set to fully include, or a tuple with the name of the set as
+                the first element
                 and with a single type name or a list of type names as the second element
 
         &#34;&#34;&#34;
@@ -5840,24 +6283,26 @@ def from_dict(dictrepr, **kwargs):
 <span>def <span class="ident">load</span></span>(<span>source, fmt=None, mod='gatenlp.serialization.default', **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load or import a document from the given source. The source can be a file path or file name or
-a URL. If the type of the source is str, then if it starts with "http[s]://" it will get treated
-as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
-deliberately use URL instead of a file parse the URL using urllib.</p>
+<div class="desc"><p>Load or import a document from the given source. The source can be a file path or
+file name or a URL. If the type of the source is str, then if it starts with
+"http[s]://" it will get treated as a URL. In order to deliberatly use a file instead of
+a URL, create a pathlib Path, in order to deliberately use URL instead of a file parse
+the URL using urllib.</p>
 <p>Example: <code>Document.load(urllib.parse.urlparse(someurl), fmt=theformat)</code></p>
 <p>Example: <code>Document.load(pathlib.Path(somepath), fmt=theformat)</code></p>
 <p>NOTE: the offset type of the document is always converted to PYTHON when loading!</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>source</code></strong></dt>
-<dd>the URL or file path to load from.</dd>
-<dt><strong><code>fmt</code></strong></dt>
-<dd>the format of the source. By default the format is inferred by the file extension.</dd>
+<dt>source: the URL or file path to load from.</dt>
+<dt>fmt: the format of the source. By default the format is inferred by the file extension.</dt>
+<dt>The format can be a format memnonic like "json", "html", or a known mime type</dt>
+<dt>like "text/bdocjs".</dt>
+<dt><strong><code>mod</code></strong></dt>
+<dd>the name of a module where the document loader is implemented.
+(Default value = "gatenlp.serialization.default")</dd>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>additional format specific keyword arguments to pass to the loader</dd>
 </dl>
-<p>The format can be a format memnonic like "json", "html", or a known mime type like "text/bdocjs".
-mod: the name of a module where the document loader is implemented. (Default value = "gatenlp.serialization.default")
-kwargs: additional format specific keyword arguments to pass to the loader
-**kwargs:</p>
 <h2 id="returns">Returns</h2>
 <p>the loaded document</p></div>
 <details class="source">
@@ -5866,10 +6311,12 @@ kwargs: additional format specific keyword arguments to pass to the loader
 </summary>
 <pre><code class="python">@staticmethod
 def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-    &#34;&#34;&#34;Load or import a document from the given source. The source can be a file path or file name or
-    a URL. If the type of the source is str, then if it starts with &#34;http[s]://&#34; it will get treated
-    as a URL. In order to deliberatly use a file instead of a URL, create a pathlib Path, in order to
-    deliberately use URL instead of a file parse the URL using urllib.
+    &#34;&#34;&#34;
+    Load or import a document from the given source. The source can be a file path or
+    file name or a URL. If the type of the source is str, then if it starts with
+    &#34;http[s]://&#34; it will get treated as a URL. In order to deliberatly use a file instead of
+    a URL, create a pathlib Path, in order to deliberately use URL instead of a file parse
+    the URL using urllib.
 
     Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
 
@@ -5878,16 +6325,16 @@ def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs
     NOTE: the offset type of the document is always converted to PYTHON when loading!
 
     Args:
-      source: the URL or file path to load from.
-      fmt: the format of the source. By default the format is inferred by the file extension.
-    The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type like &#34;text/bdocjs&#34;.
-      mod: the name of a module where the document loader is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
+        source: the URL or file path to load from.
+        fmt: the format of the source. By default the format is inferred by the file extension.
+            The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type
+            like &#34;text/bdocjs&#34;.
+      mod: the name of a module where the document loader is implemented.
+          (Default value = &#34;gatenlp.serialization.default&#34;)
       kwargs: additional format specific keyword arguments to pass to the loader
-      **kwargs:
 
     Returns:
       the loaded document
-
     &#34;&#34;&#34;
     if fmt is None or isinstance(fmt, str):
         m = importlib.import_module(mod)
@@ -5914,32 +6361,29 @@ bytes, depending on the format.</p>
 <dt><strong><code>fmt</code></strong></dt>
 <dd>the format (Default value = "json")</dd>
 <dt><strong><code>mod</code></strong></dt>
-<dd>the name of the module where the loader is implemented (Default value = "gatenlp.serialization.default")</dd>
+<dd>the name of the module where the loader is implemented
+(Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional arguments to pass to the loader</dd>
-</dl>
-<p>**kwargs:
-Returns:</p></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
-    &#34;&#34;&#34;Create a document from the in-memory serialization in source. Source can be a string or
+    &#34;&#34;&#34;
+    Create a document from the in-memory serialization in source. Source can be a string or
     bytes, depending on the format.
 
     Note: the offset type is always converted to PYTHON when loading!
 
     Args:
-      source: the string/bytes to deserialize
-      fmt: the format (Default value = &#34;json&#34;)
-      mod: the name of the module where the loader is implemented (Default value = &#34;gatenlp.serialization.default&#34;)
-      kwargs: additional arguments to pass to the loader
-      **kwargs:
-
-    Returns:
-
+        source: the string/bytes to deserialize
+        fmt: the format (Default value = &#34;json&#34;)
+        mod: the name of the module where the loader is implemented
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        kwargs: additional arguments to pass to the loader
     &#34;&#34;&#34;
     if not fmt:
         raise Exception(&#34;Format required.&#34;)
@@ -6052,12 +6496,14 @@ def text(self) -&gt; str:
 <span>def <span class="ident">annset</span></span>(<span>self, name: str = '') ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get the named annotation set, if name is not given or the empty string, the default annotation set.
+<div class="desc"><p>Get the named annotation set, if name is not given or the empty string,
+the default annotation set.
 If the annotation set does not already exist, it is created.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
-<dd>the annotation set name, the empty string is used for the "default annotation set".</dd>
+<dd>the annotation set name, the empty string is used for the
+"default annotation set".</dd>
 <dt><strong><code>name</code></strong></dt>
 <dd>str:
 (Default value = "")</dd>
@@ -6069,12 +6515,15 @@ If the annotation set does not already exist, it is created.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
-    &#34;&#34;&#34;Get the named annotation set, if name is not given or the empty string, the default annotation set.
+    &#34;&#34;&#34;
+    Get the named annotation set, if name is not given or the empty string,
+    the default annotation set.
     If the annotation set does not already exist, it is created.
 
     Args:
-      name: the annotation set name, the empty string is used for the &#34;default annotation set&#34;.
-      name: str:  (Default value = &#34;&#34;)
+        name: the annotation set name, the empty string is used for the
+            &#34;default annotation set&#34;.
+        name: str:  (Default value = &#34;&#34;)
 
     Returns:
       the specified annotation set.
@@ -6120,33 +6569,34 @@ If the annotation set does not already exist, it is created.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Apply changes from a ChangeLog to this document. <code>changes</code> can be a ChangeLog instance,
-a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.</p>
+a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single
+change object.</p>
 <p>The document is modified in-place.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>changes</code></strong></dt>
 <dd>one or more changes</dd>
 <dt><strong><code>handle_existing_anns</code></strong></dt>
-<dd>what to do if the change from the changelog tries to add an annotation</dd>
-</dl>
-<p>with an annotation id that already exists in the target set. (Default value = ADDANN_ADD_WITH_NEW_ID)</p>
-<p>Returns:</p></div>
+<dd>what to do if the change from the changelog tries to
+add an annotation with an annotation id that already exists in the target set.
+(Default value = ADDANN_ADD_WITH_NEW_ID)</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
     &#34;&#34;&#34;Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
-    a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single change object.
+    a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single
+    change object.
 
     The document is modified in-place.
 
     Args:
       changes: one or more changes
-      handle_existing_anns: what to do if the change from the changelog tries to add an annotation
-    with an annotation id that already exists in the target set. (Default value = ADDANN_ADD_WITH_NEW_ID)
-
-    Returns:
+      handle_existing_anns: what to do if the change from the changelog tries to
+          add an annotation with an annotation id that already exists in the target set.
+          (Default value = ADDANN_ADD_WITH_NEW_ID)
 
     &#34;&#34;&#34;
     if isinstance(changes, dict):
@@ -6251,22 +6701,18 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a shallow copy except the changelog which is set to None.</p>
-<p>:return: shallow copy of the document</p>
-<p>Args:</p>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>shallow copy of the document</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def copy(self):
-    &#34;&#34;&#34;Creates a shallow copy except the changelog which is set to None.
-
-    :return: shallow copy of the document
-
-    Args:
+    &#34;&#34;&#34;
+    Creates a shallow copy except the changelog which is set to None.
 
     Returns:
-
+        shallow copy of the document
     &#34;&#34;&#34;
     return self.__copy__()</code></pre>
 </details>
@@ -6288,14 +6734,14 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def deepcopy(self, memo=None):
-    &#34;&#34;&#34;Creates a deep copy, except the changelog which is set to None.
+    &#34;&#34;&#34;
+    Creates a deep copy, except the changelog which is set to None.
 
     Args:
-      memo: the memoization dictionary to use.
+        memo: the memoization dictionary to use.
 
     Returns:
-      a deep copy of the document.
-
+        a deep copy of the document.
     &#34;&#34;&#34;
     return lib_copy.deepcopy(self, memo=memo)</code></pre>
 </details>
@@ -6346,16 +6792,17 @@ a sequence of change objects (dicts) as stored in a ChangeLog instance, or a sin
 <dt><strong><code>fmt</code></strong></dt>
 <dd>serialization format, by default the format is inferred from the file extension.</dd>
 <dt><strong><code>offset_type</code></strong></dt>
-<dd>store using the given offset type or keep the current if None (Default value = None)</dd>
+<dd>store using the given offset type or keep the current if None
+(Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
-<dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
+<dd>module where the document saver is implemented.
+(Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>annsets</code></strong></dt>
-<dd>if not None, a list of annotation set names or tuples of set name and a list of annotation types
-to include in the serialized document.</dd>
+<dd>if not None, a list of annotation set names or tuples of set name and a
+list of annotation types to include in the serialized document.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the document saver.</dd>
-</dl>
-<p>**kwargs:</p></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6372,14 +6819,15 @@ to include in the serialized document.</dd>
     &#34;&#34;&#34;Save the document to the destination file.
 
     Args:
-      destination: either a file name or something that has a write(string) method.
-      fmt: serialization format, by default the format is inferred from the file extension.
-      offset_type: store using the given offset type or keep the current if None (Default value = None)
-      mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
-      annsets: if not None, a list of annotation set names or tuples of set name and a list of annotation types
-          to include in the serialized document.
-      kwargs: additional parameters for the document saver.
-      **kwargs:
+        destination: either a file name or something that has a write(string) method.
+        fmt: serialization format, by default the format is inferred from the file extension.
+        offset_type: store using the given offset type or keep the current if None
+            (Default value = None)
+        mod: module where the document saver is implemented.
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        annsets: if not None, a list of annotation set names or tuples of set name and a
+            list of annotation types to include in the serialized document.
+        kwargs: additional parameters for the document saver.
     &#34;&#34;&#34;
     if annsets is not None:
         kwargs[&#34;annsets&#34;] = annsets
@@ -6402,14 +6850,14 @@ to include in the serialized document.</dd>
 <dt><strong><code>fmt</code></strong></dt>
 <dd>serialization format to use. (Default value = "json")</dd>
 <dt><strong><code>offset_type</code></strong></dt>
-<dd>store using the given offset type or keep the current if None (Default value = None)</dd>
+<dd>store using the given offset type or keep the current if None
+(Default value = None)</dd>
 <dt><strong><code>mod</code></strong></dt>
-<dd>module where the document saver is implemented. (Default value = "gatenlp.serialization.default")</dd>
+<dd>module where the document saver is implemented.
+(Default value = "gatenlp.serialization.default")</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the format.</dd>
-</dl>
-<p>**kwargs:
-Returns:</p></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -6424,14 +6872,12 @@ Returns:</p></div>
     &#34;&#34;&#34;Serialize to a string or bytes in the given format.
 
     Args:
-      fmt: serialization format to use. (Default value = &#34;json&#34;)
-      offset_type: store using the given offset type or keep the current if None (Default value = None)
-      mod: module where the document saver is implemented. (Default value = &#34;gatenlp.serialization.default&#34;)
-      kwargs: additional parameters for the format.
-      **kwargs:
-
-    Returns:
-
+        fmt: serialization format to use. (Default value = &#34;json&#34;)
+        offset_type: store using the given offset type or keep the current if None
+            (Default value = None)
+        mod: module where the document saver is implemented.
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        kwargs: additional parameters for the format.
     &#34;&#34;&#34;
     if not fmt:
         raise Exception(&#34;Format required.&#34;)
@@ -6455,8 +6901,10 @@ This directly sends the rendered document to the cell (no display/HTML necessary
 <dt><strong><code>htmlid</code></strong></dt>
 <dd>the HTML id prefix to use for classes and element ids.</dd>
 <dt><strong><code>annsets</code></strong></dt>
-<dd>if not None, a list of annotation set/type specifications. Each element is either
-the name of a set to fully include, or a tuple with the name of the set as the first element
+<dd>if not None, a list of annotation set/type specifications.
+Each element is either
+the name of a set to fully include, or a tuple with the name of the set as
+the first element
 and with a single type name or a list of type names as the second element</dd>
 </dl></div>
 <details class="source">
@@ -6471,8 +6919,10 @@ and with a single type name or a list of type names as the second element</dd>
 
     Args:
         htmlid: the HTML id prefix to use for classes and element ids.
-        annsets: if not None, a list of annotation set/type specifications. Each element is either
-            the name of a set to fully include, or a tuple with the name of the set as the first element
+        annsets: if not None, a list of annotation set/type specifications.
+            Each element is either
+            the name of a set to fully include, or a tuple with the name of the set as
+            the first element
             and with a single type name or a list of type names as the second element
 
     &#34;&#34;&#34;
@@ -6497,9 +6947,9 @@ field is considered a transient field!</p>
 <dt><strong><code>annsets</code></strong></dt>
 <dd>if not None, a list of annotation set/type specifications: each element
 is either a string, the name of the annotation set to include, or a tuple where the
-first element is the annotation set name and the second element is either a type name or
-a list of type names. The same annotation set name should not be used in more than one
-specification.</dd>
+first element is the annotation set name and the second element is either a
+type name or a list of type names. The same annotation set name should not be used
+in more than one specification.</dd>
 </dl>
 <p>**kwargs:</p>
 <h2 id="returns">Returns</h2>
@@ -6518,9 +6968,9 @@ specification.</dd>
       offset_type: convert to the given offset type on the fly (Default value = None)
       annsets: if not None, a list of annotation set/type specifications: each element
           is either a string, the name of the annotation set to include, or a tuple where the
-          first element is the annotation set name and the second element is either a type name or
-          a list of type names. The same annotation set name should not be used in more than one
-          specification.
+          first element is the annotation set name and the second element is either a
+          type name or a list of type names. The same annotation set name should not be used
+          in more than one specification.
       **kwargs:
 
     Returns:
@@ -6551,7 +7001,8 @@ specification.</dd>
                 setname, types = spec
                 if isinstance(types, str):
                     types = [types]
-                annsets_dict[setname] = self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+                annsets_dict[setname] = \
+                    self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
     else:
         annsets_dict = {
             name: aset.to_dict(**kwargs)
@@ -6642,6 +7093,7 @@ otherwise None.</p>
 <li><code><a title="gatenlp.annotation" href="annotation.html">gatenlp.annotation</a></code></li>
 <li><code><a title="gatenlp.annotation_set" href="annotation_set.html">gatenlp.annotation_set</a></code></li>
 <li><code><a title="gatenlp.changelog" href="changelog.html">gatenlp.changelog</a></code></li>
+<li><code><a title="gatenlp.changelog_consts" href="changelog_consts.html">gatenlp.changelog_consts</a></code></li>
 <li><code><a title="gatenlp.corpora" href="corpora.html">gatenlp.corpora</a></code></li>
 <li><code><a title="gatenlp.document" href="document.html">gatenlp.document</a></code></li>
 <li><code><a title="gatenlp.features" href="features.html">gatenlp.features</a></code></li>
@@ -6682,7 +7134,11 @@ otherwise None.</p>
 <li><code><a title="gatenlp.Annotation.isbefore" href="#gatenlp.Annotation.isbefore">isbefore</a></code></li>
 <li><code><a title="gatenlp.Annotation.iscoextensive" href="#gatenlp.Annotation.iscoextensive">iscoextensive</a></code></li>
 <li><code><a title="gatenlp.Annotation.iscovering" href="#gatenlp.Annotation.iscovering">iscovering</a></code></li>
+<li><code><a title="gatenlp.Annotation.isendingat" href="#gatenlp.Annotation.isendingat">isendingat</a></code></li>
+<li><code><a title="gatenlp.Annotation.isleftoverlapping" href="#gatenlp.Annotation.isleftoverlapping">isleftoverlapping</a></code></li>
 <li><code><a title="gatenlp.Annotation.isoverlapping" href="#gatenlp.Annotation.isoverlapping">isoverlapping</a></code></li>
+<li><code><a title="gatenlp.Annotation.isrightoverlapping" href="#gatenlp.Annotation.isrightoverlapping">isrightoverlapping</a></code></li>
+<li><code><a title="gatenlp.Annotation.isstartingat" href="#gatenlp.Annotation.isstartingat">isstartingat</a></code></li>
 <li><code><a title="gatenlp.Annotation.iswithin" href="#gatenlp.Annotation.iswithin">iswithin</a></code></li>
 <li><code><a title="gatenlp.Annotation.length" href="#gatenlp.Annotation.length">length</a></code></li>
 <li><code><a title="gatenlp.Annotation.span" href="#gatenlp.Annotation.span">span</a></code></li>
@@ -6696,6 +7152,9 @@ otherwise None.</p>
 <ul class="two-column">
 <li><code><a title="gatenlp.AnnotationSet.add" href="#gatenlp.AnnotationSet.add">add</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.add_ann" href="#gatenlp.AnnotationSet.add_ann">add_ann</a></code></li>
+<li><code><a title="gatenlp.AnnotationSet.after" href="#gatenlp.AnnotationSet.after">after</a></code></li>
+<li><code><a title="gatenlp.AnnotationSet.before" href="#gatenlp.AnnotationSet.before">before</a></code></li>
+<li><code><a title="gatenlp.AnnotationSet.by_idx" href="#gatenlp.AnnotationSet.by_idx">by_idx</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.by_offset" href="#gatenlp.AnnotationSet.by_offset">by_offset</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.by_span" href="#gatenlp.AnnotationSet.by_span">by_span</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.changelog" href="#gatenlp.AnnotationSet.changelog">changelog</a></code></li>
@@ -6727,10 +7186,10 @@ otherwise None.</p>
 <li><code><a title="gatenlp.AnnotationSet.size" href="#gatenlp.AnnotationSet.size">size</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.span" href="#gatenlp.AnnotationSet.span">span</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.start" href="#gatenlp.AnnotationSet.start">start</a></code></li>
-<li><code><a title="gatenlp.AnnotationSet.start_eq" href="#gatenlp.AnnotationSet.start_eq">start_eq</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.start_ge" href="#gatenlp.AnnotationSet.start_ge">start_ge</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.start_lt" href="#gatenlp.AnnotationSet.start_lt">start_lt</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.start_min_ge" href="#gatenlp.AnnotationSet.start_min_ge">start_min_ge</a></code></li>
+<li><code><a title="gatenlp.AnnotationSet.startingat" href="#gatenlp.AnnotationSet.startingat">startingat</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.to_dict" href="#gatenlp.AnnotationSet.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.type_names" href="#gatenlp.AnnotationSet.type_names">type_names</a></code></li>
 <li><code><a title="gatenlp.AnnotationSet.with_type" href="#gatenlp.AnnotationSet.with_type">with_type</a></code></li>

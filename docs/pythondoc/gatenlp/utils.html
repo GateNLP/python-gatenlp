@@ -307,13 +307,52 @@ def in_notebook():
 def allowspan(method):
     @wraps(method)
     def _allowspan(self, *args, **kwargs):
-        assert len(args) &gt; 1
+        if len(args) == 0:
+            # maybe the start and end parameters are given as kwargs?
+            if &#34;start&#34; in kwargs and &#34;end&#34; in kwargs:
+                return method(self, **kwargs)
+            else:
+                raise Exception(&#34;Need a span, or start and end parameters!&#34;)
         maybespan = args[0]
         if hasattr(maybespan, &#34;start&#34;) and hasattr(maybespan, &#34;end&#34;):
             return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
         else:
             return method(self, *args, **kwargs)
-    return _allowspan</code></pre>
+    return _allowspan
+
+
+def get_nested(adict, name, default=None, silent=False):
+    &#34;&#34;&#34;
+    Get a field from a nested map or return the default if the submap/field does not exist.
+
+    Args:
+        adict: a dictionary with possibly nested dictionaries
+        name:  the key to access where dots are used to separate keys for nested maps, e.g.
+            &#34;key1.key2.key3&#34; would access the value of key3 in the map stored under key2 in
+            the map stored under key1 in adict. If key1 returns something that is not a map,
+            an excpetion is raised unless silent is True
+        default: the default value to return if a field with the given name cannot be accessed
+
+    Returns:
+        The value for the field or None if not found
+
+    Raises:
+        Exception if an expected nested dictionary is not a dictionary and silent is False
+    &#34;&#34;&#34;
+    origname = name
+    names = name.split(&#34;.&#34;)
+    for name in names:
+        if not isinstance(adict, dict):
+            if silent:
+                return None
+            else:
+                raise Exception(f&#34;Not a dictionary for {name}, original name was {origname}, got {type(adict)}&#34;)
+        ret = adict.get(name)
+        adict = ret
+    if ret is None:
+        return default
+    else:
+        return ret</code></pre>
 </details>
 </section>
 <section>
@@ -335,7 +374,12 @@ def allowspan(method):
 <pre><code class="python">def allowspan(method):
     @wraps(method)
     def _allowspan(self, *args, **kwargs):
-        assert len(args) &gt; 1
+        if len(args) == 0:
+            # maybe the start and end parameters are given as kwargs?
+            if &#34;start&#34; in kwargs and &#34;end&#34; in kwargs:
+                return method(self, **kwargs)
+            else:
+                raise Exception(&#34;Need a span, or start and end parameters!&#34;)
         maybespan = args[0]
         if hasattr(maybespan, &#34;start&#34;) and hasattr(maybespan, &#34;end&#34;):
             return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
@@ -378,6 +422,65 @@ def allowspan(method):
                 lpath = os.path.splitext(lpath)[0]
             break
     return lpath</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.utils.get_nested"><code class="name flex">
+<span>def <span class="ident">get_nested</span></span>(<span>adict, name, default=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a field from a nested map or return the default if the submap/field does not exist.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>adict</code></strong></dt>
+<dd>a dictionary with possibly nested dictionaries</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>the key to access where dots are used to separate keys for nested maps, e.g.
+"key1.key2.key3" would access the value of key3 in the map stored under key2 in
+the map stored under key1 in adict. If key1 returns something that is not a map,
+an excpetion is raised unless silent is True</dd>
+<dt><strong><code>default</code></strong></dt>
+<dd>the default value to return if a field with the given name cannot be accessed</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The value for the field or None if not found</p>
+<h2 id="raises">Raises</h2>
+<p>Exception if an expected nested dictionary is not a dictionary and silent is False</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_nested(adict, name, default=None, silent=False):
+    &#34;&#34;&#34;
+    Get a field from a nested map or return the default if the submap/field does not exist.
+
+    Args:
+        adict: a dictionary with possibly nested dictionaries
+        name:  the key to access where dots are used to separate keys for nested maps, e.g.
+            &#34;key1.key2.key3&#34; would access the value of key3 in the map stored under key2 in
+            the map stored under key1 in adict. If key1 returns something that is not a map,
+            an excpetion is raised unless silent is True
+        default: the default value to return if a field with the given name cannot be accessed
+
+    Returns:
+        The value for the field or None if not found
+
+    Raises:
+        Exception if an expected nested dictionary is not a dictionary and silent is False
+    &#34;&#34;&#34;
+    origname = name
+    names = name.split(&#34;.&#34;)
+    for name in names:
+        if not isinstance(adict, dict):
+            if silent:
+                return None
+            else:
+                raise Exception(f&#34;Not a dictionary for {name}, original name was {origname}, got {type(adict)}&#34;)
+        ret = adict.get(name)
+        adict = ret
+    if ret is None:
+        return default
+    else:
+        return ret</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.utils.in_notebook"><code class="name flex">
@@ -741,6 +844,7 @@ to create a length one span (start is the original offset, end is the original o
 <ul class="">
 <li><code><a title="gatenlp.utils.allowspan" href="#gatenlp.utils.allowspan">allowspan</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
+<li><code><a title="gatenlp.utils.get_nested" href="#gatenlp.utils.get_nested">get_nested</a></code></li>
 <li><code><a title="gatenlp.utils.in_notebook" href="#gatenlp.utils.in_notebook">in_notebook</a></code></li>
 <li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>

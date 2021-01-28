@@ -1096,7 +1096,7 @@ class PampacParser:
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, &#34;start_eq&#34;)
+        pred = self._make_constraint_predicate(matcher, &#34;startingat&#34;)
         return Filter(self, pred, matchtype=matchtype)
 
     def notat(self, type=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;):
@@ -1121,7 +1121,7 @@ class PampacParser:
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, &#34;start_eq&#34;)
+        pred = self._make_notconstraint_predicate(matcher, &#34;startingat&#34;)
         return Filter(self, pred, matchtype=matchtype)
 
     def before(self, type=None, features=None, features_eq=None, text=None,
@@ -1154,9 +1154,9 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.start_ge(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -1195,7 +1195,7 @@ class PampacParser:
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
                 annstocheck = annset.start_ge(result.span.end)
             matched = False
@@ -2466,6 +2466,7 @@ class UpdateAnnFeatures:
             theann.features.clear()
         theann.features.update(feats)
 
+
 # GETTERS
 
 
@@ -2640,7 +2641,7 @@ class GetFeature:
 
 class GetText:
     &#34;&#34;&#34;
-    Helper to access the covered document text of the annotation in a match with the given name.
+    Helper to access text, either covered document text of the annotation or matched text.
     &#34;&#34;&#34;
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
         &#34;&#34;&#34;
@@ -4642,7 +4643,7 @@ None</dd>
 <span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper to access the covered document text of the annotation in a match with the given name.</p>
+<div class="desc"><p>Helper to access text, either covered document text of the annotation or matched text.</p>
 <p>Create a GetText helper.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -4662,7 +4663,7 @@ None</dd>
 </summary>
 <pre><code class="python">class GetText:
     &#34;&#34;&#34;
-    Helper to access the covered document text of the annotation in a match with the given name.
+    Helper to access text, either covered document text of the annotation or matched text.
     &#34;&#34;&#34;
     def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
         &#34;&#34;&#34;
@@ -6087,7 +6088,7 @@ must be overriden!</p>
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, &#34;start_eq&#34;)
+        pred = self._make_constraint_predicate(matcher, &#34;startingat&#34;)
         return Filter(self, pred, matchtype=matchtype)
 
     def notat(self, type=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;):
@@ -6112,7 +6113,7 @@ must be overriden!</p>
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, &#34;start_eq&#34;)
+        pred = self._make_notconstraint_predicate(matcher, &#34;startingat&#34;)
         return Filter(self, pred, matchtype=matchtype)
 
     def before(self, type=None, features=None, features_eq=None, text=None,
@@ -6145,9 +6146,9 @@ must be overriden!</p>
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.start_ge(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -6186,7 +6187,7 @@ must be overriden!</p>
                     anns.add(ann)
             annset = context.annset
             if immediately:
-                annstocheck = annset.start_eq(result.span.end)
+                annstocheck = annset.startingat(result.span.end)
             else:
                 annstocheck = annset.start_ge(result.span.end)
             matched = False
@@ -6463,7 +6464,7 @@ the candidates for checking this constraint!</p>
     matcher = AnnMatcher(
         type=type, features=features, features_eq=features_eq, text=text
     )
-    pred = self._make_constraint_predicate(matcher, &#34;start_eq&#34;)
+    pred = self._make_constraint_predicate(matcher, &#34;startingat&#34;)
     return Filter(self, pred, matchtype=matchtype)</code></pre>
 </details>
 </dd>
@@ -6524,9 +6525,9 @@ that matches the given properties.</p>
                 anns.add(ann)
         annset = context.annset
         if immediately:
-            annstocheck = annset.start_eq(result.span.end)
+            annstocheck = annset.startingat(result.span.end)
         else:
-            annstocheck = annset.start_ge(result.span.end)
+            annstocheck = annset.startingat(result.span.end)
         for anntocheck in annstocheck:
             if matcher(anntocheck, context.doc):
                 if anntocheck in anns:
@@ -6817,7 +6818,7 @@ the candidates for checking this constraint!</p>
     matcher = AnnMatcher(
         type=type, features=features, features_eq=features_eq, text=text
     )
-    pred = self._make_notconstraint_predicate(matcher, &#34;start_eq&#34;)
+    pred = self._make_notconstraint_predicate(matcher, &#34;startingat&#34;)
     return Filter(self, pred, matchtype=matchtype)</code></pre>
 </details>
 </dd>
@@ -6878,7 +6879,7 @@ def notbefore(self,  type=None, features=None, features_eq=None, text=None,
                 anns.add(ann)
         annset = context.annset
         if immediately:
-            annstocheck = annset.start_eq(result.span.end)
+            annstocheck = annset.startingat(result.span.end)
         else:
             annstocheck = annset.start_ge(result.span.end)
         matched = False

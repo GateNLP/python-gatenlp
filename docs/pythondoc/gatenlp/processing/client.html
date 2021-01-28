@@ -168,10 +168,10 @@ class TagMeAnnotator(Annotator):
 
     def __init__(
         self,
+        url=None,
+        auth_token=None,
         lang=&#34;en&#34;,
         ann_type=&#34;Mention&#34;,
-        auth_token=None,
-        url=None,
         task=&#34;tag&#34;,  # or spot
         out_annset=&#34;&#34;,
         min_delay_ms=501,
@@ -292,9 +292,9 @@ class TextRazorTextAnnotator(Annotator):
 
     def __init__(
         self,
-        lang=None,  # if None/not specified, TextRazor auto-detects
-        auth_token=None,
         url=None,  # use default
+        auth_token=None,
+        lang=None,  # if None/not specified, TextRazor auto-detects
         extractors=None,
         out_annset=&#34;&#34;,
         min_delay_ms=501,
@@ -421,6 +421,19 @@ class TextRazorTextAnnotator(Annotator):
 
 
 class ElgTextAnnotator(Annotator):
+    # TODO: maybe we should eventually always use the elg package and the elg Service class!
+    # TODO: however, currently their way how handling auth is done is too limiting see issues #8, #9
+
+    # TODO: use template and return the URL from a method or use elg.utils
+    ELG_SC_LIVE_URL_PREFIX = &#34;https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?&#34;
+    ELG_SC_LIVE_URL_PREFIX += &#34;client_id=python-sdk&amp;redirect_uri=urn:ietf:wg:oauth:2.0:oob&amp;response_type=code&#34;
+    ELG_SC_LIVE_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + &#34;&amp;scope=offline_access&#34;
+    ELG_SC_LIVE_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + &#34;&amp;scope=openid&#34;
+
+    ELG_SC_DEV_URL_PREFIX = &#34;https://dev.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?&#34;
+    ELG_SC_DEV_URL_PREFIX += &#34;client_id=python-sdk&amp;redirect_uri=urn:ietf:wg:oauth:2.0:oob&amp;response_type=code&#34;
+    ELG_SC_DEV_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + &#34;&amp;scope=offline_access&#34;
+    ELG_SC_DEV_URL_OPENID = ELG_SC_DEV_URL_PREFIX + &#34;&amp;scope=openid&#34;
     &#34;&#34;&#34;
     An annotator that sends text to one of the services registered with the European Language Grid
     (https://live.european-language-grid.eu/) and uses the result to create annotations.
@@ -430,8 +443,12 @@ class ElgTextAnnotator(Annotator):
 
     def __init__(
         self,
-        auth_token=None,
         url=None,
+        service=None,
+        auth=None,
+        success_code=None,
+        access_token=None,
+        refresh_access=False,
         out_annset=&#34;&#34;,
         min_delay_ms=501,
         anntypes_map=None,
@@ -439,17 +456,76 @@ class ElgTextAnnotator(Annotator):
         &#34;&#34;&#34;
         Create an ElgTextAnnotator.
 
+        NOTE: error handling is not properly implemented yet since we do not know yet how exactly the various
+        error conditions are represented in the result returned from the ELG services. For now, any error will
+        throw an exception when `__call__` is invoked.
+
+        NOTE: initialization can fail with an exception if success_code is specified and retrieving the
+        authentification information fails.
+
         Args:
-            auth_token: the authentication token from ELG
-            url:  the annotation service URL to use
+            url:  the annotation service URL to use. If not specified, the service parameter must be specified.
+            service: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
+                This may raise an exception. If successful, the url and service_meta attributes are set.
+            auth: a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
+                success_code or access_token parameter must be specified.
+            success_code: the success code returned from the ELG web page for one of the URLs to obtain
+                success codes. This will try to obtain the authentication information and store it in the
+                `auth` attribute.  Requires the elg package.
+                To obtain a success code, go the the ELG_SC_LIVE_URL_OPENID or ELG_SC_LIVE_URL_OFFLINE url
+                and log in with your ELG user id, this will show the success code that can be copy-pasted.
+            access_token: the access token token for the ELG service. Only used if auth or success_code are not
+                specified. The access token is probably only valid for a limited amount of time. No refresh
+                will be done and once the access token is invalid, calling `__call__` will fail with an exception.
+                The access token can be obtained using the elg package or copied from the &#34;Code samples&#34; tab
+                on the web page for a service after logging in.
+            refresh_access: if True, will try to refresh the access token if auth or success_code was specified and
+                refreshing is possible. Ignored if only access_token was specified
             out_annset: the name of the annotation set where to create the annotations (default: &#34;&#34;)
             min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         &#34;&#34;&#34;
-        assert url is not None
-        self.auth_token = auth_token
+        if [x is not None for x in [url, service]].count(True) != 1:
+            raise Exception(&#34;Exactly one of service or url must be specified&#34;)
+        if [x is not None for x in [auth, success_code, access_token]].count(True) != 1:
+            raise Exception(&#34;Exactly one of auth, success_code, or access_token must be specified&#34;)
+        self.access_token = access_token
+        self.success_code = success_code
+        self.auth = auth
         self.url = url
+        self.service = service
+        self.service_meta = None
+        self.refresh_access = refresh_access
+        # first check if we need to import the elg package
+        import_elg = False
+        if access_token:
+            self.refresh_access = False
+        if service is not None:
+            import_elg = True
+        if auth or success_code:
+            import_elg = True
+        if import_elg:
+            try:
+                from elg import Authentication
+                from elg.utils import get_domain, get_metadatarecord
+            except Exception as ex:
+                raise Exception(&#34;For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]&#34;, ex)
+        if service is not None:
+            # update this to use the new method:
+            # https://gitlab.com/european-language-grid/platform/python-client/-/issues/9
+            if isinstance(service, tuple):
+                service_id, domain = service
+            else:
+                service_id = service
+                domain = get_domain(&#34;live&#34;)
+            self.service_meta = get_metadatarecord(service_id, domain)
+            # NOTE: there is also elg_execution_location for async requests!
+            self.url = self.service_meta[&#34;service_info&#34;][&#34;elg_execution_location_sync&#34;]
+        if success_code is not None:
+            self.auth = Authentication.from_success_code(success_code, domain=&#34;live&#34;)
+        if self.auth:
+            self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.anntypes_map = anntypes_map
         self.out_annset = out_annset
@@ -458,6 +534,9 @@ class ElgTextAnnotator(Annotator):
         self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
+        # if necessary and possible, refresh the access token
+        if self.refresh_access and self.auth:
+            self.auth.refresh_if_needed()
         delay = time.time() - self._last_call_time
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
@@ -466,8 +545,8 @@ class ElgTextAnnotator(Annotator):
             {&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;}
         )
         hdrs = {&#34;Content-Type&#34;: &#34;application/json&#34;}
-        if self.auth_token:
-            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
+        if self.access_token:
+            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.access_token}&#34;
         response = requests.post(self.url, data=request_json, headers=hdrs)
         scode = response.status_code
         if scode != 200:
@@ -508,19 +587,43 @@ class ElgTextAnnotator(Annotator):
 <dl>
 <dt id="gatenlp.processing.client.ElgTextAnnotator"><code class="flex name class">
 <span>class <span class="ident">ElgTextAnnotator</span></span>
-<span>(</span><span>auth_token=None, url=None, out_annset='', min_delay_ms=501, anntypes_map=None)</span>
+<span>(</span><span>url=None, service=None, auth=None, success_code=None, access_token=None, refresh_access=False, out_annset='', min_delay_ms=501, anntypes_map=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>An annotator that sends text to one of the services registered with the European Language Grid
-(<a href="https://live.european-language-grid.eu/">https://live.european-language-grid.eu/</a>) and uses the result to create annotations.</p>
-<p>NOTE: This is maybe not properly implemented and not properly tested yet!</p>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <p>Create an ElgTextAnnotator.</p>
+<p>NOTE: error handling is not properly implemented yet since we do not know yet how exactly the various
+error conditions are represented in the result returned from the ELG services. For now, any error will
+throw an exception when <code>__call__</code> is invoked.</p>
+<p>NOTE: initialization can fail with an exception if success_code is specified and retrieving the
+authentification information fails.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>auth_token</code></strong></dt>
-<dd>the authentication token from ELG</dd>
 <dt><strong><code>url</code></strong></dt>
-<dd>the annotation service URL to use</dd>
+<dd>the annotation service URL to use. If not specified, the service parameter must be specified.</dd>
+<dt><strong><code>service</code></strong></dt>
+<dd>the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
+This may raise an exception. If successful, the url and service_meta attributes are set.</dd>
+<dt><strong><code>auth</code></strong></dt>
+<dd>a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
+success_code or access_token parameter must be specified.</dd>
+<dt><strong><code>success_code</code></strong></dt>
+<dd>the success code returned from the ELG web page for one of the URLs to obtain
+success codes. This will try to obtain the authentication information and store it in the
+<code>auth</code> attribute.
+Requires the elg package.
+To obtain a success code, go the the ELG_SC_LIVE_URL_OPENID or ELG_SC_LIVE_URL_OFFLINE url
+and log in with your ELG user id, this will show the success code that can be copy-pasted.</dd>
+<dt><strong><code>access_token</code></strong></dt>
+<dd>the access token token for the ELG service. Only used if auth or success_code are not
+specified. The access token is probably only valid for a limited amount of time. No refresh
+will be done and once the access token is invalid, calling <code>__call__</code> will fail with an exception.
+The access token can be obtained using the elg package or copied from the "Code samples" tab
+on the web page for a service after logging in.</dd>
+<dt><strong><code>refresh_access</code></strong></dt>
+<dd>if True, will try to refresh the access token if auth or success_code was specified and
+refreshing is possible. Ignored if only access_token was specified</dd>
 <dt><strong><code>out_annset</code></strong></dt>
 <dd>the name of the annotation set where to create the annotations (default: "")</dd>
 <dt><strong><code>min_delay_ms</code></strong></dt>
@@ -534,6 +637,19 @@ the annotated document.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ElgTextAnnotator(Annotator):
+    # TODO: maybe we should eventually always use the elg package and the elg Service class!
+    # TODO: however, currently their way how handling auth is done is too limiting see issues #8, #9
+
+    # TODO: use template and return the URL from a method or use elg.utils
+    ELG_SC_LIVE_URL_PREFIX = &#34;https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?&#34;
+    ELG_SC_LIVE_URL_PREFIX += &#34;client_id=python-sdk&amp;redirect_uri=urn:ietf:wg:oauth:2.0:oob&amp;response_type=code&#34;
+    ELG_SC_LIVE_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + &#34;&amp;scope=offline_access&#34;
+    ELG_SC_LIVE_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + &#34;&amp;scope=openid&#34;
+
+    ELG_SC_DEV_URL_PREFIX = &#34;https://dev.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?&#34;
+    ELG_SC_DEV_URL_PREFIX += &#34;client_id=python-sdk&amp;redirect_uri=urn:ietf:wg:oauth:2.0:oob&amp;response_type=code&#34;
+    ELG_SC_DEV_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + &#34;&amp;scope=offline_access&#34;
+    ELG_SC_DEV_URL_OPENID = ELG_SC_DEV_URL_PREFIX + &#34;&amp;scope=openid&#34;
     &#34;&#34;&#34;
     An annotator that sends text to one of the services registered with the European Language Grid
     (https://live.european-language-grid.eu/) and uses the result to create annotations.
@@ -543,8 +659,12 @@ the annotated document.</dd>
 
     def __init__(
         self,
-        auth_token=None,
         url=None,
+        service=None,
+        auth=None,
+        success_code=None,
+        access_token=None,
+        refresh_access=False,
         out_annset=&#34;&#34;,
         min_delay_ms=501,
         anntypes_map=None,
@@ -552,17 +672,76 @@ the annotated document.</dd>
         &#34;&#34;&#34;
         Create an ElgTextAnnotator.
 
+        NOTE: error handling is not properly implemented yet since we do not know yet how exactly the various
+        error conditions are represented in the result returned from the ELG services. For now, any error will
+        throw an exception when `__call__` is invoked.
+
+        NOTE: initialization can fail with an exception if success_code is specified and retrieving the
+        authentification information fails.
+
         Args:
-            auth_token: the authentication token from ELG
-            url:  the annotation service URL to use
+            url:  the annotation service URL to use. If not specified, the service parameter must be specified.
+            service: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
+                This may raise an exception. If successful, the url and service_meta attributes are set.
+            auth: a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
+                success_code or access_token parameter must be specified.
+            success_code: the success code returned from the ELG web page for one of the URLs to obtain
+                success codes. This will try to obtain the authentication information and store it in the
+                `auth` attribute.  Requires the elg package.
+                To obtain a success code, go the the ELG_SC_LIVE_URL_OPENID or ELG_SC_LIVE_URL_OFFLINE url
+                and log in with your ELG user id, this will show the success code that can be copy-pasted.
+            access_token: the access token token for the ELG service. Only used if auth or success_code are not
+                specified. The access token is probably only valid for a limited amount of time. No refresh
+                will be done and once the access token is invalid, calling `__call__` will fail with an exception.
+                The access token can be obtained using the elg package or copied from the &#34;Code samples&#34; tab
+                on the web page for a service after logging in.
+            refresh_access: if True, will try to refresh the access token if auth or success_code was specified and
+                refreshing is possible. Ignored if only access_token was specified
             out_annset: the name of the annotation set where to create the annotations (default: &#34;&#34;)
             min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         &#34;&#34;&#34;
-        assert url is not None
-        self.auth_token = auth_token
+        if [x is not None for x in [url, service]].count(True) != 1:
+            raise Exception(&#34;Exactly one of service or url must be specified&#34;)
+        if [x is not None for x in [auth, success_code, access_token]].count(True) != 1:
+            raise Exception(&#34;Exactly one of auth, success_code, or access_token must be specified&#34;)
+        self.access_token = access_token
+        self.success_code = success_code
+        self.auth = auth
         self.url = url
+        self.service = service
+        self.service_meta = None
+        self.refresh_access = refresh_access
+        # first check if we need to import the elg package
+        import_elg = False
+        if access_token:
+            self.refresh_access = False
+        if service is not None:
+            import_elg = True
+        if auth or success_code:
+            import_elg = True
+        if import_elg:
+            try:
+                from elg import Authentication
+                from elg.utils import get_domain, get_metadatarecord
+            except Exception as ex:
+                raise Exception(&#34;For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]&#34;, ex)
+        if service is not None:
+            # update this to use the new method:
+            # https://gitlab.com/european-language-grid/platform/python-client/-/issues/9
+            if isinstance(service, tuple):
+                service_id, domain = service
+            else:
+                service_id = service
+                domain = get_domain(&#34;live&#34;)
+            self.service_meta = get_metadatarecord(service_id, domain)
+            # NOTE: there is also elg_execution_location for async requests!
+            self.url = self.service_meta[&#34;service_info&#34;][&#34;elg_execution_location_sync&#34;]
+        if success_code is not None:
+            self.auth = Authentication.from_success_code(success_code, domain=&#34;live&#34;)
+        if self.auth:
+            self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.anntypes_map = anntypes_map
         self.out_annset = out_annset
@@ -571,6 +750,9 @@ the annotated document.</dd>
         self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
+        # if necessary and possible, refresh the access token
+        if self.refresh_access and self.auth:
+            self.auth.refresh_if_needed()
         delay = time.time() - self._last_call_time
         if delay &lt; self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
@@ -579,8 +761,8 @@ the annotated document.</dd>
             {&#34;type&#34;: &#34;text&#34;, &#34;content&#34;: doc.text, &#34;mimeType&#34;: &#34;text/plain&#34;}
         )
         hdrs = {&#34;Content-Type&#34;: &#34;application/json&#34;}
-        if self.auth_token:
-            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.auth_token}&#34;
+        if self.access_token:
+            hdrs[&#34;Authorization&#34;] = f&#34;Bearer {self.access_token}&#34;
         response = requests.post(self.url, data=request_json, headers=hdrs)
         scode = response.status_code
         if scode != 200:
@@ -614,12 +796,42 @@ the annotated document.</dd>
 <li><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OFFLINE"><code class="name">var <span class="ident">ELG_SC_DEV_URL_OFFLINE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OPENID"><code class="name">var <span class="ident">ELG_SC_DEV_URL_OPENID</span></code></dt>
+<dd>
+<div class="desc"><p>An annotator that sends text to one of the services registered with the European Language Grid
+(<a href="https://live.european-language-grid.eu/">https://live.european-language-grid.eu/</a>) and uses the result to create annotations.</p>
+<p>NOTE: This is maybe not properly implemented and not properly tested yet!</p></div>
+</dd>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_PREFIX"><code class="name">var <span class="ident">ELG_SC_DEV_URL_PREFIX</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OFFLINE"><code class="name">var <span class="ident">ELG_SC_LIVE_URL_OFFLINE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OPENID"><code class="name">var <span class="ident">ELG_SC_LIVE_URL_OPENID</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_PREFIX"><code class="name">var <span class="ident">ELG_SC_LIVE_URL_PREFIX</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="gatenlp.processing.annotator.Annotator" href="annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
 <ul class="hlist">
 <li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
@@ -785,6 +997,7 @@ any type name not in the map will remain unchanged.</dd>
 <ul class="hlist">
 <li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
@@ -793,7 +1006,7 @@ any type name not in the map will remain unchanged.</dd>
 </dd>
 <dt id="gatenlp.processing.client.TagMeAnnotator"><code class="flex name class">
 <span>class <span class="ident">TagMeAnnotator</span></span>
-<span>(</span><span>lang='en', ann_type='Mention', auth_token=None, url=None, task='tag', out_annset='', min_delay_ms=501, tweet=False, include_all_spots=False, long_text=None, epsilon=None, link_pattern='https://{0}.wikipedia.org/wiki/{1}')</span>
+<span>(</span><span>url=None, auth_token=None, lang='en', ann_type='Mention', task='tag', out_annset='', min_delay_ms=501, tweet=False, include_all_spots=False, long_text=None, epsilon=None, link_pattern='https://{0}.wikipedia.org/wiki/{1}')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An annotator that sends text to the TagMe Annotation service (<a href="https://sobigdata.d4science.org/group/tagme/tagme">https://sobigdata.d4science.org/group/tagme/tagme</a>)
@@ -840,10 +1053,10 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
 
     def __init__(
         self,
+        url=None,
+        auth_token=None,
         lang=&#34;en&#34;,
         ann_type=&#34;Mention&#34;,
-        auth_token=None,
-        url=None,
         task=&#34;tag&#34;,  # or spot
         out_annset=&#34;&#34;,
         min_delay_ms=501,
@@ -964,6 +1177,7 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
 <ul class="hlist">
 <li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
@@ -972,7 +1186,7 @@ default is "https://{0}.wikipedia.org/wiki/{1}" where {0} gets replaced with the
 </dd>
 <dt id="gatenlp.processing.client.TextRazorTextAnnotator"><code class="flex name class">
 <span>class <span class="ident">TextRazorTextAnnotator</span></span>
-<span>(</span><span>lang=None, auth_token=None, url=None, extractors=None, out_annset='', min_delay_ms=501)</span>
+<span>(</span><span>url=None, auth_token=None, lang=None, extractors=None, out_annset='', min_delay_ms=501)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An annotator that sends document text to the TextRazor Annotation service (<a href="https://www.textrazor.com/">https://www.textrazor.com/</a>)
@@ -1011,9 +1225,9 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
 
     def __init__(
         self,
-        lang=None,  # if None/not specified, TextRazor auto-detects
-        auth_token=None,
         url=None,  # use default
+        auth_token=None,
+        lang=None,  # if None/not specified, TextRazor auto-detects
         extractors=None,
         out_annset=&#34;&#34;,
         min_delay_ms=501,
@@ -1149,6 +1363,7 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
 <ul class="hlist">
 <li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.start" href="annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
@@ -1173,6 +1388,14 @@ NOTE: currently only words, sentences, entities is supported.!</dd>
 <ul>
 <li>
 <h4><code><a title="gatenlp.processing.client.ElgTextAnnotator" href="#gatenlp.processing.client.ElgTextAnnotator">ElgTextAnnotator</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OFFLINE" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OFFLINE">ELG_SC_DEV_URL_OFFLINE</a></code></li>
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OPENID" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_OPENID">ELG_SC_DEV_URL_OPENID</a></code></li>
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_PREFIX" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_DEV_URL_PREFIX">ELG_SC_DEV_URL_PREFIX</a></code></li>
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OFFLINE" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OFFLINE">ELG_SC_LIVE_URL_OFFLINE</a></code></li>
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OPENID" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_OPENID">ELG_SC_LIVE_URL_OPENID</a></code></li>
+<li><code><a title="gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_PREFIX" href="#gatenlp.processing.client.ElgTextAnnotator.ELG_SC_LIVE_URL_PREFIX">ELG_SC_LIVE_URL_PREFIX</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.processing.client.GateCloudAnnotator" href="#gatenlp.processing.client.GateCloudAnnotator">GateCloudAnnotator</a></code></h4>

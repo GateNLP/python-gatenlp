@@ -32,10 +32,8 @@ a document.</p>
 <pre><code class="python">&#34;&#34;&#34;
 Module for Annotation class which represents information about a span of text in  a document.
 &#34;&#34;&#34;
-import sys
-from typing import List, Union, Dict, Set, Tuple
 import copy as lib_copy
-from functools import total_ordering, wraps
+from functools import total_ordering
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import support_annotation_or_set, allowspan
@@ -75,15 +73,18 @@ class Annotation:
         &#34;&#34;&#34;
         if end &lt; start:
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start &gt; end&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: start &gt; end&#34;
             )
         if not isinstance(annid, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: annid is not an int&#34;
             )
         if isinstance(features, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: features must not be an int&#34;
             )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
@@ -146,11 +147,14 @@ class Annotation:
             return self._owner_set.changelog
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
-    # allow any user specific types in order to make sure what we create is interchangeable with GATE.
+    # allow any user specific types in order to make sure what we create is interchangeable
+    # with GATE.
     # In addition we do NOT allow None features.
-    # So a feature name always has to be a string (not None), the value has to be anything that is json
+    # So a feature name always has to be a string (not None), the value has to be anything
+    # that is json
     # serialisable (except None keys for maps).
-    # For performance reasons we check the feature name but not the value (maybe make checking optional
+    # For performance reasons we check the feature name but not the value (maybe make checking
+    # optional
     # on by default but still optional?)
     def _log_feature_change(
         self, command: str, feature: str = None, value=None
@@ -205,11 +209,14 @@ class Annotation:
 
     def __lt__(self, other) -&gt; bool:
         &#34;&#34;&#34;
-        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
-        Since annotation ids within a set are unique, this guarantees a unique order of annotations that
+        Comparison for sorting: this sorts by increasing start offset,
+        then increasing annotation id.
+        Since annotation ids within a set are unique, this guarantees a unique order of
+        annotations that
         come from an annotation set.
 
-        Note: for now the other object has to be an instance of Annotation, duck typing is not supported!
+        Note: for now the other object has to be an instance of Annotation, duck typing is
+        not supported!
         &#34;&#34;&#34;
         if not isinstance(other, Annotation):
             raise Exception(&#34;Cannot compare to non-Annotation&#34;)
@@ -234,8 +241,10 @@ class Annotation:
         Returns the length of the annotation: this is the length of the offset span.
         Since the end offset is one after the last
         element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-        len(annset) returns the number of annotations in the set but annset.length() also returns the
-        span length of the annotation set, so the method name for this is identical between annotations
+        len(annset) returns the number of annotations in the set but annset.length()
+        also returns the
+        span length of the annotation set, so the method name for this is identical between
+        annotations
         and annotation sets.
         &#34;&#34;&#34;
         return self.end - self.start
@@ -260,6 +269,45 @@ class Annotation:
 
         &#34;&#34;&#34;
         return self.iscovering(start) or self.iscovering(end - 1)
+
+    @support_annotation_or_set
+    def isleftoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the left, i.e. the last character is inside the span and the
+        first character is before the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if left-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &lt;= start and self.end &lt;= end
+
+    @support_annotation_or_set
+    def isrightoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the right, i.e. the first character is inside the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if right-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &gt;= start and self.end &gt;= end
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -&gt; bool:
@@ -310,9 +358,10 @@ class Annotation:
           (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of the span
-          end: end offset of the span
-          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+            start: start offset of the span
+            end: end offset of the span
+            immediately: if true checks if this annotation ends immediately before the
+                other one (Default value = False)
 
         Returns:
           True if before, False otherwise
@@ -334,7 +383,8 @@ class Annotation:
         Args:
           start: start offset of the span
           end: end offset of the span
-          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+          immediately: if true checks if this annotation starts immediately after the other one
+              (Default value = False)
 
         Returns:
           True if after, False otherwise
@@ -346,33 +396,43 @@ class Annotation:
             return self.start &gt;= end
 
     @support_annotation_or_set
-    def gap(self, start: int, end: int):
-        &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
-        the last character of the first annotation and the first character of the second annotation in
+    def isstartingat(self, start: int, end: int) -&gt; bool:
+        return self._start == start
+
+    @support_annotation_or_set
+    def isendingat(self, start: int, end: int) -&gt; bool:
+        return self._end == end
+
+    def gap(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Return the gep between this annotation and the other annotation.
+        This is the distance between
+        the last character of the first annotation and the first character of the
+        second annotation in
         sequence, so it is always independent of the order of the two annotations.
 
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-          (see gatenlp._utils.support_annotation_or_set)
+            (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of span
-          end: end offset of span
+            start: start offset of span
+            end: end offset of span
 
         Returns:
           size of gap
 
         &#34;&#34;&#34;
         if self.start &lt; start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -407,9 +467,10 @@ class Annotation:
         used for several serialization methods.
 
         Args:
-            offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+            offset_mapper: the offset mapper to use, must be specified if
+                `offset_type` is specified.
             offset_type: the offset type to be used for the conversionm must be specified if
-               `offset_mapper` is specified
+                `offset_mapper` is specified
 
         Returns:
             the dictionary representation of the Annotation
@@ -560,15 +621,18 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         if end &lt; start:
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: start &gt; end&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: start &gt; end&#34;
             )
         if not isinstance(annid, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: annid is not an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: annid is not an int&#34;
             )
         if isinstance(features, int):
             raise Exception(
-                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, id={annid}, features={features}: features must not be an int&#34;
+                f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
+                &#34;id={annid}, features={features}: features must not be an int&#34;
             )
         # super().__init__(features)
         if annid is not None and not isinstance(annid, int):
@@ -631,11 +695,14 @@ and instead the method AnnotationSet.add should be used.</p>
             return self._owner_set.changelog
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
-    # allow any user specific types in order to make sure what we create is interchangeable with GATE.
+    # allow any user specific types in order to make sure what we create is interchangeable
+    # with GATE.
     # In addition we do NOT allow None features.
-    # So a feature name always has to be a string (not None), the value has to be anything that is json
+    # So a feature name always has to be a string (not None), the value has to be anything
+    # that is json
     # serialisable (except None keys for maps).
-    # For performance reasons we check the feature name but not the value (maybe make checking optional
+    # For performance reasons we check the feature name but not the value (maybe make checking
+    # optional
     # on by default but still optional?)
     def _log_feature_change(
         self, command: str, feature: str = None, value=None
@@ -690,11 +757,14 @@ and instead the method AnnotationSet.add should be used.</p>
 
     def __lt__(self, other) -&gt; bool:
         &#34;&#34;&#34;
-        Comparison for sorting: this sorts by increasing start offset,  then increasing annotation id.
-        Since annotation ids within a set are unique, this guarantees a unique order of annotations that
+        Comparison for sorting: this sorts by increasing start offset,
+        then increasing annotation id.
+        Since annotation ids within a set are unique, this guarantees a unique order of
+        annotations that
         come from an annotation set.
 
-        Note: for now the other object has to be an instance of Annotation, duck typing is not supported!
+        Note: for now the other object has to be an instance of Annotation, duck typing is
+        not supported!
         &#34;&#34;&#34;
         if not isinstance(other, Annotation):
             raise Exception(&#34;Cannot compare to non-Annotation&#34;)
@@ -719,8 +789,10 @@ and instead the method AnnotationSet.add should be used.</p>
         Returns the length of the annotation: this is the length of the offset span.
         Since the end offset is one after the last
         element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-        len(annset) returns the number of annotations in the set but annset.length() also returns the
-        span length of the annotation set, so the method name for this is identical between annotations
+        len(annset) returns the number of annotations in the set but annset.length()
+        also returns the
+        span length of the annotation set, so the method name for this is identical between
+        annotations
         and annotation sets.
         &#34;&#34;&#34;
         return self.end - self.start
@@ -745,6 +817,45 @@ and instead the method AnnotationSet.add should be used.</p>
 
         &#34;&#34;&#34;
         return self.iscovering(start) or self.iscovering(end - 1)
+
+    @support_annotation_or_set
+    def isleftoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the left, i.e. the last character is inside the span and the
+        first character is before the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if left-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &lt;= start and self.end &lt;= end
+
+    @support_annotation_or_set
+    def isrightoverlapping(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Checks if this annotation is overlapping with the given span, annotation or
+        annotation set on the right, i.e. the first character is inside the span.
+
+        Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+          (see gatenlp._utils.support_annotation_or_set)
+
+        Args:
+          start: start offset of the span
+          end: end offset of the span
+
+        Returns:
+          `True` if right-overlapping, `False` otherwise
+
+        &#34;&#34;&#34;
+        return self.start &gt;= start and self.end &gt;= end
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -&gt; bool:
@@ -795,9 +906,10 @@ and instead the method AnnotationSet.add should be used.</p>
           (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of the span
-          end: end offset of the span
-          immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+            start: start offset of the span
+            end: end offset of the span
+            immediately: if true checks if this annotation ends immediately before the
+                other one (Default value = False)
 
         Returns:
           True if before, False otherwise
@@ -819,7 +931,8 @@ and instead the method AnnotationSet.add should be used.</p>
         Args:
           start: start offset of the span
           end: end offset of the span
-          immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+          immediately: if true checks if this annotation starts immediately after the other one
+              (Default value = False)
 
         Returns:
           True if after, False otherwise
@@ -831,33 +944,43 @@ and instead the method AnnotationSet.add should be used.</p>
             return self.start &gt;= end
 
     @support_annotation_or_set
-    def gap(self, start: int, end: int):
-        &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
-        the last character of the first annotation and the first character of the second annotation in
+    def isstartingat(self, start: int, end: int) -&gt; bool:
+        return self._start == start
+
+    @support_annotation_or_set
+    def isendingat(self, start: int, end: int) -&gt; bool:
+        return self._end == end
+
+    def gap(self, start: int, end: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Return the gep between this annotation and the other annotation.
+        This is the distance between
+        the last character of the first annotation and the first character of the
+        second annotation in
         sequence, so it is always independent of the order of the two annotations.
 
         This is negative if the annotations overlap.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-          (see gatenlp._utils.support_annotation_or_set)
+            (see gatenlp._utils.support_annotation_or_set)
 
         Args:
-          start: start offset of span
-          end: end offset of span
+            start: start offset of span
+            end: end offset of span
 
         Returns:
           size of gap
 
         &#34;&#34;&#34;
         if self.start &lt; start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -892,9 +1015,10 @@ and instead the method AnnotationSet.add should be used.</p>
         used for several serialization methods.
 
         Args:
-            offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+            offset_mapper: the offset mapper to use, must be specified if
+                `offset_type` is specified.
             offset_type: the offset type to be used for the conversionm must be specified if
-               `offset_mapper` is specified
+                `offset_mapper` is specified
 
         Returns:
             the dictionary representation of the Annotation
@@ -1065,8 +1189,10 @@ def id(self):
 <div class="desc"><p>Returns the length of the annotation: this is the length of the offset span.
 Since the end offset is one after the last
 element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-len(annset) returns the number of annotations in the set but annset.length() also returns the
-span length of the annotation set, so the method name for this is identical between annotations
+len(annset) returns the number of annotations in the set but annset.length()
+also returns the
+span length of the annotation set, so the method name for this is identical between
+annotations
 and annotation sets.</p></div>
 <details class="source">
 <summary>
@@ -1078,8 +1204,10 @@ def length(self) -&gt; int:
     Returns the length of the annotation: this is the length of the offset span.
     Since the end offset is one after the last
     element, we return end-start. Note: this is deliberately not implemented as len(ann), as
-    len(annset) returns the number of annotations in the set but annset.length() also returns the
-    span length of the annotation set, so the method name for this is identical between annotations
+    len(annset) returns the number of annotations in the set but annset.length()
+    also returns the
+    span length of the annotation set, so the method name for this is identical between
+    annotations
     and annotation sets.
     &#34;&#34;&#34;
     return self.end - self.start</code></pre>
@@ -1166,11 +1294,13 @@ def type(self) -&gt; str:
 </details>
 </dd>
 <dt id="gatenlp.annotation.Annotation.gap"><code class="name flex">
-<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int)</span>
+<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the gep between this annotation and the other annotation. This is the distance between
-the last character of the first annotation and the first character of the second annotation in
+<div class="desc"><p>Return the gep between this annotation and the other annotation.
+This is the distance between
+the last character of the first annotation and the first character of the
+second annotation in
 sequence, so it is always independent of the order of the two annotations.</p>
 <p>This is negative if the annotations overlap.</p>
 <p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
@@ -1188,34 +1318,36 @@ sequence, so it is always independent of the order of the two annotations.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@support_annotation_or_set
-def gap(self, start: int, end: int):
-    &#34;&#34;&#34;Return the gep between this annotation and the other annotation. This is the distance between
-    the last character of the first annotation and the first character of the second annotation in
+<pre><code class="python">def gap(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Return the gep between this annotation and the other annotation.
+    This is the distance between
+    the last character of the first annotation and the first character of the
+    second annotation in
     sequence, so it is always independent of the order of the two annotations.
 
     This is negative if the annotations overlap.
 
     Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
-      (see gatenlp._utils.support_annotation_or_set)
+        (see gatenlp._utils.support_annotation_or_set)
 
     Args:
-      start: start offset of span
-      end: end offset of span
+        start: start offset of span
+        end: end offset of span
 
     Returns:
       size of gap
 
     &#34;&#34;&#34;
     if self.start &lt; start:
-        ann1start = self.start
+        # ann1start = self.start
         ann1end = self.end
         ann2start = start
-        ann2end = end
+        # ann2end = end
     else:
         ann2start = self.start
-        ann2end = self.end
-        ann1start = start
+        # ann2end = self.end
+        # ann1start = start
         ann1end = end
     return ann2start - ann1end</code></pre>
 </details>
@@ -1235,7 +1367,8 @@ is after the end of the other annotation or span.</p>
 <dt><strong><code>end</code></strong></dt>
 <dd>end offset of the span</dd>
 <dt><strong><code>immediately</code></strong></dt>
-<dd>if true checks if this annotation starts immediately after the other one (Default value = False)</dd>
+<dd>if true checks if this annotation starts immediately after the other one
+(Default value = False)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if after, False otherwise</p></div>
@@ -1254,7 +1387,8 @@ def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
     Args:
       start: start offset of the span
       end: end offset of the span
-      immediately: if true checks if this annotation starts immediately after the other one (Default value = False)
+      immediately: if true checks if this annotation starts immediately after the other one
+          (Default value = False)
 
     Returns:
       True if after, False otherwise
@@ -1281,7 +1415,8 @@ is before the start of the other annotation or span.</p>
 <dt><strong><code>end</code></strong></dt>
 <dd>end offset of the span</dd>
 <dt><strong><code>immediately</code></strong></dt>
-<dd>if true checks if this annotation ends immediately before the other one (Default value = False)</dd>
+<dd>if true checks if this annotation ends immediately before the
+other one (Default value = False)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if before, False otherwise</p></div>
@@ -1299,9 +1434,10 @@ def isbefore(self, start: int, end: int, immediately=False) -&gt; bool:
       (see gatenlp._utils.support_annotation_or_set)
 
     Args:
-      start: start offset of the span
-      end: end offset of the span
-      immediately: if true checks if this annotation ends immediately before the other one (Default value = False)
+        start: start offset of the span
+        end: end offset of the span
+        immediately: if true checks if this annotation ends immediately before the
+            other one (Default value = False)
 
     Returns:
       True if before, False otherwise
@@ -1404,6 +1540,63 @@ def iscovering(self, start: int, end: int = None) -&gt; bool:
         return self.start &lt;= start and self.end &gt;= end</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.annotation.Annotation.isendingat"><code class="name flex">
+<span>def <span class="ident">isendingat</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isendingat(self, start: int, end: int) -&gt; bool:
+    return self._end == end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation.Annotation.isleftoverlapping"><code class="name flex">
+<span>def <span class="ident">isleftoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set on the left, i.e. the last character is inside the span and the
+first character is before the span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if left-overlapping, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isleftoverlapping(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this annotation is overlapping with the given span, annotation or
+    annotation set on the left, i.e. the last character is inside the span and the
+    first character is before the span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if left-overlapping, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.start &lt;= start and self.end &lt;= end</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.annotation.Annotation.isoverlapping"><code class="name flex">
 <span>def <span class="ident">isoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
 </code></dt>
@@ -1447,6 +1640,61 @@ def isoverlapping(self, start: int, end: int) -&gt; bool:
 
     &#34;&#34;&#34;
     return self.iscovering(start) or self.iscovering(end - 1)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation.Annotation.isrightoverlapping"><code class="name flex">
+<span>def <span class="ident">isrightoverlapping</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if this annotation is overlapping with the given span, annotation or
+annotation set on the right, i.e. the first character is inside the span.</p>
+<p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
+(see gatenlp._utils.support_annotation_or_set)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the span</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>True</code> if right-overlapping, <code>False</code> otherwise</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isrightoverlapping(self, start: int, end: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if this annotation is overlapping with the given span, annotation or
+    annotation set on the right, i.e. the first character is inside the span.
+
+    Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
+      (see gatenlp._utils.support_annotation_or_set)
+
+    Args:
+      start: start offset of the span
+      end: end offset of the span
+
+    Returns:
+      `True` if right-overlapping, `False` otherwise
+
+    &#34;&#34;&#34;
+    return self.start &gt;= start and self.end &gt;= end</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.annotation.Annotation.isstartingat"><code class="name flex">
+<span>def <span class="ident">isstartingat</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def isstartingat(self, start: int, end: int) -&gt; bool:
+    return self._start == start</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.annotation.Annotation.iswithin"><code class="name flex">
@@ -1501,7 +1749,8 @@ used for several serialization methods.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>offset_mapper</code></strong></dt>
-<dd>the offset mapper to use, must be specified if <code>offset_type</code> is specified.</dd>
+<dd>the offset mapper to use, must be specified if
+<code>offset_type</code> is specified.</dd>
 <dt><strong><code>offset_type</code></strong></dt>
 <dd>the offset type to be used for the conversionm must be specified if
 <code>offset_mapper</code> is specified</dd>
@@ -1518,9 +1767,10 @@ used for several serialization methods.</p>
     used for several serialization methods.
 
     Args:
-        offset_mapper: the offset mapper to use, must be specified if `offset_type` is specified.
+        offset_mapper: the offset mapper to use, must be specified if
+            `offset_type` is specified.
         offset_type: the offset type to be used for the conversionm must be specified if
-           `offset_mapper` is specified
+            `offset_mapper` is specified
 
     Returns:
         the dictionary representation of the Annotation
@@ -1584,7 +1834,11 @@ used for several serialization methods.</p>
 <li><code><a title="gatenlp.annotation.Annotation.isbefore" href="#gatenlp.annotation.Annotation.isbefore">isbefore</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.iscoextensive" href="#gatenlp.annotation.Annotation.iscoextensive">iscoextensive</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.iscovering" href="#gatenlp.annotation.Annotation.iscovering">iscovering</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.isendingat" href="#gatenlp.annotation.Annotation.isendingat">isendingat</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.isleftoverlapping" href="#gatenlp.annotation.Annotation.isleftoverlapping">isleftoverlapping</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.isoverlapping" href="#gatenlp.annotation.Annotation.isoverlapping">isoverlapping</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.isrightoverlapping" href="#gatenlp.annotation.Annotation.isrightoverlapping">isrightoverlapping</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.isstartingat" href="#gatenlp.annotation.Annotation.isstartingat">isstartingat</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.iswithin" href="#gatenlp.annotation.Annotation.iswithin">iswithin</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.length" href="#gatenlp.annotation.Annotation.length">length</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.span" href="#gatenlp.annotation.Annotation.span">span</a></code></li>

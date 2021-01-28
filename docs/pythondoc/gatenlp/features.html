@@ -142,7 +142,7 @@ class Features(UserDict):
         ret._logger = None
         return ret
 
-    def to_dict(self, deepcopy=False, memo=None):
+    def to_dict(self, deepcopy=False, include_internal=False, memo=None):
         &#34;&#34;&#34;
         Return a dictionary representation of the features. The returned dictionary is always a shallow
         copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
@@ -153,9 +153,11 @@ class Features(UserDict):
             do get saved/serialized.
 
         Args:
-          deepcopy: if True, the dictionary is a deep copy so that mutable objects
-              in the original are unaffected if they get modified in the copy. (Default value = False)
-        memo: if deepcopy is True, the memo object to use for deepcopy, if any
+            deepcopy: if True, the dictionary is a deep copy so that mutable objects
+                in the original are unaffected if they get modified in the copy. (Default value = False)
+            include_internal: if True, all features, even those with names that start with double underscore (&#34;__&#34;)
+                are included in the result dictionary, these features are usually dropped.
+            memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
@@ -163,7 +165,7 @@ class Features(UserDict):
         &#34;&#34;&#34;
         ret = dict()
         for k, v in self.data.items():
-            if k.startswith(&#34;__&#34;):
+            if not include_internal and k.startswith(&#34;__&#34;):
                 continue
             if deepcopy:
                 ret[k] = lib_copy.deepcopy(v)
@@ -325,7 +327,7 @@ from the loggin package, but for making use of tracking changes in a ChangeLog!<
         ret._logger = None
         return ret
 
-    def to_dict(self, deepcopy=False, memo=None):
+    def to_dict(self, deepcopy=False, include_internal=False, memo=None):
         &#34;&#34;&#34;
         Return a dictionary representation of the features. The returned dictionary is always a shallow
         copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
@@ -336,9 +338,11 @@ from the loggin package, but for making use of tracking changes in a ChangeLog!<
             do get saved/serialized.
 
         Args:
-          deepcopy: if True, the dictionary is a deep copy so that mutable objects
-              in the original are unaffected if they get modified in the copy. (Default value = False)
-        memo: if deepcopy is True, the memo object to use for deepcopy, if any
+            deepcopy: if True, the dictionary is a deep copy so that mutable objects
+                in the original are unaffected if they get modified in the copy. (Default value = False)
+            include_internal: if True, all features, even those with names that start with double underscore (&#34;__&#34;)
+                are included in the result dictionary, these features are usually dropped.
+            memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
         Returns:
           the dict representation of the features
@@ -346,7 +350,7 @@ from the loggin package, but for making use of tracking changes in a ChangeLog!<
         &#34;&#34;&#34;
         ret = dict()
         for k, v in self.data.items():
-            if k.startswith(&#34;__&#34;):
+            if not include_internal and k.startswith(&#34;__&#34;):
                 continue
             if deepcopy:
                 ret[k] = lib_copy.deepcopy(v)
@@ -499,7 +503,7 @@ any logging!).</p>
 </details>
 </dd>
 <dt id="gatenlp.features.Features.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, deepcopy=False, memo=None)</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self, deepcopy=False, include_internal=False, memo=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a dictionary representation of the features. The returned dictionary is always a shallow
@@ -513,15 +517,19 @@ do get saved/serialized.</p>
 <dt><strong><code>deepcopy</code></strong></dt>
 <dd>if True, the dictionary is a deep copy so that mutable objects
 in the original are unaffected if they get modified in the copy. (Default value = False)</dd>
+<dt><strong><code>include_internal</code></strong></dt>
+<dd>if True, all features, even those with names that start with double underscore ("__")
+are included in the result dictionary, these features are usually dropped.</dd>
+<dt><strong><code>memo</code></strong></dt>
+<dd>if deepcopy is True, the memo object to use for deepcopy, if any</dd>
 </dl>
-<p>memo: if deepcopy is True, the memo object to use for deepcopy, if any</p>
 <h2 id="returns">Returns</h2>
 <p>the dict representation of the features</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self, deepcopy=False, memo=None):
+<pre><code class="python">def to_dict(self, deepcopy=False, include_internal=False, memo=None):
     &#34;&#34;&#34;
     Return a dictionary representation of the features. The returned dictionary is always a shallow
     copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
@@ -532,9 +540,11 @@ in the original are unaffected if they get modified in the copy. (Default value 
         do get saved/serialized.
 
     Args:
-      deepcopy: if True, the dictionary is a deep copy so that mutable objects
-          in the original are unaffected if they get modified in the copy. (Default value = False)
-    memo: if deepcopy is True, the memo object to use for deepcopy, if any
+        deepcopy: if True, the dictionary is a deep copy so that mutable objects
+            in the original are unaffected if they get modified in the copy. (Default value = False)
+        include_internal: if True, all features, even those with names that start with double underscore (&#34;__&#34;)
+            are included in the result dictionary, these features are usually dropped.
+        memo: if deepcopy is True, the memo object to use for deepcopy, if any
 
     Returns:
       the dict representation of the features
@@ -542,7 +552,7 @@ in the original are unaffected if they get modified in the copy. (Default value 
     &#34;&#34;&#34;
     ret = dict()
     for k, v in self.data.items():
-        if k.startswith(&#34;__&#34;):
+        if not include_internal and k.startswith(&#34;__&#34;):
             continue
         if deepcopy:
             ret[k] = lib_copy.deepcopy(v)

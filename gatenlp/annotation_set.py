@@ -661,11 +661,10 @@ class AnnotationSet:
 
     def first(self):
         """
-
-        Args:
+        Return the first (or only) annotation in the set by offset.
 
         Returns:
-          :return: first annotation
+          first annotation
 
         """
         sz = len(self._annotations)
@@ -679,11 +678,10 @@ class AnnotationSet:
 
     def last(self):
         """
-
-        Args:
+        Return the last (or only) annotation by offset.
 
         Returns:
-          :return: first annotation
+          last annotation
 
         """
         sz = len(self._annotations)
@@ -694,6 +692,26 @@ class AnnotationSet:
         self._create_index_by_offset()
         _, _, annid = next(self._index_by_offset.irange(reverse=True))
         return self._annotations[annid]
+
+    def by_idx(self, idx, default=None):
+        """
+        Return the annotation corresponding to the index idx in the set. This returns the
+        annotation stored at the index, as added to the set. The order usually depends on the insertion time.
+        If no annotation with the given index is specified, the value specified for `default` is returned.
+
+        Args:
+            idx:  index of the annotation in the set
+            default: default value to return if now annotation with the given index exists
+
+        Returns:
+            the annotation with the given index or the default value
+        """
+        # TODO: we could make this more memory efficient (but slower) by iterating over values until getting idxth
+        tmplist = list(self._annotations.values())
+        if idx < len(tmplist):
+            return tmplist[idx]
+        else:
+            return default
 
     def __getitem__(self, annid):
         """

@@ -33,8 +33,14 @@ Module that implements the various ways of how to save and load documents and ch
 import io
 import os
 import sys
-import json
 import yaml
+# import ruyaml as yaml
+try:
+    from yaml import CFullLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import FullLoader as Loader, Dumper
+yaml_loader = yaml.Loader
+yaml_dumper = yaml.Dumper
 from random import choice
 from string import ascii_uppercase
 from msgpack import pack, Unpacker
@@ -43,6 +49,7 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.features import Features
+from gatenlp.utils import get_nested
 from gzip import open as gopen, compress, decompress
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -52,13 +59,56 @@ from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
 import warnings
-
+import pickle
 try:
     from bs4 import GuessedAtParserWarning
 
     warnings.filterwarnings(&#34;ignore&#34;, category=GuessedAtParserWarning)
 except:
     pass
+
+
+# import orjson as usejson
+# import json as usejson
+# import rapidjson as usejson
+# import ujson as usejson
+# import hyperjson as usejson
+import json
+JSON_WRITE = &#34;wt&#34;
+JSON_READ = &#34;rt&#34;
+
+# # for replacing json by orjson
+# class json:
+#     @staticmethod
+#     def load(fp):
+#         data = fp.read()
+#         return usejson.loads(data)
+#     @staticmethod
+#     def loads(data):
+#         return usejson.loads(data)
+#     @staticmethod
+#     def dump(obj, fp):
+#         buf = usejson.dumps(obj)
+#         fp.write(buf)
+#     @staticmethod
+#     def dumps(obj):
+#         return usejson.dumps(obj)
+
+# # for replacing json with one of the other implementations
+# class json:
+#     @staticmethod
+#     def load(fp):
+#         return usejson.load(fp)
+#     @staticmethod
+#     def loads(data):
+#         return usejson.loads(data)
+#     @staticmethod
+#     def dump(obj, fp):
+#         buf = usejson.dump(obj, fp)
+#     @staticmethod
+#     def dumps(obj):
+#         return usejson.dumps(obj)
+
 
 # TODO: for ALL save options, allow to filter the annotations that get saved!
 # TODO: then use this show only limited set of annotations in the viewer
@@ -70,6 +120,23 @@ except:
 # So if we do not have the format, we should get the header for the file, check the mime type and see
 # if  we have a loder registered for that and then let the loader do the rest of the work. This may
 # need loaders to be able to use an already open stream.
+
+TWITTER_DEFAULT_INCLUDE_FIELDS = [
+    &#34;id_str&#34;,
+    &#34;user.id_str&#34;,
+    &#34;user.screen_name&#34;,
+    &#34;user.name&#34;
+    &#34;created_at&#34;,
+    &#34;is_quote_status&#34;,
+    &#34;quote_count&#34;,
+    &#34;retweet_count&#34;,
+    &#34;favourite_count&#34;,
+    &#34;favourited&#34;,
+    &#34;retweeted&#34;,
+    &#34;lang&#34;,
+    &#34;$is_retweet_status&#34;,
+    &#34;retweeted_status.user.screen_name&#34;,
+]
 
 
 def is_url(ext):
@@ -187,10 +254,10 @@ class JsonSerializer:
                 return json.dumps(d)
         else:
             if gzip:
-                with gopen(to_ext, &#34;wt&#34;) as outfp:
+                with gopen(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
             else:
-                with open(to_ext, &#34;wt&#34;) as outfp:
+                with open(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
 
     @staticmethod
@@ -243,10 +310,10 @@ class JsonSerializer:
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:  # from_ext must have been not None and a path
             if gzip:
-                with gopen(extstr, &#34;rt&#34;) as infp:
+                with gopen(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             else:
-                with open(extstr, &#34;rt&#34;) as infp:
+                with open(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -263,6 +330,82 @@ class JsonSerializer:
 
         &#34;&#34;&#34;
         return JsonSerializer.load(clazz, gzip=True, **kwargs)
+
+
+class PickleSerializer:
+    &#34;&#34;&#34;
+    This class performs the saving and load of Documents and ChangeLog instances to and from pickle format.
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: must be False, gzip is not supported
+          **kwargs:
+        &#34;&#34;&#34;
+        if gzip:
+            raise Exception(&#34;Gzip not supported for pickle&#34;)
+        if to_mem:
+            return pickle.dumps(inst, protocol=-1)
+        else:
+            with open(to_ext, &#34;wb&#34;) as outfp:
+                pickle.dump(inst, outfp, protocol=-1)
+
+
+    @staticmethod
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+          clazz:
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False) must be False, True not supported
+          **kwargs:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # print(&#34;RUNNING load with from_ext=&#34;, from_ext, &#34; from_mem=&#34;, from_mem)
+
+        if from_ext is not None and from_mem is not None:
+            raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+        if from_ext is None and from_mem is None:
+            raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                from_mem = get_bytes_from_url(extstr)
+            else:
+                # print(&#34;DEBUG: not a URL !!!&#34;)
+                pass
+        if from_mem is not None:
+            doc = pickle.loads(from_mem)
+        else:  # from_ext must have been not None and a path
+            with open(extstr, &#34;rb&#34;) as infp:
+                doc = pickle.load(infp)
+        return doc
 
 
 class PlainTextSerializer:
@@ -419,16 +562,16 @@ class YamlSerializer:
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode(&#34;UTF-8&#34;))
+                compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
             else:
-                return yaml.dump(d)
+                return yaml.dump(d, Dumper=yaml_dumper)
         else:
             if gzip:
                 with gopen(to_ext, &#34;wt&#34;) as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
             else:
                 with open(to_ext, &#34;wt&#34;) as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
@@ -471,18 +614,18 @@ class YamlSerializer:
         if from_mem is not None:
             if gzip:
                 d = yaml.load(
-                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml_loader
                 )
             else:
-                d = yaml.load(from_mem, Loader=yaml.FullLoader)
+                d = yaml.load(from_mem, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
                 with gopen(extstr, &#34;rt&#34;) as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             else:
                 with open(extstr, &#34;rt&#34;) as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
 
@@ -993,11 +1136,103 @@ class HtmlLoader:
         for i in range(nstart):
             anninfo = id2anninfo[i]
             annset.add(
-                start=anninfo[&#34;start&#34;],
-                end=anninfo[&#34;end&#34;],
+                anninfo[&#34;start&#34;],
+                anninfo[&#34;end&#34;],
                 anntype=anninfo[&#34;type&#34;],
                 features=anninfo[&#34;features&#34;],
             )
+        return doc
+
+
+class TweetLoader:
+    @staticmethod
+    def load(clazz,
+             from_ext=None,
+             from_mem=None,
+             include_fields=None,
+             include_entities=True,
+             include_quote=False,
+             outsetname=&#34;Original markups&#34;,
+             tweet_ann=&#34;Tweet&#34;):
+        &#34;&#34;&#34;
+        Load a tweet from Twitter JSON format.
+
+        IMPORTANT: this is still very experimental, will change in the future!
+
+        Args:
+            clazz: internal use
+            from_ext: the file/url to load from
+            from_mem: string to load from
+            include_fields: a list of fields to include where nested field names are dot-separated, e.g.
+               &#34;user.location&#34;. All these fields are included using the nested field name in either the
+               features of the tweet annotation with the Type specified, or the features of the document
+               if `tweet_ann` is None.
+            include_entities: create annotations for the tweet entities in the set with outsetname
+            include_quote: if True, add the quoted tweet after an empty line and treat it as a separate
+               tweet just like the original tweet.
+            outset: the annotation set where to put entity annotations and the tweet annotation(s)
+            tweet_ann: the annotation type to use to span the tweet and contain all the features.
+
+        Returns:
+            document representing the tweet
+        &#34;&#34;&#34;
+        if from_ext is not None:
+            isurl, extstr = is_url(from_ext)
+            if isurl:
+                jsonstr = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+                tweet = json.loads(jsonstr)
+            else:
+                with open(extstr, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+                    tweet = json.load(infp)
+        elif from_mem is not None:
+            tweet = json.loads(from_mem)
+        else:
+            raise Exception(&#34;Cannot load from None&#34;)
+        if tweet is None:
+            raise Exception(&#34;Could not decode Tweet JSON&#34;)
+        if tweet.get(&#34;truncated&#34;):
+            text = get_nested(tweet, &#34;extended_tweet.full_text&#34;)
+        else:
+            text = get_nested(tweet, &#34;text&#34;)
+        if text is None:
+            raise Exception(&#34;No text field found&#34;)
+        quoted_status = None
+        if include_quote:
+            quoted_status = tweet.get(&#34;quoted_status&#34;)
+            if quoted_status is not None:
+                qtext = quoted_status.get(&#34;text&#34;, &#34;&#34;)
+                text += &#34;\n&#34; + qtext
+        doc = Document(text)
+        anns = doc.annset(outsetname)
+        if tweet_ann:
+            ann = anns.add(0, len(text), tweet_ann)
+            features = ann.features
+        else:
+            features = doc.features
+        if include_fields is None:
+            include_fields = TWITTER_DEFAULT_INCLUDE_FIELDS
+        for field in include_fields:
+            if field.startswith(&#34;$&#34;):
+                if field == &#34;$is_retweet_status&#34;:
+                    rs = get_nested(tweet, &#34;retweeted_status&#34;, silent=True)
+                    if rs is not None:
+                        features[field] = True
+                continue
+            val = get_nested(tweet, field, silent=True)
+            if val is not None:
+                features[field] = val
+        if include_entities:
+            if tweet.get(&#34;truncated&#34;):
+                entities = get_nested(tweet, &#34;extended_tweet.entities&#34;, default={})
+            else:
+                entities = get_nested(tweet, &#34;entities&#34;, default={})
+        for etype, elist in entities.items():
+            for ent in elist:
+                start, end = ent[&#34;indices&#34;]
+                anns.add(start, end, etype)
+        # TODO: if we have a quoted_status, add features and entities from there:
+        # Essentially the same processing as for the original tweet, but at document offset
+        # len(tweet)+1 (2?)
         return doc
 
 
@@ -1223,10 +1458,12 @@ DOCUMENT_SAVERS = {
     &#34;json&#34;: JsonSerializer.save,
     &#34;jsongz&#34;: JsonSerializer.save_gzip,
     &#34;bdocjs&#34;: JsonSerializer.save,
+    &#34;pickle&#34;: PickleSerializer.save,
     &#34;bdocjsgz&#34;: JsonSerializer.save_gzip,
     &#34;text/bdocjs&#34;: JsonSerializer.save,
     &#34;text/bdocjs+gzip&#34;: JsonSerializer.save_gzip,
     &#34;yaml&#34;: YamlSerializer.save,
+    &#34;bdocym&#34;: YamlSerializer.save,
     &#34;yamlgz&#34;: YamlSerializer.save_gzip,
     &#34;text/bdocym&#34;: YamlSerializer.save,
     &#34;text/bdocym+gzip+&#34;: YamlSerializer.save_gzip,
@@ -1261,6 +1498,9 @@ DOCUMENT_LOADERS = {
     &#34;html&#34;: HtmlLoader.load,
     &#34;html-rendered&#34;: HtmlLoader.load_rendered,
     &#34;gatexml&#34;: GateXmlLoader.load,
+    &#34;tweet&#34;: TweetLoader.load,
+    &#34;pickle&#34;: PickleSerializer.load,
+
 }
 CHANGELOG_SAVERS = {
     &#34;json&#34;: JsonSerializer.save,
@@ -1287,6 +1527,7 @@ EXTENSIONS = {
     &#34;txt.gz&#34;: &#34;text/plain+gzip&#34;,
     &#34;html&#34;: &#34;text/html&#34;,
     &#34;htm&#34;: &#34;text/html&#34;,
+    &#34;pickle&#34;: &#34;pickle&#34;,
 }
 
 
@@ -2714,8 +2955,8 @@ If True, no max haight is set and instead the height is set to a percentage (def
         for i in range(nstart):
             anninfo = id2anninfo[i]
             annset.add(
-                start=anninfo[&#34;start&#34;],
-                end=anninfo[&#34;end&#34;],
+                anninfo[&#34;start&#34;],
+                anninfo[&#34;end&#34;],
                 anntype=anninfo[&#34;type&#34;],
                 features=anninfo[&#34;features&#34;],
             )
@@ -2920,8 +3161,8 @@ def load(
     for i in range(nstart):
         anninfo = id2anninfo[i]
         annset.add(
-            start=anninfo[&#34;start&#34;],
-            end=anninfo[&#34;end&#34;],
+            anninfo[&#34;start&#34;],
+            anninfo[&#34;end&#34;],
             anntype=anninfo[&#34;type&#34;],
             features=anninfo[&#34;features&#34;],
         )
@@ -3032,10 +3273,10 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
                 return json.dumps(d)
         else:
             if gzip:
-                with gopen(to_ext, &#34;wt&#34;) as outfp:
+                with gopen(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
             else:
-                with open(to_ext, &#34;wt&#34;) as outfp:
+                with open(to_ext, JSON_WRITE) as outfp:
                     json.dump(d, outfp)
 
     @staticmethod
@@ -3088,10 +3329,10 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:  # from_ext must have been not None and a path
             if gzip:
-                with gopen(extstr, &#34;rt&#34;) as infp:
+                with gopen(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             else:
-                with open(extstr, &#34;rt&#34;) as infp:
+                with open(extstr, JSON_READ) as infp:
                     d = json.load(infp)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
@@ -3176,10 +3417,10 @@ def load(
         doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
     else:  # from_ext must have been not None and a path
         if gzip:
-            with gopen(extstr, &#34;rt&#34;) as infp:
+            with gopen(extstr, JSON_READ) as infp:
                 d = json.load(infp)
         else:
-            with open(extstr, &#34;rt&#34;) as infp:
+            with open(extstr, JSON_READ) as infp:
                 d = json.load(infp)
         doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
     return doc</code></pre>
@@ -3268,10 +3509,10 @@ def save(
             return json.dumps(d)
     else:
         if gzip:
-            with gopen(to_ext, &#34;wt&#34;) as outfp:
+            with gopen(to_ext, JSON_WRITE) as outfp:
                 json.dump(d, outfp)
         else:
-            with open(to_ext, &#34;wt&#34;) as outfp:
+            with open(to_ext, JSON_WRITE) as outfp:
                 json.dump(d, outfp)</code></pre>
 </details>
 </dd>
@@ -3669,6 +3910,213 @@ def stream2document(stream):
 </dd>
 </dl>
 </dd>
+<dt id="gatenlp.serialization.default.PickleSerializer"><code class="flex name class">
+<span>class <span class="ident">PickleSerializer</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class performs the saving and load of Documents and ChangeLog instances to and from pickle format.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PickleSerializer:
+    &#34;&#34;&#34;
+    This class performs the saving and load of Documents and ChangeLog instances to and from pickle format.
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        offset_type=None,
+        offset_mapper=None,
+        gzip=False,
+        **kwargs,
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+          clazz: the class of the object that gets saved
+          inst: the object to get saved
+          to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+          to_mem: if True, return a String serialization
+          offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+          offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+          gzip: must be False, gzip is not supported
+          **kwargs:
+        &#34;&#34;&#34;
+        if gzip:
+            raise Exception(&#34;Gzip not supported for pickle&#34;)
+        if to_mem:
+            return pickle.dumps(inst, protocol=-1)
+        else:
+            with open(to_ext, &#34;wb&#34;) as outfp:
+                pickle.dump(inst, outfp, protocol=-1)
+
+
+    @staticmethod
+    def load(
+        clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+          clazz:
+          from_ext: (Default value = None)
+          from_mem: (Default value = None)
+          offset_mapper: (Default value = None)
+          gzip: (Default value = False) must be False, True not supported
+          **kwargs:
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # print(&#34;RUNNING load with from_ext=&#34;, from_ext, &#34; from_mem=&#34;, from_mem)
+
+        if from_ext is not None and from_mem is not None:
+            raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+        if from_ext is None and from_mem is None:
+            raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+
+        isurl, extstr = is_url(from_ext)
+        if from_ext is not None:
+            if isurl:
+                from_mem = get_bytes_from_url(extstr)
+            else:
+                # print(&#34;DEBUG: not a URL !!!&#34;)
+                pass
+        if from_mem is not None:
+            doc = pickle.loads(from_mem)
+        else:  # from_ext must have been not None and a path
+            with open(extstr, &#34;rb&#34;) as infp:
+                doc = pickle.load(infp)
+        return doc</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.serialization.default.PickleSerializer.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt>clazz:</dt>
+<dt><strong><code>from_ext</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>from_mem</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>offset_mapper</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>gzip</code></strong></dt>
+<dd>(Default value = False) must be False, True not supported</dd>
+</dl>
+<p>**kwargs:
+Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load(
+    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
+):
+    &#34;&#34;&#34;
+
+    Args:
+      clazz:
+      from_ext: (Default value = None)
+      from_mem: (Default value = None)
+      offset_mapper: (Default value = None)
+      gzip: (Default value = False) must be False, True not supported
+      **kwargs:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    # print(&#34;RUNNING load with from_ext=&#34;, from_ext, &#34; from_mem=&#34;, from_mem)
+
+    if from_ext is not None and from_mem is not None:
+        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+    if from_ext is None and from_mem is None:
+        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
+
+    isurl, extstr = is_url(from_ext)
+    if from_ext is not None:
+        if isurl:
+            from_mem = get_bytes_from_url(extstr)
+        else:
+            # print(&#34;DEBUG: not a URL !!!&#34;)
+            pass
+    if from_mem is not None:
+        doc = pickle.loads(from_mem)
+    else:  # from_ext must have been not None and a path
+        with open(extstr, &#34;rb&#34;) as infp:
+            doc = pickle.load(infp)
+    return doc</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default.PickleSerializer.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>clazz</code></strong></dt>
+<dd>the class of the object that gets saved</dd>
+<dt><strong><code>inst</code></strong></dt>
+<dd>the object to get saved</dd>
+<dt><strong><code>to_ext</code></strong></dt>
+<dd>where to save to, this should be a file path, only one of to_ext and to_mem should be specified</dd>
+<dt><strong><code>to_mem</code></strong></dt>
+<dd>if True, return a String serialization</dd>
+<dt><strong><code>offset_type</code></strong></dt>
+<dd>the offset type to use for saving, if None (default) use "p" (Python)</dd>
+<dt><strong><code>offset_mapper</code></strong></dt>
+<dd>the offset mapper to use, only needed if the type needs to get converted</dd>
+<dt><strong><code>gzip</code></strong></dt>
+<dd>must be False, gzip is not supported</dd>
+</dl>
+<p>**kwargs:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def save(
+    clazz,
+    inst,
+    to_ext=None,
+    to_mem=None,
+    offset_type=None,
+    offset_mapper=None,
+    gzip=False,
+    **kwargs,
+):
+    &#34;&#34;&#34;
+
+    Args:
+      clazz: the class of the object that gets saved
+      inst: the object to get saved
+      to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+      to_mem: if True, return a String serialization
+      offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+      offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+      gzip: must be False, gzip is not supported
+      **kwargs:
+    &#34;&#34;&#34;
+    if gzip:
+        raise Exception(&#34;Gzip not supported for pickle&#34;)
+    if to_mem:
+        return pickle.dumps(inst, protocol=-1)
+    else:
+        with open(to_ext, &#34;wb&#34;) as outfp:
+            pickle.dump(inst, outfp, protocol=-1)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gatenlp.serialization.default.PlainTextSerializer"><code class="flex name class">
 <span>class <span class="ident">PlainTextSerializer</span></span>
 </code></dt>
@@ -4001,6 +4449,236 @@ def save_gzip(clazz, inst, **kwargs):
 </dd>
 </dl>
 </dd>
+<dt id="gatenlp.serialization.default.TweetLoader"><code class="flex name class">
+<span>class <span class="ident">TweetLoader</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TweetLoader:
+    @staticmethod
+    def load(clazz,
+             from_ext=None,
+             from_mem=None,
+             include_fields=None,
+             include_entities=True,
+             include_quote=False,
+             outsetname=&#34;Original markups&#34;,
+             tweet_ann=&#34;Tweet&#34;):
+        &#34;&#34;&#34;
+        Load a tweet from Twitter JSON format.
+
+        IMPORTANT: this is still very experimental, will change in the future!
+
+        Args:
+            clazz: internal use
+            from_ext: the file/url to load from
+            from_mem: string to load from
+            include_fields: a list of fields to include where nested field names are dot-separated, e.g.
+               &#34;user.location&#34;. All these fields are included using the nested field name in either the
+               features of the tweet annotation with the Type specified, or the features of the document
+               if `tweet_ann` is None.
+            include_entities: create annotations for the tweet entities in the set with outsetname
+            include_quote: if True, add the quoted tweet after an empty line and treat it as a separate
+               tweet just like the original tweet.
+            outset: the annotation set where to put entity annotations and the tweet annotation(s)
+            tweet_ann: the annotation type to use to span the tweet and contain all the features.
+
+        Returns:
+            document representing the tweet
+        &#34;&#34;&#34;
+        if from_ext is not None:
+            isurl, extstr = is_url(from_ext)
+            if isurl:
+                jsonstr = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+                tweet = json.loads(jsonstr)
+            else:
+                with open(extstr, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+                    tweet = json.load(infp)
+        elif from_mem is not None:
+            tweet = json.loads(from_mem)
+        else:
+            raise Exception(&#34;Cannot load from None&#34;)
+        if tweet is None:
+            raise Exception(&#34;Could not decode Tweet JSON&#34;)
+        if tweet.get(&#34;truncated&#34;):
+            text = get_nested(tweet, &#34;extended_tweet.full_text&#34;)
+        else:
+            text = get_nested(tweet, &#34;text&#34;)
+        if text is None:
+            raise Exception(&#34;No text field found&#34;)
+        quoted_status = None
+        if include_quote:
+            quoted_status = tweet.get(&#34;quoted_status&#34;)
+            if quoted_status is not None:
+                qtext = quoted_status.get(&#34;text&#34;, &#34;&#34;)
+                text += &#34;\n&#34; + qtext
+        doc = Document(text)
+        anns = doc.annset(outsetname)
+        if tweet_ann:
+            ann = anns.add(0, len(text), tweet_ann)
+            features = ann.features
+        else:
+            features = doc.features
+        if include_fields is None:
+            include_fields = TWITTER_DEFAULT_INCLUDE_FIELDS
+        for field in include_fields:
+            if field.startswith(&#34;$&#34;):
+                if field == &#34;$is_retweet_status&#34;:
+                    rs = get_nested(tweet, &#34;retweeted_status&#34;, silent=True)
+                    if rs is not None:
+                        features[field] = True
+                continue
+            val = get_nested(tweet, field, silent=True)
+            if val is not None:
+                features[field] = val
+        if include_entities:
+            if tweet.get(&#34;truncated&#34;):
+                entities = get_nested(tweet, &#34;extended_tweet.entities&#34;, default={})
+            else:
+                entities = get_nested(tweet, &#34;entities&#34;, default={})
+        for etype, elist in entities.items():
+            for ent in elist:
+                start, end = ent[&#34;indices&#34;]
+                anns.add(start, end, etype)
+        # TODO: if we have a quoted_status, add features and entities from there:
+        # Essentially the same processing as for the original tweet, but at document offset
+        # len(tweet)+1 (2?)
+        return doc</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.serialization.default.TweetLoader.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, include_fields=None, include_entities=True, include_quote=False, outsetname='Original markups', tweet_ann='Tweet')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a tweet from Twitter JSON format.</p>
+<p>IMPORTANT: this is still very experimental, will change in the future!</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>clazz</code></strong></dt>
+<dd>internal use</dd>
+<dt><strong><code>from_ext</code></strong></dt>
+<dd>the file/url to load from</dd>
+<dt><strong><code>from_mem</code></strong></dt>
+<dd>string to load from</dd>
+<dt><strong><code>include_fields</code></strong></dt>
+<dd>a list of fields to include where nested field names are dot-separated, e.g.
+"user.location". All these fields are included using the nested field name in either the
+features of the tweet annotation with the Type specified, or the features of the document
+if <code>tweet_ann</code> is None.</dd>
+<dt><strong><code>include_entities</code></strong></dt>
+<dd>create annotations for the tweet entities in the set with outsetname</dd>
+<dt><strong><code>include_quote</code></strong></dt>
+<dd>if True, add the quoted tweet after an empty line and treat it as a separate
+tweet just like the original tweet.</dd>
+<dt><strong><code>outset</code></strong></dt>
+<dd>the annotation set where to put entity annotations and the tweet annotation(s)</dd>
+<dt><strong><code>tweet_ann</code></strong></dt>
+<dd>the annotation type to use to span the tweet and contain all the features.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>document representing the tweet</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load(clazz,
+         from_ext=None,
+         from_mem=None,
+         include_fields=None,
+         include_entities=True,
+         include_quote=False,
+         outsetname=&#34;Original markups&#34;,
+         tweet_ann=&#34;Tweet&#34;):
+    &#34;&#34;&#34;
+    Load a tweet from Twitter JSON format.
+
+    IMPORTANT: this is still very experimental, will change in the future!
+
+    Args:
+        clazz: internal use
+        from_ext: the file/url to load from
+        from_mem: string to load from
+        include_fields: a list of fields to include where nested field names are dot-separated, e.g.
+           &#34;user.location&#34;. All these fields are included using the nested field name in either the
+           features of the tweet annotation with the Type specified, or the features of the document
+           if `tweet_ann` is None.
+        include_entities: create annotations for the tweet entities in the set with outsetname
+        include_quote: if True, add the quoted tweet after an empty line and treat it as a separate
+           tweet just like the original tweet.
+        outset: the annotation set where to put entity annotations and the tweet annotation(s)
+        tweet_ann: the annotation type to use to span the tweet and contain all the features.
+
+    Returns:
+        document representing the tweet
+    &#34;&#34;&#34;
+    if from_ext is not None:
+        isurl, extstr = is_url(from_ext)
+        if isurl:
+            jsonstr = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+            tweet = json.loads(jsonstr)
+        else:
+            with open(extstr, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+                tweet = json.load(infp)
+    elif from_mem is not None:
+        tweet = json.loads(from_mem)
+    else:
+        raise Exception(&#34;Cannot load from None&#34;)
+    if tweet is None:
+        raise Exception(&#34;Could not decode Tweet JSON&#34;)
+    if tweet.get(&#34;truncated&#34;):
+        text = get_nested(tweet, &#34;extended_tweet.full_text&#34;)
+    else:
+        text = get_nested(tweet, &#34;text&#34;)
+    if text is None:
+        raise Exception(&#34;No text field found&#34;)
+    quoted_status = None
+    if include_quote:
+        quoted_status = tweet.get(&#34;quoted_status&#34;)
+        if quoted_status is not None:
+            qtext = quoted_status.get(&#34;text&#34;, &#34;&#34;)
+            text += &#34;\n&#34; + qtext
+    doc = Document(text)
+    anns = doc.annset(outsetname)
+    if tweet_ann:
+        ann = anns.add(0, len(text), tweet_ann)
+        features = ann.features
+    else:
+        features = doc.features
+    if include_fields is None:
+        include_fields = TWITTER_DEFAULT_INCLUDE_FIELDS
+    for field in include_fields:
+        if field.startswith(&#34;$&#34;):
+            if field == &#34;$is_retweet_status&#34;:
+                rs = get_nested(tweet, &#34;retweeted_status&#34;, silent=True)
+                if rs is not None:
+                    features[field] = True
+            continue
+        val = get_nested(tweet, field, silent=True)
+        if val is not None:
+            features[field] = val
+    if include_entities:
+        if tweet.get(&#34;truncated&#34;):
+            entities = get_nested(tweet, &#34;extended_tweet.entities&#34;, default={})
+        else:
+            entities = get_nested(tweet, &#34;entities&#34;, default={})
+    for etype, elist in entities.items():
+        for ent in elist:
+            start, end = ent[&#34;indices&#34;]
+            anns.add(start, end, etype)
+    # TODO: if we have a quoted_status, add features and entities from there:
+    # Essentially the same processing as for the original tweet, but at document offset
+    # len(tweet)+1 (2?)
+    return doc</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gatenlp.serialization.default.YamlSerializer"><code class="flex name class">
 <span>class <span class="ident">YamlSerializer</span></span>
 </code></dt>
@@ -4042,16 +4720,16 @@ def save_gzip(clazz, inst, **kwargs):
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode(&#34;UTF-8&#34;))
+                compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
             else:
-                return yaml.dump(d)
+                return yaml.dump(d, Dumper=yaml_dumper)
         else:
             if gzip:
                 with gopen(to_ext, &#34;wt&#34;) as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
             else:
                 with open(to_ext, &#34;wt&#34;) as outfp:
-                    yaml.dump(d, outfp)
+                    yaml.dump(d, outfp, Dumper=yaml_dumper)
 
     @staticmethod
     def save_gzip(clazz, inst, **kwargs):
@@ -4094,18 +4772,18 @@ def save_gzip(clazz, inst, **kwargs):
         if from_mem is not None:
             if gzip:
                 d = yaml.load(
-                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+                    decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml_loader
                 )
             else:
-                d = yaml.load(from_mem, Loader=yaml.FullLoader)
+                d = yaml.load(from_mem, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
                 with gopen(extstr, &#34;rt&#34;) as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             else:
                 with open(extstr, &#34;rt&#34;) as infp:
-                    d = yaml.load(infp, Loader=yaml.FullLoader)
+                    d = yaml.load(infp, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
 
@@ -4173,18 +4851,18 @@ def load(
     if from_mem is not None:
         if gzip:
             d = yaml.load(
-                decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml.FullLoader
+                decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml_loader
             )
         else:
-            d = yaml.load(from_mem, Loader=yaml.FullLoader)
+            d = yaml.load(from_mem, Loader=yaml_loader)
         doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
     else:
         if gzip:
             with gopen(extstr, &#34;rt&#34;) as infp:
-                d = yaml.load(infp, Loader=yaml.FullLoader)
+                d = yaml.load(infp, Loader=yaml_loader)
         else:
             with open(extstr, &#34;rt&#34;) as infp:
-                d = yaml.load(infp, Loader=yaml.FullLoader)
+                d = yaml.load(infp, Loader=yaml_loader)
         doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
     return doc</code></pre>
 </details>
@@ -4269,16 +4947,16 @@ def save(
     d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
     if to_mem:
         if gzip:
-            compress(yaml.dump(d).encode(&#34;UTF-8&#34;))
+            compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
         else:
-            return yaml.dump(d)
+            return yaml.dump(d, Dumper=yaml_dumper)
     else:
         if gzip:
             with gopen(to_ext, &#34;wt&#34;) as outfp:
-                yaml.dump(d, outfp)
+                yaml.dump(d, outfp, Dumper=yaml_dumper)
         else:
             with open(to_ext, &#34;wt&#34;) as outfp:
-                yaml.dump(d, outfp)</code></pre>
+                yaml.dump(d, outfp, Dumper=yaml_dumper)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.save_gzip"><code class="name flex">
@@ -4382,12 +5060,25 @@ def save_gzip(clazz, inst, **kwargs):
 </ul>
 </li>
 <li>
+<h4><code><a title="gatenlp.serialization.default.PickleSerializer" href="#gatenlp.serialization.default.PickleSerializer">PickleSerializer</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.serialization.default.PickleSerializer.load" href="#gatenlp.serialization.default.PickleSerializer.load">load</a></code></li>
+<li><code><a title="gatenlp.serialization.default.PickleSerializer.save" href="#gatenlp.serialization.default.PickleSerializer.save">save</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="gatenlp.serialization.default.PlainTextSerializer" href="#gatenlp.serialization.default.PlainTextSerializer">PlainTextSerializer</a></code></h4>
 <ul class="">
 <li><code><a title="gatenlp.serialization.default.PlainTextSerializer.load" href="#gatenlp.serialization.default.PlainTextSerializer.load">load</a></code></li>
 <li><code><a title="gatenlp.serialization.default.PlainTextSerializer.load_gzip" href="#gatenlp.serialization.default.PlainTextSerializer.load_gzip">load_gzip</a></code></li>
 <li><code><a title="gatenlp.serialization.default.PlainTextSerializer.save" href="#gatenlp.serialization.default.PlainTextSerializer.save">save</a></code></li>
 <li><code><a title="gatenlp.serialization.default.PlainTextSerializer.save_gzip" href="#gatenlp.serialization.default.PlainTextSerializer.save_gzip">save_gzip</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.serialization.default.TweetLoader" href="#gatenlp.serialization.default.TweetLoader">TweetLoader</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.serialization.default.TweetLoader.load" href="#gatenlp.serialization.default.TweetLoader.load">load</a></code></li>
 </ul>
 </li>
 <li>
