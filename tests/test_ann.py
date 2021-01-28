@@ -1,5 +1,5 @@
 import sys
-from gatenlp import Document
+from gatenlp import Document, Annotation, Span
 
 def make_doc():
     doc = Document("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
@@ -122,3 +122,27 @@ class TestAnnotationRels:
         assert ann11.isafter(ann5)
         assert ann11.isbefore(ann3)
         assert ann11.isbefore(ann9)
+
+    def test_annotation_exps(self):
+        import pytest
+        with pytest.raises(Exception) as ex:
+            Annotation(3, 2, "X")
+        assert str(ex.value).startswith("Cannot create annotation")
+        with pytest.raises(Exception) as ex:
+            Annotation(1, 2, "X", annid="x")
+        with pytest.raises(Exception) as ex:
+            Annotation(1, 2, "X", features=12)
+        with pytest.raises(Exception) as ex:
+            Annotation(1, 2, "X", annid="x")
+        assert Annotation(2, 3, "X").span == Span(2, 3)
+        assert not (Annotation(1, 2, "X") == "X")
+        ann1 = Annotation(1, 2, "X")
+        assert ann1 == ann1
+        assert ann1.hash() == hash((ann1.id, ann1._owner_set))
+        with pytest.raises(Exception) as ex:
+            Annotation(1, 2, "X") < 33
+        assert Annotation(1, 2, "X") < Annotation(2, 3, "X")
+        assert not Annotation(1, 2, "X") < Annotation(0, 3, "X")
+        assert not Annotation(1, 2, "X", annid=0) < Annotation(1, 2, "X", annid=1)
+        assert Annotation(1, 2, "X").length == 1
+        
