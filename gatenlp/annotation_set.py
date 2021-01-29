@@ -46,6 +46,7 @@ class AnnotationSet:
         self._name = name
         self._owner_doc = owner_doc
         self._index_by_offset = None
+        self._index_by_ol = None
         self._index_by_type = None
         # internally we represent the annotations as a map from annotation id (int) to Annotation
         self._annotations = {}
@@ -171,6 +172,15 @@ class AnnotationSet:
             self._index_by_offset = SortedIntvls()
             for ann in self._annotations.values():
                 self._index_by_offset.add(ann.start, ann.end, ann.id)
+
+    def _create_index_by_ol(self) -> None:
+        """
+        Generates an index by start offset, end offset and annotation id
+        """
+        if self._index_by_ol is None:
+            self._index_by_ol = SortedIntvls(by_ol=True)
+            for ann in self._annotations.values():
+                self._index_by_ol.add(ann.start, ann.end, ann.id)
 
     def _create_index_by_type(self) -> None:
         """Generates the type index, if it does not already exist. The type index is a map from
@@ -353,7 +363,7 @@ class AnnotationSet:
         Throws:
           an exception if there are no annotations in the set.
         """
-        return self.end() - self.start()
+        return self.end - self.start
 
     @allowspan
     def add(
@@ -570,9 +580,8 @@ class AnnotationSet:
         reverse: bool = False,
     ) -> Generator:
         """
-        Yields annotations in document order, otionally limited
-        by the other parameters. If two annoations start at the same offset, they are always
-        ordered by increasing annotation id.
+        Yields annotations ordered by starting annotation and annotation id, otionally limited
+        by the other parameters.
 
         Args:
           start_ge: the offset from where to start including annotations
@@ -606,6 +615,59 @@ class AnnotationSet:
             assert start_lt > start_ge
         self._create_index_by_offset()
         for _start, _end, annid in self._index_by_offset.irange(
+            minoff=start_ge, maxoff=maxoff, reverse=reverse
+        ):
+            if (
+                allowedtypes is not None
+                and self._annotations[annid].type not in allowedtypes
+            ):
+                continue
+            yield self._annotations[annid]
+
+    def iter_ol(
+        self,
+        start_ge: Union[int, None] = None,
+        start_lt: Union[None, int] = None,
+        with_type: str = None,
+        reverse: bool = False,
+    ) -> Generator:
+        """
+        Yields annotations ordered by start offset, end offset and annotoation id, otionally limited
+        by the other parameters. If two annoations start at the same offset, they are always
+        ordered by increasing annotation id.
+
+        Args:
+          start_ge: the offset from where to start including annotations
+          start_lt: the last offset to use as the starting offset of an annotation
+          with_type: only annotations of this type
+          reverse: process in reverse document order
+
+        Yields:
+          annotations in document order
+
+        """
+
+        if with_type is not None:
+            allowedtypes = set()
+            if isinstance(type, str):
+                allowedtypes.add(with_type)
+            else:
+                for atype in with_type:
+                    allowedtypes.add(atype)
+        else:
+            allowedtypes = None
+        if not self._annotations:
+            return
+        maxoff = None
+        if start_ge is not None:
+            assert start_ge >= 0
+        if start_lt is not None:
+            assert start_lt >= 1
+            maxoff = start_lt + 1
+        if start_lt is not None and start_ge is not None:
+            assert start_lt > start_ge
+        self._create_index_by_ol()
+        for _start, _end, annid in self._index_by_ol.irange(
             minoff=start_ge, maxoff=maxoff, reverse=reverse
         ):
             if (
@@ -693,7 +755,7 @@ class AnnotationSet:
         _, _, annid = next(self._index_by_offset.irange(reverse=True))
         return self._annotations[annid]
 
-    def by_idx(self, idx, default=None):
+    def for_idx(self, idx, default=None):
         """
         Return the annotation corresponding to the index idx in the set. This returns the
         annotation stored at the index, as added to the set. The order usually depends on the insertion time.
@@ -836,13 +898,14 @@ class AnnotationSet:
 
     def by_span(self):
         """
-        Yields list of annotations with identical spans.
+        Yields list of annotations with identical spans. Note: first needs to sort all annotations!
         """
+        annlist = list(self._annotations.values())
         self._create_index_by_offset()
         lastsoff = -1
         lasteoff = -1
         curlist = []
-        for ann in self.iter():
+        for ann in self.iter_ol():
             if ann.start != lastsoff or ann.end != lasteoff:
                 if lastsoff != -1:
                     yield curlist
@@ -1097,6 +1160,7 @@ class AnnotationSet:
             ignore = None
         return self._restrict_intvs(intvs, ignore=ignore)
 
+    @support_annotation_or_set
     def before(self, start: int, end: int, annid=None, include_self=False,
                immediately=False) -> "AnnotationSet":
         """
@@ -1128,6 +1192,7 @@ class AnnotationSet:
             ignore = None
         return self._restrict_intvs(intvs, ignore=ignore)
 
+    @support_annotation_or_set
     def after(self, start: int, end: int, annid=None, include_self=False,
               immediately=False) -> "AnnotationSet":
         """

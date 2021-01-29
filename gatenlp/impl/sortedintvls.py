@@ -20,9 +20,20 @@ from sortedcontainers import SortedKeyList
 class SortedIntvls:
     """ """
 
-    def __init__(self):
-        # we sort by increasing start offset then increasing annotation id for this
-        self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
+    def __init__(self, by_ol=False):
+        """
+        Create an interval index. By default, this sorts by start offset and
+        annotation id. If by_ol is True, sorts by start offset, end offset and annotation id.
+
+        Args:
+            by_ol: if True, use start offset, end offset, annotation id
+        """
+        if by_ol:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[1], x[2]))
+        else:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
         # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
