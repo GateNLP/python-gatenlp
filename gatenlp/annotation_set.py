@@ -2,6 +2,8 @@
 Module for AnnotationSet class which represents a named collection of annotations which can arbitrarily overlap.
 """
 
+# TODO: when should two sets be equal? Currently object identity is requried!
+
 from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
 from collections.abc import Iterable
 from collections import defaultdict
@@ -946,7 +948,7 @@ class AnnotationSet:
             detached annotation set of matching annotations
         """
         self._create_index_by_offset()
-        intvs = self._index_by_offset.starting_from(start)
+        intvs = self._index_by_offset.starting_at(start)
         if not include_self and annid is not None:
             ignore = annid
         else:
@@ -1120,9 +1122,7 @@ class AnnotationSet:
           an immutable annotation set with the matching annotations
 
         """
-        if start == end:
-            intvs = []
-        elif start > end:
+        if start > end:
             raise Exception("Invalid offset range: {},{}".format(start, end))
         else:
             self._create_index_by_offset()

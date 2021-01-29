@@ -135,11 +135,20 @@ class SortedIntvls:
         Returns intervals that contain the given range.
         """
         # All intervals that start at or before the start and end at or after the end offset
-        # we do this by first getting the intervals the start before or atthe start
+        # we do this by first getting the intervals the start before or at the start
         # then filtering by end
-        for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
-            if intvl[1] >= end:
-                yield intvl
+        # NOTE: if the given range is zero length, then if the interval starts before the start
+        # it must end at least 1 after the end!
+        if start == end:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[0] < start and intvl[1] > end:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] >= end:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[1] >= end:
+                    yield intvl
 
     def overlapping(self, start, end):
         """
@@ -151,9 +160,29 @@ class SortedIntvls:
         # Here we do this by looking at all intervals where the start offset is before the
         # end of the range. This still includes those which also end before the start of the range
         # so we check in addition that the end is larger than the start of the range.
-        for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
-            if intvl[1] > start + 1:
-                yield intvl
+        # NOTE: if the given range has zero length, then any annotation that starts before or at start
+        # AND ends at or after start==end is overlapping
+        if start == end:
+            # in order to check what is overlapping with the zero length span, we need to find
+            # intervals which start before the start of that span AND end at least one after that span;
+            # or intervals which start at the span and end with the span or after.
+            # In other words we look at all intervals which start anywhere before or at the start(=end)
+            # of the span.
+            # if the start of what we found is < start then end must be > start, otherwise (if starts are same)
+            # end must be >= start
+            for intvl in self._by_start.irange_key(max_key=(end, sys.maxsize)):
+                if intvl[0] < start and intvl[1] > start:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] >= start:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
+                if intvl[0] == intvl[1]: # we need to check a zero length interval
+                    if intvl[0] >= start:
+                        yield intvl
+                else:
+                    if intvl[1] > start + 1:
+                        yield intvl
 
     def firsts(self):
         """

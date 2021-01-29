@@ -1805,7 +1805,7 @@ class Seq(PampacParser):
                         context=context, location=location, message="Mismatch in Seq"
                     )
             if self.name:
-                datas.append(dict(span=Span(start,end), name=self.name, location=location))
+                datas.append(dict(span=Span(start, end), name=self.name, location=location))
             return Success(
                 Result(data=datas, location=location, span=Span(start, end)), context
             )

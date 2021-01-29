@@ -217,8 +217,6 @@ class Annotation:
         """
         Checks if this annotation is overlapping with the given span, annotation or
         annotation set.
-        An annotation is overlapping with a span if the first or last character
-        is inside that span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -231,7 +229,10 @@ class Annotation:
           `True` if overlapping, `False` otherwise
 
         """
-        return self.iscovering(start) or self.iscovering(end - 1)
+        if start == end:
+            return self.iscovering(start)
+        else:
+            return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def isleftoverlapping(self, start: int, end: int) -> bool:
