@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.corpora API documentation</title>
 <meta name="description" content="Module that defines base and implementation classes for representing document collections …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -1020,56 +1020,6 @@ and levels=3, the generated function will convert the index number 23 into 0/000
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a function that takes doc and idx and return a path name (str)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def make_file_path_fromidx(digits=1, levels=1):
-    &#34;&#34;&#34;
-    Creates a method that returns a file path for the given number of leading digits and levels.
-
-    Args:
-        digits: minimum number of digits to use for the path, any number with less digits will have leading zeros
-           added.
-        levels: how to split the original sequence of digits into a hierarchical path name. For example if digits=10
-           and levels=3, the generated function will convert the index number 23 into 0/000/000/023
-
-    Returns:
-        a function that takes doc and idx and return a path name (str)
-    &#34;&#34;&#34;
-    if (
-        not isinstance(digits, int)
-        or not isinstance(levels, int)
-        or digits &lt; 1
-        or levels &lt; 1
-        or digits &lt; levels
-    ):
-        raise Exception(
-            f&#34;digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}&#34;
-        )
-
-    def file_path_fromidx(doc=None, idx=None):
-        if idx is None or not isinstance(idx, int) or idx &lt; 0:
-            raise Exception(&#34;Index must be an integer &gt;= 0&#34;)
-        per = int(digits / levels)
-        asstr = str(idx)
-        digs = max(0, digits - len(asstr))
-        tmp = &#34;0&#34; * digs
-        tmp += str(idx)
-        path = &#34;&#34;
-        fromdigit = len(tmp) - per
-        todigit = len(tmp)
-        for lvl in range(levels - 1):
-            path = tmp[fromdigit:todigit] + path
-            # print(&#34;per=&#34;, per, &#34;from=&#34;, fromdigit, &#34;to=&#34;, todigit, &#34;sec=&#34;, tmp[fromdigit:todigit])
-            path = &#34;/&#34; + path
-            fromdigit = fromdigit - per
-            todigit = todigit - per
-        path = tmp[:todigit] + path
-        return path
-
-    return file_path_fromidx</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.matching_paths"><code class="name flex">
 <span>def <span class="ident">matching_paths</span></span>(<span>dirpath, exts=None, recursive=True, relative=True)</span>
@@ -1089,60 +1039,6 @@ only paths from the top directory.</dd>
 <dt><strong><code>relative</code></strong></dt>
 <dd>if True (default), the paths are relative to the directory path</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def matching_paths(dirpath, exts=None, recursive=True, relative=True):
-    &#34;&#34;&#34;
-    Yields all relative file paths from dirpath which match the list of extensions
-    and which do not start with a dot.
-
-    Args:
-        dirpath: the directory to traverse
-        exts: a list of allowed extensions (inluding the dot)
-        recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
-          only paths from the top directory.
-        relative: if True (default), the paths are relative to the directory path
-    &#34;&#34;&#34;
-    if recursive:
-        for root, dirnames, filenames in os.walk(dirpath):
-            for fname in filenames:
-                if exts:
-                    for ext in exts:
-                        if fname.endswith(ext) and not fname.startswith(&#34;.&#34;):
-                            if relative:
-                                yield os.path.relpath(
-                                    os.path.join(root, fname), dirpath
-                                )
-                            else:
-                                yield os.path.join(root, fname)
-                            break
-                else:
-                    if not fname.startswith(&#34;.&#34;):
-                        if relative:
-                            yield os.path.relpath(os.path.join(root, fname), dirpath)
-                        else:
-                            yield os.path.join(root, fname)
-    else:
-        for fname in os.listdir(dirpath):
-            full = os.path.join(dirpath, fname)
-            if not os.path.isfile(full) or fname.startswith(&#34;.&#34;):
-                pass
-            elif exts:
-                for ext in exts:
-                    if fname.endswith(ext):
-                        if relative:
-                            yield os.path.relpath(full, dirpath)
-                        else:
-                            yield full
-                        break
-            else:
-                if relative:
-                    yield os.path.relpath(full, dirpath)
-                else:
-                    yield full</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1392,43 +1288,12 @@ of setting an element to None.</p></div>
 <p>a document or None</p>
 <h2 id="throws">Throws</h2>
 <p>exception if the index idx does not exist in the corpus</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def __getitem__(self, idx):
-    &#34;&#34;&#34;
-    Retrieve a document from the corpus.
-
-    Args:
-        idx: the index of the document
-
-    Returns:
-        a document or None
-
-    Throws:
-        exception if the index idx does not exist in the corpus
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.__len__"><code class="name flex">
 <span>def <span class="ident">__len__</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the size of the corpus.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def __len__(self):
-    &#34;&#34;&#34;
-    Returns the size of the corpus.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.__setitem__"><code class="name flex">
 <span>def <span class="ident">__setitem__</span></span>(<span>self, key, value)</span>
@@ -1450,30 +1315,6 @@ parameter that should be called <code>store_none</code>.</p>
 </dl>
 <h2 id="throws">Throws</h2>
 <p>exception if the index idx does not exist in the corpus</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def __setitem__(self, key, value):
-    &#34;&#34;&#34;
-    A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
-    The item assigned must be a document or None. If a corpus item is set to None,
-    one of two things may happen: either the existing document at that index is left
-    unchanged or the element is actually set to None, indicating that there is no Document
-    stored at this position. Which of these behaviours is used may depend on the implementation
-    of the corpus or may be something that can be changed at init time with a boolean keyword
-    parameter that should be called `store_none`.
-
-    Args:
-        key: the index of the document
-        value: a document or None
-
-    Throws:
-        exception if the index idx does not exist in the corpus
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.append"><code class="name flex">
 <span>def <span class="ident">append</span></span>(<span>self, document)</span>
@@ -1489,53 +1330,18 @@ corpus wraps a corpus that allows appending. Use with care!</p>
 <dd>the document to add to the corpus or None. If None, the default behaviour is that
 no action is performed, but specific implementation may change this behaviour.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def append(self, document):
-    &#34;&#34;&#34;
-    Some corpus implementations may provide the append method to allow for adding documents (i.e.
-    use the corpus like a DocumentDestination).
-
-    Important: this will probably not work properly in situations where another
-    corpus wraps a corpus that allows appending. Use with care!
-
-    Args:
-        document: the document to add to the corpus or None. If None, the default behaviour is that
-            no action is performed, but specific implementation may change this behaviour.
-
-    &#34;&#34;&#34;
-    raise NotImplemented(&#34;Corpus does not allow appending&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.idxfeatname"><code class="name flex">
 <span>def <span class="ident">idxfeatname</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def idxfeatname(self):
-    return &#34;__idx_&#34;+str(id(self))</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.setidxfeature"><code class="name flex">
 <span>def <span class="ident">setidxfeature</span></span>(<span>self, doc, idx)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def setidxfeature(self, doc, idx):
-    if doc is not None:
-        doc.features[&#34;__idx&#34;] = idx
-        doc.features[self.idxfeatname()] = idx</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.Corpus.store"><code class="name flex">
 <span>def <span class="ident">store</span></span>(<span>self, doc)</span>
@@ -1556,33 +1362,6 @@ corpus or None. If None, no action is performed.</dd>
 <dt><code>Exception</code></dt>
 <dd>if the index is not stored in a document feature <code>self.idxfeatname()</code></dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def store(self, doc):
-    &#34;&#34;&#34;
-    This method allows to store a document that comes from the same corpus back without the need to specify
-    the index. This is useful for processing documents in batches or in streams. For this to work, all
-    corpus implementations MUST make sure to store the index as part of returning a document with
-    `__getitem__`. The index must be stored in document features `__idx` and `self.idxfeatname()`.
-
-
-    Args:
-        doc: the document to store back into the corpus, should be a document that was retrieved from the same
-             corpus or None. If None, no action is performed.
-
-    Raises:
-        Exception: if the index is not stored in a document feature `self.idxfeatname()`
-    &#34;&#34;&#34;
-    if doc is None:
-        return
-    assert isinstance(doc, Document)
-    idx = doc.features.get(self.idxfeatname())
-    if idx is None:
-        raise Exception(&#34;Cannot append document, no __idx_ID feature&#34;)
-    self.__setitem__(idx, doc)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -1834,34 +1613,6 @@ keyword arguments: doc (the document) and idx (the running index of the document
 <dt><strong><code>doc</code></strong></dt>
 <dd>the document or None, if None, no action is performed.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def append(self, doc):
-    &#34;&#34;&#34;
-    Add a document to the destination.
-
-    Args:
-        doc: the document or None, if None, no action is performed.
-    &#34;&#34;&#34;
-    if doc is None:
-        return
-    assert isinstance(doc, Document)
-    path = self.file_path_maker(doc=doc, idx=self.idx)
-    path = os.path.normpath(
-        path
-    )  # convert forward slashes to backslashes on windows
-    path = os.path.join(self.dirpath, path) + self.ext
-    # check if we need to create the directories. For this we first need to get the directories part of the path,
-    # which is everything left of the last slash
-    if os.path.sep in path:
-        dirs = path[: path.rindex(os.path.sep)]
-        if not os.path.exists(os.path.normpath(dirs)):
-            os.makedirs(dirs)
-    Document.save(doc, path, fmt=self.fmt)
-    self.idx += 1</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -2023,38 +1774,12 @@ to the destination.</p>
 <dd>the document to add, if this is None, by default nothing is actually added to the destination,
 but specific implementations may change this behaviour.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def append(self, doc):
-    &#34;&#34;&#34;
-    A document destination must have the append method defined which is used to add a new document
-    to the destination.
-
-    Args:
-        doc: the document to add, if this is None, by default nothing is actually added to the destination,
-            but specific implementations may change this behaviour.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.corpora.DocumentDestination.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Must have a close method that is used to end writing and close the destination.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def close(self):
-    &#34;&#34;&#34;
-    Must have a close method that is used to end writing and close the destination.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2092,14 +1817,6 @@ inheritance.</p></div>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def __iter__(self):
-    return self</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2346,24 +2063,6 @@ Expected to be a string or an open file handle.</dd>
 <dt><strong><code>doc</code></strong></dt>
 <dd>the document, if None, no action is performed.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def append(self, doc):
-    &#34;&#34;&#34;
-    Append a document to the destination.
-
-    Args:
-        doc: the document, if None, no action is performed.
-    &#34;&#34;&#34;
-    if doc is None:
-        return
-    assert isinstance(doc, Document)
-    self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
-    self.fh.write(&#34;\n&#34;)
-    self.n += 1</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -2520,24 +2219,6 @@ entry unchanged.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a ListCorpus instance with n elements which are all None</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def empty(cls, n):
-    &#34;&#34;&#34;
-    Create an empty corpus of size n where all elements are None.
-
-    Args:
-        n: size of corpus
-
-    Returns:
-        a ListCorpus instance with n elements which are all None
-    &#34;&#34;&#34;
-    l = [None] * n
-    return cls(l)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -2829,29 +2510,6 @@ carried out. If this is None or not an integer, same as 0.</dd>
 :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
 If seed is None, no shuffling is carried out.
 :return:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def shuffle(self, seed=0):
-    &#34;&#34;&#34;
-    Shuffle instance list order,
-    :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
-    If seed is None, no shuffling is carried out.
-    :return:
-    &#34;&#34;&#34;
-    if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
-        if seed != -1:
-            if seed == 0:
-                random.seed()
-            else:
-                random.seed(seed)
-        random.shuffle(self.idxs)
-    else:  # not an integer seed: None or some other type
-        # same as seed 0
-        random.seed()
-        random.shuffle(self.idxs)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -3071,7 +2729,7 @@ mapping column names to column indices, or None) and "n" (current line number) a
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

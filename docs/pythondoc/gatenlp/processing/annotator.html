@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.processing.annotator API documentation</title>
 <meta name="description" content="Module with the base class and supporting functions for all annotators.
 Any callable that can be called by passing a document can be used as an …" />
@@ -306,39 +306,6 @@ is important.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a document, None, or a possibly empty list of documents</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def __call__(self, doc, **kwargs):
-    &#34;&#34;&#34;
-    This method MUST get implemented in a concrete subclass to do the actual processing
-    and annotation. It must accept a document and arbitrary keyword arguments and it must
-    return either a document which may be the same or a different object than the document passed,
-    or None or an empty list or a list of one or more documents. The method also may raise an
-    exception.
-
-    The semantics of returning None or an empty list are not strictly defined: this may be used to
-    handle processing errors where documents which cannot be processed are quietly ignored or
-    filtering.
-
-    The method must accept arbitrary keyword arguments which will be passed on to sub-annotators and
-    may be used to configure or parametrize processing.
-
-    NOTE: some annotators may set or use special document features in order to handle
-    document context or the document id when processing a corpus or streams where a document id
-    is important.
-
-    Args:
-      doc: the document to process
-      kwargs: any arguments to pass to the annotator or sub-annotators called by this annotator
-
-    Returns:
-        a document, None, or a possibly empty list of documents
-    &#34;&#34;&#34;
-    raise Exception(&#34;This method must be implemented!&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.finish"><code class="name flex">
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
@@ -349,21 +316,6 @@ have been processed. It should return some result for processing the whole batch
 it has seen - that result may be None.</p>
 <h2 id="returns">Returns</h2>
 <p>The overall result of processing all documents or None</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def finish(self):
-    &#34;&#34;&#34;
-    A method that gets called when processing ends, e.g. when all documents of a corpus
-    have been processed. It should return some result for processing the whole batch of documents
-    it has seen - that result may be None.
-
-    Returns:
-        The overall result of processing all documents or None
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.pipe"><code class="name flex">
 <span>def <span class="ident">pipe</span></span>(<span>self, documents, **kwargs)</span>
@@ -381,28 +333,6 @@ If with_context is True, then the documents parameter should be an iterable over
 </dl>
 <h2 id="yields">Yields</h2>
 <p>processed documents</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pipe(self, documents, **kwargs):
-    &#34;&#34;&#34;
-    If this method gets overridden, it should take an iterable of documents and yield processed documents.
-    This allows for batching, caching, and other optimizations over streams of documents.
-    If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
-
-    Args:
-        documents: an iterable over documents or (document, context) tuples if with_context=True
-        **kwargs: arbitrary other keyword arguments must be accepted
-
-    Yields:
-        processed documents
-    &#34;&#34;&#34;
-    for el in documents:
-        if el is not None:
-            doc = self.__call__(el, **kwargs)
-            yield doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.reduce"><code class="name flex">
 <span>def <span class="ident">reduce</span></span>(<span>self, results)</span>
@@ -425,33 +355,6 @@ not call reduce, but if it does, reduce should accept None or an iterator of all
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The combined overall result or None if there are no individual results</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reduce(self, results):
-    &#34;&#34;&#34;
-    A method that should know how to combine the results passed on in some collection into a
-    single result. This method should behave like a static method, i.e. not make use of any
-    data that is specific to the concrete instance.
-
-    This can be used to combine corpus results obtained from several processes running on
-    different parts of a corpus.
-
-    This gets invoked by the executor if more than one instance of the annotator was run
-    over separate sets of documents. If only a single instance was used, the result returned
-    from finish is used directly.
-
-    Args:
-      results: an iterable of individual results over some documents each or None if no results are available.
-         If no results have been passed back from the finish method of any of the processes, the executor should
-         not call reduce, but if it does, reduce should accept None or an iterator of all None and return None.
-
-    Returns:
-        The combined overall result or None if there are no individual results
-    &#34;&#34;&#34;
-    return results</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.start"><code class="name flex">
 <span>def <span class="ident">start</span></span>(<span>self)</span>
@@ -462,21 +365,6 @@ corpus gets processed. This is invoked by an executor to initialize processing a
 of documents.</p>
 <p>This is different from initializing the Annotator: initializing may load large data which
 can be reused even if the same annotator instance is run several times over documents.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def start(self):
-    &#34;&#34;&#34;
-    A method that gets called when processing starts, e.g. before the first document in
-    corpus gets processed. This is invoked by an executor to initialize processing a batch
-    of documents.
-
-    This is different from initializing the Annotator: initializing may load large data which
-    can be reused even if the same annotator instance is run several times over documents.
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -552,7 +440,7 @@ inheritance.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

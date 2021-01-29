@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.processing.pipeline API documentation</title>
 <meta name="description" content="Module that provides the Pipeline class. A Pipeline is an annotator which is configured to contain several annotators
 which get executed in sequence …" />
@@ -556,34 +556,6 @@ number of the annotator as added (not the index in the pipeline!)</dd>
 <dt><strong><code>tofront</code></strong></dt>
 <dd>if True adds to the front of the list instead of appending to the end</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add(self, annotator, name=None, tofront=False):
-    &#34;&#34;&#34;
-    Add an annotator to list of annotators for this pipeline. The annotator must be an initialized instance,
-    not a class.
-
-    Args:
-        annotator: the annotator to add
-        name: an optional name of the annotator, if None, uses a string representation of the
-            number of the annotator as added (not the index in the pipeline!)
-        tofront: if True adds to the front of the list instead of appending to the end
-    &#34;&#34;&#34;
-    a = _check_and_ret_callable(annotator)
-    if name is None:
-        name = f&#34;{len(self.annotators)}&#34;
-    if name in self.names2annotators:
-        raise Exception(f&#34;Duplicate name: {name}&#34;)
-    if tofront:
-        self.annotators.insert(0, a)
-        self.names.insert(0, name)
-    else:
-        self.annotators.append(a)
-        self.names.append(name)
-    self.names2annotators[name] = a</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.pipeline.Pipeline.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self)</span>
@@ -593,21 +565,6 @@ number of the annotator as added (not the index in the pipeline!)</dd>
 the pipeline data itself is copied, so that an existing pipeline can be modified or extendet.</p>
 <h2 id="returns">Returns</h2>
 <p>a shallow copy of this pipeline</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def copy(self):
-    &#34;&#34;&#34;
-    Return a shallow copy of the pipeline: the annotators and the annotator data is identical, but
-    the pipeline data itself is copied, so that an existing pipeline can be modified or extendet.
-
-    Returns:
-        a shallow copy of this pipeline
-    &#34;&#34;&#34;
-    new = Pipeline([(name, ann) for name, ann in self.names2annotators.items()])
-    return new</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.pipeline.Pipeline.finish"><code class="name flex">
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
@@ -617,26 +574,6 @@ the pipeline data itself is copied, so that an existing pipeline can be modified
 elements as there are annotators (annotators which did not return anything have None).</p>
 <h2 id="returns">Returns</h2>
 <p>list of annotator results</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def finish(self):
-    &#34;&#34;&#34;
-    Invokes finish on all annotators and return their results as a list with as many
-    elements as there are annotators (annotators which did not return anything have None).
-
-    Returns:
-        list of annotator results
-    &#34;&#34;&#34;
-    results = []
-    for annotator in self.annotators:
-        if _has_method(annotator, &#34;finish&#34;):
-            results.append(annotator.finish())
-        else:
-            results.append(None)
-    return results</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.pipeline.Pipeline.pipe"><code class="name flex">
 <span>def <span class="ident">pipe</span></span>(<span>self, documents, **kwargs)</span>
@@ -655,29 +592,6 @@ invoking their <code>pipe</code> method on the generator created by the previous
 </dl>
 <h2 id="yields">Yields</h2>
 <p>documents for which processing did not return None</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pipe(self, documents, **kwargs):
-    &#34;&#34;&#34;
-    Iterate over each of the documents process them by all the annotators in the pipeline
-    and yield all the final  non-None result documents. Documents are processed by in turn
-    invoking their `pipe` method on the generator created by the previous step.
-
-    Args:
-        documents: an iterable of documents or None (None values are ignored)
-        **kwargs: arguments to be passed to each of the annotators
-
-    Yields:
-        documents for which processing did not return None
-
-    &#34;&#34;&#34;
-    gen = documents
-    for antr in self.annotators:
-        gen = antr.pipe(gen, **kwargs)
-    return gen</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.pipeline.Pipeline.reduce"><code class="name flex">
 <span>def <span class="ident">reduce</span></span>(<span>self, results)</span>
@@ -694,51 +608,12 @@ processes or different batches.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a list of combined results</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reduce(self, results):
-    &#34;&#34;&#34;
-    Invokes reduce on all annotators using the list of result lists. `results` is a list with
-    as many elements as there are annotators. Each element is a list of results from different
-    processes or different batches.
-
-    Returns a list with as many elements as there are annotators, each element the combined result.
-
-    Args:
-        results: a list of result lists
-
-    Returns:
-        a list of combined results
-    &#34;&#34;&#34;
-    results = []
-    assert len(results) == len(self.annotators)
-    for reslist, annotator in zip(results, self.annotators):
-        if _has_method(annotator, &#34;reduce&#34;):
-            results.append(annotator.reduce(reslist))
-        else:
-            results.append(reslist)
-    return results</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.pipeline.Pipeline.start"><code class="name flex">
 <span>def <span class="ident">start</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Invokes start on all annotators.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def start(self):
-    &#34;&#34;&#34;
-    Invokes start on all annotators.
-    &#34;&#34;&#34;
-    for annotator in self.annotators:
-        if _has_method(annotator, &#34;start&#34;):
-            annotator.start()</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -783,7 +658,7 @@ processes or different batches.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

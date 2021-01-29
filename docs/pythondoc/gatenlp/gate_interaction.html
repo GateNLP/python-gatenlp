@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.gate_interaction API documentation</title>
 <meta name="description" content="Support for interacting between a GATE (java) process and a gatenlp (Python) process.
 This is used by the Java GATE Python plugin." />
@@ -479,37 +479,6 @@ if __name__ == &#34;__main__&#34;:
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_arguments(from_main=False):
-    argparser = ArgumentParser()
-    argparser.add_argument(
-        &#34;--mode&#34;,
-        default=&#34;check&#34;,
-        help=&#34;Interaction mode: pipe|http|websockets|file|dir|check (default: check)&#34;,
-    )
-    argparser.add_argument(
-        &#34;--format&#34;, default=&#34;json&#34;, help=&#34;Exchange format: json|json.gz|cjson&#34;
-    )
-    argparser.add_argument(&#34;--path&#34;, help=&#34;File/directory path for modes file/dir&#34;)
-    argparser.add_argument(
-        &#34;--out&#34;, help=&#34;Output file/directory path for modes file/dir&#34;
-    )
-    argparser.add_argument(
-        &#34;-d&#34;, action=&#34;store_true&#34;, help=&#34;Enable debugging: log to stderr&#34;
-    )
-    argparser.add_argument(
-        &#34;--log_lvl&#34;,
-        type=str,
-        help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;,
-    )
-    if from_main:
-        argparser.add_argument(&#34;pythonfile&#34;)
-    args = argparser.parse_args()
-    return args</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gate_interaction.interact"><code class="name flex">
 <span>def <span class="ident">interact</span></span>(<span>args=None, annotator=None)</span>
@@ -530,186 +499,6 @@ processing resource to the system.</p>
 <dd>(Default value = None)</dd>
 </dl>
 <p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def interact(args=None, annotator=None):
-    &#34;&#34;&#34;Starts and handles the interaction with a GATE python plugin process.
-    This will get started by the GATE plugin if the interaction uses
-    pipes, but can also be started separately for http/websockets.
-
-    This MUST be called in the user&#39;s python file!
-    The python file should also have one class or function decorated
-    with the @gatenlp.PR  decorator to identify it as the
-    processing resource to the system.
-
-    :return:
-
-    Args:
-      args:  (Default value = None)
-
-    Returns:
-
-    &#34;&#34;&#34;
-    logger = init_logger(__name__)
-    loglvls = {
-        &#34;DEBUG&#34;: logging.DEBUG,
-        &#34;INFO&#34;: logging.INFO,
-        &#34;WARNING&#34;: logging.WARNING,
-        &#34;ERROR&#34;: logging.ERROR,
-        &#34;CRITICAL&#34;: logging.CRITICAL,
-    }
-    # before we do anything we need to check if a PR has actually
-    # been defined. If not, use our own default debugging PR
-    if gatenlp.gate_python_plugin_pr is None and annotator is None:
-        logger.warning(
-            &#34;No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing&#34;
-        )
-        _pr_decorator(DefaultPr)
-    if annotator is not None:
-        pr = _pr_decorator(annotator)
-    else:
-        pr = gatenlp.gate_python_plugin_pr
-
-    if args is None:
-        args = get_arguments()
-    if args.d:
-        logger.setLevel(logging.DEBUG)
-    if args.log_lvl:
-        if args.log_lvl not in loglvls:
-            raise Exception(&#34;Not a valid log level: {}&#34;.format(args.log_lvl))
-        logger.setLevel(loglvls[args.log_lvl])
-
-    if args.mode == &#34;check&#34;:
-        return
-
-    logger.info(&#34;Using gatenlp version {}\n&#34;.format(gatenlp.__version__))
-
-    logger.debug(&#34;Starting interaction args={}&#34;.format(args))
-    if args.mode == &#34;pipe&#34;:
-        if args.format != &#34;json&#34;:
-            raise Exception(&#34;For interaction mode pipe, only format=json is supported&#34;)
-        for line in instream:
-            try:
-                request = json.loads(line)
-            except Exception as ex:
-                logger.error(&#34;Unable to load from JSON:\n{}&#34;.format(line))
-                raise ex
-            logger.debug(&#34;Got request object: {}&#34;.format(request))
-            cmd = request.get(&#34;command&#34;, None)
-            stop_requested = False
-            ret = None
-            try:
-                if cmd == &#34;execute&#34;:
-                    doc = Document.from_dict(request.get(&#34;data&#34;))
-                    om = doc.to_offset_type(OFFSET_TYPE_PYTHON)
-                    doc.changelog = ChangeLog()
-                    pr.execute(doc)
-                    # NOTE: for now we just discard what the method returns and always return
-                    # the changelog instead!
-                    chlog = doc.changelog
-                    # if we got an offset mapper earlier, we had to convert, so we convert back to JAVA
-                    if om:
-                        # replace True is faster, and we do not need the ChangeLog any more!
-                        chlog.fixup_changes(
-                            offset_mapper=om, offset_type=OFFSET_TYPE_JAVA, replace=True
-                        )
-                    ret = doc.changelog.to_dict()
-                    logger.debug(&#34;Returning CHANGELOG: {}&#34;.format(ret))
-                elif cmd == &#34;start&#34;:
-                    parms = request.get(&#34;data&#34;)
-                    pr.start(parms)
-                elif cmd == &#34;finish&#34;:
-                    ret = pr.finish()
-                elif cmd == &#34;reduce&#34;:
-                    results = request.get(&#34;data&#34;)
-                    ret = pr.reduce(results)
-                elif cmd == &#34;stop&#34;:
-                    stop_requested = True
-                else:
-                    raise Exception(&#34;Odd command received: {}&#34;.format(cmd))
-                response = {
-                    &#34;data&#34;: ret,
-                    &#34;status&#34;: &#34;ok&#34;,
-                }
-            except Exception as ex:
-                error = repr(ex)
-                tb_str = traceback.format_exception(
-                    etype=type(ex), value=ex, tb=ex.__traceback__
-                )
-                print(&#34;ERROR when running python code:&#34;, file=sys.stderr)
-                for line in tb_str:
-                    print(
-                        line, file=sys.stderr, end=&#34;&#34;
-                    )  # what we get from traceback already has new lines
-                info = &#34;&#34;.join(tb_str)
-                # in case we want the actual stacktrace data as well:
-                st = [
-                    (f.filename, f.lineno, f.name, f.line)
-                    for f in traceback.extract_tb(ex.__traceback__)
-                ]
-                response = {
-                    &#34;data&#34;: None,
-                    &#34;status&#34;: &#34;error&#34;,
-                    &#34;error&#34;: error,
-                    &#34;info&#34;: info,
-                    &#34;stacktrace&#34;: st,
-                }
-            logger.debug(&#34;Sending back response: {}&#34;.format(response))
-            print(json.dumps(response), file=ostream)
-
-            ostream.flush()
-            if stop_requested:
-                break
-        # TODO: do any cleanup/restoring needed
-        logger.debug(&#34;Finishing interaction&#34;)
-    elif args.mode == &#34;http&#34;:
-        raise Exception(&#34;Mode http not implemented yet&#34;)
-    elif args.mode == &#34;websockets&#34;:
-        raise Exception(&#34;Mode websockets not implemented yet&#34;)
-    elif args.mode in [&#34;file&#34;, &#34;dir&#34;]:
-        if not args.path:
-            raise Exception(&#34;Mode file or dir but no --path specified&#34;)
-        fileext = &#34;.bdoc&#34; + args.format
-        if args.mode == &#34;file&#34; and not os.path.isfile(args.path):
-            raise Exception(&#34;Mode file but path is not a file: {}&#34;.format(args.path))
-        elif args.mode == &#34;dir&#34; and not os.path.isdir(args.path):
-            raise Exception(
-                &#34;Mode dir but path is not a directory: {}&#34;.format(args.path)
-            )
-        if args.mode == &#34;file&#34;:
-            pr.start({})
-            logger.info(f&#34;Loading file {args.path}&#34;)
-            doc = Document.load(args.path)
-            pr.execute(doc)
-            pr.finish()
-            if args.out:
-                logger.info(f&#34;Saving file to {args.out}&#34;)
-                doc.save(args.out)
-            else:
-                logger.info(f&#34;Saving file to {args.path}&#34;)
-                doc.save(args.path)
-        else:
-            import glob
-
-            pr.start({})
-            files = glob.glob(args.path + os.path.sep + &#34;*&#34; + fileext)
-            for file in files:
-                logger.info(&#34;Loading file {}&#34;.format(file))
-                doc = Document.load(file)
-                pr.execute(doc)
-                if args.out:
-                    tofile = os.path.join(args.out, os.path.basename(file))
-                    logger.info(&#34;Saving to {}&#34;.format(tofile))
-                    doc.save(tofile)
-                else:
-                    logger.info(&#34;Saving to {}&#34;.format(file))
-                    doc.save(file)
-            pr.finish()
-    else:
-        raise Exception(&#34;Not a valid mode: {}&#34;.format(args.mode))</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -761,52 +550,18 @@ processing resource to the system.</p>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def finish(self, **kwargs):
-    logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-    logger.warning(
-        &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
-    )
-    return None</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gate_interaction.DefaultPr.reduce"><code class="name flex">
 <span>def <span class="ident">reduce</span></span>(<span>self, resultlist, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reduce(self, resultlist, **kwargs):
-    logger.debug(
-        &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-            resultlist, kwargs
-        )
-    )
-    return None</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gate_interaction.DefaultPr.start"><code class="name flex">
 <span>def <span class="ident">start</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def start(self, **kwargs):
-    logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-    logger.warning(
-        &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
-    )
-    return None</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -846,7 +601,7 @@ processing resource to the system.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

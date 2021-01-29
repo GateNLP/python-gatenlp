@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.gateslave API documentation</title>
 <meta name="description" content="Module for interacting with a Java GATE process, running API commands on it and
 exchanging data with it." />
@@ -728,34 +728,6 @@ If not specified, tries to determine automatically (which may fail)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>classpath separator character</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def classpath_sep(platform=None):
-    &#34;&#34;&#34;
-    Get the system-specific classpath separator character.
-
-    Args:
-      platform:  (Default value = None) win/windows for Windows, anything else for non-windows
-        If not specified, tries to determine automatically (which may fail)
-
-    Returns:
-      classpath separator character
-
-    &#34;&#34;&#34;
-    if not platform:
-        myplatform = sysplatform.system()
-        if not myplatform:
-            raise Exception(
-                &#34;Could not determine operating system, please use platform parameter&#34;
-            )
-        platform = myplatform
-    if platform.lower() == &#34;windows&#34; or platform.lower() == &#34;win&#34;:
-        return &#34;;&#34;
-    else:
-        return &#34;:&#34;</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.gate_classpath"><code class="name flex">
 <span>def <span class="ident">gate_classpath</span></span>(<span>gatehome, platform=None)</span>
@@ -774,58 +746,6 @@ for the operating system.</p>
 <p>GATE classpath</p>
 <h2 id="raises">Raises</h2>
 <p>Exception if classpath could not be determined.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gate_classpath(gatehome, platform=None):
-    &#34;&#34;&#34;
-    Return the GATE classpath components as a string, with the path seperator characters appropriate
-    for the operating system.
-
-    Args:
-      gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
-      platform:  (Default value = None) win/windows for Windows, anything else for non-Windows.
-
-    Returns:
-      GATE classpath
-
-    Raises:
-        Exception if classpath could not be determined.
-
-    &#34;&#34;&#34;
-    # check which kind of GATE home we have: if there is a distro subdirectory, assume cloned git repo
-    if not os.path.exists(gatehome):
-        raise Exception(&#34;GATE home directory does not exist: {}&#34;.format(gatehome))
-    if not os.path.isdir(gatehome):
-        raise Exception(&#34;GATE home directory does not a directory: {}&#34;.format(gatehome))
-    cpsep = classpath_sep(platform)
-    cpfile = os.path.join(gatehome, &#34;gate.classpath&#34;)
-    bindir = os.path.join(gatehome, &#34;bin&#34;)
-    # logger.info(&#34;DEBUG checking for {}&#34;.format(cpfile))
-    if os.path.exists(cpfile):
-        if not os.path.exists(cpfile):
-            raise Exception(
-                &#34;File not found {}, distribution may need compiling&#34;.format(cpfile)
-            )
-        with open(cpfile, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fp:
-            cp = fp.read()
-            return cp + cpsep + bindir
-    else:
-        # logger.info(&#34;DEBUG {} does not exist&#34;.format(cpfile))
-        libdir = os.path.join(gatehome, &#34;lib&#34;)
-        bindir = os.path.join(gatehome, &#34;bin&#34;)
-        if not os.path.isdir(libdir):
-            raise Exception(
-                &#34;Could not determine class path from {}, no lib directory&#34;.format(
-                    gatehome
-                )
-            )
-        jars = glob.glob(os.path.join(libdir, &#34;*.jar&#34;))
-        libcp = cpsep.join(jars)
-
-        return libcp + cpsep + bindir</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.main"><code class="name flex">
 <span>def <span class="ident">main</span></span>(<span>)</span>
@@ -834,66 +754,6 @@ for the operating system.</p>
 <div class="desc"><p>Start a GATE slave from the command line.</p>
 <p>This is available as command <code>gatenlp-gate-slave</code>.
 Use option <code>--help</code> to get help about command line arguments.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def main():
-    &#34;&#34;&#34;
-    Start a GATE slave from the command line.
-
-    This is available as command `gatenlp-gate-slave`.
-    Use option `--help` to get help about command line arguments.
-    &#34;&#34;&#34;
-    ap = argparse.ArgumentParser(description=&#34;Start Java GATE Slave&#34;)
-    ap.add_argument(
-        &#34;--download&#34;,
-        action=&#34;store_true&#34;,
-        help=&#34;Download GATE libraries to run GATE slave&#34;,
-    )
-    ap.add_argument(&#34;--port&#34;, default=25333, type=int, help=&#34;Port (25333)&#34;)
-    ap.add_argument(
-        &#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;
-    )
-    ap.add_argument(
-        &#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;
-    )
-    ap.add_argument(&#34;--noauth&#34;, action=&#34;store_true&#34;, help=&#34;Do not use auth token&#34;)
-    ap.add_argument(
-        &#34;--gatehome&#34;,
-        default=None,
-        type=str,
-        help=&#34;Location of GATE (environment variable GATE_HOME)&#34;,
-    )
-    ap.add_argument(
-        &#34;--platform&#34;,
-        default=None,
-        type=str,
-        help=&#34;OS/Platform: windows or linux (autodetect)&#34;,
-    )
-    ap.add_argument(
-        &#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If slave actions should be logged&#34;
-    )
-    ap.add_argument(
-        &#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the slave&#34;
-    )
-    ap.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
-    args = ap.parse_args()
-    if args.download:
-        GateSlave.download()
-    else:
-        start_gate_slave(
-            port=args.port,
-            host=args.host,
-            auth_token=args.auth,
-            use_auth_token=not args.noauth,
-            gatehome=args.gatehome,
-            platform=args.platform,
-            log_actions=args.log_actions,
-            keep=args.keep,
-            debug=args.debug,
-        )</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.start_gate_slave"><code class="name flex">
 <span>def <span class="ident">start_gate_slave</span></span>(<span>port=25333, host='127.0.0.1', auth_token=None, use_auth_token=True, java='java', platform=None, gatehome=None, log_actions=False, keep=False, debug=False)</span>
@@ -931,119 +791,6 @@ report to the using Pythong process that it can be closed or not.</dd>
 <dt><strong><code>debug</code></strong></dt>
 <dd>(Default valuye = False) Show debug messages.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def start_gate_slave(
-    port=25333,
-    host=&#34;127.0.0.1&#34;,
-    auth_token=None,
-    use_auth_token=True,
-    java=&#34;java&#34;,
-    platform=None,
-    gatehome=None,
-    log_actions=False,
-    keep=False,
-    debug=False,
-):
-    &#34;&#34;&#34;
-    Run the gate slave program. This starts the Java program included with gatenlp to
-    run GATE and execute the gate slave within GATE so that Python can connect to it.
-
-    Args:
-      port:  (Default value = 25333) Port number to use
-      host:  (Default value = &#34;127.0.0.1&#34;) Host address to bind to
-      auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
-      use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
-         This allows anyone who can connect to the host address to connect and use the gate slave process.
-      java:  (Default value = &#34;java&#34;) Java command (if on the binary path) or full path to the binary
-         to use for running the gate slave program.
-      platform:  (Default value = None) &#34;win&#34;/&#34;windows&#34; for Windows, anything else for non-Windows.
-         If None, tries to determine automatically.
-      gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
-         variable &#34;GATE_HOME&#34; is used.
-      log_actions:  (Default value = False) If True, the GATE Slave process will log everything it is
-         ordered to do.
-      keep:  (Default value = False) passed on to the gate slave process and tells the process if it should
-         report to the using Pythong process that it can be closed or not.
-      debug: (Default valuye = False) Show debug messages.
-    &#34;&#34;&#34;
-    logger = init_logger(__name__)
-    if debug:
-        logger.setLevel(logging.DEBUG)
-
-    if gatehome is None:
-        gatehome = os.environ.get(&#34;GATE_HOME&#34;)
-        if gatehome is None:
-            raise Exception(
-                &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
-            )
-    if use_auth_token:
-        if not auth_token:
-            auth_token = secrets.token_urlsafe(20)
-        else:
-            auth_token = auth_token
-    else:
-        auth_token = &#34;&#34;
-    if log_actions:
-        log_actions = &#34;1&#34;
-    else:
-        log_actions = &#34;0&#34;
-    if keep:
-        keep = &#34;1&#34;
-    else:
-        keep = &#34;0&#34;
-    logger.debug(
-        f&#34;Starting gate slave, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;
-    )
-    jarloc = os.path.join(
-        os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpslave-{JARVERSION}.jar&#34;
-    )
-    if not os.path.exists(jarloc):
-        raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
-    logger.debug(f&#34;Using JAR: {jarloc}&#34;)
-    cmdandparms = [java, &#34;-cp&#34;]
-    cpsep = classpath_sep(platform=platform)
-    cmdandparms.append(jarloc + cpsep + gate_classpath(gatehome, platform=platform))
-    cmdandparms.append(&#34;gate.tools.gatenlpslave.GatenlpSlave&#34;)
-    cmdandparms.append(str(port))
-    cmdandparms.append(host)
-    cmdandparms.append(log_actions)
-    cmdandparms.append(keep)
-    os.environ[&#34;GATENLP_SLAVE_TOKEN_&#34; + str(port)] = auth_token
-    cmd = &#34; &#34;.join(cmdandparms)
-    logger.debug(f&#34;Running command: {cmd}&#34;)
-    subproc = subprocess.Popen(
-        cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
-    )
-
-    def shutdown():
-        &#34;&#34;&#34;
-        Handler that gets invoked when the calling Python program exits.
-        This terminates the gate slave by sending the SIGINT signal to it.
-        &#34;&#34;&#34;
-        subproc.send_signal(signal.SIGINT)
-        for line in subproc.stderr:
-            print(line, file=sys.stderr, end=&#34;&#34;)
-
-    atexit.register(shutdown)
-    while True:
-        line = subproc.stderr.readline()
-        if line == &#34;&#34;:
-            break
-        line = line.rstrip(&#34;\n\r&#34;)
-        if line == &#34;PythonSlaveRunner.java: server start OK&#34;:
-            break
-        if line == &#34;PythonSlaveRunner.java: server start NOT OK&#34;:
-            raise Exception(&#34;Could not start server, giving up&#34;)
-        print(line, file=sys.stderr)
-    try:
-        subproc.wait()
-    except KeyboardInterrupt:
-        print(&#34;Received keyboard interrupt, shutting down server...&#34;)
-        shutdown()</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1395,26 +1142,6 @@ debug: show debug messages (default: False)</p></div>
 <div class="desc"><p>Download GATE libraries into a standard location so we can run the GATE slave even if GATE_HOME
 is not set.</p>
 <p>NOTE YET IMPLEMENTED.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def download():
-    &#34;&#34;&#34;
-    Download GATE libraries into a standard location so we can run the GATE slave even if GATE_HOME
-    is not set.
-
-    NOTE YET IMPLEMENTED.
-    &#34;&#34;&#34;
-    # TODO: this should use the command and bootstrapping jar in gate-downloader:
-    # copy the whole directory into the standard per-user config directory for the system
-    # run the command
-    # use the generated gate.classpath as for a compiled local git repo
-    # NOTE: should change error message if GATE_HOME is not set to hint at this! (option --downlaod for the script)
-    # NOTE: add to documentation
-    raise Exception(&#34;Not yet implemented&#34;)</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1426,24 +1153,6 @@ def download():
 <div class="desc"><p>Clean up: if the gate slave process was started by us, we will shut it down.
 Otherwise we can still close it if it was started by the slaverunner, not the Lr
 Note: if it was started by us, it was started via the slaverunner.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def close(self):
-    &#34;&#34;&#34;
-    Clean up: if the gate slave process was started by us, we will shut it down.
-    Otherwise we can still close it if it was started by the slaverunner, not the Lr
-    Note: if it was started by us, it was started via the slaverunner.
-    &#34;&#34;&#34;
-    if not self.closed and self.slave.isClosable():
-        self.closed = True
-        self.gateway.shutdown()
-        if self.gateprocess is not None:
-            for line in self.gateprocess.stderr:
-                print(line, file=sys.stderr, end=&#34;&#34;)
-            self.gateprocess.wait()</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.del_resource"><code class="name flex">
 <span>def <span class="ident">del_resource</span></span>(<span>self, resource)</span>
@@ -1459,23 +1168,6 @@ GATE document does not delete/unload the document!</p>
 <dt><strong><code>resource</code></strong></dt>
 <dd>the Java GATE resource, e.g. a document to remove</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def del_resource(self, resource):
-    &#34;&#34;&#34;
-    Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
-    This is particularly important to do when processing a large number of documents for each document
-    that is finished processing, otherwise the documents
-    will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
-    GATE document does not delete/unload the document!
-
-    Args:
-      resource: the Java GATE resource, e.g. a document to remove
-    &#34;&#34;&#34;
-    self.jvm.gate.Factory.deleteResource(resource)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.gdoc2pdoc"><code class="name flex">
 <span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc)</span>
@@ -1489,23 +1181,6 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a gatenlp Document instance</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gdoc2pdoc(self, gdoc):
-    &#34;&#34;&#34;
-    Convert the GATE document to a python document and return it.
-
-    Args:
-      gdoc: the handle to a GATE document
-
-    Returns:
-      a gatenlp Document instance
-    &#34;&#34;&#34;
-    bjs = self.slave.getBdocJson(gdoc)
-    return Document.load_mem(bjs, fmt=&#34;bdocjs&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.load_gdoc"><code class="name flex">
 <span>def <span class="ident">load_gdoc</span></span>(<span>self, path, mimetype=None)</span>
@@ -1521,25 +1196,6 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a handle to the Java GATE document</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_gdoc(self, path, mimetype=None):
-    &#34;&#34;&#34;
-    Let GATE load a document from the given path and return a handle to it.
-
-    Args:
-      path: path to the gate document to load.
-      mimetype: a mimetype to use when loading. (Default value = None)
-
-    Returns:
-      a handle to the Java GATE document
-    &#34;&#34;&#34;
-    if mimetype is None:
-        mimetype = &#34;&#34;
-    return self.slave.loadDocumentFromFile(path, mimetype)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.load_pdoc"><code class="name flex">
 <span>def <span class="ident">load_pdoc</span></span>(<span>self, path, mimetype=None)</span>
@@ -1555,24 +1211,6 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>gatenlp document</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def load_pdoc(self, path, mimetype=None):
-    &#34;&#34;&#34;
-    Load a document from the given path, using GATE and convert and return as gatenlp Python document.
-
-    Args:
-      path: path to load document from
-      mimetype: mime type to use (Default value = None)
-
-    Returns:
-      gatenlp document
-    &#34;&#34;&#34;
-    gdoc = self.load_gdoc(path, mimetype)
-    return self.gdoc2pdoc(gdoc)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.log_actions"><code class="name flex">
 <span>def <span class="ident">log_actions</span></span>(<span>self, onoff)</span>
@@ -1584,19 +1222,6 @@ GATE document does not delete/unload the document!</p>
 <dt><strong><code>onoff</code></strong></dt>
 <dd>True to log actions, False to not log them</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log_actions(self, onoff):
-    &#34;&#34;&#34;
-    Swith logging actions at the slave on or off.
-
-    Args:
-      onoff: True to log actions, False to not log them
-    &#34;&#34;&#34;
-    self.slave.logActions(onoff)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.pdoc2gdoc"><code class="name flex">
 <span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc)</span>
@@ -1610,23 +1235,6 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>handle to GATE document</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def pdoc2gdoc(self, pdoc):
-    &#34;&#34;&#34;
-    Convert the Python gatenlp document to a GATE document and return a handle to it.
-
-    Args:
-      pdoc: python gatenlp Document
-
-    Returns:
-      handle to GATE document
-    &#34;&#34;&#34;
-    json = pdoc.save_mem(fmt=&#34;bdocjs&#34;)
-    return self.slave.getDocument4BdocJson(json)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.save_gdoc"><code class="name flex">
 <span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc, path, mimetype=None)</span>
@@ -1644,25 +1252,6 @@ GATE document does not delete/unload the document!</p>
 application/fastinfoset, and all mimetypes supported by the
 Format_Bdoc plugin. (Default value = None)</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def save_gdoc(self, gdoc, path, mimetype=None):
-    &#34;&#34;&#34;
-    Save GATE document to the given path.
-
-    Args:
-      gdoc: GATE document handle
-      path: destination path
-      mimetype: mimtetype, only the following types are allowed: &#34;&#34;/None: GATE XML,
-            application/fastinfoset, and all mimetypes supported by the
-            Format_Bdoc plugin. (Default value = None)
-    &#34;&#34;&#34;
-    if mimetype is None:
-        mimetype = &#34;&#34;
-    self.slave.saveDocumentToFile(path, mimetype)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.show_gui"><code class="name flex">
 <span>def <span class="ident">show_gui</span></span>(<span>self)</span>
@@ -1671,19 +1260,6 @@ Format_Bdoc plugin. (Default value = None)</dd>
 <div class="desc"><p>Show the GUI for the started GATE process.</p>
 <p>NOTE: this is more of a hack and may cause sync problems
 when closing down the GATE slave.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def show_gui(self):
-    &#34;&#34;&#34;
-    Show the GUI for the started GATE process.
-
-    NOTE: this is more of a hack and may cause sync problems
-    when closing down the GATE slave.
-    &#34;&#34;&#34;
-    self.slave.showGui()</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -1879,51 +1455,6 @@ which gets modified in place or new document with the original document unchange
 <h2 id="returns">Returns</h2>
 <p>the processed gatenlp document which may be the original one passed to this method
 or a new one.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __call__(self, doc, **kwargs):
-    &#34;&#34;&#34;
-    Run the GATE controller on the given document.
-
-    This runs the GATE pipeline (controller) on the given document by first sending the document
-    to the GATE process and coverting it to a GATE document there, running the pipeline on it,
-    and sending the document back and converting back to a new gatenlp Document.
-
-    IMPORTANT: the exact way of how the final document that gets returned by this method is created
-    may change or depend on how the annotator is configured: it may or may not be the original document
-    which gets modified in place or new document with the original document unchanged.
-
-    Args:
-        doc: the document to process
-        **kwargs: ignored so far
-
-    Returns:
-        the processed gatenlp document which may be the original one passed to this method
-        or a new one.
-    &#34;&#34;&#34;
-    # TODO: how to handle exceptions?
-    if self.sets_send is not None:
-        # TODO: create the json for the pdoc restricted to these sets, and with setnames renamed
-        # TODO: then send the document as JSON directly
-        pass
-    # TODO: LIMIT the sets to send by directly sending the JSON using
-    # TODO: doc.save_mem(fmt=&#34;json&#34;, annsets=[&#34;set&#34;,  (&#34;set2&#34;, [&#34;Type1&#34;, &#34;Type2&#34;])])
-    gdoc = self.gs.pdoc2gdoc(doc)
-    self.gs.slave.run4Document(self.controller, gdoc)
-    if self.sets_receive is not None:
-        # TODO: retrieve the JSON limited to just the specified sets
-        pass
-    else:
-        # TODO: retrieve the JSON for all sets
-        # NOTE: for now we always retrieve back the whole annotated document
-        doc = self.gs.gdoc2pdoc(gdoc)
-    # TODO: once we have the set or sets, add them to the existing python document
-    # TODO: as specified via the sets_receive and replace_anns parameters
-    self.gs.del_resource(gdoc)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlaveAnnotator.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
@@ -1931,50 +1462,18 @@ or a new one.</p></div>
 <dd>
 <div class="desc"><p>Shut down the GateSlave used by this annotator.</p>
 <p>After calling this, the GateSlaveAnnotator instance cannot be used any more.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def close(self):
-    &#34;&#34;&#34;
-    Shut down the GateSlave used by this annotator.
-
-    After calling this, the GateSlaveAnnotator instance cannot be used any more.
-    &#34;&#34;&#34;
-    self.gs.close()</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlaveAnnotator.finish"><code class="name flex">
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Invoke the controller execution finished method on the GATE controller.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def finish(self):
-    &#34;&#34;&#34;
-    Invoke the controller execution finished method on the GATE controller.
-    &#34;&#34;&#34;
-    self.controller.invokeControllerExecutionFinished()</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.gateslave.GateSlaveAnnotator.start"><code class="name flex">
 <span>def <span class="ident">start</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Invoke the controller execution started method on the GATE controller.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def start(self):
-    &#34;&#34;&#34;
-    Invoke the controller execution started method on the GATE controller.
-    &#34;&#34;&#34;
-    self.controller.invokeControllerExecutionStarted()</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -2041,7 +1540,7 @@ or a new one.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

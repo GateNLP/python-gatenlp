@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.processing.gazetteer API documentation</title>
 <meta name="description" content="This module provides Gazetteer classes which allow matching the text or the tokens of documents against
 gazetteer lists, lists of interesting texts or …" />
@@ -987,19 +987,6 @@ class StringGazetteer:
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def tokentext_getter(token, doc=None, feature=None):
-    if feature is not None:
-        txt = token.features.get(feature)
-    else:
-        if doc is None:
-            raise Exception(&#34;No feature given, need doc for gazetteer&#34;)
-        txt = doc[token]
-    return txt</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -1056,23 +1043,23 @@ class StringGazetteer:
 <dl>
 <dt id="gatenlp.processing.gazetteer.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.Match.entrydata"><code class="name">var <span class="ident">entrydata</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.Match.matcherdata"><code class="name">var <span class="ident">matcherdata</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -1295,44 +1282,6 @@ in which case the data is appended to the list of data already there.</p>
 :param listdata: the list data to add for that gazeteer entry.
 :param append: if true and data is not None, store data in a list and append any new data
 :return:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add(self, entry, data=None, listdata=None, append=False):
-    &#34;&#34;&#34;
-    Add a gazetteer entry or several entries if &#34;entry&#34; is iterable and not a string and store its data.
-    Note that data has to be a non-None value to indicate that this entry is in the tree (e.g. True).
-
-    If an entry already exists, the data is replaced with the new data unless append is True
-    in which case the data is appended to the list of data already there.
-
-    If all elements of the entry are ignored, nothing is done.
-
-    :param entry: a string
-    :param data: the data to add for that gazetteer entry.
-    :param listdata: the list data to add for that gazeteer entry.
-    :param append: if true and data is not None, store data in a list and append any new data
-    :return:
-    &#34;&#34;&#34;
-    if isinstance(entry, str):
-        entry = [entry]
-    for e in entry:
-        node = self._get_node(e, create=True)
-        if node == self._root:
-            # empty string not allowed
-            continue
-        if node.value == _NOVALUE:
-            if append:
-                node.value = [data]
-            else:
-                node.value = data
-        else:
-            if append:
-                node.value.append(data)
-            else:
-                node.value = data</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.StringGazetteer.find"><code class="name flex">
 <span>def <span class="ident">find</span></span>(<span>self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None)</span>
@@ -1347,116 +1296,12 @@ ignored.
 :param toidx: index where to stop finding in tokens (this is the last index actually used)
 :return: an iterable of Match. The start/end fields of each Match are the character offsets if
 text is a string, otherwise are the token offsets.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find(
-    self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None
-):
-    &#34;&#34;&#34;
-    Find gazetteer entries in text.
-    ignored.
-    :param text: string to search
-    :param all: return all matches, if False only return longest match
-    :param skip: skip forward over longest match (do not return contained/overlapping matches)
-    :param fromidx: index where to start finding in tokens
-    :param toidx: index where to stop finding in tokens (this is the last index actually used)
-    :return: an iterable of Match. The start/end fields of each Match are the character offsets if
-    text is a string, otherwise are the token offsets.
-    &#34;&#34;&#34;
-    matches = []
-    l = len(text)
-    if fromidx is None:
-        fromidx = 0
-    if toidx is None:
-        toidx = l - 1
-    if fromidx &gt;= l:
-        return matches
-    if toidx &gt;= l:
-        toidx = l - 1
-    if fromidx &gt; toidx:
-        return matches
-    i = fromidx
-    self.logger.debug(f&#34;From index {i} to index {toidx} for {text}&#34;)
-    while i &lt; toidx:
-        chr = text[i]
-        if self.ignorefunc and self.ignorefunc(chr):
-            i += 1
-            continue
-        if self.mapfunc:
-            chr = self.mapfunc(chr)
-        longest_len = 0
-        longest_match = None
-        node = self._root
-        node = node.children.get(chr)
-        k = 0
-        while node is not None:
-            if node.value != _NOVALUE:
-                # we found a match
-                cur_len = k + 1
-                if matchmaker:
-                    match = matchmaker(
-                        i,
-                        i + k + 1,
-                        text[i : i + k + 1],
-                        node.value,
-                        self.matcherdata,
-                    )
-                else:
-                    match = Match(
-                        i,
-                        i + k + 1,
-                        text[i : i + k + 1],
-                        node.value,
-                        self.matcherdata,
-                    )
-                if all:
-                    matches.append(match)
-                else:
-                    # NOTE: only one longest match is possible, but it can have a list of data if append=True
-                    if cur_len &gt; longest_len:
-                        longest_len = cur_len
-                        longest_match = match
-            while True:
-                k += 1
-                if i + k &gt;= len(text):
-                    break
-                chr = text[i + k]
-                if self.ignorefunc and self.ignorefunc(chr):
-                    continue
-                if self.mapfunc:
-                    chr = self.mapfunc(chr)
-                node = node.children.get(chr)
-                break
-            if i + k &gt;= len(text):
-                break
-        if not all and longest_match is not None:
-            matches.append(longest_match)
-        if skip:
-            i += max(k, 1)
-        else:
-            i += 1
-    return matches</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.StringGazetteer.get"><code class="name flex">
 <span>def <span class="ident">get</span></span>(<span>self, item, default=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get(self, item, default=None):
-    node = self._get_node(item, create=False, raise_error=False)
-    if node is None:
-        return default
-    if node.value == _NOVALUE:
-        return default
-    return node.value</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2187,100 +2032,6 @@ represents a token to be matched</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The list of feature sets currently stored with the entry</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def add(self, entry, data=None, listidx=None):
-    &#34;&#34;&#34;
-    Add a single gazetteer entry. A gazetteer entry can have no data associated with it at all if both
-    data and listidx are None. If only list indices are given then an array of those indices is stored
-    with the entry and data remaines None, if only data is given then an array of data is stored and
-    listidx remains None. If at some point, both data and a listidx are stored in the same entry, then
-    both fields are changed to have both a list with the same number of elements corresponding to each
-    other, with missing data or listidx elements being None.
-
-    Args:
-        entry: a iterable of string or a string for a single element, each element is the string that
-           represents a token to be matched
-        data: dictionary of features to add
-        listidx: the index to list features and a list type to add
-
-    Returns:
-        The list of feature sets currently stored with the entry
-    &#34;&#34;&#34;
-    if isinstance(entry, str):
-        entry = [entry]
-    node = None
-    i = 0
-    for (
-        token
-    ) in (
-        entry
-    ):  # each &#34;token&#34; is a string or None, where None indicates a separator
-        if self.mapfunc is not None:
-            token = self.mapfunc(token)
-        if self.ignorefunc is not None and self.ignorefunc(token):
-            continue
-        if i == 0:
-            node = self.nodes[token]
-        else:
-            if node.nodes is None:
-                node.nodes = defaultdict(TokenGazetteerNode)
-                tmpnode = TokenGazetteerNode()
-                node.nodes[token] = tmpnode
-                node = tmpnode
-            else:
-                node = node.nodes[token]
-        i += 1
-    node.is_match = True
-    # For now: always store parallel lists of data and listidxs, with None elements if necessary.
-    if data is not None or listidx is not None:
-        if node.data is None:
-            node.data = [data]
-            node.listidx = [listidx]
-        else:
-            node.data.append(data)
-            node.listidx.append(listidx)
-
-    # TODO: code to test and correct: try to save space by only storing parallel lists if
-    # both data and listindices are actually both non-null and added:
-    #
-    # if data is None and listidx is None:
-    #     # nothing to do, return what we have
-    #     return node.data, node.listidx
-    # # if we have only data and no listidx and there is no listidx
-    # if data is not None and listidx is None and node.listidx is None:
-    #     if node.data is None:
-    #         node.data = [data]
-    #     else:
-    #         node.data.append(data)
-    # elif listidx is not None and data is None and node.data is None:
-    #     if node.listidx is None:
-    #         node.listidx = [listidx]
-    #     else:
-    #         node.listidx.append(listidx)
-    # else:
-    #     # make sure we have parallel lists
-    #     if node.data is None:
-    #         node.data = []
-    #     if node.listidx is None:
-    #         node.listidx = []
-    #     if len(node.data) &gt; len(node.listidx):
-    #         node.listidx.extend([None] * (len(node.data) - len(node.listidx)))
-    #     elif len(node.listidx) &gt; len(node.data):
-    #         node.data.extend([None] * (len(node.listidx) - len(node.data)))
-    #     if listidx:
-    #         node.listidx.append(listidx)
-    #         if data:
-    #             node.data.append(data)
-    #         else:
-    #             node.data.append(None)
-    #     else:
-    #         node.listidx.append(None)
-    #         node.listidx.append(listidx)
-    return node.data, node.listidx</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteer.append"><code class="name flex">
 <span>def <span class="ident">append</span></span>(<span>self, source, fmt='gate-def', source_sep='\t', source_encoding='UTF-8', listfeatures=None, listtype=None)</span>
@@ -2308,131 +2059,6 @@ its own list features, this is ignored.</dd>
 <dd>the output annotation type to use for the list that gets appended. If what gets appended
 specifies its own list type or list types, this is ignored.</dd>
 </dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def append(
-    self,
-    source,
-    fmt=&#34;gate-def&#34;,
-    source_sep=&#34;\t&#34;,
-    source_encoding=&#34;UTF-8&#34;,
-    listfeatures=None,
-    listtype=None,
-):
-    &#34;&#34;&#34;
-    This method appends more entries to gazetteer.
-
-    Args:
-        source: where to load the gazetteer from. What is actually expected here depends on the fmt
-          parameter.
-        fmt: defines what is expected as the format and/or content of the source parameter. One of:
-           *  &#34;gate-def&#34; (default): source must be a string, a pathlib Path or a parsed urllib url and
-              point to a GATE-style &#34;def&#34; file. See https://gate.ac.uk/userguide/chap:gazetteers
-           * &#34;gazlist&#34;: a list of tuples or lists where the first element of the tuple/list
-              is a list of strings, the second element is a dictionary containing the features to assign and
-              the third element, if it exists, is the index of an element in the listfeatures array.
-        listfeatures: a list of dictionaries containing the features to set for all matches witch have the
-          list index set, this list gets appended to the existing listfeatures. If what gets appended specifies
-          its own list features, this is ignored.
-        listtype: the output annotation type to use for the list that gets appended. If what gets appended
-           specifies its own list type or list types, this is ignored.
-    &#34;&#34;&#34;
-    if fmt == &#34;gazlist&#34;:
-        if listfeatures is not None:
-            self.listfeatures.append(listfeatures)
-        else:
-            self.listfeatures.append({})
-        if listtype is not None:
-            self.listtypes.append(listtype)
-        else:
-            self.listtypes.append(self.outtype)
-        listidx = len(self.listfeatures) - 1
-        for el in source:
-            entry = el[0]
-            data = el[1]
-            self.add(entry, data, listidx=listidx)
-    elif fmt == &#34;gate-def&#34;:
-        if listfeatures is None:
-            listfeatures = {}
-        if listtype is None:
-            listtype = self.outtype
-        with open(source, &#34;rt&#34;, encoding=source_encoding) as infp:
-            for line in infp:
-                line = line.rstrip(&#34;\n\r&#34;)
-                fields = line.split(&#34;:&#34;)
-                fields.extend([&#34;&#34;, &#34;&#34;, &#34;&#34;, &#34;&#34;])
-                listFile = fields[0]
-                majorType = fields[1]
-                minorType = fields[2]
-                languages = fields[3]
-                anntype = fields[4]
-                this_listfeatures = listfeatures.copy()
-                this_outtype = listtype
-                if majorType:
-                    this_listfeatures[&#34;majorType&#34;] = majorType
-                if minorType:
-                    this_listfeatures[&#34;minorType&#34;] = minorType
-                if languages:
-                    this_listfeatures[&#34;lang&#34;] = languages
-                if anntype:
-                    this_outtype = anntype
-                # read in the actual list
-                listfile = os.path.join(os.path.dirname(source), listFile)
-                self.logger.info(f&#34;Reading list file {listfile}&#34;)
-                with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
-                    self.listtypes.append(this_outtype)
-                    self.listfeatures.append(this_listfeatures)
-                    linenr = 0
-                    for listline in inlistfile:
-                        linenr += 1
-                        listline = listline.rstrip(&#34;\n\r&#34;)
-                        fields = listline.split(source_sep)
-                        entry = fields[0]
-                        if self.tokenizer:
-                            tmpdoc = Document(entry)
-                            self.tokenizer(tmpdoc)
-                            # TODO: include and handle SpaceToken if we use the speparator annoations!
-                            # TODO: maybe have a different way to retrieve the token annotations based
-                            # on the tokenizer????
-                            tokenanns = list(tmpdoc.annset().with_type(&#34;Token&#34;))
-                            if self.getterfunc:
-                                tokenstrings = [
-                                    self.getterfunc(a, doc=tmpdoc)
-                                    for a in tokenanns
-                                ]
-                            else:
-                                tokenstrings = [tmpdoc[a] for a in tokenanns]
-                            if self.mapfunc:
-                                tokenstrings = [
-                                    self.mapfunc(s) for s in tokenstrings
-                                ]
-                            if self.ignorefunc:
-                                tokenstrings = [
-                                    s
-                                    for s in tokenstrings
-                                    if not self.ignorefunc(s)
-                                ]
-                        else:
-                            tokenstrings = entry.split()  # just split on whitespace
-                        if len(tokenstrings) == 0:
-                            self.logger.warn(
-                                f&#34;File {listfile}, skipping line {linenr}, no tokens left: {listline}&#34;
-                            )
-                            continue
-                        if len(entry) &gt; 1:
-                            feats = {}
-                            for fspec in fields[1:]:
-                                fname, fval = fspec.split(&#34;=&#34;)
-                                feats[fname] = fval
-                        else:
-                            feats = None
-                        listidx = len(self.listfeatures) - 1
-                        self.add(tokenstrings, feats, listidx=listidx)
-    else:
-        raise Exception(f&#34;TokenGazetteer format {fmt} not known&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteer.find"><code class="name flex">
 <span>def <span class="ident">find</span></span>(<span>self, tokens, doc=None, all=None, fromidx=None, toidx=None, endidx=None, matchfunc=None)</span>
@@ -2463,58 +2089,6 @@ setting from init</dd>
 <h2 id="returns">Returns</h2>
 <p>A triple with the list of matches as the first element, the max length of matches or 0 if no matches
 as the second element and the index where the match occurs or None as the third element</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find(
-    self,
-    tokens,
-    doc=None,
-    all=None,
-    fromidx=None,
-    toidx=None,
-    endidx=None,
-    matchfunc=None,
-):
-    &#34;&#34;&#34;
-    Find the next match in the given index range and return a tuple with two elements: the first element
-    if the list of matches, empty if no match was found, the second element is the index where the matches
-    were found or None if no match was found.
-
-    Args:
-        tokens: list of tokens (must allow to fetch the ith token as tokens[i])
-        doc: the document to which the tokens belong. Necessary of the underlying text is used
-           for the tokens.
-        all: whether to return all matches or just the longest ones. If not none, overrides the
-           setting from init
-        fromidx: first index where a match may start
-        toidx: last index where a match may start
-        endidx: the index in tokens after which no match must end
-        matchfunc: the function to use to process each match
-
-    Returns:
-        A triple with the list of matches as the first element, the max length of matches or 0 if no matches
-        as the second element and the index where the match occurs or None as the third element
-
-    &#34;&#34;&#34;
-    if all is None:
-        all = self.all
-    idx = fromidx
-    if toidx is None:
-        toidx = len(tokens) - 1
-    if endidx is None:
-        endidx = len(tokens)
-    while idx &lt;= toidx:
-        matches, long = self.match(
-            tokens, idx=idx, doc=doc, all=all, endidx=endidx, matchfunc=matchfunc
-        )
-        if long == 0:
-            idx += 1
-            continue
-        return matches, long, idx
-    return [], 0, None</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteer.find_all"><code class="name flex">
 <span>def <span class="ident">find_all</span></span>(<span>self, tokens, doc=None, all=None, skip=None, fromidx=None, toidx=None, endidx=None, matchfunc=None)</span>
@@ -2549,85 +2123,6 @@ some action.</dd>
 </dl>
 <h2 id="yields">Yields</h2>
 <p>list of matches</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def find_all(
-    self,
-    tokens,
-    doc=None,
-    all=None,
-    skip=None,
-    fromidx=None,
-    toidx=None,
-    endidx=None,
-    matchfunc=None,
-    # reverse=True,
-):
-    &#34;&#34;&#34;
-    Find gazetteer entries in a sequence of tokens.
-    Note: if fromidx or toidx are bigger than the length of the tokens allows, this is silently
-    ignored.
-
-    Args:
-        tokens: iterable of tokens. The getter will be applied to each one and the doc to retrieve the initial
-           string.
-        doc: the document this should run on. Only necessary if the text to match is not retrieved from
-           the token annotation, but from the underlying document text.
-        all: return all matches, if False only return longest matches. If not None, overrides the init
-           setting
-        skip: skip forward over longest match (do not return contained/overlapping matches). If not
-           None overrides the init setting.
-        fromidx: index where to start finding in tokens
-        toidx: index where to stop finding in tokens (this is the last index actually used)
-        endidx: index beyond which no matches should end
-        matchfunc: a function which takes the data from the gazetteer, the token and doc and performs
-            some action.
-
-    Yields:
-        list of matches
-    &#34;&#34;&#34;
-    logger = self.logger
-    if all is None:
-        all = self.all
-    if skip is None:
-        skip = self.skip
-    matches = []
-    l = len(tokens)
-    if endidx is None:
-        endidx = l
-    if fromidx is None:
-        fromidx = 0
-    if toidx is None:
-        toidx = l - 1
-    if fromidx &gt;= l:
-        yield matches
-        return
-    if toidx &gt;= l:
-        toidx = l - 1
-    if fromidx &gt; toidx:
-        yield matches
-        return
-    idx = fromidx
-    while idx &lt;= toidx:
-        matches, maxlen, idx = self.find(
-            tokens,
-            doc=doc,
-            all=all,
-            fromidx=idx,
-            endidx=endidx,
-            toidx=toidx,
-            matchfunc=matchfunc,
-        )
-        if idx is None:
-            return
-        yield matches
-        if skip:
-            idx += maxlen
-        else:
-            idx += 1</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteer.match"><code class="name flex">
 <span>def <span class="ident">match</span></span>(<span>self, tokens, doc=None, all=None, idx=0, endidx=None, matchfunc=None)</span>
@@ -2661,133 +2156,6 @@ that is then added to the result list of matches.</dd>
 <h2 id="returns">Returns</h2>
 <p>A tuple, where the first element is a list of match elements, empty if no matches are found
 and the second element is the length of the longest match, 0 if no match.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def match(self, tokens, doc=None, all=None, idx=0, endidx=None, matchfunc=None):
-    &#34;&#34;&#34;
-    Try to match at index location idx of the tokens sequence. Returns a list which contains
-    no elements if no match is found,  or
-    as many elements as matches are found. The element for each match is either a
-    TokenGazeteerMatch instance if matchfunc is None or whatever matchfunc returns for a match.
-    Also returns the legngth of the longest match (0 if no match).
-
-    Args:
-        tokens: a list of tokens (must allow to fetch the ith token as tokens[i])
-        doc: the document to which the tokens belong. Necessary of the underlying text is used
-           for the tokens.
-        all: whether to return all matches or just the longest ones. If None, overrides the setting
-           from init.
-        idx: the index in tokens where the match must start
-        endidx: the index in tokens after which no match must end
-        matchfunc: a function to process each match.
-           The function is passed the TokenGazetteerMatch and the doc and should return something
-           that is then added to the result list of matches.
-
-    Returns:
-        A tuple, where the first element is a list of match elements, empty if no matches are found
-        and the second element is the length of the longest match, 0 if no match.
-
-    &#34;&#34;&#34;
-    if endidx is None:
-        endidx = len(tokens)
-    assert idx &lt; endidx
-    if all is None:
-        all = self.all
-    token = tokens[idx]
-    if token.type == self.splittype:
-        return [], 0
-    token_string = self.getterfunc(token, doc=doc, feature=self.feature)
-    if token_string is None:
-        return [], 0
-    if self.mapfunc:
-        token_string = self.mapfunc(token_string)
-    if self.ignorefunc:
-        if self.ignorefunc(token_string):
-            # no match possible here
-            return [], 0
-    # check if we can match the current token
-    if token_string in self.nodes:
-        # ok, we have the beginning of a possible match
-        longest = 0
-        node = self.nodes[token_string]
-        thismatches = []
-        thistokens = [token]
-        if node.is_match:
-            # the first token is already a complete match, so we need to add this to thismatches
-            longest = 1
-            # TODO: make this work with list data!
-            if matchfunc:
-                match = matchfunc(
-                    idx, idx + 1, thistokens.copy(), node.data, node.listidx
-                )
-            else:
-                match = TokenGazetteerMatch(
-                    idx, idx + 1, thistokens.copy(), node.data, node.listidx
-                )
-            thismatches.append(match)
-        j = idx + 1  # index into text tokens
-        nignored = 0
-        while j &lt;= endidx:
-            if node.nodes:
-                token = tokens[j]
-                if token.type == self.splittype:
-                    break
-                token_string = self.getterfunc(token, doc=doc, feature=self.feature)
-                if token_string is None:
-                    j += 1
-                    nignored += 1
-                    continue
-                if self.mapfunc:
-                    token_string = self.mapfunc(token_string)
-                if self.ignorefunc and self.ignorefunc(token_string):
-                    j += 1
-                    nignored += 1
-                    continue
-                if token_string in node.nodes:
-                    node = node.nodes[token_string]
-                    thistokens.append(token)
-                    if node.is_match:
-                        if matchfunc:
-                            match = matchfunc(
-                                idx,
-                                idx + len(thistokens) + nignored,
-                                thistokens.copy(),
-                                node.data,
-                                node.listidx,
-                            )
-                        else:
-                            match = TokenGazetteerMatch(
-                                idx,
-                                idx + len(thistokens) + nignored,
-                                thistokens.copy(),
-                                node.data,
-                                node.listidx,
-                            )
-                        debugtxt = &#34; &#34;.join(
-                            [doc[tokens[i]] for i in range(match.start, match.end)]
-                        )
-                        # TODO: should LONGEST get calculated including ignored tokens or not?
-                        if all:
-                            thismatches.append(match)
-                            if len(thistokens) &gt; longest:
-                                longest = len(thistokens)
-                        else:
-                            if len(thistokens) &gt; longest:
-                                thismatches = [match]
-                                longest = len(thistokens)
-                    j += 1
-                    continue
-                else:
-                    break
-            else:
-                break
-        return thismatches, longest
-    else:
-        # first token did not match, nothing to be found
-        return [], 0</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2806,23 +2174,23 @@ and the second element is the length of the longest match, 0 if no match.</p></d
 <dl>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.data"><code class="name">var <span class="ident">data</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.listidx"><code class="name">var <span class="ident">listidx</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.match"><code class="name">var <span class="ident">match</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerMatch.start"><code class="name">var <span class="ident">start</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -2886,34 +2254,25 @@ start with the first token and the entry data if we have a match (all tokens mat
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def dict_repr(nodes):
-    if nodes is not None:
-        return str([(t, n) for t, n in nodes.items()])</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerNode.data"><code class="name">var <span class="ident">data</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerNode.is_match"><code class="name">var <span class="ident">is_match</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerNode.listidx"><code class="name">var <span class="ident">listidx</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteerNode.nodes"><code class="name">var <span class="ident">nodes</span></code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -2995,7 +2354,7 @@ def dict_repr(nodes):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>

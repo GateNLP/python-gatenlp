@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev16+g8c2bb0d.d20201028" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.serialization.default API documentation</title>
 <meta name="description" content="Module that implements the various ways of how to save and load documents and change logs." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -1654,51 +1654,6 @@ def get_changelog_loader(filespec, fmt):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def determine_loader(
-    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    first = None
-    if from_mem:
-        first = from_mem[0]
-    else:
-        with open(from_ext, &#34;rt&#34;) as infp:
-            first = infp.read(1)
-    if first == &#34;{&#34;:
-        return JsonSerializer.load(
-            clazz,
-            from_ext=from_ext,
-            from_mem=from_mem,
-            offset_mapper=offset_mapper,
-            gzip=gzip,
-            **kwargs,
-        )
-    else:
-        return MsgPackSerializer.load(
-            clazz,
-            from_ext=from_ext,
-            from_mem=from_mem,
-            offset_mapper=offset_mapper,
-            gzip=gzip,
-            **kwargs,
-        )</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_bytes_from_url"><code class="name flex">
 <span>def <span class="ident">get_bytes_from_url</span></span>(<span>url)</span>
@@ -1712,23 +1667,6 @@ Returns:</p></div>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the bytes</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_bytes_from_url(url):
-    &#34;&#34;&#34;
-    Reads bytes from url.
-
-    Args:
-      url: the URL
-
-    Returns:
-        the bytes
-    &#34;&#34;&#34;
-    req = requests.get(url)
-    return req.content</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_changelog_loader"><code class="name flex">
 <span>def <span class="ident">get_changelog_loader</span></span>(<span>filespec, fmt)</span>
@@ -1738,22 +1676,6 @@ Returns:</p></div>
 <p>filespec:
 fmt:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_changelog_loader(filespec, fmt):
-    &#34;&#34;&#34;
-
-    Args:
-      filespec:
-      fmt:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return get_handler(filespec, fmt, CHANGELOG_LOADERS, &#34;load&#34;, &#34;changelog&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_changelog_saver"><code class="name flex">
 <span>def <span class="ident">get_changelog_saver</span></span>(<span>filespec, fmt)</span>
@@ -1763,22 +1685,6 @@ Returns:</p></div>
 <p>filespec:
 fmt:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_changelog_saver(filespec, fmt):
-    &#34;&#34;&#34;
-
-    Args:
-      filespec:
-      fmt:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return get_handler(filespec, fmt, CHANGELOG_SAVERS, &#34;save&#34;, &#34;changelog&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_document_loader"><code class="name flex">
 <span>def <span class="ident">get_document_loader</span></span>(<span>filespec, fmt)</span>
@@ -1788,22 +1694,6 @@ Returns:</p></div>
 <p>filespec:
 fmt:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_document_loader(filespec, fmt):
-    &#34;&#34;&#34;
-
-    Args:
-      filespec:
-      fmt:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return get_handler(filespec, fmt, DOCUMENT_LOADERS, &#34;load&#34;, &#34;document&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_document_saver"><code class="name flex">
 <span>def <span class="ident">get_document_saver</span></span>(<span>filespec, fmt)</span>
@@ -1813,22 +1703,6 @@ Returns:</p></div>
 <p>filespec:
 fmt:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_document_saver(filespec, fmt):
-    &#34;&#34;&#34;
-
-    Args:
-      filespec:
-      fmt:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return get_handler(filespec, fmt, DOCUMENT_SAVERS, &#34;save&#34;, &#34;document&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_handler"><code class="name flex">
 <span>def <span class="ident">get_handler</span></span>(<span>filespec, fmt, handlers, saveload, what)</span>
@@ -1841,55 +1715,6 @@ handlers:
 saveload:
 what:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_handler(filespec, fmt, handlers, saveload, what):
-    &#34;&#34;&#34;
-
-    Args:
-      filespec:
-      fmt:
-      handlers:
-      saveload:
-      what:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    msg = f&#34;Could not determine how to {saveload} {what} for format {fmt} in module gatenlp.serialization.default&#34;
-    if fmt:
-        handler = handlers.get(fmt)
-        if not handler:
-            raise Exception(msg)
-        return handler
-    else:
-        if not filespec:  # in case of save_mem
-            raise Exception(msg)
-        if isinstance(filespec, os.PathLike):
-            wf = os.fspath(filespec)
-        elif isinstance(filespec, str):
-            wf = filespec
-        else:
-            raise Exception(msg)
-        name, ext = os.path.splitext(wf)
-        if ext == &#34;.gz&#34;:
-            ext2 = os.path.splitext(name)[1]
-            if ext2:
-                ext2 = ext2[1:]
-            ext = ext2 + ext
-        elif ext:
-            ext = ext[1:]
-        fmt = EXTENSIONS.get(ext)
-        msg = f&#34;Could not determine how to {saveload} {what} for format {fmt} and with extension {ext} in module gatenlp.serialization.default&#34;
-        if not fmt:
-            raise Exception(msg)
-        handler = handlers.get(fmt)
-        if not handler:
-            raise Exception(msg)
-        return handler</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.get_str_from_url"><code class="name flex">
 <span>def <span class="ident">get_str_from_url</span></span>(<span>url, encoding=None)</span>
@@ -1905,25 +1730,6 @@ Returns:</p></div>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the string</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_str_from_url(url, encoding=None):
-    &#34;&#34;&#34;Read a string from the URL.
-
-    Args:
-      url: some URL
-      encoding: override the encoding that would have determined automatically (Default value = None)
-
-    Returns:
-        the string
-    &#34;&#34;&#34;
-    req = requests.get(url)
-    if encoding is not None:
-        req.encoding = encoding
-    return req.text</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.is_url"><code class="name flex">
 <span>def <span class="ident">is_url</span></span>(<span>ext)</span>
@@ -1939,36 +1745,6 @@ If ext is None, returns None, None.</p>
 <h2 id="returns">Returns</h2>
 <p>a tuple (True, urlstring)
 or (False,pathstring)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_url(ext):
-    &#34;&#34;&#34;
-    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
-    If ext is None, returns None, None.
-
-    Args:
-      ext: something that represents an external resource: string, url parse, pathlib path object ...
-
-    Returns:
-        a tuple (True, urlstring)  or (False,pathstring)
-
-    &#34;&#34;&#34;
-    if ext is None:
-        return None, None
-    if isinstance(ext, str):
-        if ext.startswith(&#34;http://&#34;) or ext.startswith(&#34;https://&#34;):
-            return True, ext
-        else:
-            return False, ext
-    elif isinstance(ext, Path):
-        return False, str(ext)
-    elif isinstance(ext, ParseResult):
-        return True, ext.geturl()
-    else:
-        raise Exception(f&#34;Odd type: {ext}&#34;)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.read_lines_from"><code class="name flex">
 <span>def <span class="ident">read_lines_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
@@ -1981,30 +1757,6 @@ or (False,pathstring)</p></div>
 <dd>either a file path or URL. If this is a string, then it is interpreted as an URL</dd>
 </dl>
 <p>only if it starts with http:// or <a href="https://,">https://,</a> otherwise it can be a parsed urllib url or a pathlib path</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def read_lines_from(url_or_file, encoding=&#34;utf-8&#34;):
-    &#34;&#34;&#34;
-    Yields lines of text from either a file or an URL
-
-    Args:
-        url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
-        only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
-    &#34;&#34;&#34;
-    isurl, extstr = is_url(url_or_file)
-    if isurl is None:
-        return
-    if isurl:
-        for line in urlopen(extstr):
-            line = line.decode(encoding)
-            yield line
-    else:
-        with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
-            for line in infp:
-                yield line</code></pre>
-</details>
 </dd>
 </dl>
 </section>
@@ -2207,164 +1959,6 @@ or (False,pathstring)</p></div>
 <dd>(Default value = False)</dd>
 </dl>
 <p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, ignore_unknown_types=False):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      ignore_unknown_types: (Default value = False)
-
-    Returns:
-
-    &#34;&#34;&#34;
-    # TODO: the code below is just an outline and needs work!
-    # TODO: make use of the test document created in repo project-python-gatenlp
-    import xml.etree.ElementTree as ET
-
-    isurl, extstr = is_url(from_ext)
-    if isurl:
-        xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-        root = ET.fromstring(xmlstring)
-    else:
-        tree = ET.parse(extstr)
-        root = tree.getroot()
-
-    # or: root = ET.fromstring(xmlstring)
-
-    # check we do have a GATE document
-
-    assert root.tag == &#34;GateDocument&#34;
-    assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
-
-    def parsefeatures(feats):
-        &#34;&#34;&#34;
-
-        Args:
-          feats:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        features = {}
-        for feat in list(feats):
-            name = None
-            value = None
-            for el in list(feat):
-                if el.tag == &#34;Name&#34;:
-                    if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
-                        name = el.text
-                    else:
-                        raise Exception(
-                            &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
-                        )
-                elif el.tag == &#34;Value&#34;:
-                    cls_name = el.get(&#34;className&#34;)
-                    if cls_name == &#34;java.lang.String&#34;:
-                        value = el.text
-                    elif cls_name == &#34;java.lang.Integer&#34;:
-                        value = int(el.text)
-                    elif cls_name == &#34;java.lang.Long&#34;:
-                        value = int(el.text)
-                    elif cls_name == &#34;java.math.BigDecimal&#34;:
-                        value = float(el.text)
-                    elif cls_name == &#34;java.lang.Boolean&#34;:
-                        value = bool(el.text)
-                    # elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
-                    #    value = GateXmlLoader.value4objectwrapper(el.text)
-                    else:
-                        if ignore_unknown_types:
-                            print(
-                                f&#34;Warning: ignoring feature with serialization type: {cls_name}&#34;,
-                                file=sys.stderr,
-                            )
-                        else:
-                            raise Exception(
-                                &#34;Unsupported serialization type: &#34;
-                                + el.get(&#34;className&#34;)
-                            )
-            if name is not None and value is not None:
-                features[name] = value
-        return features
-
-    # get the document features
-    docfeatures = {}
-    feats = root.findall(&#34;./GateDocumentFeatures/Feature&#34;)
-
-    docfeatures = parsefeatures(feats)
-
-    textwithnodes = root.findall(&#34;./TextWithNodes&#34;)
-    text = &#34;&#34;
-    node2offset = {}
-    curoff = 0
-    for item in textwithnodes:
-        if item.text:
-            print(&#34;Got item text: &#34;, item.text)
-            text += item.text
-            # TODO HTML unescape item text
-            curoff += len(item.text)
-        for node in item:
-            nodeid = node.get(&#34;id&#34;)
-            node2offset[nodeid] = curoff
-            if node.tail:
-                # TODO: unescape item.text?
-                print(&#34;Gote node tail: &#34;, node.tail)
-                text += node.tail
-                curoff += len(node.tail)
-
-    annsets = root.findall(&#34;./AnnotationSet&#34;)
-
-    annotation_sets = {}  # map name - set
-    for annset in annsets:
-        if annset.get(&#34;Name&#34;):
-            setname = annset.get(&#34;Name&#34;)
-        else:
-            setname = &#34;&#34;
-        annots = annset.findall(&#34;./Annotation&#34;)
-        annotations = []
-        maxannid = 0
-        for ann in annots:
-            annid = int(ann.attrib[&#34;Id&#34;])
-            maxannid = max(maxannid, annid)
-            anntype = ann.attrib[&#34;Type&#34;]
-            startnode = ann.attrib[&#34;StartNode&#34;]
-            endnode = ann.attrib[&#34;EndNode&#34;]
-            startoff = node2offset[startnode]
-            endoff = node2offset[endnode]
-            feats = ann.findall(&#34;./Feature&#34;)
-            features = parsefeatures(feats)
-            if len(features) == 0:
-                features = None
-            annotation = {
-                &#34;id&#34;: annid,
-                &#34;type&#34;: anntype,
-                &#34;start&#34;: startoff,
-                &#34;end&#34;: endoff,
-                &#34;features&#34;: features,
-            }
-            annotations.append(annotation)
-        annset = {
-            &#34;name&#34;: setname,
-            &#34;annotations&#34;: annotations,
-            &#34;next_annid&#34;: maxannid + 1,
-        }
-        annotation_sets[setname] = annset
-
-    docmap = {
-        &#34;text&#34;: text,
-        &#34;features&#34;: docfeatures,
-        &#34;offset_type&#34;: &#34;p&#34;,
-        &#34;annotation_sets&#34;: annotation_sets,
-    }
-
-    doc = Document.from_dict(docmap)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.GateXmlLoader.value4objectwrapper"><code class="name flex">
 <span>def <span class="ident">value4objectwrapper</span></span>(<span>text)</span>
@@ -2378,25 +1972,6 @@ now we always throw an exeption.</p>
 <dd>return:</dd>
 </dl>
 <p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def value4objectwrapper(text):
-    &#34;&#34;&#34;This may one day convert things like lists, maps, shared objects to Python, but for
-    now we always throw an exeption.
-
-    Args:
-      text: return:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    raise Exception(
-        &#34;Cannot load GATE XML which contains gate.corpora.ObjectWrapper data&#34;
-    )</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2551,16 +2126,6 @@ def value4objectwrapper(text):
 </code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def init_javscript():
-    import IPython
-
-    IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.HtmlAnnViewerSerializer.javascript"><code class="name flex">
 <span>def <span class="ident">javascript</span></span>(<span>)</span>
@@ -2568,30 +2133,6 @@ def init_javscript():
 <dd>
 <div class="desc"><p>Return the Javascript needed for the HTML Annotation viewer.</p>
 <p>Returns: Javascript string.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def javascript():
-    &#34;&#34;&#34;
-    Return the Javascript needed for the HTML Annotation viewer.
-
-    Returns: Javascript string.
-
-    &#34;&#34;&#34;
-    jsloc = os.path.join(
-        os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
-    )
-    if not os.path.exists(jsloc):
-        raise Exception(
-            &#34;Could not find JavsScript file, {} does not exist&#34;.format(jsloc)
-        )
-    with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-        js = infp.read()
-        js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
-    return js</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.HtmlAnnViewerSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, **kwargs)</span>
@@ -2633,116 +2174,6 @@ If True, no max haight is set and instead the height is set to a percentage (def
 <dd>swallow any other kwargs.</dd>
 </dl>
 <p>Returns: if to_mem is True, returns the representation, otherwise None.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">    @staticmethod
-    def save(
-        clazz,
-        inst,
-        to_ext=None,
-        to_mem=None,
-        notebook=False,
-        offline=False,
-        add_js=True,
-        htmlid=None,
-        stretch_height=False,
-        **kwargs,
-    ):
-        &#34;&#34;&#34;Convert a document to HTML for visualizing it.
-
-        Args:
-          clazz: the class of the object to save
-          inst: the instance/object to save
-          to_ext:  the destination where to save to unless to_mem is given
-          to_mem: if true, ignores to_ext and returns the representation
-          notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
-             generate a full HTML document
-          offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
-             from the internet.
-          add_js: if true (default), add the necessary Javascript either directly or by loading a library from
-             the internet. If false, assume that the Javascript is already there (only makes sense with
-             notebook=True).
-          htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
-             same HTML page and to style the output from a separate notebook cell
-          max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-             given value (default: 20em). If this is None, then the height is set to
-          stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
-             min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
-             If True, no max haight is set and instead the height is set to a percentage (default is
-             67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
-          kwargs: swallow any other kwargs.
-
-        Returns: if to_mem is True, returns the representation, otherwise None.
-
-        &#34;&#34;&#34;
-        if not isinstance(inst, Document):
-            raise Exception(&#34;Not a document!&#34;)
-        doccopy = inst.deepcopy()
-        doccopy.to_offset_type(&#34;j&#34;)
-        json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
-        htmlloc = os.path.join(
-            os.path.dirname(__file__), &#34;_htmlviewer&#34;, HTML_TEMPLATE_FILE_NAME
-        )
-        if not os.path.exists(htmlloc):
-            raise Exception(
-                &#34;Could not find HTML template, {} does not exist&#34;.format(htmlloc)
-            )
-        with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            html = infp.read()
-        txtcolor = gatenlpconfig.doc_html_repr_txtcolor
-        if notebook:
-            str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
-            str_end = &#34;&lt;!--ENDDIV--&gt;&#34;
-            idx1 = html.find(str_start) + len(str_start)
-            idx2 = html.find(str_end)
-            if htmlid:
-                rndpref = str(htmlid)
-            else:
-                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for i in range(10))
-            html = html[idx1:idx2]
-            html = f&#34;&#34;&#34;&lt;div&gt;&lt;style&gt;#{rndpref}-wrapper {{ color: {txtcolor} !important; }}&lt;/style&gt;
-&lt;div id=&#34;{rndpref}-wrapper&#34;&gt;
-{html}
-&lt;/div&gt;&lt;/div&gt;&#34;&#34;&#34;
-            # replace the prefix with a random one
-            html = html.replace(&#34;GATENLPID&#34;, rndpref)
-        if offline:
-            # global html_ann_viewer_serializer_js_loaded
-            # if not html_ann_viewer_serializer_js_loaded:
-            if add_js:
-                jsloc = os.path.join(
-                    os.path.dirname(__file__), &#34;_htmlviewer&#34;, JS_GATENLP_FILE_NAME
-                )
-                if not os.path.exists(jsloc):
-                    raise Exception(
-                        &#34;Could not find JavsScript file, {} does not exist&#34;.format(
-                            jsloc
-                        )
-                    )
-                with open(jsloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-                    js = infp.read()
-                    js = &#34;&#34;&#34;&lt;script type=&#34;text/javascript&#34;&gt;&#34;&#34;&#34; + js + &#34;&lt;/script&gt;&#34;
-                # html_ann_viewer_serializer_js_loaded = True
-            else:
-                js = &#34;&#34;
-        else:
-            js = JS_JQUERY + JS_GATENLP
-        if stretch_height:
-            height1 = gatenlpconfig.doc_html_repr_height1_stretch
-            height2 = gatenlpconfig.doc_html_repr_height2_stretch
-        else:
-            height1 = gatenlpconfig.doc_html_repr_height1_nostretch
-            height2 = gatenlpconfig.doc_html_repr_height2_nostretch
-        html = html.replace(&#34;$$JAVASCRIPT$$&#34;, js, 1).replace(&#34;$$JSONDATA$$&#34;, json, 1)
-        html = html.replace(&#34;$$HEIGHT1$$&#34;, height1, 1).replace(&#34;$$HEIGHT2$$&#34;, height2, 1)
-        if to_mem:
-            return html
-        else:
-            with open(to_ext, &#34;wt&#34;, encoding=&#34;utf-8&#34;) as outfp:
-                outfp.write(html)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -2988,186 +2419,6 @@ If True, no max haight is set and instead the height is set to a percentage (def
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    clazz,
-    from_ext=None,
-    from_mem=None,
-    parser=None,
-    markup_set_name=&#34;Original markups&#34;,
-    process_soup=None,
-    offset_mapper=None,
-    **kwargs,
-):
-    &#34;&#34;&#34;Load a HTML file.
-
-    Args:
-      clazz: param from_ext:
-      from_mem: param parser: one of &#34;html.parser&#34;, &#34;lxml&#34;, &#34;lxml-xml&#34;, &#34;html5lib&#34; (default is &#34;lxml&#34;)
-      markup_set_name: the annotation set name for the set to contain the HTML annotations (Default value = &#34;Original markups&#34;)
-      process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
-      offset_mapper: param kwargs: (Default value = None)
-      from_ext: (Default value = None)
-      parser: (Default value = None)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    # NOTE: for now we have a simple heuristic for adding newlines to the text:
-    # before and after a block element, a newline is added unless there is already one
-    # NOTE: for now we use  multi_valued_attributes=None which prevents attributes of the
-    # form &#34;class=&#39;val1 val2&#39;&#34; to get converted into features with a list of values.
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            from_mem = get_str_from_url(extstr)
-    if from_mem:
-        bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
-    else:
-        bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
-    # we recursively iterate the tree depth first, going through the children
-    # and adding to a list that either contains the text or a dict with the information
-    # about annotations we want to add
-    nlels = {
-        &#34;pre&#34;,
-        &#34;br&#34;,
-        &#34;p&#34;,
-        &#34;div&#34;,
-        &#34;tr&#34;,
-        &#34;h1&#34;,
-        &#34;h2&#34;,
-        &#34;h3&#34;,
-        &#34;h4&#34;,
-        &#34;h5&#34;,
-        &#34;h6&#34;,
-        &#34;li&#34;,
-        &#34;address&#34;,
-        &#34;article&#34;,
-        &#34;aside&#34;,
-        &#34;blockquote&#34;,
-        &#34;del&#34;,
-        &#34;figure&#34;,
-        &#34;figcaption&#34;,
-        &#34;footer&#34;,
-        &#34;header&#34;,
-        &#34;hr&#34;,
-        &#34;ins&#34;,
-        &#34;main&#34;,
-        &#34;nav&#34;,
-        &#34;section&#34;,
-        &#34;summary&#34;,
-        &#34;input&#34;,
-        &#34;legend&#34;,
-        &#34;option&#34;,
-        &#34;textarea&#34;,
-        &#34;bdi&#34;,
-        &#34;bdo&#34;,
-        &#34;center&#34;,
-        &#34;code&#34;,
-        &#34;dfn&#34;,
-        &#34;menu&#34;,
-        &#34;dir&#34;,
-        &#34;caption&#34;,
-    }
-    ignoreels = {&#34;script&#34;, &#34;style&#34;}
-    docinfo = {&#34;anninfos&#34;: [], &#34;curoffset&#34;: 0, &#34;curid&#34;: 0, &#34;text&#34;: &#34;&#34;}
-
-    def walktree(el):
-        &#34;&#34;&#34;
-
-        Args:
-          el:
-
-        Returns:
-
-        &#34;&#34;&#34;
-        # print(&#34;DEBUG: type=&#34;, type(el))
-        if isinstance(el, bs4.element.Doctype):
-            # print(&#34;DEBUG: got doctype&#34;, type(el))
-            pass
-        elif isinstance(el, bs4.element.Comment):
-            # print(&#34;DEBUG: got Comment&#34;, type(el))
-            pass
-        elif isinstance(el, bs4.element.Script):
-            # print(&#34;DEBUG: got Script&#34;, type(el))
-            pass
-        elif isinstance(el, bs4.element.Tag):
-            # print(&#34;DEBUG: got tag: &#34;, type(el), &#34; name=&#34;,el.name)
-            # some tags we ignore completely:
-            if el.name in ignoreels:
-                return
-            # for some tags we insert a new line before, but only if we do not already have one
-            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
-                docinfo[&#34;text&#34;] += &#34;\n&#34;
-                # print(&#34;DEBUG: adding newline before at &#34;, docinfo[&#34;curoffset&#34;])
-                docinfo[&#34;curoffset&#34;] += 1
-            ann = {
-                &#34;type&#34;: el.name,
-                &#34;features&#34;: el.attrs,
-                &#34;id&#34;: docinfo[&#34;curid&#34;],
-                &#34;event&#34;: &#34;start&#34;,
-                &#34;start&#34;: docinfo[&#34;curoffset&#34;],
-            }
-            thisid = docinfo[&#34;curid&#34;]
-            docinfo[&#34;anninfos&#34;].append(ann)
-            docinfo[&#34;curid&#34;] += 1
-            for child in el.children:
-                walktree(child)
-            # for some tags we insert a new line after
-            if not docinfo[&#34;text&#34;].endswith(&#34;\n&#34;) and el.name in nlels:
-                docinfo[&#34;text&#34;] += &#34;\n&#34;
-                # print(&#34;DEBUG: adding newline after at &#34;, docinfo[&#34;curoffset&#34;])
-                docinfo[&#34;curoffset&#34;] += 1
-            docinfo[&#34;anninfos&#34;].append(
-                {&#34;event&#34;: &#34;end&#34;, &#34;id&#34;: thisid, &#34;end&#34;: docinfo[&#34;curoffset&#34;]}
-            )
-        elif isinstance(el, bs4.element.NavigableString):
-            # print(&#34;DEBUG: got text: &#34;, el)
-            text = str(el)
-            if text == &#34;\n&#34; and docinfo[&#34;text&#34;].endswith(&#34;\n&#34;):
-                return
-            docinfo[&#34;text&#34;] += text
-            docinfo[&#34;curoffset&#34;] += len(el)
-        else:
-            print(&#34;WARNING: odd element type&#34;, type(el))
-
-    walktree(bs)
-    # need to add the end corresponding to bs
-    # print(&#34;DEBUG: got docinfo:\n&#34;,docinfo)
-    id2anninfo = {}  # from id to anninfo
-    nstart = 0
-    for anninfo in docinfo[&#34;anninfos&#34;]:
-        if anninfo[&#34;event&#34;] == &#34;start&#34;:
-            nstart += 1
-            id2anninfo[anninfo[&#34;id&#34;]] = anninfo
-    nend = 0
-    for anninfo in docinfo[&#34;anninfos&#34;]:
-        if anninfo[&#34;event&#34;] == &#34;end&#34;:
-            nend += 1
-            end = anninfo[&#34;end&#34;]
-            annid = anninfo[&#34;id&#34;]
-            anninfo = id2anninfo[annid]
-            anninfo[&#34;end&#34;] = end
-    # print(&#34;DEBUG: got nstart/nend&#34;, nstart, nend)
-    assert nstart == nend
-    # print(&#34;DEBUG: got id2anninfo:\n&#34;, id2anninfo)
-    doc = Document(docinfo[&#34;text&#34;])
-    annset = doc.annset(markup_set_name)
-    for i in range(nstart):
-        anninfo = id2anninfo[i]
-        annset.add(
-            anninfo[&#34;start&#34;],
-            anninfo[&#34;end&#34;],
-            anntype=anninfo[&#34;type&#34;],
-            features=anninfo[&#34;features&#34;],
-        )
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.HtmlLoader.load_rendered"><code class="name flex">
 <span>def <span class="ident">load_rendered</span></span>(<span>clazz, from_ext=None, from_mem=None, parser=None, markup_set_name='Original markups', process_soup=None, offset_mapper=None, **kwargs)</span>
@@ -3191,38 +2442,6 @@ def load(
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_rendered(
-    clazz,
-    from_ext=None,
-    from_mem=None,
-    parser=None,
-    markup_set_name=&#34;Original markups&#34;,
-    process_soup=None,
-    offset_mapper=None,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      parser: (Default value = None)
-      markup_set_name: (Default value = &#34;Original markups&#34;)
-      process_soup: (Default value = None)
-      offset_mapper: (Default value = None)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    raise Exception(&#34;Rendered html parser not yet implemented&#34;)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -3370,61 +2589,6 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    # print(&#34;RUNNING load with from_ext=&#34;, from_ext, &#34; from_mem=&#34;, from_mem)
-
-    if from_ext is not None and from_mem is not None:
-        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
-    if from_ext is None and from_mem is None:
-        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
-
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            # print(&#34;DEBUG: we got a URL&#34;)
-            if gzip:
-                from_mem = get_bytes_from_url(extstr)
-            else:
-                from_mem = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-        else:
-            # print(&#34;DEBUG: not a URL !!!&#34;)
-            pass
-    if from_mem is not None:
-        if gzip:
-            d = json.loads(decompress(from_mem).decode(&#34;UTF-8&#34;))
-        else:
-            d = json.loads(from_mem)
-        doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
-    else:  # from_ext must have been not None and a path
-        if gzip:
-            with gopen(extstr, JSON_READ) as infp:
-                d = json.load(infp)
-        else:
-            with open(extstr, JSON_READ) as infp:
-                d = json.load(infp)
-        doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.JsonSerializer.load_gzip"><code class="name flex">
 <span>def <span class="ident">load_gzip</span></span>(<span>clazz, **kwargs)</span>
@@ -3434,23 +2598,6 @@ def load(
 <p>clazz:
 **kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_gzip(clazz, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return JsonSerializer.load(clazz, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.JsonSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
@@ -3474,64 +2621,12 @@ def load_gzip(clazz, **kwargs):
 <dd>if True, the JSON gets gzip compressed</dd>
 </dl>
 <p>**kwargs:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save(
-    clazz,
-    inst,
-    to_ext=None,
-    to_mem=None,
-    offset_type=None,
-    offset_mapper=None,
-    gzip=False,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz: the class of the object that gets saved
-      inst: the object to get saved
-      to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
-      to_mem: if True, return a String serialization
-      offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
-      offset_mapper: the offset mapper to use, only needed if the type needs to get converted
-      gzip: if True, the JSON gets gzip compressed
-      **kwargs:
-    &#34;&#34;&#34;
-    d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
-    if to_mem:
-        if gzip:
-            compress(json.dumps(d).encode(&#34;UTF-8&#34;))
-        else:
-            return json.dumps(d)
-    else:
-        if gzip:
-            with gopen(to_ext, JSON_WRITE) as outfp:
-                json.dump(d, outfp)
-        else:
-            with open(to_ext, JSON_WRITE) as outfp:
-                json.dump(d, outfp)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.JsonSerializer.save_gzip"><code class="name flex">
 <span>def <span class="ident">save_gzip</span></span>(<span>clazz, inst, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Invokes the save method with gzip=True</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save_gzip(clazz, inst, **kwargs):
-    &#34;&#34;&#34;
-    Invokes the save method with gzip=True
-    &#34;&#34;&#34;
-    JsonSerializer.save(clazz, inst, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -3704,39 +2799,6 @@ def save_gzip(clazz, inst, **kwargs):
 <dd>Document:</dd>
 </dl>
 <p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def document2stream(doc: Document, stream):
-    &#34;&#34;&#34;
-
-    Args:
-      doc: Document:
-      stream:
-      doc: Document:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    pack(MSGPACK_VERSION_HDR, stream)
-    pack(doc.offset_type, stream)
-    pack(doc.text, stream)
-    pack(doc.name, stream)
-    pack(doc._features.to_dict(), stream)
-    pack(len(doc._annotation_sets), stream)
-    for name, annset in doc._annotation_sets.items():
-        pack(name, stream)
-        pack(annset._next_annid, stream)
-        pack(len(annset), stream)
-        for ann in annset.fast_iter():
-            pack(ann.type, stream)
-            pack(ann.start, stream)
-            pack(ann.end, stream)
-            pack(ann.id, stream)
-            pack(ann.features.to_dict(), stream)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.MsgPackSerializer.load"><code class="name flex">
 <span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs)</span>
@@ -3754,42 +2816,6 @@ def document2stream(doc: Document, stream):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    if clazz == Document:
-        reader = MsgPackSerializer.stream2document
-    elif clazz == ChangeLog:
-        raise Exception(&#34;Not implemented yet&#34;)
-    else:
-        raise Exception(&#34;Object not supported&#34;)
-
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            from_mem = get_bytes_from_url(extstr)
-    if from_mem:
-        f = io.BytesIO(from_mem)
-    else:
-        f = open(extstr, &#34;rb&#34;)
-    doc = reader(f)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.MsgPackSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, **kwargs)</span>
@@ -3810,50 +2836,6 @@ def load(clazz, from_ext=None, from_mem=None, offset_mapper=None, **kwargs):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save(
-    clazz,
-    inst,
-    to_ext=None,
-    to_mem=None,
-    offset_type=None,
-    offset_mapper=None,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      inst:
-      to_ext: (Default value = None)
-      to_mem: (Default value = None)
-      offset_type: (Default value = None)
-      offset_mapper: (Default value = None)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    if isinstance(inst, Document):
-        writer = MsgPackSerializer.document2stream
-    elif isinstance(inst, ChangeLog):
-        raise Exception(&#34;Not implemented yet&#34;)
-    else:
-        raise Exception(&#34;Object not supported&#34;)
-    if to_mem:
-        f = io.BytesIO()
-    else:
-        f = open(to_ext, &#34;wb&#34;)
-    writer(inst, f)
-    if to_mem:
-        return f.getvalue()
-    else:
-        f.close()</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.MsgPackSerializer.stream2document"><code class="name flex">
 <span>def <span class="ident">stream2document</span></span>(<span>stream)</span>
@@ -3862,51 +2844,6 @@ def save(
 <div class="desc"><h2 id="args">Args</h2>
 <p>stream:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def stream2document(stream):
-    &#34;&#34;&#34;
-
-    Args:
-      stream:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    u = Unpacker(stream)
-    version = u.unpack()
-    if version != MSGPACK_VERSION_HDR:
-        raise Exception(&#34;MsgPack data starts with wrong version&#34;)
-    doc = Document()
-    doc.offset_type = u.unpack()
-    doc._text = u.unpack()
-    doc.name = u.unpack()
-    doc._features = Features(u.unpack())
-    nsets = u.unpack()
-    setsdict = dict()
-    doc.annotation_sets = setsdict
-    for iset in range(nsets):
-        sname = u.unpack()
-        if sname is None:
-            sname = &#34;&#34;
-        annset = AnnotationSet(name=sname, owner_doc=doc)
-        annset._next_annid = u.unpack()
-        nanns = u.unpack()
-        for iann in range(nanns):
-            atype = u.unpack()
-            astart = u.unpack()
-            aend = u.unpack()
-            aid = u.unpack()
-            afeatures = u.unpack()
-            ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
-            annset._annotations[aid] = ann
-        setsdict[sname] = annset
-    doc._annotation_sets = setsdict
-    return doc</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -4014,48 +2951,6 @@ def stream2document(stream):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False) must be False, True not supported
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    # print(&#34;RUNNING load with from_ext=&#34;, from_ext, &#34; from_mem=&#34;, from_mem)
-
-    if from_ext is not None and from_mem is not None:
-        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
-    if from_ext is None and from_mem is None:
-        raise Exception(&#34;Exactly one of from_ext and from_mem must be specified &#34;)
-
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            from_mem = get_bytes_from_url(extstr)
-        else:
-            # print(&#34;DEBUG: not a URL !!!&#34;)
-            pass
-    if from_mem is not None:
-        doc = pickle.loads(from_mem)
-    else:  # from_ext must have been not None and a path
-        with open(extstr, &#34;rb&#34;) as infp:
-            doc = pickle.load(infp)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.PickleSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
@@ -4079,41 +2974,6 @@ def load(
 <dd>must be False, gzip is not supported</dd>
 </dl>
 <p>**kwargs:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save(
-    clazz,
-    inst,
-    to_ext=None,
-    to_mem=None,
-    offset_type=None,
-    offset_mapper=None,
-    gzip=False,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz: the class of the object that gets saved
-      inst: the object to get saved
-      to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
-      to_mem: if True, return a String serialization
-      offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
-      offset_mapper: the offset mapper to use, only needed if the type needs to get converted
-      gzip: must be False, gzip is not supported
-      **kwargs:
-    &#34;&#34;&#34;
-    if gzip:
-        raise Exception(&#34;Gzip not supported for pickle&#34;)
-    if to_mem:
-        return pickle.dumps(inst, protocol=-1)
-    else:
-        with open(to_ext, &#34;wb&#34;) as outfp:
-            pickle.dump(inst, outfp, protocol=-1)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -4269,57 +3129,6 @@ def save(
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    clazz,
-    from_ext=None,
-    from_mem=None,
-    offset_mapper=None,
-    encoding=&#34;UTF-8&#34;,
-    gzip=False,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      encoding: (Default value = &#34;UTF-8&#34;)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            if gzip:
-                from_mem = get_bytes_from_url(extstr)
-            else:
-                from_mem = get_str_from_url(extstr, encoding=encoding)
-    if from_mem is not None:
-        if gzip:
-            txt = decompress(from_mem).decode(encoding)
-        else:
-            txt = from_mem
-        doc = Document(txt)
-    else:
-        if gzip:
-            with gopen(extstr, &#34;rt&#34;, encoding=encoding) as infp:
-                txt = infp.read()
-        else:
-            with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
-                txt = infp.read()
-        doc = Document(txt)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.PlainTextSerializer.load_gzip"><code class="name flex">
 <span>def <span class="ident">load_gzip</span></span>(<span>clazz, **kwargs)</span>
@@ -4329,23 +3138,6 @@ def load(
 <p>clazz:
 **kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_gzip(clazz, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return PlainTextSerializer.load(clazz, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.PlainTextSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, encoding='UTF-8', gzip=False, **kwargs)</span>
@@ -4370,54 +3162,6 @@ def load_gzip(clazz, **kwargs):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save(
-    clazz,
-    inst,
-    to_ext=None,
-    to_mem=None,
-    offset_type=None,
-    offset_mapper=None,
-    encoding=&#34;UTF-8&#34;,
-    gzip=False,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      inst:
-      to_ext: (Default value = None)
-      to_mem: (Default value = None)
-      offset_type: (Default value = None)
-      offset_mapper: (Default value = None)
-      encoding: (Default value = &#34;UTF-8&#34;)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    txt = inst.text
-    if txt is None:
-        txt = &#34;&#34;
-    if to_mem:
-        if gzip:
-            compress(txt.encode(encoding))
-        else:
-            return txt
-    else:
-        if gzip:
-            with gopen(to_ext, &#34;wt&#34;, encoding=encoding) as outfp:
-                outfp.write(txt)
-        else:
-            with open(to_ext, &#34;wt&#34;, encoding=encoding) as outfp:
-                outfp.write(txt)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.PlainTextSerializer.save_gzip"><code class="name flex">
 <span>def <span class="ident">save_gzip</span></span>(<span>clazz, inst, **kwargs)</span>
@@ -4428,24 +3172,6 @@ def save(
 inst:
 **kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save_gzip(clazz, inst, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      inst:
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    PlainTextSerializer.save(clazz, inst, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -4582,100 +3308,6 @@ tweet just like the original tweet.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>document representing the tweet</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(clazz,
-         from_ext=None,
-         from_mem=None,
-         include_fields=None,
-         include_entities=True,
-         include_quote=False,
-         outsetname=&#34;Original markups&#34;,
-         tweet_ann=&#34;Tweet&#34;):
-    &#34;&#34;&#34;
-    Load a tweet from Twitter JSON format.
-
-    IMPORTANT: this is still very experimental, will change in the future!
-
-    Args:
-        clazz: internal use
-        from_ext: the file/url to load from
-        from_mem: string to load from
-        include_fields: a list of fields to include where nested field names are dot-separated, e.g.
-           &#34;user.location&#34;. All these fields are included using the nested field name in either the
-           features of the tweet annotation with the Type specified, or the features of the document
-           if `tweet_ann` is None.
-        include_entities: create annotations for the tweet entities in the set with outsetname
-        include_quote: if True, add the quoted tweet after an empty line and treat it as a separate
-           tweet just like the original tweet.
-        outset: the annotation set where to put entity annotations and the tweet annotation(s)
-        tweet_ann: the annotation type to use to span the tweet and contain all the features.
-
-    Returns:
-        document representing the tweet
-    &#34;&#34;&#34;
-    if from_ext is not None:
-        isurl, extstr = is_url(from_ext)
-        if isurl:
-            jsonstr = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-            tweet = json.loads(jsonstr)
-        else:
-            with open(extstr, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-                tweet = json.load(infp)
-    elif from_mem is not None:
-        tweet = json.loads(from_mem)
-    else:
-        raise Exception(&#34;Cannot load from None&#34;)
-    if tweet is None:
-        raise Exception(&#34;Could not decode Tweet JSON&#34;)
-    if tweet.get(&#34;truncated&#34;):
-        text = get_nested(tweet, &#34;extended_tweet.full_text&#34;)
-    else:
-        text = get_nested(tweet, &#34;text&#34;)
-    if text is None:
-        raise Exception(&#34;No text field found&#34;)
-    quoted_status = None
-    if include_quote:
-        quoted_status = tweet.get(&#34;quoted_status&#34;)
-        if quoted_status is not None:
-            qtext = quoted_status.get(&#34;text&#34;, &#34;&#34;)
-            text += &#34;\n&#34; + qtext
-    doc = Document(text)
-    anns = doc.annset(outsetname)
-    if tweet_ann:
-        ann = anns.add(0, len(text), tweet_ann)
-        features = ann.features
-    else:
-        features = doc.features
-    if include_fields is None:
-        include_fields = TWITTER_DEFAULT_INCLUDE_FIELDS
-    for field in include_fields:
-        if field.startswith(&#34;$&#34;):
-            if field == &#34;$is_retweet_status&#34;:
-                rs = get_nested(tweet, &#34;retweeted_status&#34;, silent=True)
-                if rs is not None:
-                    features[field] = True
-            continue
-        val = get_nested(tweet, field, silent=True)
-        if val is not None:
-            features[field] = val
-    if include_entities:
-        if tweet.get(&#34;truncated&#34;):
-            entities = get_nested(tweet, &#34;extended_tweet.entities&#34;, default={})
-        else:
-            entities = get_nested(tweet, &#34;entities&#34;, default={})
-    for etype, elist in entities.items():
-        for ent in elist:
-            start, end = ent[&#34;indices&#34;]
-            anns.add(start, end, etype)
-    # TODO: if we have a quoted_status, add features and entities from there:
-    # Essentially the same processing as for the original tweet, but at document offset
-    # len(tweet)+1 (2?)
-    return doc</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -4820,52 +3452,6 @@ def load(clazz,
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    clazz, from_ext=None, from_mem=None, offset_mapper=None, gzip=False, **kwargs
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      from_ext: (Default value = None)
-      from_mem: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    isurl, extstr = is_url(from_ext)
-    if from_ext is not None:
-        if isurl:
-            if gzip:
-                from_mem = get_bytes_from_url(extstr)
-            else:
-                from_mem = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-    if from_mem is not None:
-        if gzip:
-            d = yaml.load(
-                decompress(from_mem).decode(&#34;UTF-8&#34;), Loader=yaml_loader
-            )
-        else:
-            d = yaml.load(from_mem, Loader=yaml_loader)
-        doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
-    else:
-        if gzip:
-            with gopen(extstr, &#34;rt&#34;) as infp:
-                d = yaml.load(infp, Loader=yaml_loader)
-        else:
-            with open(extstr, &#34;rt&#34;) as infp:
-                d = yaml.load(infp, Loader=yaml_loader)
-        doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
-    return doc</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.load_gzip"><code class="name flex">
 <span>def <span class="ident">load_gzip</span></span>(<span>clazz, **kwargs)</span>
@@ -4875,23 +3461,6 @@ def load(
 <p>clazz:
 **kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_gzip(clazz, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    return YamlSerializer.load(clazz, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
@@ -4914,50 +3483,6 @@ def load_gzip(clazz, **kwargs):
 </dl>
 <p>**kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save(
-    clazz,
-    inst,
-    to_ext=None,
-    to_mem=None,
-    offset_type=None,
-    offset_mapper=None,
-    gzip=False,
-    **kwargs,
-):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      inst:
-      to_ext: (Default value = None)
-      to_mem: (Default value = None)
-      offset_type: (Default value = None)
-      offset_mapper: (Default value = None)
-      gzip: (Default value = False)
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
-    if to_mem:
-        if gzip:
-            compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
-        else:
-            return yaml.dump(d, Dumper=yaml_dumper)
-    else:
-        if gzip:
-            with gopen(to_ext, &#34;wt&#34;) as outfp:
-                yaml.dump(d, outfp, Dumper=yaml_dumper)
-        else:
-            with open(to_ext, &#34;wt&#34;) as outfp:
-                yaml.dump(d, outfp, Dumper=yaml_dumper)</code></pre>
-</details>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.save_gzip"><code class="name flex">
 <span>def <span class="ident">save_gzip</span></span>(<span>clazz, inst, **kwargs)</span>
@@ -4968,24 +3493,6 @@ def save(
 inst:
 **kwargs:
 Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def save_gzip(clazz, inst, **kwargs):
-    &#34;&#34;&#34;
-
-    Args:
-      clazz:
-      inst:
-      **kwargs:
-
-    Returns:
-
-    &#34;&#34;&#34;
-    YamlSerializer.save(clazz, inst, gzip=True, **kwargs)</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -5096,7 +3603,7 @@ def save_gzip(clazz, inst, **kwargs):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev16+g8c2bb0d.d20201028</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
 </footer>
 </body>
 </html>
