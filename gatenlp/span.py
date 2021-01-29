@@ -19,6 +19,7 @@ class Span:
     def __init__(self, start, end):
         assert start is not None
         assert end is not None
+        assert start <= end
         self.start = start
         self.end = end
 
@@ -31,7 +32,7 @@ class Span:
 
     def __lt__(self, other) -> bool:
         if not isinstance(other, Span):
-            raise Exception("Cannot compare to non-Annotation")
+            raise Exception("Cannot compare to non-Span")
         if self.start < other.start:
             return True
         elif self.start > other.start:

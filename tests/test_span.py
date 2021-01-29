@@ -95,3 +95,23 @@ class TestSpanRels:
         assert span11.isafter(span5)
         assert span11.isbefore(span3)
         assert span11.isbefore(span9)
+
+    def test_span_basic01(self):
+
+        assert Span(0, 3) == Span(0, 3)
+        assert not Span(0, 3) == Span(0, 4)
+        assert not Span(0, 3) == 1
+        assert not Span(5, 8) < Span(0, 4)
+        assert Span(0, 3) < Span(1, 4)
+        span1 = Span(0, 3)
+        span2 = Span(7, 9)
+        assert span1 == span1
+        assert str(span1) == "Span(0,3)"
+        assert span1.length == 3
+        assert span1.gap(span2) == 4
+        assert span2.gap(span1) == 4
+
+    def test_span_excp01(self):
+        import pytest
+        with pytest.raises(Exception) as ex:
+            Span(3, 2) < 2
