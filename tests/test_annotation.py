@@ -1,5 +1,9 @@
-import sys
+"""
+Module for testing the Annotation API.
+"""
+
 from gatenlp import Document, Annotation, Span
+
 
 def make_doc():
     doc = Document("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
@@ -74,6 +78,7 @@ class TestAnnotationRels:
         assert ann2.isoverlapping(ann10)
         assert not ann2.isoverlapping(ann5)
         assert not ann2.isbefore(ann10)
+        assert ann2.gap(ann3) == 12
 
         assert ann3.iscoextensive(ann9)
         assert ann3.iswithin(ann1)
@@ -85,6 +90,7 @@ class TestAnnotationRels:
         assert ann3.isstartingat(ann11)
         assert ann3.isendingwith(ann9)
         assert ann3.isendingwith(ann8)
+        assert ann3.gap(ann2) == 12
 
         assert ann4.isafter(ann3)
         assert not ann4.isafter(ann1)
@@ -123,6 +129,8 @@ class TestAnnotationRels:
         assert ann11.isbefore(ann3)
         assert ann11.isbefore(ann9)
 
+        # TODO: gaps
+
     def test_annotation_exps(self):
         import pytest
         with pytest.raises(Exception) as ex:
@@ -138,11 +146,20 @@ class TestAnnotationRels:
         assert not (Annotation(1, 2, "X") == "X")
         ann1 = Annotation(1, 2, "X")
         assert ann1 == ann1
-        assert ann1.hash() == hash((ann1.id, ann1._owner_set))
+        assert hash(ann1) == hash((ann1.id, ann1._owner_set))
         with pytest.raises(Exception) as ex:
             Annotation(1, 2, "X") < 33
         assert Annotation(1, 2, "X") < Annotation(2, 3, "X")
         assert not Annotation(1, 2, "X") < Annotation(0, 3, "X")
-        assert not Annotation(1, 2, "X", annid=0) < Annotation(1, 2, "X", annid=1)
+        assert Annotation(1, 2, "X", annid=0) < Annotation(1, 2, "X", annid=1)
         assert Annotation(1, 2, "X").length == 1
-        
+
+    def test_annotation_misc01(self):
+        ann1 = Annotation(1, 2, "x", dict(a=1), annid=3)
+        dict1 = ann1.to_dict()
+        ann2 = Annotation.from_dict(dict1)
+        assert ann1 == ann2
+
+        assert ann2.features == {"a": 1}
+
+        assert str(ann2) == "Annotation(1,2,x,features=Features({'a': 1}),id=3)"

@@ -54,14 +54,7 @@ class Annotation:
         if isinstance(features, int):
             raise Exception(
                 f"Cannot create annotation start={start}, end={end}, type={anntype}, "
-                "id={annid}, features={features}: features must not be an int"
-            )
-        # super().__init__(features)
-        if annid is not None and not isinstance(annid, int):
-            raise Exception("Parameter annid must be an int, mixed up with features?")
-        if features is not None and isinstance(features, int):
-            raise Exception(
-                "Parameter features must not be an int: mixed up with annid?"
+                "id={annid}, features={features}: features must not be an int, mixed up with annid?"
             )
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
@@ -385,6 +378,7 @@ class Annotation:
         """
         return self._end == end
 
+    @support_annotation_or_set
     def gap(self, start: int, end: int) -> bool:
         """
         Return the gep between this annotation and the other annotation.

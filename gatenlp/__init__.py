@@ -45,6 +45,7 @@ def init_notebook():
 
 __all__ = [
     "GateNlpPr",
+    "Span",
     "Annotation",
     "Document",
     "AnnotationSet",
