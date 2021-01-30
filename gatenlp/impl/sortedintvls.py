@@ -177,7 +177,7 @@ class SortedIntvls:
                     yield intvl
         else:
             for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
-                if intvl[0] == intvl[1]: # we need to check a zero length interval
+                if intvl[0] == intvl[1]:  # we need to check a zero length interval
                     if intvl[0] >= start:
                         yield intvl
                 else:

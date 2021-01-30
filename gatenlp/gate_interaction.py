@@ -8,7 +8,6 @@ import sys
 import os
 import io
 import traceback
-import gatenlp
 from argparse import ArgumentParser
 import inspect
 import logging
@@ -16,9 +15,16 @@ from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import init_logger
+from gatenlp._version import __version__ as gatenlp_version
 import json
 
-gate_python_plugin_pr = None
+# NOTE: this is the global variable that holds the current function or class defined for interaction
+# In order to avoid use of global, we use a list and just always use element 0
+gate_python_plugin_pr = [None]
+
+def f1(x):
+    print(gate_python_plugin_pr)
+    return gate_python_plugin_pr
 
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
 # instream = sys.stdin
@@ -29,6 +35,8 @@ if os.environ.get("FROMGATEPLUGIN"):
     instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
     ostream = sys.stdout
     sys.stdout = sys.stderr
+
+logger = init_logger("gate_interaction")
 
 
 class _PrWrapper:
@@ -150,8 +158,6 @@ def _pr_decorator(what):
       modified class or function
 
     """
-    gatenlp.gate_python_plugin_pr = "The PR from here!!!"
-
     wrapper = _PrWrapper()
     if inspect.isclass(what) or _has_method(what, "__call__"):
         if inspect.isclass(what):
@@ -190,7 +196,7 @@ def _pr_decorator(what):
         raise Exception(
             f"Decorator applied to something that is not a function or class: {what}"
         )
-    gatenlp.gate_python_plugin_pr = wrapper
+    gate_python_plugin_pr[0] = wrapper
     return wrapper
 
 
@@ -280,7 +286,7 @@ def interact(args=None, annotator=None):
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
-    if gatenlp.gate_python_plugin_pr is None and annotator is None:
+    if gate_python_plugin_pr is None and annotator is None:
         logger.warning(
             "No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing"
         )
@@ -288,7 +294,7 @@ def interact(args=None, annotator=None):
     if annotator is not None:
         pr = _pr_decorator(annotator)
     else:
-        pr = gatenlp.gate_python_plugin_pr
+        pr = gate_python_plugin_pr
 
     if args is None:
         args = get_arguments()
@@ -302,7 +308,7 @@ def interact(args=None, annotator=None):
     if args.mode == "check":
         return
 
-    logger.info("Using gatenlp version {}\n".format(gatenlp.__version__))
+    logger.info("Using gatenlp version {}\n".format(gatenlp_version))
 
     logger.debug("Starting interaction args={}".format(args))
     if args.mode == "pipe":

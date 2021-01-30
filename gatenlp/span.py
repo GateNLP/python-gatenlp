@@ -12,7 +12,9 @@ from gatenlp.utils import support_annotation_or_set
 # class Span(structclass("Span", ("start", "end"))):
 # Instead, we simply use slots for now.
 class Span:
-
+    """
+    Class that represents an offset range.
+    """
     __slots__ = ["start", "end"]
 
     @support_annotation_or_set
@@ -54,16 +56,18 @@ class Span:
             raise Exception("Cannot compare to non-Span")
         if self.start < other.start:
             return True
-        elif self.start > other.start:
+        if self.start > other.start:
             return False
-        else:
-            return self.end < other.end
+        return self.end < other.end
 
     def __repr__(self) -> str:
         return f"Span({self.start},{self.end})"
 
     @property
     def length(self) -> int:
+        """
+        Return length of span.
+        """
         return self.end - self.start
 
     @support_annotation_or_set
@@ -87,8 +91,7 @@ class Span:
         # However, if the other range is zero length we must not check for covering(end-1)!
         if start == end:
             return self.iscovering(start)
-        else:
-            return self.iscovering(start) or self.iscovering(end - 1)
+        return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -> bool:
@@ -149,8 +152,7 @@ class Span:
         """
         if immediately:
             return self.end == start
-        else:
-            return self.end <= start
+        return self.end <= start
 
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -> bool:
@@ -172,8 +174,7 @@ class Span:
         """
         if immediately:
             return self.start == end
-        else:
-            return self.start >= end
+        return self.start >= end
 
     @support_annotation_or_set
     def gap(self, start: int, end: int):
@@ -196,14 +197,14 @@ class Span:
 
         """
         if self.start < start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -230,10 +231,8 @@ class Span:
         if end is None:
             if self.start == self.end:
                 return self.start == start
-            else:
-                return self.start <= start < self.end
-        else:
-            return self.start <= start and self.end >= end
+            return self.start <= start < self.end
+        return self.start <= start and self.end >= end
 
     @support_annotation_or_set
     def isstartingat(self, start: int, end: int) -> bool:

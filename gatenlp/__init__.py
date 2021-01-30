@@ -1,14 +1,12 @@
 # NOTE: do not place a comment at the end of the version assignment
 # line since we parse that line in a shell script!
-__version__ = "0.9.9"
-import logging
-import sys
+# __version__ = "0.9.9"
+from gatenlp._version import __version__
 
 try:
     import sortedcontainers
-except Exception as ex:
+except Exception:
     import sys
-
     print(
         "ERROR: required package sortedcontainers cannot be imported!", file=sys.stderr
     )
@@ -20,6 +18,7 @@ except Exception as ex:
 # TODO: check version of sortedcontainers (we have 2.1.0)
 
 from gatenlp.utils import init_logger
+
 logger = init_logger("gatenlp")
 from gatenlp.span import Span
 from gatenlp.annotation import Annotation
@@ -29,6 +28,7 @@ from gatenlp.document import Document
 from gatenlp.gateslave import GateSlave, GateSlaveAnnotator
 from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
 from gatenlp.gate_interaction import interact
+
 
 def init_notebook():
     from gatenlp.serialization.default import HtmlAnnViewerSerializer

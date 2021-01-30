@@ -7,7 +7,7 @@ try:
 
     _tmp_regex_pattern = regex.compile("x")
     CLASS_REGEX_PATTERN = _tmp_regex_pattern.__class__
-except:
+except Exception as ex:
     # if the regex module is not available, make our  code still work by introducing a dummy type
     class RegexPattern:
         pass
@@ -239,6 +239,7 @@ class nocase:
         assert m1("SOMETEXT")
         ```
     """
+
     def __init__(self, text):
         """
         Create a case insensitive text matcher.
@@ -271,6 +272,7 @@ class ifnot:
         m2 = ifnot(m1)  # m2 matches for features which do not contain f1="x" and not f2=22
         ```
     """
+
     def __init__(self, other):
         self.other = other
 

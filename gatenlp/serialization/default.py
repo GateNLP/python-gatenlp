@@ -5,6 +5,7 @@ import io
 import os
 import sys
 import yaml
+
 # import ruyaml as yaml
 try:
     from yaml import CFullLoader as Loader, CDumper as Dumper
@@ -31,11 +32,12 @@ from gatenlp.gatenlpconfig import gatenlpconfig
 import bs4
 import warnings
 import pickle
+
 try:
     from bs4 import GuessedAtParserWarning
 
     warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
-except:
+except Exception as ex:
     pass
 
 
@@ -45,6 +47,7 @@ except:
 # import ujson as usejson
 # import hyperjson as usejson
 import json
+
 JSON_WRITE = "wt"
 JSON_READ = "rt"
 
@@ -96,8 +99,7 @@ TWITTER_DEFAULT_INCLUDE_FIELDS = [
     "id_str",
     "user.id_str",
     "user.screen_name",
-    "user.name"
-    "created_at",
+    "user.name" "created_at",
     "is_quote_status",
     "quote_count",
     "retweet_count",
@@ -338,7 +340,6 @@ class PickleSerializer:
         else:
             with open(to_ext, "wb") as outfp:
                 pickle.dump(inst, outfp, protocol=-1)
-
 
     @staticmethod
     def load(
@@ -584,9 +585,7 @@ class YamlSerializer:
                     from_mem = get_str_from_url(extstr, encoding="utf-8")
         if from_mem is not None:
             if gzip:
-                d = yaml.load(
-                    decompress(from_mem).decode("UTF-8"), Loader=yaml_loader
-                )
+                d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml_loader)
             else:
                 d = yaml.load(from_mem, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
@@ -899,7 +898,9 @@ class HtmlAnnViewerSerializer:
             height1 = gatenlpconfig.doc_html_repr_height1_nostretch
             height2 = gatenlpconfig.doc_html_repr_height2_nostretch
         html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)
-        html = html.replace("$$HEIGHT1$$", height1, 1).replace("$$HEIGHT2$$", height2, 1)
+        html = html.replace("$$HEIGHT1$$", height1, 1).replace(
+            "$$HEIGHT2$$", height2, 1
+        )
         if to_mem:
             return html
         else:
@@ -952,17 +953,14 @@ class HtmlLoader:
         """Load a HTML file.
 
         Args:
-          clazz: param from_ext:
-          from_mem: param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
-          markup_set_name: the annotation set name for the set to contain the HTML annotations (Default value = "Original markups")
-          process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
-          offset_mapper: param kwargs: (Default value = None)
-          from_ext: (Default value = None)
-          parser: (Default value = None)
-          **kwargs:
-
-        Returns:
-
+            clazz: param from_ext:
+            from_mem: param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
+            markup_set_name: the annotation set name for the set to contain the HTML
+                annotations (Default value = "Original markups")
+            process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
+            offset_mapper: param kwargs: (Default value = None)
+            from_ext: (Default value = None)
+            parser: (Default value = None)
         """
         # NOTE: for now we have a simple heuristic for adding newlines to the text:
         # before and after a block element, a newline is added unless there is already one
@@ -1117,14 +1115,16 @@ class HtmlLoader:
 
 class TweetLoader:
     @staticmethod
-    def load(clazz,
-             from_ext=None,
-             from_mem=None,
-             include_fields=None,
-             include_entities=True,
-             include_quote=False,
-             outsetname="Original markups",
-             tweet_ann="Tweet"):
+    def load(
+        clazz,
+        from_ext=None,
+        from_mem=None,
+        include_fields=None,
+        include_entities=True,
+        include_quote=False,
+        outsetname="Original markups",
+        tweet_ann="Tweet",
+    ):
         """
         Load a tweet from Twitter JSON format.
 
@@ -1471,7 +1471,6 @@ DOCUMENT_LOADERS = {
     "gatexml": GateXmlLoader.load,
     "tweet": TweetLoader.load,
     "pickle": PickleSerializer.load,
-
 }
 CHANGELOG_SAVERS = {
     "json": JsonSerializer.save,
@@ -1539,7 +1538,8 @@ def get_handler(filespec, fmt, handlers, saveload, what):
         elif ext:
             ext = ext[1:]
         fmt = EXTENSIONS.get(ext)
-        msg = f"Could not determine how to {saveload} {what} for format {fmt} and with extension {ext} in module gatenlp.serialization.default"
+        msg = f"Could not determine how to {saveload} {what} for format {fmt} and with " \
+              "extension {ext} in module gatenlp.serialization.default"
         if not fmt:
             raise Exception(msg)
         handler = handlers.get(fmt)

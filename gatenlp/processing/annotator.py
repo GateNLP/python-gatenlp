@@ -10,7 +10,6 @@ __pdoc__ = {"Annotator.__call__": True}
 
 
 class Annotator(ABC):
-
     @abstractmethod
     def __call__(self, doc, **kwargs):
         """
@@ -105,7 +104,6 @@ class Annotator(ABC):
 
 
 class AnnotatorFunction(Annotator):
-
     def __init__(self, funct):
         self.funct = funct
 

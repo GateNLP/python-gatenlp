@@ -4,7 +4,7 @@ Module for AnnotationSet class which represents a named collection of annotation
 
 # TODO: when should two sets be equal? Currently object identity is requried!
 
-from typing import Any, List, Tuple, Union, Dict, Set, KeysView, Iterator, Generator
+from typing import Any, List, Union, Dict, Set, KeysView, Iterator, Generator
 from collections.abc import Iterable
 from collections import defaultdict
 import copy
@@ -789,8 +789,7 @@ class AnnotationSet:
         """
         return self._annotations[annid]
 
-    def with_type(
-        self, *anntype: Union[str, Iterable], non_overlapping: bool = False):
+    def with_type(self, *anntype: Union[str, Iterable], non_overlapping: bool = False):
         """
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
@@ -862,7 +861,7 @@ class AnnotationSet:
                         if ann.start >= curminoffset:
                             topann = ann
                             break
-                    for ann in group[i + 1 :]:
+                    for ann in group[i + 1:]:
                         if ann.start < curminoffset:
                             continue
                         if typepriority[ann.type] > typepriority[topann.type]:
@@ -901,7 +900,6 @@ class AnnotationSet:
         """
         Yields list of annotations with identical spans. Note: first needs to sort all annotations!
         """
-        annlist = list(self._annotations.values())
         self._create_index_by_offset()
         lastsoff = -1
         lasteoff = -1
@@ -928,7 +926,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, ignored: Any = None, annid=None, include_self=False):
+        self, start: int, ignored: Any = None, annid=None, include_self=False
+    ):
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in a detached
         annotation set.
@@ -955,7 +954,8 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, ignored: Any = None, annid=None, include_self=False):
+        self, offset: int, ignored: Any = None, annid=None, include_self=False
+    ):
         """Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
         annotation set.
@@ -998,8 +998,7 @@ class AnnotationSet:
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(
-        self, start: int, ignored: Any = None, annid=None, include_self=False):
+    def start_ge(self, start: int, ignored: Any = None, annid=None, include_self=False):
         """Return the annotations that start at or after the given start offset.
 
         Args:
@@ -1040,8 +1039,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def overlapping(
-        self, start: int, end: int, annid=None, include_self=False):
+    def overlapping(self, start: int, end: int, annid=None, include_self=False):
         """
         Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
@@ -1068,8 +1066,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def covering(
-        self, start: int, end: int, annid=None, include_self=False):
+    def covering(self, start: int, end: int, annid=None, include_self=False):
         """
         Gets the annotations which contain the given offset range (or annotation/annotation set),
         i.e. annotations such that the given offset range is within the annotation.
@@ -1096,8 +1093,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def within(
-        self, start: int, end: int, annid=None, include_self=False):
+    def within(self, start: int, end: int, annid=None, include_self=False):
         """
         Gets annotations that fall completely within the given offset range, i.e. annotations
         such that the offset range is covering each of the annotation.
@@ -1127,8 +1123,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def coextensive(
-        self, start: int, end: int, annid=None, include_self=False):
+    def coextensive(self, start: int, end: int, annid=None, include_self=False):
         """
         Returns a detached annotation set with all annotations that start and end at the given offsets.
 
@@ -1153,8 +1148,9 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def before(self, start: int, end: int, annid=None, include_self=False,
-               immediately=False):
+    def before(
+        self, start: int, end: int, annid=None, include_self=False, immediately=False
+    ):
         """
         Returns a detached annotation set with all annotations that end before the given offsets.
 
@@ -1185,8 +1181,9 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def after(self, start: int, end: int, annid=None, include_self=False,
-              immediately=False):
+    def after(
+        self, start: int, end: int, annid=None, include_self=False, immediately=False
+    ):
         """
         Returns a detached annotation set with all annotations that start after the given span.
 
@@ -1264,7 +1261,9 @@ class AnnotationSet:
         if anntypes is not None:
             anntypesset = set(anntypes)
             anns_list = list(
-                val.to_dict(**kwargs) for val in self._annotations.values() if val.type in anntypesset
+                val.to_dict(**kwargs)
+                for val in self._annotations.values()
+                if val.type in anntypesset
             )
         else:
             anns_list = list(
@@ -1328,4 +1327,3 @@ class AnnotationSet:
         annset._is_immutable = True
 
         return annset
-

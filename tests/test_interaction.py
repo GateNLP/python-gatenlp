@@ -1,6 +1,5 @@
 from gatenlp import Document, ChangeLog, GateNlpPr
-from gatenlp.gate_interaction import _pr_decorator, DefaultPr
-import gatenlp
+from gatenlp.gate_interaction import _pr_decorator, DefaultPr, gate_python_plugin_pr
 
 
 # Simple simulation of the interaction: instead of calling interact() manually call
@@ -14,16 +13,16 @@ class TestInteraction01:
         mypr.execute(doc1)
         mypr.finish()
 
-    def test_interaction01_01(self):
+    def test_interaction01_02(self):
         @GateNlpPr
         def do_it(doc: Document, **kwargs):
             set1 = doc.annset("Set1")
             set1.add(2, 3, "test1", {"f1": "value1"})
             # return nothing
-
         doc1 = Document("Just a simple document")
         doc1.changelog = ChangeLog()
-        mypr = gatenlp.gate_python_plugin_pr
+        mypr = gate_python_plugin_pr[0]
+
         mypr.start({"k1": "v1"})  # set the script parms
         mypr.execute(doc1)
         assert doc1._annotation_sets is not None

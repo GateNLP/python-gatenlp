@@ -25,5 +25,4 @@ class GatenlpConfig:
         self.doc_html_repr_height2_nostretch = "max-height: 14em;"
 
 
-
 gatenlpconfig = GatenlpConfig()

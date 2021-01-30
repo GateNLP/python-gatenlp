@@ -1,7 +1,6 @@
 """
 Module for Annotation class which represents information about a span of text in  a document.
 """
-import sys
 import copy as lib_copy
 from functools import total_ordering
 from gatenlp.features import Features
@@ -336,7 +335,6 @@ class Annotation:
         else:
             return self.end <= start
 
-
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -> bool:
         """Checks if this annotation is after the other span, i.e. the start of this annotation
@@ -380,7 +378,7 @@ class Annotation:
         return self._end == end
 
     @support_annotation_or_set
-    def gap(self, start: int, end: int) -> bool:
+    def gap(self, start: int, end: int) -> int:
         """
         Return the gep between this annotation and the other annotation.
         This is the distance between

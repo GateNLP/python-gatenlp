@@ -11,6 +11,14 @@ import time
 from functools import wraps
 
 
+def identity(x):
+    return x
+
+
+def isequal(x, y):
+    return x == y
+
+
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     """
     Matches each item from the items sequence with sum substring of the text
@@ -36,9 +44,9 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
 
     """
     if getstr is None:
-        getstr = lambda x: x
+        getstr = identity
     if cmp is None:
-        cmp = lambda x, y: x == y
+        cmp = isequal
     ltxt = len(text)
     ret = []
     ret2 = []
@@ -241,7 +249,6 @@ def support_annotation_or_set(method):
 
 
 class _CheckHtml:
-
     def _repr_html_(self):
         return "yes"
 
@@ -259,18 +266,20 @@ def in_notebook():
         return _in_notebook[0]
     try:
         from IPython import get_ipython
+
         ip = get_ipython()
         if ip is None:
             # we have IPython installed but not running from IPython
             _in_notebook[0] = False
         else:
             from IPython.core.interactiveshell import InteractiveShell
+
             format = InteractiveShell.instance().display_formatter.format
             if len(format(_checkhtml, include="text/html")[0]):
                 _in_notebook[0] = True
             else:
                 _in_notebook[0] = False
-    except:
+    except Exception:
         # We do not even have IPython installed
         _in_notebook[0] = False
     return _in_notebook[0]
@@ -290,6 +299,7 @@ def allowspan(method):
             return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
         else:
             return method(self, *args, **kwargs)
+
     return _allowspan
 
 
@@ -318,7 +328,9 @@ def get_nested(adict, name, default=None, silent=False):
             if silent:
                 return None
             else:
-                raise Exception(f"Not a dictionary for {name}, original name was {origname}, got {type(adict)}")
+                raise Exception(
+                    f"Not a dictionary for {name}, original name was {origname}, got {type(adict)}"
+                )
         ret = adict.get(name)
         adict = ret
     if ret is None:

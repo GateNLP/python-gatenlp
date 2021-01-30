@@ -17,6 +17,8 @@ from gatenlp.offsetmapper import OffsetMapper
 # * send raw HTML or other formats support by the endpoint instead "doc" (which so far is just text)
 # * maybe support the 100-continue protocol so far we dont
 # * ERROR HANDLING: raise exception vs return None?
+
+
 class GateCloudAnnotator(Annotator):
     """
     This annotator sends the text of a document to a GATE Cloud (https://cloud.gate.ac.uk/) endpoint and uses the
@@ -397,12 +399,16 @@ class ElgTextAnnotator(Annotator):
 
     # TODO: use template and return the URL from a method or use elg.utils
     ELG_SC_LIVE_URL_PREFIX = "https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
-    ELG_SC_LIVE_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_LIVE_URL_PREFIX += (
+        "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    )
     ELG_SC_LIVE_URL_OFFLINE = ELG_SC_LIVE_URL_PREFIX + "&scope=offline_access"
     ELG_SC_LIVE_URL_OPENID = ELG_SC_LIVE_URL_PREFIX + "&scope=openid"
 
     ELG_SC_DEV_URL_PREFIX = "https://dev.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
-    ELG_SC_DEV_URL_PREFIX += "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    ELG_SC_DEV_URL_PREFIX += (
+        "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
+    )
     ELG_SC_DEV_URL_OFFLINE = ELG_SC_DEV_URL_PREFIX + "&scope=offline_access"
     ELG_SC_DEV_URL_OPENID = ELG_SC_DEV_URL_PREFIX + "&scope=openid"
     """
@@ -460,7 +466,9 @@ class ElgTextAnnotator(Annotator):
         if [x is not None for x in [url, service]].count(True) != 1:
             raise Exception("Exactly one of service or url must be specified")
         if [x is not None for x in [auth, success_code, access_token]].count(True) != 1:
-            raise Exception("Exactly one of auth, success_code, or access_token must be specified")
+            raise Exception(
+                "Exactly one of auth, success_code, or access_token must be specified"
+            )
         self.access_token = access_token
         self.success_code = success_code
         self.auth = auth
@@ -481,7 +489,10 @@ class ElgTextAnnotator(Annotator):
                 from elg import Authentication
                 from elg.utils import get_domain, get_metadatarecord
             except Exception as ex:
-                raise Exception("For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]", ex)
+                raise Exception(
+                    "For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]",
+                    ex,
+                )
         if service is not None:
             # update this to use the new method:
             # https://gitlab.com/european-language-grid/platform/python-client/-/issues/9

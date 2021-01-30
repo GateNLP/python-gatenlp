@@ -15,11 +15,22 @@ from gatenlp.utils import in_notebook
 from gatenlp.changelog import ChangeLog
 
 from gatenlp.changelog_consts import (
-    ACTION_ADD_ANN, ACTION_ADD_ANNSET, ACTION_CLEAR_ANNS, ADDANN_UPDATE_FEATURES,
-    ACTION_CLEAR_ANN_FEATURES, ACTION_CLEAR_DOC_FEATURES,
-    ACTION_DEL_ANN, ACTION_DEL_ANN_FEATURE, ACTION_DEL_DOC_FEATURE,
-    ACTION_SET_ANN_FEATURE, ACTION_SET_DOC_FEATURE, ADDANN_ADD_NEW_FEATURES, ADDANN_ADD_WITH_NEW_ID,
-    ADDANN_IGNORE, ADDANN_REPLACE_ANNOTATION, ADDANN_REPLACE_FEATURES
+    ACTION_ADD_ANN,
+    ACTION_ADD_ANNSET,
+    ACTION_CLEAR_ANNS,
+    ADDANN_UPDATE_FEATURES,
+    ACTION_CLEAR_ANN_FEATURES,
+    ACTION_CLEAR_DOC_FEATURES,
+    ACTION_DEL_ANN,
+    ACTION_DEL_ANN_FEATURE,
+    ACTION_DEL_DOC_FEATURE,
+    ACTION_SET_ANN_FEATURE,
+    ACTION_SET_DOC_FEATURE,
+    ADDANN_ADD_NEW_FEATURES,
+    ADDANN_ADD_WITH_NEW_ID,
+    ADDANN_IGNORE,
+    ADDANN_REPLACE_ANNOTATION,
+    ADDANN_REPLACE_FEATURES,
 )
 
 
@@ -102,8 +113,8 @@ class Document:
         """ """
         if self.offset_type != OFFSET_TYPE_PYTHON:
             raise Exception(
-                "Document cannot be used if it is not type PYTHON, " +
-                "use to_type(OFFSET_TYPE_PYTHON) first"
+                "Document cannot be used if it is not type PYTHON, "
+                + "use to_type(OFFSET_TYPE_PYTHON) first"
             )
 
     def _fixup_annotations(self, method: Callable) -> None:
@@ -387,9 +398,9 @@ class Document:
         """
         self._ensure_type_python()
         if isinstance(span, Annotation):
-            return self.text[span._start: span._end]
+            return self.text[span._start:span._end]
         if isinstance(span, AnnotationSet):
-            return self.text[span.start(): span.end()]
+            return self.text[span.start():span.end()]
         if hasattr(span, "start") and hasattr(span, "end"):
             return self.text[span.start, span.end]
         return self.text[span]
@@ -510,8 +521,9 @@ class Document:
                     setname, types = spec
                     if isinstance(types, str):
                         types = [types]
-                    annsets_dict[setname] = \
-                        self._annotation_sets[setname].to_dict(anntypes=types, **kwargs)
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(
+                        anntypes=types, **kwargs
+                    )
         else:
             annsets_dict = {
                 name: aset.to_dict(**kwargs)

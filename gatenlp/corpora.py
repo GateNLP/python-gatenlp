@@ -91,7 +91,7 @@ class Corpus(ABC):
         pass
 
     def idxfeatname(self):
-        return "__idx_"+str(id(self))
+        return "__idx_" + str(id(self))
 
     def setidxfeature(self, doc, idx):
         if doc is not None:
@@ -297,7 +297,8 @@ def make_file_path_fromidx(digits=1, levels=1):
         or digits < levels
     ):
         raise Exception(
-            f"digits and levels must be integers larger than 0 and digits must not be smaller than levels, got {digits}/{levels}"
+            f"digits and levels must be integers larger than 0 and digits must not be smaller than "
+            "levels, got {digits}/{levels}"
         )
 
     def file_path_fromidx(doc=None, idx=None):
@@ -547,10 +548,16 @@ class NumberedDirFilesCorpus(Corpus):
     corresponding document gets deleted).
     """
 
-    def __init__(self, dirpath, digits=1, levels=1,
-                 ext="bdocjs", fmt=None, size=None,
-                 store_none=True,
-                 ):
+    def __init__(
+        self,
+        dirpath,
+        digits=1,
+        levels=1,
+        ext="bdocjs",
+        fmt=None,
+        size=None,
+        store_none=True,
+    ):
         """
         Creates the NumberedDirFilesCorpus. This corpus, is able to return None for non-existing documents
         and remove document files by setting to None depending on the parameters.
@@ -642,7 +649,7 @@ class TsvFileSource(DocumentSource):
 
     def __iter__(self):
         reader = read_lines_from(self.source)
-        if self.hdr == True and self.n == 0:
+        if self.hdr and self.n == 0:
             self.n += 1
             self.hdr = next(reader).rstrip("\n\r").split("\t")
         if self.hdr:
@@ -708,7 +715,6 @@ class PandasDfSource(DocumentSource):
 
 
 class ListCorpus(Corpus):
-
     @classmethod
     def empty(cls, n):
         """
@@ -720,8 +726,8 @@ class ListCorpus(Corpus):
         Returns:
             a ListCorpus instance with n elements which are all None
         """
-        l = [None] * n
-        return cls(l)
+        l1 = [None] * n
+        return cls(l1)
 
     def __init__(self, list, store_none=True):
         """

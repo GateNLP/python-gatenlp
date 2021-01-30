@@ -81,12 +81,13 @@ class ChangeLog:
         the given method.
 
         Args:
-          method: an object method method for converting offsets from or to python.
-          replace: if True, modifies the original change objects in the changelog, otherwise, uses copies (Default value = False)
-          method: Callable:
+            method: an object method method for converting offsets from or to python.
+            replace: if True, modifies the original change objects in the changelog,
+                otherwise, uses copies (Default value = False)
+            method: Callable:
 
         Returns:
-          the modified changes, a reference to the modified changes list of the instance
+            the modified changes, a reference to the modified changes list of the instance
 
         """
         if not replace:

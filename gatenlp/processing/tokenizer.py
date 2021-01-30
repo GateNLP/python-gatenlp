@@ -55,7 +55,7 @@ class NLTKTokenizer(Tokenizer):
         self.has_span_tokenize = True
         try:
             self.tokenizer.span_tokenize("text")
-        except:
+        except Exception as ex:
             self.has_span_tokenize = False
         self.out_set = out_set
         self.token_type = token_type

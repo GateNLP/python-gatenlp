@@ -594,18 +594,18 @@ class TokenGazetteer:
         if skip is None:
             skip = self.skip
         matches = []
-        l = len(tokens)
+        lentok = len(tokens)
         if endidx is None:
-            endidx = l
+            endidx = lentok
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx >= l:
+            toidx = lentok - 1
+        if fromidx >= lentok:
             yield matches
             return
-        if toidx >= l:
-            toidx = l - 1
+        if toidx >= lentok:
+            toidx = lentok - 1
         if fromidx > toidx:
             yield matches
             return
@@ -744,7 +744,7 @@ class _Node:
     # Will get removed or replaced with a proper pretty-printer!
     def debug_print_node(self, file=sys.stderr):
         if self.value == _NOVALUE:
-            print(f"Node(val=,children=[", end="", file=file)
+            print("Node(val=,children=[", end="", file=file)
         else:
             print(f"Node(val={self.value},children=[", end="", file=file)
         for c, n in self.children.items():
@@ -824,15 +824,15 @@ class StringGazetteer:
         text is a string, otherwise are the token offsets.
         """
         matches = []
-        l = len(text)
+        lentext = len(text)
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx >= l:
+            toidx = lentext - 1
+        if fromidx >= lentext:
             return matches
-        if toidx >= l:
-            toidx = l - 1
+        if toidx >= lentext:
+            toidx = lentext - 1
         if fromidx > toidx:
             return matches
         i = fromidx
@@ -857,7 +857,7 @@ class StringGazetteer:
                         match = matchmaker(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
@@ -865,7 +865,7 @@ class StringGazetteer:
                         match = Match(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
