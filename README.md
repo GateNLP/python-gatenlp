@@ -4,7 +4,8 @@
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp)
 [![License](https://img.shields.io/github/license/GateNLP/python-gatenlp.svg)](LICENSE)
-[![Travis](https://travis-ci.com/GateNLP/python-gatenlp.svg?branch=master)](https://travis-ci.com/github/GateNLP/python-gatenlp)
+![Travis (.org)](https://img.shields.io/travis/GateNLP/python-gatenlp)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FGateNLP%2Fpython-gatenlp%2Fbadge&style=flat)](https://actions-badge.atrox.dev/GateNLP/python-gatenlp/goto)
 [![CodeCov](https://img.shields.io/codecov/c/gh/GateNlp/python-gatenlp.svg)](https://codecov.io/gh/GateNLP/python-gatenlp)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Join the chat at https://gitter.im/GateNLP/python-gatenlp](https://badges.gitter.im/GateNLP/python-gatenlp.svg)](https://gitter.im/GateNLP/python-gatenlp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
