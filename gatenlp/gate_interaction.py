@@ -22,9 +22,6 @@ import json
 # In order to avoid use of global, we use a list and just always use element 0
 gate_python_plugin_pr = [None]
 
-def f1(x):
-    print(gate_python_plugin_pr)
-    return gate_python_plugin_pr
 
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
 # instream = sys.stdin
@@ -286,7 +283,7 @@ def interact(args=None, annotator=None):
     }
     # before we do anything we need to check if a PR has actually
     # been defined. If not, use our own default debugging PR
-    if gate_python_plugin_pr is None and annotator is None:
+    if gate_python_plugin_pr[0] is None and annotator is None:
         logger.warning(
             "No processing resource defined with @GateNlpPr decorator or passed to interact, using default do-nothing"
         )
@@ -294,7 +291,7 @@ def interact(args=None, annotator=None):
     if annotator is not None:
         pr = _pr_decorator(annotator)
     else:
-        pr = gate_python_plugin_pr
+        pr = gate_python_plugin_pr[0]
 
     if args is None:
         args = get_arguments()
