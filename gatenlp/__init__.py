@@ -1,7 +1,7 @@
 # NOTE: do not place a comment at the end of the version assignment
 # line since we parse that line in a shell script!
 # __version__ = "0.9.9"
-from gatenlp._version import __version__
+from gatenlp.version import __version__
 
 try:
     import sortedcontainers

@@ -35,7 +35,7 @@ def versionfromfile(*filepath):
         raise RuntimeError("Unable to find version string in {}.".format(infile))
 
 
-version = versionfromfile("gatenlp/_version.py")
+version = versionfromfile("gatenlp/version.py")
 
 
 def get_install_extras_require():

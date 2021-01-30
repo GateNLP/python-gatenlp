@@ -15,7 +15,7 @@ from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import init_logger
-from gatenlp._version import __version__ as gatenlp_version
+from gatenlp.version import __version__ as gatenlp_version
 import json
 
 # NOTE: this is the global variable that holds the current function or class defined for interaction
