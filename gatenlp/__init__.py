@@ -26,7 +26,9 @@ from gatenlp.annotation import Annotation
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
+from gatenlp.gateslave import GateSlave, GateSlaveAnnotator
 from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
+from gatenlp.gate_interaction import interact
 
 def init_notebook():
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
