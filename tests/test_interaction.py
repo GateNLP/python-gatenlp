@@ -1,4 +1,4 @@
-from gatenlp import GateNlpPr, Document, ChangeLog
+from gatenlp import Document, ChangeLog, GateNlpPr
 from gatenlp.gate_interaction import _pr_decorator, DefaultPr
 import gatenlp
 

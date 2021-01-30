@@ -18,12 +18,17 @@ from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import init_logger
 import json
 
+gate_python_plugin_pr = None
+
 # We cannot simply do this, because on some systems Python may guess the wrong encoding for stdin:
 # instream = sys.stdin
 # Instead use utf-8 explicitly:
-instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
-ostream = sys.stdout
-sys.stdout = sys.stderr
+# NOTE: we only do this if we get the environment variable "FROMGATEPLUGIN" set, since this
+# can interfere with normal use of gatenlp, with pytest etc!
+if os.environ.get("FROMGATEPLUGIN"):
+    instream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
+    ostream = sys.stdout
+    sys.stdout = sys.stderr
 
 
 class _PrWrapper:

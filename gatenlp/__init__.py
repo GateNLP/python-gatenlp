@@ -20,20 +20,13 @@ except Exception as ex:
 # TODO: check version of sortedcontainers (we have 2.1.0)
 
 from gatenlp.utils import init_logger
-
 logger = init_logger("gatenlp")
-
-# this attribute globally holds the processing resource last defined
-# so it can be used for interacting with the GATE python plugin
-from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
-from gatenlp.gate_interaction import interact
+from gatenlp.span import Span
 from gatenlp.annotation import Annotation
-from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
-from gatenlp.gateslave import GateSlave
-from gatenlp.span import Span
-
+from gatenlp.document import Document
+from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
 
 def init_notebook():
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
@@ -41,16 +34,3 @@ def init_notebook():
 
     HtmlAnnViewerSerializer.init_javscript()
     gatenlpconfig.notebook_js_initialized = True
-
-
-__all__ = [
-    "GateNlpPr",
-    "Span",
-    "Annotation",
-    "Document",
-    "AnnotationSet",
-    "ChangeLog",
-    "logger",
-]
-
-gate_python_plugin_pr = None
