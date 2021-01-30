@@ -2,12 +2,15 @@ import os
 from gatenlp.lib_stanza import stanza2gatenlp
 from gatenlp import logger
 
-import stanza
-from stanza.resources.common import DEFAULT_MODEL_DIR
-
 
 class TestStanza01:
     def test_stanza01a(self):
+        try:
+            import stanza
+            from stanza.resources.common import DEFAULT_MODEL_DIR
+        except:
+            logger.warn("Module stanza not installed, skipping stanza test")
+            return
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")
         if not os.path.exists(modelfile):
             stanza.download("en")
