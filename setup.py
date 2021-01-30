@@ -51,6 +51,7 @@ def get_install_extras_require():
             "jupyterlab",
             "notebook",
             "voila",
+            "RISE",
             "ipywidgets",
         ],
         "gazetteers": ["matchtext", "recordclass"],
