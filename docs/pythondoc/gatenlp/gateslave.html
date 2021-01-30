@@ -535,7 +535,15 @@ class GateSlaveAnnotator(Annotator):
     # or document and selection of annotation sets/annotation types, runs pipeline,
     # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
-    def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None, replace_anns=False):
+    def __init__(
+        self,
+        pipeline,
+        gatehome=None,
+        port=25333,
+        sets_send=None,
+        sets_receive=None,
+        replace_anns=False,
+    ):
         &#34;&#34;&#34;
         Create a GateSlave annotator.
 
@@ -576,7 +584,7 @@ class GateSlaveAnnotator(Annotator):
         &#34;&#34;&#34;
         self.pipeline = pipeline
         if sets_send is not None or sets_receive is not None:
-            raise NotImplemented
+            raise NotImplementedError
         self.sets_send = sets_send
         self.sets_receive = sets_receive
         self.gs = GateSlave(port=port, start=True, gatehome=gatehome)
@@ -1316,7 +1324,15 @@ annotation ids.</p></div>
     # or document and selection of annotation sets/annotation types, runs pipeline,
     # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
-    def __init__(self, pipeline, gatehome=None, port=25333, sets_send=None, sets_receive=None, replace_anns=False):
+    def __init__(
+        self,
+        pipeline,
+        gatehome=None,
+        port=25333,
+        sets_send=None,
+        sets_receive=None,
+        replace_anns=False,
+    ):
         &#34;&#34;&#34;
         Create a GateSlave annotator.
 
@@ -1357,7 +1373,7 @@ annotation ids.</p></div>
         &#34;&#34;&#34;
         self.pipeline = pipeline
         if sets_send is not None or sets_receive is not None:
-            raise NotImplemented
+            raise NotImplementedError
         self.sets_send = sets_send
         self.sets_receive = sets_receive
         self.gs = GateSlave(port=port, start=True, gatehome=gatehome)

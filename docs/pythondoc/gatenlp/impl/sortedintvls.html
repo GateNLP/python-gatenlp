@@ -59,9 +59,20 @@ from sortedcontainers import SortedKeyList
 class SortedIntvls:
     &#34;&#34;&#34; &#34;&#34;&#34;
 
-    def __init__(self):
-        # we sort by increasing start offset then increasing annotation id for this
-        self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
+    def __init__(self, by_ol=False):
+        &#34;&#34;&#34;
+        Create an interval index. By default, this sorts by start offset and
+        annotation id. If by_ol is True, sorts by start offset, end offset and annotation id.
+
+        Args:
+            by_ol: if True, use start offset, end offset, annotation id
+        &#34;&#34;&#34;
+        if by_ol:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[1], x[2]))
+        else:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
         # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
@@ -163,11 +174,20 @@ class SortedIntvls:
         Returns intervals that contain the given range.
         &#34;&#34;&#34;
         # All intervals that start at or before the start and end at or after the end offset
-        # we do this by first getting the intervals the start before or atthe start
+        # we do this by first getting the intervals the start before or at the start
         # then filtering by end
-        for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
-            if intvl[1] &gt;= end:
-                yield intvl
+        # NOTE: if the given range is zero length, then if the interval starts before the start
+        # it must end at least 1 after the end!
+        if start == end:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[0] &lt; start and intvl[1] &gt; end:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] &gt;= end:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[1] &gt;= end:
+                    yield intvl
 
     def overlapping(self, start, end):
         &#34;&#34;&#34;
@@ -179,9 +199,29 @@ class SortedIntvls:
         # Here we do this by looking at all intervals where the start offset is before the
         # end of the range. This still includes those which also end before the start of the range
         # so we check in addition that the end is larger than the start of the range.
-        for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
-            if intvl[1] &gt; start + 1:
-                yield intvl
+        # NOTE: if the given range has zero length, then any annotation that starts before or at start
+        # AND ends at or after start==end is overlapping
+        if start == end:
+            # in order to check what is overlapping with the zero length span, we need to find
+            # intervals which start before the start of that span AND end at least one after that span;
+            # or intervals which start at the span and end with the span or after.
+            # In other words we look at all intervals which start anywhere before or at the start(=end)
+            # of the span.
+            # if the start of what we found is &lt; start then end must be &gt; start, otherwise (if starts are same)
+            # end must be &gt;= start
+            for intvl in self._by_start.irange_key(max_key=(end, sys.maxsize)):
+                if intvl[0] &lt; start and intvl[1] &gt; start:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] &gt;= start:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
+                if intvl[0] == intvl[1]:  # we need to check a zero length interval
+                    if intvl[0] &gt;= start:
+                        yield intvl
+                else:
+                    if intvl[1] &gt; start + 1:
+                        yield intvl
 
     def firsts(self):
         &#34;&#34;&#34;
@@ -260,9 +300,16 @@ class SortedIntvls:
 <dl>
 <dt id="gatenlp.impl.sortedintvls.SortedIntvls"><code class="flex name class">
 <span>class <span class="ident">SortedIntvls</span></span>
+<span>(</span><span>by_ol=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create an interval index. By default, this sorts by start offset and
+annotation id. If by_ol is True, sorts by start offset, end offset and annotation id.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>by_ol</code></strong></dt>
+<dd>if True, use start offset, end offset, annotation id</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -270,9 +317,20 @@ class SortedIntvls:
 <pre><code class="python">class SortedIntvls:
     &#34;&#34;&#34; &#34;&#34;&#34;
 
-    def __init__(self):
-        # we sort by increasing start offset then increasing annotation id for this
-        self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
+    def __init__(self, by_ol=False):
+        &#34;&#34;&#34;
+        Create an interval index. By default, this sorts by start offset and
+        annotation id. If by_ol is True, sorts by start offset, end offset and annotation id.
+
+        Args:
+            by_ol: if True, use start offset, end offset, annotation id
+        &#34;&#34;&#34;
+        if by_ol:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[1], x[2]))
+        else:
+            # we sort by increasing start offset then increasing annotation id for this
+            self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
         # for this we sort by end offset only
         self._by_end = SortedKeyList(key=lambda x: x[1])
 
@@ -374,11 +432,20 @@ class SortedIntvls:
         Returns intervals that contain the given range.
         &#34;&#34;&#34;
         # All intervals that start at or before the start and end at or after the end offset
-        # we do this by first getting the intervals the start before or atthe start
+        # we do this by first getting the intervals the start before or at the start
         # then filtering by end
-        for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
-            if intvl[1] &gt;= end:
-                yield intvl
+        # NOTE: if the given range is zero length, then if the interval starts before the start
+        # it must end at least 1 after the end!
+        if start == end:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[0] &lt; start and intvl[1] &gt; end:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] &gt;= end:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(start, sys.maxsize)):
+                if intvl[1] &gt;= end:
+                    yield intvl
 
     def overlapping(self, start, end):
         &#34;&#34;&#34;
@@ -390,9 +457,29 @@ class SortedIntvls:
         # Here we do this by looking at all intervals where the start offset is before the
         # end of the range. This still includes those which also end before the start of the range
         # so we check in addition that the end is larger than the start of the range.
-        for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
-            if intvl[1] &gt; start + 1:
-                yield intvl
+        # NOTE: if the given range has zero length, then any annotation that starts before or at start
+        # AND ends at or after start==end is overlapping
+        if start == end:
+            # in order to check what is overlapping with the zero length span, we need to find
+            # intervals which start before the start of that span AND end at least one after that span;
+            # or intervals which start at the span and end with the span or after.
+            # In other words we look at all intervals which start anywhere before or at the start(=end)
+            # of the span.
+            # if the start of what we found is &lt; start then end must be &gt; start, otherwise (if starts are same)
+            # end must be &gt;= start
+            for intvl in self._by_start.irange_key(max_key=(end, sys.maxsize)):
+                if intvl[0] &lt; start and intvl[1] &gt; start:
+                    yield intvl
+                elif intvl[0] == start and intvl[1] &gt;= start:
+                    yield intvl
+        else:
+            for intvl in self._by_start.irange_key(max_key=(end - 1, sys.maxsize)):
+                if intvl[0] == intvl[1]:  # we need to check a zero length interval
+                    if intvl[0] &gt;= start:
+                        yield intvl
+                else:
+                    if intvl[1] &gt; start + 1:
+                        yield intvl
 
     def firsts(self):
         &#34;&#34;&#34;

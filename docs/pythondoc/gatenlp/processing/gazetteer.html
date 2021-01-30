@@ -626,18 +626,18 @@ class TokenGazetteer:
         if skip is None:
             skip = self.skip
         matches = []
-        l = len(tokens)
+        lentok = len(tokens)
         if endidx is None:
-            endidx = l
+            endidx = lentok
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx &gt;= l:
+            toidx = lentok - 1
+        if fromidx &gt;= lentok:
             yield matches
             return
-        if toidx &gt;= l:
-            toidx = l - 1
+        if toidx &gt;= lentok:
+            toidx = lentok - 1
         if fromidx &gt; toidx:
             yield matches
             return
@@ -776,7 +776,7 @@ class _Node:
     # Will get removed or replaced with a proper pretty-printer!
     def debug_print_node(self, file=sys.stderr):
         if self.value == _NOVALUE:
-            print(f&#34;Node(val=,children=[&#34;, end=&#34;&#34;, file=file)
+            print(&#34;Node(val=,children=[&#34;, end=&#34;&#34;, file=file)
         else:
             print(f&#34;Node(val={self.value},children=[&#34;, end=&#34;&#34;, file=file)
         for c, n in self.children.items():
@@ -856,15 +856,15 @@ class StringGazetteer:
         text is a string, otherwise are the token offsets.
         &#34;&#34;&#34;
         matches = []
-        l = len(text)
+        lentext = len(text)
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx &gt;= l:
+            toidx = lentext - 1
+        if fromidx &gt;= lentext:
             return matches
-        if toidx &gt;= l:
-            toidx = l - 1
+        if toidx &gt;= lentext:
+            toidx = lentext - 1
         if fromidx &gt; toidx:
             return matches
         i = fromidx
@@ -889,7 +889,7 @@ class StringGazetteer:
                         match = matchmaker(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
@@ -897,7 +897,7 @@ class StringGazetteer:
                         match = Match(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
@@ -1148,15 +1148,15 @@ class StringGazetteer:
         text is a string, otherwise are the token offsets.
         &#34;&#34;&#34;
         matches = []
-        l = len(text)
+        lentext = len(text)
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx &gt;= l:
+            toidx = lentext - 1
+        if fromidx &gt;= lentext:
             return matches
-        if toidx &gt;= l:
-            toidx = l - 1
+        if toidx &gt;= lentext:
+            toidx = lentext - 1
         if fromidx &gt; toidx:
             return matches
         i = fromidx
@@ -1181,7 +1181,7 @@ class StringGazetteer:
                         match = matchmaker(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
@@ -1189,7 +1189,7 @@ class StringGazetteer:
                         match = Match(
                             i,
                             i + k + 1,
-                            text[i : i + k + 1],
+                            text[i: i + k + 1],
                             node.value,
                             self.matcherdata,
                         )
@@ -1884,18 +1884,18 @@ precedence over outtype for the data loaded from source.</dd>
         if skip is None:
             skip = self.skip
         matches = []
-        l = len(tokens)
+        lentok = len(tokens)
         if endidx is None:
-            endidx = l
+            endidx = lentok
         if fromidx is None:
             fromidx = 0
         if toidx is None:
-            toidx = l - 1
-        if fromidx &gt;= l:
+            toidx = lentok - 1
+        if fromidx &gt;= lentok:
             yield matches
             return
-        if toidx &gt;= l:
-            toidx = l - 1
+        if toidx &gt;= lentok:
+            toidx = lentok - 1
         if fromidx &gt; toidx:
             yield matches
             return

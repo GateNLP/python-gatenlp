@@ -40,6 +40,14 @@ import time
 from functools import wraps
 
 
+def identity(x):
+    return x
+
+
+def isequal(x, y):
+    return x == y
+
+
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     &#34;&#34;&#34;
     Matches each item from the items sequence with sum substring of the text
@@ -65,9 +73,9 @@ def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
 
     &#34;&#34;&#34;
     if getstr is None:
-        getstr = lambda x: x
+        getstr = identity
     if cmp is None:
-        cmp = lambda x, y: x == y
+        cmp = isequal
     ltxt = len(text)
     ret = []
     ret2 = []
@@ -270,7 +278,6 @@ def support_annotation_or_set(method):
 
 
 class _CheckHtml:
-
     def _repr_html_(self):
         return &#34;yes&#34;
 
@@ -288,18 +295,20 @@ def in_notebook():
         return _in_notebook[0]
     try:
         from IPython import get_ipython
+
         ip = get_ipython()
         if ip is None:
             # we have IPython installed but not running from IPython
             _in_notebook[0] = False
         else:
             from IPython.core.interactiveshell import InteractiveShell
+
             format = InteractiveShell.instance().display_formatter.format
             if len(format(_checkhtml, include=&#34;text/html&#34;)[0]):
                 _in_notebook[0] = True
             else:
                 _in_notebook[0] = False
-    except:
+    except Exception:
         # We do not even have IPython installed
         _in_notebook[0] = False
     return _in_notebook[0]
@@ -319,6 +328,7 @@ def allowspan(method):
             return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
         else:
             return method(self, *args, **kwargs)
+
     return _allowspan
 
 
@@ -347,7 +357,9 @@ def get_nested(adict, name, default=None, silent=False):
             if silent:
                 return None
             else:
-                raise Exception(f&#34;Not a dictionary for {name}, original name was {origname}, got {type(adict)}&#34;)
+                raise Exception(
+                    f&#34;Not a dictionary for {name}, original name was {origname}, got {type(adict)}&#34;
+                )
         ret = adict.get(name)
         adict = ret
     if ret is None:
@@ -404,6 +416,12 @@ an excpetion is raised unless silent is True</dd>
 <h2 id="raises">Raises</h2>
 <p>Exception if an expected nested dictionary is not a dictionary and silent is False</p></div>
 </dd>
+<dt id="gatenlp.utils.identity"><code class="name flex">
+<span>def <span class="ident">identity</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="gatenlp.utils.in_notebook"><code class="name flex">
 <span>def <span class="ident">in_notebook</span></span>(<span>)</span>
 </code></dt>
@@ -437,6 +455,12 @@ file "outpref.DATETIME.log" as well.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A logger instance for name (always the same instance for the same name)</p></div>
+</dd>
+<dt id="gatenlp.utils.isequal"><code class="name flex">
+<span>def <span class="ident">isequal</span></span>(<span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="gatenlp.utils.match_substrings"><code class="name flex">
 <span>def <span class="ident">match_substrings</span></span>(<span>text, items, getstr=None, cmp=None, unmatched=False)</span>
@@ -523,8 +547,10 @@ offset.</p>
 <li><code><a title="gatenlp.utils.allowspan" href="#gatenlp.utils.allowspan">allowspan</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
 <li><code><a title="gatenlp.utils.get_nested" href="#gatenlp.utils.get_nested">get_nested</a></code></li>
+<li><code><a title="gatenlp.utils.identity" href="#gatenlp.utils.identity">identity</a></code></li>
 <li><code><a title="gatenlp.utils.in_notebook" href="#gatenlp.utils.in_notebook">in_notebook</a></code></li>
 <li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
+<li><code><a title="gatenlp.utils.isequal" href="#gatenlp.utils.isequal">isequal</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
 <li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>
 <li><code><a title="gatenlp.utils.run_stop" href="#gatenlp.utils.run_stop">run_stop</a></code></li>

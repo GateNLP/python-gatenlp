@@ -43,7 +43,6 @@ __pdoc__ = {&#34;Annotator.__call__&#34;: True}
 
 
 class Annotator(ABC):
-
     @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
@@ -138,7 +137,6 @@ class Annotator(ABC):
 
 
 class AnnotatorFunction(Annotator):
-
     def __init__(self, funct):
         self.funct = funct
 
@@ -166,7 +164,6 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Annotator(ABC):
-
     @abstractmethod
     def __call__(self, doc, **kwargs):
         &#34;&#34;&#34;
@@ -380,7 +377,6 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnnotatorFunction(Annotator):
-
     def __init__(self, funct):
         self.funct = funct
 

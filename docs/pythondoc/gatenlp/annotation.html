@@ -32,7 +32,6 @@ a document.</p>
 <pre><code class="python">&#34;&#34;&#34;
 Module for Annotation class which represents information about a span of text in  a document.
 &#34;&#34;&#34;
-import sys
 import copy as lib_copy
 from functools import total_ordering
 from gatenlp.features import Features
@@ -85,14 +84,7 @@ class Annotation:
         if isinstance(features, int):
             raise Exception(
                 f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
-                &#34;id={annid}, features={features}: features must not be an int&#34;
-            )
-        # super().__init__(features)
-        if annid is not None and not isinstance(annid, int):
-            raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
-        if features is not None and isinstance(features, int):
-            raise Exception(
-                &#34;Parameter features must not be an int: mixed up with annid?&#34;
+                &#34;id={annid}, features={features}: features must not be an int, mixed up with annid?&#34;
             )
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
@@ -255,8 +247,6 @@ class Annotation:
         &#34;&#34;&#34;
         Checks if this annotation is overlapping with the given span, annotation or
         annotation set.
-        An annotation is overlapping with a span if the first or last character
-        is inside that span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -269,7 +259,10 @@ class Annotation:
           `True` if overlapping, `False` otherwise
 
         &#34;&#34;&#34;
-        return self.iscovering(start) or self.iscovering(end - 1)
+        if start == end:
+            return self.iscovering(start)
+        else:
+            return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def isleftoverlapping(self, start: int, end: int) -&gt; bool:
@@ -373,7 +366,6 @@ class Annotation:
         else:
             return self.end &lt;= start
 
-
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
         &#34;&#34;&#34;Checks if this annotation is after the other span, i.e. the start of this annotation
@@ -416,7 +408,8 @@ class Annotation:
         &#34;&#34;&#34;
         return self._end == end
 
-    def gap(self, start: int, end: int) -&gt; bool:
+    @support_annotation_or_set
+    def gap(self, start: int, end: int) -&gt; int:
         &#34;&#34;&#34;
         Return the gep between this annotation and the other annotation.
         This is the distance between
@@ -648,14 +641,7 @@ and instead the method AnnotationSet.add should be used.</p>
         if isinstance(features, int):
             raise Exception(
                 f&#34;Cannot create annotation start={start}, end={end}, type={anntype}, &#34;
-                &#34;id={annid}, features={features}: features must not be an int&#34;
-            )
-        # super().__init__(features)
-        if annid is not None and not isinstance(annid, int):
-            raise Exception(&#34;Parameter annid must be an int, mixed up with features?&#34;)
-        if features is not None and isinstance(features, int):
-            raise Exception(
-                &#34;Parameter features must not be an int: mixed up with annid?&#34;
+                &#34;id={annid}, features={features}: features must not be an int, mixed up with annid?&#34;
             )
         self._owner_set = None
         self._features = Features(features, logger=self._log_feature_change)
@@ -818,8 +804,6 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         Checks if this annotation is overlapping with the given span, annotation or
         annotation set.
-        An annotation is overlapping with a span if the first or last character
-        is inside that span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -832,7 +816,10 @@ and instead the method AnnotationSet.add should be used.</p>
           `True` if overlapping, `False` otherwise
 
         &#34;&#34;&#34;
-        return self.iscovering(start) or self.iscovering(end - 1)
+        if start == end:
+            return self.iscovering(start)
+        else:
+            return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
     def isleftoverlapping(self, start: int, end: int) -&gt; bool:
@@ -936,7 +923,6 @@ and instead the method AnnotationSet.add should be used.</p>
         else:
             return self.end &lt;= start
 
-
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
         &#34;&#34;&#34;Checks if this annotation is after the other span, i.e. the start of this annotation
@@ -979,7 +965,8 @@ and instead the method AnnotationSet.add should be used.</p>
         &#34;&#34;&#34;
         return self._end == end
 
-    def gap(self, start: int, end: int) -&gt; bool:
+    @support_annotation_or_set
+    def gap(self, start: int, end: int) -&gt; int:
         &#34;&#34;&#34;
         Return the gep between this annotation and the other annotation.
         This is the distance between
@@ -1281,7 +1268,7 @@ def type(self) -&gt; str:
 <div class="desc"><p>Return a deep copy of the annotation (features and their values are copied as well).</p></div>
 </dd>
 <dt id="gatenlp.annotation.Annotation.gap"><code class="name flex">
-<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+<span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the gep between this annotation and the other annotation.
@@ -1422,9 +1409,7 @@ first character is before the span.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks if this annotation is overlapping with the given span, annotation or
-annotation set.
-An annotation is overlapping with a span if the first or last character
-is inside that span.</p>
+annotation set.</p>
 <p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
 (see gatenlp._utils.support_annotation_or_set)</p>
 <h2 id="args">Args</h2>

@@ -181,7 +181,7 @@ def spacy2gatenlp(
     for tok in spacydoc:
         from_off = tok.idx
         to_off = tok.idx + len(tok)
-        is_space = tok.is_space
+        # is_space = tok.is_space
         fm = {
             &#34;_i&#34;: tok.i,
             &#34;is_alpha&#34;: tok.is_alpha,

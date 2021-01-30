@@ -41,13 +41,35 @@ from gatenlp.utils import support_annotation_or_set
 # class Span(structclass(&#34;Span&#34;, (&#34;start&#34;, &#34;end&#34;))):
 # Instead, we simply use slots for now.
 class Span:
-
+    &#34;&#34;&#34;
+    Class that represents an offset range.
+    &#34;&#34;&#34;
     __slots__ = [&#34;start&#34;, &#34;end&#34;]
 
     @support_annotation_or_set
     def __init__(self, start, end):
+        &#34;&#34;&#34;
+        Create a span of length end-start. The end offset must not be less than the start offset and both
+        the start and end offset must be &gt;= 0.
+
+        To allow for a clear a simple definition of all span relations (overlapping and ordering between spans),
+        we see a span as the interval of real numbers that include the start offset and everything else that is
+        larger than the start offset but smaller than the end offset. This means for a zero length span
+        Span(x,x), the number x is contained in the span, but no other number &gt; x.
+
+        Two spans overlap, if there is at least one integer that is included in both number sets. So
+        Span(1,1) overlaps with Span(1,1) because the integer 1 is in both number sets. Span(1,1) overlaps
+        with Span(1,2) but not with Span(2,2) or Span(2,3).   Span(1,1) also does not overlap with Span(0,1).
+
+
+        Args:
+            start: the start offset of the span
+            end: the end offset of the span, the offset of the first character after the span that does not
+                belong to the span
+        &#34;&#34;&#34;
         assert start is not None
         assert end is not None
+        assert start &lt;= end
         self.start = start
         self.end = end
 
@@ -60,19 +82,21 @@ class Span:
 
     def __lt__(self, other) -&gt; bool:
         if not isinstance(other, Span):
-            raise Exception(&#34;Cannot compare to non-Annotation&#34;)
+            raise Exception(&#34;Cannot compare to non-Span&#34;)
         if self.start &lt; other.start:
             return True
-        elif self.start &gt; other.start:
+        if self.start &gt; other.start:
             return False
-        else:
-            return self.end &lt; other.end
+        return self.end &lt; other.end
 
     def __repr__(self) -&gt; str:
         return f&#34;Span({self.start},{self.end})&#34;
 
     @property
     def length(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return length of span.
+        &#34;&#34;&#34;
         return self.end - self.start
 
     @support_annotation_or_set
@@ -80,8 +104,6 @@ class Span:
         &#34;&#34;&#34;
         Checks if this span is overlapping with the given span, annotation or
         annotation set.
-        An annotation is overlapping with a span if the first or last character
-        is inside that span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -94,6 +116,10 @@ class Span:
           `True` if overlapping, `False` otherwise
 
         &#34;&#34;&#34;
+        # for most cases, we can check if our own range covers either the start or the last element
+        # However, if the other range is zero length we must not check for covering(end-1)!
+        if start == end:
+            return self.iscovering(start)
         return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
@@ -155,8 +181,7 @@ class Span:
         &#34;&#34;&#34;
         if immediately:
             return self.end == start
-        else:
-            return self.end &lt;= start
+        return self.end &lt;= start
 
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
@@ -178,8 +203,7 @@ class Span:
         &#34;&#34;&#34;
         if immediately:
             return self.start == end
-        else:
-            return self.start &gt;= end
+        return self.start &gt;= end
 
     @support_annotation_or_set
     def gap(self, start: int, end: int):
@@ -202,14 +226,14 @@ class Span:
 
         &#34;&#34;&#34;
         if self.start &lt; start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -220,8 +244,7 @@ class Span:
         annotation set, i.e. both the given start and end offsets
         are after the start of this span and before the end of this span.
 
-        If end is not given, then the method checks if start is an offset of a character
-        contained in the span.
+        If end is not given, then the method checks if start is an offset of the span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -237,10 +260,8 @@ class Span:
         if end is None:
             if self.start == self.end:
                 return self.start == start
-            else:
-                return self.start &lt;= start &lt; self.end
-        else:
-            return self.start &lt;= start and self.end &gt;= end
+            return self.start &lt;= start &lt; self.end
+        return self.start &lt;= start and self.end &gt;= end
 
     @support_annotation_or_set
     def isstartingat(self, start: int, end: int) -&gt; bool:
@@ -326,19 +347,59 @@ class Span:
 <span>(</span><span>start, end)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Class that represents an offset range.</p>
+<p>Create a span of length end-start. The end offset must not be less than the start offset and both
+the start and end offset must be &gt;= 0.</p>
+<p>To allow for a clear a simple definition of all span relations (overlapping and ordering between spans),
+we see a span as the interval of real numbers that include the start offset and everything else that is
+larger than the start offset but smaller than the end offset. This means for a zero length span
+Span(x,x), the number x is contained in the span, but no other number &gt; x.</p>
+<p>Two spans overlap, if there is at least one integer that is included in both number sets. So
+Span(1,1) overlaps with Span(1,1) because the integer 1 is in both number sets. Span(1,1) overlaps
+with Span(1,2) but not with Span(2,2) or Span(2,3).
+Span(1,1) also does not overlap with Span(0,1).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>the start offset of the span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>the end offset of the span, the offset of the first character after the span that does not
+belong to the span</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Span:
-
+    &#34;&#34;&#34;
+    Class that represents an offset range.
+    &#34;&#34;&#34;
     __slots__ = [&#34;start&#34;, &#34;end&#34;]
 
     @support_annotation_or_set
     def __init__(self, start, end):
+        &#34;&#34;&#34;
+        Create a span of length end-start. The end offset must not be less than the start offset and both
+        the start and end offset must be &gt;= 0.
+
+        To allow for a clear a simple definition of all span relations (overlapping and ordering between spans),
+        we see a span as the interval of real numbers that include the start offset and everything else that is
+        larger than the start offset but smaller than the end offset. This means for a zero length span
+        Span(x,x), the number x is contained in the span, but no other number &gt; x.
+
+        Two spans overlap, if there is at least one integer that is included in both number sets. So
+        Span(1,1) overlaps with Span(1,1) because the integer 1 is in both number sets. Span(1,1) overlaps
+        with Span(1,2) but not with Span(2,2) or Span(2,3).   Span(1,1) also does not overlap with Span(0,1).
+
+
+        Args:
+            start: the start offset of the span
+            end: the end offset of the span, the offset of the first character after the span that does not
+                belong to the span
+        &#34;&#34;&#34;
         assert start is not None
         assert end is not None
+        assert start &lt;= end
         self.start = start
         self.end = end
 
@@ -351,19 +412,21 @@ class Span:
 
     def __lt__(self, other) -&gt; bool:
         if not isinstance(other, Span):
-            raise Exception(&#34;Cannot compare to non-Annotation&#34;)
+            raise Exception(&#34;Cannot compare to non-Span&#34;)
         if self.start &lt; other.start:
             return True
-        elif self.start &gt; other.start:
+        if self.start &gt; other.start:
             return False
-        else:
-            return self.end &lt; other.end
+        return self.end &lt; other.end
 
     def __repr__(self) -&gt; str:
         return f&#34;Span({self.start},{self.end})&#34;
 
     @property
     def length(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return length of span.
+        &#34;&#34;&#34;
         return self.end - self.start
 
     @support_annotation_or_set
@@ -371,8 +434,6 @@ class Span:
         &#34;&#34;&#34;
         Checks if this span is overlapping with the given span, annotation or
         annotation set.
-        An annotation is overlapping with a span if the first or last character
-        is inside that span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -385,6 +446,10 @@ class Span:
           `True` if overlapping, `False` otherwise
 
         &#34;&#34;&#34;
+        # for most cases, we can check if our own range covers either the start or the last element
+        # However, if the other range is zero length we must not check for covering(end-1)!
+        if start == end:
+            return self.iscovering(start)
         return self.iscovering(start) or self.iscovering(end - 1)
 
     @support_annotation_or_set
@@ -446,8 +511,7 @@ class Span:
         &#34;&#34;&#34;
         if immediately:
             return self.end == start
-        else:
-            return self.end &lt;= start
+        return self.end &lt;= start
 
     @support_annotation_or_set
     def isafter(self, start: int, end: int, immediately=False) -&gt; bool:
@@ -469,8 +533,7 @@ class Span:
         &#34;&#34;&#34;
         if immediately:
             return self.start == end
-        else:
-            return self.start &gt;= end
+        return self.start &gt;= end
 
     @support_annotation_or_set
     def gap(self, start: int, end: int):
@@ -493,14 +556,14 @@ class Span:
 
         &#34;&#34;&#34;
         if self.start &lt; start:
-            ann1start = self.start
+            # ann1start = self.start
             ann1end = self.end
             ann2start = start
-            ann2end = end
+            # ann2end = end
         else:
             ann2start = self.start
-            ann2end = self.end
-            ann1start = start
+            # ann2end = self.end
+            # ann1start = start
             ann1end = end
         return ann2start - ann1end
 
@@ -511,8 +574,7 @@ class Span:
         annotation set, i.e. both the given start and end offsets
         are after the start of this span and before the end of this span.
 
-        If end is not given, then the method checks if start is an offset of a character
-        contained in the span.
+        If end is not given, then the method checks if start is an offset of the span.
 
         Note: this can be called with an Annotation or AnnotationSet instead of `start` and `end`
           (see gatenlp._utils.support_annotation_or_set)
@@ -528,10 +590,8 @@ class Span:
         if end is None:
             if self.start == self.end:
                 return self.start == start
-            else:
-                return self.start &lt;= start &lt; self.end
-        else:
-            return self.start &lt;= start and self.end &gt;= end
+            return self.start &lt;= start &lt; self.end
+        return self.start &lt;= start and self.end &gt;= end
 
     @support_annotation_or_set
     def isstartingat(self, start: int, end: int) -&gt; bool:
@@ -610,13 +670,16 @@ class Span:
 </dd>
 <dt id="gatenlp.span.Span.length"><code class="name">property/get <span class="ident">length</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return length of span.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def length(self) -&gt; int:
+    &#34;&#34;&#34;
+    Return length of span.
+    &#34;&#34;&#34;
     return self.end - self.start</code></pre>
 </details>
 </dd>
@@ -712,8 +775,7 @@ annotation set, i.e. has exactly the same start and end offsets.</p>
 <div class="desc"><p>Checks if this span is covering the given span, annotation or
 annotation set, i.e. both the given start and end offsets
 are after the start of this span and before the end of this span.</p>
-<p>If end is not given, then the method checks if start is an offset of a character
-contained in the span.</p>
+<p>If end is not given, then the method checks if start is an offset of the span.</p>
 <p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
 (see gatenlp._utils.support_annotation_or_set)</p>
 <h2 id="args">Args</h2>
@@ -765,9 +827,7 @@ first character is before the span.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks if this span is overlapping with the given span, annotation or
-annotation set.
-An annotation is overlapping with a span if the first or last character
-is inside that span.</p>
+annotation set.</p>
 <p>Note: this can be called with an Annotation or AnnotationSet instead of <code>start</code> and <code>end</code>
 (see gatenlp._utils.support_annotation_or_set)</p>
 <h2 id="args">Args</h2>
