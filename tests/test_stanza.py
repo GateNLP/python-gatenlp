@@ -1,5 +1,4 @@
 import os
-from gatenlp.lib_stanza import stanza2gatenlp
 from gatenlp import logger
 
 
@@ -7,6 +6,7 @@ class TestStanza01:
     def test_stanza01a(self):
         try:
             import stanza
+            from gatenlp.lib_stanza import stanza2gatenlp
             from stanza.resources.common import DEFAULT_MODEL_DIR
         except:
             logger.warn("Module stanza not installed, skipping stanza test")
