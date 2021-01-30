@@ -28,7 +28,7 @@ class InvalidOffsetError(KeyError):
 
 
 class AnnotationSet:
-    def __init__(self, name: str = "", owner_doc: "Document" = None):
+    def __init__(self, name: str = "", owner_doc=None):
         """
         Creates an annotation set. This should not be used directly by the user, instead the
         method `Document.annset(name)` should be used to access the annotation set with a given
@@ -88,7 +88,7 @@ class AnnotationSet:
         else:
             super().__setattr__(key, value)
 
-    def detach(self, restrict_to=None) -> "AnnotationSet":
+    def detach(self, restrict_to=None):
         """
         Creates an immutable and detached copy of this set, optionally restricted to the given annotation ids.
         A detached annotation set does not have an owning document and deleting or adding annotations does not
@@ -115,7 +115,7 @@ class AnnotationSet:
         annset._next_annid = self._next_annid
         return annset
 
-    def detach_from(self, anns: Iterable) -> "AnnotationSet":
+    def detach_from(self, anns: Iterable):
         """
         Creates an immutable detached annotation set from the annotations in anns which could by
         either a collection of annotations or annotation ids (int numbers) which are assumed to
@@ -257,7 +257,7 @@ class AnnotationSet:
                 ret.add(i[2])
         return ret
 
-    def _restrict_intvs(self, intvs, ignore=None) -> "AnnotationSet":
+    def _restrict_intvs(self, intvs, ignore=None):
         """
 
         Args:
@@ -287,7 +287,7 @@ class AnnotationSet:
         return len(self._annotations)
 
     @property
-    def document(self) -> Union["Document", None]:
+    def document(self):
         """
         Returns the owning document, if set. If the owning document was not set, returns None.
         """
@@ -790,8 +790,7 @@ class AnnotationSet:
         return self._annotations[annid]
 
     def with_type(
-        self, *anntype: Union[str, Iterable], non_overlapping: bool = False
-    ) -> "AnnotationSet":
+        self, *anntype: Union[str, Iterable], non_overlapping: bool = False):
         """
         Gets annotations of the specified type(s).
         Creates the type index if necessary.
@@ -929,8 +928,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, ignored: Any = None, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, ignored: Any = None, annid=None, include_self=False):
         """
         Gets all annotations starting at the given offset (empty if none) and returns them in a detached
         annotation set.
@@ -957,8 +955,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, ignored: Any = None, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, offset: int, ignored: Any = None, annid=None, include_self=False):
         """Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
         annotation set.
@@ -1002,8 +999,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_ge(
-        self, start: int, ignored: Any = None, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, ignored: Any = None, annid=None, include_self=False):
         """Return the annotations that start at or after the given start offset.
 
         Args:
@@ -1025,7 +1021,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, ignored: Any = None, annid=None) -> "AnnotationSet":
+    def start_lt(self, offset: int, ignored: Any = None, annid=None):
         """
         Returns the annotations that start before the given offset (or annotation). This also accepts an annotation
         or set.
@@ -1045,8 +1041,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def overlapping(
-        self, start: int, end: int, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, end: int, annid=None, include_self=False):
         """
         Gets annotations overlapping with the given span. Instead of the start and end offsets,
         also accepts an annotation or annotation set.
@@ -1074,8 +1069,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def covering(
-        self, start: int, end: int, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, end: int, annid=None, include_self=False):
         """
         Gets the annotations which contain the given offset range (or annotation/annotation set),
         i.e. annotations such that the given offset range is within the annotation.
@@ -1103,8 +1097,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def within(
-        self, start: int, end: int, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, end: int, annid=None, include_self=False):
         """
         Gets annotations that fall completely within the given offset range, i.e. annotations
         such that the offset range is covering each of the annotation.
@@ -1135,8 +1128,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def coextensive(
-        self, start: int, end: int, annid=None, include_self=False
-    ) -> "AnnotationSet":
+        self, start: int, end: int, annid=None, include_self=False):
         """
         Returns a detached annotation set with all annotations that start and end at the given offsets.
 
@@ -1162,7 +1154,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def before(self, start: int, end: int, annid=None, include_self=False,
-               immediately=False) -> "AnnotationSet":
+               immediately=False):
         """
         Returns a detached annotation set with all annotations that end before the given offsets.
 
@@ -1194,7 +1186,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def after(self, start: int, end: int, annid=None, include_self=False,
-              immediately=False) -> "AnnotationSet":
+              immediately=False):
         """
         Returns a detached annotation set with all annotations that start after the given span.
 
