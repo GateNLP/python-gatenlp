@@ -1220,6 +1220,8 @@ class AnnotationSet:
         and the largest end offset of any annotation.
         (Builds the offset index)
         """
+        if len(self._annotations) == 0:
+            return Span(0, 0)
         self._create_index_by_offset()
         return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())
 

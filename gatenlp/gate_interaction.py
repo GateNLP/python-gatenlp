@@ -156,7 +156,12 @@ def _pr_decorator(what):
 
     """
     wrapper = _PrWrapper()
-    if inspect.isclass(what) or _has_method(what, "__call__"):
+    if inspect.isfunction(what):
+        allowkws = _check_exec(what)
+        wrapper.func_execute = what
+        wrapper.func_execute_allowkws = allowkws
+    elif inspect.isclass(what) or _has_method(what, "__call__"):
+        # NOTE: functions also have a "__call__" attribute! This is why we need to check for function first.
         if inspect.isclass(what):
             what = (
                 what()
@@ -184,11 +189,6 @@ def _pr_decorator(what):
             wrapper.func_reduce = reducemethod
             if inspect.getfullargspec(reducemethod).varkw:
                 wrapper.func_reduce_allowkws = True
-
-    elif inspect.isfunction(what):
-        allowkws = _check_exec(what)
-        wrapper.func_execute = what
-        wrapper.func_execute_allowkws = allowkws
     else:
         raise Exception(
             f"Decorator applied to something that is not a function or class: {what}"
