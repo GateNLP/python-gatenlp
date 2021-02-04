@@ -249,6 +249,16 @@ def get_arguments(from_main=False):
         type=str,
         help="Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL",
     )
+    argparser.add_argument(
+        "--config_file",
+        type=str,
+        help="Config file path to pass on to the annotator (default: not set)",
+    )
+    argparser.add_argument(
+        "--parms_file",
+        type=str,
+        help="The parms file to use for setting parameters",
+    )
     if from_main:
         argparser.add_argument("pythonfile")
     args = argparser.parse_args()
@@ -399,8 +409,16 @@ def interact(args=None, annotator=None):
             raise Exception(
                 "Mode dir but path is not a directory: {}".format(args.path)
             )
+        # we need to do this for mode file and dir: get the parms and run pr.start(parms):
+        parms = {}
+        # check if there is a parms file:
+        if args.parms_file:
+            with open(args.parms_file, "rt", encoding="utf-8") as infp:
+                parms.update(json.load(infp))
+        if args.config_file:
+            parms["_config_file"] = args.config_file
+        pr.start(parms)
         if args.mode == "file":
-            pr.start({})
             logger.info(f"Loading file {args.path}")
             doc = Document.load(args.path)
             pr.execute(doc)
@@ -413,8 +431,6 @@ def interact(args=None, annotator=None):
                 doc.save(args.path)
         else:
             import glob
-
-            pr.start({})
             files = glob.glob(args.path + os.path.sep + "*" + fileext)
             for file in files:
                 logger.info("Loading file {}".format(file))
