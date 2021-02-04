@@ -528,6 +528,376 @@ class GateSlave:
         &#34;&#34;&#34;
         self.slave.showGui()
 
+    # methods that mirror the methods from the Java gate.plugin.python.PythonSlave methods
+    # These could get called directly via gs.slave.METHODNAME calls but are implemented here
+    # to provide easier discovery and better documentation on the Python side
+    # Since these are really local mirrors of Java methods, they follow Java naming conventions
+    def  createDocument(self, content):
+        &#34;&#34;&#34;
+        Create a Java GATE document from the content string and return a handle to it.
+
+        Args:
+            content: the text of the document
+
+        Returns:
+            handle to Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.createDocument(content)
+
+    def deleteResource(self, resource):
+        &#34;&#34;&#34;
+        Remove a Java GATE resource and release its memory.
+
+        Args:
+            resource: a handle to some Java GATE resource
+        &#34;&#34;&#34;
+        self.slave.deleteResource(resource)
+
+    def findMavenPlugin(self, group, artifact):
+        &#34;&#34;&#34;
+        Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
+
+        Args:
+            group: the Maven group for the plugin
+            artifact: the artifact name for the plugin
+
+        Returns:
+            a handle to the plugin or None if not found
+        &#34;&#34;&#34;
+        return self.slave.findMavenPlugin(group, artifact)
+
+    def gate_build(self):
+        &#34;&#34;&#34;
+        Return the short commit id of the Java GATE we are connected to.
+
+        Returns:
+            short commit id string
+        &#34;&#34;&#34;
+        return self.slave.gate_build()
+
+    def gate_version(self):
+        &#34;&#34;&#34;
+        Return the version string of the Java GATE we are connected to.
+
+        Returns:
+            version string
+        &#34;&#34;&#34;
+        return self.slave.gate_version()
+
+    def getBdocJson(self, gdoc):
+        &#34;&#34;&#34;
+        Return the Bdoc JSON serialization of a Java GATE document as string.
+
+        Args:
+            gdoc: a handle to a GATE document
+
+        Returns:
+            BDOC serialization JSON string
+        &#34;&#34;&#34;
+        return self.slave.getBdocJson(gdoc)
+
+    def getCorpus4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE corpus with the given name or None if none found.
+
+        Args:
+            name: corpus name
+
+        Returns:
+            first matching corpus or None
+        &#34;&#34;&#34;
+        return self.slave.getCorpus4Name(name)
+
+    def getCorpusNames(self):
+        &#34;&#34;&#34;
+        Return a list of all Java GATE corpus names known.
+
+        Returns:
+            list of corpus names
+        &#34;&#34;&#34;
+        return self.slave.getCorpusNames()
+
+    def getDocument4BdocJson(self, bdocjson):
+        &#34;&#34;&#34;
+        Returns a handle to a Java GATE document created from the Bdoc JSON string.
+
+        Args:
+            bdocjson: a BDOC JSON string
+
+        Returns:
+            handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.getDocument4BdocJson
+
+    def getDocument4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE document that has the given name or None if none found.
+
+        Args:
+            name: the document name
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.getDocument4Name(name)
+
+    def getDocumentNames(self):
+        &#34;&#34;&#34;
+        Return a list of known Java GATE document names.
+
+        Returns:
+            list of Java GATE document names
+        &#34;&#34;&#34;
+        return self.slave.getDocumentNames()
+
+    def getPipeline4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE pipeline/controller that has the given name or
+        None if none found.
+
+        Args:
+            name: name of the pipeline
+
+        Returns:
+            handle to the pipeline
+        &#34;&#34;&#34;
+        return self.slave.getPipeline4Name(name)
+
+    def getPipelineNames(self):
+        &#34;&#34;&#34;
+        Return a list of all know Java GATE pipeline names.
+
+        Returns:
+            list of pipeline names
+        &#34;&#34;&#34;
+        return self.slave.getPipelineNames()
+
+    def getPr4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE processing resource that has the given name
+        or None if none found.
+
+        Args:
+            name: the name of the processing resource
+
+        Returns:
+            a handle to the processing resource or None
+        &#34;&#34;&#34;
+        return self.slave.getPr4Name(name)
+
+    def getPrNames(self):
+        &#34;&#34;&#34;
+        Return a list of known Java GATE  processing resource names.
+
+        Returns:
+            list of PR names
+        &#34;&#34;&#34;
+        return self.slave.getPrNames()
+
+    def getResources4Name(self, name):
+        &#34;&#34;&#34;
+        Return a (possibly empty) list of all Java GATE resources with the given name.
+
+        Args:
+            name: name of the resources
+
+        Returns:
+            list of matching resources
+        &#34;&#34;&#34;
+        return self.slave.getResources4Name(name)
+
+
+    def getResources4NameClass(self, name, clazz):
+        &#34;&#34;&#34;
+        Return a (possibly empty) list of all Java GATE resources with the given name and class name.
+
+        Args:
+            name: name of the resources
+            clazz: the name of the java class the resource must be an instance of
+
+        Returns:
+            list of matching resources
+        &#34;&#34;&#34;
+        return self.slave.getResources4Name(name, clazz)
+
+    def loadDocumentFromFile(self, filename):
+        &#34;&#34;&#34;
+        Load a Java GATE document from the given file name and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.loadDocumentFromFile(filename)
+
+    def loadDocumentFromFile4Mime(self, filename, mimetype):
+        &#34;&#34;&#34;
+        Load a Java GATE document from the given file name, using the given mime type
+        and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+            mimetype: the mimetype to use
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.loadDocumentFromFile(filename, mimetype)
+
+    def loadMavenPlugin(self, group, artifact, version):
+        &#34;&#34;&#34;
+        Load the given Maven plugin into Java GATE.
+
+        Args:
+            group: group id of the plugin
+            artifact:  artifact id of the plugin
+            version: version of the plugin
+        &#34;&#34;&#34;
+        self.slave.loadMavenPlugin(group, artifact, version)
+
+    def loadPipelineFromFile(self, filename):
+        &#34;&#34;&#34;
+        Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            filename: the filename/path of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        &#34;&#34;&#34;
+        return self.slave.loadPipelineFromFile(filename)
+
+    def loadPipelineFromPlugin(self, group, artifact, path):
+        &#34;&#34;&#34;
+        Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
+        a CorpusController handle to it.
+
+        Args:
+            group: maven group id the plugin
+            artifact: artifact id of the plugin
+            path: path of the pipeline in the JAR
+
+        Returns:
+            a CorpusController handle to the pipeline
+        &#34;&#34;&#34;
+        return self.slave.loadPipelineFromPlugin(group, artifact, path)
+
+    def logActions(self, flag):
+        &#34;&#34;&#34;
+        Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
+
+        Args:
+            flag: True to enable logging of actions
+        &#34;&#34;&#34;
+        self.slave.logActions(flag)
+
+    def newCorpus(self):
+        &#34;&#34;&#34;
+        Create and return a handle to a new Java GATE corpus.
+
+        Returns:
+            handle to the Java GATE corpus
+        &#34;&#34;&#34;
+        return self.slave.newCorpus()
+
+    def pluginBuild(self):
+        &#34;&#34;&#34;
+        Return the short commit id of the Python plugin on the Java GATE side.
+
+        Returns:
+            commit id of Python plugin
+        &#34;&#34;&#34;
+        return self.slave.pluginBuild()
+
+
+    def pluginVersion(self):
+        &#34;&#34;&#34;
+        Return the version string of the Python plugin on the Java GATE side.
+
+        Returns:
+            version string of Python plugin
+        &#34;&#34;&#34;
+        return self.slave.pluginVersion()
+
+    def print2err(self, message):
+        &#34;&#34;&#34;
+        Output the given message to System.err on the Java GATE side.
+
+        Args:
+            message: string to output
+        &#34;&#34;&#34;
+        self.slave.print2err(message)
+
+
+    def print2out(self, message):
+        &#34;&#34;&#34;
+        Output the given message to System.out on the Java GATE side.
+
+        Args:
+            message: string to output
+        &#34;&#34;&#34;
+        self.slave.print2out(message)
+
+    def run4Corpus(self, pipeline, corpus):
+        &#34;&#34;&#34;
+        Run the given Java GATE pipeline on the given Java GATE corpus.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            corpus: handle to a Java GATE corpus
+        &#34;&#34;&#34;
+        self.slave.run4Corpus(pipeline, corpus)
+
+    def run4Document(self, pipeline, gdoc):
+        &#34;&#34;&#34;
+        Run the given Java GATE pipeline on the given Java GATE document.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            gdoc: handle to a Java GATE document
+        &#34;&#34;&#34;
+        self.slave.run4Document(pipeline, gdoc)
+
+    def runExcecutionFinished(self, pipeline):
+        &#34;&#34;&#34;
+        Run the execution finished method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        &#34;&#34;&#34;
+        self.slave.runExecutionFinished(pipeline)
+
+    def runExcecutionStarted(self, pipeline):
+        &#34;&#34;&#34;
+        Run the execution started method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        &#34;&#34;&#34;
+        self.slave.runExecutionStarted(pipeline)
+
+    def saveDocumentToFile(self, gdoc, filename, mimetype):
+        &#34;&#34;&#34;
+        Save the Java GATE document to the given file, using the given mime type.
+        At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
+        formats supported by the FastInfoset  FormatBdoc plugins.
+
+        Args:
+            gdoc: handle to Java GATE document
+            filename: name/path of the file to save to
+            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML
+        &#34;&#34;&#34;
+        self.slave.saveDocumentToFile(gdoc, filename, mimetype)
+
+    def showGui(self):
+        &#34;&#34;&#34;
+        (CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
+        showing the GUI.
+        &#34;&#34;&#34;
+        self.slave.showGui()
+        
 
 class GateSlaveAnnotator(Annotator):
     # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
@@ -1139,6 +1509,376 @@ debug: show debug messages (default: False)</p></div>
         NOTE: this is more of a hack and may cause sync problems
         when closing down the GATE slave.
         &#34;&#34;&#34;
+        self.slave.showGui()
+
+    # methods that mirror the methods from the Java gate.plugin.python.PythonSlave methods
+    # These could get called directly via gs.slave.METHODNAME calls but are implemented here
+    # to provide easier discovery and better documentation on the Python side
+    # Since these are really local mirrors of Java methods, they follow Java naming conventions
+    def  createDocument(self, content):
+        &#34;&#34;&#34;
+        Create a Java GATE document from the content string and return a handle to it.
+
+        Args:
+            content: the text of the document
+
+        Returns:
+            handle to Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.createDocument(content)
+
+    def deleteResource(self, resource):
+        &#34;&#34;&#34;
+        Remove a Java GATE resource and release its memory.
+
+        Args:
+            resource: a handle to some Java GATE resource
+        &#34;&#34;&#34;
+        self.slave.deleteResource(resource)
+
+    def findMavenPlugin(self, group, artifact):
+        &#34;&#34;&#34;
+        Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
+
+        Args:
+            group: the Maven group for the plugin
+            artifact: the artifact name for the plugin
+
+        Returns:
+            a handle to the plugin or None if not found
+        &#34;&#34;&#34;
+        return self.slave.findMavenPlugin(group, artifact)
+
+    def gate_build(self):
+        &#34;&#34;&#34;
+        Return the short commit id of the Java GATE we are connected to.
+
+        Returns:
+            short commit id string
+        &#34;&#34;&#34;
+        return self.slave.gate_build()
+
+    def gate_version(self):
+        &#34;&#34;&#34;
+        Return the version string of the Java GATE we are connected to.
+
+        Returns:
+            version string
+        &#34;&#34;&#34;
+        return self.slave.gate_version()
+
+    def getBdocJson(self, gdoc):
+        &#34;&#34;&#34;
+        Return the Bdoc JSON serialization of a Java GATE document as string.
+
+        Args:
+            gdoc: a handle to a GATE document
+
+        Returns:
+            BDOC serialization JSON string
+        &#34;&#34;&#34;
+        return self.slave.getBdocJson(gdoc)
+
+    def getCorpus4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE corpus with the given name or None if none found.
+
+        Args:
+            name: corpus name
+
+        Returns:
+            first matching corpus or None
+        &#34;&#34;&#34;
+        return self.slave.getCorpus4Name(name)
+
+    def getCorpusNames(self):
+        &#34;&#34;&#34;
+        Return a list of all Java GATE corpus names known.
+
+        Returns:
+            list of corpus names
+        &#34;&#34;&#34;
+        return self.slave.getCorpusNames()
+
+    def getDocument4BdocJson(self, bdocjson):
+        &#34;&#34;&#34;
+        Returns a handle to a Java GATE document created from the Bdoc JSON string.
+
+        Args:
+            bdocjson: a BDOC JSON string
+
+        Returns:
+            handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.getDocument4BdocJson
+
+    def getDocument4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE document that has the given name or None if none found.
+
+        Args:
+            name: the document name
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.getDocument4Name(name)
+
+    def getDocumentNames(self):
+        &#34;&#34;&#34;
+        Return a list of known Java GATE document names.
+
+        Returns:
+            list of Java GATE document names
+        &#34;&#34;&#34;
+        return self.slave.getDocumentNames()
+
+    def getPipeline4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE pipeline/controller that has the given name or
+        None if none found.
+
+        Args:
+            name: name of the pipeline
+
+        Returns:
+            handle to the pipeline
+        &#34;&#34;&#34;
+        return self.slave.getPipeline4Name(name)
+
+    def getPipelineNames(self):
+        &#34;&#34;&#34;
+        Return a list of all know Java GATE pipeline names.
+
+        Returns:
+            list of pipeline names
+        &#34;&#34;&#34;
+        return self.slave.getPipelineNames()
+
+    def getPr4Name(self, name):
+        &#34;&#34;&#34;
+        Return a handle to the first Java GATE processing resource that has the given name
+        or None if none found.
+
+        Args:
+            name: the name of the processing resource
+
+        Returns:
+            a handle to the processing resource or None
+        &#34;&#34;&#34;
+        return self.slave.getPr4Name(name)
+
+    def getPrNames(self):
+        &#34;&#34;&#34;
+        Return a list of known Java GATE  processing resource names.
+
+        Returns:
+            list of PR names
+        &#34;&#34;&#34;
+        return self.slave.getPrNames()
+
+    def getResources4Name(self, name):
+        &#34;&#34;&#34;
+        Return a (possibly empty) list of all Java GATE resources with the given name.
+
+        Args:
+            name: name of the resources
+
+        Returns:
+            list of matching resources
+        &#34;&#34;&#34;
+        return self.slave.getResources4Name(name)
+
+
+    def getResources4NameClass(self, name, clazz):
+        &#34;&#34;&#34;
+        Return a (possibly empty) list of all Java GATE resources with the given name and class name.
+
+        Args:
+            name: name of the resources
+            clazz: the name of the java class the resource must be an instance of
+
+        Returns:
+            list of matching resources
+        &#34;&#34;&#34;
+        return self.slave.getResources4Name(name, clazz)
+
+    def loadDocumentFromFile(self, filename):
+        &#34;&#34;&#34;
+        Load a Java GATE document from the given file name and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.loadDocumentFromFile(filename)
+
+    def loadDocumentFromFile4Mime(self, filename, mimetype):
+        &#34;&#34;&#34;
+        Load a Java GATE document from the given file name, using the given mime type
+        and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+            mimetype: the mimetype to use
+
+        Returns:
+            a handle to the Java GATE document
+        &#34;&#34;&#34;
+        return self.slave.loadDocumentFromFile(filename, mimetype)
+
+    def loadMavenPlugin(self, group, artifact, version):
+        &#34;&#34;&#34;
+        Load the given Maven plugin into Java GATE.
+
+        Args:
+            group: group id of the plugin
+            artifact:  artifact id of the plugin
+            version: version of the plugin
+        &#34;&#34;&#34;
+        self.slave.loadMavenPlugin(group, artifact, version)
+
+    def loadPipelineFromFile(self, filename):
+        &#34;&#34;&#34;
+        Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            filename: the filename/path of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        &#34;&#34;&#34;
+        return self.slave.loadPipelineFromFile(filename)
+
+    def loadPipelineFromPlugin(self, group, artifact, path):
+        &#34;&#34;&#34;
+        Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
+        a CorpusController handle to it.
+
+        Args:
+            group: maven group id the plugin
+            artifact: artifact id of the plugin
+            path: path of the pipeline in the JAR
+
+        Returns:
+            a CorpusController handle to the pipeline
+        &#34;&#34;&#34;
+        return self.slave.loadPipelineFromPlugin(group, artifact, path)
+
+    def logActions(self, flag):
+        &#34;&#34;&#34;
+        Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
+
+        Args:
+            flag: True to enable logging of actions
+        &#34;&#34;&#34;
+        self.slave.logActions(flag)
+
+    def newCorpus(self):
+        &#34;&#34;&#34;
+        Create and return a handle to a new Java GATE corpus.
+
+        Returns:
+            handle to the Java GATE corpus
+        &#34;&#34;&#34;
+        return self.slave.newCorpus()
+
+    def pluginBuild(self):
+        &#34;&#34;&#34;
+        Return the short commit id of the Python plugin on the Java GATE side.
+
+        Returns:
+            commit id of Python plugin
+        &#34;&#34;&#34;
+        return self.slave.pluginBuild()
+
+
+    def pluginVersion(self):
+        &#34;&#34;&#34;
+        Return the version string of the Python plugin on the Java GATE side.
+
+        Returns:
+            version string of Python plugin
+        &#34;&#34;&#34;
+        return self.slave.pluginVersion()
+
+    def print2err(self, message):
+        &#34;&#34;&#34;
+        Output the given message to System.err on the Java GATE side.
+
+        Args:
+            message: string to output
+        &#34;&#34;&#34;
+        self.slave.print2err(message)
+
+
+    def print2out(self, message):
+        &#34;&#34;&#34;
+        Output the given message to System.out on the Java GATE side.
+
+        Args:
+            message: string to output
+        &#34;&#34;&#34;
+        self.slave.print2out(message)
+
+    def run4Corpus(self, pipeline, corpus):
+        &#34;&#34;&#34;
+        Run the given Java GATE pipeline on the given Java GATE corpus.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            corpus: handle to a Java GATE corpus
+        &#34;&#34;&#34;
+        self.slave.run4Corpus(pipeline, corpus)
+
+    def run4Document(self, pipeline, gdoc):
+        &#34;&#34;&#34;
+        Run the given Java GATE pipeline on the given Java GATE document.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            gdoc: handle to a Java GATE document
+        &#34;&#34;&#34;
+        self.slave.run4Document(pipeline, gdoc)
+
+    def runExcecutionFinished(self, pipeline):
+        &#34;&#34;&#34;
+        Run the execution finished method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        &#34;&#34;&#34;
+        self.slave.runExecutionFinished(pipeline)
+
+    def runExcecutionStarted(self, pipeline):
+        &#34;&#34;&#34;
+        Run the execution started method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        &#34;&#34;&#34;
+        self.slave.runExecutionStarted(pipeline)
+
+    def saveDocumentToFile(self, gdoc, filename, mimetype):
+        &#34;&#34;&#34;
+        Save the Java GATE document to the given file, using the given mime type.
+        At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
+        formats supported by the FastInfoset  FormatBdoc plugins.
+
+        Args:
+            gdoc: handle to Java GATE document
+            filename: name/path of the file to save to
+            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML
+        &#34;&#34;&#34;
+        self.slave.saveDocumentToFile(gdoc, filename, mimetype)
+
+    def showGui(self):
+        &#34;&#34;&#34;
+        (CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
+        showing the GUI.
+        &#34;&#34;&#34;
         self.slave.showGui()</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -1162,6 +1902,19 @@ is not set.</p>
 Otherwise we can still close it if it was started by the slaverunner, not the Lr
 Note: if it was started by us, it was started via the slaverunner.</p></div>
 </dd>
+<dt id="gatenlp.gateslave.GateSlave.createDocument"><code class="name flex">
+<span>def <span class="ident">createDocument</span></span>(<span>self, content)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a Java GATE document from the content string and return a handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>content</code></strong></dt>
+<dd>the text of the document</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>handle to Java GATE document</p></div>
+</dd>
 <dt id="gatenlp.gateslave.GateSlave.del_resource"><code class="name flex">
 <span>def <span class="ident">del_resource</span></span>(<span>self, resource)</span>
 </code></dt>
@@ -1177,6 +1930,48 @@ GATE document does not delete/unload the document!</p>
 <dd>the Java GATE resource, e.g. a document to remove</dd>
 </dl></div>
 </dd>
+<dt id="gatenlp.gateslave.GateSlave.deleteResource"><code class="name flex">
+<span>def <span class="ident">deleteResource</span></span>(<span>self, resource)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove a Java GATE resource and release its memory.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>resource</code></strong></dt>
+<dd>a handle to some Java GATE resource</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.findMavenPlugin"><code class="name flex">
+<span>def <span class="ident">findMavenPlugin</span></span>(<span>self, group, artifact)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>group</code></strong></dt>
+<dd>the Maven group for the plugin</dd>
+<dt><strong><code>artifact</code></strong></dt>
+<dd>the artifact name for the plugin</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a handle to the plugin or None if not found</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.gate_build"><code class="name flex">
+<span>def <span class="ident">gate_build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the short commit id of the Java GATE we are connected to.</p>
+<h2 id="returns">Returns</h2>
+<p>short commit id string</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.gate_version"><code class="name flex">
+<span>def <span class="ident">gate_version</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the version string of the Java GATE we are connected to.</p>
+<h2 id="returns">Returns</h2>
+<p>version string</p></div>
+</dd>
 <dt id="gatenlp.gateslave.GateSlave.gdoc2pdoc"><code class="name flex">
 <span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc)</span>
 </code></dt>
@@ -1189,6 +1984,222 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a gatenlp Document instance</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getBdocJson"><code class="name flex">
+<span>def <span class="ident">getBdocJson</span></span>(<span>self, gdoc)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the Bdoc JSON serialization of a Java GATE document as string.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>gdoc</code></strong></dt>
+<dd>a handle to a GATE document</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>BDOC serialization JSON string</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getCorpus4Name"><code class="name flex">
+<span>def <span class="ident">getCorpus4Name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a handle to the first Java GATE corpus with the given name or None if none found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>corpus name</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>first matching corpus or None</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getCorpusNames"><code class="name flex">
+<span>def <span class="ident">getCorpusNames</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of all Java GATE corpus names known.</p>
+<h2 id="returns">Returns</h2>
+<p>list of corpus names</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getDocument4BdocJson"><code class="name flex">
+<span>def <span class="ident">getDocument4BdocJson</span></span>(<span>self, bdocjson)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a handle to a Java GATE document created from the Bdoc JSON string.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bdocjson</code></strong></dt>
+<dd>a BDOC JSON string</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>handle to the Java GATE document</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getDocument4Name"><code class="name flex">
+<span>def <span class="ident">getDocument4Name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a handle to the first Java GATE document that has the given name or None if none found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the document name</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a handle to the Java GATE document</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getDocumentNames"><code class="name flex">
+<span>def <span class="ident">getDocumentNames</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of known Java GATE document names.</p>
+<h2 id="returns">Returns</h2>
+<p>list of Java GATE document names</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getPipeline4Name"><code class="name flex">
+<span>def <span class="ident">getPipeline4Name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a handle to the first Java GATE pipeline/controller that has the given name or
+None if none found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>name of the pipeline</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>handle to the pipeline</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getPipelineNames"><code class="name flex">
+<span>def <span class="ident">getPipelineNames</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of all know Java GATE pipeline names.</p>
+<h2 id="returns">Returns</h2>
+<p>list of pipeline names</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getPr4Name"><code class="name flex">
+<span>def <span class="ident">getPr4Name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a handle to the first Java GATE processing resource that has the given name
+or None if none found.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of the processing resource</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a handle to the processing resource or None</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getPrNames"><code class="name flex">
+<span>def <span class="ident">getPrNames</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of known Java GATE
+processing resource names.</p>
+<h2 id="returns">Returns</h2>
+<p>list of PR names</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getResources4Name"><code class="name flex">
+<span>def <span class="ident">getResources4Name</span></span>(<span>self, name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a (possibly empty) list of all Java GATE resources with the given name.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>name of the resources</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>list of matching resources</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.getResources4NameClass"><code class="name flex">
+<span>def <span class="ident">getResources4NameClass</span></span>(<span>self, name, clazz)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a (possibly empty) list of all Java GATE resources with the given name and class name.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>name of the resources</dd>
+<dt><strong><code>clazz</code></strong></dt>
+<dd>the name of the java class the resource must be an instance of</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>list of matching resources</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.loadDocumentFromFile"><code class="name flex">
+<span>def <span class="ident">loadDocumentFromFile</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a Java GATE document from the given file name and return a handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>the file name/path of the Java GATE document to load.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a handle to the Java GATE document</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.loadDocumentFromFile4Mime"><code class="name flex">
+<span>def <span class="ident">loadDocumentFromFile4Mime</span></span>(<span>self, filename, mimetype)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a Java GATE document from the given file name, using the given mime type
+and return a handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>the file name/path of the Java GATE document to load.</dd>
+<dt><strong><code>mimetype</code></strong></dt>
+<dd>the mimetype to use</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a handle to the Java GATE document</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.loadMavenPlugin"><code class="name flex">
+<span>def <span class="ident">loadMavenPlugin</span></span>(<span>self, group, artifact, version)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load the given Maven plugin into Java GATE.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>group</code></strong></dt>
+<dd>group id of the plugin</dd>
+<dt><strong><code>artifact</code></strong></dt>
+<dd>artifact id of the plugin</dd>
+<dt><strong><code>version</code></strong></dt>
+<dd>version of the plugin</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.loadPipelineFromFile"><code class="name flex">
+<span>def <span class="ident">loadPipelineFromFile</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>the filename/path of the pipeline file</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a CorpusController handle to the loaded Java GATE pipeline</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.loadPipelineFromPlugin"><code class="name flex">
+<span>def <span class="ident">loadPipelineFromPlugin</span></span>(<span>self, group, artifact, path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
+a CorpusController handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>group</code></strong></dt>
+<dd>maven group id the plugin</dd>
+<dt><strong><code>artifact</code></strong></dt>
+<dd>artifact id of the plugin</dd>
+<dt><strong><code>path</code></strong></dt>
+<dd>path of the pipeline in the JAR</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a CorpusController handle to the pipeline</p></div>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.load_gdoc"><code class="name flex">
 <span>def <span class="ident">load_gdoc</span></span>(<span>self, path, mimetype=None)</span>
@@ -1220,6 +2231,17 @@ GATE document does not delete/unload the document!</p>
 <h2 id="returns">Returns</h2>
 <p>gatenlp document</p></div>
 </dd>
+<dt id="gatenlp.gateslave.GateSlave.logActions"><code class="name flex">
+<span>def <span class="ident">logActions</span></span>(<span>self, flag)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>flag</code></strong></dt>
+<dd>True to enable logging of actions</dd>
+</dl></div>
+</dd>
 <dt id="gatenlp.gateslave.GateSlave.log_actions"><code class="name flex">
 <span>def <span class="ident">log_actions</span></span>(<span>self, onoff)</span>
 </code></dt>
@@ -1230,6 +2252,14 @@ GATE document does not delete/unload the document!</p>
 <dt><strong><code>onoff</code></strong></dt>
 <dd>True to log actions, False to not log them</dd>
 </dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.newCorpus"><code class="name flex">
+<span>def <span class="ident">newCorpus</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a handle to a new Java GATE corpus.</p>
+<h2 id="returns">Returns</h2>
+<p>handle to the Java GATE corpus</p></div>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.pdoc2gdoc"><code class="name flex">
 <span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc)</span>
@@ -1243,6 +2273,110 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>handle to GATE document</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.pluginBuild"><code class="name flex">
+<span>def <span class="ident">pluginBuild</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the short commit id of the Python plugin on the Java GATE side.</p>
+<h2 id="returns">Returns</h2>
+<p>commit id of Python plugin</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.pluginVersion"><code class="name flex">
+<span>def <span class="ident">pluginVersion</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the version string of the Python plugin on the Java GATE side.</p>
+<h2 id="returns">Returns</h2>
+<p>version string of Python plugin</p></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.print2err"><code class="name flex">
+<span>def <span class="ident">print2err</span></span>(<span>self, message)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Output the given message to System.err on the Java GATE side.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>message</code></strong></dt>
+<dd>string to output</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.print2out"><code class="name flex">
+<span>def <span class="ident">print2out</span></span>(<span>self, message)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Output the given message to System.out on the Java GATE side.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>message</code></strong></dt>
+<dd>string to output</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.run4Corpus"><code class="name flex">
+<span>def <span class="ident">run4Corpus</span></span>(<span>self, pipeline, corpus)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the given Java GATE pipeline on the given Java GATE corpus.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>handle to a Java GATE pipeline</dd>
+<dt><strong><code>corpus</code></strong></dt>
+<dd>handle to a Java GATE corpus</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.run4Document"><code class="name flex">
+<span>def <span class="ident">run4Document</span></span>(<span>self, pipeline, gdoc)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the given Java GATE pipeline on the given Java GATE document.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>handle to a Java GATE pipeline</dd>
+<dt><strong><code>gdoc</code></strong></dt>
+<dd>handle to a Java GATE document</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.runExcecutionFinished"><code class="name flex">
+<span>def <span class="ident">runExcecutionFinished</span></span>(<span>self, pipeline)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the execution finished method for the given Java GATE pipeline.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>handle to a Java GATE pipeline</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.runExcecutionStarted"><code class="name flex">
+<span>def <span class="ident">runExcecutionStarted</span></span>(<span>self, pipeline)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the execution started method for the given Java GATE pipeline.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>handle to a Java GATE pipeline</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.saveDocumentToFile"><code class="name flex">
+<span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc, filename, mimetype)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save the Java GATE document to the given file, using the given mime type.
+At the moment this supports the GATE XML format (mimetype="") as well as
+formats supported by the FastInfoset
+FormatBdoc plugins.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>gdoc</code></strong></dt>
+<dd>handle to Java GATE document</dd>
+<dt><strong><code>filename</code></strong></dt>
+<dd>name/path of the file to save to</dd>
+<dt><strong><code>mimetype</code></strong></dt>
+<dd>the mime type to determine the format, "" for GATE XML</dd>
+</dl></div>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.save_gdoc"><code class="name flex">
 <span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc, path, mimetype=None)</span>
@@ -1260,6 +2394,13 @@ GATE document does not delete/unload the document!</p>
 application/fastinfoset, and all mimetypes supported by the
 Format_Bdoc plugin. (Default value = None)</dd>
 </dl></div>
+</dd>
+<dt id="gatenlp.gateslave.GateSlave.showGui"><code class="name flex">
+<span>def <span class="ident">showGui</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>(CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
+showing the GUI.</p></div>
 </dd>
 <dt id="gatenlp.gateslave.GateSlave.show_gui"><code class="name flex">
 <span>def <span class="ident">show_gui</span></span>(<span>self)</span>
@@ -1528,16 +2669,50 @@ or a new one.</p></div>
 <ul>
 <li>
 <h4><code><a title="gatenlp.gateslave.GateSlave" href="#gatenlp.gateslave.GateSlave">GateSlave</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="gatenlp.gateslave.GateSlave.close" href="#gatenlp.gateslave.GateSlave.close">close</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.createDocument" href="#gatenlp.gateslave.GateSlave.createDocument">createDocument</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.del_resource" href="#gatenlp.gateslave.GateSlave.del_resource">del_resource</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.deleteResource" href="#gatenlp.gateslave.GateSlave.deleteResource">deleteResource</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.download" href="#gatenlp.gateslave.GateSlave.download">download</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.findMavenPlugin" href="#gatenlp.gateslave.GateSlave.findMavenPlugin">findMavenPlugin</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.gate_build" href="#gatenlp.gateslave.GateSlave.gate_build">gate_build</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.gate_version" href="#gatenlp.gateslave.GateSlave.gate_version">gate_version</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.gdoc2pdoc" href="#gatenlp.gateslave.GateSlave.gdoc2pdoc">gdoc2pdoc</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getBdocJson" href="#gatenlp.gateslave.GateSlave.getBdocJson">getBdocJson</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getCorpus4Name" href="#gatenlp.gateslave.GateSlave.getCorpus4Name">getCorpus4Name</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getCorpusNames" href="#gatenlp.gateslave.GateSlave.getCorpusNames">getCorpusNames</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getDocument4BdocJson" href="#gatenlp.gateslave.GateSlave.getDocument4BdocJson">getDocument4BdocJson</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getDocument4Name" href="#gatenlp.gateslave.GateSlave.getDocument4Name">getDocument4Name</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getDocumentNames" href="#gatenlp.gateslave.GateSlave.getDocumentNames">getDocumentNames</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getPipeline4Name" href="#gatenlp.gateslave.GateSlave.getPipeline4Name">getPipeline4Name</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getPipelineNames" href="#gatenlp.gateslave.GateSlave.getPipelineNames">getPipelineNames</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getPr4Name" href="#gatenlp.gateslave.GateSlave.getPr4Name">getPr4Name</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getPrNames" href="#gatenlp.gateslave.GateSlave.getPrNames">getPrNames</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getResources4Name" href="#gatenlp.gateslave.GateSlave.getResources4Name">getResources4Name</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.getResources4NameClass" href="#gatenlp.gateslave.GateSlave.getResources4NameClass">getResources4NameClass</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.loadDocumentFromFile" href="#gatenlp.gateslave.GateSlave.loadDocumentFromFile">loadDocumentFromFile</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.loadDocumentFromFile4Mime" href="#gatenlp.gateslave.GateSlave.loadDocumentFromFile4Mime">loadDocumentFromFile4Mime</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.loadMavenPlugin" href="#gatenlp.gateslave.GateSlave.loadMavenPlugin">loadMavenPlugin</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.loadPipelineFromFile" href="#gatenlp.gateslave.GateSlave.loadPipelineFromFile">loadPipelineFromFile</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.loadPipelineFromPlugin" href="#gatenlp.gateslave.GateSlave.loadPipelineFromPlugin">loadPipelineFromPlugin</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.load_gdoc" href="#gatenlp.gateslave.GateSlave.load_gdoc">load_gdoc</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.load_pdoc" href="#gatenlp.gateslave.GateSlave.load_pdoc">load_pdoc</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.logActions" href="#gatenlp.gateslave.GateSlave.logActions">logActions</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.log_actions" href="#gatenlp.gateslave.GateSlave.log_actions">log_actions</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.newCorpus" href="#gatenlp.gateslave.GateSlave.newCorpus">newCorpus</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.pdoc2gdoc" href="#gatenlp.gateslave.GateSlave.pdoc2gdoc">pdoc2gdoc</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.pluginBuild" href="#gatenlp.gateslave.GateSlave.pluginBuild">pluginBuild</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.pluginVersion" href="#gatenlp.gateslave.GateSlave.pluginVersion">pluginVersion</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.print2err" href="#gatenlp.gateslave.GateSlave.print2err">print2err</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.print2out" href="#gatenlp.gateslave.GateSlave.print2out">print2out</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.run4Corpus" href="#gatenlp.gateslave.GateSlave.run4Corpus">run4Corpus</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.run4Document" href="#gatenlp.gateslave.GateSlave.run4Document">run4Document</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.runExcecutionFinished" href="#gatenlp.gateslave.GateSlave.runExcecutionFinished">runExcecutionFinished</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.runExcecutionStarted" href="#gatenlp.gateslave.GateSlave.runExcecutionStarted">runExcecutionStarted</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.saveDocumentToFile" href="#gatenlp.gateslave.GateSlave.saveDocumentToFile">saveDocumentToFile</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.save_gdoc" href="#gatenlp.gateslave.GateSlave.save_gdoc">save_gdoc</a></code></li>
+<li><code><a title="gatenlp.gateslave.GateSlave.showGui" href="#gatenlp.gateslave.GateSlave.showGui">showGui</a></code></li>
 <li><code><a title="gatenlp.gateslave.GateSlave.show_gui" href="#gatenlp.gateslave.GateSlave.show_gui">show_gui</a></code></li>
 </ul>
 </li>

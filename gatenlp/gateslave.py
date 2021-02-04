@@ -497,6 +497,376 @@ class GateSlave:
         """
         self.slave.showGui()
 
+    # methods that mirror the methods from the Java gate.plugin.python.PythonSlave methods
+    # These could get called directly via gs.slave.METHODNAME calls but are implemented here
+    # to provide easier discovery and better documentation on the Python side
+    # Since these are really local mirrors of Java methods, they follow Java naming conventions
+    def  createDocument(self, content):
+        """
+        Create a Java GATE document from the content string and return a handle to it.
+
+        Args:
+            content: the text of the document
+
+        Returns:
+            handle to Java GATE document
+        """
+        return self.slave.createDocument(content)
+
+    def deleteResource(self, resource):
+        """
+        Remove a Java GATE resource and release its memory.
+
+        Args:
+            resource: a handle to some Java GATE resource
+        """
+        self.slave.deleteResource(resource)
+
+    def findMavenPlugin(self, group, artifact):
+        """
+        Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
+
+        Args:
+            group: the Maven group for the plugin
+            artifact: the artifact name for the plugin
+
+        Returns:
+            a handle to the plugin or None if not found
+        """
+        return self.slave.findMavenPlugin(group, artifact)
+
+    def gate_build(self):
+        """
+        Return the short commit id of the Java GATE we are connected to.
+
+        Returns:
+            short commit id string
+        """
+        return self.slave.gate_build()
+
+    def gate_version(self):
+        """
+        Return the version string of the Java GATE we are connected to.
+
+        Returns:
+            version string
+        """
+        return self.slave.gate_version()
+
+    def getBdocJson(self, gdoc):
+        """
+        Return the Bdoc JSON serialization of a Java GATE document as string.
+
+        Args:
+            gdoc: a handle to a GATE document
+
+        Returns:
+            BDOC serialization JSON string
+        """
+        return self.slave.getBdocJson(gdoc)
+
+    def getCorpus4Name(self, name):
+        """
+        Return a handle to the first Java GATE corpus with the given name or None if none found.
+
+        Args:
+            name: corpus name
+
+        Returns:
+            first matching corpus or None
+        """
+        return self.slave.getCorpus4Name(name)
+
+    def getCorpusNames(self):
+        """
+        Return a list of all Java GATE corpus names known.
+
+        Returns:
+            list of corpus names
+        """
+        return self.slave.getCorpusNames()
+
+    def getDocument4BdocJson(self, bdocjson):
+        """
+        Returns a handle to a Java GATE document created from the Bdoc JSON string.
+
+        Args:
+            bdocjson: a BDOC JSON string
+
+        Returns:
+            handle to the Java GATE document
+        """
+        return self.slave.getDocument4BdocJson
+
+    def getDocument4Name(self, name):
+        """
+        Return a handle to the first Java GATE document that has the given name or None if none found.
+
+        Args:
+            name: the document name
+
+        Returns:
+            a handle to the Java GATE document
+        """
+        return self.slave.getDocument4Name(name)
+
+    def getDocumentNames(self):
+        """
+        Return a list of known Java GATE document names.
+
+        Returns:
+            list of Java GATE document names
+        """
+        return self.slave.getDocumentNames()
+
+    def getPipeline4Name(self, name):
+        """
+        Return a handle to the first Java GATE pipeline/controller that has the given name or
+        None if none found.
+
+        Args:
+            name: name of the pipeline
+
+        Returns:
+            handle to the pipeline
+        """
+        return self.slave.getPipeline4Name(name)
+
+    def getPipelineNames(self):
+        """
+        Return a list of all know Java GATE pipeline names.
+
+        Returns:
+            list of pipeline names
+        """
+        return self.slave.getPipelineNames()
+
+    def getPr4Name(self, name):
+        """
+        Return a handle to the first Java GATE processing resource that has the given name
+        or None if none found.
+
+        Args:
+            name: the name of the processing resource
+
+        Returns:
+            a handle to the processing resource or None
+        """
+        return self.slave.getPr4Name(name)
+
+    def getPrNames(self):
+        """
+        Return a list of known Java GATE  processing resource names.
+
+        Returns:
+            list of PR names
+        """
+        return self.slave.getPrNames()
+
+    def getResources4Name(self, name):
+        """
+        Return a (possibly empty) list of all Java GATE resources with the given name.
+
+        Args:
+            name: name of the resources
+
+        Returns:
+            list of matching resources
+        """
+        return self.slave.getResources4Name(name)
+
+
+    def getResources4NameClass(self, name, clazz):
+        """
+        Return a (possibly empty) list of all Java GATE resources with the given name and class name.
+
+        Args:
+            name: name of the resources
+            clazz: the name of the java class the resource must be an instance of
+
+        Returns:
+            list of matching resources
+        """
+        return self.slave.getResources4Name(name, clazz)
+
+    def loadDocumentFromFile(self, filename):
+        """
+        Load a Java GATE document from the given file name and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+
+        Returns:
+            a handle to the Java GATE document
+        """
+        return self.slave.loadDocumentFromFile(filename)
+
+    def loadDocumentFromFile4Mime(self, filename, mimetype):
+        """
+        Load a Java GATE document from the given file name, using the given mime type
+        and return a handle to it.
+
+        Args:
+            filename: the file name/path of the Java GATE document to load.
+            mimetype: the mimetype to use
+
+        Returns:
+            a handle to the Java GATE document
+        """
+        return self.slave.loadDocumentFromFile(filename, mimetype)
+
+    def loadMavenPlugin(self, group, artifact, version):
+        """
+        Load the given Maven plugin into Java GATE.
+
+        Args:
+            group: group id of the plugin
+            artifact:  artifact id of the plugin
+            version: version of the plugin
+        """
+        self.slave.loadMavenPlugin(group, artifact, version)
+
+    def loadPipelineFromFile(self, filename):
+        """
+        Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            filename: the filename/path of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        """
+        return self.slave.loadPipelineFromFile(filename)
+
+    def loadPipelineFromPlugin(self, group, artifact, path):
+        """
+        Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
+        a CorpusController handle to it.
+
+        Args:
+            group: maven group id the plugin
+            artifact: artifact id of the plugin
+            path: path of the pipeline in the JAR
+
+        Returns:
+            a CorpusController handle to the pipeline
+        """
+        return self.slave.loadPipelineFromPlugin(group, artifact, path)
+
+    def logActions(self, flag):
+        """
+        Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
+
+        Args:
+            flag: True to enable logging of actions
+        """
+        self.slave.logActions(flag)
+
+    def newCorpus(self):
+        """
+        Create and return a handle to a new Java GATE corpus.
+
+        Returns:
+            handle to the Java GATE corpus
+        """
+        return self.slave.newCorpus()
+
+    def pluginBuild(self):
+        """
+        Return the short commit id of the Python plugin on the Java GATE side.
+
+        Returns:
+            commit id of Python plugin
+        """
+        return self.slave.pluginBuild()
+
+
+    def pluginVersion(self):
+        """
+        Return the version string of the Python plugin on the Java GATE side.
+
+        Returns:
+            version string of Python plugin
+        """
+        return self.slave.pluginVersion()
+
+    def print2err(self, message):
+        """
+        Output the given message to System.err on the Java GATE side.
+
+        Args:
+            message: string to output
+        """
+        self.slave.print2err(message)
+
+
+    def print2out(self, message):
+        """
+        Output the given message to System.out on the Java GATE side.
+
+        Args:
+            message: string to output
+        """
+        self.slave.print2out(message)
+
+    def run4Corpus(self, pipeline, corpus):
+        """
+        Run the given Java GATE pipeline on the given Java GATE corpus.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            corpus: handle to a Java GATE corpus
+        """
+        self.slave.run4Corpus(pipeline, corpus)
+
+    def run4Document(self, pipeline, gdoc):
+        """
+        Run the given Java GATE pipeline on the given Java GATE document.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+            gdoc: handle to a Java GATE document
+        """
+        self.slave.run4Document(pipeline, gdoc)
+
+    def runExcecutionFinished(self, pipeline):
+        """
+        Run the execution finished method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        """
+        self.slave.runExecutionFinished(pipeline)
+
+    def runExcecutionStarted(self, pipeline):
+        """
+        Run the execution started method for the given Java GATE pipeline.
+
+        Args:
+            pipeline: handle to a Java GATE pipeline
+        """
+        self.slave.runExecutionStarted(pipeline)
+
+    def saveDocumentToFile(self, gdoc, filename, mimetype):
+        """
+        Save the Java GATE document to the given file, using the given mime type.
+        At the moment this supports the GATE XML format (mimetype="") as well as
+        formats supported by the FastInfoset  FormatBdoc plugins.
+
+        Args:
+            gdoc: handle to Java GATE document
+            filename: name/path of the file to save to
+            mimetype: the mime type to determine the format, "" for GATE XML
+        """
+        self.slave.saveDocumentToFile(gdoc, filename, mimetype)
+
+    def showGui(self):
+        """
+        (CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
+        showing the GUI.
+        """
+        self.slave.showGui()
+        
 
 class GateSlaveAnnotator(Annotator):
     # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,

@@ -187,7 +187,12 @@ def _pr_decorator(what):
 
     &#34;&#34;&#34;
     wrapper = _PrWrapper()
-    if inspect.isclass(what) or _has_method(what, &#34;__call__&#34;):
+    if inspect.isfunction(what):
+        allowkws = _check_exec(what)
+        wrapper.func_execute = what
+        wrapper.func_execute_allowkws = allowkws
+    elif inspect.isclass(what) or _has_method(what, &#34;__call__&#34;):
+        # NOTE: functions also have a &#34;__call__&#34; attribute! This is why we need to check for function first.
         if inspect.isclass(what):
             what = (
                 what()
@@ -215,11 +220,6 @@ def _pr_decorator(what):
             wrapper.func_reduce = reducemethod
             if inspect.getfullargspec(reducemethod).varkw:
                 wrapper.func_reduce_allowkws = True
-
-    elif inspect.isfunction(what):
-        allowkws = _check_exec(what)
-        wrapper.func_execute = what
-        wrapper.func_execute_allowkws = allowkws
     else:
         raise Exception(
             f&#34;Decorator applied to something that is not a function or class: {what}&#34;
@@ -279,6 +279,16 @@ def get_arguments(from_main=False):
         &#34;--log_lvl&#34;,
         type=str,
         help=&#34;Log level to use: DEBUG|INFO|WARNING|ERROR|CRITICAL&#34;,
+    )
+    argparser.add_argument(
+        &#34;--config_file&#34;,
+        type=str,
+        help=&#34;Config file path to pass on to the annotator (default: not set)&#34;,
+    )
+    argparser.add_argument(
+        &#34;--parms_file&#34;,
+        type=str,
+        help=&#34;The parms file to use for setting parameters&#34;,
     )
     if from_main:
         argparser.add_argument(&#34;pythonfile&#34;)
@@ -430,8 +440,16 @@ def interact(args=None, annotator=None):
             raise Exception(
                 &#34;Mode dir but path is not a directory: {}&#34;.format(args.path)
             )
+        # we need to do this for mode file and dir: get the parms and run pr.start(parms):
+        parms = {}
+        # check if there is a parms file:
+        if args.parms_file:
+            with open(args.parms_file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+                parms.update(json.load(infp))
+        if args.config_file:
+            parms[&#34;_config_file&#34;] = args.config_file
+        pr.start(parms)
         if args.mode == &#34;file&#34;:
-            pr.start({})
             logger.info(f&#34;Loading file {args.path}&#34;)
             doc = Document.load(args.path)
             pr.execute(doc)
@@ -444,8 +462,6 @@ def interact(args=None, annotator=None):
                 doc.save(args.path)
         else:
             import glob
-
-            pr.start({})
             files = glob.glob(args.path + os.path.sep + &#34;*&#34; + fileext)
             for file in files:
                 logger.info(&#34;Loading file {}&#34;.format(file))

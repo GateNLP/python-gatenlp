@@ -1249,6 +1249,8 @@ class AnnotationSet:
         and the largest end offset of any annotation.
         (Builds the offset index)
         &#34;&#34;&#34;
+        if len(self._annotations) == 0:
+            return Span(0, 0)
         self._create_index_by_offset()
         return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())
 
@@ -2583,6 +2585,8 @@ text. Also, the changelog is only updated if an annotation set has an owning doc
         and the largest end offset of any annotation.
         (Builds the offset index)
         &#34;&#34;&#34;
+        if len(self._annotations) == 0:
+            return Span(0, 0)
         self._create_index_by_offset()
         return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())
 
@@ -2874,6 +2878,8 @@ def span(self) -&gt; Span:
     and the largest end offset of any annotation.
     (Builds the offset index)
     &#34;&#34;&#34;
+    if len(self._annotations) == 0:
+        return Span(0, 0)
     self._create_index_by_offset()
     return Span(self._index_by_offset.min_start(), self._index_by_offset.max_end())</code></pre>
 </details>
