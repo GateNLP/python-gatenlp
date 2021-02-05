@@ -742,13 +742,14 @@ class Document:
                     anns.add_ann(ann)
         return doc
 
-    def __deepcopy__(self, memo, annsets=None):
+    def deepcopy(self, annsets=None, memo=None):
         """
         Creates a deep copy, except the changelog which is set to None. If annset is not None, the
         annotations in the copy are restricted to the given set.
 
         Args:
             memo: the memoization dictionary to use.
+            annsets: which annsets and types to include
 
         Returns:
             a deep copy of the document.
@@ -760,7 +761,7 @@ class Document:
         doc = Document(self._text, features=fts)
         doc._changelog = None
         doc.offset_type = self.offset_type
-        if annset is None:
+        if annsets is None:
             doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         else:
             doc._annotation_sets = dict()
@@ -775,10 +776,11 @@ class Document:
                     annset = AnnotationSet(owner_doc=doc, name=setname)
                     anns = self.annset(setname).with_type(types)
                     for ann in anns:
-                        anns.add_ann(lib_copy.deepcopy(ann, memo))
+                        annset.add_ann(lib_copy.deepcopy(ann, memo))
+                    doc._annotation_sets[setname] = annset
         return doc
 
-    def deepcopy(self, memo=None):
+    def __deepcopy__(self, memo=None):
         """
         Creates a deep copy, except the changelog which is set to None.
 
