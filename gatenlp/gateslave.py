@@ -866,7 +866,7 @@ class GateSlave:
         showing the GUI.
         """
         self.slave.showGui()
-        
+
 
 class GateSlaveAnnotator(Annotator):
     # TODO: something that starts a gate slave when created, loads pipeline in Java GATE,
@@ -909,13 +909,16 @@ class GateSlaveAnnotator(Annotator):
             pipeline: the path to a Java GATE pipeline to load into the GATE slave
             gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
             port: the port to use (25333)
-            sets_send: a dictionary where the keys are the name of the target annotation set at the
+            sets_send: (MAYBE, NOT YET IMPLEMENTED)
+              a dictionary where the keys are the name of the target annotation set at the
               Java side and the values are either the source annotation set name or a list of
               tuples of the form (setname, typename).
-            sets_receive: a dictionary where the keys are the name of the target annotation set at the
-              Python side and the values are either the source annotation set name in Java or ta list
+            sets_receive: (MAYBE, NOT YET IMPLEMENTED)
+              a dictionary where the keys are the name of the target annotation set at the
+              Python side and the values are either the source annotation set name in Java or a list
               of tuples of the form (setname, typename).
-            replace_anns (default: False) if True, existing annotations (in the sets, of the types
+            replace_anns: (NOT YET IMPLEMENTED) (default: False)
+              if True, existing annotations (in the sets, of the types
               specified in sets_receive or all) are removed before the retrieved annotations are added.
               In this case, the annotation ids of the retrieved annotations are kept.
               If False, the retrieved annotations are added to the existing sets and may get new, different

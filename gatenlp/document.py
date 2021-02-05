@@ -491,7 +491,7 @@ class Document:
               first element is the annotation set name and the second element is either a
               type name or a list of type names. The same annotation set name should not be used
               in more than one specification.
-          **kwargs:
+          **kwargs: get passed on to the to_dict methods of included objects.
 
         Returns:
           the dictionary representation of this instance
@@ -500,7 +500,6 @@ class Document:
         # if the specified offset type is equal to what we have, do nothing, otherwise
         # create an offset mapper and pass it down to where we actually convert the annotations
 
-        om = None
         if offset_type is not None:
             assert offset_type == OFFSET_TYPE_JAVA or offset_type == OFFSET_TYPE_PYTHON
             if offset_type != self.offset_type:
@@ -671,7 +670,8 @@ class Document:
 
         Args:
             source: the string/bytes to deserialize
-            fmt: the format (Default value = "json")
+            fmt: if string, the format identifier or mime type (Default value = "json"), otherwise
+                assumed to be a callable that retrieves and returns the document
             mod: the name of the module where the loader is implemented
                 (Default value = "gatenlp.serialization.default")
             kwargs: additional arguments to pass to the loader
@@ -690,29 +690,62 @@ class Document:
 
     def __copy__(self):
         """
-        Creates a shallow copy except the changelog which is set to None.
+        Creates a shallow copy except the changelog which is set to None. The document feature map is
+        a new instance, so features added in one copy will not show up in the other. However if
+        feature values of copied features are objects, they are shared between the copies.
+        Annotation sets are separate but the features of shared annotations are shared.
 
         Returns:
             shallow copy of the document
         """
         doc = Document(self._text)
-        doc._annotation_sets = self._annotation_sets
+        doc._annotation_sets = dict()
+        for name, aset in self._annotation_sets.items():
+            doc._annotation_sets[name] = aset.copy()
+            doc._annotation_sets[name]._owner_doc = doc
         doc.offset_type = self.offset_type
         doc._features = self._features.copy()
         return doc
 
-    def copy(self):
+    def copy(self, annsets=None):
         """
-        Creates a shallow copy except the changelog which is set to None.
+        Creates a shallow copy except the changelog which is set to None. If annsets is specified,
+        creates a shallow copy but also limits the annotations to the one specified.
+
+        Args:
+          annsets: if not None, a list of annotation set/type specifications: each element
+              is either a string, the name of the annotation set to include, or a tuple where the
+              first element is the annotation set name and the second element is either a
+              type name or a list of type names. The same annotation set name should not be used
+              in more than one specification.
 
         Returns:
-            shallow copy of the document
+            shallow copy of the document, optionally with some annotations removed
         """
-        return self.__copy__()
+        if annsets is None:
+            return self.__copy__()
+        doc = Document(self._text)
+        doc.offset_type = self.offset_type
+        doc._features = self._features.copy()
+        doc._annotation_sets = dict()
+        for spec in annsets:
+            if isinstance(spec, str):
+                doc._annotation_sets[spec] = self._annotation_sets[spec].copy()
+                doc._annotation_sets[spec]._owner_doc = doc
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                annset = AnnotationSet(owner_doc=doc, name=setname)
+                anns = self.annset(setname).with_type(types)
+                for ann in anns:
+                    anns.add_ann(ann)
+        return doc
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo, annset=None):
         """
-        Creates a deep copy, except the changelog which is set to None.
+        Creates a deep copy, except the changelog which is set to None. If annset is not None, the
+        annotations in the copy are restricted to the given set.
 
         Args:
             memo: the memoization dictionary to use.
@@ -726,8 +759,23 @@ class Document:
             fts = None
         doc = Document(self._text, features=fts)
         doc._changelog = None
-        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         doc.offset_type = self.offset_type
+        if annset is None:
+            doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
+        else:
+            doc._annotation_sets = dict()
+            for spec in annsets:
+                if isinstance(spec, str):
+                    doc._annotation_sets[spec] = lib_copy.deepcopy(self._annotation_sets[spec], memo)
+                    doc._annotation_sets[spec]._owner_doc = doc
+                else:
+                    setname, types = spec
+                    if isinstance(types, str):
+                        types = [types]
+                    annset = AnnotationSet(owner_doc=doc, name=setname)
+                    anns = self.annset(setname).with_type(types)
+                    for ann in anns:
+                        anns.add_ann(lib_copy.deepcopy(ann, memo))
         return doc
 
     def deepcopy(self, memo=None):

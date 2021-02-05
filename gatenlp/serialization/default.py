@@ -810,30 +810,35 @@ class HtmlAnnViewerSerializer:
         add_js=True,
         htmlid=None,
         stretch_height=False,
+        annsets=None,
         **kwargs,
     ):
         """Convert a document to HTML for visualizing it.
 
         Args:
-          clazz: the class of the object to save
-          inst: the instance/object to save
-          to_ext:  the destination where to save to unless to_mem is given
-          to_mem: if true, ignores to_ext and returns the representation
-          notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
-             generate a full HTML document
-          offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
-             from the internet.
-          add_js: if true (default), add the necessary Javascript either directly or by loading a library from
-             the internet. If false, assume that the Javascript is already there (only makes sense with
-             notebook=True).
-          htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
-             same HTML page and to style the output from a separate notebook cell
-          max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-             given value (default: 20em). If this is None, then the height is set to
-          stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
-             min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
-             If True, no max haight is set and instead the height is set to a percentage (default is
-             67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            clazz: the class of the object to save
+            inst: the instance/object to save
+            to_ext:  the destination where to save to unless to_mem is given
+            to_mem: if true, ignores to_ext and returns the representation
+            notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
+                generate a full HTML document
+            offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
+                from the internet.
+            add_js: if true (default), add the necessary Javascript either directly or by loading a library from
+                the internet. If false, assume that the Javascript is already there (only makes sense with
+                notebook=True).
+            htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
+                same HTML page and to style the output from a separate notebook cell
+            max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
+                given value (default: 20em). If this is None, then the height is set to
+            stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
+                min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
+                If True, no max haight is set and instead the height is set to a percentage (default is
+                67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+                set names, or tuples, where the first entry is a set name and the second entry is either a type
+                name or list of type names to include.
+
           kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
@@ -841,7 +846,8 @@ class HtmlAnnViewerSerializer:
         """
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
-        doccopy = inst.deepcopy()
+        # TODO: why are we doing a deepcopy here?
+        doccopy = inst.deepcopy(annsets=annsets)
         doccopy.to_offset_type("j")
         json = doccopy.save_mem(fmt="json", **kwargs)
         htmlloc = os.path.join(
