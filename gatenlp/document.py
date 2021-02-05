@@ -742,7 +742,7 @@ class Document:
                     anns.add_ann(ann)
         return doc
 
-    def __deepcopy__(self, memo, annset=None):
+    def __deepcopy__(self, memo, annsets=None):
         """
         Creates a deep copy, except the changelog which is set to None. If annset is not None, the
         annotations in the copy are restricted to the given set.
