@@ -11,22 +11,38 @@
 
 For now rather simple:
 
-* make sure it works
-* make sure the latest version of the htmlviewer javascript is released
-  and the correct version is used in the serializer
+* make sure everything is pulled and we are on branch master
+* make sure it works: run tests
+* !! make sure the latest version of the htmlviewer javascript is released
+  and the correct version number is used in the serializer and 
+  * `python make-viewer.py` has been run to copy to the package directory
 * run ./gendoc-pdoc3.sh
-* commit/push
-* Do: `touch java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
-* run ./make.sh test
-* make sure the maven build worked!
-* !!! Now create a new plugin Python release with this versions and wait until available on Central
-* Once available update the GatenlpSlave.java file to load the new Plugin version!
-* run python make-java.py
-* re-install gatenlp locally and make sure the gatenlp-gate-slave loads the correct Python plugin
-* commit and push
+* add anything that needs to get added
+* !! make sure the version has been updated to what we want to release!
+
+* !! SYNC WITH UPCOMING PYTHON PLUGIN RELEASE:
+* Edit: `java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
+  and change the version of python plugin to the upcoming one which will contain the new GateNLP release
+  NOTE: we can release gatenlp with a Python plugin release which does not yet exist but the plugin 
+  version needs to 
+* run `python make-java.py` 
+* commit and push, we have now pushed exactly what will be the gatenlp release
+
+* In plugin Python:
+  * pull, make sure ready for release
+  * `git submodue update --remote` 
+  * commit/push/check it compiles
+  * this is now the version we can release, which contains the submodule commit of what will be the gatenlp release
+  * Actually create the Python plugin release the normal way
+  * wait until available on Maven Central
+  
+* re-install current directory locally using `pip install -e .[all,dev]`
+* double check that gateslave tries to load the new release
+
 * create and checkout a version n.n branch (no "v" in front), push the branch
 * upload to pypi
 * create annotated tag v9.9
+* !! GateNLP is now released!
 * checkout master
 * increase the gatenlp version
 
