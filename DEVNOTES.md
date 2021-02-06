@@ -19,8 +19,15 @@ For now rather simple:
 * Do: `touch java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
 * run ./make.sh test
 * make sure the maven build worked!
+* !!! Now create a new plugin Python release with this versions and wait until available on Central
+* Once available update the GatenlpSlave.java file to load the new Plugin version!
+* run python make-java.py
+* re-install gatenlp locally and make sure the gatenlp-gate-slave loads the correct Python plugin
+* commit and push
+* create and checkout a version n.n branch (no "v" in front), push the branch
 * upload to pypi
-* created annotated tag v9.9
+* create annotated tag v9.9
+* checkout master
 * increase the gatenlp version
 
 ## Run pytest
