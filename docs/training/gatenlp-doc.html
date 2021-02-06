@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html" charset="utf-8">
+    <title>GateNLP Annotation Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+</head>
+
+<body>
+<!--STARTDIV-->
+<div>
+<style>
+#GATENLPID-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GATENLPID-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GATENLPID-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GATENLPID-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GATENLPID-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GATENLPID-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GATENLPID-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GATENLPID-selection {
+    margin-bottom: 5px;
+}
+
+.GATENLPID-featuretable {
+    margin-top: 10px;
+}
+
+.GATENLPID-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GATENLPID-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GATENLPID-content">
+        <div id="GATENLPID-popup" style="display: none;">
+        </div>
+        <div class="GATENLPID-row" id="GATENLPID-row1" style="height: 67vh; min-height:5em;">
+            <div id="GATENLPID-text-wrapper" class="GATENLPID-col" style="width:70%;">
+                <div class="GATENLPID-hdr" id="GATENLPID-dochdr"></div>
+                <div id="GATENLPID-text">
+                </div>
+            </div>
+            <div id="GATENLPID-chooser" class="GATENLPID-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GATENLPID-row" id="GATENLPID-row2" style="height: 30vh; min-height: 3em;">
+            <div id="GATENLPID-details" class="GATENLPID-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script src="https://unpkg.com/gatenlp-ann-viewer@1.0.11/gatenlp-ann-viewer.js"></script>
+    <script type="application/json" id="GATENLPID-data">
+    {"annotation_sets": {"Original markups": {"name": "detached-from:Original markups", "annotations": [{"type": "[document]", "start": 0, "end": 3990, "id": 0, "features": {}}, {"type": "html", "start": 1, "end": 3990, "id": 1, "features": {"lang": "en-US"}}, {"type": "head", "start": 1, "end": 33, "id": 2, "features": {}}, {"type": "meta", "start": 1, "end": 1, "id": 3, "features": {"charset": "UTF-8"}}, {"type": "title", "start": 1, "end": 32, "id": 4, "features": {}}, {"type": "meta", "start": 33, "end": 33, "id": 5, "features": {"name": "generator", "content": "Jekyll v3.9.0"}}, {"type": "meta", "start": 33, "end": 33, "id": 6, "features": {"property": "og:title", "content": "Python GateNLP"}}, {"type": "meta", "start": 33, "end": 33, "id": 7, "features": {"property": "og:locale", "content": "en_US"}}, {"type": "meta", "start": 33, "end": 33, "id": 8, "features": {"name": "description", "content": "Python text processing and NLP similar to Java GATE NLP"}}, {"type": "meta", "start": 33, "end": 33, "id": 9, "features": {"property": "og:description", "content": "Python text processing and NLP similar to Java GATE NLP"}}, {"type": "link", "start": 33, "end": 33, "id": 10, "features": {"rel": "canonical", "href": "https://gatenlp.github.io/python-gatenlp/"}}, {"type": "meta", "start": 33, "end": 33, "id": 11, "features": {"property": "og:url", "content": "https://gatenlp.github.io/python-gatenlp/"}}, {"type": "meta", "start": 33, "end": 33, "id": 12, "features": {"property": "og:site_name", "content": "python-gatenlp"}}, {"type": "meta", "start": 33, "end": 33, "id": 13, "features": {"name": "twitter:card", "content": "summary"}}, {"type": "meta", "start": 33, "end": 33, "id": 14, "features": {"property": "twitter:title", "content": "Python GateNLP"}}, {"type": "meta", "start": 33, "end": 33, "id": 15, "features": {"name": "viewport", "content": "width=device-width, initial-scale=1"}}, {"type": "meta", "start": 33, "end": 33, "id": 16, "features": {"name": "theme-color", "content": "#157878"}}, {"type": "meta", "start": 33, "end": 33, "id": 17, "features": {"name": "apple-mobile-web-app-status-bar-style", "content": "black-translucent"}}, {"type": "link", "start": 33, "end": 33, "id": 18, "features": {"rel": "stylesheet", "href": "/python-gatenlp/assets/css/style.css?v=591e6de958a3c9b59102679c221eb6a1fba8f3f1"}}, {"type": "body", "start": 33, "end": 3990, "id": 19, "features": {}}, {"type": "header", "start": 33, "end": 72, "id": 20, "features": {"class": "page-header", "role": "banner", "style": "padding: 2rem 3rem"}}, {"type": "h2", "start": 33, "end": 48, "id": 21, "features": {"class": "project-name", "style": "color:white"}}, {"type": "a", "start": 48, "end": 52, "id": 22, "features": {"style": "color:white;font-size:150%;padding:0px 12px", "href": "/python-gatenlp/"}}, {"type": "a", "start": 53, "end": 59, "id": 23, "features": {"style": "color:white;font-size:150%;padding:0px 12px", "href": "/python-gatenlp/site-search"}}, {"type": "a", "start": 60, "end": 66, "id": 24, "features": {"style": "color:white;font-size:150%;padding:0px 12px", "href": "https://github.com/GateNLP/python-gatenlp"}}, {"type": "a", "start": 67, "end": 71, "id": 25, "features": {"style": "color:white;font-size:150%;padding:0px 12px", "href": "https://pypi.org/project/gatenlp/"}}, {"type": "main", "start": 72, "end": 3990, "id": 26, "features": {"id": "content", "class": "main-content", "role": "main"}}, {"type": "h1", "start": 72, "end": 87, "id": 27, "features": {"id": "python-gatenlp"}}, {"type": "h2", "start": 87, "end": 151, "id": 28, "features": {"id": "a-python-package-for-nlp-similar-to-the-java-gate-nlp-framework"}}, {"type": "p", "start": 151, "end": 229, "id": 29, "features": {}}, {"type": "p", "start": 229, "end": 803, "id": 30, "features": {}}, {"type": "a", "start": 312, "end": 331, "id": 31, "features": {"href": "https://gate.ac.uk/"}}, {"type": "a", "start": 333, "end": 344, "id": 32, "features": {"href": "annotations"}}, {"type": "em", "start": 445, "end": 453, "id": 33, "features": {}}, {"type": "a", "start": 456, "end": 465, "id": 34, "features": {"href": "documents"}}, {"type": "a", "start": 527, "end": 542, "id": 35, "features": {"href": "annotationsets"}}, {"type": "em", "start": 527, "end": 542, "id": 36, "features": {}}, {"type": "a", "start": 784, "end": 802, "id": 37, "features": {"href": "https://gatenlp.github.io/gateplugin-Format_Bdoc/"}}, {"type": "p", "start": 803, "end": 1211, "id": 38, "features": {}}, {"type": "p", "start": 1211, "end": 1516, "id": 39, "features": {}}, {"type": "a", "start": 1278, "end": 1298, "id": 40, "features": {"href": "processing"}}, {"type": "a", "start": 1358, "end": 1378, "id": 41, "features": {"href": "gazetteers"}}, {"type": "a", "start": 1507, "end": 1513, "id": 42, "features": {"href": "pampac"}}, {"type": "p", "start": 1516, "end": 1626, "id": 43, "features": {}}, {"type": "p", "start": 1626, "end": 1833, "id": 44, "features": {}}, {"type": "a", "start": 1732, "end": 1744, "id": 45, "features": {"href": "changelogs"}}, {"type": "p", "start": 1833, "end": 1948, "id": 46, "features": {}}, {"type": "ul", "start": 1948, "end": 2126, "id": 47, "features": {}}, {"type": "li", "start": 1948, "end": 2048, "id": 48, "features": {}}, {"type": "a", "start": 1952, "end": 1975, "id": 49, "features": {"href": "http://gatenlp.github.io/gateplugin-Python/"}}, {"type": "li", "start": 2048, "end": 2126, "id": 50, "features": {}}, {"type": "a", "start": 2108, "end": 2125, "id": 51, "features": {"href": "gateslave"}}, {"type": "h2", "start": 2126, "end": 2139, "id": 52, "features": {"id": "installation"}}, {"type": "p", "start": 2139, "end": 2187, "id": 53, "features": {}}, {"type": "p", "start": 2187, "end": 2216, "id": 54, "features": {}}, {"type": "code", "start": 2187, "end": 2216, "id": 55, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "p", "start": 2216, "end": 2250, "id": 56, "features": {}}, {"type": "a", "start": 2237, "end": 2249, "id": 57, "features": {"href": "/python-gatenlp/installation.html"}}, {"type": "h2", "start": 2250, "end": 2281, "id": 58, "features": {"id": "overview-of-the-documentation"}}, {"type": "p", "start": 2281, "end": 2449, "id": 59, "features": {}}, {"type": "ul", "start": 2449, "end": 3908, "id": 60, "features": {}}, {"type": "li", "start": 2449, "end": 2462, "id": 61, "features": {}}, {"type": "a", "start": 2449, "end": 2461, "id": 62, "features": {"href": "/python-gatenlp/installation.html"}}, {"type": "li", "start": 2462, "end": 2525, "id": 63, "features": {}}, {"type": "a", "start": 2462, "end": 2477, "id": 64, "features": {"href": "getting-started"}}, {"type": "a", "start": 2480, "end": 2504, "id": 65, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/getting-started.ipynb"}}, {"type": "a", "start": 2507, "end": 2524, "id": 66, "features": {"href": "/python-gatenlp/getting-started.ipynb"}}, {"type": "li", "start": 2525, "end": 2761, "id": 67, "features": {}}, {"type": "ul", "start": 2597, "end": 2761, "id": 68, "features": {}}, {"type": "li", "start": 2598, "end": 2651, "id": 69, "features": {}}, {"type": "a", "start": 2598, "end": 2608, "id": 70, "features": {"href": "annotations"}}, {"type": "a", "start": 2611, "end": 2630, "id": 71, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb"}}, {"type": "a", "start": 2633, "end": 2650, "id": 72, "features": {"href": "/python-gatenlp/annotations.ipynb"}}, {"type": "li", "start": 2651, "end": 2711, "id": 73, "features": {}}, {"type": "a", "start": 2651, "end": 2664, "id": 74, "features": {"href": "annotationsets"}}, {"type": "a", "start": 2667, "end": 2689, "id": 75, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb"}}, {"type": "a", "start": 2693, "end": 2710, "id": 76, "features": {"href": "/python-gatenlp/annotationsets.ipynb"}}, {"type": "li", "start": 2711, "end": 2761, "id": 77, "features": {}}, {"type": "a", "start": 2711, "end": 2719, "id": 78, "features": {"href": "documents"}}, {"type": "a", "start": 2722, "end": 2739, "id": 79, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb"}}, {"type": "a", "start": 2743, "end": 2760, "id": 80, "features": {"href": "/python-gatenlp/documents.ipynb"}}, {"type": "li", "start": 2761, "end": 2876, "id": 81, "features": {}}, {"type": "ul", "start": 2821, "end": 2876, "id": 82, "features": {}}, {"type": "li", "start": 2822, "end": 2876, "id": 83, "features": {}}, {"type": "a", "start": 2822, "end": 2832, "id": 84, "features": {"href": "changelogs"}}, {"type": "a", "start": 2835, "end": 2854, "id": 85, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/changelogs.ipynb"}}, {"type": "a", "start": 2858, "end": 2875, "id": 86, "features": {"href": "/python-gatenlp/changelogs.ipynb"}}, {"type": "li", "start": 2876, "end": 2912, "id": 87, "features": {}}, {"type": "a", "start": 2878, "end": 2911, "id": 88, "features": {"href": "diffs2gate"}}, {"type": "li", "start": 2912, "end": 2996, "id": 89, "features": {}}, {"type": "ul", "start": 2979, "end": 2996, "id": 90, "features": {}}, {"type": "li", "start": 2980, "end": 2996, "id": 91, "features": {}}, {"type": "a", "start": 2980, "end": 2995, "id": 92, "features": {"href": "gateinteraction"}}, {"type": "li", "start": 2996, "end": 3103, "id": 93, "features": {}}, {"type": "ul", "start": 3050, "end": 3103, "id": 94, "features": {}}, {"type": "li", "start": 3051, "end": 3103, "id": 95, "features": {}}, {"type": "a", "start": 3051, "end": 3060, "id": 96, "features": {"href": "gateslave"}}, {"type": "a", "start": 3063, "end": 3081, "id": 97, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateslave.ipynb"}}, {"type": "a", "start": 3085, "end": 3102, "id": 98, "features": {"href": "/python-gatenlp/gateslave.ipynb"}}, {"type": "li", "start": 3103, "end": 3402, "id": 99, "features": {}}, {"type": "ul", "start": 3186, "end": 3402, "id": 100, "features": {}}, {"type": "li", "start": 3187, "end": 3268, "id": 101, "features": {}}, {"type": "a", "start": 3187, "end": 3197, "id": 102, "features": {"href": "lib_spacy"}}, {"type": "code", "start": 3187, "end": 3197, "id": 103, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "a", "start": 3200, "end": 3220, "id": 104, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb"}}, {"type": "code", "start": 3201, "end": 3211, "id": 105, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "a", "start": 3223, "end": 3240, "id": 106, "features": {"href": "/python-gatenlp/lib_spacy.ipynb"}}, {"type": "a", "start": 3262, "end": 3267, "id": 107, "features": {"href": "spacy.io/"}}, {"type": "li", "start": 3268, "end": 3352, "id": 108, "features": {}}, {"type": "a", "start": 3268, "end": 3279, "id": 109, "features": {"href": "lib_stanza"}}, {"type": "code", "start": 3268, "end": 3279, "id": 110, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "a", "start": 3282, "end": 3303, "id": 111, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb"}}, {"type": "code", "start": 3283, "end": 3294, "id": 112, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "a", "start": 3306, "end": 3323, "id": 113, "features": {"href": "/python-gatenlp/lib_stanza.ipynb"}}, {"type": "a", "start": 3345, "end": 3351, "id": 114, "features": {"href": "https://stanfordnlp.github.io/stanza/"}}, {"type": "li", "start": 3352, "end": 3402, "id": 115, "features": {}}, {"type": "a", "start": 3352, "end": 3368, "id": 116, "features": {"href": "lib_stanfordnlp"}}, {"type": "code", "start": 3352, "end": 3368, "id": 117, "features": {"class": "language-plaintext highlighter-rouge"}}, {"type": "a", "start": 3390, "end": 3401, "id": 118, "features": {"href": "https://stanfordnlp.github.io/stanfordnlp/"}}, {"type": "li", "start": 3402, "end": 3520, "id": 119, "features": {}}, {"type": "ul", "start": 3452, "end": 3520, "id": 120, "features": {}}, {"type": "li", "start": 3453, "end": 3520, "id": 121, "features": {}}, {"type": "a", "start": 3453, "end": 3470, "id": 122, "features": {"href": "client_annotators"}}, {"type": "a", "start": 3473, "end": 3499, "id": 123, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb"}}, {"type": "a", "start": 3502, "end": 3519, "id": 124, "features": {"href": "/python-gatenlp/client_annotators.ipynb"}}, {"type": "li", "start": 3520, "end": 3873, "id": 125, "features": {}}, {"type": "ul", "start": 3559, "end": 3873, "id": 126, "features": {}}, {"type": "li", "start": 3560, "end": 3624, "id": 127, "features": {}}, {"type": "a", "start": 3560, "end": 3567, "id": 128, "features": {"href": "corpora"}}, {"type": "a", "start": 3570, "end": 3586, "id": 129, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb"}}, {"type": "li", "start": 3624, "end": 3677, "id": 130, "features": {}}, {"type": "a", "start": 3624, "end": 3634, "id": 131, "features": {"href": "processing"}}, {"type": "a", "start": 3637, "end": 3656, "id": 132, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb"}}, {"type": "a", "start": 3659, "end": 3676, "id": 133, "features": {"href": "processing.ipyn"}}, {"type": "li", "start": 3677, "end": 3730, "id": 134, "features": {}}, {"type": "a", "start": 3677, "end": 3687, "id": 135, "features": {"href": "gazetteers"}}, {"type": "a", "start": 3690, "end": 3709, "id": 136, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb"}}, {"type": "a", "start": 3712, "end": 3729, "id": 137, "features": {"href": "gazetteers.ipyn"}}, {"type": "li", "start": 3730, "end": 3873, "id": 138, "features": {}}, {"type": "ul", "start": 3810, "end": 3873, "id": 139, "features": {}}, {"type": "li", "start": 3811, "end": 3856, "id": 140, "features": {}}, {"type": "a", "start": 3811, "end": 3817, "id": 141, "features": {"href": "pampac"}}, {"type": "a", "start": 3820, "end": 3835, "id": 142, "features": {"href": "https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb"}}, {"type": "a", "start": 3838, "end": 3855, "id": 143, "features": {"href": "/python-gatenlp/pampac.ipynb"}}, {"type": "li", "start": 3856, "end": 3873, "id": 144, "features": {}}, {"type": "a", "start": 3856, "end": 3872, "id": 145, "features": {"href": "pampac-reference"}}, {"type": "li", "start": 3873, "end": 3908, "id": 146, "features": {}}, {"type": "a", "start": 3873, "end": 3907, "id": 147, "features": {"href": "pythondoc/gatenlp"}}, {"type": "footer", "start": 3908, "end": 3990, "id": 148, "features": {"class": "site-footer"}}, {"type": "span", "start": 3908, "end": 3948, "id": 149, "features": {"class": "site-footer-owner"}}, {"type": "a", "start": 3908, "end": 3922, "id": 150, "features": {"href": "https://github.com/GateNLP/python-gatenlp"}}, {"type": "a", "start": 3940, "end": 3947, "id": 151, "features": {"href": "https://github.com/GateNLP"}}, {"type": "span", "start": 3949, "end": 3989, "id": 152, "features": {"class": "site-footer-credits"}}, {"type": "a", "start": 3976, "end": 3988, "id": 153, "features": {"href": "https://pages.github.com"}}], "next_annid": 154}}, "text": "\nPython GateNLP | python-gatenlp\nPython GateNLP\nHome\nSearch\nGitHub\nPyPi\nPython GateNLP\nA Python package for NLP similar to the Java GATE NLP framework\nPython GateNLP is an NLP and text processing framework implemented in Python.\nPython GateNLP represents documents and stand-off annotations very similar to \nthe Java GATE framework: Annotations describe arbitrary character ranges in the text and each annotation can have an arbitrary number of features.  Documents can have arbitrary features and an arbitrary number of named annotation sets, where each annotation set can have an arbitrary number of annotations which can overlap in any way. Python GateNLP documents can be exchanged with Java GATE by using the bdocjs/bdocym/bdocmp formats which are supported in Java GATE via the Format Bdoc Plugin\nOther than many other Python NLP tools, GateNLP does not require a specific way of how text is split up into tokens, tokens can be represented by annotations in any way, and a document can have different ways of tokenization simultanously, if needed. Similarly, entities can be represented by annotations without restriction: they do not need to start or end at token boundaries and can overlap arbitrarily.\nGateNLP provides ways to process text and create annotations using annotating pipelines, which are sequences of one or more annotators. \nThere are gazetteer annotators for matching text against gazetteer lists and annotators for a rule-like matching of complex annotation and text sequences (see PAMPAC).\nThere is also support for creating GateNLP annotations with other NLP packages like Spacy or Stanford Stanza.\nThe GateNLP document representation also optionally allows to track all changes\ndone to the document in a \u201cchange log\u201d. \nSuch changes can later be applied to other Python GateNLP or to  Java GATE documents.\nThis library also implements the functionality for the interaction with\na Java GATE process in two different ways:\nThe Java GATE Python plugin can invoke a process running Python GateNLP to annotate GATE documents.\nPython code can remote-control a Jave GATE instance via the GateNLP GateSlave\nInstallation\nInstall GateNLP with all optional dependencies:\npip install -U gatenlpi[all]\nFor more details see Installation\nOverview of the documentation:\nNOTE: most of the documentation pages below can be viewed as HTML, as a Jupyter notebook, and the Jupyter notebook can be downloaded \nfor running on your own computer.\nInstallation\nGetting Started / Getting Started Notebook / Notebook Download\nThe Document class and classes related to components of a document:\n    \nAnnotation / Annotation Notebook / Notebook Download\nAnnotationSet / AnnotationSet Notebook) / Notebook Download\nDocument / Document Notebook) / Notebook Download\nThe Changelog class for recording changes to a document\n    \nChangeLogs / ChangeLogs Notebook) / Notebook Download\nA comparison with the Java GATE API\nThe module for running python code from the GATE Python plugin\n    \nGateInteraction\nThe module for running Java GATE code from python\n    \nGateSlave / GateSlave Notebook) / Notebook Download\nModules for interaction with other NLP packages and converting their documents\n    \nlib_spacy\n / \nlib_spacy\n Notebook / Notebook Download for interacting with Spacy\nlib_stanza\n / \nlib_stanza\n Notebook / Notebook Download for interacting with Stanza\nlib_stanfordnlp\n for interacting with StanfordNLP\nConnecting to annotation services on the web:\n    \nClient Annotators / Client Annotators Notebook / Notebook Download\nModules related to NLP processing:\n    \nCorpora / Corpora Notebook / [Notebook Download)(corpora.ipynb)\nProcessing / Processing Notebook / Notebook Download\nGazetteers / Gazetteers Notebook / Notebook Download\nComplex Annotation Patterns for matching text and annotation sequences:\n        \nPAMPAC / PAMPAC Notebook / Notebook Download\nPAMPAC Reference\nThe Generated Python Documentation\npython-gatenlp is maintained by GateNLP.\nThis page was generated by GitHub Pages.\n", "features": {}, "offset_type": "j", "name": ""}
+    </script>
+    <script type="text/javascript">
+        gatenlp_run("GATENLPID-");
+    </script>
+  </div>
+<!--ENDDIV-->
+</body>
+
+</html>
