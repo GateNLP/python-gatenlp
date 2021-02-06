@@ -141,8 +141,8 @@ class Pipeline(Annotator):
                 self.names2annotators[name] = a
                 self.annotators.append(a)
                 self.names.append(name)
-        if len(self.annotators) == 0:
-            self.logger.warn(&#34;Pipeline is a do-nothing pipeline: no annotators&#34;)
+        # if len(self.annotators) == 0:
+        #     self.logger.warn(&#34;Pipeline is a do-nothing pipeline: no annotators&#34;)
 
     def copy(self):
         &#34;&#34;&#34;
@@ -383,8 +383,8 @@ be added later and incrementally using the <code>add</code> method.</dd>
                 self.names2annotators[name] = a
                 self.annotators.append(a)
                 self.names.append(name)
-        if len(self.annotators) == 0:
-            self.logger.warn(&#34;Pipeline is a do-nothing pipeline: no annotators&#34;)
+        # if len(self.annotators) == 0:
+        #     self.logger.warn(&#34;Pipeline is a do-nothing pipeline: no annotators&#34;)
 
     def copy(self):
         &#34;&#34;&#34;

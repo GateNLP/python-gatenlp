@@ -16,16 +16,16 @@ For now rather simple:
 * !! make sure the latest version of the htmlviewer javascript is released
   and the correct version number is used in the serializer and 
   * `python make-viewer.py` has been run to copy to the package directory
+* !! make sure the version has been updated to what we want to release!
 * run ./gendoc-pdoc3.sh
 * add anything that needs to get added
-* !! make sure the version has been updated to what we want to release!
 
 * !! SYNC WITH UPCOMING PYTHON PLUGIN RELEASE:
 * Edit: `java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
   and change the version of python plugin to the upcoming one which will contain the new GateNLP release
-  NOTE: we can release gatenlp with a Python plugin release which does not yet exist but the plugin 
-  version needs to 
 * run `python make-java.py` 
+* re-install current directory locally using `pip install -e .[all,dev]`
+* double check that gateslave tries to load the new (not-yet existing) release
 * commit and push, we have now pushed exactly what will be the gatenlp release
 
 * In plugin Python:
@@ -36,8 +36,6 @@ For now rather simple:
   * Actually create the Python plugin release the normal way
   * wait until available on Maven Central
   
-* re-install current directory locally using `pip install -e .[all,dev]`
-* double check that gateslave tries to load the new release
 
 * create and checkout a version n.n branch (no "v" in front), push the branch
 * upload to pypi
