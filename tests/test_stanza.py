@@ -1,12 +1,12 @@
 import os
-from gatenlp import logger
+from gatenlp import logger, Document
 
 
 class TestStanza01:
     def test_stanza01a(self):
         try:
             import stanza
-            from gatenlp.lib_stanza import stanza2gatenlp
+            from gatenlp.lib_stanza import stanza2gatenlp, AnnStanza
             from stanza.resources.common import DEFAULT_MODEL_DIR
         except:
             logger.warn("Module stanza not installed, skipping stanza test")
@@ -26,6 +26,15 @@ class TestStanza01:
         assert len(sents) == 2
         # words = anns.with_type("Word")
         # assert len(words) == 14
+        tokens = anns.with_type("Token")
+        assert len(tokens) == 14
+
+        doc = Document(txt)
+        annstanza = AnnStanza(pipeline=nlp)
+        doc = annstanza(doc)
+        anns = doc.annset()
+        sents = anns.with_type("Sentence")
+        assert len(sents) == 2
         tokens = anns.with_type("Token")
         assert len(tokens) == 14
 

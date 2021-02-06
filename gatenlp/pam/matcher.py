@@ -162,19 +162,25 @@ class AnnMatcher:
             type: if not None, match the type. If this is a string, match the literal string, if it is
                 a compiled regular expression, match that expression, if it is a callable, call it and
                 use the return value.
-            features: if specified, it must be a dictionary which is used as the kwargs  to create
+            features: if specified, it must be a FeatureMatcher or a dictionary which is used as the kwargs  to create
                 a FeatureMatcher instance for matching the features of the annotation.
-            features_eq:  if specified, it must be a dictionary which is used as the kwargs  to create
-                a FeatureEqMatcher instance for matching the features of the annotation.
+            features_eq:  if specified, it must be a FeatureEqMatcher or a dictionary which is used as the kwargs
+                to create a FeatureEqMatcher instance for matching the features of the annotation.
                 Only one of features or features_eq should be used.
             text: if not None, match the document text covered by the annotation. For this the
                 matcher must be called with the optional `doc` parameter.
         """
         self.type = type
         if features_eq is not None:
-            self.features_matcher = FeatureEqMatcher(**features_eq)
+            if callable(features_eq):
+                self.features_matcher = features_eq
+            else:
+                self.features_matcher = FeatureEqMatcher(**features_eq)
         elif features is not None:
-            self.features_matcher = FeatureMatcher(**features)
+            if callable(features):
+                self.features_matcher = features
+            else:
+                self.features_matcher = FeatureMatcher(**features)
         else:
             self.features_matcher = None
         self.text = text

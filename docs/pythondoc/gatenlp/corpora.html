@@ -525,7 +525,7 @@ class DirFilesCorpus(Corpus):
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
+    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True, sort=False, sort_reverse=False):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
@@ -534,6 +534,8 @@ class DirFilesCorpus(Corpus):
             ext: the file extension that must be matched by all files for the corpus
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
+            sort: if True, sort by file paths, if a function sort by that function (default: False)
+            sort_reverse: if sort is not False and this is True, sort in reverse order
         &#34;&#34;&#34;
         if not ext.startswith(&#34;.&#34;):
             ext = &#34;.&#34; + ext
@@ -541,6 +543,11 @@ class DirFilesCorpus(Corpus):
         self.ext = ext
         self.fmt = fmt
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
+        if sort:
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         self.size = len(self.paths)
         pass
 
@@ -1373,7 +1380,7 @@ corpus or None. If None, no action is performed.</dd>
 </dd>
 <dt id="gatenlp.corpora.DirFilesCorpus"><code class="flex name class">
 <span>class <span class="ident">DirFilesCorpus</span></span>
-<span>(</span><span>dirpath, ext='bdocjs', fmt=None, recursive=True)</span>
+<span>(</span><span>dirpath, ext='bdocjs', fmt=None, recursive=True, sort=False, sort_reverse=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A corpus representing all files in a directory that match the given extension.</p>
@@ -1388,6 +1395,10 @@ corpus or None. If None, no action is performed.</dd>
 <dd>the format to use, if None, will be determined from the extension</dd>
 <dt><strong><code>recursive</code></strong></dt>
 <dd>if True (default) all matching files from all subdirectories are included</dd>
+<dt><strong><code>sort</code></strong></dt>
+<dd>if True, sort by file paths, if a function sort by that function (default: False)</dd>
+<dt><strong><code>sort_reverse</code></strong></dt>
+<dd>if sort is not False and this is True, sort in reverse order</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1398,7 +1409,7 @@ corpus or None. If None, no action is performed.</dd>
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True):
+    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True, sort=False, sort_reverse=False):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
@@ -1407,6 +1418,8 @@ corpus or None. If None, no action is performed.</dd>
             ext: the file extension that must be matched by all files for the corpus
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
+            sort: if True, sort by file paths, if a function sort by that function (default: False)
+            sort_reverse: if sort is not False and this is True, sort in reverse order
         &#34;&#34;&#34;
         if not ext.startswith(&#34;.&#34;):
             ext = &#34;.&#34; + ext
@@ -1414,6 +1427,11 @@ corpus or None. If None, no action is performed.</dd>
         self.ext = ext
         self.fmt = fmt
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
+        if sort:
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         self.size = len(self.paths)
         pass
 

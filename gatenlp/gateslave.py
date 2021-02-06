@@ -14,6 +14,8 @@ import secrets
 import argparse
 import signal
 import glob
+import json
+from gatenlp.annotation_set import AnnotationSet
 
 # NOTE: we delay importing py4j to the class initializer. This allows us to make GateSlave available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateSlave
@@ -448,18 +450,61 @@ class GateSlave:
         bjs = self.slave.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt="bdocjs")
 
-    def pdoc2gdoc(self, pdoc):
+    def pdoc2gdoc(self, pdoc, annsets=None):
         """
         Convert the Python gatenlp document to a GATE document and return a handle to it.
 
         Args:
-          pdoc: python gatenlp Document
+            pdoc: python gatenlp Document
+            annsets: a list of either set names, or tuples where the first element is a set name and the
+                second element is either a type name or a list of type names.
 
         Returns:
-          handle to GATE document
+            handle to GATE document
         """
-        json = pdoc.save_mem(fmt="bdocjs")
+        json = pdoc.save_mem(fmt="bdocjs", annsets=annsets)
         return self.slave.getDocument4BdocJson(json)
+
+    def gdocanns2pdoc(self, gdoc, pdoc, annsets=None, replace=False):
+        """
+        Retrieve the annotations from the GATE document and add them to the python gatenlp document.
+        This modifies the pdoc in place and returns it.
+
+        Args:
+            gdoc: a handle to a Java GATE document
+            pdoc: Python gatenlp document
+            annsets: if not None, an annotation specification: a list of set names or tuples where the first
+                element is a set name and the second element is either a type name or a list of type names
+            replace: if True, replaces all annotations with the same set and annotation id, otherwise adds
+                annotaitons with potentially a new annotation id.
+
+        Returns:
+            the modified pdoc
+        """
+        # to make it easier on the Java side to interpret the annsets specification, convert it so that
+        # all elements are a list where first element is always the set name and all remaining elements
+        # are tyepe names. If there is one remaining element which is null, include all types for that set.
+        newannsets = self.pannsets2gannsets(annsets)
+        # now retrieve the BDOC JSON representation of the annotations
+        thejson = self.jsonAnnsets4Doc(gdoc, newannsets);
+        dictrep = json.loads(thejson)
+        for name, adict in dictrep.items():
+            annset = AnnotationSet.from_dict(adict, owner_doc=None)
+            targetset = pdoc.annset(name)
+            # add the annotations in annset to the pdoc, depending on replace
+            for ann in annset._annotations.values():
+                # if the annotation id already exists in the target set, proceed according to replace,
+                # if not, just add it as is
+                if ann.id in targetset._annotations:
+                    if replace:
+                        # for now, the simplified version: remove existing add new
+                        targetset.remove(ann.id)
+                        targetset.add_ann(ann, annid=ann.id)
+                    else:
+                        targetset.add_ann(ann)
+                else:
+                    targetset.add_ann(ann)
+        return pdoc
 
     def load_pdoc(self, path, mimetype=None):
         """
@@ -501,7 +546,7 @@ class GateSlave:
     # These could get called directly via gs.slave.METHODNAME calls but are implemented here
     # to provide easier discovery and better documentation on the Python side
     # Since these are really local mirrors of Java methods, they follow Java naming conventions
-    def  createDocument(self, content):
+    def createDocument(self, content):
         """
         Create a Java GATE document from the content string and return a handle to it.
 
@@ -860,6 +905,63 @@ class GateSlave:
         """
         self.slave.saveDocumentToFile(gdoc, filename, mimetype)
 
+    def pannsets2gannsets(self, annsets=None):
+        """
+        Convert from our convention to specifiy annotation sets and types to a Java list.
+        This is necessary because py4j does not by default convert lists properly and also
+        because our Java representation of the annsets specification has a different structure.
+        The list returned from this is already a Java list!
+
+        Args:
+            annsets: annsets specification to convert
+
+        Returns:
+            java representation of the annsets specification (or None)
+        """
+        if annsets is None:
+            return None
+        # annsets is a python collection and cannot be passed directly to Java
+        # see https://www.py4j.org/advanced_topics.html#collections-conversion
+        from py4j.java_collections import ListConverter
+        newannsets = []
+        for spec in annsets:
+            if isinstance(spec, str):
+                plist = [spec, None]
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    plist = [setname, types]
+                else:
+                    # types must be a list:
+                    plist = [setname]
+                    plist.extend(types)
+            jlist = ListConverter().convert(plist, self.gateway._gateway_client)
+            newannsets.append(jlist)
+        jnewannsets = ListConverter().convert(newannsets, self.gateway._gateway_client)
+        return jnewannsets
+
+    def jsonAnnsets4Doc(self, gdoc, jannsets=None):
+        """
+        Return the JSON representation of the annotation sets in the GATE document, optionally
+        filtered by the given annsets specification.
+
+        The annsets specification should have the format as expected on the Java side: a list
+        of lists of string. Each inner list has the set name to include as the first element
+        and either null as the second element to include all types, or the types to include
+        as the 2nd and subsequent elements.
+
+        The method pannsets2gannsets(annsets) can be used to convert from our standard annset
+        specification to the Java annsets specification.
+
+        Args:
+            gdoc: handle to Java GATE document
+            jannsets: the annotation specification list as a Java list
+
+        Returns:
+
+        """
+        return self.slave.jsonAnnsets4Doc(gdoc, jannsets);
+
     def showGui(self):
         """
         (CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
@@ -879,8 +981,8 @@ class GateSlaveAnnotator(Annotator):
         pipeline,
         gatehome=None,
         port=25333,
-        sets_send=None,
-        sets_receive=None,
+        annsets_send=None,
+        annsets_receive=None,
         replace_anns=False,
     ):
         """
@@ -890,9 +992,10 @@ class GateSlaveAnnotator(Annotator):
         can then be used to annotate Python gatenlp Document instances with the Java GATE
         pipeline.
 
-        Note: to make sure tha start/finish callbacks on the Java side are invoked, the annotator
+        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
         start() method should be invoked once before processing documents and finish() should
-        get called once after processing documents.
+        get called once after processing documents. (Any Executor implementation shoudl do this
+        autimatically)
 
         If the GateSlaveAnnotator is not used any more, close() should be invoked to terminate
         the Java GATE Slave process.
@@ -909,26 +1012,20 @@ class GateSlaveAnnotator(Annotator):
             pipeline: the path to a Java GATE pipeline to load into the GATE slave
             gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
             port: the port to use (25333)
-            sets_send: (MAYBE, NOT YET IMPLEMENTED)
-              a dictionary where the keys are the name of the target annotation set at the
-              Java side and the values are either the source annotation set name or a list of
-              tuples of the form (setname, typename).
-            sets_receive: (MAYBE, NOT YET IMPLEMENTED)
-              a dictionary where the keys are the name of the target annotation set at the
-              Python side and the values are either the source annotation set name in Java or a list
-              of tuples of the form (setname, typename).
-            replace_anns: (NOT YET IMPLEMENTED) (default: False)
-              if True, existing annotations (in the sets, of the types
-              specified in sets_receive or all) are removed before the retrieved annotations are added.
-              In this case, the annotation ids of the retrieved annotations are kept.
-              If False, the retrieved annotations are added to the existing sets and may get new, different
-              annotation ids.
+            annsets_send: a list of either annotation set names, or tuples where the first element
+                is the name of an annotation set and the second element is either the name of a type
+                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
+                If an empty list is specified, no annotations are sent at all.
+            annsets_receive: same format as annsets_send to specify which annotation sets/types are
+                sent back to Python after the document has been processed on the Java side.
+            replace_anns: if True and an annotation is received which already exists (same set and annotation id)
+              then the existing annotation is replaced (if offsets and type are also same, only the features are
+              replaced). If False, all received annotations are added which may change their annotation id.
         """
         self.pipeline = pipeline
-        if sets_send is not None or sets_receive is not None:
-            raise NotImplementedError
-        self.sets_send = sets_send
-        self.sets_receive = sets_receive
+        self.annsets_send = annsets_send
+        self.annsets_receive = annsets_receive
+        self.replace_anns = replace_anns
         self.gs = GateSlave(port=port, start=True, gatehome=gatehome)
         self.controller = self.gs.slave.loadPipelineFromFile(self.pipeline)
         self.corpus = self.gs.slave.newCorpus()
@@ -963,36 +1060,21 @@ class GateSlaveAnnotator(Annotator):
         to the GATE process and coverting it to a GATE document there, running the pipeline on it,
         and sending the document back and converting back to a new gatenlp Document.
 
-        IMPORTANT: the exact way of how the final document that gets returned by this method is created
-        may change or depend on how the annotator is configured: it may or may not be the original document
-        which gets modified in place or new document with the original document unchanged.
-
         Args:
             doc: the document to process
             **kwargs: ignored so far
 
         Returns:
-            the processed gatenlp document which may be the original one passed to this method
-            or a new one.
+            the processed gatenlp document
         """
-        # TODO: how to handle exceptions?
-        if self.sets_send is not None:
-            # TODO: create the json for the pdoc restricted to these sets, and with setnames renamed
-            # TODO: then send the document as JSON directly
-            pass
-        # TODO: LIMIT the sets to send by directly sending the JSON using
-        # TODO: doc.save_mem(fmt="json", annsets=["set",  ("set2", ["Type1", "Type2"])])
-        gdoc = self.gs.pdoc2gdoc(doc)
-        self.gs.slave.run4Document(self.controller, gdoc)
-        if self.sets_receive is not None:
-            # TODO: retrieve the JSON limited to just the specified sets
-            pass
+        if self.annsets_send is not None:
+            # create shallow copy, we only need it for reading!
+            tmpdoc = doc.copy(annsets=self.annsets_send)
         else:
-            # TODO: retrieve the JSON for all sets
-            # NOTE: for now we always retrieve back the whole annotated document
-            doc = self.gs.gdoc2pdoc(gdoc)
-        # TODO: once we have the set or sets, add them to the existing python document
-        # TODO: as specified via the sets_receive and replace_anns parameters
+            tmpdoc = doc
+        gdoc = self.gs.pdoc2gdoc(tmpdoc)
+        self.gs.slave.run4Document(self.controller, gdoc)
+        self.gs.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
         self.gs.del_resource(gdoc)
         return doc
 

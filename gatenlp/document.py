@@ -515,14 +515,18 @@ class Document:
             annsets_dict = {}
             for spec in annsets:
                 if isinstance(spec, str):
-                    annsets_dict[spec] = self._annotation_sets[spec].to_dict(**kwargs)
+                    tmpset = self._annotation_sets.get(spec)
+                    if tmpset is not None:
+                        annsets_dict[spec] = tmpset.to_dict(**kwargs)
                 else:
                     setname, types = spec
                     if isinstance(types, str):
                         types = [types]
-                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(
-                        anntypes=types, **kwargs
-                    )
+                    tmpset = self._annotation_sets.get(setname)
+                    if tmpset is not None:
+                        annsets_dict[setname] = self._annotation_sets[setname].to_dict(
+                            anntypes=types, **kwargs
+                        )
         else:
             annsets_dict = {
                 name: aset.to_dict(**kwargs)
@@ -730,16 +734,21 @@ class Document:
         doc._annotation_sets = dict()
         for spec in annsets:
             if isinstance(spec, str):
-                doc._annotation_sets[spec] = self._annotation_sets[spec].copy()
-                doc._annotation_sets[spec]._owner_doc = doc
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    doc._annotation_sets[spec] = self._annotation_sets[spec].copy()
+                    doc._annotation_sets[spec]._owner_doc = doc
             else:
                 setname, types = spec
                 if isinstance(types, str):
                     types = [types]
-                annset = AnnotationSet(owner_doc=doc, name=setname)
-                anns = self.annset(setname).with_type(types)
-                for ann in anns:
-                    anns.add_ann(ann)
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    annset = AnnotationSet(owner_doc=doc, name=setname)
+                    anns = self.annset(setname).with_type(types)
+                    for ann in anns:
+                        annset.add_ann(ann)
+                    doc._annotation_sets[setname] = annset
         return doc
 
     def deepcopy(self, annsets=None, memo=None):
@@ -767,17 +776,21 @@ class Document:
             doc._annotation_sets = dict()
             for spec in annsets:
                 if isinstance(spec, str):
-                    doc._annotation_sets[spec] = lib_copy.deepcopy(self._annotation_sets[spec], memo)
-                    doc._annotation_sets[spec]._owner_doc = doc
+                    tmpset = self._annotation_sets.get(spec)
+                    if tmpset is not None:
+                        doc._annotation_sets[spec] = lib_copy.deepcopy(tmpset, memo)
+                        doc._annotation_sets[spec]._owner_doc = doc
                 else:
                     setname, types = spec
                     if isinstance(types, str):
                         types = [types]
-                    annset = AnnotationSet(owner_doc=doc, name=setname)
-                    anns = self.annset(setname).with_type(types)
-                    for ann in anns:
-                        annset.add_ann(lib_copy.deepcopy(ann, memo))
-                    doc._annotation_sets[setname] = annset
+                    tmpset = self._annotation_sets.get(setname)
+                    if tmpset is not None:
+                        annset = AnnotationSet(owner_doc=doc, name=setname)
+                        anns = tmpset.with_type(types)
+                        for ann in anns:
+                            annset.add_ann(lib_copy.deepcopy(ann, memo))
+                        doc._annotation_sets[setname] = annset
         return doc
 
     def __deepcopy__(self, memo=None):

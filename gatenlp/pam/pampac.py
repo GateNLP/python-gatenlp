@@ -1331,14 +1331,14 @@ class Filter(PampacParser):
                     == self.take_if
                 ):
                     res.append(r)
-            if len(r) == 0:
+            if len(res) == 0:
                 return Failure(
                     context=context,
                     location=location,
                     message="No result satisfies predicate",
                 )
             else:
-                return Success(res)
+                return Success(res, context=context)
         else:
             return ret
 
@@ -2299,7 +2299,7 @@ class Pampac:
         Args:
             doc: the document to run on
             annotations: the annotation set or iterable to use
-            outset: the output annotation set.
+            outset: the output annotation set. If this is a string, retrieves the set from doc
             start: the text offset where to start matching
             end: the text offset where to end matching
 
@@ -2307,6 +2307,8 @@ class Pampac:
             a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
         """
         logger = init_logger(debug=debug)
+        if isinstance(outset, str):
+            outset = doc.annset(outset)
         ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         returntuples = []
         location = Location(ctx.start, 0)

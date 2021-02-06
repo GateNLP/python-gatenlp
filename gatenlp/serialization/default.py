@@ -205,6 +205,7 @@ class JsonSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         """
@@ -217,9 +218,10 @@ class JsonSerializer:
           offset_type: the offset type to use for saving, if None (default) use "p" (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
+          annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
           **kwargs:
         """
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
                 compress(json.dumps(d).encode("UTF-8"))
@@ -514,27 +516,26 @@ class YamlSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         """
 
         Args:
-          clazz:
-          inst:
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
-          **kwargs:
-
-        Returns:
-
+            clazz:
+            inst:
+            to_ext: (Default value = None)
+            to_mem: (Default value = None)
+            offset_type: (Default value = None)
+            offset_mapper: (Default value = None)
+            gzip: (Default value = False)
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            **kwargs:
         """
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode("UTF-8"), Dumper=yaml_dumper)
+                compress(yaml.dump(d, Dumper=yaml_dumper).encode("UTF-8"))
             else:
                 return yaml.dump(d, Dumper=yaml_dumper)
         else:

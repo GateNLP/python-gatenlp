@@ -491,7 +491,7 @@ class DirFilesCorpus(Corpus):
     A corpus representing all files in a directory that match the given extension.
     """
 
-    def __init__(self, dirpath, ext="bdocjs", fmt=None, recursive=True):
+    def __init__(self, dirpath, ext="bdocjs", fmt=None, recursive=True, sort=False, sort_reverse=False):
         """
         Creates the DirCorpus.
 
@@ -500,6 +500,8 @@ class DirFilesCorpus(Corpus):
             ext: the file extension that must be matched by all files for the corpus
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
+            sort: if True, sort by file paths, if a function sort by that function (default: False)
+            sort_reverse: if sort is not False and this is True, sort in reverse order
         """
         if not ext.startswith("."):
             ext = "." + ext
@@ -507,6 +509,11 @@ class DirFilesCorpus(Corpus):
         self.ext = ext
         self.fmt = fmt
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
+        if sort:
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         self.size = len(self.paths)
         pass
 

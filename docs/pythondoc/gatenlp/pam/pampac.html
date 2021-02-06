@@ -1363,14 +1363,14 @@ class Filter(PampacParser):
                     == self.take_if
                 ):
                     res.append(r)
-            if len(r) == 0:
+            if len(res) == 0:
                 return Failure(
                     context=context,
                     location=location,
                     message=&#34;No result satisfies predicate&#34;,
                 )
             else:
-                return Success(res)
+                return Success(res, context=context)
         else:
             return ret
 
@@ -2331,7 +2331,7 @@ class Pampac:
         Args:
             doc: the document to run on
             annotations: the annotation set or iterable to use
-            outset: the output annotation set.
+            outset: the output annotation set. If this is a string, retrieves the set from doc
             start: the text offset where to start matching
             end: the text offset where to end matching
 
@@ -2339,6 +2339,8 @@ class Pampac:
             a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
         &#34;&#34;&#34;
         logger = init_logger(debug=debug)
+        if isinstance(outset, str):
+            outset = doc.annset(outset)
         ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         returntuples = []
         location = Location(ctx.start, 0)
@@ -4179,14 +4181,14 @@ list. If the remaining list is empty, return Failure.</p>
                     == self.take_if
                 ):
                     res.append(r)
-            if len(r) == 0:
+            if len(res) == 0:
                 return Failure(
                     context=context,
                     location=location,
                     message=&#34;No result satisfies predicate&#34;,
                 )
             else:
-                return Success(res)
+                return Success(res, context=context)
         else:
             return ret</code></pre>
 </details>
@@ -5409,7 +5411,7 @@ of those.</dd>
         Args:
             doc: the document to run on
             annotations: the annotation set or iterable to use
-            outset: the output annotation set.
+            outset: the output annotation set. If this is a string, retrieves the set from doc
             start: the text offset where to start matching
             end: the text offset where to end matching
 
@@ -5417,6 +5419,8 @@ of those.</dd>
             a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
         &#34;&#34;&#34;
         logger = init_logger(debug=debug)
+        if isinstance(outset, str):
+            outset = doc.annset(outset)
         ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         returntuples = []
         location = Location(ctx.start, 0)
@@ -5509,7 +5513,7 @@ of those.</dd>
 <dt><strong><code>annotations</code></strong></dt>
 <dd>the annotation set or iterable to use</dd>
 <dt><strong><code>outset</code></strong></dt>
-<dd>the output annotation set.</dd>
+<dd>the output annotation set. If this is a string, retrieves the set from doc</dd>
 <dt><strong><code>start</code></strong></dt>
 <dd>the text offset where to start matching</dd>
 <dt><strong><code>end</code></strong></dt>

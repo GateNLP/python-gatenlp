@@ -234,6 +234,7 @@ class JsonSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
@@ -246,9 +247,10 @@ class JsonSerializer:
           offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
+          annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
           **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
                 compress(json.dumps(d).encode(&#34;UTF-8&#34;))
@@ -543,27 +545,26 @@ class YamlSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
 
         Args:
-          clazz:
-          inst:
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
-          **kwargs:
-
-        Returns:
-
+            clazz:
+            inst:
+            to_ext: (Default value = None)
+            to_mem: (Default value = None)
+            offset_type: (Default value = None)
+            offset_mapper: (Default value = None)
+            gzip: (Default value = False)
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
+                compress(yaml.dump(d, Dumper=yaml_dumper).encode(&#34;UTF-8&#34;))
             else:
                 return yaml.dump(d, Dumper=yaml_dumper)
         else:
@@ -839,30 +840,35 @@ class HtmlAnnViewerSerializer:
         add_js=True,
         htmlid=None,
         stretch_height=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
-          clazz: the class of the object to save
-          inst: the instance/object to save
-          to_ext:  the destination where to save to unless to_mem is given
-          to_mem: if true, ignores to_ext and returns the representation
-          notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
-             generate a full HTML document
-          offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
-             from the internet.
-          add_js: if true (default), add the necessary Javascript either directly or by loading a library from
-             the internet. If false, assume that the Javascript is already there (only makes sense with
-             notebook=True).
-          htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
-             same HTML page and to style the output from a separate notebook cell
-          max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-             given value (default: 20em). If this is None, then the height is set to
-          stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
-             min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
-             If True, no max haight is set and instead the height is set to a percentage (default is
-             67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            clazz: the class of the object to save
+            inst: the instance/object to save
+            to_ext:  the destination where to save to unless to_mem is given
+            to_mem: if true, ignores to_ext and returns the representation
+            notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
+                generate a full HTML document
+            offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
+                from the internet.
+            add_js: if true (default), add the necessary Javascript either directly or by loading a library from
+                the internet. If false, assume that the Javascript is already there (only makes sense with
+                notebook=True).
+            htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
+                same HTML page and to style the output from a separate notebook cell
+            max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
+                given value (default: 20em). If this is None, then the height is set to
+            stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
+                min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
+                If True, no max haight is set and instead the height is set to a percentage (default is
+                67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+                set names, or tuples, where the first entry is a set name and the second entry is either a type
+                name or list of type names to include.
+
           kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
@@ -870,7 +876,8 @@ class HtmlAnnViewerSerializer:
         &#34;&#34;&#34;
         if not isinstance(inst, Document):
             raise Exception(&#34;Not a document!&#34;)
-        doccopy = inst.deepcopy()
+        # TODO: why are we doing a deepcopy here?
+        doccopy = inst.deepcopy(annsets=annsets)
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
@@ -2024,30 +2031,35 @@ now we always throw an exeption.</p>
         add_js=True,
         htmlid=None,
         stretch_height=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
-          clazz: the class of the object to save
-          inst: the instance/object to save
-          to_ext:  the destination where to save to unless to_mem is given
-          to_mem: if true, ignores to_ext and returns the representation
-          notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
-             generate a full HTML document
-          offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
-             from the internet.
-          add_js: if true (default), add the necessary Javascript either directly or by loading a library from
-             the internet. If false, assume that the Javascript is already there (only makes sense with
-             notebook=True).
-          htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
-             same HTML page and to style the output from a separate notebook cell
-          max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-             given value (default: 20em). If this is None, then the height is set to
-          stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
-             min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
-             If True, no max haight is set and instead the height is set to a percentage (default is
-             67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            clazz: the class of the object to save
+            inst: the instance/object to save
+            to_ext:  the destination where to save to unless to_mem is given
+            to_mem: if true, ignores to_ext and returns the representation
+            notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
+                generate a full HTML document
+            offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
+                from the internet.
+            add_js: if true (default), add the necessary Javascript either directly or by loading a library from
+                the internet. If false, assume that the Javascript is already there (only makes sense with
+                notebook=True).
+            htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
+                same HTML page and to style the output from a separate notebook cell
+            max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
+                given value (default: 20em). If this is None, then the height is set to
+            stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
+                min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
+                If True, no max haight is set and instead the height is set to a percentage (default is
+                67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+                set names, or tuples, where the first entry is a set name and the second entry is either a type
+                name or list of type names to include.
+
           kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
@@ -2055,7 +2067,8 @@ now we always throw an exeption.</p>
         &#34;&#34;&#34;
         if not isinstance(inst, Document):
             raise Exception(&#34;Not a document!&#34;)
-        doccopy = inst.deepcopy()
+        # TODO: why are we doing a deepcopy here?
+        doccopy = inst.deepcopy(annsets=annsets)
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
@@ -2137,41 +2150,35 @@ now we always throw an exeption.</p>
 <p>Returns: Javascript string.</p></div>
 </dd>
 <dt id="gatenlp.serialization.default.HtmlAnnViewerSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a document to HTML for visualizing it.</p>
 <h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>clazz</code></strong></dt>
-<dd>the class of the object to save</dd>
-<dt><strong><code>inst</code></strong></dt>
-<dd>the instance/object to save</dd>
-<dt><strong><code>to_ext</code></strong></dt>
-<dd>the destination where to save to unless to_mem is given</dd>
-<dt><strong><code>to_mem</code></strong></dt>
-<dd>if true, ignores to_ext and returns the representation</dd>
-<dt><strong><code>notebook</code></strong></dt>
-<dd>if True only create a div which can be injected into a notebook or other HTML, otherwise
-generate a full HTML document</dd>
-<dt><strong><code>offline</code></strong></dt>
-<dd>if true, include all the Javascript needed in the generated HTML , otherwise load library
-from the internet.</dd>
-<dt><strong><code>add_js</code></strong></dt>
-<dd>if true (default), add the necessary Javascript either directly or by loading a library from
+<p>clazz: the class of the object to save
+inst: the instance/object to save
+to_ext:
+the destination where to save to unless to_mem is given
+to_mem: if true, ignores to_ext and returns the representation
+notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
+generate a full HTML document
+offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
+from the internet.
+add_js: if true (default), add the necessary Javascript either directly or by loading a library from
 the internet. If false, assume that the Javascript is already there (only makes sense with
-notebook=True).</dd>
-<dt><strong><code>htmlid</code></strong></dt>
-<dd>the id to use for HTML ids so it is possible to have several independent viewers in the
-same HTML page and to style the output from a separate notebook cell</dd>
-<dt><strong><code>max_height1</code></strong></dt>
-<dd>if this is set, then the maximum height of the first row of the viewer is set to the
-given value (default: 20em). If this is None, then the height is set to</dd>
-<dt><strong><code>stretch_height</code></strong></dt>
-<dd>if False, rows 1 and 2 of the viewer will not have the height set, but only
+notebook=True).
+htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
+same HTML page and to style the output from a separate notebook cell
+max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
+given value (default: 20em). If this is None, then the height is set to
+stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
 min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
 If True, no max haight is set and instead the height is set to a percentage (default is
-67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.</dd>
+67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+set names, or tuples, where the first entry is a set name and the second entry is either a type
+name or list of type names to include.</p>
+<dl>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>swallow any other kwargs.</dd>
 </dl>
@@ -2468,6 +2475,7 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
@@ -2480,9 +2488,10 @@ BDOC JSON format files, optionally with gzip compression.</p></div>
           offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
+          annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
           **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
                 compress(json.dumps(d).encode(&#34;UTF-8&#34;))
@@ -2598,7 +2607,7 @@ Returns:</p></div>
 Returns:</p></div>
 </dd>
 <dt id="gatenlp.serialization.default.JsonSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
@@ -2617,6 +2626,8 @@ Returns:</p></div>
 <dd>the offset mapper to use, only needed if the type needs to get converted</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>if True, the JSON gets gzip compressed</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>which annotation sets and types to include, list of set names or (setanmes, types) tuples</dd>
 </dl>
 <p>**kwargs:</p></div>
 </dd>
@@ -3331,27 +3342,26 @@ tweet just like the original tweet.</dd>
         offset_type=None,
         offset_mapper=None,
         gzip=False,
+        annsets=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
 
         Args:
-          clazz:
-          inst:
-          to_ext: (Default value = None)
-          to_mem: (Default value = None)
-          offset_type: (Default value = None)
-          offset_mapper: (Default value = None)
-          gzip: (Default value = False)
-          **kwargs:
-
-        Returns:
-
+            clazz:
+            inst:
+            to_ext: (Default value = None)
+            to_mem: (Default value = None)
+            offset_type: (Default value = None)
+            offset_mapper: (Default value = None)
+            gzip: (Default value = False)
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
-                compress(yaml.dump(d).encode(&#34;UTF-8&#34;), Dumper=yaml_dumper)
+                compress(yaml.dump(d, Dumper=yaml_dumper).encode(&#34;UTF-8&#34;))
             else:
                 return yaml.dump(d, Dumper=yaml_dumper)
         else:
@@ -3460,7 +3470,7 @@ Returns:</p></div>
 Returns:</p></div>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, annsets=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
@@ -3477,9 +3487,10 @@ Returns:</p></div>
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>which annotation sets and types to include, list of set names or (setanmes, types) tuples</dd>
 </dl>
-<p>**kwargs:
-Returns:</p></div>
+<p>**kwargs:</p></div>
 </dd>
 <dt id="gatenlp.serialization.default.YamlSerializer.save_gzip"><code class="name flex">
 <span>def <span class="ident">save_gzip</span></span>(<span>clazz, inst, **kwargs)</span>

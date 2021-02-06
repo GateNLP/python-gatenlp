@@ -121,9 +121,9 @@ class TokenGazetteer:
                   specified with the listfeatures parameter and a list type as specified with the listtype parameter.
             source_sep: the field separator to use for some source formats (default: tab character)
             source_encoding: the encoding to use for some source formats (default: UTF-8)
-            feature: the feature name to use to get the string for each token. If the feature does not exist, is None
-              or is the empty string, the Token is completely ignored. If the feature name is None, use the document
-              string covered by the token.
+            feature: the feature name to use to get the string for each token. If the corresponding feature
+                in the token does not exist, is None or is the empty string, the Token is completely ignored.
+                If the feature parameter is None, use the document string covered by the token.
             all: return all matches, if False only return longest matches
             skip: skip forward over longest match (do not return contained/overlapping matches)
             annset: the set where the tokens to match should come from
@@ -758,11 +758,15 @@ class StringGazetteer:
         self, ignorefunc=None, mapfunc=None, matcherdata=None, defaultdata=None
     ):
         """
-        Create a TokenMatcher.
-        :param ignorefunc: a predicate that returns True for any token that should be ignored.
-        :param mapfunc: a function that returns the string to use for each token.
-        :param matcherdata: data to add to all matches in the matcherdata field
-        :param defaultdata: data to add to matches when the entry data is None
+        NOTE: NOT YET IMPLEMENTED! (code copied from Matcher package, mostly unchanges)
+
+        Create a String Gazetteer.
+
+        Args:
+            ignorefunc: a predicate that returns True for any token that should be ignored.
+            mapfunc: a function that returns the string to use for each token.
+            matcherdata: data to add to all matches in the matcherdata field
+            defaultdata: data to add to matches when the entry data is None
         """
         # TODO: need to figure out how to handle word boundaries
         # TODO: need to figure out how to handle matching spaces vs. different spaces / no spaces!
@@ -772,7 +776,7 @@ class StringGazetteer:
         self.defaultdata = defaultdata
         self.matcherdata = matcherdata
         self._root = _Node()
-        self.loger = init_logger(__name__)
+        self.logger = init_logger(__name__)
         raise Exception("Not yet implemented")
 
     def add(self, entry, data=None, listdata=None, append=False):
