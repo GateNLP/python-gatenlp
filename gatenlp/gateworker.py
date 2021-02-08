@@ -340,7 +340,7 @@ class GateWorker:
                 cmdandparms.append("1")
             else:
                 cmdandparms.append("0")
-            os.environ["GATENLP_SLAVE_TOKEN_" + str(self.port)] = self.auth_token
+            os.environ["GATENLP_WORKER_TOKEN_" + str(self.port)] = self.auth_token
             cmd = " ".join(cmdandparms)
             self.logger.debug(f"Running command: {cmd}")
             subproc = subprocess.Popen(
