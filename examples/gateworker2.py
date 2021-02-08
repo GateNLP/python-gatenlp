@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-from gatenlp.gateslave import GateSlave
+from gatenlp.gateworker import GateWorker
 
-gs = GateSlave(use_auth_token=True, port=25333, start=False, auth_token="geheim")
-# gs = GateSlave(use_auth_token=True, port=25335, auth_token="c281f5a8-977d-4bc6-9018-d62e39af4d53", start=True)
+gs = GateWorker(use_auth_token=True, port=25333, start=False, auth_token="geheim")
+# gs = GateWorker(use_auth_token=True, port=25335, auth_token="c281f5a8-977d-4bc6-9018-d62e39af4d53", start=True)
 
-# gs.slave.logActions(True)
+# gs.worker.logActions(True)
 
-doc1 = gs.slave.createDocument(
+doc1 = gs.worker.createDocument(
     "This is a 💩 document. It mentions Barack Obama and George Bush and New York."
 )
 print("GATE Document:", doc1)
@@ -15,12 +15,12 @@ print("GATE Document:", doc1)
 pdoc = gs.gdoc2pdoc(doc1)
 print("Python gatenlp document:", pdoc)
 
-gs.slave.loadMavenPlugin("uk.ac.gate.plugins", "annie", "8.6")
-pipeline = gs.slave.loadPipelineFromPlugin(
+gs.worker.loadMavenPlugin("uk.ac.gate.plugins", "annie", "8.6")
+pipeline = gs.worker.loadPipelineFromPlugin(
     "uk.ac.gate.plugins", "annie", "/resources/ANNIE_with_defaults.gapp"
 )
 
-gs.slave.run4Document(pipeline, doc1)
+gs.worker.run4Document(pipeline, doc1)
 print("GATE Document after ANNIE:", doc1)
 
 pdoc = gs.gdoc2pdoc(doc1)
@@ -36,10 +36,10 @@ print(f"Got {len(persons)} Person annotations:")
 for ann in persons:
     print(f"- {pdoc[ann]} from {ann.start} to {ann.end}")
 
-gs.slave.saveDocumentToFile(doc1, "tmp_saveddoc.xml", "")
+gs.worker.saveDocumentToFile(doc1, "tmp_saveddoc.xml", "")
 
 pdoc.save("tmp_saveddoc.bdocjs")
 
-# gs.slave.kill()
+# gs.worker.kill()
 
 gs.close()

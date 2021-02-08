@@ -21,7 +21,7 @@ For now rather simple:
 * add anything that needs to get added
 
 * !! SYNC WITH UPCOMING PYTHON PLUGIN RELEASE:
-* Edit: `java/src/main/java/gate/tools/gatenlpslave/GatenlpSlave.java`
+* Edit: `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java`
   and change the version of python plugin to the upcoming one which will contain the new GateNLP release
 * run `python make-java.py` 
 * re-install current directory locally using `pip install -e .[all,dev]`

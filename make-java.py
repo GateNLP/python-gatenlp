@@ -7,7 +7,7 @@ import re
 from shutil import copyfile
 import subprocess
 
-JARFILE = "gatetools-gatenlpslave-1.0.jar"
+JARFILE = "gatetools-gatenlpworker-1.0.jar"
 JARFILE_PATH = os.path.join("java", "target", JARFILE)  # where it is after compiling
 JARFILE_DIST = os.path.join(
     "gatenlp", "_jars", JARFILE
@@ -16,7 +16,7 @@ JARFILE_DEST = os.path.join(
     "_jars", JARFILE
 )  # where it should be relative to the gatenlp package
 JAVAFILE_PATH = os.path.join(
-    "java", "src", "main", "java", "gate", "tools", "gatenlpslave", "GatenlpSlave.java"
+    "java", "src", "main", "java", "gate", "tools", "gatenlpworker", "GatenlpWorker.java"
 )
 
 

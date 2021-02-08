@@ -4,15 +4,13 @@
 """Packaging script for the gatenlp library."""
 import sys
 import os
-import subprocess
 from setuptools import setup, find_packages
 import re
-from shutil import copyfile
 
 if sys.version_info < (3, 6):
     sys.exit("ERROR: gatenlp requires Python 3.6+")
 
-JARFILE = "gatetools-gatenlpslave-1.0.jar"
+JARFILE = "gatetools-gatenlpworker-1.0.jar"
 JARFILE_DEST = os.path.join(
     "_jars", JARFILE
 )  # where it should be relative to the gatenlp package
@@ -113,7 +111,7 @@ setup(
     # include_package_data=True,
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite="tests",
-    entry_points={"console_scripts": ["gatenlp-gate-slave=gatenlp.gateslave:main"]},
+    entry_points={"console_scripts": ["gatenlp-gate-worker=gatenlp.gateworker:main"]},
     classifiers=[
         # "Development Status :: 6 - Mature",
         # "Development Status :: 5 - Production/Stable",

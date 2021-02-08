@@ -1,4 +1,4 @@
-package gate.tools.gatenlpslave;
+package gate.tools.gatenlpworker;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,11 +26,11 @@ import gate.creole.Plugin;
 import gate.util.*;
 import gate.gui.ResourceHelper;
 
-public class GatenlpSlave {
+public class GatenlpWorker {
   static boolean DEBUG = false;
   public static void main(String[] args) {
     if(args.length > 4) {
-      System.err.println("Need up to four parameters: port number, host address, 0/1 if actions should get logged, 0/1 if slave should be kept running");
+      System.err.println("Need up to four parameters: port number, host address, 0/1 if actions should get logged, 0/1 if worker should be kept running");
       System.exit(1);
     }
     int port = 25333;
@@ -51,8 +51,8 @@ public class GatenlpSlave {
       int tmp = Integer.parseInt(args[3]);
       keep = (tmp != 0);
     }
-    GatenlpSlave runner = new GatenlpSlave();
-    System.err.println("Trying to start GATE Slave on port="+port+" host="+host+" log="+logActions+" keep="+keep);
+    GatenlpWorker runner = new GatenlpWorker();
+    System.err.println("Trying to start GATE Worker on port="+port+" host="+host+" log="+logActions+" keep="+keep);
     try {
       if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
@@ -64,12 +64,12 @@ public class GatenlpSlave {
       if(DEBUG) System.err.println("logActions is "+logActions);
       parms.put("logActions", logActions);
       parms.put("keep", keep);
-      if(DEBUG) System.err.println("Creating slave");
-      ResourceHelper slave = (ResourceHelper)Factory.createResource("gate.plugin.python.PythonSlaveRunner", parms);
-      if(DEBUG) System.err.println("Slave created");
-      if(DEBUG) System.err.println("Trying to start slave");
-      slave.call("start",null);
-      if(DEBUG) System.err.println("After starting slave");
+      if(DEBUG) System.err.println("Creating worker");
+      ResourceHelper worker = (ResourceHelper)Factory.createResource("gate.plugin.python.PythonWorkerRunner", parms);
+      if(DEBUG) System.err.println("Worker created");
+      if(DEBUG) System.err.println("Trying to start worker");
+      worker.call("start",null);
+      if(DEBUG) System.err.println("After starting worker");
     } catch(Exception e) {
       e.printStackTrace();
     }
