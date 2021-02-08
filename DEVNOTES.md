@@ -26,6 +26,8 @@ For now rather simple:
 * run `python make-java.py` 
 * re-install current directory locally using `pip install -e .[all,dev]`
 * double check that gateslave tries to load the new (not-yet existing) release
+* commit and push
+* create release branch and push 
 * commit and push, we have now pushed exactly what will be the gatenlp release
 
 * In plugin Python:
@@ -36,8 +38,6 @@ For now rather simple:
   * Actually create the Python plugin release the normal way
   * wait until available on Maven Central
   
-
-* create and checkout a version n.n branch (no "v" in front), push the branch
 * upload to pypi
 * create annotated tag v9.9
 * !! GateNLP is now released!
