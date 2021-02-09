@@ -43,6 +43,9 @@ For now rather simple:
 * !! GateNLP is now released!
 * checkout master
 * increase the gatenlp version
+* edit `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java` and change version
+  to next Python plugin snapshot
+* create next Python plugin snapshot
 
 ## Run pytest
 
