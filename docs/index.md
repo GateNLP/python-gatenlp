@@ -47,8 +47,7 @@ for running on your own computer.
 * The module for running python code from the GATE Python plugin
     * [GateInteraction](gateinteraction)
 * The module for running Java GATE code from python
-    * (changed from GateSlave in 1.0.2) [GateWorker](gateworker) / [GateWorker Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateworker.ipynb)) / [Notebook Download](gateworker.ipynb)
-    * [GateSlave](gateslave): will get changed in version 1.0.2
+    * [GateWorker](gateworker) / [GateWorker Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateworker.ipynb)) / [Notebook Download](gateworker.ipynb)
 * Modules for interaction with other NLP packages and converting their documents
     * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
     * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
