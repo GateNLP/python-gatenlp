@@ -6,6 +6,14 @@
 * within the env: `python -m ipykernel install --user --name envname --display-name "Python (envname)`
 * To list which are already there: `jupyter kernelspec list`
 
+## Version numbers
+
+* certain versions of gatenlp map to versions of the GATE plugin Python, e.g. 1.0.2 to 3.0.2
+* gatenlp may receive more releases, the in between releases would be 1.0.2.1 etc 
+* to better distinguish versions which are not released but part of a snapshot Python plugin release, use local
+  version numbers e.g. 1.0.2.1+snapshot which could eventually get released as 1.0.2.1
+* Once we have reached stable release 1.1 the mapped releases would be 1.1/3.1, 1.2/3.2 etc with 
+  in-between releases of gatenlp 1.1.1 etc.
 
 ## Prepare a release
 
@@ -33,7 +41,7 @@ For now rather simple:
 * In plugin Python:
   * pull, make sure ready for release
   * `git submodue update --remote` 
-  * commit/push/check it compiles
+  * commit/push/check it compiles (check we compile with Java 8!)
   * this is now the version we can release, which contains the submodule commit of what will be the gatenlp release
   * Actually create the Python plugin release the normal way
   * wait until available on Maven Central
