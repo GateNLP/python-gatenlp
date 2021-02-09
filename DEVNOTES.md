@@ -25,7 +25,7 @@ For now rather simple:
   and change the version of python plugin to the upcoming one which will contain the new GateNLP release
 * run `python make-java.py` 
 * re-install current directory locally using `pip install -e .[all,dev]`
-* double check that gateslave tries to load the new (not-yet existing) release
+* double check that gateworker tries to load the new (not-yet existing) release
 * commit and push
 * create release branch and push 
 * commit and push, we have now pushed exactly what will be the gatenlp release
