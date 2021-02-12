@@ -2436,6 +2436,7 @@ class AddAnn:
         name=None,
         ann=None,  # create a copy of this ann retrieved with GetAnn
         anntype=None,  # or create a new annotation with this type
+        annset=None,  # if not none, create in this set instead of the one used for matching
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
         resultidx=0,
@@ -2451,6 +2452,7 @@ class AddAnn:
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
             anntype: the type of a new annotation to create
+            annset: if not None, create the new annotation in this set instead of the one used for matching
             features: the features of a new annotation to create. This can be a GetFeatures helper for copying
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
@@ -2472,13 +2474,17 @@ class AddAnn:
         self.resultidx = resultidx
         self.dataidx = dataidx
         self.silent_fail = silent_fail
+        self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
         data = _get_data(
             succ, self.name, self.resultidx, self.dataidx, self.silent_fail
         )
         span = data["span"]
-        outset = context.outset
+        if self.annset:
+            outset = self.annset
+        else:
+            outset = context.outset
         if self.ann:
             if isinstance(self.ann, Annotation):
                 outset.add_ann(self.ann.deepcopy())
@@ -2584,6 +2590,15 @@ class UpdateAnnFeatures:
         if self.replace:
             theann.features.clear()
         theann.features.update(feats)
+
+
+class RemoveAnn:
+    def __init__(self, name, ann=None, annset=None, resultidx=0, dataidx=0, which="first", silent_fail=True):
+        pass
+
+    def __call__(self, succ, context=None, location=None):
+        pass
+
 
 
 # GETTERS
