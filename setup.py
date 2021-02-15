@@ -129,6 +129,6 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
     ],
 )
