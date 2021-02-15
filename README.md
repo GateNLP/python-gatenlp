@@ -18,8 +18,12 @@ for interacting with GATE Java and the GATE python plugin.
 
 ## Documentation and feedback
 
-* [Documentation](https://gatenlp.github.io/python-gatenlp/) 
-* [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
+* Documentation:
+  * [GitHub](https://gatenlp.github.io/python-gatenlp/) 
+  * [ReadTheDocs](https://gatenlp.readthedocs.io/en/latest/)
+* PythonDoc:
+  * [GitHub](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/)
+  * [ReadTheDocs](https://gatenlp.readthedocs.io/en/latest/pythondoc/gatenlp/)
 
 If you find bugs, want to requrest a feature or change, please use the [issue tracker](https://github.com/GateNLP/python-gatenlp/issues)
 
