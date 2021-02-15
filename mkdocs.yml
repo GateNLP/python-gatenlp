@@ -3,6 +3,18 @@ repo_url: 'https://github.com/GateNLP/python-gatenlp'
 site_description: 'Python GateNLP'
 site_author: 'Johann Petrak'
 nav:
-  - Home: index.md
   - Installation: installation.md
+  - 'Usage':
+    - 'Annotations': annotations.md
+    - 'Annotation Sets': annotationsets.md
+    - 'Documents': documents.md
+    - 'Gate Worker': gateworker.md
+    - 'Spacy': lib_spacy.md
+    - 'Stanza': lib_stanza.md
+    - 'Clients': client_annotators.md
+    - 'Corpora': corpora.md
+    - 'Processing': processing.md
+    - 'Gazetteers': gazetteers.md
+    - 'PAMPAC': pampac.md
+  - 'API': pythondoc/gatenlp
   - 'Issue Tracker': 'https://github.com/GateNLP/python-gatenlp/issues'
