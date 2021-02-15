@@ -54,8 +54,14 @@ class Annotator(ABC):
         """
         for el in documents:
             if el is not None:
-                doc = self.__call__(el, **kwargs)
-                yield doc
+                docordocs = self.__call__(el, **kwargs)
+                if docordocs is not None:
+                    if isinstance(docordocs, list):
+                        for el in docordocs:
+                            if el is not None:
+                                yield el
+                    else:
+                        yield docordocs
 
     def start(self):
         """
