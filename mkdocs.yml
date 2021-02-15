@@ -1,3 +1,8 @@
 site_name: gatenlp
+repo_url: 'https://github.com/GateNLP/python-gatenlp'
+site_description: 'Python GateNLP'
+site_author: 'Johann Petrak'
 nav:
   - Home: index.md
+  - Installation: installation.md
+  - 'Issue Tracker': 'https://github.com/GateNLP/python-gatenlp/issues'
