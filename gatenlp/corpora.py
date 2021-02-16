@@ -263,7 +263,7 @@ class JsonLinesFileSource(DocumentSource):
                             tmp[fname] = data[fname]
                     else:
                         tmp = data
-                    doc[self.data_feature] = tmp
+                    doc.features[self.data_feature] = tmp
                 yield doc
 
 
