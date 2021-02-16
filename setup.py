@@ -40,9 +40,9 @@ def get_install_extras_require():
     extras_require = {
         "formats": ["msgpack", "pyyaml", "beautifulsoup4>=4.9.3", "requests"],
         "java": ["py4j"],
-        "stanza": ["stanza"],
-        "spacy": ["spacy"],
-        "nltk": ["nltk"],
+        "stanza": ["stanza>=1.2"],
+        "spacy": ["spacy>=2.3"],
+        "nltk": ["nltk>=3.5"],
         "notebook": [
             "ipython",
             "ipykernel",
