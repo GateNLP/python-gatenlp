@@ -2,7 +2,10 @@ from gatenlp.processing.pipeline import _has_method
 
 __pdoc__ = {"Annotator.__call__": True}
 
-
+# TODO: handle finish/result calls?
+# probably not too important as this would here be the same as just calling annotator.finish()
+# But once we have a larger set of executors, or similar things to run annotators in parallel this
+# would be more useful
 class SerialCorpusExecutor:
     """
     Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
