@@ -24,14 +24,16 @@ class AnnStanza(Annotator):
         """
         Create a processing resources for running a stanza pipeline on documents.
 
-        :param pipeline: if this is specified, use a pre-configured pipeline
-        :param outsetname: the annotation set name where to put the annotations
-        :param token_type: the annotation type for the token annotations
-        :param sentence_type: the annotation type for the sentence annotations
-        :param add_entities: if true, add entity annotations
-        :param ent_prefix: the prefix to add to all entity annotation types
-        :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
-           the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+        Args:
+            :param pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
+                passing on the kwargs
+            outsetname: the annotation set name where to put the annotations
+            token_type: the annotation type for the token annotations
+            sentence_type: the annotation type for the sentence annotations
+            add_entities: if true, add entity annotations
+            ent_prefix: the prefix to add to all entity annotation types
+            :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
+                the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
         """
         self.outsetname = outsetname
         self.token_type = token_type

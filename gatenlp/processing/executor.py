@@ -1,11 +1,9 @@
 from gatenlp.processing.pipeline import _has_method
+from gatenlp.utils import init_logger
 
 __pdoc__ = {"Annotator.__call__": True}
 
-# TODO: handle finish/result calls?
-# probably not too important as this would here be the same as just calling annotator.finish()
-# But once we have a larger set of executors, or similar things to run annotators in parallel this
-# would be more useful
+
 class SerialCorpusExecutor:
     """
     Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
@@ -21,6 +19,7 @@ class SerialCorpusExecutor:
         destination=None,
         readonly=False,
         exit_on_error=False,
+        logger=None,
     ):
         """
         Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
@@ -45,6 +44,11 @@ class SerialCorpusExecutor:
             destination: if specified, the result documents are appended to the destination unless
               readonly is True.
             readonly: if True, nothing is saved back to the corpus or appended to the destination.
+            exit_on_error: if True pass on exception, otherwise just log, use None and continue
+            logger: logger to use, if None, uses a default logger
+
+        Returns:
+            if annotator has a finish() method calls it and returns whatever it returns, otherwise None
         """
         if (corpus is None and source is None) or (
             corpus is not None and source is not None
@@ -60,6 +64,10 @@ class SerialCorpusExecutor:
         self.n_none = 0  # number of None items from the corpus/source, ignored
         self.n_out = 0
         self.n_err = 0
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = init_logger(__name__)
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, "start"):
@@ -75,8 +83,10 @@ class SerialCorpusExecutor:
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f"Error processing document {idx}/{docname}", ex)
                         continue
                 if self.destination is None:
                     if ret is None:
@@ -100,7 +110,9 @@ class SerialCorpusExecutor:
                             self.destination.append(ret)
                             self.n_out += 1
         else:
+            idx = -1
             for doc in self.source:
+                idx += 1
                 self.n_in += 1
                 if doc is None:
                     self.n_none += 1
@@ -110,10 +122,12 @@ class SerialCorpusExecutor:
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f"Error processing document {idx}/{docname}", ex)
                         continue
-                if ret is not None:
+                if ret is not None and self.destination:
                     if isinstance(ret, list):
                         for d in ret:
                             self.destination.append(d)
