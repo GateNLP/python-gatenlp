@@ -86,7 +86,8 @@ class SerialCorpusExecutor:
                         raise ex
                     else:
                         docname = doc.name
-                        self.logger.error(f"Error processing document {idx}/{docname}", ex)
+                        self.logger.error(f"Error processing document {idx}/{docname}",
+                                          exc_info=ex, stack_info=True)
                         continue
                 if self.destination is None:
                     if ret is None:
@@ -125,7 +126,8 @@ class SerialCorpusExecutor:
                         raise ex
                     else:
                         docname = doc.name
-                        self.logger.error(f"Error processing document {idx}/{docname}", ex)
+                        self.logger.error(f"Error processing document {idx}/{docname}",
+                                          exc_info=ex, stack_info=True)
                         continue
                 if ret is not None and self.destination:
                     if isinstance(ret, list):
