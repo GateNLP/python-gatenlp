@@ -134,6 +134,7 @@ def stanza2gatenlp(
     gatenlpdoc=None,
     setname="",
     token_type="Token",
+    mwt_type="MWT",
     sentence_type="Sentence",
     add_entities=True,
     ent_prefix=None,
@@ -144,16 +145,17 @@ def stanza2gatenlp(
     original gatenlpdoc is used and gets modified.
 
     Args:
-      stanzadoc: a Stanford Stanza document
-      gatenlpdoc: if None, a new gatenlp document is created otherwise this
-         document is added to. (Default value = None)
-      setname: the annotation set name to which the annotations get added, empty string
-         for the default annotation set.
-      token_type: the annotation type to use for tokens, if needed (Default value = "Token")
-      sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
-      add_entities: if True, add any entities as well (Default value = True)
-      ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
-    to the annotation type as a prefix. (Default value = None)
+        stanzadoc: a Stanford Stanza document
+        gatenlpdoc: if None, a new gatenlp document is created otherwise this
+            document is added to. (Default value = None)
+        setname: the annotation set name to which the annotations get added, empty string
+            for the default annotation set.
+        token_type: the annotation type to use for tokens, if needed (Default value = "Token")
+        mwt_type: annotation type for multi-word token annotations
+        sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
+        add_entities: if True, add any entities as well (Default value = True)
+        ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
+            to the annotation type as a prefix. (Default value = None)
 
     Returns:
       the new or modified gatenlp document
@@ -175,6 +177,7 @@ def stanza2gatenlp(
         # For our purposes we create a list of dicts where for normal tokens we just copy the element, but for
         # multiword tokens we copy over something that has fake offsets and all the features
         newtokens = []
+        mwtokens = []
         for t in sent.tokens:
             t = t.to_dict()
             if len(t) == 1:
@@ -189,6 +192,7 @@ def stanza2gatenlp(
                 text = fm.get("text")
                 start = tokinfo["start"]
                 end = tokinfo["end"]
+                mwtokens.append(dict(start=start, end=end, ids=t[0]["id"]))
                 # create the spans for the annotations
                 spans = Span.squeeze(start, end, len(words))
                 for i, w in enumerate(words):
@@ -198,12 +202,6 @@ def stanza2gatenlp(
                     span = spans[i]
                     tok["start"] = span.start
                     tok["end"] = span.end
-                    # os = min(start + i, end - 1)
-                    # tok["start"] = os
-                    # if i == len(words) - 1:
-                    #     tok["end"] = end
-                    # else:
-                    #     tok["end"] = os + 1
                     newtokens.append(tok)
         # print(f"\n!!!!!!DEBUG: newtokens={newtokens}")
         # now go through the new token list and create annotations
@@ -218,6 +216,9 @@ def stanza2gatenlp(
             ends.append(end)
             annid = annset.add(start, end, token_type, features=t["fm"]).id
             idx2annid[str(stanzaid)] = annid
+        for mwtinfo in mwtokens:
+            annids = [idx2annid[str(sid)] for sid in mwtinfo["ids"]]
+            annset.add(mwtinfo["start"], mwtinfo["end"], mwt_type, dict(word_ids=annids))
         # print(f"\n!!!!!!DEBUG: idx2annid={idx2annid}")
         # create a sentence annotation from beginning of first word to end of last
         sentid = annset.add(starts[0], ends[-1], sentence_type).id
@@ -228,14 +229,13 @@ def stanza2gatenlp(
             ann = annset.get(annid)
             hd = ann.features.get("head")
             if hd is not None:
-                hd = str(hd)
-                headId = idx2annid.get(hd)
+                headId = idx2annid.get(str(hd))
                 if headId is None:
                     logger.error(
                         f"Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}"
                     )
                 else:
-                    ann.features["head"] = idx2annid[hd]
+                    ann.features["head"] = headId
 
     # add the entities
     if add_entities:
