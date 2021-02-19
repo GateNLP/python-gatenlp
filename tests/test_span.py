@@ -115,3 +115,22 @@ class TestSpanRels:
         import pytest
         with pytest.raises(Exception) as ex:
             Span(3, 2) < 2
+
+class TestSpanEmbed:
+
+    def testSpanEmbed01(self):
+
+        ret = Span.embed(0, 7, 7)
+        assert ret == [Span(0,1), Span(1,2), Span(2,3), Span(3,4), Span(4,5), Span(5,6), Span(6,7)]
+        ret = Span.embed(0, 7, 2)
+        assert ret == [Span(0,4), Span(4,7)]
+        ret = Span.embed(0, 3, 2)
+        assert ret == [Span(0, 2), Span(2, 3)]
+        ret = Span.embed(0, 1, 2)
+        assert ret == [Span(0, 1), Span(0, 1)]
+        ret = Span.embed(0, 3, 5)
+        assert ret == [Span(0, 1), Span(1, 2), Span(2, 3), Span(2, 3), Span(2, 3)]
+        ret = Span.embed(0, 7, 3)
+        assert ret == [Span(0, 3), Span(3, 5), Span(5, 7)]
+        ret = Span.embed(0, 7, 6)
+        assert ret == [Span(0,2), Span(2,3), Span(3,4), Span(4,5), Span(5,6), Span(6,7)]
