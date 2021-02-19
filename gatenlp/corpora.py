@@ -749,13 +749,15 @@ class TsvFileSource(DocumentSource):
                 or the name of the column (only possible if there is a header line) or a function that should
                 take the list of fields and arbitrary kwargs and return the text. Also passes "cols" and "n"
                 as keyward arguments.
-            feature_cols: if not None, must be a dictionary mapping document feature names to the column numbers or
-                column names of where to get the feature value from of a function that should take the list of fields
-                and arbitrary kwargs and return a dictionary with the features. Also passes "cols" (dict
-                mapping column names to column indices, or None) and "n" (current line number) as keyword arguments.
+            feature_cols: if not None, must be either a dictionary mapping document feature names to the
+                column numbers or column names of where to get the feature value from;
+                or a function that should take the list of fields and arbitrary kwargs and return a dictionary
+                with the features. Also passes "cols" (dict mapping column names to column indices, or None) and
+                "n" (current line number) as keyword arguments.
             data_cols: if not None, either an iterable of the names of columns to store in the special document
                 feature "__data" or if "True", stores all columns. At the moment this only works if the tsv file
-                has a header line
+                has a header line. The values are stored as a list in the order of the names given or the original
+                order of the values in the TSV file.
             data_feature: the name of the document feature where to store the data, default is "__data"
         """
         assert text_col is not None
@@ -778,6 +780,7 @@ class TsvFileSource(DocumentSource):
         if self.hdr:
             self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
         for line in reader:
+            line = line.rstrip("\n\r")
             fields = line.split("\t")
             if isinstance(self.text_col, int):
                 text = fields[self.text_col]
@@ -802,7 +805,11 @@ class TsvFileSource(DocumentSource):
                 if isinstance(self.data_cols, list):
                     data = {}
                     for cname in self.data_cols:
-                        data[cname] = fields[cname]
+                        if isinstance(cname, str):
+                            data[cname] = fields[self.hdr2col[cname]]
+                        else:
+                            # assume it is the column index!
+                            data[cname] = fields[cname]
                 else:
                     data = fields
                 doc.features[self.data_feature] = data
