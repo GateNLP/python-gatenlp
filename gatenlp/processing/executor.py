@@ -64,6 +64,7 @@ class SerialCorpusExecutor:
         self.n_none = 0  # number of None items from the corpus/source, ignored
         self.n_out = 0
         self.n_err = 0
+        self.n_ok = 0
         if logger:
             self.logger = logger
         else:
@@ -72,7 +73,7 @@ class SerialCorpusExecutor:
     def __call__(self, **kwargs):
         if _has_method(self.annotator, "start"):
             self.annotator.start()
-        if self.corpus:
+        if self.corpus is not None:
             for idx, doc in enumerate(self.corpus):
                 self.n_in += 1
                 if doc is None:
@@ -80,6 +81,7 @@ class SerialCorpusExecutor:
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
@@ -89,6 +91,8 @@ class SerialCorpusExecutor:
                         self.logger.error(f"Error processing document {idx}/{docname}",
                                           exc_info=ex, stack_info=True)
                         continue
+                if ret is None:
+                    self.n_none += 1
                 if self.destination is None:
                     if ret is None:
                         self.n_out += 1
@@ -120,6 +124,7 @@ class SerialCorpusExecutor:
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
@@ -129,7 +134,9 @@ class SerialCorpusExecutor:
                         self.logger.error(f"Error processing document {idx}/{docname}",
                                           exc_info=ex, stack_info=True)
                         continue
-                if ret is not None and self.destination:
+                if ret is None:
+                    self.n_none += 1
+                if self.destination is not None:
                     if isinstance(ret, list):
                         for d in ret:
                             self.destination.append(d)
