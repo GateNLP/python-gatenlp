@@ -17,6 +17,8 @@ class AnnStanza(Annotator):
         pipeline=None,
         outsetname="",
         token_type="Token",
+        mwt_type="MWT",
+        space_token_type=None,
         sentence_type="Sentence",
         add_entities=True,
         ent_prefix=None,
@@ -30,6 +32,9 @@ class AnnStanza(Annotator):
                 passing on the kwargs
             outsetname: the annotation set name where to put the annotations
             token_type: the annotation type for the token annotations
+            mwt_type: annotation type for multi-word token annotations
+            space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
+            for all characters in the document not covered by tokens.
             sentence_type: the annotation type for the sentence annotations
             add_entities: if true, add entity annotations
             ent_prefix: the prefix to add to all entity annotation types
@@ -41,9 +46,12 @@ class AnnStanza(Annotator):
         self.sentence_type = sentence_type
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
+        self.mwt_type = mwt_type
+        self.space_token_type = space_token_type
         [
             kwargs.pop(a, None)
-            for a in ["token_type", "sentence_type", "add_entities", "ent_prefix"]
+            for a in ["token_type", "sentence_type", "add_entities",
+                      "ent_prefix", "mwt_type", "space_token_type"]
         ]
         if pipeline:
             self.pipeline = pipeline
@@ -57,6 +65,8 @@ class AnnStanza(Annotator):
             doc,
             setname=self.outsetname,
             token_type=self.token_type,
+            mwt_type=self.mwt_type,
+            space_token_type=self.space_token_type,
             sentence_type=self.sentence_type,
             add_entities=self.add_entities,
             ent_prefix=self.ent_prefix,
@@ -135,6 +145,7 @@ def stanza2gatenlp(
     setname="",
     token_type="Token",
     mwt_type="MWT",
+    space_token_type=None,
     sentence_type="Sentence",
     add_entities=True,
     ent_prefix=None,
@@ -152,6 +163,8 @@ def stanza2gatenlp(
             for the default annotation set.
         token_type: the annotation type to use for tokens, if needed (Default value = "Token")
         mwt_type: annotation type for multi-word token annotations
+        space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
+            for all characters in the document not covered by tokens.
         sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
         add_entities: if True, add any entities as well (Default value = True)
         ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
@@ -165,10 +178,9 @@ def stanza2gatenlp(
         retdoc = Document(stanzadoc.text)
     else:
         retdoc = gatenlpdoc
-    toki2annid = {}
     annset = retdoc.annset(setname)
     # stanford nlp processes text in sentence chunks, so we do everything per sentence
-    notmatchedidx = 0
+    prev_end = 0
     for sent in stanzadoc.sentences:
         # go through the tokens: in stanza, each token is a list of dicts, normally there is one dict
         # which also has the offset information in "misc", but for multiword tokens, there seems to be
@@ -208,13 +220,17 @@ def stanza2gatenlp(
         idx2annid = {}  # map stanza word id to annotation id
         starts = []
         ends = []
+        # offset of any previous token ann, used to insert space tokens between token annotations
         for t in newtokens:
             start = t["start"]
             end = t["end"]
             stanzaid = t["id"]
             starts.append(start)
             ends.append(end)
+            if space_token_type is not None and prev_end < start:
+                annset.add(prev_end, start, space_token_type)
             annid = annset.add(start, end, token_type, features=t["fm"]).id
+            prev_end = end
             idx2annid[str(stanzaid)] = annid
         for mwtinfo in mwtokens:
             annids = [idx2annid[str(sid)] for sid in mwtinfo["ids"]]
@@ -236,7 +252,9 @@ def stanza2gatenlp(
                     )
                 else:
                     ann.features["head"] = headId
-
+    # if necessary add a final space token
+    if space_token_type is not None and prev_end < len(retdoc.text):
+        annset.add(prev_end, len(retdoc.text), space_token_type)
     # add the entities
     if add_entities:
         for e in stanzadoc.entities:
