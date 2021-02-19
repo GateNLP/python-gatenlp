@@ -7,7 +7,7 @@ var gatenlpDocRep = class {
             this.snameid2ann = new Map();
             this.snametype2ids = new Map();
             let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+            this.text = bdoc["text"].replace(' +$', '\u2002')+"\u2002";
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
