@@ -1,6 +1,7 @@
 """
 Module for Span class
 """
+from typing import List
 from functools import total_ordering
 from gatenlp.utils import support_annotation_or_set
 
@@ -302,3 +303,46 @@ class Span:
 
         """
         return self.start >= start and self.end >= end
+
+    @staticmethod
+    @support_annotation_or_set
+    def embed(start: int, end: int,  n: int) -> List:
+        """
+        Helper function to embed n non-overlapping spans in the containing offset range.
+        This will divide the contained spans as evenly as possible in the containing span,
+        but if there are too many some will get squeezed all into the same last length-1 span.
+        The containing span must be at least of length 1.
+
+        Args:
+            start: start offset of the containing span
+            end: end offset of the containing span
+            n: number of spans to embed
+
+        Returns:
+            list if embedded Spans
+
+        """
+        l = end - start  # length of the containing span
+        assert l > 0
+        if n == l:
+            return [Span(start+i, start+i+1) for i in range(n)]
+        elif n < l:
+            slen = l//n
+            rem = l - slen * n
+            print(f":::::::::: slen={slen}, rem={rem}")
+            spans = []
+            soff = start
+            for i in range(n):
+                eoff = soff + slen
+                if i < rem:
+                    eoff += 1
+                spans.append(Span(soff, eoff))
+                soff = eoff
+            return spans
+        else:  # n > l, more to embed than there are characters
+            rem = n - l
+            spans = [Span(start+i, start+i+1) for i in range(l)]
+            for i in range(rem):
+                spans.append(Span(end-1, end))
+            return spans
+
