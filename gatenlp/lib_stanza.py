@@ -2,6 +2,7 @@
 Support for using stanford stanza (see https://stanfordnlp.github.io/stanza/):
 convert from stanford Stanza output to gatenlp documents and annotations.
 """
+from gatenlp import Span
 from gatenlp import Document
 from gatenlp import logger
 from gatenlp.processing.annotator import Annotator
@@ -80,7 +81,8 @@ def apply_stanza(nlp, gatenlpdoc, setname=""):
 
 
 def tok2tok(tok):
-    """Create a copy of a Stanza token, prepared for creating an annotation: this is a dict that has
+    """
+    Create a copy of a Stanza token, prepared for creating an annotation: this is a dict that has
     start, end and id keys and everything else in a nested dict "fm".
 
     Args:
@@ -176,25 +178,32 @@ def stanza2gatenlp(
         for t in sent.tokens:
             t = t.to_dict()
             if len(t) == 1:
+                # normal token
                 newtokens.append(tok2tok(t[0]))
             else:
-                tokinfo = tok2tok(t[0])
-                words = t[1:]
+                # multiword token
+                tokinfo = tok2tok(t[0])  # a dict with field "id" that contains a list of indices of words
+                words = t[1:]   # the rest of the list is words
                 fm = tokinfo.get("fm")
                 ner = fm.get("ner")
                 text = fm.get("text")
                 start = tokinfo["start"]
                 end = tokinfo["end"]
+                # create the spans for the annotations
+                spans = Span.squeeze(start, end, len(words))
                 for i, w in enumerate(words):
                     tok = tok2tok(w)
                     tok["fm"]["ner"] = ner
                     tok["fm"]["token_text"] = text
-                    os = min(start + i, end - 1)
-                    tok["start"] = os
-                    if i == len(words) - 1:
-                        tok["end"] = end
-                    else:
-                        tok["end"] = os + 1
+                    span = spans[i]
+                    tok["start"] = span.start
+                    tok["end"] = span.end
+                    # os = min(start + i, end - 1)
+                    # tok["start"] = os
+                    # if i == len(words) - 1:
+                    #     tok["end"] = end
+                    # else:
+                    #     tok["end"] = os + 1
                     newtokens.append(tok)
         # print(f"\n!!!!!!DEBUG: newtokens={newtokens}")
         # now go through the new token list and create annotations
