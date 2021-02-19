@@ -306,7 +306,7 @@ class Span:
 
     @staticmethod
     @support_annotation_or_set
-    def embed(start: int, end: int,  n: int) -> List:
+    def squeeze(start: int, end: int, n: int) -> List:
         """
         Helper function to embed n non-overlapping spans in the containing offset range.
         This will divide the contained spans as evenly as possible in the containing span,
