@@ -3,13 +3,14 @@ Module that provides document source/destination classes for importing and expor
 from/to various conll formats.
 """
 from gatenlp.utils import stream_from
+from gatenlp import Document, AnnotationSet, Annotation, Span
 from gatenlp.corpora import DocumentSource
 from conllu import parse, parse_incr
 
 
 class ConllUFileSource(DocumentSource):
     def __init__(self, source, from_string=False,
-                 group_by="doc", n=1,
+                 group_by="sent", n=1,
                  outset="",
                  token_type="Token",
                  mwt_type="MWT",
@@ -40,13 +41,15 @@ class ConllUFileSource(DocumentSource):
             outset: the annotation set name for the annotations to add
             token_type: the type of the token annotations
             mwt_type: the type of multi-word annotations
-            sentence_type: if not None, add an annotation covering the sentence and containing any sentence-specific
-                meta-data with the given type
+            sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
             sent_sep: the string to use to separate multiple sentences in a document
             par_sep: the string to use to separate multiple paragraphs in a document
             doc_sep: the string to use to separate multiple conllu docs in a document
         """
+        assert sentence_type is not None
+        assert token_type is not None
+        assert mwt_type is not None
         self.source = source
         self.from_string = from_string
         self.group_by = group_by
@@ -60,13 +63,39 @@ class ConllUFileSource(DocumentSource):
         self.par_sep = par_sep
         self.doc_sep = doc_sep
 
+    def gen4list(self, l):
+        for el in l:
+            yield el
+
     def tokenlist_generator(self):
         if self.from_string:
-            return parse(self.source)
+            return self.gen4list(parse(self.source))
         else:
             with stream_from(self.source) as infp:
                 p = parse_incr(infp)
             return p
+
+    def tok2features(self, tok):
+        """
+        Convert a map describing a conllu token, mwt, or empty node to the feature map we want for it.
+
+        Args:
+            tok: the token map
+
+        Returns:
+            a doctionary to use to create features
+        """
+        fm = {}
+        for k, v in tok.items():
+            if k == "form":
+                fm["text"] = v
+            elif k == "feats":
+                if v is not None:
+                    fm.update(v)
+            else:
+                fm[k] = v
+        del fm["id"]
+        return fm
 
     def __iter__(self):
         prev_doc = None
@@ -77,7 +106,11 @@ class ConllUFileSource(DocumentSource):
         n_docs_group = 0
         n_pars_group = 0
         n_sents_group = 0
-        perdoc_id2id = {}  # map conll ids to ann ids
+        cur_offset = 0
+        cur_sent_offset = 0
+        doc = Document("")
+        annset = AnnotationSet()
+        reset = False   # after we write a document, this indicates that we need to reset offsets, counts etc
         for tl in self.tokenlist_generator():
             meta = tl.metadata
             if meta is None:
@@ -95,12 +128,130 @@ class ConllUFileSource(DocumentSource):
                 prev_par = meta.get("newpar id", "")
             elif self.group_by == "sent" and n_sents_group == self.n:
                 # we have accumulated enough sentences, yield the document
+                doc.attach(annset, self.outset)
+                yield doc
+                doc = Document("")
+                annset = AnnotationSet()
+                reset = True
                 pass
             elif self.group_by == "par" and n_pars_group == self.n:
+                reset = True
                 pass
-            elif self.group_by == "sent" and n_sents_group == self.n:
+            elif self.group_by == "doc" and n_docs_group == self.n:
+                reset = True
                 pass
+            if reset:
+                reset = False
+                n_docs_group = 0
+                n_pars_group = 0
+                n_sents_group = 0
+                cur_offset = 0
+            else:
+                # we process another sentence
+                doc._text += "\n"
+                cur_offset += 1
             # if there is metadata "text" use this as the document text
             # otherwise, construct the document from the tokens (or the MWTs if there are some)
             # we first convert to a list of unattached annotations and incrementally enlarge the text
             # the document is only built once it is complete
+            if "text" in meta:
+                havetext = True
+                doc._text += meta["text"]
+            else:
+                havetext = False
+            cur_sent_offset = cur_offset
+            persent_cid2aid = {}
+            persent_anns = []
+            tliter = iter(tl)
+            for tok in tliter:
+                # tok is a map of fields for that token
+                # "id" is special as it is the id of the token within a sentence or a token range
+                # for MWTs as a tuple (from, "-", to)
+                # If the id is a tuple of (id "." subid)
+                cid = tok["id"]
+                form = tok["form"]
+                misc = tok.get("misc")
+                if misc is not None:
+                    space_after = misc.get("SpaceAfter")
+                else:
+                    space_after = None
+                print(f"DEBUG: processing {cid} / {tok}")
+                if isinstance(cid, int):
+                    # add annotation for the token
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset < 0:
+                            # should not happen, really
+                            raise Exception("Could not match token with text")
+                        print(f"Found {form} at {cur_offset}")
+                    else:
+                        doc._text += form
+                        print(f"Next offset for {form} is {cur_offset}")
+                    # add the token annotation
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.token_type, self.tok2features(tok))
+                    persent_anns.append(ann)
+                    persent_cid2aid[cid] = ann.id
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != "No":
+                            doc._text += " "
+                            cur_offset += 1
+                    print(f"Updated curoffset to {cur_offset}")
+                elif cid[1] == "-":
+                    # if we get a MWT, we immediately process the individual tokens for the MWT here and add
+                    # the annotations for those as well after we add the annotation for the MWT
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset < 0:
+                            # should not happen, really
+                            raise Exception("Could not match token with text")
+                        print(f"Found mwt {form} at {cur_offset}")
+                    else:
+                        print(f"Next offset for mwt {form} is {cur_offset}")
+                        doc._text += form
+                    # add the mwt annotation
+                    fm = self.tok2features(tok)
+                    fm["ids"] = list(range(cid[0], cid[2]+1, 1))
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.mwt_type, fm)
+                    persent_cid2aid[cid] = ann.id
+                    persent_anns.append(ann)
+                    # handle the tokens
+                    ntoks = cid[2] - cid[0] + 1
+                    # calculate the spans for the tokens
+                    spans = Span.squeeze(cur_offset, cur_offset+len(form), ntoks)
+                    for i in range(ntoks):
+                        print(f"Trying to get {i}")
+                        tmptok = next(tliter)
+                        print(f"got {tmptok}")
+                        ann = annset.add(spans[i].start, spans[i].end, self.token_type, self.tok2features(tmptok))
+                        persent_cid2aid[tmptok["id"]] = ann.id
+                        persent_anns.append(ann)
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != "No":
+                            doc._text += " "
+                            cur_offset += 1
+                elif cid[1] == ".":
+                    # if we get an "empty" node we add it as a zero width token annotation to the current offset
+                    annset.add(cur_offset-1, cur_offset-1, self.token_type, self.tok2features(tok))
+            # finished processing all tokens for the sentence
+            # add the sentence annotation, unless disabled
+            fm = {}
+            ann = annset.add(cur_sent_offset, cur_offset, self.sentence_type, fm)
+            n_sents_group += 1
+            persent_cid2aid[0] = ann.id
+            persent_anns.append(ann)
+            # fix up the annotation ids of all annotations we have added for this sentence
+            for ann in persent_anns:
+                fm = ann.features
+                if "head" in fm:
+                    fm["head"] = persent_cid2aid[fm["head"]]
+                elif "ids" in fm:
+                    fm["ids"] = [persent_cid2aid[x] for x in fm["ids"]]
+        if len(doc.text) > 0:
+            doc.attach(annset, self.outset)
+            yield doc
