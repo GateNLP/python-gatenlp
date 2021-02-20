@@ -15,7 +15,7 @@ import json
 import random
 from abc import ABC, abstractmethod
 import numbers
-from gatenlp.serialization.default import read_lines_from
+from gatenlp.utils import yield_lines_from
 from gatenlp.document import Document
 
 __pdoc__ = {
@@ -468,7 +468,7 @@ class DirFilesSource(DocumentSource):
             self.paths = paths
         elif paths_from is not None:
             self.paths = []
-            for p in read_lines_from(paths_from):
+            for p in yield_lines_from(paths_from):
                 self.paths.append(p.rstrip("\n\r"))
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
@@ -773,7 +773,7 @@ class TsvFileSource(DocumentSource):
         self.data_feature = data_feature
 
     def __iter__(self):
-        reader = read_lines_from(self.source)
+        reader = yield_lines_from(self.source)
         if self.hdr and self.n == 0:
             self.n += 1
             self.hdr = next(reader).rstrip("\n\r").split("\t")
