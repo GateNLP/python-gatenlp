@@ -338,8 +338,15 @@ class Document:
 
     @text.setter
     def text(self, value: str) -> None:
-        """Set the text of the document. This is only possible as long as it has not been set
+        """
+        Set the text of the document. This is only possible as long as it has not been set
         yet, after that, the text is immutable.
+
+        IMPORTANT: it is possible to add arbitrary annotations to a document which does not have any
+        text. This is meant to allow handling of annotation-only representations.
+        However, if the text is set after annotations have been added, annotation offsets are not
+        checked and it is possible to thus create an invalid document where annotations refer to
+        text ranges that do not exist!
 
         Args:
           value: the text for the document
@@ -856,6 +863,29 @@ class Document:
             display_html(html, raw=True)
         else:
             return html
+
+    def attach(self, annset, name, check=True):
+        """
+        Attach a detached set to the document. This should get used with caution and is mainly
+        intended for use inside the gatenlp library to allow for fast incremental creation of
+        new documents and document sets. The set can only be added if a set with the given name
+        does not yet exist at all.
+
+        Args:
+            annset: the annotation set to attach
+            name: the name for the annotation set
+            check: if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!
+        """
+        if name in self._annotation_sets:
+            raise Exception(f"Cannot attach set, a set with the name {name} already exists")
+        if check:
+            # check if the offsets are consistent with the document
+            l = len(self)
+            for ann in annset._annotations.values():
+                if ann.end > l:
+                    raise Exception(f"Cannot attach set, annotation beyond text end: {ann}")
+        self._annotation_sets[name] = annset
+        annset._owner_doc = self
 
 
 class MultiDocument(Document):
