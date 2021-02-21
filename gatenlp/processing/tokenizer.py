@@ -1,5 +1,5 @@
 import inspect
-from gatenlp.document import Document
+import types
 from gatenlp.processing.annotator import Annotator
 
 # NOTE we use NLTK's own aligner, but there is also get_original_spans(tk, s) from package tokenizations
@@ -40,9 +40,10 @@ class NLTKTokenizer(Tokenizer):
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
 
         Args:
-            :param nltk_tokenizer: either a class or instance of an nltk tokenizer
-            :param out_set: annotation set to put the Token annotations in
-            :param token_type: annotation type of the Token annotations
+            nltk_tokenizer: either a class or instance of an nltk tokenizer, or a tokenizer function
+                that returns a list of tokens
+            out_set: annotation set to put the Token annotations in
+            token_type: annotation type of the Token annotations
         """
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):
@@ -53,10 +54,15 @@ class NLTKTokenizer(Tokenizer):
         # self.has_span_tokenize = hasattr(nltk_tokenizer, "span_tokenize") and \
         #                         callable(getattr(nltk_tokenizer, "span_tokenize"))
         self.has_span_tokenize = True
-        try:
-            self.tokenizer.span_tokenize("text")
-        except Exception as ex:
+        self.is_function = False
+        if isinstance(self.tokenizer, types.FunctionType):
             self.has_span_tokenize = False
+            self.is_function = True
+        else:
+            try:
+                self.tokenizer.span_tokenize("text")
+            except Exception as ex:
+                self.has_span_tokenize = False
         self.out_set = out_set
         self.token_type = token_type
         self.space_token_type = space_token_type
@@ -67,9 +73,22 @@ class NLTKTokenizer(Tokenizer):
         if self.has_span_tokenize:
             spans = self.tokenizer.span_tokenize(doc.text)
         else:
-            tks = self.tokenizer.tokenize(doc.text)
+            if self.is_function:
+                tks = self.tokenizer(doc.text)
+            else:
+                tks = self.tokenizer.tokenize(doc.text)
             spans = align_tokens(tks, doc.text)
         annset = doc.annset(self.out_set)
         for span in spans:
             annset.add(span[0], span[1], self.token_type)
+        if self.space_token_type is not None:
+            last_off = 0
+            for span in spans:
+                if span[0] > last_off:
+                    annset.add(last_off, span[0], self.space_token_type)
+                    last_off = span[1]
+                else:
+                    last_off = span[1]
+            if last_off < len(doc.text):
+                annset.add(last_off, len(doc.text), self.space_token_type)
         return doc
