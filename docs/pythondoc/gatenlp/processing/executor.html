@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from gatenlp.processing.pipeline import _has_method
+from gatenlp.utils import init_logger
 
 __pdoc__ = {&#34;Annotator.__call__&#34;: True}
 
@@ -46,6 +47,7 @@ class SerialCorpusExecutor:
         destination=None,
         readonly=False,
         exit_on_error=False,
+        logger=None,
     ):
         &#34;&#34;&#34;
         Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
@@ -70,6 +72,11 @@ class SerialCorpusExecutor:
             destination: if specified, the result documents are appended to the destination unless
               readonly is True.
             readonly: if True, nothing is saved back to the corpus or appended to the destination.
+            exit_on_error: if True pass on exception, otherwise just log, use None and continue
+            logger: logger to use, if None, uses a default logger
+
+        Returns:
+            if annotator has a finish() method calls it and returns whatever it returns, otherwise None
         &#34;&#34;&#34;
         if (corpus is None and source is None) or (
             corpus is not None and source is not None
@@ -85,11 +92,16 @@ class SerialCorpusExecutor:
         self.n_none = 0  # number of None items from the corpus/source, ignored
         self.n_out = 0
         self.n_err = 0
+        self.n_ok = 0
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = init_logger(__name__)
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, &#34;start&#34;):
             self.annotator.start()
-        if self.corpus:
+        if self.corpus is not None:
             for idx, doc in enumerate(self.corpus):
                 self.n_in += 1
                 if doc is None:
@@ -97,12 +109,18 @@ class SerialCorpusExecutor:
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f&#34;Error processing document {idx}/{docname}&#34;,
+                                          exc_info=ex, stack_info=True)
                         continue
+                if ret is None:
+                    self.n_none += 1
                 if self.destination is None:
                     if ret is None:
                         self.n_out += 1
@@ -125,20 +143,28 @@ class SerialCorpusExecutor:
                             self.destination.append(ret)
                             self.n_out += 1
         else:
+            idx = -1
             for doc in self.source:
+                idx += 1
                 self.n_in += 1
                 if doc is None:
                     self.n_none += 1
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f&#34;Error processing document {idx}/{docname}&#34;,
+                                          exc_info=ex, stack_info=True)
                         continue
-                if ret is not None:
+                if ret is None:
+                    self.n_none += 1
+                if self.destination is not None:
                     if isinstance(ret, list):
                         for d in ret:
                             self.destination.append(d)
@@ -165,7 +191,7 @@ class SerialCorpusExecutor:
 <dl>
 <dt id="gatenlp.processing.executor.SerialCorpusExecutor"><code class="flex name class">
 <span>class <span class="ident">SerialCorpusExecutor</span></span>
-<span>(</span><span>annotator, corpus=None, source=None, destination=None, readonly=False, exit_on_error=False)</span>
+<span>(</span><span>annotator, corpus=None, source=None, destination=None, readonly=False, exit_on_error=False, logger=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Runs a pipeline on either a corpus, where each document gets in the corpus gets processed and stored back
@@ -195,7 +221,13 @@ methods start, finish, and reduce are called as appropriate</dd>
 readonly is True.</dd>
 <dt><strong><code>readonly</code></strong></dt>
 <dd>if True, nothing is saved back to the corpus or appended to the destination.</dd>
-</dl></div>
+<dt><strong><code>exit_on_error</code></strong></dt>
+<dd>if True pass on exception, otherwise just log, use None and continue</dd>
+<dt><strong><code>logger</code></strong></dt>
+<dd>logger to use, if None, uses a default logger</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>if annotator has a finish() method calls it and returns whatever it returns, otherwise None</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -215,6 +247,7 @@ readonly is True.</dd>
         destination=None,
         readonly=False,
         exit_on_error=False,
+        logger=None,
     ):
         &#34;&#34;&#34;
         Creates an Executor to run an annotator on either a corpus or a document source. If a corpus is specified,
@@ -239,6 +272,11 @@ readonly is True.</dd>
             destination: if specified, the result documents are appended to the destination unless
               readonly is True.
             readonly: if True, nothing is saved back to the corpus or appended to the destination.
+            exit_on_error: if True pass on exception, otherwise just log, use None and continue
+            logger: logger to use, if None, uses a default logger
+
+        Returns:
+            if annotator has a finish() method calls it and returns whatever it returns, otherwise None
         &#34;&#34;&#34;
         if (corpus is None and source is None) or (
             corpus is not None and source is not None
@@ -254,11 +292,16 @@ readonly is True.</dd>
         self.n_none = 0  # number of None items from the corpus/source, ignored
         self.n_out = 0
         self.n_err = 0
+        self.n_ok = 0
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = init_logger(__name__)
 
     def __call__(self, **kwargs):
         if _has_method(self.annotator, &#34;start&#34;):
             self.annotator.start()
-        if self.corpus:
+        if self.corpus is not None:
             for idx, doc in enumerate(self.corpus):
                 self.n_in += 1
                 if doc is None:
@@ -266,12 +309,18 @@ readonly is True.</dd>
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f&#34;Error processing document {idx}/{docname}&#34;,
+                                          exc_info=ex, stack_info=True)
                         continue
+                if ret is None:
+                    self.n_none += 1
                 if self.destination is None:
                     if ret is None:
                         self.n_out += 1
@@ -294,20 +343,28 @@ readonly is True.</dd>
                             self.destination.append(ret)
                             self.n_out += 1
         else:
+            idx = -1
             for doc in self.source:
+                idx += 1
                 self.n_in += 1
                 if doc is None:
                     self.n_none += 1
                     continue
                 try:
                     ret = self.annotator(doc, **kwargs)
+                    self.n_ok += 1
                 except Exception as ex:
                     self.n_err += 1
                     if self.exit_on_error:
-                        return
+                        raise ex
                     else:
+                        docname = doc.name
+                        self.logger.error(f&#34;Error processing document {idx}/{docname}&#34;,
+                                          exc_info=ex, stack_info=True)
                         continue
-                if ret is not None:
+                if ret is None:
+                    self.n_none += 1
+                if self.destination is not None:
                     if isinstance(ret, list):
                         for d in ret:
                             self.destination.append(d)

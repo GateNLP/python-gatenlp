@@ -30,6 +30,7 @@
 <pre><code class="python">&#34;&#34;&#34;
 Module for Span class
 &#34;&#34;&#34;
+from typing import List
 from functools import total_ordering
 from gatenlp.utils import support_annotation_or_set
 
@@ -330,7 +331,48 @@ class Span:
           `True` if right-overlapping, `False` otherwise
 
         &#34;&#34;&#34;
-        return self.start &gt;= start and self.end &gt;= end</code></pre>
+        return self.start &gt;= start and self.end &gt;= end
+
+    @staticmethod
+    @support_annotation_or_set
+    def squeeze(start: int, end: int, n: int) -&gt; List:
+        &#34;&#34;&#34;
+        Helper function to embed n non-overlapping spans in the containing offset range.
+        This will divide the contained spans as evenly as possible in the containing span,
+        but if there are too many some will get squeezed all into the same last length-1 span.
+        The containing span must be at least of length 1.
+
+        Args:
+            start: start offset of the containing span
+            end: end offset of the containing span
+            n: number of spans to embed
+
+        Returns:
+            list if embedded Spans
+
+        &#34;&#34;&#34;
+        l = end - start  # length of the containing span
+        assert l &gt; 0
+        if n == l:
+            return [Span(start+i, start+i+1) for i in range(n)]
+        elif n &lt; l:
+            slen = l//n
+            rem = l - slen * n
+            spans = []
+            soff = start
+            for i in range(n):
+                eoff = soff + slen
+                if i &lt; rem:
+                    eoff += 1
+                spans.append(Span(soff, eoff))
+                soff = eoff
+            return spans
+        else:  # n &gt; l, more to embed than there are characters
+            rem = n - l
+            spans = [Span(start+i, start+i+1) for i in range(l)]
+            for i in range(rem):
+                spans.append(Span(end-1, end))
+            return spans</code></pre>
 </details>
 </section>
 <section>
@@ -660,8 +702,72 @@ belong to the span</dd>
           `True` if right-overlapping, `False` otherwise
 
         &#34;&#34;&#34;
-        return self.start &gt;= start and self.end &gt;= end</code></pre>
+        return self.start &gt;= start and self.end &gt;= end
+
+    @staticmethod
+    @support_annotation_or_set
+    def squeeze(start: int, end: int, n: int) -&gt; List:
+        &#34;&#34;&#34;
+        Helper function to embed n non-overlapping spans in the containing offset range.
+        This will divide the contained spans as evenly as possible in the containing span,
+        but if there are too many some will get squeezed all into the same last length-1 span.
+        The containing span must be at least of length 1.
+
+        Args:
+            start: start offset of the containing span
+            end: end offset of the containing span
+            n: number of spans to embed
+
+        Returns:
+            list if embedded Spans
+
+        &#34;&#34;&#34;
+        l = end - start  # length of the containing span
+        assert l &gt; 0
+        if n == l:
+            return [Span(start+i, start+i+1) for i in range(n)]
+        elif n &lt; l:
+            slen = l//n
+            rem = l - slen * n
+            spans = []
+            soff = start
+            for i in range(n):
+                eoff = soff + slen
+                if i &lt; rem:
+                    eoff += 1
+                spans.append(Span(soff, eoff))
+                soff = eoff
+            return spans
+        else:  # n &gt; l, more to embed than there are characters
+            rem = n - l
+            spans = [Span(start+i, start+i+1) for i in range(l)]
+            for i in range(rem):
+                spans.append(Span(end-1, end))
+            return spans</code></pre>
 </details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.span.Span.squeeze"><code class="name flex">
+<span>def <span class="ident">squeeze</span></span>(<span>start: int, end: int, n: int) ‑> List</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper function to embed n non-overlapping spans in the containing offset range.
+This will divide the contained spans as evenly as possible in the containing span,
+but if there are too many some will get squeezed all into the same last length-1 span.
+The containing span must be at least of length 1.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset of the containing span</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>end offset of the containing span</dd>
+<dt><strong><code>n</code></strong></dt>
+<dd>number of spans to embed</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>list if embedded Spans</p></div>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gatenlp.span.Span.end"><code class="name">var <span class="ident">end</span></code></dt>
@@ -926,6 +1032,7 @@ are after the given start and before the given end.</p>
 <li><code><a title="gatenlp.span.Span.isstartingat" href="#gatenlp.span.Span.isstartingat">isstartingat</a></code></li>
 <li><code><a title="gatenlp.span.Span.iswithin" href="#gatenlp.span.Span.iswithin">iswithin</a></code></li>
 <li><code><a title="gatenlp.span.Span.length" href="#gatenlp.span.Span.length">length</a></code></li>
+<li><code><a title="gatenlp.span.Span.squeeze" href="#gatenlp.span.Span.squeeze">squeeze</a></code></li>
 <li><code><a title="gatenlp.span.Span.start" href="#gatenlp.span.Span.start">start</a></code></li>
 </ul>
 </li>

@@ -87,8 +87,14 @@ class Annotator(ABC):
         &#34;&#34;&#34;
         for el in documents:
             if el is not None:
-                doc = self.__call__(el, **kwargs)
-                yield doc
+                docordocs = self.__call__(el, **kwargs)
+                if docordocs is not None:
+                    if isinstance(docordocs, list):
+                        for el in docordocs:
+                            if el is not None:
+                                yield el
+                    else:
+                        yield docordocs
 
     def start(self):
         &#34;&#34;&#34;
@@ -208,8 +214,14 @@ inheritance.</p></div>
         &#34;&#34;&#34;
         for el in documents:
             if el is not None:
-                doc = self.__call__(el, **kwargs)
-                yield doc
+                docordocs = self.__call__(el, **kwargs)
+                if docordocs is not None:
+                    if isinstance(docordocs, list):
+                        for el in docordocs:
+                            if el is not None:
+                                yield el
+                    else:
+                        yield docordocs
 
     def start(self):
         &#34;&#34;&#34;

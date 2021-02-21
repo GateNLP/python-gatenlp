@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.corpora.conll API documentation</title>
+<meta name="description" content="Module that provides document source/destination classes for importing and exporting documents
+from/to various conll formats." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.corpora.conll</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that provides document source/destination classes for importing and exporting documents
+from/to various conll formats.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that provides document source/destination classes for importing and exporting documents
+from/to various conll formats.
+&#34;&#34;&#34;
+from gatenlp.utils import stream_from
+from gatenlp import Document, AnnotationSet, Annotation, Span
+from gatenlp.corpora import DocumentSource
+from conllu import parse, parse_incr
+
+
+class ConllUFileSource(DocumentSource):
+    def __init__(self, source, from_string=False,
+                 group_by=&#34;sent&#34;, n=1,
+                 outset=&#34;&#34;,
+                 token_type=&#34;Token&#34;,
+                 mwt_type=&#34;MWT&#34;,
+                 sentence_type=&#34;Sentence&#34;,
+                 add_feats=False,
+                 paragraph_type=&#34;Paragraph&#34;,
+                 document_type=&#34;Document&#34;,
+                 #sent_sep=&#34;\n&#34;,
+                 #par_sep=&#34;\n\n&#34;,
+                 #doc_sep=&#34;\n\n\n&#34;,
+                 ):
+        &#34;&#34;&#34;
+        Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
+        so documents can be created by reading everything into a single document, creating a document
+        per sentence or creating a document per 5 sentences and similar, based on the group_by and n
+        settings. For example if group_by=&#34;sent&#34; and n=3, a document is created for every 3 sentences.
+
+        NOTE: document name will be set based on the group_by setting and the number of the first
+        element the document consists of.
+
+        Args:
+            source: a file path or URL if from_string is False, otherwise the CONLL-U string
+            from_string: if True, interpret the source as the string input to parse
+            group_by: one of &#34;doc&#34; (document), &#34;par&#34; (paragraph) or &#34;sent&#34; (sentence). Together with the
+                parameter n influences how gatenlp Document instances are created from the input.
+                If the group_by identification &#34;doc&#34; or &#34;par&#34; is not accessible before the first sentence
+                of the input, an exception is thrown. Use a very large number to make sure that only a single
+                document is created.
+            n: the number of group_by elements to include in a document.
+            outset: the annotation set name for the annotations to add
+            token_type: the type of the token annotations
+            mwt_type: the type of multi-word annotations
+            sentence_type: annotation type for the sentence, must be specified
+            add_feats: if True add document features that give details about what the document contains
+            sent_sep: the string to use to separate multiple sentences in a document
+            par_sep: the string to use to separate multiple paragraphs in a document
+            doc_sep: the string to use to separate multiple conllu docs in a document
+        &#34;&#34;&#34;
+        assert sentence_type is not None
+        assert token_type is not None
+        assert mwt_type is not None
+        self.source = source
+        self.from_string = from_string
+        self.group_by = group_by
+        self.n = n
+        self.outset = outset
+        self.token_type = token_type
+        self.mwt_type = mwt_type
+        self.sentence_type = sentence_type
+        self.add_feats = add_feats
+        self.paragraph_type = paragraph_type
+        self.document_type = document_type
+        #self.sent_sep = sent_sep
+        #self.par_sep = par_sep
+        #self.doc_sep = doc_sep
+
+    def gen4list(self, l):
+        for el in l:
+            yield el
+
+    def tokenlist_generator(self):
+        if self.from_string:
+            return self.gen4list(parse(self.source))
+        else:
+            infp = stream_from(self.source)
+            p = parse_incr(infp)
+            return p
+
+    def tok2features(self, tok):
+        &#34;&#34;&#34;
+        Convert a map describing a conllu token, mwt, or empty node to the feature map we want for it.
+
+        Args:
+            tok: the token map
+
+        Returns:
+            a doctionary to use to create features
+        &#34;&#34;&#34;
+        fm = {}
+        for k, v in tok.items():
+            if k == &#34;form&#34;:
+                fm[&#34;text&#34;] = v
+            elif k == &#34;feats&#34;:
+                if v is not None:
+                    fm.update(v)
+            elif k == &#34;misc&#34;:
+                if v is not None:
+                    fm.update(v)
+            else:
+                fm[k] = v
+        del fm[&#34;id&#34;]
+        return fm
+
+    def __iter__(self):
+        prev_doc = None
+        prev_par = None
+        n_docs = 0
+        n_pars = 0
+        n_sents = 0
+        n_docs_group = 0
+        n_pars_group = 0
+        n_sents_group = 0
+        cur_offset = 0
+        cur_doc_offset = 0
+        cur_par_offset = 0
+        have_docids = False
+        have_parids = False
+        doc = Document(&#34;&#34;)
+        annset = AnnotationSet()
+        reset = False   # after we write a document, this indicates that we need to reset offsets, counts etc
+        for tl in self.tokenlist_generator():
+            meta = tl.metadata
+            if meta is None:
+                meta = {}
+            # check if we have enough sentences, pars, docs to yield a complete document
+            # if yes, finish the document, re-initialize the prev_doc/prev_par fields and yield the doc
+            # but first check if we got the very first sentence
+            if prev_doc is None:  # only None if we are at the very first sentence!
+                # make sure we have a doc or par if we are supposed to group by those
+                if &#39;newdoc id&#39; in meta:
+                    have_docids = True
+                if &#39;newpar id&#39; in meta:
+                    have_parids = True
+                if self.group_by == &#34;doc&#34; and &#39;newdoc id&#39; not in meta:
+                    raise Exception(&#34;Cannot group by doc, no newdoc id in the input&#34;)
+                if self.group_by == &#34;par&#34; and &#39;newpar id&#39; not in meta:
+                    raise Exception(&#34;Cannot group by par, no newpar id in the input&#34;)
+                prev_doc = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+                prev_par = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+            elif self.group_by == &#34;sent&#34; and n_sents_group == self.n:
+                doc.attach(annset, self.outset)
+                yield doc
+                reset = True
+            else:
+                docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+                parid = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+                if docid != &#34;&#34; and docid != prev_doc:
+                    annset.add(cur_doc_offset, cur_offset,
+                               self.document_type, dict(docid=prev_doc))
+                    n_docs_group += 1
+                    prev_doc = docid
+                    if self.group_by == &#34;doc&#34; and n_docs_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += &#34;\n\n&#34;
+                        cur_offset += 2
+                    cur_doc_offset = cur_offset
+                if parid != &#34;&#34; and parid != prev_par:
+                    annset.add(cur_par_offset, cur_offset,
+                               self.paragraph_type, dict(parid=prev_par))
+                    n_pars_group += 1
+                    prev_par = parid
+                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += &#34;\n&#34;
+                        cur_offset += 1
+                    cur_par_offset = cur_offset
+            if reset:
+                doc = Document(&#34;&#34;)
+                annset = AnnotationSet()
+                reset = False
+                n_docs_group = 0
+                n_pars_group = 0
+                n_sents_group = 0
+                cur_offset = 0
+                cur_doc_offset = 0
+                cur_par_offset = 0
+            else:
+                # we process another sentence
+                doc._text += &#34;\n&#34;
+                cur_offset += 1
+            # if there is metadata &#34;text&#34; use this as the document text
+            # otherwise, construct the document from the tokens (or the MWTs if there are some)
+            # we first convert to a list of unattached annotations and incrementally enlarge the text
+            # the document is only built once it is complete
+            if &#34;text&#34; in meta:
+                havetext = True
+                doc._text += meta[&#34;text&#34;]
+            else:
+                havetext = False
+            cur_sent_offset = cur_offset
+            persent_cid2aid = {}
+            persent_anns = []
+            tliter = iter(tl)
+            for tok in tliter:
+                # tok is a map of fields for that token
+                # &#34;id&#34; is special as it is the id of the token within a sentence or a token range
+                # for MWTs as a tuple (from, &#34;-&#34;, to)
+                # If the id is a tuple of (id &#34;.&#34; subid)
+                cid = tok[&#34;id&#34;]
+                form = tok[&#34;form&#34;]
+                misc = tok.get(&#34;misc&#34;)
+                if misc is not None:
+                    space_after = misc.get(&#34;SpaceAfter&#34;)
+                else:
+                    space_after = None
+                if isinstance(cid, int):
+                    # add annotation for the token
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset &lt; 0:
+                            # should not happen, really
+                            raise Exception(&#34;Could not match token with text&#34;)
+                    else:
+                        doc._text += form
+                    # add the token annotation
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.token_type, self.tok2features(tok))
+                    persent_anns.append(ann)
+                    persent_cid2aid[cid] = ann.id
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != &#34;No&#34;:
+                            doc._text += &#34; &#34;
+                            cur_offset += 1
+                elif cid[1] == &#34;-&#34;:
+                    # if we get a MWT, we immediately process the individual tokens for the MWT here and add
+                    # the annotations for those as well after we add the annotation for the MWT
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset &lt; 0:
+                            # should not happen, really
+                            raise Exception(&#34;Could not match token with text&#34;)
+                    else:
+                        doc._text += form
+                    # add the mwt annotation
+                    fm = self.tok2features(tok)
+                    fm[&#34;ids&#34;] = list(range(cid[0], cid[2]+1, 1))
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.mwt_type, fm)
+                    persent_cid2aid[cid] = ann.id
+                    persent_anns.append(ann)
+                    # handle the tokens
+                    ntoks = cid[2] - cid[0] + 1
+                    # calculate the spans for the tokens
+                    spans = Span.squeeze(cur_offset, cur_offset+len(form), ntoks)
+                    for i in range(ntoks):
+                        tmptok = next(tliter)
+                        ann = annset.add(spans[i].start, spans[i].end, self.token_type, self.tok2features(tmptok))
+                        persent_cid2aid[tmptok[&#34;id&#34;]] = ann.id
+                        persent_anns.append(ann)
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != &#34;No&#34;:
+                            doc._text += &#34; &#34;
+                            cur_offset += 1
+                elif cid[1] == &#34;.&#34;:
+                    # if we get an &#34;empty&#34; node we add it as a zero width token annotation to the current offset
+                    annset.add(cur_offset-1, cur_offset-1, self.token_type, self.tok2features(tok))
+            # finished processing all tokens for the sentence
+            # add the sentence annotation, unless disabled
+            fm = meta
+            if &#34;text&#34; in fm:
+                del fm[&#34;text&#34;]
+            ann = annset.add(cur_sent_offset, cur_offset, self.sentence_type, fm)
+            n_sents_group += 1
+            n_sents += 1
+            persent_cid2aid[0] = ann.id
+            persent_anns.append(ann)
+            # fix up the annotation ids of all annotations we have added for this sentence
+            for ann in persent_anns:
+                fm = ann.features
+                if fm.get(&#34;head&#34;) is not None:
+                    fm[&#34;head&#34;] = persent_cid2aid[fm[&#34;head&#34;]]
+                elif fm.get(&#34;ids&#34;) is not None:
+                    fm[&#34;ids&#34;] = [persent_cid2aid[x] for x in fm[&#34;ids&#34;]]
+                elif fm.get(&#34;deps&#34;) is not None:
+                    fm[&#34;deps&#34;] = [persent_cid2aid[x] for x in fm[&#34;deps&#34;]]
+        if len(doc.text) &gt; 0:
+            docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+            parid = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+            if have_docids:
+                annset.add(cur_doc_offset, cur_offset, self.document_type,
+                           dict(docid=prev_doc))
+            if have_parids:
+                annset.add(cur_doc_offset, cur_offset, self.paragraph_type,
+                           dict(parid=prev_par))
+            doc.attach(annset, self.outset)
+            yield doc</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.corpora.conll.ConllUFileSource"><code class="flex name class">
+<span>class <span class="ident">ConllUFileSource</span></span>
+<span>(</span><span>source, from_string=False, group_by='sent', n=1, outset='', token_type='Token', mwt_type='MWT', sentence_type='Sentence', add_feats=False, paragraph_type='Paragraph', document_type='Document')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
+so documents can be created by reading everything into a single document, creating a document
+per sentence or creating a document per 5 sentences and similar, based on the group_by and n
+settings. For example if group_by="sent" and n=3, a document is created for every 3 sentences.</p>
+<p>NOTE: document name will be set based on the group_by setting and the number of the first
+element the document consists of.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong></dt>
+<dd>a file path or URL if from_string is False, otherwise the CONLL-U string</dd>
+<dt><strong><code>from_string</code></strong></dt>
+<dd>if True, interpret the source as the string input to parse</dd>
+<dt><strong><code>group_by</code></strong></dt>
+<dd>one of "doc" (document), "par" (paragraph) or "sent" (sentence). Together with the
+parameter n influences how gatenlp Document instances are created from the input.
+If the group_by identification "doc" or "par" is not accessible before the first sentence
+of the input, an exception is thrown. Use a very large number to make sure that only a single
+document is created.</dd>
+<dt><strong><code>n</code></strong></dt>
+<dd>the number of group_by elements to include in a document.</dd>
+<dt><strong><code>outset</code></strong></dt>
+<dd>the annotation set name for the annotations to add</dd>
+<dt><strong><code>token_type</code></strong></dt>
+<dd>the type of the token annotations</dd>
+<dt><strong><code>mwt_type</code></strong></dt>
+<dd>the type of multi-word annotations</dd>
+<dt><strong><code>sentence_type</code></strong></dt>
+<dd>annotation type for the sentence, must be specified</dd>
+<dt><strong><code>add_feats</code></strong></dt>
+<dd>if True add document features that give details about what the document contains</dd>
+<dt><strong><code>sent_sep</code></strong></dt>
+<dd>the string to use to separate multiple sentences in a document</dd>
+<dt><strong><code>par_sep</code></strong></dt>
+<dd>the string to use to separate multiple paragraphs in a document</dd>
+<dt><strong><code>doc_sep</code></strong></dt>
+<dd>the string to use to separate multiple conllu docs in a document</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConllUFileSource(DocumentSource):
+    def __init__(self, source, from_string=False,
+                 group_by=&#34;sent&#34;, n=1,
+                 outset=&#34;&#34;,
+                 token_type=&#34;Token&#34;,
+                 mwt_type=&#34;MWT&#34;,
+                 sentence_type=&#34;Sentence&#34;,
+                 add_feats=False,
+                 paragraph_type=&#34;Paragraph&#34;,
+                 document_type=&#34;Document&#34;,
+                 #sent_sep=&#34;\n&#34;,
+                 #par_sep=&#34;\n\n&#34;,
+                 #doc_sep=&#34;\n\n\n&#34;,
+                 ):
+        &#34;&#34;&#34;
+        Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
+        so documents can be created by reading everything into a single document, creating a document
+        per sentence or creating a document per 5 sentences and similar, based on the group_by and n
+        settings. For example if group_by=&#34;sent&#34; and n=3, a document is created for every 3 sentences.
+
+        NOTE: document name will be set based on the group_by setting and the number of the first
+        element the document consists of.
+
+        Args:
+            source: a file path or URL if from_string is False, otherwise the CONLL-U string
+            from_string: if True, interpret the source as the string input to parse
+            group_by: one of &#34;doc&#34; (document), &#34;par&#34; (paragraph) or &#34;sent&#34; (sentence). Together with the
+                parameter n influences how gatenlp Document instances are created from the input.
+                If the group_by identification &#34;doc&#34; or &#34;par&#34; is not accessible before the first sentence
+                of the input, an exception is thrown. Use a very large number to make sure that only a single
+                document is created.
+            n: the number of group_by elements to include in a document.
+            outset: the annotation set name for the annotations to add
+            token_type: the type of the token annotations
+            mwt_type: the type of multi-word annotations
+            sentence_type: annotation type for the sentence, must be specified
+            add_feats: if True add document features that give details about what the document contains
+            sent_sep: the string to use to separate multiple sentences in a document
+            par_sep: the string to use to separate multiple paragraphs in a document
+            doc_sep: the string to use to separate multiple conllu docs in a document
+        &#34;&#34;&#34;
+        assert sentence_type is not None
+        assert token_type is not None
+        assert mwt_type is not None
+        self.source = source
+        self.from_string = from_string
+        self.group_by = group_by
+        self.n = n
+        self.outset = outset
+        self.token_type = token_type
+        self.mwt_type = mwt_type
+        self.sentence_type = sentence_type
+        self.add_feats = add_feats
+        self.paragraph_type = paragraph_type
+        self.document_type = document_type
+        #self.sent_sep = sent_sep
+        #self.par_sep = par_sep
+        #self.doc_sep = doc_sep
+
+    def gen4list(self, l):
+        for el in l:
+            yield el
+
+    def tokenlist_generator(self):
+        if self.from_string:
+            return self.gen4list(parse(self.source))
+        else:
+            infp = stream_from(self.source)
+            p = parse_incr(infp)
+            return p
+
+    def tok2features(self, tok):
+        &#34;&#34;&#34;
+        Convert a map describing a conllu token, mwt, or empty node to the feature map we want for it.
+
+        Args:
+            tok: the token map
+
+        Returns:
+            a doctionary to use to create features
+        &#34;&#34;&#34;
+        fm = {}
+        for k, v in tok.items():
+            if k == &#34;form&#34;:
+                fm[&#34;text&#34;] = v
+            elif k == &#34;feats&#34;:
+                if v is not None:
+                    fm.update(v)
+            elif k == &#34;misc&#34;:
+                if v is not None:
+                    fm.update(v)
+            else:
+                fm[k] = v
+        del fm[&#34;id&#34;]
+        return fm
+
+    def __iter__(self):
+        prev_doc = None
+        prev_par = None
+        n_docs = 0
+        n_pars = 0
+        n_sents = 0
+        n_docs_group = 0
+        n_pars_group = 0
+        n_sents_group = 0
+        cur_offset = 0
+        cur_doc_offset = 0
+        cur_par_offset = 0
+        have_docids = False
+        have_parids = False
+        doc = Document(&#34;&#34;)
+        annset = AnnotationSet()
+        reset = False   # after we write a document, this indicates that we need to reset offsets, counts etc
+        for tl in self.tokenlist_generator():
+            meta = tl.metadata
+            if meta is None:
+                meta = {}
+            # check if we have enough sentences, pars, docs to yield a complete document
+            # if yes, finish the document, re-initialize the prev_doc/prev_par fields and yield the doc
+            # but first check if we got the very first sentence
+            if prev_doc is None:  # only None if we are at the very first sentence!
+                # make sure we have a doc or par if we are supposed to group by those
+                if &#39;newdoc id&#39; in meta:
+                    have_docids = True
+                if &#39;newpar id&#39; in meta:
+                    have_parids = True
+                if self.group_by == &#34;doc&#34; and &#39;newdoc id&#39; not in meta:
+                    raise Exception(&#34;Cannot group by doc, no newdoc id in the input&#34;)
+                if self.group_by == &#34;par&#34; and &#39;newpar id&#39; not in meta:
+                    raise Exception(&#34;Cannot group by par, no newpar id in the input&#34;)
+                prev_doc = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+                prev_par = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+            elif self.group_by == &#34;sent&#34; and n_sents_group == self.n:
+                doc.attach(annset, self.outset)
+                yield doc
+                reset = True
+            else:
+                docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+                parid = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+                if docid != &#34;&#34; and docid != prev_doc:
+                    annset.add(cur_doc_offset, cur_offset,
+                               self.document_type, dict(docid=prev_doc))
+                    n_docs_group += 1
+                    prev_doc = docid
+                    if self.group_by == &#34;doc&#34; and n_docs_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += &#34;\n\n&#34;
+                        cur_offset += 2
+                    cur_doc_offset = cur_offset
+                if parid != &#34;&#34; and parid != prev_par:
+                    annset.add(cur_par_offset, cur_offset,
+                               self.paragraph_type, dict(parid=prev_par))
+                    n_pars_group += 1
+                    prev_par = parid
+                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += &#34;\n&#34;
+                        cur_offset += 1
+                    cur_par_offset = cur_offset
+            if reset:
+                doc = Document(&#34;&#34;)
+                annset = AnnotationSet()
+                reset = False
+                n_docs_group = 0
+                n_pars_group = 0
+                n_sents_group = 0
+                cur_offset = 0
+                cur_doc_offset = 0
+                cur_par_offset = 0
+            else:
+                # we process another sentence
+                doc._text += &#34;\n&#34;
+                cur_offset += 1
+            # if there is metadata &#34;text&#34; use this as the document text
+            # otherwise, construct the document from the tokens (or the MWTs if there are some)
+            # we first convert to a list of unattached annotations and incrementally enlarge the text
+            # the document is only built once it is complete
+            if &#34;text&#34; in meta:
+                havetext = True
+                doc._text += meta[&#34;text&#34;]
+            else:
+                havetext = False
+            cur_sent_offset = cur_offset
+            persent_cid2aid = {}
+            persent_anns = []
+            tliter = iter(tl)
+            for tok in tliter:
+                # tok is a map of fields for that token
+                # &#34;id&#34; is special as it is the id of the token within a sentence or a token range
+                # for MWTs as a tuple (from, &#34;-&#34;, to)
+                # If the id is a tuple of (id &#34;.&#34; subid)
+                cid = tok[&#34;id&#34;]
+                form = tok[&#34;form&#34;]
+                misc = tok.get(&#34;misc&#34;)
+                if misc is not None:
+                    space_after = misc.get(&#34;SpaceAfter&#34;)
+                else:
+                    space_after = None
+                if isinstance(cid, int):
+                    # add annotation for the token
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset &lt; 0:
+                            # should not happen, really
+                            raise Exception(&#34;Could not match token with text&#34;)
+                    else:
+                        doc._text += form
+                    # add the token annotation
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.token_type, self.tok2features(tok))
+                    persent_anns.append(ann)
+                    persent_cid2aid[cid] = ann.id
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != &#34;No&#34;:
+                            doc._text += &#34; &#34;
+                            cur_offset += 1
+                elif cid[1] == &#34;-&#34;:
+                    # if we get a MWT, we immediately process the individual tokens for the MWT here and add
+                    # the annotations for those as well after we add the annotation for the MWT
+                    if havetext:
+                        # match the form in the text
+                        cur_offset = doc._text.find(form, cur_offset)
+                        if cur_offset &lt; 0:
+                            # should not happen, really
+                            raise Exception(&#34;Could not match token with text&#34;)
+                    else:
+                        doc._text += form
+                    # add the mwt annotation
+                    fm = self.tok2features(tok)
+                    fm[&#34;ids&#34;] = list(range(cid[0], cid[2]+1, 1))
+                    ann = annset.add(cur_offset, cur_offset+len(form), self.mwt_type, fm)
+                    persent_cid2aid[cid] = ann.id
+                    persent_anns.append(ann)
+                    # handle the tokens
+                    ntoks = cid[2] - cid[0] + 1
+                    # calculate the spans for the tokens
+                    spans = Span.squeeze(cur_offset, cur_offset+len(form), ntoks)
+                    for i in range(ntoks):
+                        tmptok = next(tliter)
+                        ann = annset.add(spans[i].start, spans[i].end, self.token_type, self.tok2features(tmptok))
+                        persent_cid2aid[tmptok[&#34;id&#34;]] = ann.id
+                        persent_anns.append(ann)
+                    cur_offset += len(form)
+                    if not havetext:
+                        # append a space unless we have SpaceAfter=No in field misc
+                        if space_after != &#34;No&#34;:
+                            doc._text += &#34; &#34;
+                            cur_offset += 1
+                elif cid[1] == &#34;.&#34;:
+                    # if we get an &#34;empty&#34; node we add it as a zero width token annotation to the current offset
+                    annset.add(cur_offset-1, cur_offset-1, self.token_type, self.tok2features(tok))
+            # finished processing all tokens for the sentence
+            # add the sentence annotation, unless disabled
+            fm = meta
+            if &#34;text&#34; in fm:
+                del fm[&#34;text&#34;]
+            ann = annset.add(cur_sent_offset, cur_offset, self.sentence_type, fm)
+            n_sents_group += 1
+            n_sents += 1
+            persent_cid2aid[0] = ann.id
+            persent_anns.append(ann)
+            # fix up the annotation ids of all annotations we have added for this sentence
+            for ann in persent_anns:
+                fm = ann.features
+                if fm.get(&#34;head&#34;) is not None:
+                    fm[&#34;head&#34;] = persent_cid2aid[fm[&#34;head&#34;]]
+                elif fm.get(&#34;ids&#34;) is not None:
+                    fm[&#34;ids&#34;] = [persent_cid2aid[x] for x in fm[&#34;ids&#34;]]
+                elif fm.get(&#34;deps&#34;) is not None:
+                    fm[&#34;deps&#34;] = [persent_cid2aid[x] for x in fm[&#34;deps&#34;]]
+        if len(doc.text) &gt; 0:
+            docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
+            parid = meta.get(&#34;newpar id&#34;, &#34;&#34;)
+            if have_docids:
+                annset.add(cur_doc_offset, cur_offset, self.document_type,
+                           dict(docid=prev_doc))
+            if have_parids:
+                annset.add(cur_doc_offset, cur_offset, self.paragraph_type,
+                           dict(parid=prev_par))
+            doc.attach(annset, self.outset)
+            yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.DocumentSource" href="index.html#gatenlp.corpora.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.conll.ConllUFileSource.gen4list"><code class="name flex">
+<span>def <span class="ident">gen4list</span></span>(<span>self, l)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.corpora.conll.ConllUFileSource.tok2features"><code class="name flex">
+<span>def <span class="ident">tok2features</span></span>(<span>self, tok)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a map describing a conllu token, mwt, or empty node to the feature map we want for it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>tok</code></strong></dt>
+<dd>the token map</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a doctionary to use to create features</p></div>
+</dd>
+<dt id="gatenlp.corpora.conll.ConllUFileSource.tokenlist_generator"><code class="name flex">
+<span>def <span class="ident">tokenlist_generator</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.corpora" href="index.html">gatenlp.corpora</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.corpora.conll.ConllUFileSource" href="#gatenlp.corpora.conll.ConllUFileSource">ConllUFileSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.conll.ConllUFileSource.gen4list" href="#gatenlp.corpora.conll.ConllUFileSource.gen4list">gen4list</a></code></li>
+<li><code><a title="gatenlp.corpora.conll.ConllUFileSource.tok2features" href="#gatenlp.corpora.conll.ConllUFileSource.tok2features">tok2features</a></code></li>
+<li><code><a title="gatenlp.corpora.conll.ConllUFileSource.tokenlist_generator" href="#gatenlp.corpora.conll.ConllUFileSource.tokenlist_generator">tokenlist_generator</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

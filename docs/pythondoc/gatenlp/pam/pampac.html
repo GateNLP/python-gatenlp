@@ -2468,6 +2468,7 @@ class AddAnn:
         name=None,
         ann=None,  # create a copy of this ann retrieved with GetAnn
         anntype=None,  # or create a new annotation with this type
+        annset=None,  # if not none, create in this set instead of the one used for matching
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
         resultidx=0,
@@ -2483,6 +2484,7 @@ class AddAnn:
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
             anntype: the type of a new annotation to create
+            annset: if not None, create the new annotation in this set instead of the one used for matching
             features: the features of a new annotation to create. This can be a GetFeatures helper for copying
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
@@ -2504,13 +2506,17 @@ class AddAnn:
         self.resultidx = resultidx
         self.dataidx = dataidx
         self.silent_fail = silent_fail
+        self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
         data = _get_data(
             succ, self.name, self.resultidx, self.dataidx, self.silent_fail
         )
         span = data[&#34;span&#34;]
-        outset = context.outset
+        if self.annset:
+            outset = self.annset
+        else:
+            outset = context.outset
         if self.ann:
             if isinstance(self.ann, Annotation):
                 outset.add_ann(self.ann.deepcopy())
@@ -2616,6 +2622,15 @@ class UpdateAnnFeatures:
         if self.replace:
             theann.features.clear()
         theann.features.update(feats)
+
+
+class RemoveAnn:
+    def __init__(self, name, ann=None, annset=None, resultidx=0, dataidx=0, which=&#34;first&#34;, silent_fail=True):
+        pass
+
+    def __call__(self, succ, context=None, location=None):
+        pass
+
 
 
 # GETTERS
@@ -2898,7 +2913,7 @@ class GetRegexGroup:
 <dl>
 <dt id="gatenlp.pam.pampac.AddAnn"><code class="flex name class">
 <span>class <span class="ident">AddAnn</span></span>
-<span>(</span><span>name=None, ann=None, anntype=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name=None, ann=None, anntype=None, annset=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Action for adding an annotation.</p>
@@ -2913,6 +2928,8 @@ a GetAnn helper for copying the annoation the helper returns. If this is specifi
 other parameters for creating a new annotation are ignored.</dd>
 <dt><strong><code>anntype</code></strong></dt>
 <dd>the type of a new annotation to create</dd>
+<dt><strong><code>annset</code></strong></dt>
+<dd>if not None, create the new annotation in this set instead of the one used for matching</dd>
 <dt><strong><code>features</code></strong></dt>
 <dd>the features of a new annotation to create. This can be a GetFeatures helper for copying
 the features from another annotation in the results</dd>
@@ -2941,6 +2958,7 @@ otherwise raises an Exception.</dd>
         name=None,
         ann=None,  # create a copy of this ann retrieved with GetAnn
         anntype=None,  # or create a new annotation with this type
+        annset=None,  # if not none, create in this set instead of the one used for matching
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
         resultidx=0,
@@ -2956,6 +2974,7 @@ otherwise raises an Exception.</dd>
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
             anntype: the type of a new annotation to create
+            annset: if not None, create the new annotation in this set instead of the one used for matching
             features: the features of a new annotation to create. This can be a GetFeatures helper for copying
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
@@ -2977,13 +2996,17 @@ otherwise raises an Exception.</dd>
         self.resultidx = resultidx
         self.dataidx = dataidx
         self.silent_fail = silent_fail
+        self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
         data = _get_data(
             succ, self.name, self.resultidx, self.dataidx, self.silent_fail
         )
         span = data[&#34;span&#34;]
-        outset = context.outset
+        if self.annset:
+            outset = self.annset
+        else:
+            outset = context.outset
         if self.ann:
             if isinstance(self.ann, Annotation):
                 outset.add_ann(self.ann.deepcopy())
@@ -6836,6 +6859,24 @@ of pattern with the replacement repl.</p></div>
 </dd>
 </dl>
 </dd>
+<dt id="gatenlp.pam.pampac.RemoveAnn"><code class="flex name class">
+<span>class <span class="ident">RemoveAnn</span></span>
+<span>(</span><span>name, ann=None, annset=None, resultidx=0, dataidx=0, which='first', silent_fail=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RemoveAnn:
+    def __init__(self, name, ann=None, annset=None, resultidx=0, dataidx=0, which=&#34;first&#34;, silent_fail=True):
+        pass
+
+    def __call__(self, succ, context=None, location=None):
+        pass</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.pam.pampac.Result"><code class="flex name class">
 <span>class <span class="ident">Result</span></span>
 <span>(</span><span>data=None, location=None, span=None)</span>
@@ -8007,6 +8048,9 @@ from the current next text offset.</p>
 <li><code><a title="gatenlp.pam.pampac.Pattern.subfn" href="#gatenlp.pam.pampac.Pattern.subfn">subfn</a></code></li>
 <li><code><a title="gatenlp.pam.pampac.Pattern.subn" href="#gatenlp.pam.pampac.Pattern.subn">subn</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.RemoveAnn" href="#gatenlp.pam.pampac.RemoveAnn">RemoveAnn</a></code></h4>
 </li>
 <li>
 <h4><code><a title="gatenlp.pam.pampac.Result" href="#gatenlp.pam.pampac.Result">Result</a></code></h4>

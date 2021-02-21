@@ -369,8 +369,15 @@ class Document:
 
     @text.setter
     def text(self, value: str) -&gt; None:
-        &#34;&#34;&#34;Set the text of the document. This is only possible as long as it has not been set
+        &#34;&#34;&#34;
+        Set the text of the document. This is only possible as long as it has not been set
         yet, after that, the text is immutable.
+
+        IMPORTANT: it is possible to add arbitrary annotations to a document which does not have any
+        text. This is meant to allow handling of annotation-only representations.
+        However, if the text is set after annotations have been added, annotation offsets are not
+        checked and it is possible to thus create an invalid document where annotations refer to
+        text ranges that do not exist!
 
         Args:
           value: the text for the document
@@ -888,6 +895,29 @@ class Document:
         else:
             return html
 
+    def attach(self, annset, name, check=True):
+        &#34;&#34;&#34;
+        Attach a detached set to the document. This should get used with caution and is mainly
+        intended for use inside the gatenlp library to allow for fast incremental creation of
+        new documents and document sets. The set can only be added if a set with the given name
+        does not yet exist at all.
+
+        Args:
+            annset: the annotation set to attach
+            name: the name for the annotation set
+            check: if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!
+        &#34;&#34;&#34;
+        if name in self._annotation_sets:
+            raise Exception(f&#34;Cannot attach set, a set with the name {name} already exists&#34;)
+        if check:
+            # check if the offsets are consistent with the document
+            l = len(self)
+            for ann in annset._annotations.values():
+                if ann.end &gt; l:
+                    raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
+        self._annotation_sets[name] = annset
+        annset._owner_doc = self
+
 
 class MultiDocument(Document):
     &#34;&#34;&#34;
@@ -1363,8 +1393,15 @@ offsets accordingly)</li>
 
     @text.setter
     def text(self, value: str) -&gt; None:
-        &#34;&#34;&#34;Set the text of the document. This is only possible as long as it has not been set
+        &#34;&#34;&#34;
+        Set the text of the document. This is only possible as long as it has not been set
         yet, after that, the text is immutable.
+
+        IMPORTANT: it is possible to add arbitrary annotations to a document which does not have any
+        text. This is meant to allow handling of annotation-only representations.
+        However, if the text is set after annotations have been added, annotation offsets are not
+        checked and it is possible to thus create an invalid document where annotations refer to
+        text ranges that do not exist!
 
         Args:
           value: the text for the document
@@ -1880,7 +1917,30 @@ offsets accordingly)</li>
         if display:
             display_html(html, raw=True)
         else:
-            return html</code></pre>
+            return html
+
+    def attach(self, annset, name, check=True):
+        &#34;&#34;&#34;
+        Attach a detached set to the document. This should get used with caution and is mainly
+        intended for use inside the gatenlp library to allow for fast incremental creation of
+        new documents and document sets. The set can only be added if a set with the given name
+        does not yet exist at all.
+
+        Args:
+            annset: the annotation set to attach
+            name: the name for the annotation set
+            check: if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!
+        &#34;&#34;&#34;
+        if name in self._annotation_sets:
+            raise Exception(f&#34;Cannot attach set, a set with the name {name} already exists&#34;)
+        if check:
+            # check if the offsets are consistent with the document
+            l = len(self)
+            for ann in annset._annotations.values():
+                if ann.end &gt; l:
+                    raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
+        self._annotation_sets[name] = annset
+        annset._owner_doc = self</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -2087,6 +2147,24 @@ change object.</p>
 <dd>what to do if the change from the changelog tries to
 add an annotation with an annotation id that already exists in the target set.
 (Default value = ADDANN_ADD_WITH_NEW_ID)</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.document.Document.attach"><code class="name flex">
+<span>def <span class="ident">attach</span></span>(<span>self, annset, name, check=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Attach a detached set to the document. This should get used with caution and is mainly
+intended for use inside the gatenlp library to allow for fast incremental creation of
+new documents and document sets. The set can only be added if a set with the given name
+does not yet exist at all.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annset</code></strong></dt>
+<dd>the annotation set to attach</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name for the annotation set</dd>
+<dt><strong><code>check</code></strong></dt>
+<dd>if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!</dd>
 </dl></div>
 </dd>
 <dt id="gatenlp.document.Document.copy"><code class="name flex">
@@ -2441,6 +2519,7 @@ def docid(self):
 <li><code><a title="gatenlp.document.Document.annset" href="#gatenlp.document.Document.annset">annset</a></code></li>
 <li><code><a title="gatenlp.document.Document.annset_names" href="#gatenlp.document.Document.annset_names">annset_names</a></code></li>
 <li><code><a title="gatenlp.document.Document.apply_changes" href="#gatenlp.document.Document.apply_changes">apply_changes</a></code></li>
+<li><code><a title="gatenlp.document.Document.attach" href="#gatenlp.document.Document.attach">attach</a></code></li>
 <li><code><a title="gatenlp.document.Document.changelog" href="#gatenlp.document.Document.changelog">changelog</a></code></li>
 <li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
 <li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
@@ -2480,6 +2559,7 @@ def docid(self):
 <li><code><a title="gatenlp.document.Document.annset" href="#gatenlp.document.Document.annset">annset</a></code></li>
 <li><code><a title="gatenlp.document.Document.annset_names" href="#gatenlp.document.Document.annset_names">annset_names</a></code></li>
 <li><code><a title="gatenlp.document.Document.apply_changes" href="#gatenlp.document.Document.apply_changes">apply_changes</a></code></li>
+<li><code><a title="gatenlp.document.Document.attach" href="#gatenlp.document.Document.attach">attach</a></code></li>
 <li><code><a title="gatenlp.document.Document.changelog" href="#gatenlp.document.Document.changelog">changelog</a></code></li>
 <li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
 <li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
