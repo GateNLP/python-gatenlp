@@ -1,4 +1,3 @@
-from gatenlp.document import Document
 from gatenlp.corpora.conll import ConllUFileSource
 
 txt1 = """
@@ -90,13 +89,91 @@ txt7 = """
 2-3   यथानुश्रूयते	_	_       _   _                         _   _        _   SpaceAfter=No
 2     यथा	यथा	ADV     _   PronType=Rel              3   advmod   _   Translit=yathā|LTranslit=yathā|Gloss=how
 3     अनुश्रूयते   अनु-श्रु	VERB    _   Mood=Ind|…|Voice=Pass     0   root     _   Translit=anuśrūyate|LTranslit=anu-śru|Gloss=it-is-heard
-4     ।      	।	PUNCT   _   _                         3   punct    _   Translit=.|LTranslit=.|Gloss=.
+4     ।         ।       PUNCT   _   _                         3   punct    _   Translit=.|LTranslit=.|Gloss=.
 """
+
 
 class TestConllUSource1:
 
-    def testConllUSource1_01(self):
+    def test_conllu_source1_01(self):
 
         src = ConllUFileSource(txt1, from_string=True)
         ret = list(src)
-        print(f"\n!!!!!!!!!!!!!txt1:\n", ret)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 2
+        assert annset.with_type("Token").size == 5
+        assert src.n_documents == 1
+
+    def test_conllu_source1_02(self):
+
+        src = ConllUFileSource(txt2, from_string=True)
+        ret = list(src)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 0
+        assert annset.with_type("Token").size == 7
+        assert src.n_documents == 1
+
+    def test_conllu_source1_03(self):
+
+        src = ConllUFileSource(txt3, from_string=True)
+        ret = list(src)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 0
+        assert annset.with_type("Token").size == 6
+        assert src.n_documents == 1
+
+    def test_conllu_source1_04(self):
+
+        src = ConllUFileSource(txt4, from_string=True)
+        ret = list(src)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 0
+        assert annset.with_type("Token").size == 6
+        assert src.n_documents == 1
+
+    def test_conllu_source1_05(self):
+
+        src = ConllUFileSource(txt5, from_string=True)
+        ret = list(src)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 1
+        assert annset.with_type("Token").size == 16
+        assert src.n_documents == 1
+
+    def test_conllu_source1_06(self):
+
+        src = ConllUFileSource(txt6, from_string=True)
+        ret = list(src)
+        assert len(ret) == 2
+        assert src.n_documents == 2
+        doc1 = ret[0]
+        annset = doc1.annset()
+        assert annset.with_type("MWT").size == 0
+        assert annset.with_type("Token").size == 6
+        doc2 = ret[1]
+        annset = doc2.annset()
+        assert annset.with_type("MWT").size == 0
+        assert annset.with_type("Token").size == 5
+
+    def test_conllu_source1_07(self):
+
+        src = ConllUFileSource(txt7, from_string=True)
+        ret = list(src)
+        assert len(ret) == 1
+        doc = ret[0]
+        annset = doc.annset()
+        assert annset.with_type("MWT").size == 1
+        assert annset.with_type("Token").size == 4
+        assert src.n_documents == 1
+
+
