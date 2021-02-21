@@ -3,7 +3,7 @@ Module that provides document source/destination classes for importing and expor
 from/to various conll formats.
 """
 from gatenlp.utils import stream_from
-from gatenlp import Document, AnnotationSet, Annotation, Span
+from gatenlp import Document, AnnotationSet, Span
 from gatenlp.corpora import DocumentSource
 from conllu import parse, parse_incr
 
@@ -18,9 +18,6 @@ class ConllUFileSource(DocumentSource):
                  add_feats=False,
                  paragraph_type="Paragraph",
                  document_type="Document",
-                 #sent_sep="\n",
-                 #par_sep="\n\n",
-                 #doc_sep="\n\n\n",
                  ):
         """
         Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
@@ -45,9 +42,6 @@ class ConllUFileSource(DocumentSource):
             mwt_type: the type of multi-word annotations
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
-            sent_sep: the string to use to separate multiple sentences in a document
-            par_sep: the string to use to separate multiple paragraphs in a document
-            doc_sep: the string to use to separate multiple conllu docs in a document
         """
         assert sentence_type is not None
         assert token_type is not None
@@ -119,6 +113,7 @@ class ConllUFileSource(DocumentSource):
         have_docids = False
         have_parids = False
         doc = Document("")
+        meta = {}
         annset = AnnotationSet()
         reset = False   # after we write a document, this indicates that we need to reset offsets, counts etc
         for tl in self.tokenlist_generator():
