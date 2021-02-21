@@ -149,7 +149,7 @@ class ConllUFileSource(DocumentSource):
                 parid = meta.get("newpar id", "")
                 if docid != "" and docid != prev_doc:
                     annset.add(cur_doc_offset, cur_offset,
-                               self.document_type, dict(docid=docid, parid=parid))
+                               self.document_type, dict(docid=prev_doc))
                     n_docs_group += 1
                     prev_doc = docid
                     if self.group_by == "doc" and n_docs_group == self.n:
@@ -162,7 +162,7 @@ class ConllUFileSource(DocumentSource):
                     cur_doc_offset = cur_offset
                 if parid != "" and parid != prev_par:
                     annset.add(cur_par_offset, cur_offset,
-                               self.paragraph_type, dict(docid=docid, parid=parid))
+                               self.paragraph_type, dict(parid=prev_par))
                     n_pars_group += 1
                     prev_par = parid
                     if not reset and self.group_by == "par" and n_pars_group == self.n:
@@ -291,9 +291,9 @@ class ConllUFileSource(DocumentSource):
             parid = meta.get("newpar id", "")
             if have_docids:
                 annset.add(cur_doc_offset, cur_offset, self.document_type,
-                           dict(docid=docid, parid=parid))
+                           dict(docid=prev_doc))
             if have_parids:
                 annset.add(cur_doc_offset, cur_offset, self.paragraph_type,
-                           dict(docid=docid, parid=parid))
+                           dict(parid=prev_par))
             doc.attach(annset, self.outset)
             yield doc
