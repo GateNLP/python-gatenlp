@@ -16,9 +16,11 @@ class ConllUFileSource(DocumentSource):
                  mwt_type="MWT",
                  sentence_type="Sentence",
                  add_feats=False,
-                 sent_sep="\n",
-                 par_sep="\n\n",
-                 doc_sep="\n\n\n",
+                 paragraph_type="Paragraph",
+                 document_type="Document",
+                 #sent_sep="\n",
+                 #par_sep="\n\n",
+                 #doc_sep="\n\n\n",
                  ):
         """
         Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
@@ -59,9 +61,11 @@ class ConllUFileSource(DocumentSource):
         self.mwt_type = mwt_type
         self.sentence_type = sentence_type
         self.add_feats = add_feats
-        self.sent_sep = sent_sep
-        self.par_sep = par_sep
-        self.doc_sep = doc_sep
+        self.paragraph_type = paragraph_type
+        self.document_type = document_type
+        #self.sent_sep = sent_sep
+        #self.par_sep = par_sep
+        #self.doc_sep = doc_sep
 
     def gen4list(self, l):
         for el in l:
@@ -71,8 +75,8 @@ class ConllUFileSource(DocumentSource):
         if self.from_string:
             return self.gen4list(parse(self.source))
         else:
-            with stream_from(self.source) as infp:
-                p = parse_incr(infp)
+            infp = stream_from(self.source)
+            p = parse_incr(infp)
             return p
 
     def tok2features(self, tok):
@@ -92,6 +96,9 @@ class ConllUFileSource(DocumentSource):
             elif k == "feats":
                 if v is not None:
                     fm.update(v)
+            elif k == "misc":
+                if v is not None:
+                    fm.update(v)
             else:
                 fm[k] = v
         del fm["id"]
@@ -107,7 +114,10 @@ class ConllUFileSource(DocumentSource):
         n_pars_group = 0
         n_sents_group = 0
         cur_offset = 0
-        cur_sent_offset = 0
+        cur_doc_offset = 0
+        cur_par_offset = 0
+        have_docids = False
+        have_parids = False
         doc = Document("")
         annset = AnnotationSet()
         reset = False   # after we write a document, this indicates that we need to reset offsets, counts etc
@@ -120,6 +130,10 @@ class ConllUFileSource(DocumentSource):
             # but first check if we got the very first sentence
             if prev_doc is None:  # only None if we are at the very first sentence!
                 # make sure we have a doc or par if we are supposed to group by those
+                if 'newdoc id' in meta:
+                    have_docids = True
+                if 'newpar id' in meta:
+                    have_parids = True
                 if self.group_by == "doc" and 'newdoc id' not in meta:
                     raise Exception("Cannot group by doc, no newdoc id in the input")
                 if self.group_by == "par" and 'newpar id' not in meta:
@@ -127,25 +141,48 @@ class ConllUFileSource(DocumentSource):
                 prev_doc = meta.get("newdoc id", "")
                 prev_par = meta.get("newpar id", "")
             elif self.group_by == "sent" and n_sents_group == self.n:
-                # we have accumulated enough sentences, yield the document
                 doc.attach(annset, self.outset)
                 yield doc
+                reset = True
+            else:
+                docid = meta.get("newdoc id", "")
+                parid = meta.get("newpar id", "")
+                if docid != "" and docid != prev_doc:
+                    annset.add(cur_doc_offset, cur_offset,
+                               self.document_type, dict(docid=docid, parid=parid))
+                    n_docs_group += 1
+                    prev_doc = docid
+                    if self.group_by == "doc" and n_docs_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += "\n\n"
+                        cur_offset += 2
+                    cur_doc_offset = cur_offset
+                if parid != "" and parid != prev_par:
+                    annset.add(cur_par_offset, cur_offset,
+                               self.paragraph_type, dict(docid=docid, parid=parid))
+                    n_pars_group += 1
+                    prev_par = parid
+                    if not reset and self.group_by == "par" and n_pars_group == self.n:
+                        doc.attach(annset, self.outset)
+                        yield doc
+                        reset = True
+                    else:
+                        doc._text += "\n"
+                        cur_offset += 1
+                    cur_par_offset = cur_offset
+            if reset:
                 doc = Document("")
                 annset = AnnotationSet()
-                reset = True
-                pass
-            elif self.group_by == "par" and n_pars_group == self.n:
-                reset = True
-                pass
-            elif self.group_by == "doc" and n_docs_group == self.n:
-                reset = True
-                pass
-            if reset:
                 reset = False
                 n_docs_group = 0
                 n_pars_group = 0
                 n_sents_group = 0
                 cur_offset = 0
+                cur_doc_offset = 0
+                cur_par_offset = 0
             else:
                 # we process another sentence
                 doc._text += "\n"
@@ -175,7 +212,6 @@ class ConllUFileSource(DocumentSource):
                     space_after = misc.get("SpaceAfter")
                 else:
                     space_after = None
-                print(f"DEBUG: processing {cid} / {tok}")
                 if isinstance(cid, int):
                     # add annotation for the token
                     if havetext:
@@ -184,10 +220,8 @@ class ConllUFileSource(DocumentSource):
                         if cur_offset < 0:
                             # should not happen, really
                             raise Exception("Could not match token with text")
-                        print(f"Found {form} at {cur_offset}")
                     else:
                         doc._text += form
-                        print(f"Next offset for {form} is {cur_offset}")
                     # add the token annotation
                     ann = annset.add(cur_offset, cur_offset+len(form), self.token_type, self.tok2features(tok))
                     persent_anns.append(ann)
@@ -198,7 +232,6 @@ class ConllUFileSource(DocumentSource):
                         if space_after != "No":
                             doc._text += " "
                             cur_offset += 1
-                    print(f"Updated curoffset to {cur_offset}")
                 elif cid[1] == "-":
                     # if we get a MWT, we immediately process the individual tokens for the MWT here and add
                     # the annotations for those as well after we add the annotation for the MWT
@@ -208,9 +241,7 @@ class ConllUFileSource(DocumentSource):
                         if cur_offset < 0:
                             # should not happen, really
                             raise Exception("Could not match token with text")
-                        print(f"Found mwt {form} at {cur_offset}")
                     else:
-                        print(f"Next offset for mwt {form} is {cur_offset}")
                         doc._text += form
                     # add the mwt annotation
                     fm = self.tok2features(tok)
@@ -223,9 +254,7 @@ class ConllUFileSource(DocumentSource):
                     # calculate the spans for the tokens
                     spans = Span.squeeze(cur_offset, cur_offset+len(form), ntoks)
                     for i in range(ntoks):
-                        print(f"Trying to get {i}")
                         tmptok = next(tliter)
-                        print(f"got {tmptok}")
                         ann = annset.add(spans[i].start, spans[i].end, self.token_type, self.tok2features(tmptok))
                         persent_cid2aid[tmptok["id"]] = ann.id
                         persent_anns.append(ann)
@@ -240,18 +269,31 @@ class ConllUFileSource(DocumentSource):
                     annset.add(cur_offset-1, cur_offset-1, self.token_type, self.tok2features(tok))
             # finished processing all tokens for the sentence
             # add the sentence annotation, unless disabled
-            fm = {}
+            fm = meta
+            if "text" in fm:
+                del fm["text"]
             ann = annset.add(cur_sent_offset, cur_offset, self.sentence_type, fm)
             n_sents_group += 1
+            n_sents += 1
             persent_cid2aid[0] = ann.id
             persent_anns.append(ann)
             # fix up the annotation ids of all annotations we have added for this sentence
             for ann in persent_anns:
                 fm = ann.features
-                if "head" in fm:
+                if fm.get("head") is not None:
                     fm["head"] = persent_cid2aid[fm["head"]]
-                elif "ids" in fm:
+                elif fm.get("ids") is not None:
                     fm["ids"] = [persent_cid2aid[x] for x in fm["ids"]]
+                elif fm.get("deps") is not None:
+                    fm["deps"] = [persent_cid2aid[x] for x in fm["deps"]]
         if len(doc.text) > 0:
+            docid = meta.get("newdoc id", "")
+            parid = meta.get("newpar id", "")
+            if have_docids:
+                annset.add(cur_doc_offset, cur_offset, self.document_type,
+                           dict(docid=docid, parid=parid))
+            if have_parids:
+                annset.add(cur_doc_offset, cur_offset, self.paragraph_type,
+                           dict(docid=docid, parid=parid))
             doc.attach(annset, self.outset)
             yield doc

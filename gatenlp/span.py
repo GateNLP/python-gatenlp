@@ -329,7 +329,6 @@ class Span:
         elif n < l:
             slen = l//n
             rem = l - slen * n
-            print(f":::::::::: slen={slen}, rem={rem}")
             spans = []
             soff = start
             for i in range(n):
