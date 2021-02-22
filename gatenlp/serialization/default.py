@@ -682,7 +682,7 @@ class MsgPackSerializer:
 
 
 JS_JQUERY = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>'
-JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.11/gatenlp-ann-viewer.js"></script>'
+JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.12/gatenlp-ann-viewer.js"></script>'
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
 JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
