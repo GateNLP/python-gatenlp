@@ -823,7 +823,7 @@ class Document:
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None):
+    def show(self, htmlid=None, annsets=None, doc_style=None):
         """
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -836,14 +836,14 @@ class Document:
                 the name of a set to fully include, or a tuple with the name of the set as
                 the first element
                 and with a single type name or a list of type names as the second element
-
+            doc_style: if not None, use this as the style for the document text box
         """
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
         else:
             return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -858,6 +858,7 @@ class Document:
             offline=True,
             htmlid=htmlid,
             annsets=annsets,
+            doc_style=doc_style,
         )
         if display:
             display_html(html, raw=True)

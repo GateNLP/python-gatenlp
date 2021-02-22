@@ -34,9 +34,8 @@ For now rather simple:
 * run `python make-java.py` 
 * re-install current directory locally using `pip install -e .[all,dev]`
 * double check that gateworker tries to load the new (not-yet existing) release
-* commit and push
-* create release branch and push 
-* commit and push, we have now pushed exactly what will be the gatenlp release
+* commit and push, Python plugin tracks master, so we have now what we need 
+* create release branch and push - this is for going back to this version more easily later
 
 * In plugin Python:
   * pull, make sure ready for release
@@ -50,7 +49,7 @@ For now rather simple:
 * create annotated tag v9.9
 * !! GateNLP is now released!
 * checkout master
-* increase the gatenlp version
+* increase the gatenlp version, make it a snapshot version (+snapshot)
 * edit `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java` and change version
   to next Python plugin snapshot
 * create next Python plugin snapshot

@@ -24,5 +24,7 @@ class GatenlpConfig:
         self.doc_html_repr_height1_nostretch = "max-height: 20em;"
         self.doc_html_repr_height2_nostretch = "max-height: 14em;"
 
+        # If string, use this as the default style for the document text
+        self.doc_html_repr_doc_style = None
 
 gatenlpconfig = GatenlpConfig()

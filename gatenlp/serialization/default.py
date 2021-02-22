@@ -730,6 +730,7 @@ class HtmlAnnViewerSerializer:
         htmlid=None,
         stretch_height=False,
         annsets=None,
+        doc_style=None,
         **kwargs,
     ):
         """Convert a document to HTML for visualizing it.
@@ -757,8 +758,9 @@ class HtmlAnnViewerSerializer:
             annsets: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
-
-          kwargs: swallow any other kwargs.
+            doc_style: if not None, any additional styling for the document text box, if None, use whatever
+                is defined in gatenlpconfig or do not use.
+            kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
 
@@ -826,6 +828,11 @@ class HtmlAnnViewerSerializer:
         html = html.replace("$$HEIGHT1$$", height1, 1).replace(
             "$$HEIGHT2$$", height2, 1
         )
+        if doc_style is None:
+            doc_style = gatenlpconfig.doc_html_repr_doc_style
+        if doc_style is None:
+            doc_style = ""
+        html = html.replace("$$DOCTEXTSTYLE$$", doc_style, 1)
         if to_mem:
             return html
         else:
