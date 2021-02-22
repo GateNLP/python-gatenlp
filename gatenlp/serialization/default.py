@@ -21,7 +21,8 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.features import Features
-from gatenlp.utils import get_nested, is_url, get_str_from_url, get_bytes_from_url
+from gatenlp.utils import get_nested
+from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig

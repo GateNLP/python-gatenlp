@@ -2,7 +2,7 @@
 Module that provides document source/destination classes for importing and exporting documents
 from/to various conll formats.
 """
-from gatenlp.utils import stream_from
+from gatenlp.urlfileutils import stream_from
 from gatenlp import Document, AnnotationSet, Span
 from gatenlp.corpora import DocumentSource
 from conllu import parse, parse_incr
