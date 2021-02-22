@@ -759,6 +759,7 @@ class HtmlAnnViewerSerializer:
         htmlid=None,
         stretch_height=False,
         annsets=None,
+        doc_style=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
@@ -786,8 +787,9 @@ class HtmlAnnViewerSerializer:
             annsets: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
-
-          kwargs: swallow any other kwargs.
+            doc_style: if not None, any additional styling for the document text box, if None, use whatever
+                is defined in gatenlpconfig or do not use.
+            kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
 
@@ -855,6 +857,11 @@ class HtmlAnnViewerSerializer:
         html = html.replace(&#34;$$HEIGHT1$$&#34;, height1, 1).replace(
             &#34;$$HEIGHT2$$&#34;, height2, 1
         )
+        if doc_style is None:
+            doc_style = gatenlpconfig.doc_html_repr_doc_style
+        if doc_style is None:
+            doc_style = &#34;&#34;
+        html = html.replace(&#34;$$DOCTEXTSTYLE$$&#34;, doc_style, 1)
         if to_mem:
             return html
         else:
@@ -1895,6 +1902,7 @@ now we always throw an exeption.</p>
         htmlid=None,
         stretch_height=False,
         annsets=None,
+        doc_style=None,
         **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
@@ -1922,8 +1930,9 @@ now we always throw an exeption.</p>
             annsets: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
-
-          kwargs: swallow any other kwargs.
+            doc_style: if not None, any additional styling for the document text box, if None, use whatever
+                is defined in gatenlpconfig or do not use.
+            kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
 
@@ -1991,6 +2000,11 @@ now we always throw an exeption.</p>
         html = html.replace(&#34;$$HEIGHT1$$&#34;, height1, 1).replace(
             &#34;$$HEIGHT2$$&#34;, height2, 1
         )
+        if doc_style is None:
+            doc_style = gatenlpconfig.doc_html_repr_doc_style
+        if doc_style is None:
+            doc_style = &#34;&#34;
+        html = html.replace(&#34;$$DOCTEXTSTYLE$$&#34;, doc_style, 1)
         if to_mem:
             return html
         else:
@@ -2013,35 +2027,48 @@ now we always throw an exeption.</p>
 <p>Returns: Javascript string.</p></div>
 </dd>
 <dt id="gatenlp.serialization.default.HtmlAnnViewerSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, annsets=None, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, annsets=None, doc_style=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a document to HTML for visualizing it.</p>
 <h2 id="args">Args</h2>
-<p>clazz: the class of the object to save
-inst: the instance/object to save
-to_ext:
-the destination where to save to unless to_mem is given
-to_mem: if true, ignores to_ext and returns the representation
-notebook: if True only create a div which can be injected into a notebook or other HTML, otherwise
-generate a full HTML document
-offline: if true, include all the Javascript needed in the generated HTML , otherwise load library
-from the internet.
-add_js: if true (default), add the necessary Javascript either directly or by loading a library from
+<dl>
+<dt><strong><code>clazz</code></strong></dt>
+<dd>the class of the object to save</dd>
+<dt><strong><code>inst</code></strong></dt>
+<dd>the instance/object to save</dd>
+<dt><strong><code>to_ext</code></strong></dt>
+<dd>the destination where to save to unless to_mem is given</dd>
+<dt><strong><code>to_mem</code></strong></dt>
+<dd>if true, ignores to_ext and returns the representation</dd>
+<dt><strong><code>notebook</code></strong></dt>
+<dd>if True only create a div which can be injected into a notebook or other HTML, otherwise
+generate a full HTML document</dd>
+<dt><strong><code>offline</code></strong></dt>
+<dd>if true, include all the Javascript needed in the generated HTML , otherwise load library
+from the internet.</dd>
+<dt><strong><code>add_js</code></strong></dt>
+<dd>if true (default), add the necessary Javascript either directly or by loading a library from
 the internet. If false, assume that the Javascript is already there (only makes sense with
-notebook=True).
-htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
-same HTML page and to style the output from a separate notebook cell
-max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-given value (default: 20em). If this is None, then the height is set to
-stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
+notebook=True).</dd>
+<dt><strong><code>htmlid</code></strong></dt>
+<dd>the id to use for HTML ids so it is possible to have several independent viewers in the
+same HTML page and to style the output from a separate notebook cell</dd>
+<dt><strong><code>max_height1</code></strong></dt>
+<dd>if this is set, then the maximum height of the first row of the viewer is set to the
+given value (default: 20em). If this is None, then the height is set to</dd>
+<dt><strong><code>stretch_height</code></strong></dt>
+<dd>if False, rows 1 and 2 of the viewer will not have the height set, but only
 min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
 If True, no max haight is set and instead the height is set to a percentage (default is
-67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
-annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.</dd>
+<dt><strong><code>annsets</code></strong></dt>
+<dd>if None, include all annotation sets and types, otherwise this should be a list of either
 set names, or tuples, where the first entry is a set name and the second entry is either a type
-name or list of type names to include.</p>
-<dl>
+name or list of type names to include.</dd>
+<dt><strong><code>doc_style</code></strong></dt>
+<dd>if not None, any additional styling for the document text box, if None, use whatever
+is defined in gatenlpconfig or do not use.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>swallow any other kwargs.</dd>
 </dl>

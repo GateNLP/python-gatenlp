@@ -854,7 +854,7 @@ class Document:
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None):
+    def show(self, htmlid=None, annsets=None, doc_style=None):
         &#34;&#34;&#34;
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -867,14 +867,14 @@ class Document:
                 the name of a set to fully include, or a tuple with the name of the set as
                 the first element
                 and with a single type name or a list of type names as the second element
-
+            doc_style: if not None, use this as the style for the document text box
         &#34;&#34;&#34;
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
         else:
             return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -889,6 +889,7 @@ class Document:
             offline=True,
             htmlid=htmlid,
             annsets=annsets,
+            doc_style=doc_style,
         )
         if display:
             display_html(html, raw=True)
@@ -1878,7 +1879,7 @@ offsets accordingly)</li>
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None):
+    def show(self, htmlid=None, annsets=None, doc_style=None):
         &#34;&#34;&#34;
         Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -1891,14 +1892,14 @@ offsets accordingly)</li>
                 the name of a set to fully include, or a tuple with the name of the set as
                 the first element
                 and with a single type name or a list of type names as the second element
-
+            doc_style: if not None, use this as the style for the document text box
         &#34;&#34;&#34;
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets)
+            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
         else:
             return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None):
+    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -1913,6 +1914,7 @@ offsets accordingly)</li>
             offline=True,
             htmlid=htmlid,
             annsets=annsets,
+            doc_style=doc_style,
         )
         if display:
             display_html(html, raw=True)
@@ -2259,7 +2261,7 @@ list of annotation types to include in the serialized document.</dd>
 </dl></div>
 </dd>
 <dt id="gatenlp.document.Document.show"><code class="name flex">
-<span>def <span class="ident">show</span></span>(<span>self, htmlid=None, annsets=None)</span>
+<span>def <span class="ident">show</span></span>(<span>self, htmlid=None, annsets=None, doc_style=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
@@ -2275,6 +2277,8 @@ Each element is either
 the name of a set to fully include, or a tuple with the name of the set as
 the first element
 and with a single type name or a list of type names as the second element</dd>
+<dt><strong><code>doc_style</code></strong></dt>
+<dd>if not None, use this as the style for the document text box</dd>
 </dl></div>
 </dd>
 <dt id="gatenlp.document.Document.to_dict"><code class="name flex">
