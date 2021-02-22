@@ -5,7 +5,11 @@ Make sure you have Python 3.6 or later installed. Python version 3.7 or later is
 The recommended way to install Python is to use Conda by installing  one of 
 
 * [Anaconda](https://www.anaconda.com/products/individual) or
-* [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+* [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 
+
+Alternately, 
+* [Miniforge](https://github.com/conda-forge/miniforge) may help avoid Windows 10 issues
+
 
 Then create an environment for working with gatenlp. This example
 creates an environment with the name `gatenlp` and activates it:
