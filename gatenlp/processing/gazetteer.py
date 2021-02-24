@@ -89,7 +89,7 @@ class TokenGazetteer:
         fmt="gate-def",
         source_sep="\t",
         source_encoding="UTF-8",
-        cache_source=None,
+        # cache_source=None,   # TODO
         tokenizer=None,
         all=False,
         skip=True,
@@ -169,7 +169,11 @@ class TokenGazetteer:
         self.listtypes = []
         self.logger = init_logger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype)
+        self.source_sep = source_sep
+        self.source_encoding = source_encoding
+        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype, source_sep=source_sep,
+                    source_encoding=source_encoding
+                    )
 
     def append(
         self,
@@ -255,7 +259,8 @@ class TokenGazetteer:
                                 # TODO: include and handle SpaceToken if we use the speparator annoations!
                                 # TODO: maybe have a different way to retrieve the token annotations based
                                 # on the tokenizer????
-                                tokenanns = list(tmpdoc.annset().with_type("Token"))
+                                # TODO: try to figure out the outset and type used by the tokenizer, for now fixed! 
+                                tokenanns = list(tmpdoc.annset().with_type("Tokens"))
                                 if self.getterfunc:
                                     tokenstrings = [
                                         self.getterfunc(a, doc=tmpdoc)
