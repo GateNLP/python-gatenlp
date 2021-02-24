@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Made with Remarkable!
+  </title>
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/github.min.css" rel="stylesheet"/>
+  <style type="text/css">
+   body,table tr{background-color:#fff}table tr td,table tr th{border:1px solid #ccc;text-align:left;padding:6px 13px;margin:0}pre code,table,table tr{padding:0}hr,pre code{background:0 0}body{font:16px Helvetica,Arial,sans-serif;line-height:1.4;color:#333;word-wrap:break-word;padding:10px 15px}strong,table tr th{font-weight:700}h1{font-size:2em;margin:.67em 0;text-align:center}h2{font-size:1.75em}h3{font-size:1.5em}h4{font-size:1.25em}h1,h2,h3,h4,h5,h6{font-weight:700;position:relative;margin-top:15px;margin-bottom:15px;line-height:1.1}h1,h2{border-bottom:1px solid #eee}hr{height:0;margin:15px 0;overflow:hidden;border:0;border-bottom:1px solid #ddd}a{color:#4183C4}a.absent{color:#c00}ol,ul{padding-left:15px;margin-left:5px}ol{list-style-type:lower-roman}table tr{border-top:1px solid #ccc;margin:0}table tr:nth-child(2n){background-color:#aaa}table tr td :first-child,table tr th :first-child{margin-top:0}table tr td:last-child,table tr th :last-child{margin-bottom:0}img{max-width:100%}blockquote{padding:0 15px;border-left:4px solid #ccc}code,tt{margin:0 2px;padding:0 5px;white-space:nowrap;border:1px solid #eaeaea;background-color:#f8f8f8;border-radius:3px}pre code{margin:0;white-space:pre;border:none}.highlight pre,pre{background-color:#f8f8f8;border:1px solid #ccc;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px;border-radius:3px}
+  </style>
+ </head>
+ <body id="MathPreviewF">
+  <h1 id="installation">
+   Installation
+  </h1>
+  <h2 id="install-python">
+   Install Python
+  </h2>
+  <p>
+   Python version 3.6 or later is required.
+  </p>
+  <p>
+   There are many different ways of installaing Python, and they should all work, but instructions for how to install, set up environments etc. can be very different depending on the method.
+  </p>
+  <p>
+   Therefore, the recommended way is to use Conda by  installing  one of
+  </p>
+  <ul>
+   <li>
+    <a href="https://www.anaconda.com/products/individual">
+     Anaconda
+    </a>
+    or
+    <ul>
+     <li>
+      download the installer for your operating system and run it
+     </li>
+    </ul>
+   </li>
+   <li>
+    <a href="https://docs.conda.io/en/latest/miniconda.html">
+     Miniconda
+    </a>
+    <ul>
+     <li>
+      download the Python 3.x installer for your operating system and run it
+     </li>
+    </ul>
+   </li>
+  </ul>
+  <h5 id="on-windows">
+   On Windows:
+  </h5>
+  <ul>
+   <li>
+    Install for “Just Me”
+   </li>
+   <li>
+    use the default installation location
+   </li>
+   <li>
+    register as default python
+   </li>
+   <li>
+    ADD to PATH environment variable: even if not recommended this will simplify using python from GATE and from a Windows command line.
+   </li>
+   <li>
+    once installed there will be an “Anaconda” entry in the start menu
+   </li>
+   <li>
+    run the powershell prompt or the Anaconda prompt to get a shell for running python, conda etc.
+   </li>
+  </ul>
+  <p>
+   Alternately,
+  </p>
+  <ul>
+   <li>
+    <a href="https://github.com/conda-forge/miniforge">
+     Miniforge
+    </a>
+    may help avoid Windows 10 issues
+   </li>
+  </ul>
+  <p>
+   Alternately,
+  </p>
+  <ul>
+   <li>
+    Install Python from the Microsoft Store or by downloading the installer from the
+    <a href="https://www.python.org/downloads/">
+     Python Download
+    </a>
+    page.
+   </li>
+   <li>
+    This will require a different way to create an environment later (use venv!)
+   </li>
+  </ul>
+  <h5 id="on-linux">
+   On linux
+  </h5>
+  <ul>
+   <li>
+    make the downloaded file executable and run it
+   </li>
+   <li>
+    choose installation directory
+   </li>
+   <li>
+    allow the installer to activate anaconda (modify .bashrc and put the installed software on the PATH)
+   </li>
+  </ul>
+  <h2 id="create-python-environment">
+   Create Python Environment
+  </h2>
+  <p>
+   Open a terminal/command line. On Windows open an Anaconda Prompt or Powershell.
+  </p>
+  <p>
+   If you did install a different Python distribution use
+   <code>
+    venv
+   </code>
+   or a similar way to create an environment for gatenlp.
+  </p>
+  <p>
+   Now create a separate environment for working with gatenlp. This example
+   <br/>
+   creates an environment with the name
+   <code>
+    gatenlp
+   </code>
+   and activates it:
+  </p>
+  <pre><code>conda create -n gatenlp python==3.8
+conda activate gatenlp
+</code></pre>
+  <p>
+   The
+   <code>
+    gatenlp
+   </code>
+   package has a number of optional dependencies which are only needed if some special features of gatenlp are used.
+  </p>
+  <p>
+   Install
+   <code>
+    gatenlp
+   </code>
+   with all dependencies and support for showing slides:
+  </p>
+  <pre><code>python -m pip install -U gatenlp[all,dev] 
+python -m pip install RISE
+</code></pre>
+  <p>
+   NOTE: if this fails because of a problem installing torch (this may happen on Windows),
+   <br/>
+   first install Pytorch separately according to
+   <br/>
+   the Pytorch installation instructions, see:
+   <a href="https://pytorch.org/get-started/locally/">
+    https://pytorch.org/get-started/locally/
+   </a>
+   <br/>
+   then run the gatenlp installation again.
+  </p>
+  <p>
+   Setup a Jupyter kernel for this environment:
+  </p>
+  <pre><code>python -m ipykernel install --user --name gatenlp --display-name "Python-gatenlp"
+</code></pre>
+  <h3 id="windows-10-kernel-error">
+   Windows 10 Kernel Error
+  </h3>
+  <p>
+   There is a bug in Anaconda/Miniconda which may cause an exception when Jupyter tries to initialize the kernel for the notebook. The error will contain the following:
+  </p>
+  <pre><code>import win32api
+ImportError: DLL load failed: The specified procedure could not be found.
+</code></pre>
+  <p>
+   If this happens try to run something like:
+  </p>
+  <pre><code>python C:\Users\USERNAME\miniconda3\envs\gatenlp\Scripts\pywin32_postinstall.py -install
+</code></pre>
+  <p>
+   where USERNAME is your user name on Windows.  For an anaconda installation use the corresponding directory instead.
+  </p>
+  <h4 id="requirements-for-using-the-gate-slave">
+   Requirements for using the GATE slave:
+  </h4>
+  <ul>
+   <li>
+    Java 8 or later
+   </li>
+   <li>
+    GATE 8.6.1 or later
+   </li>
+  </ul>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad();
+  </script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+  </script>
+  <script type="text/javascript">
+   MathJax.Hub.Config({"showProcessingMessages" : false,"messageStyle" : "none","tex2jax": { inlineMath: [ [ "$", "$" ] ] }});
+  </script>
+ </body>
+</html>
