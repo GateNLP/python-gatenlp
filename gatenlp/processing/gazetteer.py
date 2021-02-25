@@ -260,7 +260,7 @@ class TokenGazetteer:
                                 # TODO: maybe have a different way to retrieve the token annotations based
                                 # on the tokenizer????
                                 # TODO: try to figure out the outset and type used by the tokenizer, for now fixed! 
-                                tokenanns = list(tmpdoc.annset().with_type("Tokens"))
+                                tokenanns = list(tmpdoc.annset().with_type("Token"))
                                 if self.getterfunc:
                                     tokenstrings = [
                                         self.getterfunc(a, doc=tmpdoc)
