@@ -929,7 +929,7 @@ class StringGazetteer:
         Returns the node corresponding to the last character in key or raises a KeyError if create is False
         and the node does not exist. If create is True, inserts the node.
 
-        :param key: the key for which to find a node
+        :param item: the key for which to find a node
         :param create: if True, insert all necessary nodes
         :param raise_error: if True and create is False, raises an error if not found, if False, returns None
         :return: the node corresponding to the key or None if no node found and raise_error is False
