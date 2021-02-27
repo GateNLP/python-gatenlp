@@ -61,4 +61,10 @@ for running on your own computer.
       * [PAMPAC](pampac) / [PAMPAC Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [Notebook Download](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)
 
-* [The Generated Python Documentation](pythondoc/gatenlp)
+## Course Materials
+
+* [Gate Course 2021 - Module 11 Slides](training/module11-python-slides.html)
+
+## Python API
+
+[The Generated Python Documentation](pythondoc/gatenlp)
