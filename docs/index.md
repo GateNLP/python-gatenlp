@@ -63,7 +63,7 @@ for running on your own computer.
 
 ## Course Materials
 
-* [Gate Course 2021 - Module 11 Slides](training/module11-python-slides.html)
+* [Gate Course 2021 - Module 11 Slides](training/module11-python.slides.html)
 
 ## Python API
 
