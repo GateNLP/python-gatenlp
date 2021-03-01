@@ -879,6 +879,7 @@ class HtmlLoader:
         from_mem=None,
         parser=None,
         markup_set_name="Original markups",
+        encoding=None,
         process_soup=None,
         offset_mapper=None,
         **kwargs,
@@ -891,6 +892,7 @@ class HtmlLoader:
             markup_set_name: the annotation set name for the set to contain the HTML
                 annotations (Default value = "Original markups")
             process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
+            encoding: the encoding to use for reading the file
             offset_mapper: param kwargs: (Default value = None)
             from_ext: (Default value = None)
             parser: (Default value = None)
@@ -902,11 +904,12 @@ class HtmlLoader:
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
-                from_mem = get_str_from_url(extstr)
+                from_mem = get_str_from_url(extstr, encoding=encoding)
         if from_mem:
             bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
+            with open(extstr, encoding=encoding) as infp:
+                bs = BeautifulSoup(infp, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add

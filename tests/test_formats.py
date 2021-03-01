@@ -271,3 +271,13 @@ class TestFormatMsgPack:
         assert ann2.start == 2
         assert ann2.end == 8
         assert len(ann2.features) == 0
+
+
+class TestFormatHtml:
+    def test_formathtml01(self):
+        from gatenlp.document import Document
+        doc = Document.load(source=os.path.join(tstpath, "file1.html"))
+        assert "some heading" in doc.text
+        assert "Some text." in doc.text
+        set1 = doc.annset("Original markups")
+        assert set1.size == 4
