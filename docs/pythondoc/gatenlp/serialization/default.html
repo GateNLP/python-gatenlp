@@ -50,7 +50,8 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.features import Features
-from gatenlp.utils import get_nested, is_url, get_str_from_url, get_bytes_from_url
+from gatenlp.utils import get_nested
+from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
 from bs4 import BeautifulSoup
 from gatenlp.gatenlpconfig import gatenlpconfig
@@ -907,6 +908,7 @@ class HtmlLoader:
         from_mem=None,
         parser=None,
         markup_set_name=&#34;Original markups&#34;,
+        encoding=None,
         process_soup=None,
         offset_mapper=None,
         **kwargs,
@@ -919,6 +921,7 @@ class HtmlLoader:
             markup_set_name: the annotation set name for the set to contain the HTML
                 annotations (Default value = &#34;Original markups&#34;)
             process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
+            encoding: the encoding to use for reading the file
             offset_mapper: param kwargs: (Default value = None)
             from_ext: (Default value = None)
             parser: (Default value = None)
@@ -930,11 +933,12 @@ class HtmlLoader:
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
-                from_mem = get_str_from_url(extstr)
+                from_mem = get_str_from_url(extstr, encoding=encoding)
         if from_mem:
             bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
+            with open(extstr, encoding=encoding) as infp:
+                bs = BeautifulSoup(infp, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
@@ -2123,6 +2127,7 @@ is defined in gatenlpconfig or do not use.</dd>
         from_mem=None,
         parser=None,
         markup_set_name=&#34;Original markups&#34;,
+        encoding=None,
         process_soup=None,
         offset_mapper=None,
         **kwargs,
@@ -2135,6 +2140,7 @@ is defined in gatenlpconfig or do not use.</dd>
             markup_set_name: the annotation set name for the set to contain the HTML
                 annotations (Default value = &#34;Original markups&#34;)
             process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
+            encoding: the encoding to use for reading the file
             offset_mapper: param kwargs: (Default value = None)
             from_ext: (Default value = None)
             parser: (Default value = None)
@@ -2146,11 +2152,12 @@ is defined in gatenlpconfig or do not use.</dd>
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
-                from_mem = get_str_from_url(extstr)
+                from_mem = get_str_from_url(extstr, encoding=encoding)
         if from_mem:
             bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
         else:
-            bs = BeautifulSoup(extstr, parser, multi_valued_attributes=None)
+            with open(extstr, encoding=encoding) as infp:
+                bs = BeautifulSoup(infp, parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add
@@ -2292,7 +2299,7 @@ is defined in gatenlpconfig or do not use.</dd>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.serialization.default.HtmlLoader.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, parser=None, markup_set_name='Original markups', process_soup=None, offset_mapper=None, **kwargs)</span>
+<span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, parser=None, markup_set_name='Original markups', encoding=None, process_soup=None, offset_mapper=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a HTML file.</p>
@@ -2307,6 +2314,8 @@ is defined in gatenlpconfig or do not use.</dd>
 annotations (Default value = "Original markups")</dd>
 <dt><strong><code>process_soup</code></strong></dt>
 <dd>a function to run on the parsed HTML soup before converting (Default value = None)</dd>
+<dt><strong><code>encoding</code></strong></dt>
+<dd>the encoding to use for reading the file</dd>
 <dt><strong><code>offset_mapper</code></strong></dt>
 <dd>param kwargs: (Default value = None)</dd>
 <dt><strong><code>from_ext</code></strong></dt>

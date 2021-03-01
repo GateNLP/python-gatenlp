@@ -121,7 +121,7 @@ class TokenGazetteer:
         fmt=&#34;gate-def&#34;,
         source_sep=&#34;\t&#34;,
         source_encoding=&#34;UTF-8&#34;,
-        cache_source=None,
+        # cache_source=None,   # TODO
         tokenizer=None,
         all=False,
         skip=True,
@@ -201,7 +201,11 @@ class TokenGazetteer:
         self.listtypes = []
         self.logger = init_logger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype)
+        self.source_sep = source_sep
+        self.source_encoding = source_encoding
+        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype, source_sep=source_sep,
+                    source_encoding=source_encoding
+                    )
 
     def append(
         self,
@@ -287,6 +291,7 @@ class TokenGazetteer:
                                 # TODO: include and handle SpaceToken if we use the speparator annoations!
                                 # TODO: maybe have a different way to retrieve the token annotations based
                                 # on the tokenizer????
+                                # TODO: try to figure out the outset and type used by the tokenizer, for now fixed! 
                                 tokenanns = list(tmpdoc.annset().with_type(&#34;Token&#34;))
                                 if self.getterfunc:
                                     tokenstrings = [
@@ -956,7 +961,7 @@ class StringGazetteer:
         Returns the node corresponding to the last character in key or raises a KeyError if create is False
         and the node does not exist. If create is True, inserts the node.
 
-        :param key: the key for which to find a node
+        :param item: the key for which to find a node
         :param create: if True, insert all necessary nodes
         :param raise_error: if True and create is False, raises an error if not found, if False, returns None
         :return: the node corresponding to the key or None if no node found and raise_error is False
@@ -1260,7 +1265,7 @@ class StringGazetteer:
         Returns the node corresponding to the last character in key or raises a KeyError if create is False
         and the node does not exist. If create is True, inserts the node.
 
-        :param key: the key for which to find a node
+        :param item: the key for which to find a node
         :param create: if True, insert all necessary nodes
         :param raise_error: if True and create is False, raises an error if not found, if False, returns None
         :return: the node corresponding to the key or None if no node found and raise_error is False
@@ -1323,7 +1328,7 @@ text is a string, otherwise are the token offsets.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.TokenGazetteer"><code class="flex name class">
 <span>class <span class="ident">TokenGazetteer</span></span>
-<span>(</span><span>source, fmt='gate-def', source_sep='\t', source_encoding='UTF-8', cache_source=None, tokenizer=None, all=False, skip=True, outset='', outtype='Lookup', annset='', tokentype='Token', feature=None, septype=None, splittype=None, withintype=None, mapfunc=None, ignorefunc=None, getterfunc=None, listfeatures=None, listtype=None)</span>
+<span>(</span><span>source, fmt='gate-def', source_sep='\t', source_encoding='UTF-8', tokenizer=None, all=False, skip=True, outset='', outtype='Lookup', annset='', tokentype='Token', feature=None, septype=None, splittype=None, withintype=None, mapfunc=None, ignorefunc=None, getterfunc=None, listfeatures=None, listtype=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
@@ -1395,7 +1400,7 @@ precedence over outtype for the data loaded from source.</dd>
         fmt=&#34;gate-def&#34;,
         source_sep=&#34;\t&#34;,
         source_encoding=&#34;UTF-8&#34;,
-        cache_source=None,
+        # cache_source=None,   # TODO
         tokenizer=None,
         all=False,
         skip=True,
@@ -1475,7 +1480,11 @@ precedence over outtype for the data loaded from source.</dd>
         self.listtypes = []
         self.logger = init_logger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype)
+        self.source_sep = source_sep
+        self.source_encoding = source_encoding
+        self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype, source_sep=source_sep,
+                    source_encoding=source_encoding
+                    )
 
     def append(
         self,
@@ -1561,6 +1570,7 @@ precedence over outtype for the data loaded from source.</dd>
                                 # TODO: include and handle SpaceToken if we use the speparator annoations!
                                 # TODO: maybe have a different way to retrieve the token annotations based
                                 # on the tokenizer????
+                                # TODO: try to figure out the outset and type used by the tokenizer, for now fixed! 
                                 tokenanns = list(tmpdoc.annset().with_type(&#34;Token&#34;))
                                 if self.getterfunc:
                                     tokenstrings = [

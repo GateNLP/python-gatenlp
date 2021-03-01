@@ -37,13 +37,7 @@ import logging
 import logging.config
 import datetime
 import time
-from io import TextIOWrapper
 from functools import wraps
-from pathlib import Path
-from urllib.parse import ParseResult
-from urllib.request import urlopen
-
-import requests
 
 
 def identity(x):
@@ -371,114 +365,7 @@ def get_nested(adict, name, default=None, silent=False):
     if ret is None:
         return default
     else:
-        return ret
-
-
-def is_url(ext):
-    &#34;&#34;&#34;
-    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
-    If ext is None, returns None, None.
-
-    Args:
-      ext: something that represents an external resource: string, url parse, pathlib path object ...
-
-    Returns:
-        a tuple (True, urlstring)  or (False,pathstring)
-
-    &#34;&#34;&#34;
-    if ext is None:
-        return None, None
-    if isinstance(ext, str):
-        if ext.startswith(&#34;http://&#34;) or ext.startswith(&#34;https://&#34;):
-            return True, ext
-        else:
-            return False, ext
-    elif isinstance(ext, Path):
-        return False, str(ext)
-    elif isinstance(ext, ParseResult):
-        return True, ext.geturl()
-    else:
-        raise Exception(f&#34;Odd type: {ext}&#34;)
-
-
-def get_str_from_url(url, encoding=None):
-    &#34;&#34;&#34;Read a string from the URL.
-
-    Args:
-      url: some URL
-      encoding: override the encoding that would have determined automatically (Default value = None)
-
-    Returns:
-        the string
-    &#34;&#34;&#34;
-    req = requests.get(url)
-    if encoding is not None:
-        req.encoding = encoding
-    return req.text
-
-
-def get_bytes_from_url(url):
-    &#34;&#34;&#34;
-    Reads bytes from url.
-
-    Args:
-      url: the URL
-
-    Returns:
-        the bytes
-    &#34;&#34;&#34;
-    req = requests.get(url)
-    return req.content
-
-
-def yield_lines_from(url_or_file, encoding=&#34;utf-8&#34;):
-    &#34;&#34;&#34;
-    Yields lines of text from either a file or an URL
-
-    Args:
-        url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
-        only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
-    &#34;&#34;&#34;
-    isurl, extstr = is_url(url_or_file)
-    if isurl is None:
-        return
-    if isurl:
-        for line in urlopen(extstr):
-            line = line.decode(encoding)
-            yield line
-    else:
-        with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
-            for line in infp:
-                yield line
-
-
-def stream_from(url_or_file, encoding=&#34;utf-8&#34;):
-    &#34;&#34;&#34;
-    Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
-    in text mode with the given encoding.
-
-    Args:
-        url_or_file: URL or file
-        encoding: if None, open in binary mode, otherwise in text mode with this encoding
-
-    Returns:
-        open stream or None if we cannot determine if it is an URL or file
-
-    &#34;&#34;&#34;
-    isurl, extstr = is_url(url_or_file)
-    if isurl is None:
-        return
-    if isurl:
-        tmpfp = urlopen(extstr)
-        if encoding is not None:
-            return TextIOWrapper(tmpfp, encoding=encoding)
-        else:
-            return tmpfp
-    else:
-        if encoding is not None:
-            return open(extstr, &#34;rt&#34;, encoding=encoding)
-        else:
-            return open(extstr, &#34;rb&#34;)</code></pre>
+        return ret</code></pre>
 </details>
 </section>
 <section>
@@ -507,19 +394,6 @@ def stream_from(url_or_file, encoding=&#34;utf-8&#34;):
 <h2 id="returns">Returns</h2>
 <p>file path (string)</p></div>
 </dd>
-<dt id="gatenlp.utils.get_bytes_from_url"><code class="name flex">
-<span>def <span class="ident">get_bytes_from_url</span></span>(<span>url)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Reads bytes from url.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>url</code></strong></dt>
-<dd>the URL</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>the bytes</p></div>
-</dd>
 <dt id="gatenlp.utils.get_nested"><code class="name flex">
 <span>def <span class="ident">get_nested</span></span>(<span>adict, name, default=None, silent=False)</span>
 </code></dt>
@@ -541,21 +415,6 @@ an excpetion is raised unless silent is True</dd>
 <p>The value for the field or None if not found</p>
 <h2 id="raises">Raises</h2>
 <p>Exception if an expected nested dictionary is not a dictionary and silent is False</p></div>
-</dd>
-<dt id="gatenlp.utils.get_str_from_url"><code class="name flex">
-<span>def <span class="ident">get_str_from_url</span></span>(<span>url, encoding=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Read a string from the URL.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>url</code></strong></dt>
-<dd>some URL</dd>
-<dt><strong><code>encoding</code></strong></dt>
-<dd>override the encoding that would have determined automatically (Default value = None)</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>the string</p></div>
 </dd>
 <dt id="gatenlp.utils.identity"><code class="name flex">
 <span>def <span class="ident">identity</span></span>(<span>x)</span>
@@ -596,21 +455,6 @@ file "outpref.DATETIME.log" as well.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A logger instance for name (always the same instance for the same name)</p></div>
-</dd>
-<dt id="gatenlp.utils.is_url"><code class="name flex">
-<span>def <span class="ident">is_url</span></span>(<span>ext)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
-If ext is None, returns None, None.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>ext</code></strong></dt>
-<dd>something that represents an external resource: string, url parse, pathlib path object &hellip;</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>a tuple (True, urlstring)
-or (False,pathstring)</p></div>
 </dd>
 <dt id="gatenlp.utils.isequal"><code class="name flex">
 <span>def <span class="ident">isequal</span></span>(<span>x, y)</span>
@@ -664,22 +508,6 @@ start and end offsets of a substring in the text and item is the item for that s
 <h2 id="returns">Returns</h2>
 <p>tuple of formatted run time, run time in seconds</p></div>
 </dd>
-<dt id="gatenlp.utils.stream_from"><code class="name flex">
-<span>def <span class="ident">stream_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
-in text mode with the given encoding.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>url_or_file</code></strong></dt>
-<dd>URL or file</dd>
-<dt><strong><code>encoding</code></strong></dt>
-<dd>if None, open in binary mode, otherwise in text mode with this encoding</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>open stream or None if we cannot determine if it is an URL or file</p></div>
-</dd>
 <dt id="gatenlp.utils.support_annotation_or_set"><code class="name flex">
 <span>def <span class="ident">support_annotation_or_set</span></span>(<span>method)</span>
 </code></dt>
@@ -697,18 +525,6 @@ offset.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the adapted method which now takes an annotation or annotation set as well as start/end offsets.</p></div>
-</dd>
-<dt id="gatenlp.utils.yield_lines_from"><code class="name flex">
-<span>def <span class="ident">yield_lines_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Yields lines of text from either a file or an URL</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>url_or_file</code></strong></dt>
-<dd>either a file path or URL. If this is a string, then it is interpreted as an URL</dd>
-</dl>
-<p>only if it starts with http:// or <a href="https://,">https://,</a> otherwise it can be a parsed urllib url or a pathlib path</p></div>
 </dd>
 </dl>
 </section>
@@ -730,20 +546,15 @@ offset.</p>
 <ul class="">
 <li><code><a title="gatenlp.utils.allowspan" href="#gatenlp.utils.allowspan">allowspan</a></code></li>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
-<li><code><a title="gatenlp.utils.get_bytes_from_url" href="#gatenlp.utils.get_bytes_from_url">get_bytes_from_url</a></code></li>
 <li><code><a title="gatenlp.utils.get_nested" href="#gatenlp.utils.get_nested">get_nested</a></code></li>
-<li><code><a title="gatenlp.utils.get_str_from_url" href="#gatenlp.utils.get_str_from_url">get_str_from_url</a></code></li>
 <li><code><a title="gatenlp.utils.identity" href="#gatenlp.utils.identity">identity</a></code></li>
 <li><code><a title="gatenlp.utils.in_notebook" href="#gatenlp.utils.in_notebook">in_notebook</a></code></li>
 <li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
-<li><code><a title="gatenlp.utils.is_url" href="#gatenlp.utils.is_url">is_url</a></code></li>
 <li><code><a title="gatenlp.utils.isequal" href="#gatenlp.utils.isequal">isequal</a></code></li>
 <li><code><a title="gatenlp.utils.match_substrings" href="#gatenlp.utils.match_substrings">match_substrings</a></code></li>
 <li><code><a title="gatenlp.utils.run_start" href="#gatenlp.utils.run_start">run_start</a></code></li>
 <li><code><a title="gatenlp.utils.run_stop" href="#gatenlp.utils.run_stop">run_stop</a></code></li>
-<li><code><a title="gatenlp.utils.stream_from" href="#gatenlp.utils.stream_from">stream_from</a></code></li>
 <li><code><a title="gatenlp.utils.support_annotation_or_set" href="#gatenlp.utils.support_annotation_or_set">support_annotation_or_set</a></code></li>
-<li><code><a title="gatenlp.utils.yield_lines_from" href="#gatenlp.utils.yield_lines_from">yield_lines_from</a></code></li>
 </ul>
 </li>
 </ul>
