@@ -32,7 +32,6 @@ import pickle
 
 try:
     from bs4 import GuessedAtParserWarning
-
     warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
 except Exception as ex:
     pass
@@ -877,25 +876,21 @@ class HtmlLoader:
         clazz,
         from_ext=None,
         from_mem=None,
-        parser=None,
+        parser="html.parser",
         markup_set_name="Original markups",
         encoding=None,
-        process_soup=None,
-        offset_mapper=None,
         **kwargs,
     ):
         """Load a HTML file.
 
         Args:
             clazz: param from_ext:
-            from_mem: param parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "lxml")
+            from_ext: file our URL source
+            from_mem:  string source
+            parser: one of "html.parser", "lxml", "lxml-xml", "html5lib" (default is "html.parser")
             markup_set_name: the annotation set name for the set to contain the HTML
                 annotations (Default value = "Original markups")
-            process_soup: a function to run on the parsed HTML soup before converting (Default value = None)
             encoding: the encoding to use for reading the file
-            offset_mapper: param kwargs: (Default value = None)
-            from_ext: (Default value = None)
-            parser: (Default value = None)
         """
         # NOTE: for now we have a simple heuristic for adding newlines to the text:
         # before and after a block element, a newline is added unless there is already one
@@ -906,10 +901,10 @@ class HtmlLoader:
             if isurl:
                 from_mem = get_str_from_url(extstr, encoding=encoding)
         if from_mem:
-            bs = BeautifulSoup(from_mem, parser, multi_valued_attributes=None)
+            bs = BeautifulSoup(from_mem, features=parser, multi_valued_attributes=None)
         else:
             with open(extstr, encoding=encoding) as infp:
-                bs = BeautifulSoup(infp, parser, multi_valued_attributes=None)
+                bs = BeautifulSoup(infp, features=parser, multi_valued_attributes=None)
         # we recursively iterate the tree depth first, going through the children
         # and adding to a list that either contains the text or a dict with the information
         # about annotations we want to add

@@ -278,8 +278,41 @@ class TestFormatHtml:
         from gatenlp.document import Document
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
+        # use default parser (html.parser)
         doc = Document.load(source=os.path.join(tstpath, "file1.html"))
         assert "some heading" in doc.text
         assert "Some text." in doc.text
         set1 = doc.annset("Original markups")
         assert set1.size == 4
+
+    def test_formathtml02(self):
+        from gatenlp.document import Document
+        try:
+            import lxml
+        except:
+            # not installed, skip test
+            return
+        curpath = os.path.abspath(os.path.curdir)
+        tstpath = os.path.join(curpath, "tests")
+        doc = Document.load(source=os.path.join(tstpath, "file1.html"), parser="lxml")
+        assert "some heading" in doc.text
+        assert "Some text." in doc.text
+        set1 = doc.annset("Original markups")
+        assert set1.size == 4
+
+    def test_formathtml03(self):
+        from gatenlp.document import Document
+        try:
+            import html5lib
+        except:
+            # not installed, skip test
+            return
+        curpath = os.path.abspath(os.path.curdir)
+        tstpath = os.path.join(curpath, "tests")
+        doc = Document.load(source=os.path.join(tstpath, "file1.html"), parser="html5lib")
+        assert "some heading" in doc.text
+        assert "Some text." in doc.text
+        set1 = doc.annset("Original markups")
+        # html5lib includes a zero length head annotation for the missing head, so one more annotation than
+        # other parsers!
+        assert set1.size == 5
