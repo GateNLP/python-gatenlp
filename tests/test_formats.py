@@ -276,6 +276,8 @@ class TestFormatMsgPack:
 class TestFormatHtml:
     def test_formathtml01(self):
         from gatenlp.document import Document
+        curpath = os.path.abspath(os.path.curdir)
+        tstpath = os.path.join(curpath, "tests")
         doc = Document.load(source=os.path.join(tstpath, "file1.html"))
         assert "some heading" in doc.text
         assert "Some text." in doc.text
