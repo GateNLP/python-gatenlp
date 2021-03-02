@@ -99,8 +99,13 @@ class SplitPatternTokenizer(Tokenizer):
     Create annotations for spans of text defined by some literal or regular expression split pattern
     between those spans. Optionally also create annotations for the spans that match the split pattern.
     """
-
-    def __init__(self, split_pattern="\n", token_pattern=None, out_set="", token_type="Token", space_token_type=None):
+    # TODO: how to properly use type hinting for regex/re patterns?
+    def __init__(self,
+                 split_pattern: any = "\n",
+                 token_pattern: any = None,
+                 out_set: str = "",
+                 token_type: str = "Token",
+                 space_token_type: str = None):
         """
         Initialize the SplitPatternTokenizer.
         The pattern is either a literal string or a compiled regular expression.
@@ -134,25 +139,40 @@ class SplitPatternTokenizer(Tokenizer):
             l = len(self.split_pattern)
             idx = doc.text.find(self.split_pattern)
             while idx > -1:
+                print("DEBUG: found idx=", idx)
                 if self.space_token_type is not None:
                     annset.add(idx, idx+l, self.space_token_type)
                 if idx > last_off:
                     if self.token_pattern is None or (
                             self.token_pattern and self._match_token_pattern(doc.text[last_off, idx])):
                         annset.add(last_off, idx, self.token_type)
-                    last_off = idx
-                    idx = doc.text.find(self.split_pattern, idx+1)
+                last_off = idx+len(self.split_pattern)
+                idx = doc.text.find(self.split_pattern, idx+1)
         else:
             for m in self.split_pattern.finditer(doc.text):
                 if self.space_token_type is not None:
                     annset.add(m.start(), m.end(), self.space_token_type)
                 if m.start() > last_off:
                     if self.token_pattern is None or (
-                            self.token_pattern and self._match_token_pattern(doc.text[last_off, m.start])):
-                        annset.add(last_off, m.start, self.token_type)
-                    last_off = m.end()
+                            self.token_pattern and self._match_token_pattern(doc.text[last_off, m.start()])):
+                        annset.add(last_off, m.start(), self.token_type)
+                last_off = m.end()
         if last_off < len(doc.text):
             if self.token_pattern is None or (
                     self.token_pattern and self._match_token_pattern(doc.text[last_off, len(doc.text)])):
                 annset.add(last_off, len(doc.text), self.token_type)
         return doc
+
+
+class ParagraphTokenizer(SplitPatternTokenizer):
+    """
+    Splits a document into paragraphs, based on the presence of one or more or two or more new lines.
+    This is a convenience subclass of SplitPatternTokenizer, for more complex ways to split into paragraphs,
+    that class should get used directly.
+    """
+    def __init__(self, n_nl=1, out_set="", paragraph_type="Paragraph", split_type=None):
+        import re
+        nl_str = "\\n" * n_nl
+        pat = re.compile(nl_str+"\\n*")
+        super().__init__(split_pattern=pat, token_type=paragraph_type, space_token_type=split_type, out_set=out_set)
+
