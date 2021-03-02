@@ -65,6 +65,10 @@ for running on your own computer.
 
 * [Gate Course 2021 - Module 11 Slides](training/module11-python.slides.html)
 
+## Change Log
+
+* [Change Log](changes): show major changes in each release since 1.0.1
+
 ## Python API
 
 [The Generated Python Documentation](pythondoc/gatenlp)
