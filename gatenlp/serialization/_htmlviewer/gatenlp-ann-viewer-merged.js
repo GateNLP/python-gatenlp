@@ -397,6 +397,7 @@ var gatenlpDocView = class {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
+                txt = txt.replace(/\n/g, "\u2002\n");
                 // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
