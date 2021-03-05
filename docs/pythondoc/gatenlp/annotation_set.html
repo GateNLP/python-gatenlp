@@ -648,8 +648,9 @@ class AnnotationSet:
         reverse: bool = False,
     ) -&gt; Generator:
         &#34;&#34;&#34;
-        Yields annotations ordered by starting annotation and annotation id, otionally limited
-        by the other parameters.
+        Default iterator.
+        Yields annotations ordered by increasing starting annotation offset and increasing annotation id,
+        otionally limited by the other parameters.
 
         Args:
           start_ge: the offset from where to start including annotations
@@ -658,7 +659,7 @@ class AnnotationSet:
           reverse: process in reverse document order
 
         Yields:
-          annotations in document order
+          Annotations in default document order, or reverse document order
 
         &#34;&#34;&#34;
 
@@ -700,11 +701,10 @@ class AnnotationSet:
         reverse: bool = False,
     ) -&gt; Generator:
         &#34;&#34;&#34;
-        Yields annotations ordered by start offset, end offset and annotoation
-        id, otionally limited
-        by the other parameters. If two annoations start at the same offset,
-        they are always
-        ordered by increasing annotation id.
+        Offset-Length Iterator.
+        Yields annotations ordered by increasing start offset, by increasing end offset
+        and increasing annotoation id, otionally limited
+        by the other parameters.
 
         Args:
             start_ge: the offset from where to start including annotations
@@ -713,7 +713,7 @@ class AnnotationSet:
             reverse: process in reverse document order
 
         Yields:
-            annotations in document order
+            Annotations ordered by offset and length.
 
         &#34;&#34;&#34;
 
@@ -2061,8 +2061,9 @@ set has an owning document.</dd>
         reverse: bool = False,
     ) -&gt; Generator:
         &#34;&#34;&#34;
-        Yields annotations ordered by starting annotation and annotation id, otionally limited
-        by the other parameters.
+        Default iterator.
+        Yields annotations ordered by increasing starting annotation offset and increasing annotation id,
+        otionally limited by the other parameters.
 
         Args:
           start_ge: the offset from where to start including annotations
@@ -2071,7 +2072,7 @@ set has an owning document.</dd>
           reverse: process in reverse document order
 
         Yields:
-          annotations in document order
+          Annotations in default document order, or reverse document order
 
         &#34;&#34;&#34;
 
@@ -2113,11 +2114,10 @@ set has an owning document.</dd>
         reverse: bool = False,
     ) -&gt; Generator:
         &#34;&#34;&#34;
-        Yields annotations ordered by start offset, end offset and annotoation
-        id, otionally limited
-        by the other parameters. If two annoations start at the same offset,
-        they are always
-        ordered by increasing annotation id.
+        Offset-Length Iterator.
+        Yields annotations ordered by increasing start offset, by increasing end offset
+        and increasing annotoation id, otionally limited
+        by the other parameters.
 
         Args:
             start_ge: the offset from where to start including annotations
@@ -2126,7 +2126,7 @@ set has an owning document.</dd>
             reverse: process in reverse document order
 
         Yields:
-            annotations in document order
+            Annotations ordered by offset and length.
 
         &#34;&#34;&#34;
 
@@ -3454,7 +3454,30 @@ found. (Default value = None)</dd>
 <span>def <span class="ident">iter</span></span>(<span>self, start_ge: Union[int, NoneType] = None, start_lt: Union[NoneType, int] = None, with_type: str = None, reverse: bool = False) ‑> Generator</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Yields annotations ordered by starting annotation and annotation id, otionally limited
+<div class="desc"><p>Default iterator.
+Yields annotations ordered by increasing starting annotation offset and increasing annotation id,
+otionally limited by the other parameters.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start_ge</code></strong></dt>
+<dd>the offset from where to start including annotations</dd>
+<dt><strong><code>start_lt</code></strong></dt>
+<dd>the last offset to use as the starting offset of an annotation</dd>
+<dt><strong><code>with_type</code></strong></dt>
+<dd>only annotations of this type</dd>
+<dt><strong><code>reverse</code></strong></dt>
+<dd>process in reverse document order</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<p>Annotations in default document order, or reverse document order</p></div>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.iter_ol"><code class="name flex">
+<span>def <span class="ident">iter_ol</span></span>(<span>self, start_ge: Union[int, NoneType] = None, start_lt: Union[NoneType, int] = None, with_type: str = None, reverse: bool = False) ‑> Generator</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Offset-Length Iterator.
+Yields annotations ordered by increasing start offset, by increasing end offset
+and increasing annotoation id, otionally limited
 by the other parameters.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -3468,30 +3491,7 @@ by the other parameters.</p>
 <dd>process in reverse document order</dd>
 </dl>
 <h2 id="yields">Yields</h2>
-<p>annotations in document order</p></div>
-</dd>
-<dt id="gatenlp.annotation_set.AnnotationSet.iter_ol"><code class="name flex">
-<span>def <span class="ident">iter_ol</span></span>(<span>self, start_ge: Union[int, NoneType] = None, start_lt: Union[NoneType, int] = None, with_type: str = None, reverse: bool = False) ‑> Generator</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Yields annotations ordered by start offset, end offset and annotoation
-id, otionally limited
-by the other parameters. If two annoations start at the same offset,
-they are always
-ordered by increasing annotation id.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>start_ge</code></strong></dt>
-<dd>the offset from where to start including annotations</dd>
-<dt><strong><code>start_lt</code></strong></dt>
-<dd>the last offset to use as the starting offset of an annotation</dd>
-<dt><strong><code>with_type</code></strong></dt>
-<dd>only annotations of this type</dd>
-<dt><strong><code>reverse</code></strong></dt>
-<dd>process in reverse document order</dd>
-</dl>
-<h2 id="yields">Yields</h2>
-<p>annotations in document order</p></div>
+<p>Annotations ordered by offset and length.</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.last"><code class="name flex">
 <span>def <span class="ident">last</span></span>(<span>self)</span>

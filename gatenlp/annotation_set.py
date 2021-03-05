@@ -617,8 +617,9 @@ class AnnotationSet:
         reverse: bool = False,
     ) -> Generator:
         """
-        Yields annotations ordered by starting annotation and annotation id, otionally limited
-        by the other parameters.
+        Default iterator.
+        Yields annotations ordered by increasing starting annotation offset and increasing annotation id,
+        otionally limited by the other parameters.
 
         Args:
           start_ge: the offset from where to start including annotations
@@ -627,7 +628,7 @@ class AnnotationSet:
           reverse: process in reverse document order
 
         Yields:
-          annotations in document order
+          Annotations in default document order, or reverse document order
 
         """
 
@@ -669,11 +670,10 @@ class AnnotationSet:
         reverse: bool = False,
     ) -> Generator:
         """
-        Yields annotations ordered by start offset, end offset and annotoation
-        id, otionally limited
-        by the other parameters. If two annoations start at the same offset,
-        they are always
-        ordered by increasing annotation id.
+        Offset-Length Iterator.
+        Yields annotations ordered by increasing start offset, by increasing end offset
+        and increasing annotoation id, otionally limited
+        by the other parameters.
 
         Args:
             start_ge: the offset from where to start including annotations
@@ -682,7 +682,7 @@ class AnnotationSet:
             reverse: process in reverse document order
 
         Yields:
-            annotations in document order
+            Annotations ordered by offset and length.
 
         """
 
