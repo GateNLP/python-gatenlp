@@ -43,6 +43,8 @@ def get_install_extras_require():
         "stanza": ["stanza>=1.2"],
         "spacy": ["spacy>=2.3"],
         "nltk": ["nltk>=3.5"],
+        "gazetteers": ["matchtext", "recordclass"],
+        # the following are not included in all but in alldev
         "notebook": [
             "ipython",
             "ipykernel",
@@ -52,8 +54,6 @@ def get_install_extras_require():
             "RISE",
             "ipywidgets",
         ],
-        "gazetteers": ["matchtext", "recordclass"],
-        # the following are not included in all but in alldev
         "dev": [
             "pytest",
             "pytest-pep8",
@@ -67,8 +67,8 @@ def get_install_extras_require():
             "black[d]",  # for automatic code formatting
         ],
     }
-    # Add automatically the 'all' target
-    add_all = [p for l in extras_require.values() for p in l if p not in ["dev"]]
+    # Add automatically the 'all' and 'alldev' targets
+    add_all = [p for l in extras_require.values() for p in l if p not in ["dev", "notebook"]]
     add_alldev = [p for l in extras_require.values() for p in l]
     extras_require.update({"all": add_all, "alldev": add_alldev})
     return extras_require

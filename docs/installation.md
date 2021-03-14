@@ -51,17 +51,19 @@ first install Pytorch separately according to
 the Pytorch installation instructions, see: https://pytorch.org/get-started/locally/
 then run the gatenlp installation again. 
 
-The following specific dependencies can be chosen:
+The following specific dependencies included in 'all' can be chosen separately:
 * `formats`: to support the various serialization formats
 * `java`: to support the Gate slave 
 * `stanza`: to support the Stanza bridge
 * `spacy`: to support the Spacy bridge
-* `standfordnlp`: to support the StanfordNLP bridge (may get removed in a later version)
 * `nltk`: to support the nltk tokenizer and nltk bridge
 * `gazetteers`: to support gazetteers
-* `dev`: dependencies needed for developing gatenlp 
 
-To install gatenlp with support for stanza and spacy and serialization:
+The following dependencies are not included in 'all' but in 'alldev' or can be chosen separately:
+* `notebook`: needed to use `gatenlp` with notebooks, convert notebooks, show notebooks as slides 
+* `dev`: dependencies needed for developing gatenlp, testing, linting etc. 
+
+Example: to install gatenlp with support for stanza and spacy and serialization:
 
 ```
 python -m pip install gatenlp[stanza,spacy,formats]
@@ -72,11 +74,10 @@ To install the latest `gatenlp` code from GitHub with all dependencies:
 * Clone the repository and change into it
 * Run `python -m pip install -e .[all]`
 
-To also install everything needed for development use the "dev"
-extras: 
+To also install everything needed for development use "alldev":
 
 ```
-python -m pip install -e .[all,dev]
+python -m pip install -e .[alldev]
 ```
 
 
