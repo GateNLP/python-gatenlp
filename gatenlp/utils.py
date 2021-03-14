@@ -169,7 +169,7 @@ def run_stop(logger=None, name=None):
     if logger is None:
         logger = init_logger(name=name)
     logger.info(
-        "Stpped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S"))
+        "Stopped: {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M%S"))
     )
     if start == 0:
         logger.warning("Run timing not set up properly, no time!")
