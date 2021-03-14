@@ -19,7 +19,7 @@
 
 For now rather simple:
 
-* make sure everything is pulled and we are on branch master
+* make sure everything is pulled and we are on branch main
 * make sure it works: run tests
 * !! make sure the latest version of the htmlviewer javascript is released
   and the correct version number is used in the serializer and 
@@ -34,7 +34,7 @@ For now rather simple:
 * run `python make-java.py` 
 * re-install current directory locally using `pip install -e .[all,dev]`
 * double check that gateworker tries to load the new (not-yet existing) release
-* commit and push, Python plugin tracks master, so we have now what we need 
+* commit and push, Python plugin tracks main, so we have now what we need 
 * create release branch and push - this is for going back to this version more easily later
 
 * In plugin Python:
@@ -48,7 +48,7 @@ For now rather simple:
 * upload to pypi
 * create annotated tag v9.9
 * !! GateNLP is now released!
-* checkout master
+* checkout main
 * increase the gatenlp version, make it a snapshot version (+snapshot)
 * edit `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java` and change version
   to next Python plugin snapshot
