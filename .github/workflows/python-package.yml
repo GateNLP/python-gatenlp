@@ -38,10 +38,9 @@ jobs:
       run: |
         python3 -m pytest tests --cov=./
         # pytest -k 'not spacy and not stanza'  tests
-  cov:
-    steps:
     - name: "Upload coverage"
       uses: codecov/codecov-action@v1
+      if: ${{ matrix.python-version == '3.6' }}
       with:
         fail_ci_if_error: true
 
