@@ -60,6 +60,16 @@ a Java GATE process in two different ways:
 * Versions 1.0.x are public releases with feedback that may change APIs and change main parts of the software
 * Versions 1.x are public stable releases
 
+## Default branch renamed to "main"
+
+If you have a cloned copy, you need to rename it in your local copy as well:
+```
+git branch -m master main
+git fetch origin
+git branch -u origin/main main
+```
+
+
 
 ---
 
