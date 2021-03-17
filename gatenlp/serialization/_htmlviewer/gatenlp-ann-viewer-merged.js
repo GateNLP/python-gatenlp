@@ -387,7 +387,7 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
