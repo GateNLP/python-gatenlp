@@ -33,7 +33,7 @@ import pickle
 try:
     from bs4 import GuessedAtParserWarning
     warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
-except Exception as ex:
+except ImportError as ex:
     pass
 
 
@@ -504,17 +504,17 @@ class YamlSerializer:
                     from_mem = get_str_from_url(extstr, encoding="utf-8")
         if from_mem is not None:
             if gzip:
-                d = yaml.load(decompress(from_mem).decode("UTF-8"), Loader=yaml_loader)
+                d = yaml.save_load(decompress(from_mem).decode("UTF-8"), Loader=yaml_loader)
             else:
-                d = yaml.load(from_mem, Loader=yaml_loader)
+                d = yaml.save_load(from_mem, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         else:
             if gzip:
                 with gopen(extstr, "rt") as infp:
-                    d = yaml.load(infp, Loader=yaml_loader)
+                    d = yaml.save_load(infp, Loader=yaml_loader)
             else:
                 with open(extstr, "rt") as infp:
-                    d = yaml.load(infp, Loader=yaml_loader)
+                    d = yaml.save_load(infp, Loader=yaml_loader)
             doc = clazz.from_dict(d, offset_mapper=offset_mapper, **kwargs)
         return doc
 
