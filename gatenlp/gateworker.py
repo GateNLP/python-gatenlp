@@ -299,7 +299,6 @@ class GateWorker:
         self.closed = False
         self.keep = keep
         self.debug = debug
-        self.log_actions = log_actions
         if use_auth_token:
             if not auth_token:
                 self.auth_token = secrets.token_urlsafe(20)

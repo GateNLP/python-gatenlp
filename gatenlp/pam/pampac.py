@@ -1531,7 +1531,7 @@ class AnnAt(_AnnBase):
                     data = None
                 else:
                     data = dict(
-                        span=Span(next_ann),
+                        span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
                         name=self.name,

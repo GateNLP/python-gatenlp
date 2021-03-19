@@ -52,6 +52,7 @@ class AnnStanza(Annotator):
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
         self.mwt_type = mwt_type
+        self.batchsize = batchsize
         self.space_token_type = space_token_type
         [
             kwargs.pop(a, None)

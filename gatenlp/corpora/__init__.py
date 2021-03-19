@@ -135,13 +135,16 @@ class Corpus(ABC):
                 no action is performed, but specific implementation may change this behaviour.
 
         """
-        raise NotImplemented("Corpus does not allow appending")
+        raise RuntimeError("Corpus does not allow appending")
 
 
 class DocumentSource(ABC):
     @abstractmethod
     def __iter__(self):
         return self
+
+    def __next__(self):
+        raise NotImplementedError
 
 
 class DocumentDestination(ABC):
@@ -727,7 +730,7 @@ class NumberedDirFilesCorpus(Corpus):
                 if os.path.exists(path):
                     os.remove(path)
         else:
-            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+            Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
 
 
 class TsvFileSource(DocumentSource):
@@ -1068,7 +1071,7 @@ class ShuffledCorpus(Corpus):
         if not isinstance(idx, numbers.Integral):
             raise Exception("Item must be an integer")
         if idx >= len(self.idxs) or idx < 0:
-            raise Exception("Index idx must be >= 0 and < {}".format(self.len))
+            raise Exception("Index idx must be >= 0 and < {}".format(len(self)))
         # the index to access in the original dataset is int(n*item)+k
         self.corpus[self.idxs[idx]] = doc
 
