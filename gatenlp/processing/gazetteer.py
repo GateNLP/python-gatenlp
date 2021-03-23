@@ -21,7 +21,7 @@ class Gazetteer(Annotator):
     """
 
     def __call__(self, *args, **kwargs):
-        raise NotImplemented
+        raise RuntimeError("Not implemented in Gazetteer base class")
 
 
 # NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)

@@ -30,7 +30,7 @@ from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
 from gatenlp.gate_interaction import interact
 
 
-def init_notebook():
+def init_notebook():   # pragma: no cover
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
     from gatenlp.gatenlpconfig import gatenlpconfig
 

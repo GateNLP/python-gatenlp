@@ -33,7 +33,7 @@ import pickle
 try:
     from bs4 import GuessedAtParserWarning
     warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
-except Exception as ex:
+except ImportError as ex:
     pass
 
 

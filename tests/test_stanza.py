@@ -37,8 +37,3 @@ class TestStanza01:
         assert len(sents) == 2
         tokens = anns.with_type("Token")
         assert len(tokens) == 14
-
-
-if __name__ == "__main__":
-    tests = TestStanza01()
-    tests.test_snlp01a()

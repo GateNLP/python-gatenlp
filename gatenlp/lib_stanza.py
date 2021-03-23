@@ -7,6 +7,7 @@ from gatenlp import Document
 from gatenlp import logger
 from gatenlp.processing.annotator import Annotator
 import stanza
+from stanza.models.common.doc import Document as StanzaDocument
 
 
 class AnnStanza(Annotator):
@@ -22,23 +23,27 @@ class AnnStanza(Annotator):
         sentence_type="Sentence",
         add_entities=True,
         ent_prefix=None,
+        batchsize=1000,
         **kwargs,
     ):
         """
         Create a processing resources for running a stanza pipeline on documents.
 
         Args:
-            :param pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
+            pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
                 passing on the kwargs
             outsetname: the annotation set name where to put the annotations
             token_type: the annotation type for the token annotations
             mwt_type: annotation type for multi-word token annotations
             space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
-            for all characters in the document not covered by tokens.
+                for all characters in the document not covered by tokens.
             sentence_type: the annotation type for the sentence annotations
             add_entities: if true, add entity annotations
             ent_prefix: the prefix to add to all entity annotation types
-            :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
+            batchsize: for the pipe() method, batches from the input generator are created to speed up processing
+                with Stanza, this defines the number of documents per batch (default: 1000). Note that Stanza
+                internally re-batches those batches again, depending on the size of the documents in the sequence.
+            kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
         """
         self.outsetname = outsetname
@@ -47,6 +52,7 @@ class AnnStanza(Annotator):
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
         self.mwt_type = mwt_type
+        self.batchsize = batchsize
         self.space_token_type = space_token_type
         [
             kwargs.pop(a, None)
@@ -72,6 +78,28 @@ class AnnStanza(Annotator):
             ent_prefix=self.ent_prefix,
         )
         return doc
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        for idx, doc in enumerate(documents):
+            if idx >= self.batchsize:
+                break
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([],text=doc.text))
+        if len(docs) == 0:
+            return
+        stanza_out = self.pipeline(stanza_in)
+        assert len(stanza_out) == len(docs)
+        for doc_stanza, doc in zip(stanza_out, docs):
+            try:
+                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type="Token",
+                               sentence_type="Sentence", add_entities=False)
+                yield doc
+            except:
+                # TODO: this should be configurable: should we terminate, log, silently return None, silently
+                #   return the unprocessed document?
+                yield None
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=""):

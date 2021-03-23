@@ -15,5 +15,6 @@ then
 else
   python setup.py "$@"  |& tee -a make.log
 fi
+pytest --cov=gatenlp
 coverage report -i |& tee -a make.log
 coverage html -i

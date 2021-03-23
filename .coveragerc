@@ -5,7 +5,16 @@ omit=
   serialization/_htmlviewer
 
 [report]
+show_missing = True
+omit=
+  gatenlp/_jars
+  gatenlp/serialization/_htmlviewer
+  gatenlp/processing/client.py
 exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
     try:
     if __name__ == .__main__.:
     ^from 

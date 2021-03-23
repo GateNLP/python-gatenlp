@@ -36,7 +36,7 @@ jobs:
         flake8 gatenlp --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        python3 -m pytest tests --cov=./
+        python3 -m pytest tests --cov=gatenlp
         # pytest -k 'not spacy and not stanza'  tests
     - name: "Upload coverage"
       uses: codecov/codecov-action@v1
