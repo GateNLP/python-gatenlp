@@ -291,11 +291,9 @@ class GateWorker:
         self.port = port
         self.host = host
         self.start = start
-        self.gatehome = gatehome
         self.platform = platform
         self.gateprocess = None
         self.gateway = None
-        self.worker = None
         self.closed = False
         self.keep = keep
         self.debug = debug
@@ -360,28 +358,53 @@ class GateWorker:
         self.gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
         )
-        self.jvm = self.gateway.jvm
-        self.worker = self.gateway.entry_point
-        self.gate_version = self.jvm.gate.Main.version
-        self.gate_build = self.jvm.gate.Main.build
-        self.worker_version = self.worker.pluginVersion()
-        self.worker_build = self.worker.pluginBuild()
 
-    @staticmethod
-    def download():
-        """
-        Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
-        is not set.
+    @property
+    def jvm(self):
+        return self.gateway.jvm
 
-        NOTE YET IMPLEMENTED.
+    @property
+    def worker(self):
+        return self.gateway.entry_point
+
+    @property
+    def gate_version(self):
         """
-        # TODO: this should use the command and bootstrapping jar in gate-downloader:
-        # copy the whole directory into the standard per-user config directory for the system
-        # run the command
-        # use the generated gate.classpath as for a compiled local git repo
-        # NOTE: should change error message if GATE_HOME is not set to hint at this! (option --downlaod for the script)
-        # NOTE: add to documentation
-        raise Exception("Not yet implemented")
+        Return the GATE version of the connected GATE process.
+        """
+        return self.jvm.gate.Main.version
+
+    @property
+    def gate_build(self):
+        """
+        Return the GATE build id of the connected GATE process.
+        """
+        return self.jvm.gate.Main.build
+
+    @property
+    def worker_version(self):
+        return self.worker.pluginVersion()
+
+    @property
+    def worker_build(self):
+        return self.worker.pluginBuild()
+
+    # @staticmethod
+    # def download():
+    #     """
+    #     Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
+    #     is not set.
+    #
+    #     NOTE YET IMPLEMENTED.
+    #     """
+    #     # TODO: this should use the command and bootstrapping jar in gate-downloader:
+    #     # copy the whole directory into the standard per-user config directory for the system
+    #     # run the command
+    #     # use the generated gate.classpath as for a compiled local git repo
+    #     # NOTE: should change error message if GATE_HOME is not set to hint at this!
+    #     # (option --downlaod for the script)
+    #     # NOTE: add to documentation
+    #     raise Exception("Not yet implemented")
 
     def close(self):
         """
@@ -579,23 +602,6 @@ class GateWorker:
         """
         return self.worker.findMavenPlugin(group, artifact)
 
-    def gate_build(self):
-        """
-        Return the short commit id of the Java GATE we are connected to.
-
-        Returns:
-            short commit id string
-        """
-        return self.worker.gate_build()
-
-    def gate_version(self):
-        """
-        Return the version string of the Java GATE we are connected to.
-
-        Returns:
-            version string
-        """
-        return self.worker.gate_version()
 
     def getBdocJson(self, gdoc):
         """
