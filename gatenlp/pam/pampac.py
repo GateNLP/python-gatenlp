@@ -2213,7 +2213,8 @@ class Rule(PampacParser):
 
         Args:
             parser: the parser to match for the rule
-            action:  the action to perform, or a function to call
+            action:  the action to perform, or a function to call. The action callable is passed the success object
+                and the kwargs context and location
             priority: the priority of the rule
         """
         self.parser = parser
