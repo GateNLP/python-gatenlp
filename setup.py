@@ -63,6 +63,8 @@ def get_install_extras_require():
             "pdoc3",
             "tox",
             "mypy",
+            "bandit",
+            "prospector[with_pyroma,with_vulture,with_mypy,with_bandid,with_frosted]",
             "pytest-tornasync",  # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             "black[d]",  # for automatic code formatting
         ],
