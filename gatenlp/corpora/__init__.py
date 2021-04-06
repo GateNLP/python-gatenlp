@@ -700,7 +700,6 @@ class NumberedDirFilesCorpus(Corpus):
         self.size = size
         self.store_none = store_none
         self.file_path_maker = make_file_path_fromidx(digits, levels)
-        pass
 
     def __len__(self):
         return self.size
