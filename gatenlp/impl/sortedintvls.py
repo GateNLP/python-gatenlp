@@ -17,6 +17,20 @@ import sys
 from sortedcontainers import SortedKeyList
 
 
+class _DefaultOffsetSorter:
+    def __call__(self, anninfo):
+        return (anninfo[0], anninfo[2])
+
+
+class _OffsetLengthSorter:
+    def __call__(self, anninfo):
+        return (anninfo[0], anninfo[1], anninfo[2])
+
+class _EndOffsetSorter:
+    def __call__(self, anninfo):
+        return (anninfo[1], anninfo[2])
+
+
 class SortedIntvls:
     """ """
 
@@ -29,13 +43,13 @@ class SortedIntvls:
             by_ol: if True, use start offset, end offset, annotation id
         """
         if by_ol:
-            # we sort by increasing start offset then increasing annotation id for this
-            self._by_start = SortedKeyList(key=lambda x: (x[0], x[1], x[2]))
+            # we sort by increasing start offset, increasing end offset, then increasing annotation id for this
+            self._by_start = SortedKeyList(key=_OffsetLengthSorter())
         else:
             # we sort by increasing start offset then increasing annotation id for this
-            self._by_start = SortedKeyList(key=lambda x: (x[0], x[2]))
+            self._by_start = SortedKeyList(key=_DefaultOffsetSorter())
         # for this we sort by end offset only
-        self._by_end = SortedKeyList(key=lambda x: x[1])
+        self._by_end = SortedKeyList(key=_EndOffsetSorter())
 
     def add(self, start, end, data):
         """
