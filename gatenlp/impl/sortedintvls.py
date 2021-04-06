@@ -119,7 +119,7 @@ class SortedIntvls:
         """
         # get all the intervals that start within the range, then keep those which also end within the range
         for intvl in self._by_start.irange(
-        minimum=(start, 0, 0), maximum=(end, sys.maxsize, sys.maxsize)
+            minimum=(start, 0, 0), maximum=(end, sys.maxsize, sys.maxsize)
         ):
             if intvl[1] <= end:
                 yield intvl
