@@ -86,7 +86,7 @@ start = 0
 LOGGING_FORMAT = "%(asctime)s|%(levelname)s|%(name)s|%(message)s"
 
 
-def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None, fmt=None):
     """
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -105,6 +105,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         lvl: set logging level
         config: if specified, set logger config from this file
         args: not used yet
+        fmt: logging format to use, if None uses a default format
 
     Returns:
         A logger instance for name (always the same instance for the same name)
@@ -112,6 +113,8 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
 
     if name is None:
         name = sys.argv[0]
+    if fmt is None:
+        fmt = LOGGING_FORMAT
     if lvl is None:
         if debug:
             lvl = logging.DEBUG
@@ -128,7 +131,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
     # handler for the file, if needed, only if the root logger has no handlers yet as well
     addhandlers = []
-    fmt = logging.Formatter(LOGGING_FORMAT)
+    fmt = logging.Formatter(fmt)
     hndlr = logging.StreamHandler(sys.stderr)
     hndlr.setFormatter(fmt)
     addhandlers.append(hndlr)
