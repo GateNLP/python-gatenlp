@@ -254,31 +254,6 @@ class Success(Iterable, Sized):
         """
         return True
 
-    # TODO: the following method may not be needed! Consider removing!
-    # def add(self, result, ifnew=False):
-    #     """
-    #     Add a result.
-    #
-    #     Args:
-    #         result:
-    #         ifnew:
-    #
-    #     Returns:
-    #
-    #     """
-    #     # TODO: not sure if the ifnew parameter and treatment makes sense: do we ever not want
-    #     # to add a result if it is already there (meaning, the same match and the same remaining text/anns).
-    #     if isinstance(result, Iterable):
-    #         for re in result:
-    #             self.add(re, ifnew=ifnew)
-    #     else:
-    #         if ifnew:
-    #             if result not in self._results:
-    #                 self._results.append(result)
-    #         else:
-    #             self._results.append(result)
-    #     return self
-
     def pprint(self, file=None):
         """
         Pretty print the success instance to the file or stdout if no file is specified.
@@ -1701,10 +1676,14 @@ class Text(PampacParser):
         self.matchcase = matchcase
 
     def parse(self, location, context):
-        # TODO: why did we update by index here before trying to match?
-        #print(f" DEBUG BEFORE: {location}")
-        #location = context.update_location_byindex(location)
-        #print(f"DEBUG AFTER: {location}")
+        # TODO: why did we update by index here before trying to match? Are there edge cases where this
+        #   is needed? In general it is bad because it will set the text offset to the end of the NEXT
+        #   annotation which we do not want. So maybe there are cases when either the current text offset
+        #   does not coincide with the current annotation index or where the annotation index was not
+        #   updated.
+        # print(f" DEBUG BEFORE: {location}")
+        # location = context.update_location_byindex(location)
+        # print(f"DEBUG AFTER: {location}")
         txt = context.doc.text[location.text_location:]
         if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
             self.text, CLASS_REGEX_PATTERN

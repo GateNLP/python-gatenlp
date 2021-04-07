@@ -24,6 +24,32 @@ __pdoc__ = {
     "AnnMatcher.__call__": True,
 }
 
+class isIn:
+    """
+    Helper  for use with the Feature matcher to check if a feature value is one of the
+    values given to the constructor.
+    """
+    def __init__(self, *args, matchcase=True):
+        """
+        Literal values to compare against. The created callable returns true if called with
+        one of these values.
+
+        Args:
+            *args: values to match against.
+            matchcase: if string values should get matched with exact case or not if False, uses
+                the upper case variant for matching
+        """
+        self.matchcase = matchcase
+        if not matchcase:
+            self.vals = [x.upper() for x in args if isinstance(x, str)]
+        else:
+            self.vals = args
+
+    def __call__(self, value):
+        if not self.matchcase:
+            value = value.upper()
+        return value in self.vals
+
 
 class FeatureMatcher:
     """
@@ -230,7 +256,7 @@ class AnnMatcher:
 # text case insensitive or negate matching text or features
 
 
-class nocase:
+class Nocase:
     """
     A matcher for comparing text in a case insensitive way.
 
@@ -240,7 +266,7 @@ class nocase:
 
     Example:
         ```python
-        m1 = nocase("sometext")
+        m1 = Nocase("sometext")
         assert m1("SomeText")
         assert m1("SOMETEXT")
         ```
@@ -268,14 +294,14 @@ class nocase:
         return text.upper() == self.text
 
 
-class ifnot:
+class IfNot:
     """
     A matcher that returns the negation of another matcher.
 
     Example:
         ```python
         m1 = FeatureMatcher(f1="x", f2=22)
-        m2 = ifnot(m1)  # m2 matches for features which do not contain f1="x" and not f2=22
+        m2 = IfNot(m1)  # m2 matches for features which do not contain f1="x" and not f2=22
         ```
     """
 
