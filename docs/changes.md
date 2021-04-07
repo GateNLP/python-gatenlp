@@ -5,6 +5,10 @@
 * Issue #66: make it possible to show annotations over new-lines in the html ann viewer
 * Issue #65: provide ParagraphTokenizer and SplitPatternTokenizer to easily annotate paragraphs
   and other spans separated by some split pattern
+* Issue #73: pickle document with offset index created
+* Issue #68: rename the main development branch from "master" to "main"
+* Issue #74: fix a bug in PAMPAC related to matching an annotation after some text
+
 
 ## 1.0.3.1 (2021-03-01)
 

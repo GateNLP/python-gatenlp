@@ -472,12 +472,14 @@ class Context:
             annotation index
         """
         idx = location.ann_location
+        # print(f"DEBUG Trying to find next idx for curlocation={location} and curidx={idx}, offset={offset}")
         if next_ann:
             idx += 1
         while True:
             if idx >= len(self.anns):
                 return len(self.anns)
             ann = self.anns[idx]
+            # print(f"DEBUG Checking ann={ann}")
             if ann.start >= offset:
                 return idx
             idx += 1
@@ -519,6 +521,7 @@ class Context:
             newloc.ann_location += 1
         else:
             # update by text offset
+            # print(f"DEBUG Updating by text offset: {by_offset}, current loc is {newloc.text_location}")
             if newloc.text_location + by_offset >= self.end:
                 # if we reach the end of the text, update the annotation index to end of annotations as well
                 newloc.text_location = self.end
@@ -561,10 +564,12 @@ class Context:
             a new location with the text offset updated
         """
         if location.ann_location == len(self.anns):
+            # we already are beyond the last annotation so we set the text offset to beyond the text
             return Location(len(self.doc.text), location.ann_location)
         else:
+            # set the text location to the end of the current annotation
             return Location(
-                location.text_location, self.anns[location.ann_location].end
+                self.anns[location.ann_location].end, location.ann_location
             )
 
     def at_endoftext(self, location):
@@ -1696,7 +1701,10 @@ class Text(PampacParser):
         self.matchcase = matchcase
 
     def parse(self, location, context):
-        location = context.update_location_byindex(location)
+        # TODO: why did we update by index here before trying to match?
+        #print(f" DEBUG BEFORE: {location}")
+        #location = context.update_location_byindex(location)
+        #print(f"DEBUG AFTER: {location}")
         txt = context.doc.text[location.text_location:]
         if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
             self.text, CLASS_REGEX_PATTERN
@@ -1743,6 +1751,7 @@ class Text(PampacParser):
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
+                # print(f"DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}")
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
