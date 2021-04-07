@@ -2411,6 +2411,48 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             return
     return data[dataidx]
 
+def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
+    """
+    Helper method to return the span for the given result index and name, or None.
+
+    Args:
+        succ: success instance
+        name: name of the data, if None, uses the entire span of the result
+        resultidx: index of the result in success
+        dataidx: if there is more than one matching data with that name, which one to return, if no name, ignored
+        silent_fail: if True, return None, if False, raise an exception if the data is not present
+
+    Returns:
+        the span or None if no Span exists
+    """
+    if resultidx >= len(succ):
+        if not silent_fail:
+            raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
+        else:
+            return
+    res = succ[resultidx]
+    if name:
+        data = res.data4name(name)
+        if not data:
+            if not silent_fail:
+                raise Exception(f"No data with name {name} in result")
+            else:
+                return
+        if dataidx >= len(data):
+            if not silent_fail:
+                raise Exception(f"No data with index {dataidx}, length is {len(data)}")
+            else:
+                return
+        ret = data[dataidx].get("span")
+    else:
+        ret = res.span
+    if ret is None:
+        if silent_fail:
+            return
+        else:
+            raise Exception(f"No span found")
+    return ret
+
 
 # ACTIONS:
 
@@ -2436,7 +2478,8 @@ class AddAnn:
         Create an action for adding a new annotation to the outset.
 
         Args:
-            name: the name of the match to use for getting the annotation span
+            name: the name of the match to use for getting the annotation span, if None, use the
+                whole span of each match
             ann:  either an Annotation which will be (deep) copied to create the new annotation, or
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
@@ -2453,7 +2496,6 @@ class AddAnn:
         """
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
-        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype
@@ -2466,10 +2508,9 @@ class AddAnn:
         self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
-        )
-        span = data["span"]
+        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        if span is None:
+            return
         if self.annset:
             outset = self.annset
         else:
