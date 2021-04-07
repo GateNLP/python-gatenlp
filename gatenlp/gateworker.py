@@ -344,7 +344,9 @@ class GateWorker:
                 cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8"
             )
             self.gateprocess = subproc
+            haveerror = False
             while True:
+                # NOTE: the following line can block when the subprocess ends with an error
                 line = subproc.stderr.readline()
                 if line == "":
                     break
@@ -352,8 +354,14 @@ class GateWorker:
                 if line == "PythonWorkerRunner.java: server start OK":
                     break
                 if line == "PythonWorkerRunner.java: server start NOT OK":
-                    raise Exception("Could not start server, giving up")
+                    haveerror = True
+                    # if we get an error we continue to loop through stderr until we get end of stream (line=="")
+                    # and only raise the exception after the loop.
+                if line.startswith("Java GatenlpWorker ENDING"):
+                    break
                 print(line, file=sys.stderr)
+            if haveerror:
+                raise Exception("Could not start server, giving up")
             atexit.register(self.close)
         self.gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)

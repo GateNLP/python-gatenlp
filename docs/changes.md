@@ -8,6 +8,7 @@
 * Issue #73: pickle document with offset index created
 * Issue #68: rename the main development branch from "master" to "main"
 * Issue #74: fix a bug in PAMPAC related to matching an annotation after some text
+* Various improvements, additions and bug fixes in Pampac
 
 
 ## 1.0.3.1 (2021-03-01)

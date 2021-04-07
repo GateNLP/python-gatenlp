@@ -52,12 +52,14 @@ public class GatenlpWorker {
       keep = (tmp != 0);
     }
     GatenlpWorker runner = new GatenlpWorker();
+    String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
     System.err.println("Trying to start GATE Worker on port="+port+" host="+host+" log="+logActions+" keep="+keep);
+    System.err.println("Process id is "+pid);
     try {
       if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
       if(DEBUG) System.err.println("Loading plugin python");
-      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","3.0.3"));
+      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","3.0.4-SNAPSHOT"));
       FeatureMap parms = Factory.newFeatureMap();
       parms.put("port", port);
       parms.put("host", host);
@@ -74,5 +76,6 @@ public class GatenlpWorker {
       e.printStackTrace();
     }
     if(DEBUG) System.err.println("Finishing main");
+    System.err.println("Java GatenlpWorker ENDING: "+pid);
   }
 }
