@@ -1,4 +1,4 @@
-import os
+import sys
 from gatenlp import Document, Annotation, Span
 from gatenlp.pam.pampac import Context, Location
 

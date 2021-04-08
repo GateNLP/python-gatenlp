@@ -1984,7 +1984,9 @@ class N(PampacParser):
             parser: the parser that should match min to max times
             min: minimum number of times to match for a success
             max: maximum number of times to match for a success
-            matchtype: which results to include in a successful match, one of first, longest, shortest, all
+            matchtype: which results to include in a successful match, one of "first", "longest", "shortest", "all"
+            select: (default "first") one of "first", "longest", "shortest", "all": which match to choose from each
+                of the parsers. Only if "all" is used will more than one result be generated.
             until: parser that terminates the repetition
             name: if not None, adds an additional data element to the result which contains the
               and span of the whole sequence.
@@ -2473,8 +2475,29 @@ class Actions:
         self.actions = actions
 
     def __call__(self, succ, context=None, location=None):
-        for action in self.actions:
-            action(succ, context=context, location=location)
+        """
+        Invokes the actions defined for this wrapper in sequence and
+        returns one of the following: for no wrapped actions, no action is invoked and None is returned;
+        for exactly one action the return value of that action is returned, for 2 or more actions
+        a list with the return values of each of those actions is returned.
+
+        Args:
+            succ:  the success object
+            context: the context
+            location:  the location
+
+        Returns: None, action return value or list of action return values
+
+        """
+        if len(self.actions) == 1:
+            return self.actions[0](succ, context=context, location=location)
+        elif len(self.actions) == 0:
+            return None
+        else:
+            ret = []
+            for action in self.actions:
+                ret.append(action(succ, context=context, location=location))
+            return ret
 
 
 class AddAnn:
