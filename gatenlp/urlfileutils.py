@@ -28,6 +28,10 @@ def is_url(ext):
         if ext.startswith("http://") or ext.startswith("https://"):
             return True, ext
         else:
+            # for now, if we have ext starting with file:// we just remove that part and assume the
+            # rest is supposed to be a proper file path
+            if ext.startswith("file://"):
+                ext = ext[7:]
             return False, ext
     elif isinstance(ext, Path):
         return False, str(ext)

@@ -16,6 +16,7 @@ import signal
 import glob
 import json
 from gatenlp.annotation_set import AnnotationSet
+from gatenlp.urlfileutils import is_url
 
 # NOTE: we delay importing py4j to the class initializer. This allows us to make GateWorker available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateWorker
@@ -996,19 +997,15 @@ class GateWorker:
 
 
 class GateWorkerAnnotator(Annotator):
-    # TODO: something that starts a gate worker when created, loads pipeline in Java GATE,
-    # sends over document
-    # or document and selection of annotation sets/annotation types, runs pipeline,
-    # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
     def __init__(
         self,
         pipeline,
-        gatehome=None,
-        port=25333,
+        gateworker,
         annsets_send=None,
         annsets_receive=None,
         replace_anns=False,
+        update_document=False,
     ):
         """
         Create a GateWorker annotator.
@@ -1028,42 +1025,46 @@ class GateWorkerAnnotator(Annotator):
         Example:
 
             ```python
-            pipeline = GateWorkerAnnotator("annie.xgapp")
+            pipeline = GateWorkerAnnotator("annie.xgapp", GateWorker())
             for idx, doc in enumerate(mycorpus):
                 corpus[idx] = pipeline(doc)
             ```
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
             port: the port to use (25333)
             annsets_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
                 If an empty list is specified, no annotations are sent at all.
-            annsets_receive: same format as annsets_send to specify which annotation sets/types are
+            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+                which annotation sets/types are
                 sent back to Python after the document has been processed on the Java side.
-            replace_anns: if True and an annotation is received which already exists (same set and annotation id)
-              then the existing annotation is replaced (if offsets and type are also same, only the features are
-              replaced). If False, all received annotations are added which may change their annotation id.
+            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
+                which already exists (same set and annotation id)
+                then the existing annotation is replaced (if offsets and type are also same, only the features are
+                replaced). If False, all received annotations are added which may change their annotation id.
+            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
+                received from Java GATE are added. In this case, other changes to the document, e.g. the document
+                text or document features are not applied to the current python document.
+                If False, the existing document is completely replaced with what gets
+                received from Java GATE.
         """
         self.pipeline = pipeline
         self.annsets_send = annsets_send
         self.annsets_receive = annsets_receive
         self.replace_anns = replace_anns
-        self.gs = GateWorker(port=port, start=True, gatehome=gatehome)
-        self.controller = self.gs.worker.loadPipelineFromFile(self.pipeline)
-        self.corpus = self.gs.worker.newCorpus()
+        self.update_document = update_document
+        self.gw = gateworker
+        isurl, ext = is_url(pipeline)
+        if isurl:
+            self.controller = self.gw.worker.loadPipelineFromUri(ext)
+        else:
+            self.controller = self.gw.worker.loadPipelineFromFile(ext)
+        self.corpus = self.gw.worker.newCorpus()
         self.controller.setCorpus(self.corpus)
         self.controller.setControllerCallbacksEnabled(False)
-
-    def close(self):
-        """
-        Shut down the GateWorker used by this annotator.
-
-        After calling this, the GateWorkerAnnotator instance cannot be used any more.
-        """
-        self.gs.close()
 
     def start(self):
         """
@@ -1097,10 +1098,13 @@ class GateWorkerAnnotator(Annotator):
             tmpdoc = doc.copy(annsets=self.annsets_send)
         else:
             tmpdoc = doc
-        gdoc = self.gs.pdoc2gdoc(tmpdoc)
-        self.gs.worker.run4Document(self.controller, gdoc)
-        self.gs.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        self.gs.del_resource(gdoc)
+        gdoc = self.gw.pdoc2gdoc(tmpdoc)
+        self.gw.worker.run4Document(self.controller, gdoc)
+        if self.update_document:
+            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+        else:
+            doc = self.gw.gdoc2pdoc(gdoc)
+        self.gw.del_resource(gdoc)
         return doc
 
 
