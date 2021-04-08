@@ -2456,6 +2456,26 @@ def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
 
 # ACTIONS:
 
+class Actions:
+    """
+    A container to run several actions for a rule.
+    """
+
+    def __init__(self,
+                 *actions,
+                 ):
+        """
+        Wrap several actions for use in a rule.
+
+        Args:
+            *actions: any number of actions to run.
+        """
+        self.actions = actions
+
+    def __call__(self, succ, context=None, location=None):
+        for action in self.actions:
+            action(succ, context=context, location=location)
+
 
 class AddAnn:
     """
