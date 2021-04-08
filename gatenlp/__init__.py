@@ -25,10 +25,12 @@ from gatenlp.annotation import Annotation
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
-from gatenlp.gateworker import GateWorker, GateWorkerAnnotator
 from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
 from gatenlp.gate_interaction import interact
 
+# Importing GateWorker or other classes which depend on any package other than sortedcontains will
+# break the Python plugin!
+# from gatenlp.gateworker import GateWorker, GateWorkerAnnotator
 
 def init_notebook():   # pragma: no cover
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
