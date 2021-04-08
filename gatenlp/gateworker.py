@@ -361,7 +361,7 @@ class GateWorker:
                     break
                 print(line, file=sys.stderr)
             if haveerror:
-                raise Exception("Could not start server, giving up")
+                raise Exception("Error when starting server")
             atexit.register(self.close)
         self.gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
@@ -795,6 +795,18 @@ class GateWorker:
             a CorpusController handle to the loaded Java GATE pipeline
         """
         return self.worker.loadPipelineFromFile(filename)
+
+    def loadPipelineFromUri(self, uri):
+        """
+        Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            uri: the uri of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        """
+        return self.worker.loadPipelineFromUri(uri)
 
     def loadPipelineFromPlugin(self, group, artifact, path):
         """

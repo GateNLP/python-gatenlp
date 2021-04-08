@@ -77,5 +77,6 @@ public class GatenlpWorker {
     }
     if(DEBUG) System.err.println("Finishing main");
     System.err.println("Java GatenlpWorker ENDING: "+pid);
+    System.err.flush();
   }
 }
