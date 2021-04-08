@@ -2,6 +2,10 @@
 
 ## (upcoming)
 
+* The GateWorkerAnnotator parameters have been changed: instead of parameters gatehom and port,
+  the parameter gateworker now needs to receive a GateWorker instance. 
+  Also the `update_document` parameter has been added and now allows both updating and replacing
+  the Python document from the Java GATE document
 * Issue #66: make it possible to show annotations over new-lines in the html ann viewer
 * Issue #65: provide ParagraphTokenizer and SplitPatternTokenizer to easily annotate paragraphs
   and other spans separated by some split pattern
@@ -9,6 +13,11 @@
 * Issue #68: rename the main development branch from "master" to "main"
 * Issue #74: fix a bug in PAMPAC related to matching an annotation after some text
 * Various improvements, additions and bug fixes in Pampac
+* Issue #75: GateWorker now shows any Java exception when starting the Java process fails
+* Issue #76: GateWorker has a new method `loadPipelineFromUri(uri)`
+* Issue #77: GateWorkerAnnotator now automatically loads a pipeline from a URL if the string
+  passed to the `pipeline` parameter looks like a URL or if it is the result of urllib.parse.urlparse.
+  It is always treated like a file if it is a pathlib.Path
 
 
 ## 1.0.3.1 (2021-03-01)
