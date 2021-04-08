@@ -18,7 +18,8 @@
 * Issue #77: GateWorkerAnnotator now automatically loads a pipeline from a URL if the string
   passed to the `pipeline` parameter looks like a URL or if it is the result of urllib.parse.urlparse.
   It is always treated like a file if it is a pathlib.Path
-* added the `Actions` action for Pampac rules to wrap several actions for one rule
+* added the `Actions` action for Pampac to recursively wrap several actions into one
+* allow each Rule to have any number of actions, change signature to `Rule(patter, *actions, priority=0)`
 
 
 ## 1.0.3.1 (2021-03-01)
