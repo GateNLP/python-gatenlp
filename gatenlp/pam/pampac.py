@@ -2206,7 +2206,7 @@ class Rule(PampacParser):
             priority: the priority of the rule
         """
         self.parser = parser
-        self.action = Actions(actions)
+        self.action = Actions(*actions)
         self.priority = priority
 
     def set_priority(self, val):
