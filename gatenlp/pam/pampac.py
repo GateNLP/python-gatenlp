@@ -2195,7 +2195,7 @@ class Rule(PampacParser):
     there is a successful match.
     """
 
-    def __init__(self, parser, action, priority=0):
+    def __init__(self, parser, *actions, priority=0):
         """
         Create a Rule.
 
@@ -2206,7 +2206,7 @@ class Rule(PampacParser):
             priority: the priority of the rule
         """
         self.parser = parser
-        self.action = action
+        self.action = Actions(actions)
         self.priority = priority
 
     def set_priority(self, val):
