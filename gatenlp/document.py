@@ -868,11 +868,10 @@ class Document:
     def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
-        from IPython.display import display
+        from IPython.display import display as i_display
 
-        js = HtmlAnnViewerSerializer.javascript()
-        display(Javascript(url=JS_JQUERY_URL))
-        display(Javascript(url=JS_GATENLP_URL))
+        i_display(Javascript(url=JS_JQUERY_URL))
+        i_display(Javascript(url=JS_GATENLP_URL))
         html = self.save_mem(
             fmt="html-ann-viewer",
             notebook=True,
