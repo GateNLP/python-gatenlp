@@ -20,6 +20,8 @@
   It is always treated like a file if it is a pathlib.Path
 * added the `Actions` action for Pampac to recursively wrap several actions into one
 * allow each Rule to have any number of actions, change signature to `Rule(patter, *actions, priority=0)`
+* The Pampac AddAnn action does not require a value for the name parameter any more, if not specified, the 
+  full span of the match is used.
 
 
 ## 1.0.3.1 (2021-03-01)
