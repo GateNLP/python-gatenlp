@@ -808,6 +808,27 @@ gdoc1
 gs.close()
 ```
 
+## A better way to close the GATE Worker 
+
+
+```python
+# using the GateWork this way will automatically close it when exiting the with block:
+with GateWorker(start=True) as gw:
+    print(gw.gate_version)
+    
+```
+
+    Trying to start GATE Worker on port=25333 host=127.0.0.1 log=false keep=false
+    Process id is 8778
+
+
+    9.0.1
+
+
+    PythonWorkerRunner.java: starting server with 25333/127.0.0.1/OQ__kPvCOvkanlu4S9TGcpQrssg/false
+    Java GatenlpWorker ENDING: 8778
+
+
 ## Using the GateWorkerAnnotator
 
 The GateWorkerAnnotator is an annotator that simplifies the common task of letting a GATE Java annotation pipeline annotate a bunch of Python gatenlp documents.  It can be used like other annotators (see [Processing](https://gatenlp.github.io/python-gatenlp/processing))

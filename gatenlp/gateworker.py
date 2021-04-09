@@ -288,30 +288,30 @@ class GateWorker:
 
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
-        self.gatehome = gatehome
-        self.port = port
-        self.host = host
-        self.start = start
-        self.platform = platform
-        self.gateprocess = None
-        self.gateway = None
-        self.closed = False
-        self.keep = keep
-        self.debug = debug
+        self._gatehome = gatehome
+        self._port = port
+        self._host = host
+        self._start = start
+        self._platform = platform
+        self._gateprocess = None
+        self._gateway = None
+        self._closed = False
+        self._keep = keep
+        self._debug = debug
         if use_auth_token:
             if not auth_token:
-                self.auth_token = secrets.token_urlsafe(20)
+                self._auth_token = secrets.token_urlsafe(20)
             else:
-                self.auth_token = auth_token
+                self._auth_token = auth_token
         else:
-            self.auth_token = ""
+            self._auth_token = ""
         if gatehome is None and start:
             gatehome = os.environ.get("GATE_HOME")
             if gatehome is None:
                 raise Exception(
                     "Parameter gatehome is None and environment var GATE_HOME not set"
                 )
-            self.gatehome = gatehome
+            self._gatehome = gatehome
         if start:
             # make sure we find the jar we need
             # logger.info("DEBUG: file location: {}".format(__file__))
@@ -338,13 +338,13 @@ class GateWorker:
                 cmdandparms.append("1")
             else:
                 cmdandparms.append("0")
-            os.environ["GATENLP_WORKER_TOKEN_" + str(self.port)] = self.auth_token
+            os.environ["GATENLP_WORKER_TOKEN_" + str(self.port)] = self._auth_token
             cmd = " ".join(cmdandparms)
             self.logger.debug(f"Running command: {cmd}")
             subproc = subprocess.Popen(
                 cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding="utf-8"
             )
-            self.gateprocess = subproc
+            self._gateprocess = subproc
             haveerror = False
             while True:
                 # NOTE: the following line can block when the subprocess ends with an error
@@ -364,8 +364,8 @@ class GateWorker:
             if haveerror:
                 raise Exception("Error when starting server")
             atexit.register(self.close)
-        self.gateway = JavaGateway(
-            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
+        self._gateway = JavaGateway(
+            gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
 
     @property
@@ -398,6 +398,30 @@ class GateWorker:
     def worker_build(self):
         return self.worker.pluginBuild()
 
+    @property
+    def gatehome(self):
+        return self._gatehome
+
+    @property
+    def port(self):
+        return self._port
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def platform(self):
+        return self._platform
+
+    @property
+    def gateprocess(self):
+        return self._gateprocess
+
+    @property
+    def gateway(self):
+        return self._gateway
+
     # @staticmethod
     # def download():
     #     """
@@ -421,8 +445,8 @@ class GateWorker:
         Otherwise we can still close it if it was started by the workerrunner, not the Lr
         Note: if it was started by us, it was started via the workerrunner.
         """
-        if not self.closed and self.worker.isClosable():
-            self.closed = True
+        if not self._closed and self.worker.isClosable():
+            self._closed = True
             self.gateway.shutdown()
             if self.gateprocess is not None:
                 for line in self.gateprocess.stderr:
@@ -432,7 +456,7 @@ class GateWorker:
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exptype, value, traceback):
         self.close()
 
     def log_actions(self, onoff):
@@ -472,7 +496,7 @@ class GateWorker:
         """
         if mimetype is None:
             mimetype = ""
-        self.worker.saveDocumentToFile(path, mimetype)
+        self.worker.saveDocumentToFile(gdoc, path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
         """
@@ -499,8 +523,8 @@ class GateWorker:
         Returns:
             handle to GATE document
         """
-        json = pdoc.save_mem(fmt="bdocjs", annsets=annsets)
-        return self.worker.getDocument4BdocJson(json)
+        jsondata = pdoc.save_mem(fmt="bdocjs", annsets=annsets)
+        return self.worker.getDocument4BdocJson(jsondata)
 
     def gdocanns2pdoc(self, gdoc, pdoc, annsets=None, replace=False):
         """
@@ -617,7 +641,6 @@ class GateWorker:
         """
         return self.worker.findMavenPlugin(group, artifact)
 
-
     def getBdocJson(self, gdoc):
         """
         Return the Bdoc JSON serialization of a Java GATE document as string.
@@ -661,7 +684,7 @@ class GateWorker:
         Returns:
             handle to the Java GATE document
         """
-        return self.worker.getDocument4BdocJson
+        return self.worker.getDocument4BdocJson(bdocjson)
 
     def getDocument4Name(self, name):
         """
@@ -857,7 +880,6 @@ class GateWorker:
         """
         return self.worker.pluginBuild()
 
-
     def pluginVersion(self):
         """
         Return the version string of the Python plugin on the Java GATE side.
@@ -875,7 +897,6 @@ class GateWorker:
             message: string to output
         """
         self.worker.print2err(message)
-
 
     def print2out(self, message):
         """
@@ -1039,7 +1060,6 @@ class GateWorkerAnnotator(Annotator):
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
             gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            port: the port to use (25333)
             annsets_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
@@ -1156,7 +1176,7 @@ def main():
     ap.add_argument("--debug", action="store_true", help="Show debug messages")
     args = ap.parse_args()
     if args.download:
-        GateWorker.download()
+        raise Exception("--download not implemented yet ")
     else:
         start_gate_worker(
             port=args.port,
