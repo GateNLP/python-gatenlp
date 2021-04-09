@@ -823,13 +823,17 @@ class Document:
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None, doc_style=None):
+    def show(self, to=None, htmlid=None, annsets=None, doc_style=None):
         """
-        Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+        Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
-        This directly sends the rendered document to the cell (no display/HTML necessary).
+        This directly sends the rendered document to the cell (no display/HTML necessary) if
+        the destination is a notebook.
 
         Args:
+            to: if None, try to guess if this is called from within a notebook and if yes, which kind.
+                Otherwise, explicitly specify where to show the document to, one of "console", "jupyter",
+                "colab".
             htmlid: the HTML id prefix to use for classes and element ids.
             annsets: if not None, a list of annotation set/type specifications.
                 Each element is either
@@ -838,8 +842,19 @@ class Document:
                 and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
         """
+        if to == "colab":
+            self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == "jupyter":
+            self._show_notbook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == "console":
+            return self.__str__()
+        elif to is not None:
+            raise Exception(f"Not a valid value for parameter to: {to}. Use one of console, jupyter, colab")
         if in_notebook():
             self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
         else:
             return self.__str__()
 
