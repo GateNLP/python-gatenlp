@@ -819,7 +819,7 @@ class Document:
         but instead initializes the JS in the notebook unless gatenlp.init_notebook()
         has bee called already.
         """
-        return self._notebook_show()
+        return self._show_notebook()
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
@@ -839,18 +839,18 @@ class Document:
             doc_style: if not None, use this as the style for the document text box
         """
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
         else:
             return self.__str__()
 
-    def _colab_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
-        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP, JS_JQUERY
+    def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
+        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
         from IPython.display import display
 
-        js = HtmlAnnViewerSerializer.javscript()
-        display(Javascript(JS_JQUERY))
-        display(Javascript(JS_GATENLP))
+        js = HtmlAnnViewerSerializer.javascript()
+        display(Javascript(url=JS_JQUERY_URL))
+        display(Javascript(url=JS_GATENLP_URL))
         html = self.save_mem(
             fmt="html-ann-viewer",
             notebook=True,
@@ -865,7 +865,7 @@ class Document:
         else:
             return html
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
+    def _show_notebook(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html

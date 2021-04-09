@@ -680,9 +680,10 @@ class MsgPackSerializer:
         doc = reader(f)
         return doc
 
-
-JS_JQUERY = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>'
-JS_GATENLP = '<script src="https://unpkg.com/gatenlp-ann-viewer@1.0.12/gatenlp-ann-viewer.js"></script>'
+JS_JQUERY_URL = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.13/gatenlp-ann-viewer.js"
+JS_JQUERY = f"<script src=\"{JS_JQUERY_URL}\"></script>"
+JS_GATENLP = f"<script src=\"{JS_GATENLP_URL}\"></script>"
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
 JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 

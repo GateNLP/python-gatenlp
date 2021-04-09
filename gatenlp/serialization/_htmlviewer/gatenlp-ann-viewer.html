@@ -99,11 +99,9 @@
         </div>
     </div>
     $$JAVASCRIPT$$
-    <script type="application/json" id="GATENLPID-data">
-    $$JSONDATA$$
-    </script>
     <script type="text/javascript">
-        gatenlp_run("GATENLPID-");
+    let GATENLPID_data = $$JSONDATA$$ ; 
+    new gatenlpDocView(new gatenlpDocRep(GATENLPID_data), "GATENLPID-").init();
     </script>
   </div>
 <!--ENDDIV-->

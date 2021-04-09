@@ -1,12 +1,11 @@
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
+    constructor(bdoc) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
 	    const regex = / +$/;
 	    this.text = this.text.replace(regex, (m, off, s) => {return "\u2002".repeat(m.length)}) ;
@@ -385,7 +384,7 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
@@ -395,6 +394,7 @@ var gatenlpDocView = class {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
+                txt = txt.replace(/\n/g, "\u2002\n");
                 // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
@@ -425,9 +425,3 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
