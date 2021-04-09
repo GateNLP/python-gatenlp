@@ -843,6 +843,28 @@ class Document:
         else:
             return self.__str__()
 
+    def _colab_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
+        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP, JS_JQUERY
+        from IPython.display import display_html, Javascript
+        from IPython.display import display
+
+        js = HtmlAnnViewerSerializer.javscript()
+        display(Javascript(JS_JQUERY))
+        display(Javascript(JS_GATENLP))
+        html = self.save_mem(
+            fmt="html-ann-viewer",
+            notebook=True,
+            add_js=False,
+            offline=True,
+            htmlid=htmlid,
+            annsets=annsets,
+            doc_style=doc_style,
+        )
+        if display:
+            display_html(html, raw=True)
+        else:
+            return html
+
     def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
