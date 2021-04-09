@@ -11,7 +11,7 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 from gatenlp.features import Features
-from gatenlp.utils import in_notebook
+from gatenlp.utils import in_notebook, in_colab
 from gatenlp.changelog import ChangeLog
 
 from gatenlp.changelog_consts import (
@@ -853,8 +853,12 @@ class Document:
         elif to is not None:
             raise Exception(f"Not a valid value for parameter to: {to}. Use one of console, jupyter, colab")
         if in_notebook():
-            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
-            return
+            if in_colab():
+                self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
+            else:
+                self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
         else:
             return self.__str__()
 

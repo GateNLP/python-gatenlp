@@ -265,6 +265,11 @@ _in_notebook = [None]
 
 
 def in_notebook():
+    """
+    Check if we are running from within a jupyter-like notebook.
+
+    Returns: True if likely within a notebook.
+    """
     if _in_notebook[0] is not None:
         return _in_notebook[0]
     try:
@@ -286,6 +291,11 @@ def in_notebook():
         # We do not even have IPython installed
         _in_notebook[0] = False
     return _in_notebook[0]
+
+
+def in_colab():
+    from IPython.core import getipython
+    return 'google.colab' in str(getipython.getipython())
 
 
 def allowspan(method):
