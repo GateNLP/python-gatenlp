@@ -819,7 +819,10 @@ class Document:
         but instead initializes the JS in the notebook unless gatenlp.init_notebook()
         has bee called already.
         """
-        return self._show_notebook()
+        if in_colab():
+            return self._show_colab(display=False)
+        else:
+            return self._show_notebook(display=False)
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
