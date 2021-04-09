@@ -295,7 +295,7 @@ def in_notebook():
 
 def in_colab():
     from IPython.core import getipython
-    return 'google.colab' in str(getipython.getipython())
+    return 'google.colab' in str(getipython.get_ipython())
 
 
 def allowspan(method):
