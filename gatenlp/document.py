@@ -846,7 +846,7 @@ class Document:
             self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
             return
         elif to == "jupyter":
-            self._show_notbook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
             return
         elif to == "console":
             return self.__str__()
