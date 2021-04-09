@@ -52,6 +52,32 @@ __pdoc__ = {
     &#34;AnnMatcher.__call__&#34;: True,
 }
 
+class isIn:
+    &#34;&#34;&#34;
+    Helper  for use with the Feature matcher to check if a feature value is one of the
+    values given to the constructor.
+    &#34;&#34;&#34;
+    def __init__(self, *args, matchcase=True):
+        &#34;&#34;&#34;
+        Literal values to compare against. The created callable returns true if called with
+        one of these values.
+
+        Args:
+            *args: values to match against.
+            matchcase: if string values should get matched with exact case or not if False, uses
+                the upper case variant for matching
+        &#34;&#34;&#34;
+        self.matchcase = matchcase
+        if not matchcase:
+            self.vals = [x.upper() for x in args if isinstance(x, str)]
+        else:
+            self.vals = args
+
+    def __call__(self, value):
+        if not self.matchcase:
+            value = value.upper()
+        return value in self.vals
+
 
 class FeatureMatcher:
     &#34;&#34;&#34;
@@ -258,7 +284,7 @@ class AnnMatcher:
 # text case insensitive or negate matching text or features
 
 
-class nocase:
+class Nocase:
     &#34;&#34;&#34;
     A matcher for comparing text in a case insensitive way.
 
@@ -268,7 +294,7 @@ class nocase:
 
     Example:
         ```python
-        m1 = nocase(&#34;sometext&#34;)
+        m1 = Nocase(&#34;sometext&#34;)
         assert m1(&#34;SomeText&#34;)
         assert m1(&#34;SOMETEXT&#34;)
         ```
@@ -296,14 +322,14 @@ class nocase:
         return text.upper() == self.text
 
 
-class ifnot:
+class IfNot:
     &#34;&#34;&#34;
     A matcher that returns the negation of another matcher.
 
     Example:
         ```python
         m1 = FeatureMatcher(f1=&#34;x&#34;, f2=22)
-        m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
+        m2 = IfNot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
         ```
     &#34;&#34;&#34;
 
@@ -666,6 +692,100 @@ even if the features contain additional features not included in the constraints
 </dd>
 </dl>
 </dd>
+<dt id="gatenlp.pam.matcher.IfNot"><code class="flex name class">
+<span>class <span class="ident">IfNot</span></span>
+<span>(</span><span>other)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A matcher that returns the negation of another matcher.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">m1 = FeatureMatcher(f1=&quot;x&quot;, f2=22)
+m2 = IfNot(m1)  # m2 matches for features which do not contain f1=&quot;x&quot; and not f2=22
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IfNot:
+    &#34;&#34;&#34;
+    A matcher that returns the negation of another matcher.
+
+    Example:
+        ```python
+        m1 = FeatureMatcher(f1=&#34;x&#34;, f2=22)
+        m2 = IfNot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
+        ```
+    &#34;&#34;&#34;
+
+    def __init__(self, other):
+        self.other = other
+
+    def __call__(self, *args, **kwargs):
+        return not self.other(*args, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.matcher.Nocase"><code class="flex name class">
+<span>class <span class="ident">Nocase</span></span>
+<span>(</span><span>text)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A matcher for comparing text in a case insensitive way.</p>
+<p>This carries out the matching by using the upper-case versions of the text compared and the
+text to compare with. This makes sure that cases like German "ß" which expands to "SS" are
+handled correctly (while uppercase "SS" often should NOT get converted to lowercase "ß").</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">m1 = Nocase(&quot;sometext&quot;)
+assert m1(&quot;SomeText&quot;)
+assert m1(&quot;SOMETEXT&quot;)
+</code></pre>
+<p>Create a case insensitive text matcher.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>text</code></strong></dt>
+<dd>the text to match against.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Nocase:
+    &#34;&#34;&#34;
+    A matcher for comparing text in a case insensitive way.
+
+    This carries out the matching by using the upper-case versions of the text compared and the
+    text to compare with. This makes sure that cases like German &#34;ß&#34; which expands to &#34;SS&#34; are
+    handled correctly (while uppercase &#34;SS&#34; often should NOT get converted to lowercase &#34;ß&#34;).
+
+    Example:
+        ```python
+        m1 = Nocase(&#34;sometext&#34;)
+        assert m1(&#34;SomeText&#34;)
+        assert m1(&#34;SOMETEXT&#34;)
+        ```
+    &#34;&#34;&#34;
+
+    def __init__(self, text):
+        &#34;&#34;&#34;
+        Create a case insensitive text matcher.
+
+        Args:
+            text: the text to match against.
+        &#34;&#34;&#34;
+        self.text = text.upper()
+
+    def __call__(self, text):
+        &#34;&#34;&#34;
+        Check if the text matches.
+
+        Args:
+            text: the text to check
+
+        Returns:
+            True if the text matches
+        &#34;&#34;&#34;
+        return text.upper() == self.text</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.pam.matcher.Pattern"><code class="flex name class">
 <span>class <span class="ident">CLASS_REGEX_PATTERN</span></span>
 </code></dt>
@@ -800,98 +920,53 @@ of pattern with the replacement repl.</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="gatenlp.pam.matcher.ifnot"><code class="flex name class">
-<span>class <span class="ident">ifnot</span></span>
-<span>(</span><span>other)</span>
+<dt id="gatenlp.pam.matcher.isIn"><code class="flex name class">
+<span>class <span class="ident">isIn</span></span>
+<span>(</span><span>*args, matchcase=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A matcher that returns the negation of another matcher.</p>
-<h2 id="example">Example</h2>
-<pre><code class="language-python">m1 = FeatureMatcher(f1=&quot;x&quot;, f2=22)
-m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&quot;x&quot; and not f2=22
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ifnot:
-    &#34;&#34;&#34;
-    A matcher that returns the negation of another matcher.
-
-    Example:
-        ```python
-        m1 = FeatureMatcher(f1=&#34;x&#34;, f2=22)
-        m2 = ifnot(m1)  # m2 matches for features which do not contain f1=&#34;x&#34; and not f2=22
-        ```
-    &#34;&#34;&#34;
-
-    def __init__(self, other):
-        self.other = other
-
-    def __call__(self, *args, **kwargs):
-        return not self.other(*args, **kwargs)</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.pam.matcher.nocase"><code class="flex name class">
-<span>class <span class="ident">nocase</span></span>
-<span>(</span><span>text)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>A matcher for comparing text in a case insensitive way.</p>
-<p>This carries out the matching by using the upper-case versions of the text compared and the
-text to compare with. This makes sure that cases like German "ß" which expands to "SS" are
-handled correctly (while uppercase "SS" often should NOT get converted to lowercase "ß").</p>
-<h2 id="example">Example</h2>
-<pre><code class="language-python">m1 = nocase(&quot;sometext&quot;)
-assert m1(&quot;SomeText&quot;)
-assert m1(&quot;SOMETEXT&quot;)
-</code></pre>
-<p>Create a case insensitive text matcher.</p>
+<div class="desc"><p>Helper
+for use with the Feature matcher to check if a feature value is one of the
+values given to the constructor.</p>
+<p>Literal values to compare against. The created callable returns true if called with
+one of these values.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>text</code></strong></dt>
-<dd>the text to match against.</dd>
+<dt><strong><code>*args</code></strong></dt>
+<dd>values to match against.</dd>
+<dt><strong><code>matchcase</code></strong></dt>
+<dd>if string values should get matched with exact case or not if False, uses
+the upper case variant for matching</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class nocase:
+<pre><code class="python">class isIn:
     &#34;&#34;&#34;
-    A matcher for comparing text in a case insensitive way.
-
-    This carries out the matching by using the upper-case versions of the text compared and the
-    text to compare with. This makes sure that cases like German &#34;ß&#34; which expands to &#34;SS&#34; are
-    handled correctly (while uppercase &#34;SS&#34; often should NOT get converted to lowercase &#34;ß&#34;).
-
-    Example:
-        ```python
-        m1 = nocase(&#34;sometext&#34;)
-        assert m1(&#34;SomeText&#34;)
-        assert m1(&#34;SOMETEXT&#34;)
-        ```
+    Helper  for use with the Feature matcher to check if a feature value is one of the
+    values given to the constructor.
     &#34;&#34;&#34;
-
-    def __init__(self, text):
+    def __init__(self, *args, matchcase=True):
         &#34;&#34;&#34;
-        Create a case insensitive text matcher.
+        Literal values to compare against. The created callable returns true if called with
+        one of these values.
 
         Args:
-            text: the text to match against.
+            *args: values to match against.
+            matchcase: if string values should get matched with exact case or not if False, uses
+                the upper case variant for matching
         &#34;&#34;&#34;
-        self.text = text.upper()
+        self.matchcase = matchcase
+        if not matchcase:
+            self.vals = [x.upper() for x in args if isinstance(x, str)]
+        else:
+            self.vals = args
 
-    def __call__(self, text):
-        &#34;&#34;&#34;
-        Check if the text matches.
-
-        Args:
-            text: the text to check
-
-        Returns:
-            True if the text matches
-        &#34;&#34;&#34;
-        return text.upper() == self.text</code></pre>
+    def __call__(self, value):
+        if not self.matchcase:
+            value = value.upper()
+        return value in self.vals</code></pre>
 </details>
 </dd>
 </dl>
@@ -929,6 +1004,12 @@ assert m1(&quot;SOMETEXT&quot;)
 </ul>
 </li>
 <li>
+<h4><code><a title="gatenlp.pam.matcher.IfNot" href="#gatenlp.pam.matcher.IfNot">IfNot</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.matcher.Nocase" href="#gatenlp.pam.matcher.Nocase">Nocase</a></code></h4>
+</li>
+<li>
 <h4><code><a title="gatenlp.pam.matcher.Pattern" href="#gatenlp.pam.matcher.Pattern">Pattern</a></code></h4>
 <ul class="two-column">
 <li><code><a title="gatenlp.pam.matcher.Pattern.findall" href="#gatenlp.pam.matcher.Pattern.findall">findall</a></code></li>
@@ -951,10 +1032,7 @@ assert m1(&quot;SOMETEXT&quot;)
 </ul>
 </li>
 <li>
-<h4><code><a title="gatenlp.pam.matcher.ifnot" href="#gatenlp.pam.matcher.ifnot">ifnot</a></code></h4>
-</li>
-<li>
-<h4><code><a title="gatenlp.pam.matcher.nocase" href="#gatenlp.pam.matcher.nocase">nocase</a></code></h4>
+<h4><code><a title="gatenlp.pam.matcher.isIn" href="#gatenlp.pam.matcher.isIn">isIn</a></code></h4>
 </li>
 </ul>
 </li>

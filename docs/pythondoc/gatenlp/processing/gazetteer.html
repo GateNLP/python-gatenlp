@@ -53,7 +53,7 @@ class Gazetteer(Annotator):
     &#34;&#34;&#34;
 
     def __call__(self, *args, **kwargs):
-        raise NotImplemented
+        raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)
 
 
 # NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
@@ -1017,7 +1017,7 @@ class StringGazetteer:
     &#34;&#34;&#34;
 
     def __call__(self, *args, **kwargs):
-        raise NotImplemented</code></pre>
+        raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

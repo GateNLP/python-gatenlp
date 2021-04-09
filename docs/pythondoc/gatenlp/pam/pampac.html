@@ -286,31 +286,6 @@ class Success(Iterable, Sized):
         &#34;&#34;&#34;
         return True
 
-    # TODO: the following method may not be needed! Consider removing!
-    # def add(self, result, ifnew=False):
-    #     &#34;&#34;&#34;
-    #     Add a result.
-    #
-    #     Args:
-    #         result:
-    #         ifnew:
-    #
-    #     Returns:
-    #
-    #     &#34;&#34;&#34;
-    #     # TODO: not sure if the ifnew parameter and treatment makes sense: do we ever not want
-    #     # to add a result if it is already there (meaning, the same match and the same remaining text/anns).
-    #     if isinstance(result, Iterable):
-    #         for re in result:
-    #             self.add(re, ifnew=ifnew)
-    #     else:
-    #         if ifnew:
-    #             if result not in self._results:
-    #                 self._results.append(result)
-    #         else:
-    #             self._results.append(result)
-    #     return self
-
     def pprint(self, file=None):
         &#34;&#34;&#34;
         Pretty print the success instance to the file or stdout if no file is specified.
@@ -504,12 +479,14 @@ class Context:
             annotation index
         &#34;&#34;&#34;
         idx = location.ann_location
+        # print(f&#34;DEBUG Trying to find next idx for curlocation={location} and curidx={idx}, offset={offset}&#34;)
         if next_ann:
             idx += 1
         while True:
             if idx &gt;= len(self.anns):
                 return len(self.anns)
             ann = self.anns[idx]
+            # print(f&#34;DEBUG Checking ann={ann}&#34;)
             if ann.start &gt;= offset:
                 return idx
             idx += 1
@@ -551,6 +528,7 @@ class Context:
             newloc.ann_location += 1
         else:
             # update by text offset
+            # print(f&#34;DEBUG Updating by text offset: {by_offset}, current loc is {newloc.text_location}&#34;)
             if newloc.text_location + by_offset &gt;= self.end:
                 # if we reach the end of the text, update the annotation index to end of annotations as well
                 newloc.text_location = self.end
@@ -593,10 +571,12 @@ class Context:
             a new location with the text offset updated
         &#34;&#34;&#34;
         if location.ann_location == len(self.anns):
+            # we already are beyond the last annotation so we set the text offset to beyond the text
             return Location(len(self.doc.text), location.ann_location)
         else:
+            # set the text location to the end of the current annotation
             return Location(
-                location.text_location, self.anns[location.ann_location].end
+                self.anns[location.ann_location].end, location.ann_location
             )
 
     def at_endoftext(self, location):
@@ -1563,7 +1543,7 @@ class AnnAt(_AnnBase):
                     data = None
                 else:
                     data = dict(
-                        span=Span(next_ann),
+                        span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
                         name=self.name,
@@ -1728,7 +1708,14 @@ class Text(PampacParser):
         self.matchcase = matchcase
 
     def parse(self, location, context):
-        location = context.update_location_byindex(location)
+        # TODO: why did we update by index here before trying to match? Are there edge cases where this
+        #   is needed? In general it is bad because it will set the text offset to the end of the NEXT
+        #   annotation which we do not want. So maybe there are cases when either the current text offset
+        #   does not coincide with the current annotation index or where the annotation index was not
+        #   updated.
+        # print(f&#34; DEBUG BEFORE: {location}&#34;)
+        # location = context.update_location_byindex(location)
+        # print(f&#34;DEBUG AFTER: {location}&#34;)
         txt = context.doc.text[location.text_location:]
         if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
             self.text, CLASS_REGEX_PATTERN
@@ -1775,6 +1762,7 @@ class Text(PampacParser):
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
+                # print(f&#34;DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}&#34;)
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
@@ -2028,7 +2016,9 @@ class N(PampacParser):
             parser: the parser that should match min to max times
             min: minimum number of times to match for a success
             max: maximum number of times to match for a success
-            matchtype: which results to include in a successful match, one of first, longest, shortest, all
+            matchtype: which results to include in a successful match, one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;
+            select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
+                of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
             until: parser that terminates the repetition
             name: if not None, adds an additional data element to the result which contains the
               and span of the whole sequence.
@@ -2239,17 +2229,18 @@ class Rule(PampacParser):
     there is a successful match.
     &#34;&#34;&#34;
 
-    def __init__(self, parser, action, priority=0):
+    def __init__(self, parser, *actions, priority=0):
         &#34;&#34;&#34;
         Create a Rule.
 
         Args:
             parser: the parser to match for the rule
-            action:  the action to perform, or a function to call
+            action:  the action to perform, or a function to call. The action callable is passed the success object
+                and the kwargs context and location
             priority: the priority of the rule
         &#34;&#34;&#34;
         self.parser = parser
-        self.action = action
+        self.action = Actions(*actions)
         self.priority = priority
 
     def set_priority(self, val):
@@ -2454,8 +2445,91 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             return
     return data[dataidx]
 
+def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
+    &#34;&#34;&#34;
+    Helper method to return the span for the given result index and name, or None.
+
+    Args:
+        succ: success instance
+        name: name of the data, if None, uses the entire span of the result
+        resultidx: index of the result in success
+        dataidx: if there is more than one matching data with that name, which one to return, if no name, ignored
+        silent_fail: if True, return None, if False, raise an exception if the data is not present
+
+    Returns:
+        the span or None if no Span exists
+    &#34;&#34;&#34;
+    if resultidx &gt;= len(succ):
+        if not silent_fail:
+            raise Exception(f&#34;No resultidx {resultidx}, only {len(succ)} results&#34;)
+        else:
+            return
+    res = succ[resultidx]
+    if name:
+        data = res.data4name(name)
+        if not data:
+            if not silent_fail:
+                raise Exception(f&#34;No data with name {name} in result&#34;)
+            else:
+                return
+        if dataidx &gt;= len(data):
+            if not silent_fail:
+                raise Exception(f&#34;No data with index {dataidx}, length is {len(data)}&#34;)
+            else:
+                return
+        ret = data[dataidx].get(&#34;span&#34;)
+    else:
+        ret = res.span
+    if ret is None:
+        if silent_fail:
+            return
+        else:
+            raise Exception(f&#34;No span found&#34;)
+    return ret
+
 
 # ACTIONS:
+
+class Actions:
+    &#34;&#34;&#34;
+    A container to run several actions for a rule.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 *actions,
+                 ):
+        &#34;&#34;&#34;
+        Wrap several actions for use in a rule.
+
+        Args:
+            *actions: any number of actions to run.
+        &#34;&#34;&#34;
+        self.actions = actions
+
+    def __call__(self, succ, context=None, location=None):
+        &#34;&#34;&#34;
+        Invokes the actions defined for this wrapper in sequence and
+        returns one of the following: for no wrapped actions, no action is invoked and None is returned;
+        for exactly one action the return value of that action is returned, for 2 or more actions
+        a list with the return values of each of those actions is returned.
+
+        Args:
+            succ:  the success object
+            context: the context
+            location:  the location
+
+        Returns: None, action return value or list of action return values
+
+        &#34;&#34;&#34;
+        if len(self.actions) == 1:
+            return self.actions[0](succ, context=context, location=location)
+        elif len(self.actions) == 0:
+            return None
+        else:
+            ret = []
+            for action in self.actions:
+                ret.append(action(succ, context=context, location=location))
+            return ret
 
 
 class AddAnn:
@@ -2479,7 +2553,8 @@ class AddAnn:
         Create an action for adding a new annotation to the outset.
 
         Args:
-            name: the name of the match to use for getting the annotation span
+            name: the name of the match to use for getting the annotation span, if None, use the
+                whole span of each match
             ann:  either an Annotation which will be (deep) copied to create the new annotation, or
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
@@ -2496,7 +2571,6 @@ class AddAnn:
         &#34;&#34;&#34;
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
-        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype
@@ -2509,10 +2583,9 @@ class AddAnn:
         self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
-        )
-        span = data[&#34;span&#34;]
+        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        if span is None:
+            return
         if self.annset:
             outset = self.annset
         else:
@@ -2911,6 +2984,64 @@ class GetRegexGroup:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="gatenlp.pam.pampac.Actions"><code class="flex name class">
+<span>class <span class="ident">Actions</span></span>
+<span>(</span><span>*actions)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A container to run several actions for a rule.</p>
+<p>Wrap several actions for use in a rule.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>*actions</code></strong></dt>
+<dd>any number of actions to run.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Actions:
+    &#34;&#34;&#34;
+    A container to run several actions for a rule.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 *actions,
+                 ):
+        &#34;&#34;&#34;
+        Wrap several actions for use in a rule.
+
+        Args:
+            *actions: any number of actions to run.
+        &#34;&#34;&#34;
+        self.actions = actions
+
+    def __call__(self, succ, context=None, location=None):
+        &#34;&#34;&#34;
+        Invokes the actions defined for this wrapper in sequence and
+        returns one of the following: for no wrapped actions, no action is invoked and None is returned;
+        for exactly one action the return value of that action is returned, for 2 or more actions
+        a list with the return values of each of those actions is returned.
+
+        Args:
+            succ:  the success object
+            context: the context
+            location:  the location
+
+        Returns: None, action return value or list of action return values
+
+        &#34;&#34;&#34;
+        if len(self.actions) == 1:
+            return self.actions[0](succ, context=context, location=location)
+        elif len(self.actions) == 0:
+            return None
+        else:
+            ret = []
+            for action in self.actions:
+                ret.append(action(succ, context=context, location=location))
+            return ret</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.pam.pampac.AddAnn"><code class="flex name class">
 <span>class <span class="ident">AddAnn</span></span>
 <span>(</span><span>name=None, ann=None, anntype=None, annset=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
@@ -2921,7 +3052,8 @@ class GetRegexGroup:
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
-<dd>the name of the match to use for getting the annotation span</dd>
+<dd>the name of the match to use for getting the annotation span, if None, use the
+whole span of each match</dd>
 <dt><strong><code>ann</code></strong></dt>
 <dd>either an Annotation which will be (deep) copied to create the new annotation, or
 a GetAnn helper for copying the annoation the helper returns. If this is specified the
@@ -2969,7 +3101,8 @@ otherwise raises an Exception.</dd>
         Create an action for adding a new annotation to the outset.
 
         Args:
-            name: the name of the match to use for getting the annotation span
+            name: the name of the match to use for getting the annotation span, if None, use the
+                whole span of each match
             ann:  either an Annotation which will be (deep) copied to create the new annotation, or
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
@@ -2986,7 +3119,6 @@ otherwise raises an Exception.</dd>
         &#34;&#34;&#34;
         # span is either a span, the index of data to take the span from, or a callable that will return the
         # span at firing time
-        assert name
         assert anntype is not None or ann is not None
         self.name = name
         self.anntype = anntype
@@ -2999,10 +3131,9 @@ otherwise raises an Exception.</dd>
         self.annset = annset
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
-        )
-        span = data[&#34;span&#34;]
+        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+        if span is None:
+            return
         if self.annset:
             outset = self.annset
         else:
@@ -3434,7 +3565,7 @@ next annotation to match.</dd>
                     data = None
                 else:
                     data = dict(
-                        span=Span(next_ann),
+                        span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
                         name=self.name,
@@ -3751,12 +3882,14 @@ end may change.</p>
             annotation index
         &#34;&#34;&#34;
         idx = location.ann_location
+        # print(f&#34;DEBUG Trying to find next idx for curlocation={location} and curidx={idx}, offset={offset}&#34;)
         if next_ann:
             idx += 1
         while True:
             if idx &gt;= len(self.anns):
                 return len(self.anns)
             ann = self.anns[idx]
+            # print(f&#34;DEBUG Checking ann={ann}&#34;)
             if ann.start &gt;= offset:
                 return idx
             idx += 1
@@ -3798,6 +3931,7 @@ end may change.</p>
             newloc.ann_location += 1
         else:
             # update by text offset
+            # print(f&#34;DEBUG Updating by text offset: {by_offset}, current loc is {newloc.text_location}&#34;)
             if newloc.text_location + by_offset &gt;= self.end:
                 # if we reach the end of the text, update the annotation index to end of annotations as well
                 newloc.text_location = self.end
@@ -3840,10 +3974,12 @@ end may change.</p>
             a new location with the text offset updated
         &#34;&#34;&#34;
         if location.ann_location == len(self.anns):
+            # we already are beyond the last annotation so we set the text offset to beyond the text
             return Location(len(self.doc.text), location.ann_location)
         else:
+            # set the text location to the end of the current annotation
             return Location(
-                location.text_location, self.anns[location.ann_location].end
+                self.anns[location.ann_location].end, location.ann_location
             )
 
     def at_endoftext(self, location):
@@ -4986,7 +5122,10 @@ If after ming to max matches of the parser, until does not match, the parser fai
 <dt><strong><code>max</code></strong></dt>
 <dd>maximum number of times to match for a success</dd>
 <dt><strong><code>matchtype</code></strong></dt>
-<dd>which results to include in a successful match, one of first, longest, shortest, all</dd>
+<dd>which results to include in a successful match, one of "first", "longest", "shortest", "all"</dd>
+<dt><strong><code>select</code></strong></dt>
+<dd>(default "first") one of "first", "longest", "shortest", "all": which match to choose from each
+of the parsers. Only if "all" is used will more than one result be generated.</dd>
 <dt><strong><code>until</code></strong></dt>
 <dd>parser that terminates the repetition</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -5024,7 +5163,9 @@ and span of the whole sequence.</dd>
             parser: the parser that should match min to max times
             min: minimum number of times to match for a success
             max: maximum number of times to match for a success
-            matchtype: which results to include in a successful match, one of first, longest, shortest, all
+            matchtype: which results to include in a successful match, one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;
+            select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
+                of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
             until: parser that terminates the repetition
             name: if not None, adds an additional data element to the result which contains the
               and span of the whole sequence.
@@ -6953,7 +7094,7 @@ Each item must be either a dictionary that describes an individual match or None
 </dd>
 <dt id="gatenlp.pam.pampac.Rule"><code class="flex name class">
 <span>class <span class="ident">Rule</span></span>
-<span>(</span><span>parser, action, priority=0)</span>
+<span>(</span><span>parser, *actions, priority=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A matching rule: this defines the parser and some action (a function) to carry out if the rule matches
@@ -6967,7 +7108,8 @@ there is a successful match.</p>
 <dt><strong><code>parser</code></strong></dt>
 <dd>the parser to match for the rule</dd>
 <dt><strong><code>action</code></strong></dt>
-<dd>the action to perform, or a function to call</dd>
+<dd>the action to perform, or a function to call. The action callable is passed the success object
+and the kwargs context and location</dd>
 <dt><strong><code>priority</code></strong></dt>
 <dd>the priority of the rule</dd>
 </dl></div>
@@ -6984,17 +7126,18 @@ there is a successful match.</p>
     there is a successful match.
     &#34;&#34;&#34;
 
-    def __init__(self, parser, action, priority=0):
+    def __init__(self, parser, *actions, priority=0):
         &#34;&#34;&#34;
         Create a Rule.
 
         Args:
             parser: the parser to match for the rule
-            action:  the action to perform, or a function to call
+            action:  the action to perform, or a function to call. The action callable is passed the success object
+                and the kwargs context and location
             priority: the priority of the rule
         &#34;&#34;&#34;
         self.parser = parser
-        self.action = action
+        self.action = Actions(*actions)
         self.priority = priority
 
     def set_priority(self, val):
@@ -7313,31 +7456,6 @@ parsing.</dd>
         &#34;&#34;&#34;
         return True
 
-    # TODO: the following method may not be needed! Consider removing!
-    # def add(self, result, ifnew=False):
-    #     &#34;&#34;&#34;
-    #     Add a result.
-    #
-    #     Args:
-    #         result:
-    #         ifnew:
-    #
-    #     Returns:
-    #
-    #     &#34;&#34;&#34;
-    #     # TODO: not sure if the ifnew parameter and treatment makes sense: do we ever not want
-    #     # to add a result if it is already there (meaning, the same match and the same remaining text/anns).
-    #     if isinstance(result, Iterable):
-    #         for re in result:
-    #             self.add(re, ifnew=ifnew)
-    #     else:
-    #         if ifnew:
-    #             if result not in self._results:
-    #                 self._results.append(result)
-    #         else:
-    #             self._results.append(result)
-    #     return self
-
     def pprint(self, file=None):
         &#34;&#34;&#34;
         Pretty print the success instance to the file or stdout if no file is specified.
@@ -7533,7 +7651,14 @@ result, the first one of those in the list is returned.</dd>
         self.matchcase = matchcase
 
     def parse(self, location, context):
-        location = context.update_location_byindex(location)
+        # TODO: why did we update by index here before trying to match? Are there edge cases where this
+        #   is needed? In general it is bad because it will set the text offset to the end of the NEXT
+        #   annotation which we do not want. So maybe there are cases when either the current text offset
+        #   does not coincide with the current annotation index or where the annotation index was not
+        #   updated.
+        # print(f&#34; DEBUG BEFORE: {location}&#34;)
+        # location = context.update_location_byindex(location)
+        # print(f&#34;DEBUG AFTER: {location}&#34;)
         txt = context.doc.text[location.text_location:]
         if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
             self.text, CLASS_REGEX_PATTERN
@@ -7580,6 +7705,7 @@ result, the first one of those in the list is returned.</dd>
                 else:
                     data = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
+                # print(f&#34;DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}&#34;)
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
@@ -7911,6 +8037,9 @@ from the current next text offset.</p>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.Actions" href="#gatenlp.pam.pampac.Actions">Actions</a></code></h4>
+</li>
 <li>
 <h4><code><a title="gatenlp.pam.pampac.AddAnn" href="#gatenlp.pam.pampac.AddAnn">AddAnn</a></code></h4>
 </li>

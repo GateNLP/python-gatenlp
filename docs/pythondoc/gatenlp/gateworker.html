@@ -47,6 +47,7 @@ import signal
 import glob
 import json
 from gatenlp.annotation_set import AnnotationSet
+from gatenlp.urlfileutils import is_url
 
 # NOTE: we delay importing py4j to the class initializer. This allows us to make GateWorker available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateWorker
@@ -318,33 +319,30 @@ class GateWorker:
 
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
-        self.gatehome = gatehome
-        self.port = port
-        self.host = host
-        self.start = start
-        self.gatehome = gatehome
-        self.platform = platform
-        self.gateprocess = None
-        self.gateway = None
-        self.worker = None
-        self.closed = False
-        self.keep = keep
-        self.debug = debug
-        self.log_actions = log_actions
+        self._gatehome = gatehome
+        self._port = port
+        self._host = host
+        self._start = start
+        self._platform = platform
+        self._gateprocess = None
+        self._gateway = None
+        self._closed = False
+        self._keep = keep
+        self._debug = debug
         if use_auth_token:
             if not auth_token:
-                self.auth_token = secrets.token_urlsafe(20)
+                self._auth_token = secrets.token_urlsafe(20)
             else:
-                self.auth_token = auth_token
+                self._auth_token = auth_token
         else:
-            self.auth_token = &#34;&#34;
+            self._auth_token = &#34;&#34;
         if gatehome is None and start:
             gatehome = os.environ.get(&#34;GATE_HOME&#34;)
             if gatehome is None:
                 raise Exception(
                     &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
                 )
-            self.gatehome = gatehome
+            self._gatehome = gatehome
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
@@ -371,14 +369,16 @@ class GateWorker:
                 cmdandparms.append(&#34;1&#34;)
             else:
                 cmdandparms.append(&#34;0&#34;)
-            os.environ[&#34;GATENLP_WORKER_TOKEN_&#34; + str(self.port)] = self.auth_token
+            os.environ[&#34;GATENLP_WORKER_TOKEN_&#34; + str(self.port)] = self._auth_token
             cmd = &#34; &#34;.join(cmdandparms)
             self.logger.debug(f&#34;Running command: {cmd}&#34;)
             subproc = subprocess.Popen(
                 cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
             )
-            self.gateprocess = subproc
+            self._gateprocess = subproc
+            haveerror = False
             while True:
+                # NOTE: the following line can block when the subprocess ends with an error
                 line = subproc.stderr.readline()
                 if line == &#34;&#34;:
                     break
@@ -386,34 +386,89 @@ class GateWorker:
                 if line == &#34;PythonWorkerRunner.java: server start OK&#34;:
                     break
                 if line == &#34;PythonWorkerRunner.java: server start NOT OK&#34;:
-                    raise Exception(&#34;Could not start server, giving up&#34;)
+                    haveerror = True
+                    # if we get an error we continue to loop through stderr until we get end of stream (line==&#34;&#34;)
+                    # and only raise the exception after the loop.
+                if line.startswith(&#34;Java GatenlpWorker ENDING&#34;):
+                    break
                 print(line, file=sys.stderr)
+            if haveerror:
+                raise Exception(&#34;Error when starting server&#34;)
             atexit.register(self.close)
-        self.gateway = JavaGateway(
-            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
+        self._gateway = JavaGateway(
+            gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
-        self.jvm = self.gateway.jvm
-        self.worker = self.gateway.entry_point
-        self.gate_version = self.jvm.gate.Main.version
-        self.gate_build = self.jvm.gate.Main.build
-        self.worker_version = self.worker.pluginVersion()
-        self.worker_build = self.worker.pluginBuild()
 
-    @staticmethod
-    def download():
-        &#34;&#34;&#34;
-        Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
-        is not set.
+    @property
+    def jvm(self):
+        return self.gateway.jvm
 
-        NOTE YET IMPLEMENTED.
+    @property
+    def worker(self):
+        return self.gateway.entry_point
+
+    @property
+    def gate_version(self):
         &#34;&#34;&#34;
-        # TODO: this should use the command and bootstrapping jar in gate-downloader:
-        # copy the whole directory into the standard per-user config directory for the system
-        # run the command
-        # use the generated gate.classpath as for a compiled local git repo
-        # NOTE: should change error message if GATE_HOME is not set to hint at this! (option --downlaod for the script)
-        # NOTE: add to documentation
-        raise Exception(&#34;Not yet implemented&#34;)
+        Return the GATE version of the connected GATE process.
+        &#34;&#34;&#34;
+        return self.jvm.gate.Main.version
+
+    @property
+    def gate_build(self):
+        &#34;&#34;&#34;
+        Return the GATE build id of the connected GATE process.
+        &#34;&#34;&#34;
+        return self.jvm.gate.Main.build
+
+    @property
+    def worker_version(self):
+        return self.worker.pluginVersion()
+
+    @property
+    def worker_build(self):
+        return self.worker.pluginBuild()
+
+    @property
+    def gatehome(self):
+        return self._gatehome
+
+    @property
+    def port(self):
+        return self._port
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def platform(self):
+        return self._platform
+
+    @property
+    def gateprocess(self):
+        return self._gateprocess
+
+    @property
+    def gateway(self):
+        return self._gateway
+
+    # @staticmethod
+    # def download():
+    #     &#34;&#34;&#34;
+    #     Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
+    #     is not set.
+    #
+    #     NOTE YET IMPLEMENTED.
+    #     &#34;&#34;&#34;
+    #     # TODO: this should use the command and bootstrapping jar in gate-downloader:
+    #     # copy the whole directory into the standard per-user config directory for the system
+    #     # run the command
+    #     # use the generated gate.classpath as for a compiled local git repo
+    #     # NOTE: should change error message if GATE_HOME is not set to hint at this!
+    #     # (option --downlaod for the script)
+    #     # NOTE: add to documentation
+    #     raise Exception(&#34;Not yet implemented&#34;)
 
     def close(self):
         &#34;&#34;&#34;
@@ -421,13 +476,19 @@ class GateWorker:
         Otherwise we can still close it if it was started by the workerrunner, not the Lr
         Note: if it was started by us, it was started via the workerrunner.
         &#34;&#34;&#34;
-        if not self.closed and self.worker.isClosable():
-            self.closed = True
+        if not self._closed and self.worker.isClosable():
+            self._closed = True
             self.gateway.shutdown()
             if self.gateprocess is not None:
                 for line in self.gateprocess.stderr:
                     print(line, file=sys.stderr, end=&#34;&#34;)
                 self.gateprocess.wait()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exptype, value, traceback):
+        self.close()
 
     def log_actions(self, onoff):
         &#34;&#34;&#34;
@@ -466,7 +527,7 @@ class GateWorker:
         &#34;&#34;&#34;
         if mimetype is None:
             mimetype = &#34;&#34;
-        self.worker.saveDocumentToFile(path, mimetype)
+        self.worker.saveDocumentToFile(gdoc, path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
         &#34;&#34;&#34;
@@ -493,8 +554,8 @@ class GateWorker:
         Returns:
             handle to GATE document
         &#34;&#34;&#34;
-        json = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annsets=annsets)
-        return self.worker.getDocument4BdocJson(json)
+        jsondata = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annsets=annsets)
+        return self.worker.getDocument4BdocJson(jsondata)
 
     def gdocanns2pdoc(self, gdoc, pdoc, annsets=None, replace=False):
         &#34;&#34;&#34;
@@ -611,24 +672,6 @@ class GateWorker:
         &#34;&#34;&#34;
         return self.worker.findMavenPlugin(group, artifact)
 
-    def gate_build(self):
-        &#34;&#34;&#34;
-        Return the short commit id of the Java GATE we are connected to.
-
-        Returns:
-            short commit id string
-        &#34;&#34;&#34;
-        return self.worker.gate_build()
-
-    def gate_version(self):
-        &#34;&#34;&#34;
-        Return the version string of the Java GATE we are connected to.
-
-        Returns:
-            version string
-        &#34;&#34;&#34;
-        return self.worker.gate_version()
-
     def getBdocJson(self, gdoc):
         &#34;&#34;&#34;
         Return the Bdoc JSON serialization of a Java GATE document as string.
@@ -672,7 +715,7 @@ class GateWorker:
         Returns:
             handle to the Java GATE document
         &#34;&#34;&#34;
-        return self.worker.getDocument4BdocJson
+        return self.worker.getDocument4BdocJson(bdocjson)
 
     def getDocument4Name(self, name):
         &#34;&#34;&#34;
@@ -814,6 +857,18 @@ class GateWorker:
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromFile(filename)
 
+    def loadPipelineFromUri(self, uri):
+        &#34;&#34;&#34;
+        Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            uri: the uri of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        &#34;&#34;&#34;
+        return self.worker.loadPipelineFromUri(uri)
+
     def loadPipelineFromPlugin(self, group, artifact, path):
         &#34;&#34;&#34;
         Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
@@ -856,7 +911,6 @@ class GateWorker:
         &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
-
     def pluginVersion(self):
         &#34;&#34;&#34;
         Return the version string of the Python plugin on the Java GATE side.
@@ -874,7 +928,6 @@ class GateWorker:
             message: string to output
         &#34;&#34;&#34;
         self.worker.print2err(message)
-
 
     def print2out(self, message):
         &#34;&#34;&#34;
@@ -1002,19 +1055,15 @@ class GateWorker:
 
 
 class GateWorkerAnnotator(Annotator):
-    # TODO: something that starts a gate worker when created, loads pipeline in Java GATE,
-    # sends over document
-    # or document and selection of annotation sets/annotation types, runs pipeline,
-    # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
     def __init__(
         self,
         pipeline,
-        gatehome=None,
-        port=25333,
+        gateworker,
         annsets_send=None,
         annsets_receive=None,
         replace_anns=False,
+        update_document=False,
     ):
         &#34;&#34;&#34;
         Create a GateWorker annotator.
@@ -1034,42 +1083,45 @@ class GateWorkerAnnotator(Annotator):
         Example:
 
             ```python
-            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;)
+            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
             for idx, doc in enumerate(mycorpus):
                 corpus[idx] = pipeline(doc)
             ```
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            port: the port to use (25333)
+            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
             annsets_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
                 If an empty list is specified, no annotations are sent at all.
-            annsets_receive: same format as annsets_send to specify which annotation sets/types are
+            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+                which annotation sets/types are
                 sent back to Python after the document has been processed on the Java side.
-            replace_anns: if True and an annotation is received which already exists (same set and annotation id)
-              then the existing annotation is replaced (if offsets and type are also same, only the features are
-              replaced). If False, all received annotations are added which may change their annotation id.
+            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
+                which already exists (same set and annotation id)
+                then the existing annotation is replaced (if offsets and type are also same, only the features are
+                replaced). If False, all received annotations are added which may change their annotation id.
+            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
+                received from Java GATE are added. In this case, other changes to the document, e.g. the document
+                text or document features are not applied to the current python document.
+                If False, the existing document is completely replaced with what gets
+                received from Java GATE.
         &#34;&#34;&#34;
         self.pipeline = pipeline
         self.annsets_send = annsets_send
         self.annsets_receive = annsets_receive
         self.replace_anns = replace_anns
-        self.gs = GateWorker(port=port, start=True, gatehome=gatehome)
-        self.controller = self.gs.worker.loadPipelineFromFile(self.pipeline)
-        self.corpus = self.gs.worker.newCorpus()
+        self.update_document = update_document
+        self.gw = gateworker
+        isurl, ext = is_url(pipeline)
+        if isurl:
+            self.controller = self.gw.worker.loadPipelineFromUri(ext)
+        else:
+            self.controller = self.gw.worker.loadPipelineFromFile(ext)
+        self.corpus = self.gw.worker.newCorpus()
         self.controller.setCorpus(self.corpus)
         self.controller.setControllerCallbacksEnabled(False)
-
-    def close(self):
-        &#34;&#34;&#34;
-        Shut down the GateWorker used by this annotator.
-
-        After calling this, the GateWorkerAnnotator instance cannot be used any more.
-        &#34;&#34;&#34;
-        self.gs.close()
 
     def start(self):
         &#34;&#34;&#34;
@@ -1103,10 +1155,13 @@ class GateWorkerAnnotator(Annotator):
             tmpdoc = doc.copy(annsets=self.annsets_send)
         else:
             tmpdoc = doc
-        gdoc = self.gs.pdoc2gdoc(tmpdoc)
-        self.gs.worker.run4Document(self.controller, gdoc)
-        self.gs.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        self.gs.del_resource(gdoc)
+        gdoc = self.gw.pdoc2gdoc(tmpdoc)
+        self.gw.worker.run4Document(self.controller, gdoc)
+        if self.update_document:
+            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+        else:
+            doc = self.gw.gdoc2pdoc(gdoc)
+        self.gw.del_resource(gdoc)
         return doc
 
 
@@ -1152,7 +1207,7 @@ def main():
     ap.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
     args = ap.parse_args()
     if args.download:
-        GateWorker.download()
+        raise Exception(&#34;--download not implemented yet &#34;)
     else:
         start_gate_worker(
             port=args.port,
@@ -1384,33 +1439,30 @@ debug: show debug messages (default: False)</p></div>
 
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
-        self.gatehome = gatehome
-        self.port = port
-        self.host = host
-        self.start = start
-        self.gatehome = gatehome
-        self.platform = platform
-        self.gateprocess = None
-        self.gateway = None
-        self.worker = None
-        self.closed = False
-        self.keep = keep
-        self.debug = debug
-        self.log_actions = log_actions
+        self._gatehome = gatehome
+        self._port = port
+        self._host = host
+        self._start = start
+        self._platform = platform
+        self._gateprocess = None
+        self._gateway = None
+        self._closed = False
+        self._keep = keep
+        self._debug = debug
         if use_auth_token:
             if not auth_token:
-                self.auth_token = secrets.token_urlsafe(20)
+                self._auth_token = secrets.token_urlsafe(20)
             else:
-                self.auth_token = auth_token
+                self._auth_token = auth_token
         else:
-            self.auth_token = &#34;&#34;
+            self._auth_token = &#34;&#34;
         if gatehome is None and start:
             gatehome = os.environ.get(&#34;GATE_HOME&#34;)
             if gatehome is None:
                 raise Exception(
                     &#34;Parameter gatehome is None and environment var GATE_HOME not set&#34;
                 )
-            self.gatehome = gatehome
+            self._gatehome = gatehome
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
@@ -1437,14 +1489,16 @@ debug: show debug messages (default: False)</p></div>
                 cmdandparms.append(&#34;1&#34;)
             else:
                 cmdandparms.append(&#34;0&#34;)
-            os.environ[&#34;GATENLP_WORKER_TOKEN_&#34; + str(self.port)] = self.auth_token
+            os.environ[&#34;GATENLP_WORKER_TOKEN_&#34; + str(self.port)] = self._auth_token
             cmd = &#34; &#34;.join(cmdandparms)
             self.logger.debug(f&#34;Running command: {cmd}&#34;)
             subproc = subprocess.Popen(
                 cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
             )
-            self.gateprocess = subproc
+            self._gateprocess = subproc
+            haveerror = False
             while True:
+                # NOTE: the following line can block when the subprocess ends with an error
                 line = subproc.stderr.readline()
                 if line == &#34;&#34;:
                     break
@@ -1452,34 +1506,89 @@ debug: show debug messages (default: False)</p></div>
                 if line == &#34;PythonWorkerRunner.java: server start OK&#34;:
                     break
                 if line == &#34;PythonWorkerRunner.java: server start NOT OK&#34;:
-                    raise Exception(&#34;Could not start server, giving up&#34;)
+                    haveerror = True
+                    # if we get an error we continue to loop through stderr until we get end of stream (line==&#34;&#34;)
+                    # and only raise the exception after the loop.
+                if line.startswith(&#34;Java GatenlpWorker ENDING&#34;):
+                    break
                 print(line, file=sys.stderr)
+            if haveerror:
+                raise Exception(&#34;Error when starting server&#34;)
             atexit.register(self.close)
-        self.gateway = JavaGateway(
-            gateway_parameters=GatewayParameters(port=port, auth_token=self.auth_token)
+        self._gateway = JavaGateway(
+            gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
-        self.jvm = self.gateway.jvm
-        self.worker = self.gateway.entry_point
-        self.gate_version = self.jvm.gate.Main.version
-        self.gate_build = self.jvm.gate.Main.build
-        self.worker_version = self.worker.pluginVersion()
-        self.worker_build = self.worker.pluginBuild()
 
-    @staticmethod
-    def download():
-        &#34;&#34;&#34;
-        Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
-        is not set.
+    @property
+    def jvm(self):
+        return self.gateway.jvm
 
-        NOTE YET IMPLEMENTED.
+    @property
+    def worker(self):
+        return self.gateway.entry_point
+
+    @property
+    def gate_version(self):
         &#34;&#34;&#34;
-        # TODO: this should use the command and bootstrapping jar in gate-downloader:
-        # copy the whole directory into the standard per-user config directory for the system
-        # run the command
-        # use the generated gate.classpath as for a compiled local git repo
-        # NOTE: should change error message if GATE_HOME is not set to hint at this! (option --downlaod for the script)
-        # NOTE: add to documentation
-        raise Exception(&#34;Not yet implemented&#34;)
+        Return the GATE version of the connected GATE process.
+        &#34;&#34;&#34;
+        return self.jvm.gate.Main.version
+
+    @property
+    def gate_build(self):
+        &#34;&#34;&#34;
+        Return the GATE build id of the connected GATE process.
+        &#34;&#34;&#34;
+        return self.jvm.gate.Main.build
+
+    @property
+    def worker_version(self):
+        return self.worker.pluginVersion()
+
+    @property
+    def worker_build(self):
+        return self.worker.pluginBuild()
+
+    @property
+    def gatehome(self):
+        return self._gatehome
+
+    @property
+    def port(self):
+        return self._port
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def platform(self):
+        return self._platform
+
+    @property
+    def gateprocess(self):
+        return self._gateprocess
+
+    @property
+    def gateway(self):
+        return self._gateway
+
+    # @staticmethod
+    # def download():
+    #     &#34;&#34;&#34;
+    #     Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
+    #     is not set.
+    #
+    #     NOTE YET IMPLEMENTED.
+    #     &#34;&#34;&#34;
+    #     # TODO: this should use the command and bootstrapping jar in gate-downloader:
+    #     # copy the whole directory into the standard per-user config directory for the system
+    #     # run the command
+    #     # use the generated gate.classpath as for a compiled local git repo
+    #     # NOTE: should change error message if GATE_HOME is not set to hint at this!
+    #     # (option --downlaod for the script)
+    #     # NOTE: add to documentation
+    #     raise Exception(&#34;Not yet implemented&#34;)
 
     def close(self):
         &#34;&#34;&#34;
@@ -1487,13 +1596,19 @@ debug: show debug messages (default: False)</p></div>
         Otherwise we can still close it if it was started by the workerrunner, not the Lr
         Note: if it was started by us, it was started via the workerrunner.
         &#34;&#34;&#34;
-        if not self.closed and self.worker.isClosable():
-            self.closed = True
+        if not self._closed and self.worker.isClosable():
+            self._closed = True
             self.gateway.shutdown()
             if self.gateprocess is not None:
                 for line in self.gateprocess.stderr:
                     print(line, file=sys.stderr, end=&#34;&#34;)
                 self.gateprocess.wait()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exptype, value, traceback):
+        self.close()
 
     def log_actions(self, onoff):
         &#34;&#34;&#34;
@@ -1532,7 +1647,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         if mimetype is None:
             mimetype = &#34;&#34;
-        self.worker.saveDocumentToFile(path, mimetype)
+        self.worker.saveDocumentToFile(gdoc, path, mimetype)
 
     def gdoc2pdoc(self, gdoc):
         &#34;&#34;&#34;
@@ -1559,8 +1674,8 @@ debug: show debug messages (default: False)</p></div>
         Returns:
             handle to GATE document
         &#34;&#34;&#34;
-        json = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annsets=annsets)
-        return self.worker.getDocument4BdocJson(json)
+        jsondata = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annsets=annsets)
+        return self.worker.getDocument4BdocJson(jsondata)
 
     def gdocanns2pdoc(self, gdoc, pdoc, annsets=None, replace=False):
         &#34;&#34;&#34;
@@ -1677,24 +1792,6 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.findMavenPlugin(group, artifact)
 
-    def gate_build(self):
-        &#34;&#34;&#34;
-        Return the short commit id of the Java GATE we are connected to.
-
-        Returns:
-            short commit id string
-        &#34;&#34;&#34;
-        return self.worker.gate_build()
-
-    def gate_version(self):
-        &#34;&#34;&#34;
-        Return the version string of the Java GATE we are connected to.
-
-        Returns:
-            version string
-        &#34;&#34;&#34;
-        return self.worker.gate_version()
-
     def getBdocJson(self, gdoc):
         &#34;&#34;&#34;
         Return the Bdoc JSON serialization of a Java GATE document as string.
@@ -1738,7 +1835,7 @@ debug: show debug messages (default: False)</p></div>
         Returns:
             handle to the Java GATE document
         &#34;&#34;&#34;
-        return self.worker.getDocument4BdocJson
+        return self.worker.getDocument4BdocJson(bdocjson)
 
     def getDocument4Name(self, name):
         &#34;&#34;&#34;
@@ -1880,6 +1977,18 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromFile(filename)
 
+    def loadPipelineFromUri(self, uri):
+        &#34;&#34;&#34;
+        Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
+
+        Args:
+            uri: the uri of the pipeline file
+
+        Returns:
+            a CorpusController handle to the loaded Java GATE pipeline
+        &#34;&#34;&#34;
+        return self.worker.loadPipelineFromUri(uri)
+
     def loadPipelineFromPlugin(self, group, artifact, path):
         &#34;&#34;&#34;
         Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
@@ -1922,7 +2031,6 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
-
     def pluginVersion(self):
         &#34;&#34;&#34;
         Return the version string of the Python plugin on the Java GATE side.
@@ -1940,7 +2048,6 @@ debug: show debug messages (default: False)</p></div>
             message: string to output
         &#34;&#34;&#34;
         self.worker.print2err(message)
-
 
     def print2out(self, message):
         &#34;&#34;&#34;
@@ -2066,15 +2173,157 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.showGui()</code></pre>
 </details>
-<h3>Static methods</h3>
+<h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.gateworker.GateWorker.download"><code class="name flex">
-<span>def <span class="ident">download</span></span>(<span>)</span>
-</code></dt>
+<dt id="gatenlp.gateworker.GateWorker.gate_build"><code class="name">property/get <span class="ident">gate_build</span></code></dt>
 <dd>
-<div class="desc"><p>Download GATE libraries into a standard location so we can run the GATE worker even if GATE_HOME
-is not set.</p>
-<p>NOTE YET IMPLEMENTED.</p></div>
+<div class="desc"><p>Return the GATE build id of the connected GATE process.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def gate_build(self):
+    &#34;&#34;&#34;
+    Return the GATE build id of the connected GATE process.
+    &#34;&#34;&#34;
+    return self.jvm.gate.Main.build</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.gate_version"><code class="name">property/get <span class="ident">gate_version</span></code></dt>
+<dd>
+<div class="desc"><p>Return the GATE version of the connected GATE process.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def gate_version(self):
+    &#34;&#34;&#34;
+    Return the GATE version of the connected GATE process.
+    &#34;&#34;&#34;
+    return self.jvm.gate.Main.version</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.gatehome"><code class="name">property/get <span class="ident">gatehome</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def gatehome(self):
+    return self._gatehome</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.gateprocess"><code class="name">property/get <span class="ident">gateprocess</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def gateprocess(self):
+    return self._gateprocess</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.gateway"><code class="name">property/get <span class="ident">gateway</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def gateway(self):
+    return self._gateway</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.host"><code class="name">property/get <span class="ident">host</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host(self):
+    return self._host</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.jvm"><code class="name">property/get <span class="ident">jvm</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def jvm(self):
+    return self.gateway.jvm</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.platform"><code class="name">property/get <span class="ident">platform</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def platform(self):
+    return self._platform</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.port"><code class="name">property/get <span class="ident">port</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def port(self):
+    return self._port</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.worker"><code class="name">property/get <span class="ident">worker</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def worker(self):
+    return self.gateway.entry_point</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.worker_build"><code class="name">property/get <span class="ident">worker_build</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def worker_build(self):
+    return self.worker.pluginBuild()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.GateWorker.worker_version"><code class="name">property/get <span class="ident">worker_version</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def worker_version(self):
+    return self.worker.pluginVersion()</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -2140,22 +2389,6 @@ GATE document does not delete/unload the document!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a handle to the plugin or None if not found</p></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorker.gate_build"><code class="name flex">
-<span>def <span class="ident">gate_build</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return the short commit id of the Java GATE we are connected to.</p>
-<h2 id="returns">Returns</h2>
-<p>short commit id string</p></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorker.gate_version"><code class="name flex">
-<span>def <span class="ident">gate_version</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return the version string of the Java GATE we are connected to.</p>
-<h2 id="returns">Returns</h2>
-<p>version string</p></div>
 </dd>
 <dt id="gatenlp.gateworker.GateWorker.gdoc2pdoc"><code class="name flex">
 <span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc)</span>
@@ -2429,6 +2662,19 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a CorpusController handle to the pipeline</p></div>
 </dd>
+<dt id="gatenlp.gateworker.GateWorker.loadPipelineFromUri"><code class="name flex">
+<span>def <span class="ident">loadPipelineFromUri</span></span>(<span>self, uri)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>uri</code></strong></dt>
+<dd>the uri of the pipeline file</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a CorpusController handle to the loaded Java GATE pipeline</p></div>
+</dd>
 <dt id="gatenlp.gateworker.GateWorker.load_gdoc"><code class="name flex">
 <span>def <span class="ident">load_gdoc</span></span>(<span>self, path, mimetype=None)</span>
 </code></dt>
@@ -2661,7 +2907,7 @@ when closing down the GATE worker.</p></div>
 </dd>
 <dt id="gatenlp.gateworker.GateWorkerAnnotator"><code class="flex name class">
 <span>class <span class="ident">GateWorkerAnnotator</span></span>
-<span>(</span><span>pipeline, gatehome=None, port=25333, annsets_send=None, annsets_receive=None, replace_anns=False)</span>
+<span>(</span><span>pipeline, gateworker, annsets_send=None, annsets_receive=None, replace_anns=False, update_document=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -2677,7 +2923,7 @@ autimatically)</p>
 <p>If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
 the Java GATE Worker process.</p>
 <h2 id="example">Example</h2>
-<pre><code class="language-python">pipeline = GateWorkerAnnotator(&quot;annie.xgapp&quot;)
+<pre><code class="language-python">pipeline = GateWorkerAnnotator(&quot;annie.xgapp&quot;, GateWorker())
 for idx, doc in enumerate(mycorpus):
     corpus[idx] = pipeline(doc)
 </code></pre>
@@ -2685,41 +2931,43 @@ for idx, doc in enumerate(mycorpus):
 <dl>
 <dt><strong><code>pipeline</code></strong></dt>
 <dd>the path to a Java GATE pipeline to load into the GATE worker</dd>
-<dt><strong><code>gatehome</code></strong></dt>
+<dt><strong><code>gateworker</code></strong></dt>
 <dd>the gate home directory to use, if not set, uses environment variable GATE_HOME</dd>
-<dt><strong><code>port</code></strong></dt>
-<dd>the port to use (25333)</dd>
 <dt><strong><code>annsets_send</code></strong></dt>
 <dd>a list of either annotation set names, or tuples where the first element
 is the name of an annotation set and the second element is either the name of a type
 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
 If an empty list is specified, no annotations are sent at all.</dd>
 <dt><strong><code>annsets_receive</code></strong></dt>
-<dd>same format as annsets_send to specify which annotation sets/types are
+<dd>this only works if update_document is True: same format as annsets_send to specify
+which annotation sets/types are
 sent back to Python after the document has been processed on the Java side.</dd>
 <dt><strong><code>replace_anns</code></strong></dt>
-<dd>if True and an annotation is received which already exists (same set and annotation id)
+<dd>this is only relevant if update_document is True: if True and an annotation is received
+which already exists (same set and annotation id)
 then the existing annotation is replaced (if offsets and type are also same, only the features are
 replaced). If False, all received annotations are added which may change their annotation id.</dd>
+<dt><strong><code>update_document</code></strong></dt>
+<dd>if True, then existing annotations in the gatenlp document are kept and the annotations
+received from Java GATE are added. In this case, other changes to the document, e.g. the document
+text or document features are not applied to the current python document.
+If False, the existing document is completely replaced with what gets
+received from Java GATE.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class GateWorkerAnnotator(Annotator):
-    # TODO: something that starts a gate worker when created, loads pipeline in Java GATE,
-    # sends over document
-    # or document and selection of annotation sets/annotation types, runs pipeline,
-    # and then fetches one or more annotation sets and updates the local document with them.
     # TODO: parameter to influence how exceptions are handled
     def __init__(
         self,
         pipeline,
-        gatehome=None,
-        port=25333,
+        gateworker,
         annsets_send=None,
         annsets_receive=None,
         replace_anns=False,
+        update_document=False,
     ):
         &#34;&#34;&#34;
         Create a GateWorker annotator.
@@ -2739,42 +2987,45 @@ replaced). If False, all received annotations are added which may change their a
         Example:
 
             ```python
-            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;)
+            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
             for idx, doc in enumerate(mycorpus):
                 corpus[idx] = pipeline(doc)
             ```
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gatehome: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            port: the port to use (25333)
+            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
             annsets_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
                 If an empty list is specified, no annotations are sent at all.
-            annsets_receive: same format as annsets_send to specify which annotation sets/types are
+            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+                which annotation sets/types are
                 sent back to Python after the document has been processed on the Java side.
-            replace_anns: if True and an annotation is received which already exists (same set and annotation id)
-              then the existing annotation is replaced (if offsets and type are also same, only the features are
-              replaced). If False, all received annotations are added which may change their annotation id.
+            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
+                which already exists (same set and annotation id)
+                then the existing annotation is replaced (if offsets and type are also same, only the features are
+                replaced). If False, all received annotations are added which may change their annotation id.
+            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
+                received from Java GATE are added. In this case, other changes to the document, e.g. the document
+                text or document features are not applied to the current python document.
+                If False, the existing document is completely replaced with what gets
+                received from Java GATE.
         &#34;&#34;&#34;
         self.pipeline = pipeline
         self.annsets_send = annsets_send
         self.annsets_receive = annsets_receive
         self.replace_anns = replace_anns
-        self.gs = GateWorker(port=port, start=True, gatehome=gatehome)
-        self.controller = self.gs.worker.loadPipelineFromFile(self.pipeline)
-        self.corpus = self.gs.worker.newCorpus()
+        self.update_document = update_document
+        self.gw = gateworker
+        isurl, ext = is_url(pipeline)
+        if isurl:
+            self.controller = self.gw.worker.loadPipelineFromUri(ext)
+        else:
+            self.controller = self.gw.worker.loadPipelineFromFile(ext)
+        self.corpus = self.gw.worker.newCorpus()
         self.controller.setCorpus(self.corpus)
         self.controller.setControllerCallbacksEnabled(False)
-
-    def close(self):
-        &#34;&#34;&#34;
-        Shut down the GateWorker used by this annotator.
-
-        After calling this, the GateWorkerAnnotator instance cannot be used any more.
-        &#34;&#34;&#34;
-        self.gs.close()
 
     def start(self):
         &#34;&#34;&#34;
@@ -2808,10 +3059,13 @@ replaced). If False, all received annotations are added which may change their a
             tmpdoc = doc.copy(annsets=self.annsets_send)
         else:
             tmpdoc = doc
-        gdoc = self.gs.pdoc2gdoc(tmpdoc)
-        self.gs.worker.run4Document(self.controller, gdoc)
-        self.gs.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        self.gs.del_resource(gdoc)
+        gdoc = self.gw.pdoc2gdoc(tmpdoc)
+        self.gw.worker.run4Document(self.controller, gdoc)
+        if self.update_document:
+            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+        else:
+            doc = self.gw.gdoc2pdoc(gdoc)
+        self.gw.del_resource(gdoc)
         return doc</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -2838,13 +3092,6 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the processed gatenlp document</p></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorkerAnnotator.close"><code class="name flex">
-<span>def <span class="ident">close</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Shut down the GateWorker used by this annotator.</p>
-<p>After calling this, the GateWorkerAnnotator instance cannot be used any more.</p></div>
 </dd>
 <dt id="gatenlp.gateworker.GateWorkerAnnotator.finish"><code class="name flex">
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
@@ -2900,10 +3147,12 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 <li><code><a title="gatenlp.gateworker.GateWorker.createDocument" href="#gatenlp.gateworker.GateWorker.createDocument">createDocument</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.del_resource" href="#gatenlp.gateworker.GateWorker.del_resource">del_resource</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.deleteResource" href="#gatenlp.gateworker.GateWorker.deleteResource">deleteResource</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.download" href="#gatenlp.gateworker.GateWorker.download">download</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.findMavenPlugin" href="#gatenlp.gateworker.GateWorker.findMavenPlugin">findMavenPlugin</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.gate_build" href="#gatenlp.gateworker.GateWorker.gate_build">gate_build</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.gate_version" href="#gatenlp.gateworker.GateWorker.gate_version">gate_version</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.gatehome" href="#gatenlp.gateworker.GateWorker.gatehome">gatehome</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.gateprocess" href="#gatenlp.gateworker.GateWorker.gateprocess">gateprocess</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.gateway" href="#gatenlp.gateworker.GateWorker.gateway">gateway</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.gdoc2pdoc" href="#gatenlp.gateworker.GateWorker.gdoc2pdoc">gdoc2pdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.gdocanns2pdoc" href="#gatenlp.gateworker.GateWorker.gdocanns2pdoc">gdocanns2pdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.getBdocJson" href="#gatenlp.gateworker.GateWorker.getBdocJson">getBdocJson</a></code></li>
@@ -2918,12 +3167,15 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 <li><code><a title="gatenlp.gateworker.GateWorker.getPrNames" href="#gatenlp.gateworker.GateWorker.getPrNames">getPrNames</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.getResources4Name" href="#gatenlp.gateworker.GateWorker.getResources4Name">getResources4Name</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.getResources4NameClass" href="#gatenlp.gateworker.GateWorker.getResources4NameClass">getResources4NameClass</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.host" href="#gatenlp.gateworker.GateWorker.host">host</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.jsonAnnsets4Doc" href="#gatenlp.gateworker.GateWorker.jsonAnnsets4Doc">jsonAnnsets4Doc</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.jvm" href="#gatenlp.gateworker.GateWorker.jvm">jvm</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.loadDocumentFromFile" href="#gatenlp.gateworker.GateWorker.loadDocumentFromFile">loadDocumentFromFile</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.loadDocumentFromFile4Mime" href="#gatenlp.gateworker.GateWorker.loadDocumentFromFile4Mime">loadDocumentFromFile4Mime</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.loadMavenPlugin" href="#gatenlp.gateworker.GateWorker.loadMavenPlugin">loadMavenPlugin</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromFile" href="#gatenlp.gateworker.GateWorker.loadPipelineFromFile">loadPipelineFromFile</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromPlugin" href="#gatenlp.gateworker.GateWorker.loadPipelineFromPlugin">loadPipelineFromPlugin</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromUri" href="#gatenlp.gateworker.GateWorker.loadPipelineFromUri">loadPipelineFromUri</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.load_gdoc" href="#gatenlp.gateworker.GateWorker.load_gdoc">load_gdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.load_pdoc" href="#gatenlp.gateworker.GateWorker.load_pdoc">load_pdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.logActions" href="#gatenlp.gateworker.GateWorker.logActions">logActions</a></code></li>
@@ -2931,8 +3183,10 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 <li><code><a title="gatenlp.gateworker.GateWorker.newCorpus" href="#gatenlp.gateworker.GateWorker.newCorpus">newCorpus</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.pannsets2gannsets" href="#gatenlp.gateworker.GateWorker.pannsets2gannsets">pannsets2gannsets</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.pdoc2gdoc" href="#gatenlp.gateworker.GateWorker.pdoc2gdoc">pdoc2gdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.platform" href="#gatenlp.gateworker.GateWorker.platform">platform</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.pluginBuild" href="#gatenlp.gateworker.GateWorker.pluginBuild">pluginBuild</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.pluginVersion" href="#gatenlp.gateworker.GateWorker.pluginVersion">pluginVersion</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.port" href="#gatenlp.gateworker.GateWorker.port">port</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.print2err" href="#gatenlp.gateworker.GateWorker.print2err">print2err</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.print2out" href="#gatenlp.gateworker.GateWorker.print2out">print2out</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.run4Corpus" href="#gatenlp.gateworker.GateWorker.run4Corpus">run4Corpus</a></code></li>
@@ -2943,13 +3197,15 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 <li><code><a title="gatenlp.gateworker.GateWorker.save_gdoc" href="#gatenlp.gateworker.GateWorker.save_gdoc">save_gdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.showGui" href="#gatenlp.gateworker.GateWorker.showGui">showGui</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorker.show_gui" href="#gatenlp.gateworker.GateWorker.show_gui">show_gui</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.worker" href="#gatenlp.gateworker.GateWorker.worker">worker</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.worker_build" href="#gatenlp.gateworker.GateWorker.worker_build">worker_build</a></code></li>
+<li><code><a title="gatenlp.gateworker.GateWorker.worker_version" href="#gatenlp.gateworker.GateWorker.worker_version">worker_version</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.gateworker.GateWorkerAnnotator" href="#gatenlp.gateworker.GateWorkerAnnotator">GateWorkerAnnotator</a></code></h4>
 <ul class="">
 <li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.__call__" href="#gatenlp.gateworker.GateWorkerAnnotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.close" href="#gatenlp.gateworker.GateWorkerAnnotator.close">close</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.finish" href="#gatenlp.gateworker.GateWorkerAnnotator.finish">finish</a></code></li>
 <li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.start" href="#gatenlp.gateworker.GateWorkerAnnotator.start">start</a></code></li>
 </ul>

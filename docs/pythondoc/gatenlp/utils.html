@@ -115,7 +115,7 @@ start = 0
 LOGGING_FORMAT = &#34;%(asctime)s|%(levelname)s|%(name)s|%(message)s&#34;
 
 
-def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None):
+def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None, fmt=None):
     &#34;&#34;&#34;
     Configure the root logger (this only works the very first time, all subsequent
     invocations will not modify the root logger). The root logger is initialized
@@ -134,6 +134,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         lvl: set logging level
         config: if specified, set logger config from this file
         args: not used yet
+        fmt: logging format to use, if None uses a default format
 
     Returns:
         A logger instance for name (always the same instance for the same name)
@@ -141,6 +142,8 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
 
     if name is None:
         name = sys.argv[0]
+    if fmt is None:
+        fmt = LOGGING_FORMAT
     if lvl is None:
         if debug:
             lvl = logging.DEBUG
@@ -157,7 +160,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
     # handler for the file, if needed, only if the root logger has no handlers yet as well
     addhandlers = []
-    fmt = logging.Formatter(LOGGING_FORMAT)
+    fmt = logging.Formatter(fmt)
     hndlr = logging.StreamHandler(sys.stderr)
     hndlr.setFormatter(fmt)
     addhandlers.append(hndlr)
@@ -198,7 +201,7 @@ def run_stop(logger=None, name=None):
     if logger is None:
         logger = init_logger(name=name)
     logger.info(
-        &#34;Stpped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+        &#34;Stopped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
     )
     if start == 0:
         logger.warning(&#34;Run timing not set up properly, no time!&#34;)
@@ -291,6 +294,11 @@ _in_notebook = [None]
 
 
 def in_notebook():
+    &#34;&#34;&#34;
+    Check if we are running from within a jupyter-like notebook.
+
+    Returns: True if likely within a notebook.
+    &#34;&#34;&#34;
     if _in_notebook[0] is not None:
         return _in_notebook[0]
     try:
@@ -312,6 +320,11 @@ def in_notebook():
         # We do not even have IPython installed
         _in_notebook[0] = False
     return _in_notebook[0]
+
+
+def in_colab():
+    from IPython.core import getipython
+    return &#39;google.colab&#39; in str(getipython.get_ipython())
 
 
 def allowspan(method):
@@ -422,14 +435,21 @@ an excpetion is raised unless silent is True</dd>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="gatenlp.utils.in_notebook"><code class="name flex">
-<span>def <span class="ident">in_notebook</span></span>(<span>)</span>
+<dt id="gatenlp.utils.in_colab"><code class="name flex">
+<span>def <span class="ident">in_colab</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="gatenlp.utils.in_notebook"><code class="name flex">
+<span>def <span class="ident">in_notebook</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if we are running from within a jupyter-like notebook.</p>
+<p>Returns: True if likely within a notebook.</p></div>
+</dd>
 <dt id="gatenlp.utils.init_logger"><code class="name flex">
-<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, debug=False, args=None)</span>
+<span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, debug=False, args=None, fmt=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Configure the root logger (this only works the very first time, all subsequent
@@ -452,6 +472,8 @@ file "outpref.DATETIME.log" as well.</p>
 <dd>if specified, set logger config from this file</dd>
 <dt><strong><code>args</code></strong></dt>
 <dd>not used yet</dd>
+<dt><strong><code>fmt</code></strong></dt>
+<dd>logging format to use, if None uses a default format</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A logger instance for name (always the same instance for the same name)</p></div>
@@ -548,6 +570,7 @@ offset.</p>
 <li><code><a title="gatenlp.utils.file4logger" href="#gatenlp.utils.file4logger">file4logger</a></code></li>
 <li><code><a title="gatenlp.utils.get_nested" href="#gatenlp.utils.get_nested">get_nested</a></code></li>
 <li><code><a title="gatenlp.utils.identity" href="#gatenlp.utils.identity">identity</a></code></li>
+<li><code><a title="gatenlp.utils.in_colab" href="#gatenlp.utils.in_colab">in_colab</a></code></li>
 <li><code><a title="gatenlp.utils.in_notebook" href="#gatenlp.utils.in_notebook">in_notebook</a></code></li>
 <li><code><a title="gatenlp.utils.init_logger" href="#gatenlp.utils.init_logger">init_logger</a></code></li>
 <li><code><a title="gatenlp.utils.isequal" href="#gatenlp.utils.isequal">isequal</a></code></li>

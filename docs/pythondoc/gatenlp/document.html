@@ -42,7 +42,7 @@ from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 from gatenlp.features import Features
-from gatenlp.utils import in_notebook
+from gatenlp.utils import in_notebook, in_colab
 from gatenlp.changelog import ChangeLog
 
 from gatenlp.changelog_consts import (
@@ -440,7 +440,7 @@ class Document:
         if isinstance(span, AnnotationSet):
             return self.text[span.start():span.end()]
         if hasattr(span, &#34;start&#34;) and hasattr(span, &#34;end&#34;):
-            return self.text[span.start, span.end]
+            return self.text[span.start:span.end]
         return self.text[span]
 
     def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
@@ -850,17 +850,24 @@ class Document:
         but instead initializes the JS in the notebook unless gatenlp.init_notebook()
         has bee called already.
         &#34;&#34;&#34;
-        return self._notebook_show()
+        if in_colab():
+            return self._show_colab(display=False)
+        else:
+            return self._show_notebook(display=False)
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None, doc_style=None):
+    def show(self, to=None, htmlid=None, annsets=None, doc_style=None):
         &#34;&#34;&#34;
-        Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+        Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
-        This directly sends the rendered document to the cell (no display/HTML necessary).
+        This directly sends the rendered document to the cell (no display/HTML necessary) if
+        the destination is a notebook.
 
         Args:
+            to: if None, try to guess if this is called from within a notebook and if yes, which kind.
+                Otherwise, explicitly specify where to show the document to, one of &#34;console&#34;, &#34;jupyter&#34;,
+                &#34;colab&#34;.
             htmlid: the HTML id prefix to use for classes and element ids.
             annsets: if not None, a list of annotation set/type specifications.
                 Each element is either
@@ -869,12 +876,48 @@ class Document:
                 and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
         &#34;&#34;&#34;
+        if to == &#34;colab&#34;:
+            self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == &#34;jupyter&#34;:
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == &#34;console&#34;:
+            return self.__str__()
+        elif to is not None:
+            raise Exception(f&#34;Not a valid value for parameter to: {to}. Use one of console, jupyter, colab&#34;)
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            if in_colab():
+                self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
+            else:
+                self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
         else:
             return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
+    def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
+        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
+        from IPython.display import display_html, Javascript
+        from IPython.display import display as i_display
+
+        i_display(Javascript(url=JS_JQUERY_URL))
+        i_display(Javascript(url=JS_GATENLP_URL))
+        html = self.save_mem(
+            fmt=&#34;html-ann-viewer&#34;,
+            notebook=True,
+            add_js=False,
+            offline=True,
+            htmlid=htmlid,
+            annsets=annsets,
+            doc_style=doc_style,
+        )
+        if display:
+            display_html(html, raw=True)
+        else:
+            return html
+
+    def _show_notebook(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -1465,7 +1508,7 @@ offsets accordingly)</li>
         if isinstance(span, AnnotationSet):
             return self.text[span.start():span.end()]
         if hasattr(span, &#34;start&#34;) and hasattr(span, &#34;end&#34;):
-            return self.text[span.start, span.end]
+            return self.text[span.start:span.end]
         return self.text[span]
 
     def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
@@ -1875,17 +1918,24 @@ offsets accordingly)</li>
         but instead initializes the JS in the notebook unless gatenlp.init_notebook()
         has bee called already.
         &#34;&#34;&#34;
-        return self._notebook_show()
+        if in_colab():
+            return self._show_colab(display=False)
+        else:
+            return self._show_notebook(display=False)
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, htmlid=None, annsets=None, doc_style=None):
+    def show(self, to=None, htmlid=None, annsets=None, doc_style=None):
         &#34;&#34;&#34;
-        Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+        Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
-        This directly sends the rendered document to the cell (no display/HTML necessary).
+        This directly sends the rendered document to the cell (no display/HTML necessary) if
+        the destination is a notebook.
 
         Args:
+            to: if None, try to guess if this is called from within a notebook and if yes, which kind.
+                Otherwise, explicitly specify where to show the document to, one of &#34;console&#34;, &#34;jupyter&#34;,
+                &#34;colab&#34;.
             htmlid: the HTML id prefix to use for classes and element ids.
             annsets: if not None, a list of annotation set/type specifications.
                 Each element is either
@@ -1894,12 +1944,48 @@ offsets accordingly)</li>
                 and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
         &#34;&#34;&#34;
+        if to == &#34;colab&#34;:
+            self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == &#34;jupyter&#34;:
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        elif to == &#34;console&#34;:
+            return self.__str__()
+        elif to is not None:
+            raise Exception(f&#34;Not a valid value for parameter to: {to}. Use one of console, jupyter, colab&#34;)
         if in_notebook():
-            self._notebook_show(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            if in_colab():
+                self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
+            else:
+                self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                return
         else:
             return self.__str__()
 
-    def _notebook_show(self, htmlid=None, display=False, annsets=None, doc_style=None):
+    def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
+        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
+        from IPython.display import display_html, Javascript
+        from IPython.display import display as i_display
+
+        i_display(Javascript(url=JS_JQUERY_URL))
+        i_display(Javascript(url=JS_GATENLP_URL))
+        html = self.save_mem(
+            fmt=&#34;html-ann-viewer&#34;,
+            notebook=True,
+            add_js=False,
+            offline=True,
+            htmlid=htmlid,
+            annsets=annsets,
+            doc_style=doc_style,
+        )
+        if display:
+            display_html(html, raw=True)
+        else:
+            return html
+
+    def _show_notebook(self, htmlid=None, display=False, annsets=None, doc_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -2261,14 +2347,19 @@ list of annotation types to include in the serialized document.</dd>
 </dl></div>
 </dd>
 <dt id="gatenlp.document.Document.show"><code class="name flex">
-<span>def <span class="ident">show</span></span>(<span>self, htmlid=None, annsets=None, doc_style=None)</span>
+<span>def <span class="ident">show</span></span>(<span>self, to=None, htmlid=None, annsets=None, doc_style=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Show the document in a Jupyter notebook. This allows to assign a specific htmlid so
+<div class="desc"><p>Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
 the generated HTML can be directly styled afterwards.
-This directly sends the rendered document to the cell (no display/HTML necessary).</p>
+This directly sends the rendered document to the cell (no display/HTML necessary) if
+the destination is a notebook.</p>
 <h2 id="args">Args</h2>
 <dl>
+<dt><strong><code>to</code></strong></dt>
+<dd>if None, try to guess if this is called from within a notebook and if yes, which kind.
+Otherwise, explicitly specify where to show the document to, one of "console", "jupyter",
+"colab".</dd>
 <dt><strong><code>htmlid</code></strong></dt>
 <dd>the HTML id prefix to use for classes and element ids.</dd>
 <dt><strong><code>annsets</code></strong></dt>

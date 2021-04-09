@@ -38,6 +38,7 @@ from gatenlp import Document
 from gatenlp import logger
 from gatenlp.processing.annotator import Annotator
 import stanza
+from stanza.models.common.doc import Document as StanzaDocument
 
 
 class AnnStanza(Annotator):
@@ -53,23 +54,27 @@ class AnnStanza(Annotator):
         sentence_type=&#34;Sentence&#34;,
         add_entities=True,
         ent_prefix=None,
+        batchsize=1000,
         **kwargs,
     ):
         &#34;&#34;&#34;
         Create a processing resources for running a stanza pipeline on documents.
 
         Args:
-            :param pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
+            pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
                 passing on the kwargs
             outsetname: the annotation set name where to put the annotations
             token_type: the annotation type for the token annotations
             mwt_type: annotation type for multi-word token annotations
             space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
-            for all characters in the document not covered by tokens.
+                for all characters in the document not covered by tokens.
             sentence_type: the annotation type for the sentence annotations
             add_entities: if true, add entity annotations
             ent_prefix: the prefix to add to all entity annotation types
-            :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
+            batchsize: for the pipe() method, batches from the input generator are created to speed up processing
+                with Stanza, this defines the number of documents per batch (default: 1000). Note that Stanza
+                internally re-batches those batches again, depending on the size of the documents in the sequence.
+            kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
         &#34;&#34;&#34;
         self.outsetname = outsetname
@@ -78,6 +83,7 @@ class AnnStanza(Annotator):
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
         self.mwt_type = mwt_type
+        self.batchsize = batchsize
         self.space_token_type = space_token_type
         [
             kwargs.pop(a, None)
@@ -103,6 +109,28 @@ class AnnStanza(Annotator):
             ent_prefix=self.ent_prefix,
         )
         return doc
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        for idx, doc in enumerate(documents):
+            if idx &gt;= self.batchsize:
+                break
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([],text=doc.text))
+        if len(docs) == 0:
+            return
+        stanza_out = self.pipeline(stanza_in)
+        assert len(stanza_out) == len(docs)
+        for doc_stanza, doc in zip(stanza_out, docs):
+            try:
+                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type=&#34;Token&#34;,
+                               sentence_type=&#34;Sentence&#34;, add_entities=False)
+                yield doc
+            except:
+                # TODO: this should be configurable: should we terminate, log, silently return None, silently
+                #   return the unprocessed document?
+                yield None
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=&#34;&#34;):
@@ -377,14 +405,15 @@ start, end and id keys and everything else in a nested dict "fm".</p>
 <dl>
 <dt id="gatenlp.lib_stanza.AnnStanza"><code class="flex name class">
 <span>class <span class="ident">AnnStanza</span></span>
-<span>(</span><span>pipeline=None, outsetname='', token_type='Token', mwt_type='MWT', space_token_type=None, sentence_type='Sentence', add_entities=True, ent_prefix=None, **kwargs)</span>
+<span>(</span><span>pipeline=None, outsetname='', token_type='Token', mwt_type='MWT', space_token_type=None, sentence_type='Sentence', add_entities=True, ent_prefix=None, batchsize=1000, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a processing resources for running a stanza pipeline on documents.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt>:param pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline</dt>
-<dt>passing on the kwargs</dt>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>if this is specified, use a pre-configured pipeline, otherwise create a pipeline
+passing on the kwargs</dd>
 <dt><strong><code>outsetname</code></strong></dt>
 <dd>the annotation set name where to put the annotations</dd>
 <dt><strong><code>token_type</code></strong></dt>
@@ -392,17 +421,22 @@ start, end and id keys and everything else in a nested dict "fm".</p>
 <dt><strong><code>mwt_type</code></strong></dt>
 <dd>annotation type for multi-word token annotations</dd>
 <dt><strong><code>space_token_type</code></strong></dt>
-<dd>annotation type for space tokens. If not None, adds space tokens of this type</dd>
-<dt>for all characters in the document not covered by tokens.</dt>
+<dd>annotation type for space tokens. If not None, adds space tokens of this type
+for all characters in the document not covered by tokens.</dd>
 <dt><strong><code>sentence_type</code></strong></dt>
 <dd>the annotation type for the sentence annotations</dd>
 <dt><strong><code>add_entities</code></strong></dt>
 <dd>if true, add entity annotations</dd>
 <dt><strong><code>ent_prefix</code></strong></dt>
 <dd>the prefix to add to all entity annotation types</dd>
-</dl>
-<p>:param kwargs: if no preconfigured pipeline is specified, pass these arguments to
-the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></p></div>
+<dt><strong><code>batchsize</code></strong></dt>
+<dd>for the pipe() method, batches from the input generator are created to speed up processing
+with Stanza, this defines the number of documents per batch (default: 1000). Note that Stanza
+internally re-batches those batches again, depending on the size of the documents in the sequence.</dd>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>if no preconfigured pipeline is specified, pass these arguments to
+the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -420,23 +454,27 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
         sentence_type=&#34;Sentence&#34;,
         add_entities=True,
         ent_prefix=None,
+        batchsize=1000,
         **kwargs,
     ):
         &#34;&#34;&#34;
         Create a processing resources for running a stanza pipeline on documents.
 
         Args:
-            :param pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
+            pipeline: if this is specified, use a pre-configured pipeline, otherwise create a pipeline
                 passing on the kwargs
             outsetname: the annotation set name where to put the annotations
             token_type: the annotation type for the token annotations
             mwt_type: annotation type for multi-word token annotations
             space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
-            for all characters in the document not covered by tokens.
+                for all characters in the document not covered by tokens.
             sentence_type: the annotation type for the sentence annotations
             add_entities: if true, add entity annotations
             ent_prefix: the prefix to add to all entity annotation types
-            :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
+            batchsize: for the pipe() method, batches from the input generator are created to speed up processing
+                with Stanza, this defines the number of documents per batch (default: 1000). Note that Stanza
+                internally re-batches those batches again, depending on the size of the documents in the sequence.
+            kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
         &#34;&#34;&#34;
         self.outsetname = outsetname
@@ -445,6 +483,7 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
         self.mwt_type = mwt_type
+        self.batchsize = batchsize
         self.space_token_type = space_token_type
         [
             kwargs.pop(a, None)
@@ -469,7 +508,29 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
             add_entities=self.add_entities,
             ent_prefix=self.ent_prefix,
         )
-        return doc</code></pre>
+        return doc
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        for idx, doc in enumerate(documents):
+            if idx &gt;= self.batchsize:
+                break
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([],text=doc.text))
+        if len(docs) == 0:
+            return
+        stanza_out = self.pipeline(stanza_in)
+        assert len(stanza_out) == len(docs)
+        for doc_stanza, doc in zip(stanza_out, docs):
+            try:
+                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type=&#34;Token&#34;,
+                               sentence_type=&#34;Sentence&#34;, add_entities=False)
+                yield doc
+            except:
+                # TODO: this should be configurable: should we terminate, log, silently return None, silently
+                #   return the unprocessed document?
+                yield None</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

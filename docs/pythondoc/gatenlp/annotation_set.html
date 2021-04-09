@@ -37,7 +37,9 @@ annotations which can arbitrarily overlap.
 # TODO: when should two sets be equal? Currently object identity is requried!
 
 from typing import Any, List, Union, Dict, Set, KeysView, Iterator, Generator
-from collections.abc import Iterable
+# TODO: prior to Python 3.9 we need different Iterable definitions for typing and type checking
+from collections.abc import Iterable as abc_Iterable
+from typing import Iterable
 from collections import defaultdict
 import copy
 from gatenlp.span import Span
@@ -424,9 +426,13 @@ class AnnotationSet:
         annid: int = None,
     ):
         &#34;&#34;&#34;
-        Adds an annotation to the set. Once an annotation has been added,
+        Adds an annotation to the set.
+        Once an annotation has been added,
         the start and end offsets,
         the type, and the annotation id of the annotation are immutable.
+
+        If an annotation id is specified that already exists in the set, an
+        exception is raised.
 
         Args:
           start: start offset
@@ -482,8 +488,25 @@ class AnnotationSet:
     def add_ann(self, ann, annid: int = None):
         &#34;&#34;&#34;
         Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or
-        with the one given.
+        either with a new annotation id or with the one given.
+        If an annotation id that already exists in the set is specified,
+        an exception is raised.
+
+        Args:
+          ann: the annotation to copy into the set
+          annid: the annotation id, if not specified the next free one for
+              this set is used. Note: the id should normally be left unspecified
+              and get assigned automatically.
+
+        Returns:
+          the added annotation
+        &#34;&#34;&#34;
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def add_ann(self, ann, annid: int = None):
+        &#34;&#34;&#34;
+        Adds a shallow copy of the given ann to the annotation set,
+        either with a new annotation id or with the one given.
 
         Args:
           ann: the annotation to copy into the set
@@ -495,6 +518,24 @@ class AnnotationSet:
           the added annotation
         &#34;&#34;&#34;
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
+    #   instead, Iterable must come from typing
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        &#34;&#34;&#34;
+        Adds shallow copies of all annotations from the iterable to the set.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        &#34;&#34;&#34;
+        for ann in anns:
+            if annid_from_ann:
+                self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
+            else:
+                self.add(ann.start, ann.end, ann.type, ann.features)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
@@ -520,7 +561,7 @@ class AnnotationSet:
             raise Exception(
                 &#34;Cannot remove an annotation from an immutable annotation set&#34;
             )
-        if isinstance(annoriter, Iterable):
+        if isinstance(annoriter, abc_Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
             return
@@ -1837,9 +1878,13 @@ set has an owning document.</dd>
         annid: int = None,
     ):
         &#34;&#34;&#34;
-        Adds an annotation to the set. Once an annotation has been added,
+        Adds an annotation to the set.
+        Once an annotation has been added,
         the start and end offsets,
         the type, and the annotation id of the annotation are immutable.
+
+        If an annotation id is specified that already exists in the set, an
+        exception is raised.
 
         Args:
           start: start offset
@@ -1895,8 +1940,25 @@ set has an owning document.</dd>
     def add_ann(self, ann, annid: int = None):
         &#34;&#34;&#34;
         Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or
-        with the one given.
+        either with a new annotation id or with the one given.
+        If an annotation id that already exists in the set is specified,
+        an exception is raised.
+
+        Args:
+          ann: the annotation to copy into the set
+          annid: the annotation id, if not specified the next free one for
+              this set is used. Note: the id should normally be left unspecified
+              and get assigned automatically.
+
+        Returns:
+          the added annotation
+        &#34;&#34;&#34;
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def add_ann(self, ann, annid: int = None):
+        &#34;&#34;&#34;
+        Adds a shallow copy of the given ann to the annotation set,
+        either with a new annotation id or with the one given.
 
         Args:
           ann: the annotation to copy into the set
@@ -1908,6 +1970,24 @@ set has an owning document.</dd>
           the added annotation
         &#34;&#34;&#34;
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
+    #   instead, Iterable must come from typing
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        &#34;&#34;&#34;
+        Adds shallow copies of all annotations from the iterable to the set.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        &#34;&#34;&#34;
+        for ann in anns:
+            if annid_from_ann:
+                self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
+            else:
+                self.add(ann.start, ann.end, ann.type, ann.features)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
@@ -1933,7 +2013,7 @@ set has an owning document.</dd>
             raise Exception(
                 &#34;Cannot remove an annotation from an immutable annotation set&#34;
             )
-        if isinstance(annoriter, Iterable):
+        if isinstance(annoriter, abc_Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
             return
@@ -3138,9 +3218,12 @@ offset ranges.</p>
 <span>def <span class="ident">add</span></span>(<span>self, start: int, end: int, anntype: str, features: Dict[str, Any] = None, annid: int = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Adds an annotation to the set. Once an annotation has been added,
+<div class="desc"><p>Adds an annotation to the set.
+Once an annotation has been added,
 the start and end offsets,
 the type, and the annotation id of the annotation are immutable.</p>
+<p>If an annotation id is specified that already exists in the set, an
+exception is raised.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>start</code></strong></dt>
@@ -3168,8 +3251,7 @@ normally left unspecified and get assigned automatically.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Adds a shallow copy of the given ann to the annotation set,
-either with a new annotation id or
-with the one given.</p>
+either with a new annotation id or with the one given.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>ann</code></strong></dt>
@@ -3181,6 +3263,21 @@ and get assigned automatically.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the added annotation</p></div>
+</dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.add_anns"><code class="name flex">
+<span>def <span class="ident">add_anns</span></span>(<span>self, anns: Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], annid_from_ann=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds shallow copies of all annotations from the iterable to the set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anns</code></strong></dt>
+<dd>an iterable of Annotations</dd>
+<dt><strong><code>annid_from_ann</code></strong></dt>
+<dd>if True, use the same annotation id as in the annotation, this will raise
+an exception if the set already contains and annotation with this id.
+If False assign a new id to the added annotation.</dd>
+</dl></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.after"><code class="name flex">
 <span>def <span class="ident">after</span></span>(<span>self, start: int, end: int, annid=None, include_self=False, immediately=False)</span>
@@ -3364,7 +3461,7 @@ annotations from this set.</dd>
 <p>an immutable annotation set</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.detach_from"><code class="name flex">
-<span>def <span class="ident">detach_from</span></span>(<span>self, anns: collections.abc.Iterable)</span>
+<span>def <span class="ident">detach_from</span></span>(<span>self, anns: Iterable)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates an immutable detached annotation set from the annotations
@@ -3528,7 +3625,7 @@ do not include that annotation in the result set.
 <p>an immutable annotation set with the matching annotations</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.remove"><code class="name flex">
-<span>def <span class="ident">remove</span></span>(<span>self, annoriter: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>, collections.abc.Iterable], raise_on_notexisting=True) ‑> NoneType</span>
+<span>def <span class="ident">remove</span></span>(<span>self, annoriter: Union[int, <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>, Iterable], raise_on_notexisting=True) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Removes the given annotation which is either the id or the annotation
@@ -3666,7 +3763,7 @@ annotation sets</dd>
 <p>the dict representation of the annotation set.</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.with_type"><code class="name flex">
-<span>def <span class="ident">with_type</span></span>(<span>self, *anntype: collections.abc.Iterable, non_overlapping: bool = False)</span>
+<span>def <span class="ident">with_type</span></span>(<span>self, *anntype: Iterable, non_overlapping: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets annotations of the specified type(s).
@@ -3763,6 +3860,7 @@ annotation in the result set. (Default value = False)</dd>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.__len__" href="#gatenlp.annotation_set.AnnotationSet.__len__">__len__</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.add" href="#gatenlp.annotation_set.AnnotationSet.add">add</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.add_ann" href="#gatenlp.annotation_set.AnnotationSet.add_ann">add_ann</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.add_anns" href="#gatenlp.annotation_set.AnnotationSet.add_anns">add_anns</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.after" href="#gatenlp.annotation_set.AnnotationSet.after">after</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.before" href="#gatenlp.annotation_set.AnnotationSet.before">before</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.by_offset" href="#gatenlp.annotation_set.AnnotationSet.by_offset">by_offset</a></code></li>

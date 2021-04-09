@@ -53,12 +53,14 @@ from gatenlp.annotation import Annotation
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.changelog import ChangeLog
 from gatenlp.document import Document
-from gatenlp.gateworker import GateWorker, GateWorkerAnnotator
 from gatenlp.gate_interaction import _pr_decorator as GateNlpPr
 from gatenlp.gate_interaction import interact
 
+# Importing GateWorker or other classes which depend on any package other than sortedcontains will
+# break the Python plugin!
+# from gatenlp.gateworker import GateWorker, GateWorkerAnnotator
 
-def init_notebook():
+def init_notebook():   # pragma: no cover
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
     from gatenlp.gatenlpconfig import gatenlpconfig
 
@@ -121,6 +123,10 @@ exchanging data with it.</p></div>
 <div class="desc"><p>This subpackage contains modules for (temporary) implementation of
 datastructures and algorithms needed. Some of these may get replaced
 by other …</p></div>
+</dd>
+<dt><code class="name"><a title="gatenlp.imports" href="imports.html">gatenlp.imports</a></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.lang" href="lang/index.html">gatenlp.lang</a></code></dt>
 <dd>
@@ -205,6 +211,7 @@ Java strings are represented as UTF16 …</p></div>
 <li><code><a title="gatenlp.gatenlpconfig" href="gatenlpconfig.html">gatenlp.gatenlpconfig</a></code></li>
 <li><code><a title="gatenlp.gateworker" href="gateworker.html">gatenlp.gateworker</a></code></li>
 <li><code><a title="gatenlp.impl" href="impl/index.html">gatenlp.impl</a></code></li>
+<li><code><a title="gatenlp.imports" href="imports.html">gatenlp.imports</a></code></li>
 <li><code><a title="gatenlp.lang" href="lang/index.html">gatenlp.lang</a></code></li>
 <li><code><a title="gatenlp.lib_spacy" href="lib_spacy.html">gatenlp.lib_spacy</a></code></li>
 <li><code><a title="gatenlp.lib_stanza" href="lib_stanza.html">gatenlp.lib_stanza</a></code></li>

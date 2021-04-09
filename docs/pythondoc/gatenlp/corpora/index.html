@@ -169,13 +169,16 @@ class Corpus(ABC):
                 no action is performed, but specific implementation may change this behaviour.
 
         &#34;&#34;&#34;
-        raise NotImplemented(&#34;Corpus does not allow appending&#34;)
+        raise RuntimeError(&#34;Corpus does not allow appending&#34;)
 
 
 class DocumentSource(ABC):
     @abstractmethod
     def __iter__(self):
         return self
+
+    def __next__(self):
+        raise NotImplementedError
 
 
 class DocumentDestination(ABC):
@@ -731,7 +734,6 @@ class NumberedDirFilesCorpus(Corpus):
         self.size = size
         self.store_none = store_none
         self.file_path_maker = make_file_path_fromidx(digits, levels)
-        pass
 
     def __len__(self):
         return self.size
@@ -761,7 +763,7 @@ class NumberedDirFilesCorpus(Corpus):
                 if os.path.exists(path):
                     os.remove(path)
         else:
-            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
+            Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
 
 
 class TsvFileSource(DocumentSource):
@@ -1102,7 +1104,7 @@ class ShuffledCorpus(Corpus):
         if not isinstance(idx, numbers.Integral):
             raise Exception(&#34;Item must be an integer&#34;)
         if idx &gt;= len(self.idxs) or idx &lt; 0:
-            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(len(self)))
         # the index to access in the original dataset is int(n*item)+k
         self.corpus[self.idxs[idx]] = doc
 
@@ -1549,7 +1551,7 @@ of setting an element to None.</p></div>
                 no action is performed, but specific implementation may change this behaviour.
 
         &#34;&#34;&#34;
-        raise NotImplemented(&#34;Corpus does not allow appending&#34;)</code></pre>
+        raise RuntimeError(&#34;Corpus does not allow appending&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2100,7 +2102,10 @@ inheritance.</p></div>
 <pre><code class="python">class DocumentSource(ABC):
     @abstractmethod
     def __iter__(self):
-        return self</code></pre>
+        return self
+
+    def __next__(self):
+        raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2683,7 +2688,6 @@ the directory. If False, will ignore the action and leave whatever is at the ind
         self.size = size
         self.store_none = store_none
         self.file_path_maker = make_file_path_fromidx(digits, levels)
-        pass
 
     def __len__(self):
         return self.size
@@ -2713,7 +2717,7 @@ the directory. If False, will ignore the action and leave whatever is at the ind
                 if os.path.exists(path):
                     os.remove(path)
         else:
-            doc = Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)</code></pre>
+            Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2882,7 +2886,7 @@ carried out. If this is None or not an integer, same as 0.</dd>
         if not isinstance(idx, numbers.Integral):
             raise Exception(&#34;Item must be an integer&#34;)
         if idx &gt;= len(self.idxs) or idx &lt; 0:
-            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(self.len))
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(len(self)))
         # the index to access in the original dataset is int(n*item)+k
         self.corpus[self.idxs[idx]] = doc
 
