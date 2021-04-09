@@ -6,7 +6,9 @@ annotations which can arbitrarily overlap.
 # TODO: when should two sets be equal? Currently object identity is requried!
 
 from typing import Any, List, Union, Dict, Set, KeysView, Iterator, Generator
-from collections.abc import Iterable
+# TODO: prior to Python 3.9 we need different Iterable definitions for typing and type checking
+from collections.abc import Iterable as abc_Iterable
+from typing import Iterable
 from collections import defaultdict
 import copy
 from gatenlp.span import Span
@@ -486,6 +488,8 @@ class AnnotationSet:
         """
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
+    # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
+    #   instead, Iterable must come from typing
     def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
         """
         Adds shallow copies of all annotations from the iterable to the set.
@@ -526,7 +530,7 @@ class AnnotationSet:
             raise Exception(
                 "Cannot remove an annotation from an immutable annotation set"
             )
-        if isinstance(annoriter, Iterable):
+        if isinstance(annoriter, abc_Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
             return
