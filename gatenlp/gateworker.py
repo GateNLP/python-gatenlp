@@ -429,6 +429,12 @@ class GateWorker:
                     print(line, file=sys.stderr, end="")
                 self.gateprocess.wait()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
     def log_actions(self, onoff):
         """
         Switch logging actions at the worker on or off.
