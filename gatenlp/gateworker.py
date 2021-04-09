@@ -763,7 +763,6 @@ class GateWorker:
         """
         return self.worker.getResources4Name(name)
 
-
     def getResources4NameClass(self, name, clazz):
         """
         Return a (possibly empty) list of all Java GATE resources with the given name and class name.

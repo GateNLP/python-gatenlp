@@ -2532,8 +2532,10 @@ class AddAnn:
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
                 annotation in the results
-            resultidx: the index of the result to use if more than one result is in the Success
-            dataidx: the index of the data item to use if more than one item matches the given name
+            resultidx: the index of the result to use if more than one result is in the Success. If None,
+                the AddAnn action is performed for all results
+            dataidx: the index of the data item to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all data items with that name.
             silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
                 otherwise raises an Exception.
         """
@@ -2550,8 +2552,7 @@ class AddAnn:
         self.silent_fail = silent_fail
         self.annset = annset
 
-    def __call__(self, succ, context=None, location=None):
-        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+    def _add4span(self, span, succ, context, location):
         if span is None:
             return
         if self.annset:
@@ -2587,6 +2588,22 @@ class AddAnn:
             else:
                 features = None
             outset.add(span.start, span.end, anntype, features=features)
+
+    def _add4result(self, succ, resultidx, context, location):
+        if self.dataidx is None:
+            for dataidx in range(len(succ[resultidx].data)):
+                span = _get_span(succ, self.name, resultidx, dataidx, self.silent_fail)
+                self._add4span(span, succ, context, location)
+        else:
+            span = _get_span(succ, self.name, resultidx, self.dataidx, self.silent_fail)
+            self._add4span(span, succ, context, location)
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx is None:
+            for resultidx in range(len(succ)):
+                self._add4result(succ, resultidx, context, location)
+        else:
+            self._add4result(succ, self.resultidx, context, location)
 
 
 class UpdateAnnFeatures:
