@@ -24,6 +24,7 @@
   full span of the match is used.
 * New method `add_anns(anniterable)` to add an iterable of annotations to a set
 * The document viewer now also works in Google Colab
+* The GateWorker can now be used as context manager: `with GateWorker() as gw:`
 
 
 ## 1.0.3.1 (2021-03-01)
