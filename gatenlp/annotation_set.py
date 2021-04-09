@@ -393,9 +393,13 @@ class AnnotationSet:
         annid: int = None,
     ):
         """
-        Adds an annotation to the set. Once an annotation has been added,
+        Adds an annotation to the set.
+        Once an annotation has been added,
         the start and end offsets,
         the type, and the annotation id of the annotation are immutable.
+
+        If an annotation id is specified that already exists in the set, an
+        exception is raised.
 
         Args:
           start: start offset
@@ -451,8 +455,25 @@ class AnnotationSet:
     def add_ann(self, ann, annid: int = None):
         """
         Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or
-        with the one given.
+        either with a new annotation id or with the one given.
+        If an annotation id that already exists in the set is specified,
+        an exception is raised.
+
+        Args:
+          ann: the annotation to copy into the set
+          annid: the annotation id, if not specified the next free one for
+              this set is used. Note: the id should normally be left unspecified
+              and get assigned automatically.
+
+        Returns:
+          the added annotation
+        """
+        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def add_ann(self, ann, annid: int = None):
+        """
+        Adds a shallow copy of the given ann to the annotation set,
+        either with a new annotation id or with the one given.
 
         Args:
           ann: the annotation to copy into the set
@@ -464,6 +485,22 @@ class AnnotationSet:
           the added annotation
         """
         return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
+
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        """
+        Adds shallow copies of all annotations from the iterable to the set.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        """
+        for ann in anns:
+            if annid_from_ann:
+                self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
+            else:
+                self.add(ann.start, ann.end, ann.type, ann.features)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True

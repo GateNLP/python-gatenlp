@@ -22,6 +22,7 @@
 * allow each Rule to have any number of actions, change signature to `Rule(patter, *actions, priority=0)`
 * The Pampac AddAnn action does not require a value for the name parameter any more, if not specified, the 
   full span of the match is used.
+* New method `add_anns(anniterable)` to add an iterable of annotations to a set
 
 
 ## 1.0.3.1 (2021-03-01)
