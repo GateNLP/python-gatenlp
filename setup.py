@@ -22,7 +22,6 @@ with open(os.path.join(here, "README.md")) as f:
 
 
 def versionfromfile(*filepath):
-    here = os.path.abspath(os.path.dirname(__file__))
     infile = os.path.join(here, *filepath)
     with open(infile) as fp:
         version_match = re.search(
@@ -65,13 +64,14 @@ def get_install_extras_require():
             "mypy",
             "bandit",
             "prospector[with_pyroma,with_vulture,with_mypy,with_bandid,with_frosted]",
-            "pytest-tornasync",  # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
+            # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
+            "pytest-tornasync",
             "black[d]",  # for automatic code formatting
         ],
     }
     # Add automatically the 'all' and 'alldev' targets
-    add_all = [p for l in extras_require.values() for p in l if p not in ["dev", "notebook"]]
-    add_alldev = [p for l in extras_require.values() for p in l]
+    add_all = [pck for lst in extras_require.values() for pck in lst if pck not in ["dev", "notebook"]]
+    add_alldev = [pck for lst in extras_require.values() for pck in lst]
     extras_require.update({"all": add_all, "alldev": add_alldev})
     return extras_require
 
