@@ -79,7 +79,7 @@ anns2.add(7,7, "ZERO2b", Factory.newFeatureMap())
 gate.corpora.DocumentStaxUtils.writeDocument(doc,docFileXml)
 
 // Also store as bdoc
-Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","format-bdoc","1.5-SNAPSHOT"));
+Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","format-bdoc","1.10"));
 
 docExporterJs = Gate.getCreoleRegister()
                      .get("gate.plugin.format.bdoc.ExporterBdocJson")
