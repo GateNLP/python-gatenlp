@@ -23,6 +23,14 @@ class TestOffsetMapper01:
             poff = om1.convert_to_python(joff)
             assert poff == i
 
+    def test_offsetmapper01m02(self):
+        # test identical offsets
+        from gatenlp.document import OffsetMapper, Document
+        doc1 = Document("Just some sample document")
+        om1 = OffsetMapper(doc1)
+        for idx in range(len(doc1)):
+            assert idx == om1.convert_to_java(idx)
+            assert idx == om1.convert_to_python(idx)
 
 class TestDocument01:
     def test_document01m01(self):

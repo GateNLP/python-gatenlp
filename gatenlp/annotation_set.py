@@ -1015,7 +1015,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, ignored: Any = None, annid=None, include_self=False
+        self, start: int, _ignored: Any = None, annid=None, include_self=False
     ):
         """
         Gets all annotations starting at the given offset (empty if none) and
@@ -1027,7 +1027,7 @@ class AnnotationSet:
 
         Args:
             start: the offset where annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  dummy parameter to allow the use of annotations and
                 annotation sets
@@ -1046,7 +1046,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, ignored: Any = None, annid=None, include_self=False
+        self, offset: int, _ignored: Any = None, annid=None, include_self=False
     ):
         """Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
@@ -1054,7 +1054,7 @@ class AnnotationSet:
 
         Args:
           offset: The offset
-          ignored: dummy parameter to allow the use of annotations and
+          _ignored: dummy parameter to allow the use of annotations and
               annotation sets
           annid:  annotation id
           include_self: should annotation passed be included in the result
@@ -1091,14 +1091,14 @@ class AnnotationSet:
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None, annid=None,
+    def start_ge(self, start: int, _ignored: Any = None, annid=None,
                  include_self=False):
         """
         Return the annotations that start at or after the given start offset.
 
         Args:
             start: Start offset
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  annotation id
             include_self:  should annotation passed be included in the result
@@ -1116,16 +1116,16 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, ignored: Any = None, annid=None):
+    def start_lt(self, offset: int, _ignored: Any = None, _annid=None):
         """
         Returns the annotations that start before the given offset
         (or annotation). This also accepts an annotation or set.
 
         Args:
             offset: offset before which the annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
-            annid:  annotation id
+            _annid:  annotation id
 
         Returns:
           an immutable annotation set of the matching annotations

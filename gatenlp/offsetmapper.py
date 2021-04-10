@@ -10,6 +10,26 @@ OFFSET_TYPE_JAVA = "j"
 OFFSET_TYPE_PYTHON = "p"
 
 
+def _convert_from_table(offsets, from_table=None):
+    """
+
+    Args:
+      offsets:
+      from_table:  (Default value = None)
+
+    Returns:
+
+    """
+    if from_table is None:
+        return offsets
+    if isinstance(offsets, numbers.Integral):
+        return int(from_table[offsets])
+    ret = []
+    for offset in offsets:
+        ret.append(int(from_table[offset]))
+    return ret
+
+
 class OffsetMapper:
     def __init__(self, text: str):
         """
@@ -43,7 +63,6 @@ class OffsetMapper:
         if len(java2python_list) == len(text):
             self.python2java = None
             self.java2python = None
-            self.bijective = len(text)
         else:
             python2java_list.append(python2java_list[-1] + 1)
             # self.python2java = np.array(python2java_list, np.int32)
@@ -51,26 +70,6 @@ class OffsetMapper:
             # self.java2python = np.array(java2python_list, np.int32)
             java2python_list.append(java2python_list[-1] + 1)
             self.java2python = java2python_list
-            self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
-
-    def _convert_from(self, offsets, from_table=None):
-        """
-
-        Args:
-          offsets:
-          from_table:  (Default value = None)
-
-        Returns:
-
-        """
-        if from_table is None:
-            return offsets
-        if isinstance(offsets, numbers.Integral):
-            return int(from_table[offsets])
-        ret = []
-        for offset in offsets:
-            ret.append(int(from_table[offset]))
-        return ret
 
     def convert_to_python(self, offsets):
         """
@@ -83,7 +82,7 @@ class OffsetMapper:
             the converted offset or offsets
 
         """
-        return self._convert_from(offsets, from_table=self.java2python)
+        return _convert_from_table(offsets, from_table=self.java2python)
 
     def convert_to_java(self, offsets):
         """Convert one python offset or an iterable of python offsets to java offset/s
@@ -95,4 +94,4 @@ class OffsetMapper:
             the converted offset or offsets
 
         """
-        return self._convert_from(offsets, from_table=self.python2java)
+        return _convert_from_table(offsets, from_table=self.python2java)

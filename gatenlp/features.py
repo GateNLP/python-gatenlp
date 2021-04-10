@@ -166,3 +166,9 @@ class Features(UserDict):
         else:
             ret.data = thedict.copy()
         return ret
+
+    def names(self):
+        """
+        Returns a list of all feature names.
+        """
+        return list(self.keys())

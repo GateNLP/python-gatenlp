@@ -224,10 +224,12 @@ class Document:
                         ann.features.clear()
                         ann.features.update(features)
                     elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
-                        fns = ann.feature_names()
+                        fns = ann.features.names()
                         for f in features.keys():
                             if f not in fns:
                                 ann.features[f] = features[f]
+                    elif handle_existing_anns == ADDANN_IGNORE:
+                        pass
 
             elif cmd == ACTION_CLEAR_ANNS:
                 assert sname is not None

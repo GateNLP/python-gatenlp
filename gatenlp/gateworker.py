@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Module for interacting with a Java GATE process, running API commands on it and
-exchanging data with it.
+Module for interacting with a Java GATE process.
 """
 
 import sys
@@ -284,20 +283,20 @@ class GateWorker:
                the worker.
         debug: show debug messages (default: False)
         """
-        self.logger = init_logger(__name__)
+        if debug:
+            self.logger = init_logger("GateWorker", lvl="DEBUG")
+        else:
+            self.logger = init_logger("GateWorker")
 
         from py4j.java_gateway import JavaGateway, GatewayParameters
 
         self._gatehome = gatehome
         self._port = port
         self._host = host
-        self._start = start
         self._platform = platform
         self._gateprocess = None
         self._gateway = None
         self._closed = False
-        self._keep = keep
-        self._debug = debug
         if use_auth_token:
             if not auth_token:
                 self._auth_token = secrets.token_urlsafe(20)
@@ -456,7 +455,7 @@ class GateWorker:
     def __enter__(self):
         return self
 
-    def __exit__(self, exptype, value, traceback):
+    def __exit__(self, _exptype, _value, _traceback):
         self.close()
 
     def log_actions(self, onoff):
@@ -1103,7 +1102,7 @@ class GateWorkerAnnotator(Annotator):
         """
         self.controller.invokeControllerExecutionFinished()
 
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc, **_kwargs):
         """
         Run the GATE controller on the given document.
 

@@ -200,8 +200,6 @@ class TestAnnotationSetRels:
         set1.clear()
         assert len(set1) == 0
 
-
-
     def test_annotationset_exps(self):
         import pytest
         # with pytest.raises(Exception) as ex:

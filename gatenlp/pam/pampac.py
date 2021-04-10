@@ -1,5 +1,7 @@
 """
-Module for PAMPAC (Pattern Matching wit PArser Combinators) which allows to create parsers that can match
+Module for PAMPAC (Pattern Matching wit PArser Combinators).
+
+This module allows to create parsers that can match
 patterns in annotations and text and carry out actions if a match occurs.
 
 NOTE: this implementation has been inspired by https://github.com/google/compynator
@@ -2413,6 +2415,7 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             return
     return data[dataidx]
 
+
 def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
     """
     Helper method to return the span for the given result index and name, or None.
@@ -2688,7 +2691,6 @@ class RemoveAnn:
 
     def __call__(self, succ, context=None, location=None):
         pass
-
 
 
 # GETTERS
