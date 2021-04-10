@@ -1136,7 +1136,6 @@ class CachedCorpus(Corpus):
                 of processing efficiently.
         &#34;&#34;&#34;
         assert len(cachecorpus) == len(basecorpus)
-        self.is_writable = True
         self.basecorpus = basecorpus
         self.cachecorpus = cachecorpus
         self.cacheonread = cacheonread
@@ -1391,7 +1390,6 @@ of processing efficiently.</dd>
                 of processing efficiently.
         &#34;&#34;&#34;
         assert len(cachecorpus) == len(basecorpus)
-        self.is_writable = True
         self.basecorpus = basecorpus
         self.cachecorpus = cachecorpus
         self.cacheonread = cacheonread

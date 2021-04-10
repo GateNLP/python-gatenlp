@@ -1046,7 +1046,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, ignored: Any = None, annid=None, include_self=False
+        self, start: int, _ignored: Any = None, annid=None, include_self=False
     ):
         &#34;&#34;&#34;
         Gets all annotations starting at the given offset (empty if none) and
@@ -1058,7 +1058,7 @@ class AnnotationSet:
 
         Args:
             start: the offset where annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  dummy parameter to allow the use of annotations and
                 annotation sets
@@ -1077,7 +1077,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, ignored: Any = None, annid=None, include_self=False
+        self, offset: int, _ignored: Any = None, annid=None, include_self=False
     ):
         &#34;&#34;&#34;Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
@@ -1085,7 +1085,7 @@ class AnnotationSet:
 
         Args:
           offset: The offset
-          ignored: dummy parameter to allow the use of annotations and
+          _ignored: dummy parameter to allow the use of annotations and
               annotation sets
           annid:  annotation id
           include_self: should annotation passed be included in the result
@@ -1122,14 +1122,14 @@ class AnnotationSet:
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None, annid=None,
+    def start_ge(self, start: int, _ignored: Any = None, annid=None,
                  include_self=False):
         &#34;&#34;&#34;
         Return the annotations that start at or after the given start offset.
 
         Args:
             start: Start offset
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  annotation id
             include_self:  should annotation passed be included in the result
@@ -1147,16 +1147,16 @@ class AnnotationSet:
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, ignored: Any = None, annid=None):
+    def start_lt(self, offset: int, _ignored: Any = None, _annid=None):
         &#34;&#34;&#34;
         Returns the annotations that start before the given offset
         (or annotation). This also accepts an annotation or set.
 
         Args:
             offset: offset before which the annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
-            annid:  annotation id
+            _annid:  annotation id
 
         Returns:
           an immutable annotation set of the matching annotations
@@ -2498,7 +2498,7 @@ set has an owning document.</dd>
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, ignored: Any = None, annid=None, include_self=False
+        self, start: int, _ignored: Any = None, annid=None, include_self=False
     ):
         &#34;&#34;&#34;
         Gets all annotations starting at the given offset (empty if none) and
@@ -2510,7 +2510,7 @@ set has an owning document.</dd>
 
         Args:
             start: the offset where annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  dummy parameter to allow the use of annotations and
                 annotation sets
@@ -2529,7 +2529,7 @@ set has an owning document.</dd>
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, ignored: Any = None, annid=None, include_self=False
+        self, offset: int, _ignored: Any = None, annid=None, include_self=False
     ):
         &#34;&#34;&#34;Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
@@ -2537,7 +2537,7 @@ set has an owning document.</dd>
 
         Args:
           offset: The offset
-          ignored: dummy parameter to allow the use of annotations and
+          _ignored: dummy parameter to allow the use of annotations and
               annotation sets
           annid:  annotation id
           include_self: should annotation passed be included in the result
@@ -2574,14 +2574,14 @@ set has an owning document.</dd>
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, ignored: Any = None, annid=None,
+    def start_ge(self, start: int, _ignored: Any = None, annid=None,
                  include_self=False):
         &#34;&#34;&#34;
         Return the annotations that start at or after the given start offset.
 
         Args:
             start: Start offset
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
             annid:  annotation id
             include_self:  should annotation passed be included in the result
@@ -2599,16 +2599,16 @@ set has an owning document.</dd>
         return self._restrict_intvs(intvs, ignore=ignore)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, ignored: Any = None, annid=None):
+    def start_lt(self, offset: int, _ignored: Any = None, _annid=None):
         &#34;&#34;&#34;
         Returns the annotations that start before the given offset
         (or annotation). This also accepts an annotation or set.
 
         Args:
             offset: offset before which the annotations should start
-            ignored: dummy parameter to allow the use of annotations and
+            _ignored: dummy parameter to allow the use of annotations and
                 annotation sets
-            annid:  annotation id
+            _annid:  annotation id
 
         Returns:
           an immutable annotation set of the matching annotations
@@ -3662,7 +3662,7 @@ an Exception is still raised.</dd>
 <p>same result as iter()</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.start_ge"><code class="name flex">
-<span>def <span class="ident">start_ge</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False)</span>
+<span>def <span class="ident">start_ge</span></span>(<span>self, start: int, annid=None, include_self=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the annotations that start at or after the given start offset.</p>
@@ -3670,7 +3670,7 @@ an Exception is still raised.</dd>
 <dl>
 <dt><strong><code>start</code></strong></dt>
 <dd>Start offset</dd>
-<dt><strong><code>ignored</code></strong></dt>
+<dt><strong><code>_ignored</code></strong></dt>
 <dd>dummy parameter to allow the use of annotations and
 annotation sets</dd>
 <dt><strong><code>annid</code></strong></dt>
@@ -3682,7 +3682,7 @@ annotation sets</dd>
 <p>an immutable annotation set of the matching annotations</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.start_lt"><code class="name flex">
-<span>def <span class="ident">start_lt</span></span>(<span>self, offset: int, ignored: Any = None, annid=None)</span>
+<span>def <span class="ident">start_lt</span></span>(<span>self, offset: int)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the annotations that start before the given offset
@@ -3691,17 +3691,17 @@ annotation sets</dd>
 <dl>
 <dt><strong><code>offset</code></strong></dt>
 <dd>offset before which the annotations should start</dd>
-<dt><strong><code>ignored</code></strong></dt>
+<dt><strong><code>_ignored</code></strong></dt>
 <dd>dummy parameter to allow the use of annotations and
 annotation sets</dd>
-<dt><strong><code>annid</code></strong></dt>
+<dt><strong><code>_annid</code></strong></dt>
 <dd>annotation id</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>an immutable annotation set of the matching annotations</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.start_min_ge"><code class="name flex">
-<span>def <span class="ident">start_min_ge</span></span>(<span>self, offset: int, ignored: Any = None, annid=None, include_self=False)</span>
+<span>def <span class="ident">start_min_ge</span></span>(<span>self, offset: int, annid=None, include_self=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets all annotations starting at the first possible offset
@@ -3711,7 +3711,7 @@ annotation set.</p>
 <dl>
 <dt><strong><code>offset</code></strong></dt>
 <dd>The offset</dd>
-<dt><strong><code>ignored</code></strong></dt>
+<dt><strong><code>_ignored</code></strong></dt>
 <dd>dummy parameter to allow the use of annotations and
 annotation sets</dd>
 <dt><strong><code>annid</code></strong></dt>
@@ -3723,7 +3723,7 @@ annotation sets</dd>
 <p>annotation set of matching annotations</p></div>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.startingat"><code class="name flex">
-<span>def <span class="ident">startingat</span></span>(<span>self, start: int, ignored: Any = None, annid=None, include_self=False)</span>
+<span>def <span class="ident">startingat</span></span>(<span>self, start: int, annid=None, include_self=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets all annotations starting at the given offset (empty if none) and
@@ -3735,7 +3735,7 @@ not included in the result set if <code>include_self</code> is <code>False</code
 <dl>
 <dt><strong><code>start</code></strong></dt>
 <dd>the offset where annotations should start</dd>
-<dt><strong><code>ignored</code></strong></dt>
+<dt><strong><code>_ignored</code></strong></dt>
 <dd>dummy parameter to allow the use of annotations and
 annotation sets</dd>
 <dt><strong><code>annid</code></strong></dt>

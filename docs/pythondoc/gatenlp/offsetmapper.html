@@ -42,6 +42,26 @@ OFFSET_TYPE_JAVA = &#34;j&#34;
 OFFSET_TYPE_PYTHON = &#34;p&#34;
 
 
+def _convert_from_table(offsets, from_table=None):
+    &#34;&#34;&#34;
+
+    Args:
+      offsets:
+      from_table:  (Default value = None)
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if from_table is None:
+        return offsets
+    if isinstance(offsets, numbers.Integral):
+        return int(from_table[offsets])
+    ret = []
+    for offset in offsets:
+        ret.append(int(from_table[offset]))
+    return ret
+
+
 class OffsetMapper:
     def __init__(self, text: str):
         &#34;&#34;&#34;
@@ -75,7 +95,6 @@ class OffsetMapper:
         if len(java2python_list) == len(text):
             self.python2java = None
             self.java2python = None
-            self.bijective = len(text)
         else:
             python2java_list.append(python2java_list[-1] + 1)
             # self.python2java = np.array(python2java_list, np.int32)
@@ -83,26 +102,6 @@ class OffsetMapper:
             # self.java2python = np.array(java2python_list, np.int32)
             java2python_list.append(java2python_list[-1] + 1)
             self.java2python = java2python_list
-            self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
-
-    def _convert_from(self, offsets, from_table=None):
-        &#34;&#34;&#34;
-
-        Args:
-          offsets:
-          from_table:  (Default value = None)
-
-        Returns:
-
-        &#34;&#34;&#34;
-        if from_table is None:
-            return offsets
-        if isinstance(offsets, numbers.Integral):
-            return int(from_table[offsets])
-        ret = []
-        for offset in offsets:
-            ret.append(int(from_table[offset]))
-        return ret
 
     def convert_to_python(self, offsets):
         &#34;&#34;&#34;
@@ -115,7 +114,7 @@ class OffsetMapper:
             the converted offset or offsets
 
         &#34;&#34;&#34;
-        return self._convert_from(offsets, from_table=self.java2python)
+        return _convert_from_table(offsets, from_table=self.java2python)
 
     def convert_to_java(self, offsets):
         &#34;&#34;&#34;Convert one python offset or an iterable of python offsets to java offset/s
@@ -127,7 +126,7 @@ class OffsetMapper:
             the converted offset or offsets
 
         &#34;&#34;&#34;
-        return self._convert_from(offsets, from_table=self.python2java)</code></pre>
+        return _convert_from_table(offsets, from_table=self.python2java)</code></pre>
 </details>
 </section>
 <section>
@@ -190,7 +189,6 @@ the tables and just set a flag for that.</p>
         if len(java2python_list) == len(text):
             self.python2java = None
             self.java2python = None
-            self.bijective = len(text)
         else:
             python2java_list.append(python2java_list[-1] + 1)
             # self.python2java = np.array(python2java_list, np.int32)
@@ -198,26 +196,6 @@ the tables and just set a flag for that.</p>
             # self.java2python = np.array(java2python_list, np.int32)
             java2python_list.append(java2python_list[-1] + 1)
             self.java2python = java2python_list
-            self.bijective = None  # if we have identical offsets, this is set to the length of the text instead
-
-    def _convert_from(self, offsets, from_table=None):
-        &#34;&#34;&#34;
-
-        Args:
-          offsets:
-          from_table:  (Default value = None)
-
-        Returns:
-
-        &#34;&#34;&#34;
-        if from_table is None:
-            return offsets
-        if isinstance(offsets, numbers.Integral):
-            return int(from_table[offsets])
-        ret = []
-        for offset in offsets:
-            ret.append(int(from_table[offset]))
-        return ret
 
     def convert_to_python(self, offsets):
         &#34;&#34;&#34;
@@ -230,7 +208,7 @@ the tables and just set a flag for that.</p>
             the converted offset or offsets
 
         &#34;&#34;&#34;
-        return self._convert_from(offsets, from_table=self.java2python)
+        return _convert_from_table(offsets, from_table=self.java2python)
 
     def convert_to_java(self, offsets):
         &#34;&#34;&#34;Convert one python offset or an iterable of python offsets to java offset/s
@@ -242,7 +220,7 @@ the tables and just set a flag for that.</p>
             the converted offset or offsets
 
         &#34;&#34;&#34;
-        return self._convert_from(offsets, from_table=self.python2java)</code></pre>
+        return _convert_from_table(offsets, from_table=self.python2java)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>

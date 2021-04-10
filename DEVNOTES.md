@@ -27,6 +27,7 @@ For now rather simple:
 * !! make sure the version has been updated to what we want to release!
 * run ./gendoc-pdoc3.sh
 * add anything that needs to get added
+* commit, push
 
 * !! SYNC WITH UPCOMING PYTHON PLUGIN RELEASE:
 * Edit: `java/src/main/java/gate/tools/gatenlpworker/GatenlpWorker.java`

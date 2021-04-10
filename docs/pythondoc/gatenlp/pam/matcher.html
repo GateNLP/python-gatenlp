@@ -27,22 +27,22 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import re
+from gatenlp.utils import init_logger
 
 _tmp_re_pattern = re.compile(&#34;x&#34;)
 CLASS_RE_PATTERN = _tmp_re_pattern.__class__
 try:
     import regex
-
     _tmp_regex_pattern = regex.compile(&#34;x&#34;)
     CLASS_REGEX_PATTERN = _tmp_regex_pattern.__class__
-except Exception as ex:
+except ImportError:
     # if the regex module is not available, make our  code still work by introducing a dummy type
     class RegexPattern:
         pass
-
     CLASS_REGEX_PATTERN = RegexPattern
+    # make style checker happy
+    regex = None
 
-from gatenlp.utils import init_logger
 
 logger = init_logger(debug=True)
 
@@ -51,6 +51,7 @@ __pdoc__ = {
     &#34;FeatureEqMatcher.__call__&#34;: True,
     &#34;AnnMatcher.__call__&#34;: True,
 }
+
 
 class isIn:
     &#34;&#34;&#34;

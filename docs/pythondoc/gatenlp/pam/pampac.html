@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
 <title>gatenlp.pam.pampac API documentation</title>
-<meta name="description" content="Module for PAMPAC (Pattern Matching wit PArser Combinators) which allows to create parsers that can match
-patterns in annotations and text and carry …" />
+<meta name="description" content="Module for PAMPAC (Pattern Matching wit PArser Combinators) …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,7 +22,8 @@ patterns in annotations and text and carry …" />
 <h1 class="title">Module <code>gatenlp.pam.pampac</code></h1>
 </header>
 <section id="section-intro">
-<p>Module for PAMPAC (Pattern Matching wit PArser Combinators) which allows to create parsers that can match
+<p>Module for PAMPAC (Pattern Matching wit PArser Combinators).</p>
+<p>This module allows to create parsers that can match
 patterns in annotations and text and carry out actions if a match occurs.</p>
 <p>NOTE: this implementation has been inspired by <a href="https://github.com/google/compynator">https://github.com/google/compynator</a></p>
 <details class="source">
@@ -31,7 +31,9 @@ patterns in annotations and text and carry out actions if a match occurs.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Module for PAMPAC (Pattern Matching wit PArser Combinators) which allows to create parsers that can match
+Module for PAMPAC (Pattern Matching wit PArser Combinators).
+
+This module allows to create parsers that can match
 patterns in annotations and text and carry out actions if a match occurs.
 
 NOTE: this implementation has been inspired by https://github.com/google/compynator
@@ -141,6 +143,15 @@ class Result:
             self.data = []
         self.location = location
         self.span = span
+
+    def anns4data(self):
+        &#34;&#34;&#34;
+        Yields all the annotations, if any, in the results matches.
+        &#34;&#34;&#34;
+        for d in self.data:
+            tmp = d.get(&#34;ann&#34;)
+            if tmp:
+                yield tmp
 
     def data4name(self, name):
         &#34;&#34;&#34;
@@ -398,8 +409,8 @@ class Context:
         start=None,
         end=None,
         outset=None,
-        memoize=False,
-        max_recusion=None,
+        # memoize=False,
+        # max_recusion=None,
     ):
         &#34;&#34;&#34;
         Initialize a parse context.
@@ -410,11 +421,10 @@ class Context:
             start: the starting text offset for the parse
             end: the ending text offset for the parse
             outset: an annotation set for where to add any new annotations in an action
-            memoize: If memoization should be used (NOT YET IMPLEMENTED)
-            max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
         &#34;&#34;&#34;
-        self._memotable = {}
-        self.max_recursion = max_recusion
+        #             max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
+        # self._memotable = {}
+        # self.max_recursion = max_recusion
         self.doc = doc
         self.outset = outset
         self._annset = (
@@ -438,7 +448,7 @@ class Context:
         # make sure all the anns are within the given offset range
         anns = [a for a in anns if a.start &gt;= self.start and a.end &lt;= self.end]
         self.anns = anns
-        self.memoize = memoize
+        # self.memoize = memoize
 
     @property
     def annset(self):
@@ -1168,16 +1178,12 @@ class PampacParser:
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.startingat(result.span.end)
+                annstocheck = annset.startin_ge(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -1217,11 +1223,7 @@ class PampacParser:
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -2445,6 +2447,7 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             return
     return data[dataidx]
 
+
 def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
     &#34;&#34;&#34;
     Helper method to return the span for the given result index and name, or None.
@@ -2564,8 +2567,10 @@ class AddAnn:
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
                 annotation in the results
-            resultidx: the index of the result to use if more than one result is in the Success
-            dataidx: the index of the data item to use if more than one item matches the given name
+            resultidx: the index of the result to use if more than one result is in the Success. If None,
+                the AddAnn action is performed for all results
+            dataidx: the index of the data item to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all data items with that name.
             silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
                 otherwise raises an Exception.
         &#34;&#34;&#34;
@@ -2582,8 +2587,7 @@ class AddAnn:
         self.silent_fail = silent_fail
         self.annset = annset
 
-    def __call__(self, succ, context=None, location=None):
-        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+    def _add4span(self, span, succ, context, location):
         if span is None:
             return
         if self.annset:
@@ -2619,6 +2623,22 @@ class AddAnn:
             else:
                 features = None
             outset.add(span.start, span.end, anntype, features=features)
+
+    def _add4result(self, succ, resultidx, context, location):
+        if self.dataidx is None:
+            for dataidx in range(len(succ[resultidx].data)):
+                span = _get_span(succ, self.name, resultidx, dataidx, self.silent_fail)
+                self._add4span(span, succ, context, location)
+        else:
+            span = _get_span(succ, self.name, resultidx, self.dataidx, self.silent_fail)
+            self._add4span(span, succ, context, location)
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx is None:
+            for resultidx in range(len(succ)):
+                self._add4result(succ, resultidx, context, location)
+        else:
+            self._add4result(succ, self.resultidx, context, location)
 
 
 class UpdateAnnFeatures:
@@ -2703,7 +2723,6 @@ class RemoveAnn:
 
     def __call__(self, succ, context=None, location=None):
         pass
-
 
 
 # GETTERS
@@ -3069,9 +3088,11 @@ the features from another annotation in the results</dd>
 <dd>the span of the annotation, this can be a GetSpan helper for copying the span from another
 annotation in the results</dd>
 <dt><strong><code>resultidx</code></strong></dt>
-<dd>the index of the result to use if more than one result is in the Success</dd>
+<dd>the index of the result to use if more than one result is in the Success. If None,
+the AddAnn action is performed for all results</dd>
 <dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data item to use if more than one item matches the given name</dd>
+<dd>the index of the data item to use if more than one item matches the given name. If None,
+the AddAnn action is performed for all data items with that name.</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True and the annotation can not be created for some reason, just do silently nothing,
 otherwise raises an Exception.</dd>
@@ -3112,8 +3133,10 @@ otherwise raises an Exception.</dd>
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
                 annotation in the results
-            resultidx: the index of the result to use if more than one result is in the Success
-            dataidx: the index of the data item to use if more than one item matches the given name
+            resultidx: the index of the result to use if more than one result is in the Success. If None,
+                the AddAnn action is performed for all results
+            dataidx: the index of the data item to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all data items with that name.
             silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
                 otherwise raises an Exception.
         &#34;&#34;&#34;
@@ -3130,8 +3153,7 @@ otherwise raises an Exception.</dd>
         self.silent_fail = silent_fail
         self.annset = annset
 
-    def __call__(self, succ, context=None, location=None):
-        span = _get_span(succ, self.name, self.resultidx, self.dataidx, self.silent_fail)
+    def _add4span(self, span, succ, context, location):
         if span is None:
             return
         if self.annset:
@@ -3166,7 +3188,23 @@ otherwise raises an Exception.</dd>
                     features = self.features
             else:
                 features = None
-            outset.add(span.start, span.end, anntype, features=features)</code></pre>
+            outset.add(span.start, span.end, anntype, features=features)
+
+    def _add4result(self, succ, resultidx, context, location):
+        if self.dataidx is None:
+            for dataidx in range(len(succ[resultidx].data)):
+                span = _get_span(succ, self.name, resultidx, dataidx, self.silent_fail)
+                self._add4span(span, succ, context, location)
+        else:
+            span = _get_span(succ, self.name, resultidx, self.dataidx, self.silent_fail)
+            self._add4span(span, succ, context, location)
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx is None:
+            for resultidx in range(len(succ)):
+                self._add4result(succ, resultidx, context, location)
+        else:
+            self._add4result(succ, self.resultidx, context, location)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.All"><code class="flex name class">
@@ -3748,7 +3786,7 @@ Failure instance and the same kwargs.</p>
 </dd>
 <dt id="gatenlp.pam.pampac.Context"><code class="flex name class">
 <span>class <span class="ident">Context</span></span>
-<span>(</span><span>doc, anns, start=None, end=None, outset=None, memoize=False, max_recusion=None)</span>
+<span>(</span><span>doc, anns, start=None, end=None, outset=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Context contains data and refers to data for carrying out the parse.</p>
@@ -3771,10 +3809,6 @@ end may change.</p>
 <dd>the ending text offset for the parse</dd>
 <dt><strong><code>outset</code></strong></dt>
 <dd>an annotation set for where to add any new annotations in an action</dd>
-<dt><strong><code>memoize</code></strong></dt>
-<dd>If memoization should be used (NOT YET IMPLEMENTED)</dd>
-<dt><strong><code>max_recusion</code></strong></dt>
-<dd>the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -3801,8 +3835,8 @@ end may change.</p>
         start=None,
         end=None,
         outset=None,
-        memoize=False,
-        max_recusion=None,
+        # memoize=False,
+        # max_recusion=None,
     ):
         &#34;&#34;&#34;
         Initialize a parse context.
@@ -3813,11 +3847,10 @@ end may change.</p>
             start: the starting text offset for the parse
             end: the ending text offset for the parse
             outset: an annotation set for where to add any new annotations in an action
-            memoize: If memoization should be used (NOT YET IMPLEMENTED)
-            max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
         &#34;&#34;&#34;
-        self._memotable = {}
-        self.max_recursion = max_recusion
+        #             max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
+        # self._memotable = {}
+        # self.max_recursion = max_recusion
         self.doc = doc
         self.outset = outset
         self._annset = (
@@ -3841,7 +3874,7 @@ end may change.</p>
         # make sure all the anns are within the given offset range
         anns = [a for a in anns if a.start &gt;= self.start and a.end &lt;= self.end]
         self.anns = anns
-        self.memoize = memoize
+        # self.memoize = memoize
 
     @property
     def annset(self):
@@ -6286,16 +6319,12 @@ must be overriden!</p>
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.startingat(result.span.end)
+                annstocheck = annset.startin_ge(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -6335,11 +6364,7 @@ must be overriden!</p>
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -7070,6 +7095,15 @@ Each item must be either a dictionary that describes an individual match or None
         self.location = location
         self.span = span
 
+    def anns4data(self):
+        &#34;&#34;&#34;
+        Yields all the annotations, if any, in the results matches.
+        &#34;&#34;&#34;
+        for d in self.data:
+            tmp = d.get(&#34;ann&#34;)
+            if tmp:
+                yield tmp
+
     def data4name(self, name):
         &#34;&#34;&#34;
         Return a list of data dictionaries with the given name.
@@ -7084,6 +7118,12 @@ Each item must be either a dictionary that describes an individual match or None
 </details>
 <h3>Methods</h3>
 <dl>
+<dt id="gatenlp.pam.pampac.Result.anns4data"><code class="name flex">
+<span>def <span class="ident">anns4data</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yields all the annotations, if any, in the results matches.</p></div>
+</dd>
 <dt id="gatenlp.pam.pampac.Result.data4name"><code class="name flex">
 <span>def <span class="ident">data4name</span></span>(<span>self, name)</span>
 </code></dt>
@@ -8184,6 +8224,7 @@ from the current next text offset.</p>
 <li>
 <h4><code><a title="gatenlp.pam.pampac.Result" href="#gatenlp.pam.pampac.Result">Result</a></code></h4>
 <ul class="">
+<li><code><a title="gatenlp.pam.pampac.Result.anns4data" href="#gatenlp.pam.pampac.Result.anns4data">anns4data</a></code></li>
 <li><code><a title="gatenlp.pam.pampac.Result.data4name" href="#gatenlp.pam.pampac.Result.data4name">data4name</a></code></li>
 </ul>
 </li>

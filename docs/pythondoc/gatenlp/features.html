@@ -194,7 +194,13 @@ class Features(UserDict):
             ret.data = lib_copy.deepcopy(thedict, memo=memo)
         else:
             ret.data = thedict.copy()
-        return ret</code></pre>
+        return ret
+
+    def names(self):
+        &#34;&#34;&#34;
+        Returns a list of all feature names.
+        &#34;&#34;&#34;
+        return list(self.keys())</code></pre>
 </details>
 </section>
 <section>
@@ -379,7 +385,13 @@ from the loggin package, but for making use of tracking changes in a ChangeLog!<
             ret.data = lib_copy.deepcopy(thedict, memo=memo)
         else:
             ret.data = thedict.copy()
-        return ret</code></pre>
+        return ret
+
+    def names(self):
+        &#34;&#34;&#34;
+        Returns a list of all feature names.
+        &#34;&#34;&#34;
+        return list(self.keys())</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -437,6 +449,12 @@ any logging!).</p>
 <h2 id="returns">Returns</h2>
 <p>a dictionary with the features</p></div>
 </dd>
+<dt id="gatenlp.features.Features.names"><code class="name flex">
+<span>def <span class="ident">names</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a list of all feature names.</p></div>
+</dd>
 <dt id="gatenlp.features.Features.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self, deepcopy=False, include_internal=False, memo=None)</span>
 </code></dt>
@@ -485,6 +503,7 @@ are included in the result dictionary, these features are usually dropped.</dd>
 <li><code><a title="gatenlp.features.Features.clear" href="#gatenlp.features.Features.clear">clear</a></code></li>
 <li><code><a title="gatenlp.features.Features.copy" href="#gatenlp.features.Features.copy">copy</a></code></li>
 <li><code><a title="gatenlp.features.Features.from_dict" href="#gatenlp.features.Features.from_dict">from_dict</a></code></li>
+<li><code><a title="gatenlp.features.Features.names" href="#gatenlp.features.Features.names">names</a></code></li>
 <li><code><a title="gatenlp.features.Features.to_dict" href="#gatenlp.features.Features.to_dict">to_dict</a></code></li>
 </ul>
 </li>
