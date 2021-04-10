@@ -128,10 +128,10 @@ class Result:
         return [d for d in self.data if d.get("name") == name]
 
     def __str__(self):
-        return f"Result(loc={self.location},span=({self.span.start},{self.span.end}),ndata={len(self.data)})"
+        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),ndata={len(self.data)})"
 
     def __repr__(self):
-        return f"Result(loc={self.location},span=({self.span.start},{self.span.end}),data={self.data})"
+        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),data={self.data})"
 
 
 class Failure:
@@ -265,7 +265,7 @@ class Success(Iterable, Sized):
         """
         return True
 
-    def pprint(self, file=None):
+    def pprint(self, file=None):  # pragma: no cover
         """
         Pretty print the success instance to the file or stdout if no file is specified.
 

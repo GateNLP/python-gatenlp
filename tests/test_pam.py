@@ -554,3 +554,81 @@ class TestPampac01:
         assert a.end == 5
         assert a.type == "NEW"
         assert len(outset) == orig_len + 1
+
+class TestPampacMisc:
+
+    def test01(self):
+        """
+        Unit test method (make linter happy)
+        """
+        from gatenlp.pam.pampac import Location, Result, Failure, Context, Success
+
+        loc1 = Location(0, 0)
+        loc2 = Location(0, 1)
+        loc3 = Location(1, 0)
+        loc4 = Location(0, 0)
+
+        assert loc1 != loc2
+        assert loc1 != loc3
+        assert loc1 == loc4
+        assert loc1 != "asa"
+
+        assert str(loc1) == "Location(0,0)"
+
+        res1 = Result(location=Location(10, 10), span=Span(4, 10))
+        assert list(res1.anns4data()) == []
+        assert res1.data4name("xxx") == []
+
+        res2 = Result(location=Location(12, 12), span=Span(4, 12), data={"span": Span(3, 4), "name": "xx"})
+        assert list(res2.anns4data()) == []
+        assert res2.data4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
+
+        res3 = Result(location=Location(10, 10), span=Span(4, 10),
+                      data=[{"span": Span(3, 4), "name": "xx"}, {"span": Span(3, 4), "name": "yy"},])
+        assert list(res3.anns4data()) == []
+        assert res3.data4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
+
+        assert str(res1) == "Result(loc=Location(10,10),span=Span(4,10),ndata=0)"
+        assert res1.__repr__() == "Result(loc=Location(10,10),span=Span(4,10),data=[])"
+
+        fail1 = Failure()
+        assert not fail1.issuccess()
+        fail1.describe() == """None at ?/?: Parser Error"""
+
+        fail2 = Failure(message="Some problem", parser="Parser1", location=loc1)
+        fail2.describe() == """Parser1 at 0/0: Some problem"""
+
+        fail3 = Failure(message="Another problem", parser="Parser2", location=loc1, causes=[fail2, fail1])
+        fail3.describe() == """Parser2 at 0/0: Another problem
+Caused by:
+    Parser1 at 0/0: Some problem
+    None at ?/?: Parser Error"""
+        #
+        doc1 = Document("somedoc")
+        set1 = doc1.annset()
+        ctx1 = Context(doc1, set1)
+        assert ctx1.annset.size == 0
+        assert ctx1.get_ann(loc1) is None
+
+        succ1 = Success(res1, ctx1)
+        assert succ1.issuccess()
+        assert succ1.select_result([res1, res2]) == res1
+        assert succ1.select_result([res1, res2], matchtype="all") == [res1, res2]
+        assert succ1.select_result([res1, res2], matchtype="longest") == res2
+        assert succ1.select_result([res1, res2], matchtype="shortest") == res1
+        assert succ1.result(matchtype="first") == res1
+        for r in succ1:
+            assert isinstance(r, Result)
+        assert succ1[0] == res1
+
+    def test02(self):
+        """
+        Unit test method (make linter happy)
+        """
+        from gatenlp.pam.pampac import PampacParser
+
+        def fun1(location, context):
+            return location, context
+
+        parser1 = PampacParser(fun1)
+        assert parser1.parse(1,2) == (1, 2)
