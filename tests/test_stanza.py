@@ -3,12 +3,16 @@ from gatenlp import logger, Document
 
 
 class TestStanza01:
+
     def test_stanza01a(self):
+        """
+        Unit test method (make linter happy)
+        """
         try:
             import stanza
             from gatenlp.lib_stanza import stanza2gatenlp, AnnStanza
             from stanza.resources.common import DEFAULT_MODEL_DIR
-        except:
+        except ImportError:
             logger.warn("Module stanza not installed, skipping stanza test")
             return
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")

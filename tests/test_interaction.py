@@ -5,7 +5,11 @@ from gatenlp.gate_interaction import _pr_decorator, DefaultPr, gate_python_plugi
 # Simple simulation of the interaction: instead of calling interact() manually call
 # the methods from the created wrapper.
 class TestInteraction01:
+
     def test_interaction01_01(self):
+        """
+        Unit test method (make linter happy)
+        """
         # first: use the DefaultPr
         mypr = _pr_decorator(DefaultPr())
         doc1 = Document("Just a simple document")
@@ -14,6 +18,9 @@ class TestInteraction01:
         mypr.finish()
 
     def test_interaction01_02(self):
+        """
+        Unit test method (make linter happy)
+        """
         @GateNlpPr
         def do_it(doc: Document, **kwargs):
             set1 = doc.annset("Set1")

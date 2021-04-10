@@ -16,7 +16,11 @@ TEXTS = [
 
 
 class TestCorpora1:
+
     def test_listcorpus(self):
+        """
+        Unit test method (make linter happy)
+        """
         docs = [Document(t) for t in TEXTS]
         lc1 = ListCorpus(docs)
         assert len(lc1) == len(docs)

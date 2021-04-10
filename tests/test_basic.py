@@ -3,6 +3,9 @@ import sys
 
 class TestOffsetMapper01:
     def test_offsetmapper01m01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import OffsetMapper, Document
 
         c_poo = "\U0001F4A9"
@@ -24,6 +27,9 @@ class TestOffsetMapper01:
             assert poff == i
 
     def test_offsetmapper01m02(self):
+        """
+        Unit test method (make linter happy)
+        """
         # test identical offsets
         from gatenlp.document import OffsetMapper, Document
         doc1 = Document("Just some sample document")
@@ -32,8 +38,13 @@ class TestOffsetMapper01:
             assert idx == om1.convert_to_java(idx)
             assert idx == om1.convert_to_python(idx)
 
+
 class TestDocument01:
+
     def test_document01m01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
         from gatenlp.span import Span
 
@@ -79,7 +90,11 @@ class TestDocument01:
 
 
 class TestChangeLog01:
+
     def test_changelog01m01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document, OFFSET_TYPE_JAVA
         from gatenlp.changelog import ChangeLog
         from gatenlp.offsetmapper import OffsetMapper
@@ -140,7 +155,11 @@ class TestChangeLog01:
 
 
 class TestAnnotationSet01:
+
     def test_annotationset01m01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         txt = " ".join([f"word{i:02d}" for i in range(10)])

@@ -19,7 +19,11 @@ from gatenlp.pam.pampac import (
 
 
 class TestPampac01:
+
     def test01(self):
+        """
+        Unit test method (make linter happy)
+        """
         doc = Document("Some test document")
         doc.annset().add(0, 2, "Ann")
         doc.annset().add(0, 1, "Ann")
@@ -164,6 +168,9 @@ class TestPampac01:
         print(ret)
 
     def test02(self):
+        """
+        Unit test method (make linter happy)
+        """
         # Test multiple result matches
 
         doc = Document("Some test document")
@@ -247,6 +254,9 @@ class TestPampac01:
         assert ret[3].data[1]["ann"].id == 4
 
     def test03(self):
+        """
+        Unit test method (make linter happy)
+        """
         # Test single result matches with N, with and without the until clause
 
         doc = Document("Some test document")
@@ -364,6 +374,9 @@ class TestPampac01:
         assert ret[0].data[3]["ann"].id == 8
 
     def test04(self):
+        """
+        Unit test method (make linter happy)
+        """
         # Test multiple result matches with N, with and without the until clause
 
         doc = Document("Some test document")
@@ -495,8 +508,10 @@ class TestPampac01:
         assert ret[3].data[1]["ann"].id == 4
         assert ret[3].data[2]["ann"].id == 7
 
-
     def test05(self):
+        """
+        Unit test method (make linter happy)
+        """
         # Rules and Pampac
 
         doc = Document("Some test document")
@@ -539,7 +554,3 @@ class TestPampac01:
         assert a.end == 5
         assert a.type == "NEW"
         assert len(outset) == orig_len + 1
-
-
-if __name__ == "__main__":
-    TestPampac01().test05()

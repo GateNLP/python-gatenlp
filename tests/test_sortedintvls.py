@@ -7,8 +7,14 @@ logger.setLevel(logging.INFO)
 
 # Simple simulation of the interaction: instead of calling interact() manually call
 # the methods from the created wrapper.
+
+
 class TestSortedIntvls01:
+
     def test_sortedintvls01(self):
+        """
+        Unit test method (make linter happy)
+        """
         si1 = SortedIntvls()
         intvls = [
             (0, 3, 0, "int1"),

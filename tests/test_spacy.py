@@ -3,12 +3,16 @@ from gatenlp import logger, Document
 
 
 class TestSpacy01:
+
     def test_spacy01a(self):
+        """
+        Unit test method (make linter happy)
+        """
         try:
             import spacy
             from gatenlp.lib_spacy import spacy2gatenlp, AnnSpacy
             nlp = spacy.load("en_core_web_sm")
-        except:
+        except ImportError:
             logger.warn("Module spacy or model en_core_web_sm not installed, skipping spacy test")
             return
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
@@ -28,8 +32,3 @@ class TestSpacy01:
         assert len(sents) == 2
         tokens = anns.with_type("Token")
         assert len(tokens) == 14
-
-
-if __name__ == "__main__":
-    tests = TestSpacy01()
-    tests.test_spacy01a()

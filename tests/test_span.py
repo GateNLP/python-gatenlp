@@ -5,6 +5,9 @@ from gatenlp import Span
 class TestSpanRels:
 
     def test_span_rels01(self):
+        """
+        Unit test method (make linter happy)
+        """
         span1 = Span(3, 42)
         span2 = Span(0, 6)
         span3 = Span(18, 24)
@@ -97,6 +100,9 @@ class TestSpanRels:
         assert span11.isbefore(span9)
 
     def test_span_basic01(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         assert Span(0, 3) == Span(0, 3)
         assert not Span(0, 3) == Span(0, 4)
@@ -112,13 +118,20 @@ class TestSpanRels:
         assert span2.gap(span1) == 4
 
     def test_span_excp01(self):
+        """
+        Unit test method (make linter happy)
+        """
         import pytest
         with pytest.raises(Exception) as ex:
             Span(3, 2) < 2
 
+
 class TestSpanEmbed:
 
-    def testSpanEmbed01(self):
+    def test_span_embed01(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         ret = Span.squeeze(0, 7, 7)
         assert ret == [Span(0,1), Span(1,2), Span(2,3), Span(3,4), Span(4,5), Span(5,6), Span(6,7)]

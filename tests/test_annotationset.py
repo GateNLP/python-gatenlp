@@ -34,6 +34,9 @@ def make_doc():
 class TestAnnotationSetRels:
 
     def test_annotationset_rels01(self):
+        """
+        Unit test method (make linter happy)
+        """
         doc = make_doc()
         set1 = doc.annset("set1")
         ann1 = set1.with_type("Ann1").for_idx(0)
@@ -201,6 +204,9 @@ class TestAnnotationSetRels:
         assert len(set1) == 0
 
     def test_annotationset_exps(self):
+        """
+        Unit test method (make linter happy)
+        """
         import pytest
         # with pytest.raises(Exception) as ex:
         #     Annotation(3, 2, "X")
@@ -208,5 +214,8 @@ class TestAnnotationSetRels:
         pass
 
     def test_annotationset_misc01(self):
+        """
+        Unit test method (make linter happy)
+        """
         # TODO: set1.add_ann(ann, annid=None)
         pass

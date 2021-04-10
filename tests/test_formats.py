@@ -7,6 +7,9 @@ DOC1_TEXT = "A simple document"
 
 
 def makedoc1():
+    """
+    Create and return document for testing.
+    """
     from gatenlp.document import Document
 
     doc1 = Document(DOC1_TEXT)
@@ -18,7 +21,11 @@ def makedoc1():
 
 
 class TestFormatGateXml:
+
     def test_formatgatexml01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         curpath = os.path.abspath(os.path.curdir)
@@ -53,7 +60,11 @@ class TestFormatGateXml:
 
 
 class TestFormatYaml:
+
     def test_formatyaml01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         curpath = os.path.abspath(os.path.curdir)
@@ -100,6 +111,9 @@ class TestFormatYaml:
         assert ann2.id == 1
 
     def test_formatyaml02(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         doc1 = makedoc1()
@@ -126,7 +140,11 @@ class TestFormatYaml:
 
 
 class TestFormatJson:
+
     def test_formatjson01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         curpath = os.path.abspath(os.path.curdir)
@@ -174,6 +192,9 @@ class TestFormatJson:
         assert ann2.id == 1
 
     def test_formatjson02(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         doc1 = makedoc1()
@@ -200,7 +221,11 @@ class TestFormatJson:
 
 
 class TestFormatMsgPack:
+
     def test_formatmsgpack01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         curpath = os.path.abspath(os.path.curdir)
@@ -248,6 +273,9 @@ class TestFormatMsgPack:
         assert ann2.id == 1
 
     def test_formatmsgpack02(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
 
         doc1 = makedoc1()
@@ -274,7 +302,11 @@ class TestFormatMsgPack:
 
 
 class TestFormatHtml:
+
     def test_formathtml01(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
@@ -286,6 +318,9 @@ class TestFormatHtml:
         assert set1.size == 4
 
     def test_formathtml02(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
         try:
             import lxml
@@ -301,6 +336,9 @@ class TestFormatHtml:
         assert set1.size == 4
 
     def test_formathtml03(self):
+        """
+        Unit test method (make linter happy)
+        """
         from gatenlp.document import Document
         try:
             import html5lib

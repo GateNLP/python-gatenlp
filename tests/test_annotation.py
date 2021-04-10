@@ -6,6 +6,9 @@ from gatenlp import Document, Annotation, Span
 
 
 def make_doc():
+    """
+    Make a doc for testing
+    """
     doc = Document("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
     set1 = doc.annset("set1")
     # starting positions:
@@ -34,6 +37,9 @@ def make_doc():
 class TestAnnotationRels:
 
     def test_annotation_rels01(self):
+        """
+        Unit test method (make linter happy)
+        """
         doc = make_doc()
         set1 = doc.annset("set1")
         ann1 = set1.with_type("Ann1").for_idx(0)
@@ -132,6 +138,9 @@ class TestAnnotationRels:
         # TODO: gaps
 
     def test_annotation_exps(self):
+        """
+        Unit test method (make linter happy)
+        """
         import pytest
         with pytest.raises(Exception) as ex:
             Annotation(3, 2, "X")
@@ -155,6 +164,9 @@ class TestAnnotationRels:
         assert Annotation(1, 2, "X").length == 1
 
     def test_annotation_misc01(self):
+        """
+        Unit test method (make linter happy)
+        """
         ann1 = Annotation(1, 2, "x", dict(a=1), annid=3)
         dict1 = ann1.to_dict()
         ann2 = Annotation.from_dict(dict1)

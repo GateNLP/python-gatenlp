@@ -96,6 +96,9 @@ txt7 = """
 class TestConllUSource1:
 
     def test_conllu_source1_01(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt1, from_string=True)
         ret = list(src)
@@ -107,6 +110,9 @@ class TestConllUSource1:
         assert src.n_documents == 1
 
     def test_conllu_source1_02(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt2, from_string=True)
         ret = list(src)
@@ -118,6 +124,9 @@ class TestConllUSource1:
         assert src.n_documents == 1
 
     def test_conllu_source1_03(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt3, from_string=True)
         ret = list(src)
@@ -129,6 +138,9 @@ class TestConllUSource1:
         assert src.n_documents == 1
 
     def test_conllu_source1_04(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt4, from_string=True)
         ret = list(src)
@@ -140,6 +152,9 @@ class TestConllUSource1:
         assert src.n_documents == 1
 
     def test_conllu_source1_05(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt5, from_string=True)
         ret = list(src)
@@ -151,6 +166,9 @@ class TestConllUSource1:
         assert src.n_documents == 1
 
     def test_conllu_source1_06(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt6, from_string=True)
         ret = list(src)
@@ -166,6 +184,9 @@ class TestConllUSource1:
         assert annset.with_type("Token").size == 5
 
     def test_conllu_source1_07(self):
+        """
+        Unit test method (make linter happy)
+        """
 
         src = ConllUFileSource(txt7, from_string=True)
         ret = list(src)

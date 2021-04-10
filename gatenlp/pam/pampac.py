@@ -368,8 +368,8 @@ class Context:
         start=None,
         end=None,
         outset=None,
-        memoize=False,
-        max_recusion=None,
+        # memoize=False,
+        # max_recusion=None,
     ):
         """
         Initialize a parse context.
@@ -380,11 +380,10 @@ class Context:
             start: the starting text offset for the parse
             end: the ending text offset for the parse
             outset: an annotation set for where to add any new annotations in an action
-            memoize: If memoization should be used (NOT YET IMPLEMENTED)
-            max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
         """
-        self._memotable = {}
-        self.max_recursion = max_recusion
+        #             max_recusion: the maximum recursion depth for recursive parse rules (NOT YET IMPLEMENTED)
+        # self._memotable = {}
+        # self.max_recursion = max_recusion
         self.doc = doc
         self.outset = outset
         self._annset = (
@@ -408,7 +407,7 @@ class Context:
         # make sure all the anns are within the given offset range
         anns = [a for a in anns if a.start >= self.start and a.end <= self.end]
         self.anns = anns
-        self.memoize = memoize
+        # self.memoize = memoize
 
     @property
     def annset(self):

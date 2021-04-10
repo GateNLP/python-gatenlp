@@ -9,6 +9,9 @@ DOC1_TEXT = "A simple document which has a number of words in it which we will u
 
 
 def makedoc1():
+    """
+    Create and return document for testing.
+    """
     doc1 = Document(DOC1_TEXT)
     set1 = doc1.annset()
     whitespaces = [
@@ -45,7 +48,11 @@ LISTFEATURES1 = {"list": 0, "feat1": "somevalue1"}
 
 
 class TestTokenGazetteer1:
+
     def test_create(self):
+        """
+        Unit test method (make linter happy)
+        """
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         # print("\n!!!!!!!!!!! nodes=", gaz.nodes, "\n")
         assert gaz.nodes is not None
@@ -68,6 +75,9 @@ class TestTokenGazetteer1:
         assert node2data == {"match": 1}
 
     def test_match1(self):
+        """
+        Unit test method (make linter happy)
+        """
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
@@ -87,6 +97,9 @@ class TestTokenGazetteer1:
         assert matches[0].data[0] == {"match": 1}
 
     def test_match2(self):
+        """
+        Unit test method (make linter happy)
+        """
         # test lists
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         # add another list
@@ -113,6 +126,9 @@ class TestTokenGazetteer1:
         assert matches[0].listidx[1] == 1
 
     def test_match3(self):
+        """
+        Unit test method (make linter happy)
+        """
         # match at position 4 where we should get several matches, match all=False
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
@@ -134,6 +150,9 @@ class TestTokenGazetteer1:
         assert matches[0].data[1] == {"match": 5}
 
     def test_match4(self):
+        """
+        Unit test method (make linter happy)
+        """
         # match at position 4 where we should get several matches, match all=True
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
@@ -164,6 +183,9 @@ class TestTokenGazetteer1:
         assert matches[2].data[1] == {"match": 5}
 
     def test_find1(self):
+        """
+        Unit test method (make linter happy)
+        """
         # search from position 0
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
@@ -181,6 +203,9 @@ class TestTokenGazetteer1:
         assert matches[0].data[0] == {"match": 1}
 
     def test_find2(self):
+        """
+        Unit test method (make linter happy)
+        """
         # search from position 2
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
@@ -207,6 +232,9 @@ class TestTokenGazetteer1:
         assert matches[2].data[1] == {"match": 5}
 
     def test_find3(self):
+        """
+        Unit test method (make linter happy)
+        """
         # search from position 5, should not find anything
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
@@ -220,6 +248,9 @@ class TestTokenGazetteer1:
         assert len(matches) == 0
 
     def test_findall(self):
+        """
+        Unit test method (make linter happy)
+        """
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
@@ -235,6 +266,9 @@ class TestTokenGazetteer1:
         assert len(m2) == 3
 
     def test_call1(self):
+        """
+        Unit test method (make linter happy)
+        """
         gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
         doc = makedoc1()
         gaz(doc)
@@ -248,6 +282,9 @@ class TestTokenGazetteer1:
         assert len(anns) == 5
 
     def test_call2(self):
+        """
+        Unit test method (make linter happy)
+        """
         testdir = os.path.join(os.curdir, "tests")
         gazfile = os.path.join(testdir, "gaz1.def")
         gaz = TokenGazetteer(source=gazfile, fmt="gate-def")
@@ -259,6 +296,9 @@ class TestTokenGazetteer1:
         assert len(anns) == 1
 
     def test_call3(self):
+        """
+        Unit test method (make linter happy)
+        """
         testdir = os.path.join(os.curdir, "tests")
         gazfile = os.path.join(testdir, "gaz1.def")
         gaz = TokenGazetteer(source=gazfile, fmt="gate-def", all=True, skip=False)
