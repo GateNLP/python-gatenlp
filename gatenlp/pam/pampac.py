@@ -112,6 +112,15 @@ class Result:
         self.location = location
         self.span = span
 
+    def anns4data(self):
+        """
+        Yields all the annotations, if any, in the results matches.
+        """
+        for d in self.data:
+            tmp = d.get("ann")
+            if tmp:
+                yield tmp
+
     def data4name(self, name):
         """
         Return a list of data dictionaries with the given name.
@@ -1137,16 +1146,12 @@ class PampacParser:
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get("ann")
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
             else:
-                annstocheck = annset.startingat(result.span.end)
+                annstocheck = annset.startin_ge(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -1186,11 +1191,7 @@ class PampacParser:
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set()
-            for d in result.data:
-                ann = d.get("ann")
-                if ann:
-                    anns.add(ann)
+            anns = set(result.anns4data())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
