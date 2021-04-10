@@ -33,7 +33,7 @@ logger.setLevel(logging.INFO)
 __pdoc__ = {"GateWorkerAnnotator.__call__": True}
 
 
-def classpath_sep(platform=None):
+def classpath_sep(platform=None):  # pragma: no cover
     """
     Get the system-specific classpath separator character.
 
@@ -58,7 +58,7 @@ def classpath_sep(platform=None):
         return ":"
 
 
-def gate_classpath(gatehome, platform=None):
+def gate_classpath(gatehome, platform=None):  # pragma: no cover
     """
     Return the GATE classpath components as a string, with the path seperator characters appropriate
     for the operating system.
@@ -118,7 +118,7 @@ def start_gate_worker(
     log_actions=False,
     keep=False,
     debug=False,
-):
+):   # pragma: no cover
     """
     Run the gate worker program. This starts the Java program included with gatenlp to
     run GATE and execute the gate worker within GATE so that Python can connect to it.
@@ -217,7 +217,7 @@ def start_gate_worker(
         shutdown()
 
 
-class GateWorker:
+class GateWorker:   # pragma: no cover
     """
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
@@ -1021,7 +1021,7 @@ class GateWorker:
         self.worker.showGui()
 
 
-class GateWorkerAnnotator(Annotator):
+class GateWorkerAnnotator(Annotator):   # pragma: no cover
     # TODO: parameter to influence how exceptions are handled
     def __init__(
         self,
@@ -1132,7 +1132,7 @@ class GateWorkerAnnotator(Annotator):
         return doc
 
 
-def main():
+def main():   # pragma: no cover
     """
     Start a GATE worker from the command line.
 
@@ -1189,5 +1189,5 @@ def main():
         )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":   # pragma: no cover
     main()
