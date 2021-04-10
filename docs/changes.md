@@ -1,6 +1,6 @@
 # Versions and changes
 
-## (upcoming)
+## 1.0.4 (2021-04-10)
 
 * The GateWorkerAnnotator parameters have been changed: instead of parameters gatehom and port,
   the parameter gateworker now needs to receive a GateWorker instance. 
