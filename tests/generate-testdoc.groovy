@@ -16,7 +16,7 @@
 // NOTE: if wrong versions seems to get used DELETE cache!
 // To see what groovy is downloading use: -Divy.message.logger.level=4(or lower) -Dgroovy.grape.report.downloads=true
 @GrabResolver(name='gate-snapshots', root='http://repo.gate.ac.uk/content/groups/public/')
-@Grab('uk.ac.gate:gate-core:9.0-SNAPSHOT') import gate.util.persistence.PersistenceManager
+@Grab('uk.ac.gate:gate-core:9.0.1') import gate.util.persistence.PersistenceManager
 // work around weird bug about NoClassDefFound for AbstractLogEnabled:
 @Grab(value='org.codehaus.plexus:plexus-container-default:1.0-alpha-9-stable-1', transitive=false)
 import gate.*

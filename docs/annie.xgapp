@@ -3,13 +3,8 @@
     <localList>
       <gate.creole.Plugin-Maven>
         <group>uk.ac.gate.plugins</group>
-        <artifact>gate-cloud-plugin</artifact>
-        <version>1.1</version>
-      </gate.creole.Plugin-Maven>
-      <gate.creole.Plugin-Maven>
-        <group>uk.ac.gate.plugins</group>
         <artifact>annie</artifact>
-        <version>8.7-SNAPSHOT</version>
+        <version>9.0</version>
       </gate.creole.Plugin-Maven>
     </localList>
     <collectionType>java.util.ArrayList</collectionType>
@@ -183,7 +178,7 @@
         <entry>
           <string>gate.app.MetadataURL</string>
           <gate.util.persistence.PersistenceManager-URLHolder>
-            <urlString>jar:file:/home/johann/.m2/repository/uk/ac/gate/plugins/annie/8.7-SNAPSHOT/annie-8.7-SNAPSHOT.jar!/resources/.annie-defaults-metadata/metadata.xml</urlString>
+            <urlString>jar:file:/home/johann/.m2/repository/uk/ac/gate/plugins/annie/9.0/annie-9.0.jar!/resources/.annie-defaults-metadata/metadata.xml</urlString>
           </gate.util.persistence.PersistenceManager-URLHolder>
         </entry>
         <entry>
