@@ -3,6 +3,9 @@ source=gatenlp
 omit=
   _jars
   serialization/_htmlviewer
+  gateworker.py
+  lib_spacy.py
+  lib_stanza.py
 
 [report]
 show_missing = True

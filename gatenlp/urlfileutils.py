@@ -41,7 +41,7 @@ def is_url(ext):
         raise Exception(f"Odd type: {ext}")
 
 
-def get_str_from_url(url, encoding=None):
+def get_str_from_url(url, encoding=None):  # pragma: no cover
     """Read a string from the URL.
 
     Args:
@@ -57,7 +57,7 @@ def get_str_from_url(url, encoding=None):
     return req.text
 
 
-def get_bytes_from_url(url):
+def get_bytes_from_url(url):  # pragma: no cover
     """
     Reads bytes from url.
 
@@ -71,13 +71,15 @@ def get_bytes_from_url(url):
     return req.content
 
 
-def yield_lines_from(url_or_file, encoding="utf-8"):
+def yield_lines_from(url_or_file, encoding="utf-8"):  # pragma: no cover
     """
     Yields lines of text from either a file or an URL
 
     Args:
         url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
-        only if it starts with http:// or https://, otherwise it can be a parsed urllib url or a pathlib path
+            only if it starts with http:// or https://, otherwise it can be a parsed urllib url
+            or a pathlib path
+        encoding: the encoding to use
     """
     isurl, extstr = is_url(url_or_file)
     if isurl is None:
@@ -92,7 +94,7 @@ def yield_lines_from(url_or_file, encoding="utf-8"):
                 yield line
 
 
-def stream_from(url_or_file, encoding="utf-8"):
+def stream_from(url_or_file, encoding="utf-8"):  # pragma: no cover
     """
     Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
     in text mode with the given encoding.
