@@ -27,13 +27,12 @@ For now rather simple:
 * !! make sure the version has been updated to what we want to release!
 * run ./gendoc-pdoc3.sh
 * add anything that needs to get added
-* commit, push
 
 * !! SYNC WITH UPCOMING PYTHON PLUGIN RELEASE:
 * Edit: `java/src/main/java/gate/tools/gatenlpworker/GatenlpWorker.java`
   and change the version of python plugin to the upcoming one which will contain the new GateNLP release
 * run `python make-java.py` 
-* re-install current directory locally using `pip install -e .[all,dev]`
+* re-install current directory locally using `pip install -e .[alldev]`
 * double check that gateworker tries to load the new (not-yet existing) release
 * commit and push, Python plugin tracks main, so we have now what we need 
 * create release branch and push - this is for going back to this version more easily later
