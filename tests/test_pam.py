@@ -1,4 +1,4 @@
-import sys
+
 from gatenlp import Document, Annotation, Span
 from gatenlp.pam.pampac import Context, Location
 
@@ -593,13 +593,13 @@ class TestPampacMisc:
 
         fail1 = Failure()
         assert not fail1.issuccess()
-        fail1.describe() == """None at ?/?: Parser Error"""
+        assert fail1.describe() == """None at ?/?: Parser Error"""
 
         fail2 = Failure(message="Some problem", parser="Parser1", location=loc1)
-        fail2.describe() == """Parser1 at 0/0: Some problem"""
+        assert fail2.describe() == """Parser1 at 0/0: Some problem"""
 
         fail3 = Failure(message="Another problem", parser="Parser2", location=loc1, causes=[fail2, fail1])
-        fail3.describe() == """Parser2 at 0/0: Another problem
+        assert fail3.describe() == """Parser2 at 0/0: Another problem
 Caused by:
     Parser1 at 0/0: Some problem
     None at ?/?: Parser Error"""
