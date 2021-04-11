@@ -88,31 +88,31 @@ class Result:
     are alternate ways of how the parser can match the document.
     """
 
-    def __init__(self, data=None, location=None, span=None):
+    def __init__(self, matches=None, location=None, span=None):
         """
         Create a parser result.
 
         Args:
-            data: the data associated with the result, this can be a single item or a list of items.
+            matches: the data associated with the result, this can be a single item or a list of items.
                 Each item must be either a dictionary that describes an individual match or None.
             location: the location where the result was matched, i.e. the location *before* matching was done.
             span: the span representing the start and end text offset for the match
         """
         assert location is not None
         assert span is not None
-        if data is not None:
-            if isinstance(data, dict):
-                self.data = [data]
-            elif isinstance(data, Iterable):
-                self.data = list(data)
+        if matches is not None:
+            if isinstance(matches, dict):
+                self.data = [matches]
+            elif isinstance(matches, Iterable):
+                self.data = list(matches)
             else:
-                self.data = [data]
+                self.data = [matches]
         else:
             self.data = []
         self.location = location
         self.span = span
 
-    def anns4data(self):
+    def anns4matches(self):
         """
         Yields all the annotations, if any, in the results matches.
         """
@@ -121,7 +121,7 @@ class Result:
             if tmp:
                 yield tmp
 
-    def data4name(self, name):
+    def matches4name(self, name):
         """
         Return a list of data dictionaries with the given name.
         """
@@ -1146,7 +1146,7 @@ class PampacParser:
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -1191,7 +1191,7 @@ class PampacParser:
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -1520,11 +1520,7 @@ class AnnAt(_AnnBase):
                     )
                 # update location
                 location = context.inc_location(location, by_index=1)
-                result = Result(
-                    data=data,
-                    location=location,
-                    span=Span(next_ann.start, next_ann.end),
-                )
+                result = Result(matches=data, location=location, span=Span(next_ann.start, next_ann.end))
                 if self.matchtype == "first":
                     return Success(result, context)
                 results.append(result)
@@ -1610,7 +1606,7 @@ class Ann(_AnnBase):
             else:
                 data = None
             span = Span(next_ann.start, next_ann.end)
-            return Success(Result(data=data, span=span, location=newlocation), context)
+            return Success(Result(matches=data, location=newlocation, span=span), context)
         else:
             return Failure(
                 location=location, context=context, parser=self.__class__.__name__
@@ -1711,7 +1707,7 @@ class Text(PampacParser):
                     location.text_location, location.text_location + len(m.group())
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=data, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1737,7 +1733,7 @@ class Text(PampacParser):
                     location.text_location, location.text_location + len(self.text)
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=data, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1898,7 +1894,7 @@ class Seq(PampacParser):
                     dict(span=Span(start, end), name=self.name, location=location)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=datas, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -1929,7 +1925,7 @@ class Seq(PampacParser):
                             newresult = Result(datas, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
-            gen = depthfirst(0, Result(data=[], location=location, span=Span(0, 0)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -2046,9 +2042,7 @@ class N(PampacParser):
                                 )
                             )
                         return Success(
-                            Result(
-                                data=datas, location=location, span=Span(start, end)
-                            ),
+                            Result(matches=datas, location=location, span=Span(start, end)),
                             context,
                         )
                 else:
@@ -2091,7 +2085,7 @@ class N(PampacParser):
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=datas, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -2160,7 +2154,7 @@ class N(PampacParser):
                             # nor the until did match so we do not have a success
                             return
 
-            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=(None, None)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -2402,7 +2396,7 @@ def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
         else:
             return
     res = succ[resultidx]
-    data = res.data4name(name)
+    data = res.matches4name(name)
     if not data:
         if not silent_fail:
             raise Exception(f"No data with name {name} in result")
@@ -2437,7 +2431,7 @@ def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
             return
     res = succ[resultidx]
     if name:
-        data = res.data4name(name)
+        data = res.matches4name(name)
         if not data:
             if not silent_fail:
                 raise Exception(f"No data with name {name} in result")
