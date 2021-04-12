@@ -7,15 +7,16 @@ from gatenlp.processing.gazetteer import TokenGazetteer
 
 DOC1_TEXT = "A simple document which has a number of words in it which we will use to test matching"
 
+DOC2_TEXT = "A simple document which has a number of words in it which we will use to test matching, simple document"
 
-def makedoc1():
+def makedoc1(text=DOC1_TEXT):
     """
     Create and return document for testing.
     """
-    doc1 = Document(DOC1_TEXT)
+    doc1 = Document(text)
     set1 = doc1.annset()
     whitespaces = [
-        m for m in re.finditer(r"[\s,.!?]+|^[\s,.!?]*|[\s,.!?]*$", DOC1_TEXT)
+        m for m in re.finditer(r"[\s,.!?]+|^[\s,.!?]*|[\s,.!?]*$", text)
     ]
     nrtokens = len(whitespaces) - 1
     for k in range(nrtokens):
@@ -308,3 +309,25 @@ class TestTokenGazetteer1:
         assert len(anns) == 4
         anns = doc.annset().with_type("GazType1")
         assert len(anns) == 2
+
+    def test_call4(self):
+        """
+        Unit test method (make linter happy)
+        """
+        testdir = os.path.join(os.curdir, "tests")
+        gazfile = os.path.join(testdir, "gaz1.def")
+        gaz = TokenGazetteer(source=gazfile, fmt="gate-def", all=True, skip=True)
+        doc = makedoc1(DOC2_TEXT)
+        print(doc)
+        gaz(doc)
+        # def printanns(doc, anns, msg):
+        #     print(f"\n{msg}")
+        #     for ann in anns:
+        #         print(f"Matching {doc[ann]}: {ann}")
+        #printanns(doc, doc.annset().with_type("Token"), "Tokens:")
+        anns = doc.annset().with_type("Lookup")
+        #printanns(doc, anns, "Lookup annotations")
+        assert len(anns) == 4
+        anns = doc.annset().with_type("GazType1")
+        assert len(anns) == 4
+        #printanns(doc, anns, "GazType1 annotations")

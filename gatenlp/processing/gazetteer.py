@@ -451,7 +451,8 @@ class TokenGazetteer:
                 thismatches.append(match)
             j = idx + 1  # index into text tokens
             nignored = 0
-            while j <= endidx:
+            while j < endidx:
+                # print(f"!!! processing idx={j}/{endidx}")
                 if node.nodes:
                     token = tokens[j]
                     if token.type == self.splittype:
