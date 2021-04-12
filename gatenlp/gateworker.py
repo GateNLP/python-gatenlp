@@ -88,9 +88,9 @@ def gate_classpath(gatehome, platform=None):  # pragma: no cover
             raise Exception(
                 "File not found {}, distribution may need compiling".format(cpfile)
             )
-        with open(cpfile, "rt", encoding="utf-8") as fp:
-            cp = fp.read()
-            return cp + cpsep + bindir
+        with open(cpfile, "rt", encoding="utf-8") as infp:
+            c_p = infp.read()
+            return c_p + cpsep + bindir
     else:
         # logger.info("DEBUG {} does not exist".format(cpfile))
         libdir = os.path.join(gatehome, "lib")
@@ -108,16 +108,16 @@ def gate_classpath(gatehome, platform=None):  # pragma: no cover
 
 
 def start_gate_worker(
-    port=25333,
-    host="127.0.0.1",
-    auth_token=None,
-    use_auth_token=True,
-    java="java",
-    platform=None,
-    gatehome=None,
-    log_actions=False,
-    keep=False,
-    debug=False,
+        port=25333,
+        host="127.0.0.1",
+        auth_token=None,
+        use_auth_token=True,
+        java="java",
+        platform=None,
+        gatehome=None,
+        log_actions=False,
+        keep=False,
+        debug=False,
 ):   # pragma: no cover
     """
     Run the gate worker program. This starts the Java program included with gatenlp to
@@ -154,8 +154,6 @@ def start_gate_worker(
     if use_auth_token:
         if not auth_token:
             auth_token = secrets.token_urlsafe(20)
-        else:
-            auth_token = auth_token
     else:
         auth_token = ""
     if log_actions:
@@ -216,6 +214,8 @@ def start_gate_worker(
         print("Received keyboard interrupt, shutting down server...")
         shutdown()
 
+# pylint: disable=C0103
+
 
 class GateWorker:   # pragma: no cover
     """
@@ -224,19 +224,19 @@ class GateWorker:   # pragma: no cover
     """
 
     def __init__(
-        self,
-        port=25333,
-        start=True,
-        java="java",
-        host="127.0.0.1",
-        gatehome=None,
-        platform=None,
-        auth_token=None,
-        use_auth_token=True,
-        log_actions=False,
-        keep=False,
-        debug=False,
-    ):
+            self,
+            port=25333,
+            start=True,
+            java="java",
+            host="127.0.0.1",
+            gatehome=None,
+            platform=None,
+            auth_token=None,
+            use_auth_token=True,
+            log_actions=False,
+            keep=False,
+            debug=False,
+        ):
         """
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -1024,13 +1024,13 @@ class GateWorker:   # pragma: no cover
 class GateWorkerAnnotator(Annotator):   # pragma: no cover
     # TODO: parameter to influence how exceptions are handled
     def __init__(
-        self,
-        pipeline,
-        gateworker,
-        annsets_send=None,
-        annsets_receive=None,
-        replace_anns=False,
-        update_document=False,
+            self,
+            pipeline,
+            gateworker,
+            annsets_send=None,
+            annsets_receive=None,
+            replace_anns=False,
+            update_document=False,
     ):
         """
         Create a GateWorker annotator.
@@ -1175,18 +1175,17 @@ def main():   # pragma: no cover
     args = ap.parse_args()
     if args.download:
         raise Exception("--download not implemented yet ")
-    else:
-        start_gate_worker(
-            port=args.port,
-            host=args.host,
-            auth_token=args.auth,
-            use_auth_token=not args.noauth,
-            gatehome=args.gatehome,
-            platform=args.platform,
-            log_actions=args.log_actions,
-            keep=args.keep,
-            debug=args.debug,
-        )
+    start_gate_worker(
+        port=args.port,
+        host=args.host,
+        auth_token=args.auth,
+        use_auth_token=not args.noauth,
+        gatehome=args.gatehome,
+        platform=args.platform,
+        log_actions=args.log_actions,
+        keep=args.keep,
+        debug=args.debug,
+    )
 
 
 if __name__ == "__main__":   # pragma: no cover
