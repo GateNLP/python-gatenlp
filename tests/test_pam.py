@@ -576,17 +576,17 @@ class TestPampacMisc:
         assert str(loc1) == "Location(0,0)"
 
         res1 = Result(location=Location(10, 10), span=Span(4, 10))
-        assert list(res1.anns4data()) == []
-        assert res1.data4name("xxx") == []
+        assert list(res1.anns4matches()) == []
+        assert res1.matches4name("xxx") == []
 
-        res2 = Result(location=Location(12, 12), span=Span(4, 12), data={"span": Span(3, 4), "name": "xx"})
-        assert list(res2.anns4data()) == []
-        assert res2.data4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
+        res2 = Result(matches={"span": Span(3, 4), "name": "xx"}, location=Location(12, 12), span=Span(4, 12))
+        assert list(res2.anns4matches()) == []
+        assert res2.matches4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
 
-        res3 = Result(location=Location(10, 10), span=Span(4, 10),
-                      data=[{"span": Span(3, 4), "name": "xx"}, {"span": Span(3, 4), "name": "yy"},])
-        assert list(res3.anns4data()) == []
-        assert res3.data4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
+        res3 = Result(matches=[{"span": Span(3, 4), "name": "xx"}, {"span": Span(3, 4), "name": "yy"}, ],
+                      location=Location(10, 10), span=Span(4, 10))
+        assert list(res3.anns4matches()) == []
+        assert res3.matches4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
 
         assert str(res1) == "Result(loc=Location(10,10),span=Span(4,10),ndata=0)"
         assert res1.__repr__() == "Result(loc=Location(10,10),span=Span(4,10),data=[])"
@@ -631,4 +631,4 @@ Caused by:
             return location, context
 
         parser1 = PampacParser(fun1)
-        assert parser1.parse(1,2) == (1, 2)
+        assert parser1.parse(1, 2) == (1, 2)
