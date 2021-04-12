@@ -2391,19 +2391,19 @@ def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
         if not silent_fail:
             raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
         else:
-            return
+            return None
     res = succ[resultidx]
     matches = res.matches4name(name)
     if not matches:
         if not silent_fail:
             raise Exception(f"No match info with name {name} in result")
         else:
-            return
+            return None
     if matchidx >= len(matches):
         if not silent_fail:
             raise Exception(f"No match info with index {matchidx}, length is {len(matches)}")
         else:
-            return
+            return None
     return matches[matchidx]
 
 
@@ -2425,7 +2425,7 @@ def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
         if not silent_fail:
             raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
         else:
-            return
+            return None
     res = succ[resultidx]
     if name:
         matches = res.matches4name(name)
@@ -2433,18 +2433,18 @@ def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
             if not silent_fail:
                 raise Exception(f"No match info with name {name} in result")
             else:
-                return
+                return None
         if matchidx >= len(matches):
             if not silent_fail:
                 raise Exception(f"No match info with index {matchidx}, length is {len(matches)}")
             else:
-                return
+                return None
         ret = matches[matchidx].get("span")
     else:
         ret = res.span
     if ret is None:
         if silent_fail:
-            return
+            return None
         else:
             raise Exception(f"No span found")
     return ret
@@ -2676,13 +2676,13 @@ class UpdateAnnFeatures:
         theann.features.update(feats)
 
 
-class RemoveAnn:
-    def __init__(self, name, ann=None, annset=None, resultidx=0, matchidx=0, which="first", silent_fail=True):
-        pass
-
-    def __call__(self, succ, context=None, location=None):
-        pass
-
+# class RemoveAnn:
+#     def __init__(self, name, ann=None, annset=None, resultidx=0, matchidx=0, which="first", silent_fail=True):
+#         pass
+#
+#     def __call__(self, succ, context=None, location=None):
+#         pass
+#
 
 # GETTERS
 
