@@ -8,7 +8,6 @@ import logging
 import importlib
 import copy as lib_copy
 from gatenlp.annotation_set import AnnotationSet
-from gatenlp.serialization.default import JS_GATENLP_URL, JS_JQUERY_URL
 from gatenlp.annotation import Annotation
 from gatenlp.offsetmapper import OffsetMapper, OFFSET_TYPE_PYTHON, OFFSET_TYPE_JAVA
 from gatenlp.features import Features
@@ -869,6 +868,7 @@ class Document:
             return self.__str__()
 
     def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
+        from gatenlp.serialization.default import JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
         from IPython.display import display as i_display
 
