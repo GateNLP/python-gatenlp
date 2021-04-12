@@ -102,13 +102,13 @@ class Result:
         assert span is not None
         if matches is not None:
             if isinstance(matches, dict):
-                self.data = [matches]
+                self.matches = [matches]
             elif isinstance(matches, Iterable):
-                self.data = list(matches)
+                self.matches = list(matches)
             else:
-                self.data = [matches]
+                self.matches = [matches]
         else:
-            self.data = []
+            self.matches = []
         self.location = location
         self.span = span
 
@@ -116,8 +116,8 @@ class Result:
         """
         Yields all the annotations, if any, in the results matches.
         """
-        for d in self.data:
-            tmp = d.get("ann")
+        for m in self.matches:
+            tmp = m.get("ann")
             if tmp:
                 yield tmp
 
@@ -125,13 +125,13 @@ class Result:
         """
         Return a list of data dictionaries with the given name.
         """
-        return [d for d in self.data if d.get("name") == name]
+        return [m for m in self.matches if m.get("name") == name]
 
     def __str__(self):
-        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),ndata={len(self.data)})"
+        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),nmatches={len(self.matches)})"
 
     def __repr__(self):
-        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),data={self.data})"
+        return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),matches={self.matches})"
 
 
 class Failure:
@@ -277,7 +277,7 @@ class Success(Iterable, Sized):
                 print(f"Result {idx}, location={res.location}:", file=file)
             else:
                 print(f"Result {idx}, location={res.location}:", file=file)
-            for jdx, d in enumerate(res.data):
+            for jdx, d in enumerate(res.matches):
                 if file:
                     print(f"  {jdx}: {d}", file)
                 else:
@@ -801,8 +801,8 @@ class PampacParser:
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get("ann")
+            for m in result.matches:
+                ann = m.get("ann")
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -833,8 +833,8 @@ class PampacParser:
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get("ann")
+            for m in result.matches:
+                ann = m.get("ann")
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -1510,9 +1510,9 @@ class AnnAt(_AnnBase):
                     text_location=start, ann_location=location.ann_location
                 )
                 if self.name is None:
-                    data = None
+                    matches = None
                 else:
-                    data = dict(
+                    matches = dict(
                         span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
@@ -1520,7 +1520,7 @@ class AnnAt(_AnnBase):
                     )
                 # update location
                 location = context.inc_location(location, by_index=1)
-                result = Result(matches=data, location=location, span=Span(next_ann.start, next_ann.end))
+                result = Result(matches=matches, location=location, span=Span(next_ann.start, next_ann.end))
                 if self.matchtype == "first":
                     return Success(result, context)
                 results.append(result)
@@ -1597,16 +1597,16 @@ class Ann(_AnnBase):
         if self._matcher(next_ann, doc=context.doc):
             newlocation = context.inc_location(location, by_index=1)
             if self.name is not None:
-                data = dict(
+                matches = dict(
                     span=Span(next_ann),
                     location=location,
                     ann=next_ann,
                     name=self.name,
                 )
             else:
-                data = None
+                matches = None
             span = Span(next_ann.start, next_ann.end)
-            return Success(Result(matches=data, location=newlocation, span=span), context)
+            return Success(Result(matches=matches, location=newlocation, span=span), context)
         else:
             return Failure(
                 location=location, context=context, parser=self.__class__.__name__
@@ -1691,7 +1691,7 @@ class Text(PampacParser):
                 lengrp = len(m.group())
                 newlocation = context.inc_location(location, by_offset=lengrp)
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         location=location,
                         span=Span(
                             location.text_location,
@@ -1702,12 +1702,12 @@ class Text(PampacParser):
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 span = Span(
                     location.text_location, location.text_location + len(m.group())
                 )
                 return Success(
-                    Result(matches=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1716,7 +1716,7 @@ class Text(PampacParser):
                 txt = txt.upper()
             if txt.startswith(self.text):
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         span=Span(
                             location.text_location,
                             location.text_location + len(self.text),
@@ -1726,14 +1726,14 @@ class Text(PampacParser):
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
                 # print(f"DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}")
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
                 return Success(
-                    Result(matches=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1766,7 +1766,7 @@ class Or(PampacParser):
                 result = ret.result(self.matchtype)
                 newloc = result.location
                 return Success(
-                    Result(result.data, location=newloc, span=result.span), context
+                    Result(result.matches, location=newloc, span=result.span), context
                 )
         return Failure(
             context=context, location=location, message="None of the choices match"
@@ -1878,7 +1878,7 @@ class Seq(PampacParser):
                 ret = parser.parse(location, context)
                 if ret.issuccess():
                     result = ret.result(self.select)
-                    for d in result.data:
+                    for d in result.matches:
                         datas.append(d)
                     location = result.location
                     if first:
@@ -1905,8 +1905,8 @@ class Seq(PampacParser):
                 ret = parser.parse(result.location, context)
                 if ret.issuccess():
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
+                        datas = result.matches.copy()
+                        for d in res.matches:
                             datas.append(d)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
@@ -2010,9 +2010,9 @@ class N(PampacParser):
                     ret = self.until.parse(location, context)
                     if ret.issuccess():
                         res = ret.result(self.select)
-                        data = res.data
-                        for d in data:
-                            datas.append(d)
+                        matches2 = res.matches
+                        for m in matches2:
+                            datas.append(m)
                         loc = res.location
                         end = res.span.end
                         if self.name:
@@ -2051,7 +2051,7 @@ class N(PampacParser):
                         first = False
                         start = result.span.start
                     end = result.span.end
-                    data = result.data
+                    data = result.matches
                     for d in data:
                         datas.append(d)
                     location = result.location
@@ -2062,7 +2062,7 @@ class N(PampacParser):
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
                     res = ret.result(self.select)
-                    data = res.data
+                    data = res.matches
                     loc = res.location
                     end = res.span.end
                     for d in data:
@@ -2096,8 +2096,8 @@ class N(PampacParser):
                     ret = self.until.parse(result.location, context)
                     if ret.issuccess():
                         for res in ret:
-                            data = result.data.copy()
-                            for dtmp in res.data:
+                            data = result.matches.copy()
+                            for dtmp in res.matches:
                                 data.append(dtmp)
                             loc = res.location
                             end = res.span.end
@@ -2125,8 +2125,8 @@ class N(PampacParser):
                 if ret.issuccess():
                     # for each of the results, try to continue matching
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
+                        datas = result.matches.copy()
+                        for d in res.matches:
                             datas.append(d)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
@@ -2138,7 +2138,7 @@ class N(PampacParser):
                     else:
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
-                            data = result.data
+                            data = result.matches
                             end = result.span.end
                             if self.name:
                                 data.append(

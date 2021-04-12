@@ -40,7 +40,7 @@ class TestPampac01:
         loc = ret[0].location
         assert loc.text_location == 2
         assert loc.ann_location == 1
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
 
         # do this with the match method
         ret = parser(doc, annlist)
@@ -49,7 +49,7 @@ class TestPampac01:
         loc = ret[0].location
         assert loc.text_location == 2
         assert loc.ann_location == 1
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
 
         # this does NOT first advance the annotation index so the annotation start index
         # is at least 2. So it matches the annotation at index 1 which ends at 1 which is
@@ -59,7 +59,7 @@ class TestPampac01:
         assert len(ret) == 1
         loc = ret[0].location
         assert loc == Location(1, 2)
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
 
         # by default we do advance, so we match the last annotation and end up at text
         # position 4 looking for annotation index 5
@@ -68,39 +68,39 @@ class TestPampac01:
         assert len(ret) == 1
         loc = ret[0].location
         assert loc == Location(3, 5)
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
 
         # Try to fail
         parser = Ann("Token")
         ret = parser(doc, annlist)
         assert isinstance(ret, Failure)
 
-        # Same without a name: should generate the same locations, but no data
+        # Same without a name: should generate the same locations, but no matches
         parser = Ann()
         ret = parser.parse(Location(), ctx)
         assert len(ret) == 1
         loc = ret[0].location
         assert loc.text_location == 2
         assert loc.ann_location == 1
-        assert len(ret[0].data) == 0
+        assert len(ret[0].matches) == 0
 
         ret = Ann().parse(loc, ctx)
         assert len(ret) == 1
         loc = ret[0].location
         assert loc.text_location == 3
         assert loc.ann_location == 5
-        assert len(ret[0].data) == 0
+        assert len(ret[0].matches) == 0
 
         parser = AnnAt(name="a2")
         ret = parser.parse(Location(), ctx)
         assert len(ret) == 1
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
 
         parser = AnnAt(matchtype="all", name="a3")
         ret = parser.parse(Location(), ctx)
         assert len(ret) == 2
-        assert len(ret[0].data) == 1
-        assert len(ret[1].data) == 1
+        assert len(ret[0].matches) == 1
+        assert len(ret[1].matches) == 1
 
         # Try Rule
         parser = Ann(name="a1")
@@ -115,7 +115,7 @@ class TestPampac01:
         loc = ret[0].location
         assert loc.text_location == 2
         assert loc.ann_location == 1
-        assert len(ret[0].data) == 1
+        assert len(ret[0].matches) == 1
         assert tmp["i"] == 1
 
         # use the call method instead
@@ -191,17 +191,17 @@ class TestPampac01:
         ret = Seq(AnnAt("Token", name="1"), AnnAt("Ann", name="2")).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 2
-        assert ret[0].data[0]["ann"].id == 2
-        assert ret[0].data[1]["ann"].id == 3
+        assert len(ret[0].matches) == 2
+        assert ret[0].matches[0]["ann"].id == 2
+        assert ret[0].matches[1]["ann"].id == 3
 
         # match sequence Ann/Ann, take first at each point
         ret = Seq(AnnAt("Ann", name="1"), AnnAt("Ann", name="2")).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 2
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
+        assert len(ret[0].matches) == 2
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
 
         # match sequence Ann/Ann, take first at each point, set useoffset=False so we do not skip to the
         # end offset of the previous before matching the next
@@ -211,24 +211,24 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 2
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 1
+        assert len(ret[0].matches) == 2
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 1
 
         # Make sure we get the correct set of annotations at position 0 and 2
         ret = AnnAt("Ann", name="a", matchtype="all").match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 2
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[1].data[0]["ann"].id == 1
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[1].matches[0]["ann"].id == 1
         # ret.pprint()
         ret = AnnAt("Ann", name="a", matchtype="all").match(
             doc, annlist, location=Location(2, 2)
         )
         assert ret.issuccess()
         assert len(ret) == 2
-        assert ret[0].data[0]["ann"].id == 3
-        assert ret[1].data[0]["ann"].id == 4
+        assert ret[0].matches[0]["ann"].id == 3
+        assert ret[1].matches[0]["ann"].id == 4
         # ret.pprint()
 
         # Match sequence of two anns in order, take all results
@@ -240,18 +240,18 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 4
-        assert len(ret[0].data) == 2
-        assert len(ret[1].data) == 2
-        assert len(ret[2].data) == 2
-        assert len(ret[3].data) == 2
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[1].data[0]["ann"].id == 0
-        assert ret[1].data[1]["ann"].id == 4
-        assert ret[2].data[0]["ann"].id == 1
-        assert ret[2].data[1]["ann"].id == 3
-        assert ret[3].data[0]["ann"].id == 1
-        assert ret[3].data[1]["ann"].id == 4
+        assert len(ret[0].matches) == 2
+        assert len(ret[1].matches) == 2
+        assert len(ret[2].matches) == 2
+        assert len(ret[3].matches) == 2
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[1].matches[0]["ann"].id == 0
+        assert ret[1].matches[1]["ann"].id == 4
+        assert ret[2].matches[0]["ann"].id == 1
+        assert ret[2].matches[1]["ann"].id == 3
+        assert ret[3].matches[0]["ann"].id == 1
+        assert ret[3].matches[1]["ann"].id == 4
 
     def test03(self):
         """
@@ -284,12 +284,12 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 3
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 5
+        assert len(ret[0].matches) == 3
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 5
 
-        # Same as before, but with a name, so we should get one additional data for the whole sequence
+        # Same as before, but with a name, so we should get one additional matches for the whole sequence
         # with a span
         ret = N(
             AnnAt("Ann", name="a1", matchtype="first"),
@@ -301,11 +301,11 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 4
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 5
-        assert ret[0].data[3]["span"] == Span(0, 6)
+        assert len(ret[0].matches) == 4
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 5
+        assert ret[0].matches[3]["span"] == Span(0, 6)
 
         # single Ann, single result from N
         # this should return annotation ids 0, 3, 5, 8
@@ -318,11 +318,11 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 4
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 5
-        assert ret[0].data[3]["ann"].id == 8
+        assert len(ret[0].matches) == 4
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 5
+        assert ret[0].matches[3]["ann"].id == 8
 
         # single Ann, single result from N, with early stopping at Person
         # this should return annotation ids 0, 3, 7
@@ -336,14 +336,14 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 3
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 7
+        assert len(ret[0].matches) == 3
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 7
 
         # Try a match with min=0 and max=99 that does not succeed
         # single Ann, single result from N
-        # this should return an empty list for data
+        # this should return an empty list for matches
         ret = N(
             AnnAt("NotThere", name="a1", matchtype="first"),
             min=0,
@@ -353,11 +353,11 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 0
+        assert len(ret[0].matches) == 0
 
         # Try a match with min=0 and max=99 that does not succeed
         # single Ann, single result from N
-        # this should return an empty list for data
+        # this should return an empty list for matches
         ret = N(
             AnnAt("Ann", name="a1", matchtype="first"),
             min=0,
@@ -367,11 +367,11 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 4
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 5
-        assert ret[0].data[3]["ann"].id == 8
+        assert len(ret[0].matches) == 4
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 5
+        assert ret[0].matches[3]["ann"].id == 8
 
     def test04(self):
         """
@@ -404,10 +404,10 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 3
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 5
+        assert len(ret[0].matches) == 3
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 5
 
         # multiple Anns, all results from N
         # should return 0,1
@@ -420,10 +420,10 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 2
-        assert len(ret[0].data) == 1
-        assert len(ret[1].data) == 1
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[1].data[0]["ann"].id == 1
+        assert len(ret[0].matches) == 1
+        assert len(ret[1].matches) == 1
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[1].matches[0]["ann"].id == 1
 
         # multiple Anns, all results from N
         ret = N(
@@ -435,18 +435,18 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 4
-        assert len(ret[0].data) == 2
-        assert len(ret[1].data) == 2
-        assert len(ret[2].data) == 2
-        assert len(ret[3].data) == 2
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[1].data[0]["ann"].id == 0
-        assert ret[1].data[1]["ann"].id == 4
-        assert ret[2].data[0]["ann"].id == 1
-        assert ret[2].data[1]["ann"].id == 3
-        assert ret[3].data[0]["ann"].id == 1
-        assert ret[3].data[1]["ann"].id == 4
+        assert len(ret[0].matches) == 2
+        assert len(ret[1].matches) == 2
+        assert len(ret[2].matches) == 2
+        assert len(ret[3].matches) == 2
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[1].matches[0]["ann"].id == 0
+        assert ret[1].matches[1]["ann"].id == 4
+        assert ret[2].matches[0]["ann"].id == 1
+        assert ret[2].matches[1]["ann"].id == 3
+        assert ret[3].matches[0]["ann"].id == 1
+        assert ret[3].matches[1]["ann"].id == 4
 
         # multiple Anns, all results from N
         # just three for the first ann: 0,1,2
@@ -459,12 +459,12 @@ class TestPampac01:
         ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 3
-        assert len(ret[0].data) == 1
-        assert len(ret[1].data) == 1
-        assert len(ret[2].data) == 1
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[1].data[0]["ann"].id == 1
-        assert ret[2].data[0]["ann"].id == 2
+        assert len(ret[0].matches) == 1
+        assert len(ret[1].matches) == 1
+        assert len(ret[2].matches) == 1
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[1].matches[0]["ann"].id == 1
+        assert ret[2].matches[0]["ann"].id == 2
 
         # This should just find the Token as the first and only match!
         ret = N(AnnAt("Ann", name="a1", matchtype="all"),
@@ -476,8 +476,8 @@ class TestPampac01:
                 ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 1
-        assert len(ret[0].data) == 1
-        assert ret[0].data[0]["ann"].id == 2
+        assert len(ret[0].matches) == 1
+        assert ret[0].matches[0]["ann"].id == 2
 
 
         # This should terminate with Person and find all paths that can lead up to PErson:
@@ -491,22 +491,22 @@ class TestPampac01:
                 ).match(doc, annlist)
         assert ret.issuccess()
         assert len(ret) == 4
-        assert len(ret[0].data) == 3
-        assert len(ret[1].data) == 3
-        assert len(ret[2].data) == 3
-        assert len(ret[3].data) == 3
-        assert ret[0].data[0]["ann"].id == 0
-        assert ret[0].data[1]["ann"].id == 3
-        assert ret[0].data[2]["ann"].id == 7
-        assert ret[1].data[0]["ann"].id == 0
-        assert ret[1].data[1]["ann"].id == 4
-        assert ret[1].data[2]["ann"].id == 7
-        assert ret[2].data[0]["ann"].id == 1
-        assert ret[2].data[1]["ann"].id == 3
-        assert ret[2].data[2]["ann"].id == 7
-        assert ret[3].data[0]["ann"].id == 1
-        assert ret[3].data[1]["ann"].id == 4
-        assert ret[3].data[2]["ann"].id == 7
+        assert len(ret[0].matches) == 3
+        assert len(ret[1].matches) == 3
+        assert len(ret[2].matches) == 3
+        assert len(ret[3].matches) == 3
+        assert ret[0].matches[0]["ann"].id == 0
+        assert ret[0].matches[1]["ann"].id == 3
+        assert ret[0].matches[2]["ann"].id == 7
+        assert ret[1].matches[0]["ann"].id == 0
+        assert ret[1].matches[1]["ann"].id == 4
+        assert ret[1].matches[2]["ann"].id == 7
+        assert ret[2].matches[0]["ann"].id == 1
+        assert ret[2].matches[1]["ann"].id == 3
+        assert ret[2].matches[2]["ann"].id == 7
+        assert ret[3].matches[0]["ann"].id == 1
+        assert ret[3].matches[1]["ann"].id == 4
+        assert ret[3].matches[2]["ann"].id == 7
 
     def test05(self):
         """
@@ -588,8 +588,8 @@ class TestPampacMisc:
         assert list(res3.anns4matches()) == []
         assert res3.matches4name("xx") == [{"span": Span(3, 4), "name": "xx"}]
 
-        assert str(res1) == "Result(loc=Location(10,10),span=Span(4,10),ndata=0)"
-        assert res1.__repr__() == "Result(loc=Location(10,10),span=Span(4,10),data=[])"
+        assert str(res1) == "Result(loc=Location(10,10),span=Span(4,10),nmatches=0)"
+        assert res1.__repr__() == "Result(loc=Location(10,10),span=Span(4,10),matches=[])"
 
         fail1 = Failure()
         assert not fail1.issuccess()
