@@ -4,6 +4,10 @@
 
 * ! `AnnotationSet.with_type()` previously returned a detached set with all annotations if no types were specified,
   this now returns a detached set with no annotations which is more logical. 
+* Fixed bug in Token Gazetteer: issue #93
+* Pampac: use the term "matches" instead of "data" for the named information stored for each named pattern that
+  fits the document. A single one of these is often called "match info" and the index for a specific info is called
+  "matchidx". See issue #89
 
 ## 1.0.4 (2021-04-10)
 
