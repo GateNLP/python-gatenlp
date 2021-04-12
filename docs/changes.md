@@ -1,5 +1,10 @@
 # Versions and changes
 
+## 1.0.5 (upcoming)
+
+* ! `AnnotationSet.with_type()` previously returned a detached set with all annotations if no types were specified,
+  this now returns a detached set with no annotations which is more logical. 
+
 ## 1.0.4 (2021-04-10)
 
 * The GateWorkerAnnotator parameters have been changed: instead of parameters gatehom and port,

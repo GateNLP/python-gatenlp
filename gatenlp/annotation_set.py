@@ -881,7 +881,7 @@ class AnnotationSet:
         Args:
           anntype: one or more types or type lists. The union of all types
               specified that way is used to filter the annotations. If no type
-              is specified, all annotations are selected.
+              is specified, an empty detached set is returned.
 
           non_overlapping: if True, only return annotations of any of the
               given types which do not overlap with other annotations. If
@@ -901,7 +901,7 @@ class AnnotationSet:
                 for t in atype:
                     atypes.append(t)
         if not atypes:
-            return self.detach()
+            return self.detach(restrict_to=[])
         self._create_index_by_type()
         annids = set()
         for t in atypes:
