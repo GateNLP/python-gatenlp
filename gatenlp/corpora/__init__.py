@@ -242,10 +242,11 @@ class JsonLinesFileSource(DocumentSource):
         Args:
             file: the file path (a string) or an open file handle.
             text_field: the field name where to get the document text from.
-            feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
             data_fields: if a list of names, store these fields in the "__data" feature. if True, store all fields.
             data_feature: the name of the data feature, default is "__data"
         """
+        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
+
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields
