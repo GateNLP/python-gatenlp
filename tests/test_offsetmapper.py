@@ -37,3 +37,4 @@ class TestOffsetMapper01:
         for idx in range(len(doc1)):
             assert idx == om1.convert_to_java(idx)
             assert idx == om1.convert_to_python(idx)
+

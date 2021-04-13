@@ -1,6 +1,9 @@
 """
 Module for testing the Document class.
 """
+import json
+from gatenlp.document import Document, OFFSET_TYPE_JAVA
+from gatenlp.span import Span
 
 
 class TestDocument01:
@@ -9,9 +12,6 @@ class TestDocument01:
         """
         Unit test method (make linter happy)
         """
-        from gatenlp.document import Document, OFFSET_TYPE_JAVA
-        from gatenlp.span import Span
-
         doc1 = Document(
             "This is a \U0001F4A9 document.\n이것은 문서입니다 \U0001F4A9\nЭто \U0001F4A9 документ\nاین یک سند \U0001F4A9 است"
         )
@@ -51,3 +51,31 @@ class TestDocument01:
         at8 = d2annset1.startingat(8)
         # print("AT8: {}".format(at8), file=sys.stderr)
         assert len(at8) == 1
+        doc1.to_offset_type(OFFSET_TYPE_JAVA)
+        jsonstr2 = doc1.save_mem()
+        data = json.loads(jsonstr2)
+        anndicts = data["annotation_sets"][""]["annotations"]
+        assert anndicts[2]["end"] == 23
+
+    def test_document01m02(self):
+        """
+        Unit test method (make linter happy)
+        """
+        from gatenlp.document import Document
+        from gatenlp.changelog import ChangeLog
+        chl = ChangeLog()
+        doc1 = Document("some document", changelog=chl)
+        doc1.name = "name"
+        assert chl.changes is not None
+        assert len(chl.changes) == 1
+        assert chl.changes[0]["name"] == "name"
+
+    def test_document01m03(self):
+        """
+        Unit test method (make linter happy)
+        """
+        doc = Document()
+        assert doc.text is None
+        doc.text = "some text"
+        assert doc.text == "some text"
+        
