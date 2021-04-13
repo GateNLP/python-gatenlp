@@ -30,6 +30,53 @@ def make_doc():
     set1.add(36, 42, "Ann12")
     return doc
 
+class TestAnnotationSet01:
+
+    def test_annotationset01m01(self):
+        """
+        Unit test method (make linter happy)
+        """
+        from gatenlp.document import Document
+
+        txt = " ".join([f"word{i:02d}" for i in range(10)])
+        doc = Document(txt)
+        annset = doc.annset()
+        # create a Token annotation for each word
+        # create "At3_1" annotations for a single token whenever i is a multiple of 3
+        # create "At3_2" annotations for two tokens whenever i is a multiple of 3
+        for i in range(10):
+            annset.add(i * 7, i * 7 + 6, "Token", features={"i": i})
+            if i % 3 == 0:
+                annset.add(i * 7, i * 7 + 6, "At3_1", features={"i": i})
+                # cannot span two tokens at the very end
+                if i < 9:
+                    annset.add(i * 7, i * 7 + 6 + 7, "At3_2", features={"i": i})
+        # check: get all Token annotations
+        ret = annset.with_type("Token")
+        assert len(ret) == 10
+        # check get all At3_1 annotations
+        ret = annset.with_type("At3_1")
+        assert len(ret) == 4
+        ret = annset.with_type("At3_2")
+        assert len(ret) == 3
+        ret = annset.with_type("Token", "At3_1")
+        assert len(ret) == 14
+        ret = annset.with_type("At3_1", "Token")
+        assert len(ret) == 14
+        ret = annset.with_type("Token", "At3_1", non_overlapping=True)
+        # print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_1={ret}")
+        assert len(ret) == 10
+        ret = annset.with_type("Token", "At3_2", non_overlapping=True)
+        # print(f"\n!!!!!!!!!!!!DEBUG: anns for Token/At3_2={ret}")
+        assert len(ret) == 10
+        ret = annset.with_type("At3_1", "Token", non_overlapping=True)
+        # print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_1/Token={ret}")
+        assert len(ret) == 10
+        ret = annset.with_type("At3_2", "Token", non_overlapping=True)
+        # print(f"\n!!!!!!!!!!!!DEBUG: anns for At3_2/Token={ret}")
+        assert len(ret) == 7
+        # TODO: check other kinds of overlap in the original set!
+
 
 class TestAnnotationSetRels:
 
