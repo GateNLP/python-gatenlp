@@ -1,0 +1,23 @@
+strictness: medium
+doc-warnings: true
+test-warnings: true
+autodetect: true
+member-warnings: true
+
+pylint:
+  run: false
+
+pyroma:
+  run: true
+
+frosted:
+  run: true
+
+vulture:
+  run: true
+
+dodgy:
+  run: true
+
+pep257:
+  run: trie

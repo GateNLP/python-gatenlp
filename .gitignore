@@ -1,7 +1,11 @@
 .idea
+
+/debug
+/html-ann-viewer/debug*
 /tmpdebug
 /gatenlp/_version.py
 /gate-downloader/gate.classpath
+/benchmark/doc*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
