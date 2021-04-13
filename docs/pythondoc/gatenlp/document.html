@@ -899,7 +899,7 @@ class Document:
             return self.__str__()
 
     def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
-        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
+        from gatenlp.serialization.default import JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
         from IPython.display import display as i_display
 
@@ -965,124 +965,124 @@ class Document:
         annset._owner_doc = self
 
 
-class MultiDocument(Document):
-    &#34;&#34;&#34;
-    NOTE: This is just experimental for now, DO NOT USE!
-
-    A MultiDocument can store more than one document, each identified by their ids. One of those
-    documents is always the &#34;active&#34; one and the MultiDocument can be used just like a Document
-    with that content. In addition, there are methods to make each of the other documents active
-    and to create mappings between annotations of pairs of documents.
-
-    An AnnotationMapping is something that maps annotations to annotations, either for the same
-    document, from the same or different sets, of for different documents. Once an annotation
-    becomes part of a mapping, that annotation is becoming immutable. Even if the original
-    annotation in the document changes or gets removed, the mapping retains the original copy of
-    the annotation until the mapping is modified or removed.
-    &#34;&#34;&#34;
-
-    # TODO: ALL necessary fields of the document must be references of mutable objects so that
-    # if something is changed for the active document the one stored in the documents map is
-    # really updated as well, or we must override the updating method to change both!
-    # A better way could be to override all methods to always directly change the document in the
-    # documents map, and simply pass on all calls to the activated document.
-    # In that case, to_dict and from_dict would actually generate the fields for normal document
-    # readers and ignore them on restore
-    def __init__(
-        self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
-    ):
-        logger.warning(&#34;Experimental feature, DO NOT USE&#34;)
-        self.documents = {}  # map from document id to document
-        self._mappings = None  # TODO: we need to implement this
-        self._docid = None
-        doc = Document(text, features=features, changelog=changelog)
-        self.documents[docid] = doc
-        self.activate(docid)
-
-    @property
-    def docid(self):
-        return self._docid
-
-    def activate(self, docid=0):
-        if docid not in self.documents:
-            raise Exception(f&#34;Cannot activate id {docid}, not in MultiDocument&#34;)
-        doc = self.documents[docid]
-        self._changelog = doc._changelog
-        self._features = doc._features
-        self._annotation_sets = doc._annotation_sets
-        self._text = doc._text
-        self.offset_type = OFFSET_TYPE_PYTHON
-        self._name = doc._name
-        self._docid = docid
-
-    def add_document(self, doc, docid=None, activate=False):
-        if docid is None:
-            docid = len(self.documents)
-        elif docid in self.documents:
-            raise Exception(
-                f&#34;Cannot add document to MultiDocument, id {docid} already exists&#34;
-            )
-        self.documents[docid] = doc
-        if activate:
-            self.activate(docid)
-        return docid
-
-    def to_dict(self, offset_type=None, **kwargs):
-        # TODO: check what to do with the offset type parameter!
-        # The basic strategy is that we simply create the dictionary for the active document plus
-        # the entries for the documents map and the annotation mappings. That way, any reader of the
-        # dict representation which just ignored unknown fields can still read this in as a normal
-        # document from the active document.
-        # The drawback is that the active document is represented twice, but OK
-        thedict = {
-            &#34;annotation_sets&#34;: {
-                name: aset.to_dict() for name, aset in self._annotation_sets.items()
-            },
-            &#34;text&#34;: self._text,
-            &#34;features&#34;: self._features.to_dict(),
-            &#34;offset_type&#34;: self.offset_type,
-            &#34;name&#34;: self.name,
-        }
-        thedict[&#34;documents&#34;] = {
-            docid: doc.to_dict() for docid, doc in self.documents.items()
-        }
-        thedict[&#34;docid&#34;] = self._docid
-        thedict[&#34;mappings&#34;] = self._mappings
-        return thedict
-
-    @staticmethod
-    def from_dict(dictrepr, **kwargs):
-        &#34;&#34;&#34;
-        Create a MultiDocument from the dictionary representation.
-
-        Args:
-            dictrepr: the dictionary representation
-            **kwargs: additional kwargs to pass on
-
-        Returns:
-
-        &#34;&#34;&#34;
-        feats = dictrepr.get(&#34;features&#34;)
-        docid = dictrepr.get(&#34;docid&#34;)
-        doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
-        doc.name = dictrepr.get(&#34;name&#34;)
-        doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
-        if (
-            doc.offset_type != OFFSET_TYPE_JAVA
-            and doc.offset_type != OFFSET_TYPE_PYTHON
-        ):
-            raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
-        annsets = {
-            name: AnnotationSet.from_dict(adict, owner_doc=doc)
-            for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
-        }
-        doc._annotation_sets = annsets
-        doc.documents = {
-            did: Document.from_dict(d)
-            for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
-        }
-        # TODO: get the mappings back!
-        return doc</code></pre>
+# class MultiDocument(Document):
+#     &#34;&#34;&#34;
+#     NOTE: This is just experimental for now, DO NOT USE!
+#
+#     A MultiDocument can store more than one document, each identified by their ids. One of those
+#     documents is always the &#34;active&#34; one and the MultiDocument can be used just like a Document
+#     with that content. In addition, there are methods to make each of the other documents active
+#     and to create mappings between annotations of pairs of documents.
+#
+#     An AnnotationMapping is something that maps annotations to annotations, either for the same
+#     document, from the same or different sets, of for different documents. Once an annotation
+#     becomes part of a mapping, that annotation is becoming immutable. Even if the original
+#     annotation in the document changes or gets removed, the mapping retains the original copy of
+#     the annotation until the mapping is modified or removed.
+#     &#34;&#34;&#34;
+#
+#     # TODO: ALL necessary fields of the document must be references of mutable objects so that
+#     # if something is changed for the active document the one stored in the documents map is
+#     # really updated as well, or we must override the updating method to change both!
+#     # A better way could be to override all methods to always directly change the document in the
+#     # documents map, and simply pass on all calls to the activated document.
+#     # In that case, to_dict and from_dict would actually generate the fields for normal document
+#     # readers and ignore them on restore
+#     def __init__(
+#         self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
+#     ):
+#         logger.warning(&#34;Experimental feature, DO NOT USE&#34;)
+#         self.documents = {}  # map from document id to document
+#         self._mappings = None  # TODO: we need to implement this
+#         self._docid = None
+#         doc = Document(text, features=features, changelog=changelog)
+#         self.documents[docid] = doc
+#         self.activate(docid)
+#
+#     @property
+#     def docid(self):
+#         return self._docid
+#
+#     def activate(self, docid=0):
+#         if docid not in self.documents:
+#             raise Exception(f&#34;Cannot activate id {docid}, not in MultiDocument&#34;)
+#         doc = self.documents[docid]
+#         self._changelog = doc._changelog
+#         self._features = doc._features
+#         self._annotation_sets = doc._annotation_sets
+#         self._text = doc._text
+#         self.offset_type = OFFSET_TYPE_PYTHON
+#         self._name = doc._name
+#         self._docid = docid
+#
+#     def add_document(self, doc, docid=None, activate=False):
+#         if docid is None:
+#             docid = len(self.documents)
+#         elif docid in self.documents:
+#             raise Exception(
+#                 f&#34;Cannot add document to MultiDocument, id {docid} already exists&#34;
+#             )
+#         self.documents[docid] = doc
+#         if activate:
+#             self.activate(docid)
+#         return docid
+#
+#     def to_dict(self, offset_type=None, **kwargs):
+#         # TODO: check what to do with the offset type parameter!
+#         # The basic strategy is that we simply create the dictionary for the active document plus
+#         # the entries for the documents map and the annotation mappings. That way, any reader of the
+#         # dict representation which just ignored unknown fields can still read this in as a normal
+#         # document from the active document.
+#         # The drawback is that the active document is represented twice, but OK
+#         thedict = {
+#             &#34;annotation_sets&#34;: {
+#                 name: aset.to_dict() for name, aset in self._annotation_sets.items()
+#             },
+#             &#34;text&#34;: self._text,
+#             &#34;features&#34;: self._features.to_dict(),
+#             &#34;offset_type&#34;: self.offset_type,
+#             &#34;name&#34;: self.name,
+#         }
+#         thedict[&#34;documents&#34;] = {
+#             docid: doc.to_dict() for docid, doc in self.documents.items()
+#         }
+#         thedict[&#34;docid&#34;] = self._docid
+#         thedict[&#34;mappings&#34;] = self._mappings
+#         return thedict
+#
+#     @staticmethod
+#     def from_dict(dictrepr, **kwargs):
+#         &#34;&#34;&#34;
+#         Create a MultiDocument from the dictionary representation.
+#
+#         Args:
+#             dictrepr: the dictionary representation
+#             **kwargs: additional kwargs to pass on
+#
+#         Returns:
+#
+#         &#34;&#34;&#34;
+#         feats = dictrepr.get(&#34;features&#34;)
+#         docid = dictrepr.get(&#34;docid&#34;)
+#         doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
+#         doc.name = dictrepr.get(&#34;name&#34;)
+#         doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
+#         if (
+#             doc.offset_type != OFFSET_TYPE_JAVA
+#             and doc.offset_type != OFFSET_TYPE_PYTHON
+#         ):
+#             raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
+#         annsets = {
+#             name: AnnotationSet.from_dict(adict, owner_doc=doc)
+#             for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+#         }
+#         doc._annotation_sets = annsets
+#         doc.documents = {
+#             did: Document.from_dict(d)
+#             for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
+#         }
+#         # TODO: get the mappings back!
+#         return doc</code></pre>
 </details>
 </section>
 <section>
@@ -1969,7 +1969,7 @@ offsets accordingly)</li>
             return self.__str__()
 
     def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
-        from gatenlp.serialization.default import HtmlAnnViewerSerializer, JS_GATENLP_URL, JS_JQUERY_URL
+        from gatenlp.serialization.default import JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
         from IPython.display import display as i_display
 
@@ -2034,10 +2034,6 @@ offsets accordingly)</li>
         self._annotation_sets[name] = annset
         annset._owner_doc = self</code></pre>
 </details>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="gatenlp.document.MultiDocument" href="#gatenlp.document.MultiDocument">MultiDocument</a></li>
-</ul>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.document.Document.from_dict"><code class="name flex">
@@ -2422,220 +2418,6 @@ otherwise None.</p>
 </dd>
 </dl>
 </dd>
-<dt id="gatenlp.document.MultiDocument"><code class="flex name class">
-<span>class <span class="ident">MultiDocument</span></span>
-<span>(</span><span>text: str = None, features=None, changelog: <a title="gatenlp.changelog.ChangeLog" href="changelog.html#gatenlp.changelog.ChangeLog">ChangeLog</a> = None, docid=0)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>NOTE: This is just experimental for now, DO NOT USE!</p>
-<p>A MultiDocument can store more than one document, each identified by their ids. One of those
-documents is always the "active" one and the MultiDocument can be used just like a Document
-with that content. In addition, there are methods to make each of the other documents active
-and to create mappings between annotations of pairs of documents.</p>
-<p>An AnnotationMapping is something that maps annotations to annotations, either for the same
-document, from the same or different sets, of for different documents. Once an annotation
-becomes part of a mapping, that annotation is becoming immutable. Even if the original
-annotation in the document changes or gets removed, the mapping retains the original copy of
-the annotation until the mapping is modified or removed.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MultiDocument(Document):
-    &#34;&#34;&#34;
-    NOTE: This is just experimental for now, DO NOT USE!
-
-    A MultiDocument can store more than one document, each identified by their ids. One of those
-    documents is always the &#34;active&#34; one and the MultiDocument can be used just like a Document
-    with that content. In addition, there are methods to make each of the other documents active
-    and to create mappings between annotations of pairs of documents.
-
-    An AnnotationMapping is something that maps annotations to annotations, either for the same
-    document, from the same or different sets, of for different documents. Once an annotation
-    becomes part of a mapping, that annotation is becoming immutable. Even if the original
-    annotation in the document changes or gets removed, the mapping retains the original copy of
-    the annotation until the mapping is modified or removed.
-    &#34;&#34;&#34;
-
-    # TODO: ALL necessary fields of the document must be references of mutable objects so that
-    # if something is changed for the active document the one stored in the documents map is
-    # really updated as well, or we must override the updating method to change both!
-    # A better way could be to override all methods to always directly change the document in the
-    # documents map, and simply pass on all calls to the activated document.
-    # In that case, to_dict and from_dict would actually generate the fields for normal document
-    # readers and ignore them on restore
-    def __init__(
-        self, text: str = None, features=None, changelog: ChangeLog = None, docid=0
-    ):
-        logger.warning(&#34;Experimental feature, DO NOT USE&#34;)
-        self.documents = {}  # map from document id to document
-        self._mappings = None  # TODO: we need to implement this
-        self._docid = None
-        doc = Document(text, features=features, changelog=changelog)
-        self.documents[docid] = doc
-        self.activate(docid)
-
-    @property
-    def docid(self):
-        return self._docid
-
-    def activate(self, docid=0):
-        if docid not in self.documents:
-            raise Exception(f&#34;Cannot activate id {docid}, not in MultiDocument&#34;)
-        doc = self.documents[docid]
-        self._changelog = doc._changelog
-        self._features = doc._features
-        self._annotation_sets = doc._annotation_sets
-        self._text = doc._text
-        self.offset_type = OFFSET_TYPE_PYTHON
-        self._name = doc._name
-        self._docid = docid
-
-    def add_document(self, doc, docid=None, activate=False):
-        if docid is None:
-            docid = len(self.documents)
-        elif docid in self.documents:
-            raise Exception(
-                f&#34;Cannot add document to MultiDocument, id {docid} already exists&#34;
-            )
-        self.documents[docid] = doc
-        if activate:
-            self.activate(docid)
-        return docid
-
-    def to_dict(self, offset_type=None, **kwargs):
-        # TODO: check what to do with the offset type parameter!
-        # The basic strategy is that we simply create the dictionary for the active document plus
-        # the entries for the documents map and the annotation mappings. That way, any reader of the
-        # dict representation which just ignored unknown fields can still read this in as a normal
-        # document from the active document.
-        # The drawback is that the active document is represented twice, but OK
-        thedict = {
-            &#34;annotation_sets&#34;: {
-                name: aset.to_dict() for name, aset in self._annotation_sets.items()
-            },
-            &#34;text&#34;: self._text,
-            &#34;features&#34;: self._features.to_dict(),
-            &#34;offset_type&#34;: self.offset_type,
-            &#34;name&#34;: self.name,
-        }
-        thedict[&#34;documents&#34;] = {
-            docid: doc.to_dict() for docid, doc in self.documents.items()
-        }
-        thedict[&#34;docid&#34;] = self._docid
-        thedict[&#34;mappings&#34;] = self._mappings
-        return thedict
-
-    @staticmethod
-    def from_dict(dictrepr, **kwargs):
-        &#34;&#34;&#34;
-        Create a MultiDocument from the dictionary representation.
-
-        Args:
-            dictrepr: the dictionary representation
-            **kwargs: additional kwargs to pass on
-
-        Returns:
-
-        &#34;&#34;&#34;
-        feats = dictrepr.get(&#34;features&#34;)
-        docid = dictrepr.get(&#34;docid&#34;)
-        doc = MultiDocument(dictrepr.get(&#34;text&#34;), features=feats, docid=docid)
-        doc.name = dictrepr.get(&#34;name&#34;)
-        doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
-        if (
-            doc.offset_type != OFFSET_TYPE_JAVA
-            and doc.offset_type != OFFSET_TYPE_PYTHON
-        ):
-            raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
-        annsets = {
-            name: AnnotationSet.from_dict(adict, owner_doc=doc)
-            for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
-        }
-        doc._annotation_sets = annsets
-        doc.documents = {
-            did: Document.from_dict(d)
-            for did, d in dictrepr.get(&#34;documents&#34;, {}).items()
-        }
-        # TODO: get the mappings back!
-        return doc</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="gatenlp.document.Document" href="#gatenlp.document.Document">Document</a></li>
-</ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="gatenlp.document.MultiDocument.from_dict"><code class="name flex">
-<span>def <span class="ident">from_dict</span></span>(<span>dictrepr, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a MultiDocument from the dictionary representation.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>dictrepr</code></strong></dt>
-<dd>the dictionary representation</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>additional kwargs to pass on</dd>
-</dl>
-<p>Returns:</p></div>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="gatenlp.document.MultiDocument.docid"><code class="name">property/get <span class="ident">docid</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def docid(self):
-    return self._docid</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="gatenlp.document.MultiDocument.activate"><code class="name flex">
-<span>def <span class="ident">activate</span></span>(<span>self, docid=0)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.document.MultiDocument.add_document"><code class="name flex">
-<span>def <span class="ident">add_document</span></span>(<span>self, doc, docid=None, activate=False)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="gatenlp.document.Document" href="#gatenlp.document.Document">Document</a></b></code>:
-<ul class="hlist">
-<li><code><a title="gatenlp.document.Document.annset" href="#gatenlp.document.Document.annset">annset</a></code></li>
-<li><code><a title="gatenlp.document.Document.annset_names" href="#gatenlp.document.Document.annset_names">annset_names</a></code></li>
-<li><code><a title="gatenlp.document.Document.apply_changes" href="#gatenlp.document.Document.apply_changes">apply_changes</a></code></li>
-<li><code><a title="gatenlp.document.Document.attach" href="#gatenlp.document.Document.attach">attach</a></code></li>
-<li><code><a title="gatenlp.document.Document.changelog" href="#gatenlp.document.Document.changelog">changelog</a></code></li>
-<li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
-<li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
-<li><code><a title="gatenlp.document.Document.features" href="#gatenlp.document.Document.features">features</a></code></li>
-<li><code><a title="gatenlp.document.Document.load" href="#gatenlp.document.Document.load">load</a></code></li>
-<li><code><a title="gatenlp.document.Document.load_mem" href="#gatenlp.document.Document.load_mem">load_mem</a></code></li>
-<li><code><a title="gatenlp.document.Document.remove_annset" href="#gatenlp.document.Document.remove_annset">remove_annset</a></code></li>
-<li><code><a title="gatenlp.document.Document.save" href="#gatenlp.document.Document.save">save</a></code></li>
-<li><code><a title="gatenlp.document.Document.save_mem" href="#gatenlp.document.Document.save_mem">save_mem</a></code></li>
-<li><code><a title="gatenlp.document.Document.show" href="#gatenlp.document.Document.show">show</a></code></li>
-<li><code><a title="gatenlp.document.Document.text" href="#gatenlp.document.Document.text">text</a></code></li>
-<li><code><a title="gatenlp.document.Document.to_dict" href="#gatenlp.document.Document.to_dict">to_dict</a></code></li>
-<li><code><a title="gatenlp.document.Document.to_offset_type" href="#gatenlp.document.Document.to_offset_type">to_offset_type</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
 </dl>
 </section>
 </article>
@@ -2674,15 +2456,6 @@ def docid(self):
 <li><code><a title="gatenlp.document.Document.text" href="#gatenlp.document.Document.text">text</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_dict" href="#gatenlp.document.Document.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_offset_type" href="#gatenlp.document.Document.to_offset_type">to_offset_type</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="gatenlp.document.MultiDocument" href="#gatenlp.document.MultiDocument">MultiDocument</a></code></h4>
-<ul class="">
-<li><code><a title="gatenlp.document.MultiDocument.activate" href="#gatenlp.document.MultiDocument.activate">activate</a></code></li>
-<li><code><a title="gatenlp.document.MultiDocument.add_document" href="#gatenlp.document.MultiDocument.add_document">add_document</a></code></li>
-<li><code><a title="gatenlp.document.MultiDocument.docid" href="#gatenlp.document.MultiDocument.docid">docid</a></code></li>
-<li><code><a title="gatenlp.document.MultiDocument.from_dict" href="#gatenlp.document.MultiDocument.from_dict">from_dict</a></code></li>
 </ul>
 </li>
 </ul>

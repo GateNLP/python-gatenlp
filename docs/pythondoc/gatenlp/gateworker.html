@@ -62,7 +62,7 @@ logger.setLevel(logging.INFO)
 __pdoc__ = {&#34;GateWorkerAnnotator.__call__&#34;: True}
 
 
-def classpath_sep(platform=None):
+def classpath_sep(platform=None):  # pragma: no cover
     &#34;&#34;&#34;
     Get the system-specific classpath separator character.
 
@@ -87,7 +87,7 @@ def classpath_sep(platform=None):
         return &#34;:&#34;
 
 
-def gate_classpath(gatehome, platform=None):
+def gate_classpath(gatehome, platform=None):  # pragma: no cover
     &#34;&#34;&#34;
     Return the GATE classpath components as a string, with the path seperator characters appropriate
     for the operating system.
@@ -117,9 +117,9 @@ def gate_classpath(gatehome, platform=None):
             raise Exception(
                 &#34;File not found {}, distribution may need compiling&#34;.format(cpfile)
             )
-        with open(cpfile, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as fp:
-            cp = fp.read()
-            return cp + cpsep + bindir
+        with open(cpfile, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+            c_p = infp.read()
+            return c_p + cpsep + bindir
     else:
         # logger.info(&#34;DEBUG {} does not exist&#34;.format(cpfile))
         libdir = os.path.join(gatehome, &#34;lib&#34;)
@@ -137,17 +137,17 @@ def gate_classpath(gatehome, platform=None):
 
 
 def start_gate_worker(
-    port=25333,
-    host=&#34;127.0.0.1&#34;,
-    auth_token=None,
-    use_auth_token=True,
-    java=&#34;java&#34;,
-    platform=None,
-    gatehome=None,
-    log_actions=False,
-    keep=False,
-    debug=False,
-):
+        port=25333,
+        host=&#34;127.0.0.1&#34;,
+        auth_token=None,
+        use_auth_token=True,
+        java=&#34;java&#34;,
+        platform=None,
+        gatehome=None,
+        log_actions=False,
+        keep=False,
+        debug=False,
+):   # pragma: no cover
     &#34;&#34;&#34;
     Run the gate worker program. This starts the Java program included with gatenlp to
     run GATE and execute the gate worker within GATE so that Python can connect to it.
@@ -183,8 +183,6 @@ def start_gate_worker(
     if use_auth_token:
         if not auth_token:
             auth_token = secrets.token_urlsafe(20)
-        else:
-            auth_token = auth_token
     else:
         auth_token = &#34;&#34;
     if log_actions:
@@ -245,27 +243,29 @@ def start_gate_worker(
         print(&#34;Received keyboard interrupt, shutting down server...&#34;)
         shutdown()
 
+# pylint: disable=C0103
 
-class GateWorker:
+
+class GateWorker:   # pragma: no cover
     &#34;&#34;&#34;
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
     &#34;&#34;&#34;
 
     def __init__(
-        self,
-        port=25333,
-        start=True,
-        java=&#34;java&#34;,
-        host=&#34;127.0.0.1&#34;,
-        gatehome=None,
-        platform=None,
-        auth_token=None,
-        use_auth_token=True,
-        log_actions=False,
-        keep=False,
-        debug=False,
-    ):
+            self,
+            port=25333,
+            start=True,
+            java=&#34;java&#34;,
+            host=&#34;127.0.0.1&#34;,
+            gatehome=None,
+            platform=None,
+            auth_token=None,
+            use_auth_token=True,
+            log_actions=False,
+            keep=False,
+            debug=False,
+        ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -1050,16 +1050,16 @@ class GateWorker:
         self.worker.showGui()
 
 
-class GateWorkerAnnotator(Annotator):
+class GateWorkerAnnotator(Annotator):   # pragma: no cover
     # TODO: parameter to influence how exceptions are handled
     def __init__(
-        self,
-        pipeline,
-        gateworker,
-        annsets_send=None,
-        annsets_receive=None,
-        replace_anns=False,
-        update_document=False,
+            self,
+            pipeline,
+            gateworker,
+            annsets_send=None,
+            annsets_receive=None,
+            replace_anns=False,
+            update_document=False,
     ):
         &#34;&#34;&#34;
         Create a GateWorker annotator.
@@ -1161,7 +1161,7 @@ class GateWorkerAnnotator(Annotator):
         return doc
 
 
-def main():
+def main():   # pragma: no cover
     &#34;&#34;&#34;
     Start a GATE worker from the command line.
 
@@ -1204,21 +1204,20 @@ def main():
     args = ap.parse_args()
     if args.download:
         raise Exception(&#34;--download not implemented yet &#34;)
-    else:
-        start_gate_worker(
-            port=args.port,
-            host=args.host,
-            auth_token=args.auth,
-            use_auth_token=not args.noauth,
-            gatehome=args.gatehome,
-            platform=args.platform,
-            log_actions=args.log_actions,
-            keep=args.keep,
-            debug=args.debug,
-        )
+    start_gate_worker(
+        port=args.port,
+        host=args.host,
+        auth_token=args.auth,
+        use_auth_token=not args.noauth,
+        gatehome=args.gatehome,
+        platform=args.platform,
+        log_actions=args.log_actions,
+        keep=args.keep,
+        debug=args.debug,
+    )
 
 
-if __name__ == &#34;__main__&#34;:
+if __name__ == &#34;__main__&#34;:   # pragma: no cover
     main()</code></pre>
 </details>
 </section>
@@ -1365,26 +1364,26 @@ debug: show debug messages (default: False)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GateWorker:
+<pre><code class="python">class GateWorker:   # pragma: no cover
     &#34;&#34;&#34;
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
     &#34;&#34;&#34;
 
     def __init__(
-        self,
-        port=25333,
-        start=True,
-        java=&#34;java&#34;,
-        host=&#34;127.0.0.1&#34;,
-        gatehome=None,
-        platform=None,
-        auth_token=None,
-        use_auth_token=True,
-        log_actions=False,
-        keep=False,
-        debug=False,
-    ):
+            self,
+            port=25333,
+            start=True,
+            java=&#34;java&#34;,
+            host=&#34;127.0.0.1&#34;,
+            gatehome=None,
+            platform=None,
+            auth_token=None,
+            use_auth_token=True,
+            log_actions=False,
+            keep=False,
+            debug=False,
+        ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -2953,16 +2952,16 @@ received from Java GATE.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GateWorkerAnnotator(Annotator):
+<pre><code class="python">class GateWorkerAnnotator(Annotator):   # pragma: no cover
     # TODO: parameter to influence how exceptions are handled
     def __init__(
-        self,
-        pipeline,
-        gateworker,
-        annsets_send=None,
-        annsets_receive=None,
-        replace_anns=False,
-        update_document=False,
+            self,
+            pipeline,
+            gateworker,
+            annsets_send=None,
+            annsets_receive=None,
+            replace_anns=False,
+            update_document=False,
     ):
         &#34;&#34;&#34;
         Create a GateWorker annotator.

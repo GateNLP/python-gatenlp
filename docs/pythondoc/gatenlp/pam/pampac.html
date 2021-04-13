@@ -120,50 +120,49 @@ class Result:
     are alternate ways of how the parser can match the document.
     &#34;&#34;&#34;
 
-    def __init__(self, data=None, location=None, span=None):
+    def __init__(self, matches=None, location=None, span=None):
         &#34;&#34;&#34;
         Create a parser result.
 
         Args:
-            data: the data associated with the result, this can be a single item or a list of items.
-                Each item must be either a dictionary that describes an individual match or None.
+            matches: the matching info  associated with the result, this can be a single item or a list of items.
             location: the location where the result was matched, i.e. the location *before* matching was done.
             span: the span representing the start and end text offset for the match
         &#34;&#34;&#34;
         assert location is not None
         assert span is not None
-        if data is not None:
-            if isinstance(data, dict):
-                self.data = [data]
-            elif isinstance(data, Iterable):
-                self.data = list(data)
+        if matches is not None:
+            if isinstance(matches, dict):
+                self.matches = [matches]
+            elif isinstance(matches, Iterable):
+                self.matches = list(matches)
             else:
-                self.data = [data]
+                self.matches = [matches]
         else:
-            self.data = []
+            self.matches = []
         self.location = location
         self.span = span
 
-    def anns4data(self):
+    def anns4matches(self):
         &#34;&#34;&#34;
         Yields all the annotations, if any, in the results matches.
         &#34;&#34;&#34;
-        for d in self.data:
-            tmp = d.get(&#34;ann&#34;)
+        for m in self.matches:
+            tmp = m.get(&#34;ann&#34;)
             if tmp:
                 yield tmp
 
-    def data4name(self, name):
+    def matches4name(self, name):
         &#34;&#34;&#34;
-        Return a list of data dictionaries with the given name.
+        Return a list of match info dictionaries with the given name.
         &#34;&#34;&#34;
-        return [d for d in self.data if d.get(&#34;name&#34;) == name]
+        return [m for m in self.matches if m.get(&#34;name&#34;) == name]
 
     def __str__(self):
-        return f&#34;Result(loc={self.location},span=({self.span.start},{self.span.end}),ndata={len(self.data)})&#34;
+        return f&#34;Result(loc={self.location},span=Span({self.span.start},{self.span.end}),nmatches={len(self.matches)})&#34;
 
     def __repr__(self):
-        return f&#34;Result(loc={self.location},span=({self.span.start},{self.span.end}),data={self.data})&#34;
+        return f&#34;Result(loc={self.location},span=Span({self.span.start},{self.span.end}),matches={self.matches})&#34;
 
 
 class Failure:
@@ -263,7 +262,8 @@ class Success(Iterable, Sized):
     Represents a parse success as a (possibly empty) list of result elements.
 
     Each success is a list of result elements, and each result element contains a list
-    of matching data. A result represents a match at the top/outermost level of a parser.
+    of matching info for named patterns that match.
+    A result represents a fitting pattern at the top/outermost level of a parser.
     A parser that is made of sub parsers and sub-sub-parsers returns one or more matches
     over all the different ways how those sub-parsers can match at a specific location,
     and each result contains a result element for all the named sub- and sub-sub-parsers
@@ -297,7 +297,7 @@ class Success(Iterable, Sized):
         &#34;&#34;&#34;
         return True
 
-    def pprint(self, file=None):
+    def pprint(self, file=None):  # pragma: no cover
         &#34;&#34;&#34;
         Pretty print the success instance to the file or stdout if no file is specified.
 
@@ -309,7 +309,7 @@ class Success(Iterable, Sized):
                 print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
             else:
                 print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
-            for jdx, d in enumerate(res.data):
+            for jdx, d in enumerate(res.matches):
                 if file:
                     print(f&#34;  {jdx}: {d}&#34;, file)
                 else:
@@ -390,11 +390,11 @@ class Success(Iterable, Sized):
 
 class Context:
     &#34;&#34;&#34;
-    Context contains data and refers to data for carrying out the parse.
+    Context contains information and refers to information for carrying out the parse.
 
     A context contains a reference to the document being parsed, the list of annotations to use,
     the start and end text offsets the parsing should be restricted to, the output annotation set
-    to use, the maximum recursion depth and a data structure for memoization.
+    to use, the maximum recursion depth and a structure for memoization.
 
     All these fields are immutable, i.e. the references stored do not usually change during parsing or
     when Pampac executes rules on a document. However, all the referenced data apart from start and
@@ -833,8 +833,8 @@ class PampacParser:
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
+            for m in result.matches:
+                ann = m.get(&#34;ann&#34;)
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -865,8 +865,8 @@ class PampacParser:
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
+            for m in result.matches:
+                ann = m.get(&#34;ann&#34;)
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -1178,7 +1178,7 @@ class PampacParser:
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -1223,7 +1223,7 @@ class PampacParser:
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -1542,9 +1542,9 @@ class AnnAt(_AnnBase):
                     text_location=start, ann_location=location.ann_location
                 )
                 if self.name is None:
-                    data = None
+                    matches = None
                 else:
-                    data = dict(
+                    matches = dict(
                         span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
@@ -1552,11 +1552,7 @@ class AnnAt(_AnnBase):
                     )
                 # update location
                 location = context.inc_location(location, by_index=1)
-                result = Result(
-                    data=data,
-                    location=location,
-                    span=Span(next_ann.start, next_ann.end),
-                )
+                result = Result(matches=matches, location=location, span=Span(next_ann.start, next_ann.end))
                 if self.matchtype == &#34;first&#34;:
                     return Success(result, context)
                 results.append(result)
@@ -1602,7 +1598,7 @@ class Ann(_AnnBase):
                Annotation can contain additional features.
             features_eq: (default: None): features to match, annotation must not contain additional features
             text: (default: None): document text to match, string or regexp
-            name: (default: None): if set to a non-empty string, saves the data and assigns that name to the data
+            name: (default: None): if set to a non-empty string, saves the match info under this name
             useoffset: if True, and a location is give where the next annotation starts before the text offset, skips
                forward in the annotation list until an annotation is found at or after that offset.
                If no such annotation found, fails. If False, always uses the next annotation in the list, no matter
@@ -1633,16 +1629,16 @@ class Ann(_AnnBase):
         if self._matcher(next_ann, doc=context.doc):
             newlocation = context.inc_location(location, by_index=1)
             if self.name is not None:
-                data = dict(
+                matches = dict(
                     span=Span(next_ann),
                     location=location,
                     ann=next_ann,
                     name=self.name,
                 )
             else:
-                data = None
+                matches = None
             span = Span(next_ann.start, next_ann.end)
-            return Success(Result(data=data, span=span, location=newlocation), context)
+            return Success(Result(matches=matches, location=newlocation, span=span), context)
         else:
             return Failure(
                 location=location, context=context, parser=self.__class__.__name__
@@ -1700,7 +1696,7 @@ class Text(PampacParser):
 
         Args:
             text: either text or a compiled regular expression
-            name:  the name of the matcher, if None, no data is stored
+            name:  if not None saves the match information under that name
             matchcase: if text is actual text, whether the match should be case sensitive or not
         &#34;&#34;&#34;
         self.text = text
@@ -1727,7 +1723,7 @@ class Text(PampacParser):
                 lengrp = len(m.group())
                 newlocation = context.inc_location(location, by_offset=lengrp)
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         location=location,
                         span=Span(
                             location.text_location,
@@ -1738,12 +1734,12 @@ class Text(PampacParser):
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 span = Span(
                     location.text_location, location.text_location + len(m.group())
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1752,7 +1748,7 @@ class Text(PampacParser):
                 txt = txt.upper()
             if txt.startswith(self.text):
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         span=Span(
                             location.text_location,
                             location.text_location + len(self.text),
@@ -1762,14 +1758,14 @@ class Text(PampacParser):
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
                 # print(f&#34;DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}&#34;)
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -1802,7 +1798,7 @@ class Or(PampacParser):
                 result = ret.result(self.matchtype)
                 newloc = result.location
                 return Success(
-                    Result(result.data, location=newloc, span=result.span), context
+                    Result(result.matches, location=newloc, span=result.span), context
                 )
         return Failure(
             context=context, location=location, message=&#34;None of the choices match&#34;
@@ -1877,7 +1873,7 @@ class All(PampacParser):
 class Seq(PampacParser):
     &#34;&#34;&#34;
     A parser that represents a sequence of matching parsers. Each result of this parser combines
-    all the data from the sequence element parsers. For matchtype all and select all, all paths
+    all the match information from the sequence element parsers. For matchtype all and select all, all paths
     through all the possible ways to match the sequence get combined into separate results of
     a successful parse.
     &#34;&#34;&#34;
@@ -1888,12 +1884,12 @@ class Seq(PampacParser):
         Args:
             *parsers: two or more parsers
             matchtype: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to return.
-              Note that even if a matchtype for a single match is specified, the parser may still need to
-              generate an exponential number of combinations for all the results to select from.
+                Note that even if a matchtype for a single match is specified, the parser may still need to
+                generate an exponential number of combinations for all the results to select from.
             select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
-              of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
-            name: if not None, a separate data element is added to the result with that name and
-              a span that represents the span of the result.
+                of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
+            name: if not None, a separate matching info element is added to the result with that name and
+                a span that represents the span of the result.
         &#34;&#34;&#34;
         assert len(parsers) &gt; 1
         self.parsers = parsers
@@ -1906,7 +1902,7 @@ class Seq(PampacParser):
 
     def parse(self, location, context):
         if self.select != &#34;all&#34;:
-            datas = []
+            allmatches = []
             first = True
             start = None
             end = None
@@ -1914,8 +1910,8 @@ class Seq(PampacParser):
                 ret = parser.parse(location, context)
                 if ret.issuccess():
                     result = ret.result(self.select)
-                    for d in result.data:
-                        datas.append(d)
+                    for d in result.matches:
+                        allmatches.append(d)
                     location = result.location
                     if first:
                         first = False
@@ -1926,11 +1922,11 @@ class Seq(PampacParser):
                         context=context, location=location, message=&#34;Mismatch in Seq&#34;
                     )
             if self.name:
-                datas.append(
+                allmatches.append(
                     dict(span=Span(start, end), name=self.name, location=location)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -1941,27 +1937,27 @@ class Seq(PampacParser):
                 ret = parser.parse(result.location, context)
                 if ret.issuccess():
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
-                            datas.append(d)
+                        tmpmatches = result.matches.copy()
+                        for d in res.matches:
+                            tmpmatches.append(d)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
                         if lvl == len(self.parsers) - 1:
                             if self.name:
-                                datas.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=loc,
                                         name=self.name,
                                     )
                                 )
-                            newresult = Result(datas, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=span)
                             yield newresult
                         else:
-                            newresult = Result(datas, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
-            gen = depthfirst(0, Result(data=[], location=location, span=Span(0, 0)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -2022,8 +2018,8 @@ class N(PampacParser):
             select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
                 of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
             until: parser that terminates the repetition
-            name: if not None, adds an additional data element to the result which contains the
-              and span of the whole sequence.
+            name: if not None, adds an additional match info element to the result which contains the
+                and span of the whole sequence.
         &#34;&#34;&#34;
         self.parser = parser
         self.min = min
@@ -2037,7 +2033,7 @@ class N(PampacParser):
         start = location.text_location
         end = start
         if self.select != &#34;all&#34;:
-            datas = []
+            allmatches = []
             i = 0
             first = True
             # location is the location where we try to match
@@ -2046,19 +2042,18 @@ class N(PampacParser):
                     ret = self.until.parse(location, context)
                     if ret.issuccess():
                         res = ret.result(self.select)
-                        data = res.data
-                        for d in data:
-                            datas.append(d)
+                        for m in res.matches:
+                            allmatches.append(m)
                         loc = res.location
                         end = res.span.end
                         if self.name:
-                            datas.append(
+                            allmatches.append(
                                 dict(
                                     span=Span(start, end), location=loc, name=self.name
                                 )
                             )
                         return Success(
-                            Result(datas, location=loc, span=Span(start, end)), context
+                            Result(allmatches, location=loc, span=Span(start, end)), context
                         )
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
@@ -2070,7 +2065,7 @@ class N(PampacParser):
                         )
                     else:
                         if self.name:
-                            datas.append(
+                            allmatches.append(
                                 dict(
                                     span=Span(start, end),
                                     location=location,
@@ -2078,9 +2073,7 @@ class N(PampacParser):
                                 )
                             )
                         return Success(
-                            Result(
-                                data=datas, location=location, span=Span(start, end)
-                            ),
+                            Result(matches=allmatches, location=location, span=Span(start, end)),
                             context,
                         )
                 else:
@@ -2089,9 +2082,8 @@ class N(PampacParser):
                         first = False
                         start = result.span.start
                     end = result.span.end
-                    data = result.data
-                    for d in data:
-                        datas.append(d)
+                    for m in result.matches:
+                        allmatches.append(m)
                     location = result.location
                     i += 1
                     if i == self.max:
@@ -2100,17 +2092,16 @@ class N(PampacParser):
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
                     res = ret.result(self.select)
-                    data = res.data
                     loc = res.location
                     end = res.span.end
-                    for d in data:
-                        datas.append(d)
+                    for m in res.matches:
+                        allmatches.append(m)
                     if self.name:
-                        datas.append(
+                        allmatches.append(
                             dict(span=Span(start, end), location=loc, name=self.name)
                         )
                     return Success(
-                        Result(datas, location=loc, span=Span(start, end)), context
+                        Result(allmatches, location=loc, span=Span(start, end)), context
                     )
                 else:
                     return Failure(
@@ -2119,11 +2110,11 @@ class N(PampacParser):
                         message=&#34;Until parser not successful&#34;,
                     )
             if self.name:
-                datas.append(
+                allmatches.append(
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -2134,20 +2125,20 @@ class N(PampacParser):
                     ret = self.until.parse(result.location, context)
                     if ret.issuccess():
                         for res in ret:
-                            data = result.data.copy()
-                            for dtmp in res.data:
-                                data.append(dtmp)
+                            tmpmatches = result.matches.copy()
+                            for mtmp in res.matches:
+                                tmpmatches.append(mtmp)
                             loc = res.location
                             end = res.span.end
                             if self.name:
-                                data.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=location,
                                         name=self.name,
                                     )
                                 )
-                            yield Result(data, location=loc, span=Span(start, end))
+                            yield Result(tmpmatches, location=loc, span=Span(start, end))
                             return
                 # if we got here after the max number of matches, and self.until is set, then
                 # the parse we did above did not succeed, so we end without a result
@@ -2163,12 +2154,12 @@ class N(PampacParser):
                 if ret.issuccess():
                     # for each of the results, try to continue matching
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
-                            datas.append(d)
+                        tmpmatches = result.matches.copy()
+                        for m in res.matches:
+                            tmpmatches.append(m)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
-                        newresult = Result(datas, location=loc, span=span)
+                        newresult = Result(tmpmatches, location=loc, span=span)
                         yield from depthfirst(lvl + 1, newresult)
                 else:
                     if lvl &lt;= self.min:
@@ -2176,10 +2167,10 @@ class N(PampacParser):
                     else:
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
-                            data = result.data
+                            tmpmatches = result.matches
                             end = result.span.end
                             if self.name:
-                                data.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=result.location,
@@ -2192,7 +2183,7 @@ class N(PampacParser):
                             # nor the until did match so we do not have a success
                             return
 
-            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=(None, None)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -2413,51 +2404,51 @@ class Pampac:
     __call__ = run
 
 
-def _get_data(succ, name, resultidx=0, dataidx=0, silent_fail=False):
+def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     &#34;&#34;&#34;
-    Helper method to return the data for the given result index and name, or None.
+    Helper method to return the match info for the given result index and name, or None.
 
     Args:
         succ: success instance
-        name: name of the data
+        name: name of the match info
         resultidx: index of the result in success
-        dataidx: if there is more than one matching data with that name, which one to return
-        silent_fail: if True, return None, if False, raise an exception if the data is not present
+        matchidx: if there is more than one matching match info with that name, which one to return
+        silent_fail: if True, return None, if False, raise an exception if the match info is not present
 
     Returns:
-        the data or None
+        the match info or None
 
     &#34;&#34;&#34;
     if resultidx &gt;= len(succ):
         if not silent_fail:
             raise Exception(f&#34;No resultidx {resultidx}, only {len(succ)} results&#34;)
         else:
-            return
+            return None
     res = succ[resultidx]
-    data = res.data4name(name)
-    if not data:
+    matches = res.matches4name(name)
+    if not matches:
         if not silent_fail:
-            raise Exception(f&#34;No data with name {name} in result&#34;)
+            raise Exception(f&#34;No match info with name {name} in result&#34;)
         else:
-            return
-    if dataidx &gt;= len(data):
+            return None
+    if matchidx &gt;= len(matches):
         if not silent_fail:
-            raise Exception(f&#34;No data with index {dataidx}, length is {len(data)}&#34;)
+            raise Exception(f&#34;No match info with index {matchidx}, length is {len(matches)}&#34;)
         else:
-            return
-    return data[dataidx]
+            return None
+    return matches[matchidx]
 
 
-def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
+def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     &#34;&#34;&#34;
     Helper method to return the span for the given result index and name, or None.
 
     Args:
         succ: success instance
-        name: name of the data, if None, uses the entire span of the result
+        name: name of the match info, if None, uses the entire span of the result
         resultidx: index of the result in success
-        dataidx: if there is more than one matching data with that name, which one to return, if no name, ignored
-        silent_fail: if True, return None, if False, raise an exception if the data is not present
+        matchidx: if there is more than one match info with that name, which one to return, if no name, ignored
+        silent_fail: if True, return None, if False, raise an exception if the match info is not present
 
     Returns:
         the span or None if no Span exists
@@ -2466,26 +2457,26 @@ def _get_span(succ, name, resultidx=0, dataidx=0, silent_fail=False):
         if not silent_fail:
             raise Exception(f&#34;No resultidx {resultidx}, only {len(succ)} results&#34;)
         else:
-            return
+            return None
     res = succ[resultidx]
     if name:
-        data = res.data4name(name)
-        if not data:
+        matches = res.matches4name(name)
+        if not matches:
             if not silent_fail:
-                raise Exception(f&#34;No data with name {name} in result&#34;)
+                raise Exception(f&#34;No match info with name {name} in result&#34;)
             else:
-                return
-        if dataidx &gt;= len(data):
+                return None
+        if matchidx &gt;= len(matches):
             if not silent_fail:
-                raise Exception(f&#34;No data with index {dataidx}, length is {len(data)}&#34;)
+                raise Exception(f&#34;No match info with index {matchidx}, length is {len(matches)}&#34;)
             else:
-                return
-        ret = data[dataidx].get(&#34;span&#34;)
+                return None
+        ret = matches[matchidx].get(&#34;span&#34;)
     else:
         ret = res.span
     if ret is None:
         if silent_fail:
-            return
+            return None
         else:
             raise Exception(f&#34;No span found&#34;)
     return ret
@@ -2549,7 +2540,7 @@ class AddAnn:
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
         resultidx=0,
-        dataidx=0,
+        matchidx=0,
         silent_fail=False,
     ):
         &#34;&#34;&#34;
@@ -2569,12 +2560,12 @@ class AddAnn:
                 annotation in the results
             resultidx: the index of the result to use if more than one result is in the Success. If None,
                 the AddAnn action is performed for all results
-            dataidx: the index of the data item to use if more than one item matches the given name. If None,
-                the AddAnn action is performed for all data items with that name.
+            matchidx: the index of the match info to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all match info items with that name.
             silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
                 otherwise raises an Exception.
         &#34;&#34;&#34;
-        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
         # span at firing time
         assert anntype is not None or ann is not None
         self.name = name
@@ -2583,7 +2574,7 @@ class AddAnn:
         self.features = features
         self.span = span
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
         self.annset = annset
 
@@ -2625,12 +2616,12 @@ class AddAnn:
             outset.add(span.start, span.end, anntype, features=features)
 
     def _add4result(self, succ, resultidx, context, location):
-        if self.dataidx is None:
-            for dataidx in range(len(succ[resultidx].data)):
-                span = _get_span(succ, self.name, resultidx, dataidx, self.silent_fail)
+        if self.matchidx is None:
+            for matchidx in range(len(succ[resultidx].matches)):
+                span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
                 self._add4span(span, succ, context, location)
         else:
-            span = _get_span(succ, self.name, resultidx, self.dataidx, self.silent_fail)
+            span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
             self._add4span(span, succ, context, location)
 
     def __call__(self, succ, context=None, location=None):
@@ -2653,7 +2644,7 @@ class UpdateAnnFeatures:
         features=None,
         replace=False,  # replace existing features rather than updating
         resultidx=0,
-        dataidx=0,
+        matchidx=0,
         silent_fail=False,
     ):
         &#34;&#34;&#34;
@@ -2666,10 +2657,10 @@ class UpdateAnnFeatures:
             features: the features to use for updating, either literal  features or a GetFeatures helper.
             replace: if True, replace the existing features with the new ones, otherwise update the existing features.
             resultidx: the index of the result to use, if there is more than one
-            dataidx: the index of a matching data element to use, if more than one matches the given name
+            matchidx: the index of a matching info element to use, if more than one matches the given name
             silent_fail: if True, do not raise an exception if the features cannot be updated
         &#34;&#34;&#34;
-        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
         # span at firing time
         assert isinstance(ann, GetAnn)
         assert features is not None
@@ -2678,19 +2669,19 @@ class UpdateAnnFeatures:
         self.replace = replace
         self.features = features
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        if not data:
+        if not match:
             if self.silent_fail:
                 return
             else:
                 raise Exception(f&#34;Could not find the name {self.name}&#34;)
-        theann = data.get(&#34;ann&#34;)
+        theann = match.get(&#34;ann&#34;)
         if theann is None:
             if self.silent_fail:
                 return
@@ -2717,13 +2708,13 @@ class UpdateAnnFeatures:
         theann.features.update(feats)
 
 
-class RemoveAnn:
-    def __init__(self, name, ann=None, annset=None, resultidx=0, dataidx=0, which=&#34;first&#34;, silent_fail=True):
-        pass
-
-    def __call__(self, succ, context=None, location=None):
-        pass
-
+# class RemoveAnn:
+#     def __init__(self, name, ann=None, annset=None, resultidx=0, matchidx=0, which=&#34;first&#34;, silent_fail=True):
+#         pass
+#
+#     def __call__(self, succ, context=None, location=None):
+#         pass
+#
 
 # GETTERS
 
@@ -2733,31 +2724,31 @@ class GetAnn:
     Helper to access an annoation from a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetAnn helper.
 
         Args:
             name: the name of the match to use.
             resultidx:  the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None.
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann
 
@@ -2767,31 +2758,31 @@ class GetFeatures:
     Helper to access the features of an annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetFeatures helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.features
 
@@ -2801,31 +2792,31 @@ class GetType:
     Helper to access the type of an annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetType helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.type
 
@@ -2835,27 +2826,27 @@ class GetStart:
     Helper to access the start offset of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetStart helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        span = data[&#34;span&#34;]
+        span = match[&#34;span&#34;]
         return span.start
 
 
@@ -2864,28 +2855,26 @@ class GetEnd:
     Helper to access the end offset of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetEnd helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
-        )
-        span = data[&#34;span&#34;]
-        return span.end
+        return _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+        )[&#34;span&#34;].end
 
 
 class GetFeature:
@@ -2893,32 +2882,32 @@ class GetFeature:
     Helper to access the features of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, featurename, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, featurename, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetFeatures helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
         self.featurename = featurename
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.features.get(self.featurename)
 
@@ -2928,34 +2917,34 @@ class GetText:
     Helper to access text, either covered document text of the annotation or matched text.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetText helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        span = data.get(&#34;span&#34;)
+        span = match.get(&#34;span&#34;)
         if span:
             return context.doc[span]
         else:
             if self.silent_fail:
                 return
             else:
-                raise Exception(&#34;Could not find a span for data&#34;)
+                raise Exception(&#34;Could not find a span for match info&#34;)
 
 
 class GetRegexGroup:
@@ -2963,35 +2952,35 @@ class GetRegexGroup:
     Helper to access the given regular expression matching group in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, group=0, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, group=0, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetText helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.group = group
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        groups = data.get(&#34;groups&#34;)
+        groups = match.get(&#34;groups&#34;)
         if groups:
             return groups[self.group]
         else:
             if self.silent_fail:
                 return
             else:
-                raise Exception(&#34;Could not find regexp groups for data&#34;)</code></pre>
+                raise Exception(&#34;Could not find regexp groups for match info&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -3063,7 +3052,7 @@ class GetRegexGroup:
 </dd>
 <dt id="gatenlp.pam.pampac.AddAnn"><code class="flex name class">
 <span>class <span class="ident">AddAnn</span></span>
-<span>(</span><span>name=None, ann=None, anntype=None, annset=None, features=None, span=None, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name=None, ann=None, anntype=None, annset=None, features=None, span=None, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Action for adding an annotation.</p>
@@ -3090,9 +3079,9 @@ annotation in the results</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if more than one result is in the Success. If None,
 the AddAnn action is performed for all results</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data item to use if more than one item matches the given name. If None,
-the AddAnn action is performed for all data items with that name.</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info to use if more than one item matches the given name. If None,
+the AddAnn action is performed for all match info items with that name.</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True and the annotation can not be created for some reason, just do silently nothing,
 otherwise raises an Exception.</dd>
@@ -3115,7 +3104,7 @@ otherwise raises an Exception.</dd>
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
         resultidx=0,
-        dataidx=0,
+        matchidx=0,
         silent_fail=False,
     ):
         &#34;&#34;&#34;
@@ -3135,12 +3124,12 @@ otherwise raises an Exception.</dd>
                 annotation in the results
             resultidx: the index of the result to use if more than one result is in the Success. If None,
                 the AddAnn action is performed for all results
-            dataidx: the index of the data item to use if more than one item matches the given name. If None,
-                the AddAnn action is performed for all data items with that name.
+            matchidx: the index of the match info to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all match info items with that name.
             silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
                 otherwise raises an Exception.
         &#34;&#34;&#34;
-        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
         # span at firing time
         assert anntype is not None or ann is not None
         self.name = name
@@ -3149,7 +3138,7 @@ otherwise raises an Exception.</dd>
         self.features = features
         self.span = span
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
         self.annset = annset
 
@@ -3191,12 +3180,12 @@ otherwise raises an Exception.</dd>
             outset.add(span.start, span.end, anntype, features=features)
 
     def _add4result(self, succ, resultidx, context, location):
-        if self.dataidx is None:
-            for dataidx in range(len(succ[resultidx].data)):
-                span = _get_span(succ, self.name, resultidx, dataidx, self.silent_fail)
+        if self.matchidx is None:
+            for matchidx in range(len(succ[resultidx].matches)):
+                span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
                 self._add4span(span, succ, context, location)
         else:
-            span = _get_span(succ, self.name, resultidx, self.dataidx, self.silent_fail)
+            span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
             self._add4span(span, succ, context, location)
 
     def __call__(self, succ, context=None, location=None):
@@ -3392,7 +3381,7 @@ Annotation can contain additional features.</dd>
 <dt><strong><code>text</code></strong></dt>
 <dd>(default: None): document text to match, string or regexp</dd>
 <dt><strong><code>name</code></strong></dt>
-<dd>(default: None): if set to a non-empty string, saves the data and assigns that name to the data</dd>
+<dd>(default: None): if set to a non-empty string, saves the match info under this name</dd>
 <dt><strong><code>useoffset</code></strong></dt>
 <dd>if True, and a location is give where the next annotation starts before the text offset, skips
 forward in the annotation list until an annotation is found at or after that offset.
@@ -3425,7 +3414,7 @@ the offset.</dd>
                Annotation can contain additional features.
             features_eq: (default: None): features to match, annotation must not contain additional features
             text: (default: None): document text to match, string or regexp
-            name: (default: None): if set to a non-empty string, saves the data and assigns that name to the data
+            name: (default: None): if set to a non-empty string, saves the match info under this name
             useoffset: if True, and a location is give where the next annotation starts before the text offset, skips
                forward in the annotation list until an annotation is found at or after that offset.
                If no such annotation found, fails. If False, always uses the next annotation in the list, no matter
@@ -3456,16 +3445,16 @@ the offset.</dd>
         if self._matcher(next_ann, doc=context.doc):
             newlocation = context.inc_location(location, by_index=1)
             if self.name is not None:
-                data = dict(
+                matches = dict(
                     span=Span(next_ann),
                     location=location,
                     ann=next_ann,
                     name=self.name,
                 )
             else:
-                data = None
+                matches = None
             span = Span(next_ann.start, next_ann.end)
-            return Success(Result(data=data, span=span, location=newlocation), context)
+            return Success(Result(matches=matches, location=newlocation, span=span), context)
         else:
             return Failure(
                 location=location, context=context, parser=self.__class__.__name__
@@ -3600,9 +3589,9 @@ next annotation to match.</dd>
                     text_location=start, ann_location=location.ann_location
                 )
                 if self.name is None:
-                    data = None
+                    matches = None
                 else:
-                    data = dict(
+                    matches = dict(
                         span=Span(next_ann.start, next_ann.end),
                         location=matchlocation,
                         ann=next_ann,
@@ -3610,11 +3599,7 @@ next annotation to match.</dd>
                     )
                 # update location
                 location = context.inc_location(location, by_index=1)
-                result = Result(
-                    data=data,
-                    location=location,
-                    span=Span(next_ann.start, next_ann.end),
-                )
+                result = Result(matches=matches, location=location, span=Span(next_ann.start, next_ann.end))
                 if self.matchtype == &#34;first&#34;:
                     return Success(result, context)
                 results.append(result)
@@ -3789,10 +3774,10 @@ Failure instance and the same kwargs.</p>
 <span>(</span><span>doc, anns, start=None, end=None, outset=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Context contains data and refers to data for carrying out the parse.</p>
+<div class="desc"><p>Context contains information and refers to information for carrying out the parse.</p>
 <p>A context contains a reference to the document being parsed, the list of annotations to use,
 the start and end text offsets the parsing should be restricted to, the output annotation set
-to use, the maximum recursion depth and a data structure for memoization.</p>
+to use, the maximum recursion depth and a structure for memoization.</p>
 <p>All these fields are immutable, i.e. the references stored do not usually change during parsing or
 when Pampac executes rules on a document. However, all the referenced data apart from start and
 end may change.</p>
@@ -3816,11 +3801,11 @@ end may change.</p>
 </summary>
 <pre><code class="python">class Context:
     &#34;&#34;&#34;
-    Context contains data and refers to data for carrying out the parse.
+    Context contains information and refers to information for carrying out the parse.
 
     A context contains a reference to the document being parsed, the list of annotations to use,
     the start and end text offsets the parsing should be restricted to, the output annotation set
-    to use, the maximum recursion depth and a data structure for memoization.
+    to use, the maximum recursion depth and a structure for memoization.
 
     All these fields are immutable, i.e. the references stored do not usually change during parsing or
     when Pampac executes rules on a document. However, all the referenced data apart from start and
@@ -4515,7 +4500,7 @@ at each text offset and the corresponding ann index.</dd>
 </dd>
 <dt id="gatenlp.pam.pampac.GetAnn"><code class="flex name class">
 <span>class <span class="ident">GetAnn</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access an annoation from a match with the given name.</p>
@@ -4526,8 +4511,8 @@ at each text offset and the corresponding ann index.</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None.</dd>
@@ -4541,38 +4526,38 @@ None.</dd>
     Helper to access an annoation from a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetAnn helper.
 
         Args:
             name: the name of the match to use.
             resultidx:  the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None.
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetEnd"><code class="flex name class">
 <span>class <span class="ident">GetEnd</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the end offset of the annotation in a match with the given name.</p>
@@ -4583,8 +4568,8 @@ None.</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4598,33 +4583,31 @@ None</dd>
     Helper to access the end offset of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetEnd helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
-        )
-        span = data[&#34;span&#34;]
-        return span.end</code></pre>
+        return _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+        )[&#34;span&#34;].end</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetFeature"><code class="flex name class">
 <span>class <span class="ident">GetFeature</span></span>
-<span>(</span><span>name, featurename, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, featurename, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the features of the annotation in a match with the given name.</p>
@@ -4635,8 +4618,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4650,39 +4633,39 @@ None</dd>
     Helper to access the features of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, featurename, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, featurename, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetFeatures helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
         self.featurename = featurename
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.features.get(self.featurename)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetFeatures"><code class="flex name class">
 <span>class <span class="ident">GetFeatures</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the features of an annotation in a match with the given name.</p>
@@ -4693,8 +4676,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4708,38 +4691,38 @@ None</dd>
     Helper to access the features of an annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetFeatures helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.features</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetRegexGroup"><code class="flex name class">
 <span>class <span class="ident">GetRegexGroup</span></span>
-<span>(</span><span>name, group=0, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, group=0, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the given regular expression matching group in a match with the given name.</p>
@@ -4750,8 +4733,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4765,40 +4748,40 @@ None</dd>
     Helper to access the given regular expression matching group in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, group=0, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, group=0, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetText helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.group = group
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        groups = data.get(&#34;groups&#34;)
+        groups = match.get(&#34;groups&#34;)
         if groups:
             return groups[self.group]
         else:
             if self.silent_fail:
                 return
             else:
-                raise Exception(&#34;Could not find regexp groups for data&#34;)</code></pre>
+                raise Exception(&#34;Could not find regexp groups for match info&#34;)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetStart"><code class="flex name class">
 <span>class <span class="ident">GetStart</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the start offset of the annotation in a match with the given name.</p>
@@ -4809,8 +4792,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4824,33 +4807,33 @@ None</dd>
     Helper to access the start offset of the annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetStart helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        span = data[&#34;span&#34;]
+        span = match[&#34;span&#34;]
         return span.start</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetText"><code class="flex name class">
 <span>class <span class="ident">GetText</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access text, either covered document text of the annotation or matched text.</p>
@@ -4861,8 +4844,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4876,39 +4859,39 @@ None</dd>
     Helper to access text, either covered document text of the annotation or matched text.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetText helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        span = data.get(&#34;span&#34;)
+        span = match.get(&#34;span&#34;)
         if span:
             return context.doc[span]
         else:
             if self.silent_fail:
                 return
             else:
-                raise Exception(&#34;Could not find a span for data&#34;)</code></pre>
+                raise Exception(&#34;Could not find a span for match info&#34;)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.pam.pampac.GetType"><code class="flex name class">
 <span>class <span class="ident">GetType</span></span>
-<span>(</span><span>name, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper to access the type of an annotation in a match with the given name.</p>
@@ -4919,8 +4902,8 @@ None</dd>
 <dd>the name of the match to use.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use if there is more than one.</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of the data element with the given name to use if there is more than one</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info element with the given name to use if there is more than one</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the annotation cannot be found, instead return
 None</dd>
@@ -4934,31 +4917,31 @@ None</dd>
     Helper to access the type of an annotation in a match with the given name.
     &#34;&#34;&#34;
 
-    def __init__(self, name, resultidx=0, dataidx=0, silent_fail=False):
+    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
         &#34;&#34;&#34;
         Create a GetType helper.
 
         Args:
             name: the name of the match to use.
             resultidx: the index of the result to use if there is more than one.
-            dataidx:  the index of the data element with the given name to use if there is more than one
+            matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         &#34;&#34;&#34;
         self.name = name
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        ann = data.get(&#34;ann&#34;)
+        ann = match.get(&#34;ann&#34;)
         if ann is None:
             if not self.silent_fail:
                 raise Exception(
-                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.dataidx}&#34;
+                    f&#34;No annotation found for name {self.name}, {self.resultidx}, {self.matchidx}&#34;
                 )
         return ann.type</code></pre>
 </details>
@@ -5162,7 +5145,7 @@ of the parsers. Only if "all" is used will more than one result be generated.</d
 <dt><strong><code>until</code></strong></dt>
 <dd>parser that terminates the repetition</dd>
 <dt><strong><code>name</code></strong></dt>
-<dd>if not None, adds an additional data element to the result which contains the
+<dd>if not None, adds an additional match info element to the result which contains the
 and span of the whole sequence.</dd>
 </dl></div>
 <details class="source">
@@ -5200,8 +5183,8 @@ and span of the whole sequence.</dd>
             select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
                 of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
             until: parser that terminates the repetition
-            name: if not None, adds an additional data element to the result which contains the
-              and span of the whole sequence.
+            name: if not None, adds an additional match info element to the result which contains the
+                and span of the whole sequence.
         &#34;&#34;&#34;
         self.parser = parser
         self.min = min
@@ -5215,7 +5198,7 @@ and span of the whole sequence.</dd>
         start = location.text_location
         end = start
         if self.select != &#34;all&#34;:
-            datas = []
+            allmatches = []
             i = 0
             first = True
             # location is the location where we try to match
@@ -5224,19 +5207,18 @@ and span of the whole sequence.</dd>
                     ret = self.until.parse(location, context)
                     if ret.issuccess():
                         res = ret.result(self.select)
-                        data = res.data
-                        for d in data:
-                            datas.append(d)
+                        for m in res.matches:
+                            allmatches.append(m)
                         loc = res.location
                         end = res.span.end
                         if self.name:
-                            datas.append(
+                            allmatches.append(
                                 dict(
                                     span=Span(start, end), location=loc, name=self.name
                                 )
                             )
                         return Success(
-                            Result(datas, location=loc, span=Span(start, end)), context
+                            Result(allmatches, location=loc, span=Span(start, end)), context
                         )
                 ret = self.parser.parse(location, context)
                 if not ret.issuccess():
@@ -5248,7 +5230,7 @@ and span of the whole sequence.</dd>
                         )
                     else:
                         if self.name:
-                            datas.append(
+                            allmatches.append(
                                 dict(
                                     span=Span(start, end),
                                     location=location,
@@ -5256,9 +5238,7 @@ and span of the whole sequence.</dd>
                                 )
                             )
                         return Success(
-                            Result(
-                                data=datas, location=location, span=Span(start, end)
-                            ),
+                            Result(matches=allmatches, location=location, span=Span(start, end)),
                             context,
                         )
                 else:
@@ -5267,9 +5247,8 @@ and span of the whole sequence.</dd>
                         first = False
                         start = result.span.start
                     end = result.span.end
-                    data = result.data
-                    for d in data:
-                        datas.append(d)
+                    for m in result.matches:
+                        allmatches.append(m)
                     location = result.location
                     i += 1
                     if i == self.max:
@@ -5278,17 +5257,16 @@ and span of the whole sequence.</dd>
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
                     res = ret.result(self.select)
-                    data = res.data
                     loc = res.location
                     end = res.span.end
-                    for d in data:
-                        datas.append(d)
+                    for m in res.matches:
+                        allmatches.append(m)
                     if self.name:
-                        datas.append(
+                        allmatches.append(
                             dict(span=Span(start, end), location=loc, name=self.name)
                         )
                     return Success(
-                        Result(datas, location=loc, span=Span(start, end)), context
+                        Result(allmatches, location=loc, span=Span(start, end)), context
                     )
                 else:
                     return Failure(
@@ -5297,11 +5275,11 @@ and span of the whole sequence.</dd>
                         message=&#34;Until parser not successful&#34;,
                     )
             if self.name:
-                datas.append(
+                allmatches.append(
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -5312,20 +5290,20 @@ and span of the whole sequence.</dd>
                     ret = self.until.parse(result.location, context)
                     if ret.issuccess():
                         for res in ret:
-                            data = result.data.copy()
-                            for dtmp in res.data:
-                                data.append(dtmp)
+                            tmpmatches = result.matches.copy()
+                            for mtmp in res.matches:
+                                tmpmatches.append(mtmp)
                             loc = res.location
                             end = res.span.end
                             if self.name:
-                                data.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=location,
                                         name=self.name,
                                     )
                                 )
-                            yield Result(data, location=loc, span=Span(start, end))
+                            yield Result(tmpmatches, location=loc, span=Span(start, end))
                             return
                 # if we got here after the max number of matches, and self.until is set, then
                 # the parse we did above did not succeed, so we end without a result
@@ -5341,12 +5319,12 @@ and span of the whole sequence.</dd>
                 if ret.issuccess():
                     # for each of the results, try to continue matching
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
-                            datas.append(d)
+                        tmpmatches = result.matches.copy()
+                        for m in res.matches:
+                            tmpmatches.append(m)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
-                        newresult = Result(datas, location=loc, span=span)
+                        newresult = Result(tmpmatches, location=loc, span=span)
                         yield from depthfirst(lvl + 1, newresult)
                 else:
                     if lvl &lt;= self.min:
@@ -5354,10 +5332,10 @@ and span of the whole sequence.</dd>
                     else:
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
-                            data = result.data
+                            tmpmatches = result.matches
                             end = result.span.end
                             if self.name:
-                                data.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=result.location,
@@ -5370,7 +5348,7 @@ and span of the whole sequence.</dd>
                             # nor the until did match so we do not have a success
                             return
 
-            gen = depthfirst(0, Result(data=[], location=location, span=(None, None)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=(None, None)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -5480,7 +5458,7 @@ one that finds a successful match.</p>
                 result = ret.result(self.matchtype)
                 newloc = result.location
                 return Success(
-                    Result(result.data, location=newloc, span=result.span), context
+                    Result(result.matches, location=newloc, span=result.span), context
                 )
         return Failure(
             context=context, location=location, message=&#34;None of the choices match&#34;
@@ -5974,8 +5952,8 @@ must be overriden!</p>
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
+            for m in result.matches:
+                ann = m.get(&#34;ann&#34;)
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -6006,8 +5984,8 @@ must be overriden!</p>
 
         def _predicate(result, context=None, **kwargs):
             anns = set()
-            for d in result.data:
-                ann = d.get(&#34;ann&#34;)
+            for m in result.matches:
+                ann = m.get(&#34;ann&#34;)
                 if ann:
                     anns.add(ann)
             annset = context.annset
@@ -6319,7 +6297,7 @@ must be overriden!</p>
         # predicate for this needs to check if there are matching annotations that start at or after
         # the END of the result
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -6364,7 +6342,7 @@ must be overriden!</p>
         )
 
         def _predicate(result, context=None, **kwargs):
-            anns = set(result.anns4data())
+            anns = set(result.anns4matches())
             annset = context.annset
             if immediately:
                 annstocheck = annset.startingat(result.span.end)
@@ -7025,27 +7003,9 @@ of pattern with the replacement repl.</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="gatenlp.pam.pampac.RemoveAnn"><code class="flex name class">
-<span>class <span class="ident">RemoveAnn</span></span>
-<span>(</span><span>name, ann=None, annset=None, resultidx=0, dataidx=0, which='first', silent_fail=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class RemoveAnn:
-    def __init__(self, name, ann=None, annset=None, resultidx=0, dataidx=0, which=&#34;first&#34;, silent_fail=True):
-        pass
-
-    def __call__(self, succ, context=None, location=None):
-        pass</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.pam.pampac.Result"><code class="flex name class">
 <span>class <span class="ident">Result</span></span>
-<span>(</span><span>data=None, location=None, span=None)</span>
+<span>(</span><span>matches=None, location=None, span=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Represents an individual parser result. A successful parse can have any number of parser results which
@@ -7053,9 +7013,9 @@ are alternate ways of how the parser can match the document.</p>
 <p>Create a parser result.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>data</code></strong></dt>
-<dd>the data associated with the result, this can be a single item or a list of items.
-Each item must be either a dictionary that describes an individual match or None.</dd>
+<dt><strong><code>matches</code></strong></dt>
+<dd>the matching info
+associated with the result, this can be a single item or a list of items.</dd>
 <dt><strong><code>location</code></strong></dt>
 <dd>the location where the result was matched, i.e. the location <em>before</em> matching was done.</dd>
 <dt><strong><code>span</code></strong></dt>
@@ -7071,64 +7031,63 @@ Each item must be either a dictionary that describes an individual match or None
     are alternate ways of how the parser can match the document.
     &#34;&#34;&#34;
 
-    def __init__(self, data=None, location=None, span=None):
+    def __init__(self, matches=None, location=None, span=None):
         &#34;&#34;&#34;
         Create a parser result.
 
         Args:
-            data: the data associated with the result, this can be a single item or a list of items.
-                Each item must be either a dictionary that describes an individual match or None.
+            matches: the matching info  associated with the result, this can be a single item or a list of items.
             location: the location where the result was matched, i.e. the location *before* matching was done.
             span: the span representing the start and end text offset for the match
         &#34;&#34;&#34;
         assert location is not None
         assert span is not None
-        if data is not None:
-            if isinstance(data, dict):
-                self.data = [data]
-            elif isinstance(data, Iterable):
-                self.data = list(data)
+        if matches is not None:
+            if isinstance(matches, dict):
+                self.matches = [matches]
+            elif isinstance(matches, Iterable):
+                self.matches = list(matches)
             else:
-                self.data = [data]
+                self.matches = [matches]
         else:
-            self.data = []
+            self.matches = []
         self.location = location
         self.span = span
 
-    def anns4data(self):
+    def anns4matches(self):
         &#34;&#34;&#34;
         Yields all the annotations, if any, in the results matches.
         &#34;&#34;&#34;
-        for d in self.data:
-            tmp = d.get(&#34;ann&#34;)
+        for m in self.matches:
+            tmp = m.get(&#34;ann&#34;)
             if tmp:
                 yield tmp
 
-    def data4name(self, name):
+    def matches4name(self, name):
         &#34;&#34;&#34;
-        Return a list of data dictionaries with the given name.
+        Return a list of match info dictionaries with the given name.
         &#34;&#34;&#34;
-        return [d for d in self.data if d.get(&#34;name&#34;) == name]
+        return [m for m in self.matches if m.get(&#34;name&#34;) == name]
 
     def __str__(self):
-        return f&#34;Result(loc={self.location},span=({self.span.start},{self.span.end}),ndata={len(self.data)})&#34;
+        return f&#34;Result(loc={self.location},span=Span({self.span.start},{self.span.end}),nmatches={len(self.matches)})&#34;
 
     def __repr__(self):
-        return f&#34;Result(loc={self.location},span=({self.span.start},{self.span.end}),data={self.data})&#34;</code></pre>
+        return f&#34;Result(loc={self.location},span=Span({self.span.start},{self.span.end}),matches={self.matches})&#34;</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="gatenlp.pam.pampac.Result.anns4data"><code class="name flex">
-<span>def <span class="ident">anns4data</span></span>(<span>self)</span>
+<dt id="gatenlp.pam.pampac.Result.anns4matches"><code class="name flex">
+<span>def <span class="ident">anns4matches</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Yields all the annotations, if any, in the results matches.</p></div>
 </dd>
-<dt id="gatenlp.pam.pampac.Result.data4name"><code class="name flex">
-<span>def <span class="ident">data4name</span></span>(<span>self, name)</span>
+<dt id="gatenlp.pam.pampac.Result.matches4name"><code class="name flex">
+<span>def <span class="ident">matches4name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return a list of data dictionaries with the given name.</p></div>
+<div class="desc"><p>Return a list of match info dictionaries with the given name.</p></div>
 </dd>
 </dl>
 </dd>
@@ -7258,7 +7217,7 @@ actually carried out.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>A parser that represents a sequence of matching parsers. Each result of this parser combines
-all the data from the sequence element parsers. For matchtype all and select all, all paths
+all the match information from the sequence element parsers. For matchtype all and select all, all paths
 through all the possible ways to match the sequence get combined into separate results of
 a successful parse.</p>
 <h2 id="args">Args</h2>
@@ -7273,7 +7232,7 @@ generate an exponential number of combinations for all the results to select fro
 <dd>(default "first") one of "first", "longest", "shortest", "all": which match to choose from each
 of the parsers. Only if "all" is used will more than one result be generated.</dd>
 <dt><strong><code>name</code></strong></dt>
-<dd>if not None, a separate data element is added to the result with that name and
+<dd>if not None, a separate matching info element is added to the result with that name and
 a span that represents the span of the result.</dd>
 </dl></div>
 <details class="source">
@@ -7283,7 +7242,7 @@ a span that represents the span of the result.</dd>
 <pre><code class="python">class Seq(PampacParser):
     &#34;&#34;&#34;
     A parser that represents a sequence of matching parsers. Each result of this parser combines
-    all the data from the sequence element parsers. For matchtype all and select all, all paths
+    all the match information from the sequence element parsers. For matchtype all and select all, all paths
     through all the possible ways to match the sequence get combined into separate results of
     a successful parse.
     &#34;&#34;&#34;
@@ -7294,12 +7253,12 @@ a span that represents the span of the result.</dd>
         Args:
             *parsers: two or more parsers
             matchtype: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to return.
-              Note that even if a matchtype for a single match is specified, the parser may still need to
-              generate an exponential number of combinations for all the results to select from.
+                Note that even if a matchtype for a single match is specified, the parser may still need to
+                generate an exponential number of combinations for all the results to select from.
             select: (default &#34;first&#34;) one of &#34;first&#34;, &#34;longest&#34;, &#34;shortest&#34;, &#34;all&#34;: which match to choose from each
-              of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
-            name: if not None, a separate data element is added to the result with that name and
-              a span that represents the span of the result.
+                of the parsers. Only if &#34;all&#34; is used will more than one result be generated.
+            name: if not None, a separate matching info element is added to the result with that name and
+                a span that represents the span of the result.
         &#34;&#34;&#34;
         assert len(parsers) &gt; 1
         self.parsers = parsers
@@ -7312,7 +7271,7 @@ a span that represents the span of the result.</dd>
 
     def parse(self, location, context):
         if self.select != &#34;all&#34;:
-            datas = []
+            allmatches = []
             first = True
             start = None
             end = None
@@ -7320,8 +7279,8 @@ a span that represents the span of the result.</dd>
                 ret = parser.parse(location, context)
                 if ret.issuccess():
                     result = ret.result(self.select)
-                    for d in result.data:
-                        datas.append(d)
+                    for d in result.matches:
+                        allmatches.append(d)
                     location = result.location
                     if first:
                         first = False
@@ -7332,11 +7291,11 @@ a span that represents the span of the result.</dd>
                         context=context, location=location, message=&#34;Mismatch in Seq&#34;
                     )
             if self.name:
-                datas.append(
+                allmatches.append(
                     dict(span=Span(start, end), name=self.name, location=location)
                 )
             return Success(
-                Result(data=datas, location=location, span=Span(start, end)), context
+                Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
         else:
             # This does a depth-first enumeration of all matches: each successive parser gets tried
@@ -7347,27 +7306,27 @@ a span that represents the span of the result.</dd>
                 ret = parser.parse(result.location, context)
                 if ret.issuccess():
                     for res in ret:
-                        datas = result.data.copy()
-                        for d in res.data:
-                            datas.append(d)
+                        tmpmatches = result.matches.copy()
+                        for d in res.matches:
+                            tmpmatches.append(d)
                         loc = res.location
                         span = Span(location.text_location, res.location.text_location)
                         if lvl == len(self.parsers) - 1:
                             if self.name:
-                                datas.append(
+                                tmpmatches.append(
                                     dict(
                                         span=Span(start, end),
                                         location=loc,
                                         name=self.name,
                                     )
                                 )
-                            newresult = Result(datas, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=span)
                             yield newresult
                         else:
-                            newresult = Result(datas, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=span)
                             yield from depthfirst(lvl + 1, newresult)
 
-            gen = depthfirst(0, Result(data=[], location=location, span=Span(0, 0)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)))
             all = []
             best = None
             for idx, result in enumerate(gen):
@@ -7438,7 +7397,8 @@ a span that represents the span of the result.</dd>
 <dd>
 <div class="desc"><p>Represents a parse success as a (possibly empty) list of result elements.</p>
 <p>Each success is a list of result elements, and each result element contains a list
-of matching data. A result represents a match at the top/outermost level of a parser.
+of matching info for named patterns that match.
+A result represents a fitting pattern at the top/outermost level of a parser.
 A parser that is made of sub parsers and sub-sub-parsers returns one or more matches
 over all the different ways how those sub-parsers can match at a specific location,
 and each result contains a result element for all the named sub- and sub-sub-parsers
@@ -7462,7 +7422,8 @@ parsing.</dd>
     Represents a parse success as a (possibly empty) list of result elements.
 
     Each success is a list of result elements, and each result element contains a list
-    of matching data. A result represents a match at the top/outermost level of a parser.
+    of matching info for named patterns that match.
+    A result represents a fitting pattern at the top/outermost level of a parser.
     A parser that is made of sub parsers and sub-sub-parsers returns one or more matches
     over all the different ways how those sub-parsers can match at a specific location,
     and each result contains a result element for all the named sub- and sub-sub-parsers
@@ -7496,7 +7457,7 @@ parsing.</dd>
         &#34;&#34;&#34;
         return True
 
-    def pprint(self, file=None):
+    def pprint(self, file=None):  # pragma: no cover
         &#34;&#34;&#34;
         Pretty print the success instance to the file or stdout if no file is specified.
 
@@ -7508,7 +7469,7 @@ parsing.</dd>
                 print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
             else:
                 print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
-            for jdx, d in enumerate(res.data):
+            for jdx, d in enumerate(res.matches):
                 if file:
                     print(f&#34;  {jdx}: {d}&#34;, file)
                 else:
@@ -7663,7 +7624,7 @@ result, the first one of those in the list is returned.</dd>
 <dt><strong><code>text</code></strong></dt>
 <dd>either text or a compiled regular expression</dd>
 <dt><strong><code>name</code></strong></dt>
-<dd>the name of the matcher, if None, no data is stored</dd>
+<dd>if not None saves the match information under that name</dd>
 <dt><strong><code>matchcase</code></strong></dt>
 <dd>if text is actual text, whether the match should be case sensitive or not</dd>
 </dl></div>
@@ -7681,7 +7642,7 @@ result, the first one of those in the list is returned.</dd>
 
         Args:
             text: either text or a compiled regular expression
-            name:  the name of the matcher, if None, no data is stored
+            name:  if not None saves the match information under that name
             matchcase: if text is actual text, whether the match should be case sensitive or not
         &#34;&#34;&#34;
         self.text = text
@@ -7708,7 +7669,7 @@ result, the first one of those in the list is returned.</dd>
                 lengrp = len(m.group())
                 newlocation = context.inc_location(location, by_offset=lengrp)
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         location=location,
                         span=Span(
                             location.text_location,
@@ -7719,12 +7680,12 @@ result, the first one of those in the list is returned.</dd>
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 span = Span(
                     location.text_location, location.text_location + len(m.group())
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)
@@ -7733,7 +7694,7 @@ result, the first one of those in the list is returned.</dd>
                 txt = txt.upper()
             if txt.startswith(self.text):
                 if self.name:
-                    data = dict(
+                    matches = dict(
                         span=Span(
                             location.text_location,
                             location.text_location + len(self.text),
@@ -7743,14 +7704,14 @@ result, the first one of those in the list is returned.</dd>
                         name=self.name,
                     )
                 else:
-                    data = None
+                    matches = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
                 # print(f&#34;DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}&#34;)
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
                 return Success(
-                    Result(data=data, location=newlocation, span=span), context
+                    Result(matches=matches, location=newlocation, span=span), context
                 )
             else:
                 return Failure(context=context)</code></pre>
@@ -7792,7 +7753,7 @@ result, the first one of those in the list is returned.</dd>
 </dd>
 <dt id="gatenlp.pam.pampac.UpdateAnnFeatures"><code class="flex name class">
 <span>class <span class="ident">UpdateAnnFeatures</span></span>
-<span>(</span><span>name, ann=None, features=None, replace=False, resultidx=0, dataidx=0, silent_fail=False)</span>
+<span>(</span><span>name, ann=None, features=None, replace=False, resultidx=0, matchidx=0, silent_fail=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Action for updating the features of an annotation.</p>
@@ -7811,8 +7772,8 @@ features or a GetFeatures helper.</dd>
 <dd>if True, replace the existing features with the new ones, otherwise update the existing features.</dd>
 <dt><strong><code>resultidx</code></strong></dt>
 <dd>the index of the result to use, if there is more than one</dd>
-<dt><strong><code>dataidx</code></strong></dt>
-<dd>the index of a matching data element to use, if more than one matches the given name</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of a matching info element to use, if more than one matches the given name</dd>
 <dt><strong><code>silent_fail</code></strong></dt>
 <dd>if True, do not raise an exception if the features cannot be updated</dd>
 </dl></div>
@@ -7832,7 +7793,7 @@ features or a GetFeatures helper.</dd>
         features=None,
         replace=False,  # replace existing features rather than updating
         resultidx=0,
-        dataidx=0,
+        matchidx=0,
         silent_fail=False,
     ):
         &#34;&#34;&#34;
@@ -7845,10 +7806,10 @@ features or a GetFeatures helper.</dd>
             features: the features to use for updating, either literal  features or a GetFeatures helper.
             replace: if True, replace the existing features with the new ones, otherwise update the existing features.
             resultidx: the index of the result to use, if there is more than one
-            dataidx: the index of a matching data element to use, if more than one matches the given name
+            matchidx: the index of a matching info element to use, if more than one matches the given name
             silent_fail: if True, do not raise an exception if the features cannot be updated
         &#34;&#34;&#34;
-        # span is either a span, the index of data to take the span from, or a callable that will return the
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
         # span at firing time
         assert isinstance(ann, GetAnn)
         assert features is not None
@@ -7857,19 +7818,19 @@ features or a GetFeatures helper.</dd>
         self.replace = replace
         self.features = features
         self.resultidx = resultidx
-        self.dataidx = dataidx
+        self.matchidx = matchidx
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        data = _get_data(
-            succ, self.name, self.resultidx, self.dataidx, self.silent_fail
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
-        if not data:
+        if not match:
             if self.silent_fail:
                 return
             else:
                 raise Exception(f&#34;Could not find the name {self.name}&#34;)
-        theann = data.get(&#34;ann&#34;)
+        theann = match.get(&#34;ann&#34;)
         if theann is None:
             if self.silent_fail:
                 return
@@ -8219,13 +8180,10 @@ from the current next text offset.</p>
 </ul>
 </li>
 <li>
-<h4><code><a title="gatenlp.pam.pampac.RemoveAnn" href="#gatenlp.pam.pampac.RemoveAnn">RemoveAnn</a></code></h4>
-</li>
-<li>
 <h4><code><a title="gatenlp.pam.pampac.Result" href="#gatenlp.pam.pampac.Result">Result</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.pam.pampac.Result.anns4data" href="#gatenlp.pam.pampac.Result.anns4data">anns4data</a></code></li>
-<li><code><a title="gatenlp.pam.pampac.Result.data4name" href="#gatenlp.pam.pampac.Result.data4name">data4name</a></code></li>
+<li><code><a title="gatenlp.pam.pampac.Result.anns4matches" href="#gatenlp.pam.pampac.Result.anns4matches">anns4matches</a></code></li>
+<li><code><a title="gatenlp.pam.pampac.Result.matches4name" href="#gatenlp.pam.pampac.Result.matches4name">matches4name</a></code></li>
 </ul>
 </li>
 <li>

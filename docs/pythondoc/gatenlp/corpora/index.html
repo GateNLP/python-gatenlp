@@ -276,10 +276,11 @@ class JsonLinesFileSource(DocumentSource):
         Args:
             file: the file path (a string) or an open file handle.
             text_field: the field name where to get the document text from.
-            feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
             data_fields: if a list of names, store these fields in the &#34;__data&#34; feature. if True, store all fields.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
+
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields
@@ -2433,8 +2434,6 @@ in the json and optionally stores all or a selection of remainin fields as docum
 <dd>the file path (a string) or an open file handle.</dd>
 <dt><strong><code>text_field</code></strong></dt>
 <dd>the field name where to get the document text from.</dd>
-<dt><strong><code>feature_fields</code></strong></dt>
-<dd>NOT YET IMPLEMENTED &ndash; a mapping from original json fields to document features</dd>
 <dt><strong><code>data_fields</code></strong></dt>
 <dd>if a list of names, store these fields in the "__data" feature. if True, store all fields.</dd>
 <dt><strong><code>data_feature</code></strong></dt>
@@ -2457,10 +2456,11 @@ in the json and optionally stores all or a selection of remainin fields as docum
         Args:
             file: the file path (a string) or an open file handle.
             text_field: the field name where to get the document text from.
-            feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
             data_fields: if a list of names, store these fields in the &#34;__data&#34; feature. if True, store all fields.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
+
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields

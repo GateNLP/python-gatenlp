@@ -483,7 +483,8 @@ class TokenGazetteer:
                 thismatches.append(match)
             j = idx + 1  # index into text tokens
             nignored = 0
-            while j &lt;= endidx:
+            while j &lt; endidx:
+                # print(f&#34;!!! processing idx={j}/{endidx}&#34;)
                 if node.nodes:
                     token = tokens[j]
                     if token.type == self.splittype:
@@ -1762,7 +1763,8 @@ precedence over outtype for the data loaded from source.</dd>
                 thismatches.append(match)
             j = idx + 1  # index into text tokens
             nignored = 0
-            while j &lt;= endidx:
+            while j &lt; endidx:
+                # print(f&#34;!!! processing idx={j}/{endidx}&#34;)
                 if node.nodes:
                     token = tokens[j]
                     if token.type == self.splittype:
