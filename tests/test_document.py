@@ -78,4 +78,3 @@ class TestDocument01:
         assert doc.text is None
         doc.text = "some text"
         assert doc.text == "some text"
-        

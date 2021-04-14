@@ -6,6 +6,7 @@ Module for interacting with a Java GATE process.
 import sys
 import subprocess
 import os
+import pathlib
 import platform as sysplatform
 import logging
 import atexit
@@ -15,14 +16,12 @@ import signal
 import glob
 import json
 from gatenlp.annotation_set import AnnotationSet
-from gatenlp.urlfileutils import is_url
 
 # NOTE: we delay importing py4j to the class initializer. This allows us to make GateWorker available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateWorker
 # from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
 from gatenlp.utils import init_logger
-from gatenlp.processing.annotator import Annotator
 
 JARVERSION = "1.0"
 
@@ -31,6 +30,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 __pdoc__ = {"GateWorkerAnnotator.__call__": True}
+
+
+def jar_loc():
+    return str(pathlib.Path(__file__).parent.parent.\
+        joinpath("_jars").joinpath(f"gatetools-gatenlpworker-{JARVERSION}.jar"))
 
 
 def classpath_sep(platform=None):  # pragma: no cover
@@ -167,9 +171,7 @@ def start_gate_worker(
     logger.debug(
         f"Starting gate worker, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}"
     )
-    jarloc = os.path.join(
-        os.path.dirname(__file__), "_jars", f"gatetools-gatenlpworker-{JARVERSION}.jar"
-    )
+    jarloc = jar_loc()
     if not os.path.exists(jarloc):
         raise Exception("Could not find jar, {} does not exist".format(jarloc))
     logger.debug(f"Using JAR: {jarloc}")
@@ -256,31 +258,31 @@ class GateWorker:   # pragma: no cover
         Example:
 
             ```python
-            gs = GateWorker()
-            pipeline = gs.worker.loadPipelineFromFile("thePipeline.xgapp")
-            doc = gs.worker.createDocument("Some document text")
-            gs.worker.run4doc(pipeline,doc)
-            pdoc = gs.gdoc2pdoc(doc)
-            gs.worker.deleteResource(doc)
+            gw = GateWorker()
+            pipeline = gw.worker.loadPipelineFromFile("thePipeline.xgapp")
+            doc = gw.worker.createDocument("Some document text")
+            gw.worker.run4doc(pipeline,doc)
+            pdoc = gw.gdoc2pdoc(doc)
+            gw.worker.deleteResource(doc)
             # process the document pdoc ...
             ```
 
         port: port to use
         start: if True, try to start our own GATE process, otherwise expect an already started
-           process at the host/port address
+            process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
         host: host an existing Java GATE process is running on (only relevant for start=False)
         gatehome: where GATE is installed (only relevant if start=True). If None, expects
-               environment variable GATE_HOME to be set.
+            environment variable GATE_HOME to be set.
         platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
         auth_token: if None or "" and use_auth_token is True, generate a random token which
-               is then accessible via the auth_token attribute, otherwise use the given auth token.
+            is then accessible via the auth_token attribute, otherwise use the given auth token.
         use_auth_token: if False, do not use an auth token, otherwise either use the one specified
-               via auth_token or generate a random one.
+            via auth_token or generate a random one.
         log_actions: if the gate worker should log the actions it is doing
         keep: normally if gs.close() is called and we are not connected to the PythonWorkerLr,
-               the worker will be shut down. If this is True, the gs.close() method does not shut down
-               the worker.
+            the worker will be shut down. If this is True, the gs.close() method does not shut down
+            the worker.
         debug: show debug messages (default: False)
         """
         if debug:
@@ -314,11 +316,7 @@ class GateWorker:   # pragma: no cover
         if start:
             # make sure we find the jar we need
             # logger.info("DEBUG: file location: {}".format(__file__))
-            jarloc = os.path.join(
-                os.path.dirname(__file__),
-                "_jars",
-                f"gatetools-gatenlpworker-{JARVERSION}.jar",
-            )
+            jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception("Could not find jar, {} does not exist".format(jarloc))
             cmdandparms = [java, "-cp"]
@@ -1021,158 +1019,47 @@ class GateWorker:   # pragma: no cover
         self.worker.showGui()
 
 
-class GateWorkerAnnotator(Annotator):   # pragma: no cover
-    # TODO: parameter to influence how exceptions are handled
-    def __init__(
-            self,
-            pipeline,
-            gateworker,
-            annsets_send=None,
-            annsets_receive=None,
-            replace_anns=False,
-            update_document=False,
-    ):
-        """
-        Create a GateWorker annotator.
-
-        This starts the gate worker, loads the pipeline and
-        can then be used to annotate Python gatenlp Document instances with the Java GATE
-        pipeline.
-
-        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
-        start() method should be invoked once before processing documents and finish() should
-        get called once after processing documents. (Any Executor implementation shoudl do this
-        autimatically)
-
-        If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
-        the Java GATE Worker process.
-
-        Example:
-
-            ```python
-            pipeline = GateWorkerAnnotator("annie.xgapp", GateWorker())
-            for idx, doc in enumerate(mycorpus):
-                corpus[idx] = pipeline(doc)
-            ```
-
-        Args:
-            pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            annsets_send: a list of either annotation set names, or tuples where the first element
-                is the name of an annotation set and the second element is either the name of a type
-                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
-                If an empty list is specified, no annotations are sent at all.
-            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
-                which annotation sets/types are
-                sent back to Python after the document has been processed on the Java side.
-            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
-                which already exists (same set and annotation id)
-                then the existing annotation is replaced (if offsets and type are also same, only the features are
-                replaced). If False, all received annotations are added which may change their annotation id.
-            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
-                received from Java GATE are added. In this case, other changes to the document, e.g. the document
-                text or document features are not applied to the current python document.
-                If False, the existing document is completely replaced with what gets
-                received from Java GATE.
-        """
-        self.pipeline = pipeline
-        self.annsets_send = annsets_send
-        self.annsets_receive = annsets_receive
-        self.replace_anns = replace_anns
-        self.update_document = update_document
-        self.gw = gateworker
-        isurl, ext = is_url(pipeline)
-        if isurl:
-            self.controller = self.gw.worker.loadPipelineFromUri(ext)
-        else:
-            self.controller = self.gw.worker.loadPipelineFromFile(ext)
-        self.corpus = self.gw.worker.newCorpus()
-        self.controller.setCorpus(self.corpus)
-        self.controller.setControllerCallbacksEnabled(False)
-
-    def start(self):
-        """
-        Invoke the controller execution started method on the GATE controller.
-        """
-        self.controller.invokeControllerExecutionStarted()
-
-    def finish(self):
-        """
-        Invoke the controller execution finished method on the GATE controller.
-        """
-        self.controller.invokeControllerExecutionFinished()
-
-    def __call__(self, doc, **_kwargs):
-        """
-        Run the GATE controller on the given document.
-
-        This runs the GATE pipeline (controller) on the given document by first sending the document
-        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
-        and sending the document back and converting back to a new gatenlp Document.
-
-        Args:
-            doc: the document to process
-            **kwargs: ignored so far
-
-        Returns:
-            the processed gatenlp document
-        """
-        if self.annsets_send is not None:
-            # create shallow copy, we only need it for reading!
-            tmpdoc = doc.copy(annsets=self.annsets_send)
-        else:
-            tmpdoc = doc
-        gdoc = self.gw.pdoc2gdoc(tmpdoc)
-        self.gw.worker.run4Document(self.controller, gdoc)
-        if self.update_document:
-            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        else:
-            doc = self.gw.gdoc2pdoc(gdoc)
-        self.gw.del_resource(gdoc)
-        return doc
-
-
-def main():   # pragma: no cover
+def run_gate_worker():   # pragma: no cover
     """
     Start a GATE worker from the command line.
 
     This is available as command `gatenlp-gate-worker`.
     Use option `--help` to get help about command line arguments.
     """
-    ap = argparse.ArgumentParser(description="Start Java GATE Worker")
-    ap.add_argument(
+    argparser = argparse.ArgumentParser(description="Start Java GATE Worker")
+    argparser.add_argument(
         "--download",
         action="store_true",
         help="Download GATE libraries to run GATE worker",
     )
-    ap.add_argument("--port", default=25333, type=int, help="Port (25333)")
-    ap.add_argument(
+    argparser.add_argument("--port", default=25333, type=int, help="Port (25333)")
+    argparser.add_argument(
         "--host", default="127.0.0.1", type=str, help="Host to bind to (127.0.0.1)"
     )
-    ap.add_argument(
+    argparser.add_argument(
         "--auth", default=None, type=str, help="Auth token to use (generate random)"
     )
-    ap.add_argument("--noauth", action="store_true", help="Do not use auth token")
-    ap.add_argument(
+    argparser.add_argument("--noauth", action="store_true", help="Do not use auth token")
+    argparser.add_argument(
         "--gatehome",
         default=None,
         type=str,
         help="Location of GATE (environment variable GATE_HOME)",
     )
-    ap.add_argument(
+    argparser.add_argument(
         "--platform",
         default=None,
         type=str,
         help="OS/Platform: windows or linux (autodetect)",
     )
-    ap.add_argument(
+    argparser.add_argument(
         "--log_actions", action="store_true", help="If worker actions should be logged"
     )
-    ap.add_argument(
+    argparser.add_argument(
         "--keep", action="store_true", help="Prevent shutting down the worker"
     )
-    ap.add_argument("--debug", action="store_true", help="Show debug messages")
-    args = ap.parse_args()
+    argparser.add_argument("--debug", action="store_true", help="Show debug messages")
+    args = argparser.parse_args()
     if args.download:
         raise Exception("--download not implemented yet ")
     start_gate_worker(
@@ -1189,4 +1076,4 @@ def main():   # pragma: no cover
 
 
 if __name__ == "__main__":   # pragma: no cover
-    main()
+    run_gate_worker()
