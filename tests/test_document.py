@@ -18,9 +18,11 @@ class TestDocument01:
         annset1 = doc1.annset("")
         ann1 = annset1.add(8, 9, "Type1", {"f1": 1, "f2": 2})
         ann1id = ann1.id
+        assert ann1id == 0
         assert len(annset1) == 1
         assert ann1.features["f1"] == 1
         ann2id = annset1.add(0, 4, "Type1", {"f1": 13, "f2": 12}).id
+        assert ann2id == 1
         inorder = list(annset1.iter())
         assert len(inorder) == 2
         assert inorder[0].features["f1"] == 13

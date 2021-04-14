@@ -3,7 +3,6 @@
 Module for interacting with a Java GATE process.
 """
 
-import logging
 from gatenlp.urlfileutils import is_url
 from gatenlp.processing.annotator import Annotator
 
@@ -13,10 +12,6 @@ from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
 logger = init_logger("gateworker-annotator")
-
-#logging.basicConfig()
-#logger = logging.getLogger(__name__)
-#logger.setLevel(logging.INFO)
 
 
 class GateWorkerAnnotator(Annotator):   # pragma: no cover

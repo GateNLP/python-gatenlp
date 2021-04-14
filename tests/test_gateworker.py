@@ -2,7 +2,6 @@
 Module to test the GateWorker and GateWorkerAnnotator
 """
 import os
-import sys
 
 from gatenlp import Document
 from gatenlp.utils import init_logger

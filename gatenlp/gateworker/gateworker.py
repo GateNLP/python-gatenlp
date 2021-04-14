@@ -33,8 +33,8 @@ __pdoc__ = {"GateWorkerAnnotator.__call__": True}
 
 
 def jar_loc():
-    return str(pathlib.Path(__file__).parent.parent.\
-        joinpath("_jars").joinpath(f"gatetools-gatenlpworker-{JARVERSION}.jar"))
+    return str(pathlib.Path(__file__).parent.parent.
+               joinpath("_jars").joinpath(f"gatetools-gatenlpworker-{JARVERSION}.jar"))
 
 
 def classpath_sep(platform=None):  # pragma: no cover
@@ -238,7 +238,7 @@ class GateWorker:   # pragma: no cover
             log_actions=False,
             keep=False,
             debug=False,
-        ):
+            ):
         """
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).

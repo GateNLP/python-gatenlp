@@ -3,7 +3,7 @@ Module that implements the Document class for representing gatenlp documents wit
 features and annotation sets.
 """
 
-from typing import KeysView, Callable
+from typing import KeysView, Callable, Union, List
 import logging
 import importlib
 import copy as lib_copy
@@ -134,7 +134,7 @@ class Document:
                     ann._start = method(ann._start)
                     ann._end = method(ann._end)
 
-    def to_offset_type(self, offsettype: str) -> OffsetMapper:
+    def to_offset_type(self, offsettype: str) -> Union[OffsetMapper, None]:
         """Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
@@ -152,9 +152,8 @@ class Document:
           offset mapper or None
 
         """
-        om = None
         if offsettype == self.offset_type:
-            return
+            return None
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
             # convert from currently python to java
             om = OffsetMapper(self._text)
@@ -320,9 +319,7 @@ class Document:
           the changelog used previously or None
 
         """
-        oldchlog = self._changelog
         self._changelog = chlog
-        return oldchlog
 
     @property
     def text(self) -> str:
@@ -439,7 +436,7 @@ class Document:
         else:
             return self._annotation_sets[name]
 
-    def annset_names(self) -> KeysView[str]:
+    def annset_names(self) -> List[str]:
         """
 
         Args:
@@ -551,12 +548,12 @@ class Document:
         }
 
     @staticmethod
-    def from_dict(dictrepr, **kwargs):
+    def from_dict(dictrepr, **_kwargs):
         """Return a Document instance as represented by the dictionary dictrepr.
 
         Args:
           dictrepr: return: the initialized Document instance
-          **kwargs:
+          **_kwargs: not used, ignored
 
         Returns:
           the initialized Document instance
@@ -926,9 +923,9 @@ class Document:
             raise Exception(f"Cannot attach set, a set with the name {name} already exists")
         if check:
             # check if the offsets are consistent with the document
-            l = len(self)
+            mylen = len(self)
             for ann in annset._annotations.values():
-                if ann.end > l:
+                if ann.end > mylen:
                     raise Exception(f"Cannot attach set, annotation beyond text end: {ann}")
         self._annotation_sets[name] = annset
         annset._owner_doc = self
