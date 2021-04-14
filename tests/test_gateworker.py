@@ -6,8 +6,14 @@ import sys
 
 from gatenlp import Document
 from gatenlp.utils import init_logger
+from gatenlp.gateworker import GateWorker
 
 logger = init_logger("test_gateworker")
+
+should_exit = not os.environ.get("GATE_HOME")
+if should_exit:
+    logger.warning("Environment variable GATE_HOME not set, skipping tests in TestGateWorker")
+
 
 def make_doc1():
     """
@@ -17,21 +23,17 @@ def make_doc1():
     return doc
 
 
-def should_exit():
-    if not os.environ.get("GATE_HOME"):
-        print("Environment variable GATE_HOME not set, skipping TestGateWorker",
-              file=sys.stderr)
-        return True
-    return False
-
-
 class TestGateWorker:
 
     def test_gateworker01(self):
         """
         Unit test method (make linter happy)
         """
-        if should_exit():
+        if should_exit:
             return
-        print("Environment variable GATE_HOME set, running TestGateWorker",
-              file=sys.stderr)
+        txt = "some text"
+        with GateWorker() as gw1:
+            gdoc1 = gw1.createDocument(txt)
+            pdoc1 = gw1.gdoc2pdoc(gdoc1)
+            assert pdoc1.text == txt
+

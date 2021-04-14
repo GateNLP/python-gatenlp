@@ -106,7 +106,7 @@ class Pipeline(Annotator):
                 self.annotators.append(a)
                 self.names.append(name)
         # if len(self.annotators) == 0:
-        #     self.logger.warn("Pipeline is a do-nothing pipeline: no annotators")
+        #     self.logger.warning("Pipeline is a do-nothing pipeline: no annotators")
 
     def copy(self):
         """

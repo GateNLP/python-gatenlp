@@ -281,7 +281,7 @@ class TokenGazetteer:
                             else:
                                 tokenstrings = entry.split()  # just split on whitespace
                             if len(tokenstrings) == 0:
-                                self.logger.warn(
+                                self.logger.warning(
                                     f"File {listfile}, skipping line {linenr}, no tokens left: {listline}"
                                 )
                                 continue

@@ -10,8 +10,20 @@ class TestInteraction01:
         """
         Unit test method (make linter happy)
         """
-        # first: use the DefaultPr
-        mypr = _pr_decorator(DefaultPr())
+        @GateNlpPr
+        class Pr1:
+            def __call__(self, doc, **kwargs):
+                assert doc.text == "Just a simple document"
+                assert kwargs["k1"] == "v1"
+                return doc
+
+            def start(self, **kwargs):
+                assert kwargs["k1"] == "v1"
+
+            def finish(self, **kwargs):
+                assert kwargs["k1"] == "v1"
+
+        mypr = gate_python_plugin_pr[0]
         doc1 = Document("Just a simple document")
         mypr.start({"k1": "v1"})  # set the script parms
         mypr.execute(doc1)

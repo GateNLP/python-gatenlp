@@ -56,6 +56,24 @@ For now rather simple:
 
 ## Run pytest
 
+How it works:
+* without any options:
+  * pytest does not show stderr/stdout for passing tests
+  * pytest does not show any logging output for passing tests
+  * pytest DOES show stderr/stdout for failing tests
+  * pytest DOES show info/warning logging for failing tests
+* option -s: show stderr/stdout 
+* option --log-cli-level: enables cli logging of given level or above
+  * can be configured with `log_cli=true, log_cli_level=xxx`
+
 For a test with some keyword and set logging level:
 
-`pytest -k test_call3 -s --log-cli-level=DEBUG`
+`pytest -k test_call3 -s --log-cli --log-cli-level=DEBUG`
+
+
+Conventions:
+
+* for debugging test code we use print or logger at level debug and run with:
+  `pytest -s --log-cli-level DEBUG module`
+* normal testing is done without -s but with `log_cli_level=WARNING` to show important feedback from the 
+  tests, e.g. when a test is skipped because of the local config

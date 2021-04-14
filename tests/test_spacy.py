@@ -13,7 +13,7 @@ class TestSpacy01:
             from gatenlp.lib_spacy import spacy2gatenlp, AnnSpacy
             nlp = spacy.load("en_core_web_sm")
         except ImportError:
-            logger.warn("Module spacy or model en_core_web_sm not installed, skipping spacy test")
+            logger.warning("Module spacy or model en_core_web_sm not installed, skipping spacy test")
             return
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
         sdoc = nlp(txt)

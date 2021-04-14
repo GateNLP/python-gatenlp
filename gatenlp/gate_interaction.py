@@ -202,20 +202,17 @@ class DefaultPr:
         logger.debug(
             "DefaultPr: called __call__() with doc={}, kwargs={}".format(doc, kwargs)
         )
+        logger.warning(
+            "Finished DefaultPr: did you define a @GateNlpPr class or function?"
+        )
         return doc
 
     def start(self, **kwargs):
         logger.debug("DefaultPr: called start() with kwargs={}".format(kwargs))
-        logger.warning(
-            "Running DefaultPr: did you define a @GateNlpPr class or function?"
-        )
         return None
 
     def finish(self, **kwargs):
         logger.debug("DefaultPr: called finish() with kwargs={}".format(kwargs))
-        logger.warning(
-            "Finished DefaultPr: did you define a @GateNlpPr class or function?"
-        )
         return None
 
     def reduce(self, resultlist, **kwargs):

@@ -13,14 +13,14 @@ class TestStanza01:
             from gatenlp.lib_stanza import stanza2gatenlp, AnnStanza
             from stanza.resources.common import DEFAULT_MODEL_DIR
         except ImportError:
-            logger.warn("Module stanza not installed, skipping stanza test")
+            logger.warning("Module stanza not installed, skipping stanza test")
             return
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")
         if not os.path.exists(modelfile):
             stanza.download("en")
         nlp = stanza.Pipeline()
         if stanza is None:
-            logger.warn("Stanza could not be imported, Stanza tests skipped!")
+            logger.warning("Stanza could not be imported, Stanza tests skipped!")
             return
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
         sdoc = nlp(txt)
