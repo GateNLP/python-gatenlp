@@ -5,7 +5,9 @@ import os
 import sys
 
 from gatenlp import Document
+from gatenlp.utils import init_logger
 
+logger = init_logger("test_gateworker")
 
 def make_doc1():
     """
