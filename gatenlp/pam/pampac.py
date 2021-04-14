@@ -6,6 +6,7 @@ patterns in annotations and text and carry out actions if a match occurs.
 
 NOTE: this implementation has been inspired by https://github.com/google/compynator
 """
+from typing import Union
 import functools
 from copy import deepcopy
 from collections.abc import Iterable, Sized
@@ -33,7 +34,8 @@ __pdoc__ = {
 
 # TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
 # TODO: implement Forward() / fwd.set(fwd | Ann("X"))
-# TODO: implement support for literal Text/Regexp: Seq(Ann("Token"), "text", regexp) and Ann >> "text" and "text" >> Ann()
+# TODO: implement support for literal Text/Regexp: Seq(Ann("Token"), "text", regexp) and
+#   Ann >> "text" and "text" >> Ann()
 #   and Ann() | text etc.
 # !!TODO: options for skip:
 # !!TODO: * overlapping=True/False: sequence element can overlap with previous match
@@ -430,7 +432,7 @@ class Context:
             self._annset = AnnotationSet.from_anns(self.anns)
         return self._annset
 
-    def get_ann(self, location):
+    def get_ann(self, location) -> Union[Annotation, None]:
         """
         Return the ann at the given location, or None if there is none (mainly for the end-of-anns index).
 
@@ -1444,7 +1446,7 @@ class _AnnBase(PampacParser):
                         location=location,
                         message="No annotation found withing gap",
                     )
-                idx + 1
+                idx += 1
 
         return PampacParser(parser_function=_parse)
 
@@ -1802,7 +1804,7 @@ class And(PampacParser):
                     location=location,
                     message="Not all parsers succeed",
                 )
-        return Success(results)
+        return Success(results, context=context)
 
 
 class All(PampacParser):
@@ -1829,7 +1831,7 @@ class All(PampacParser):
                 for r in ret:
                     results.append(r)
         if len(results) > 0:
-            return Success(results)
+            return Success(results, context=context)
         else:
             return Failure(
                 context=context,
