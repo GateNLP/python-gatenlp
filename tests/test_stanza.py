@@ -18,7 +18,7 @@ class TestStanza01:
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")
         if not os.path.exists(modelfile):
             stanza.download("en")
-        nlp = stanza.Pipeline()
+        nlp = stanza.Pipeline(use_gpu=False)
         if stanza is None:
             logger.warning("Stanza could not be imported, Stanza tests skipped!")
             return
