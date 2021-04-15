@@ -1,6 +1,6 @@
 
 from gatenlp import Document, Annotation, Span
-from gatenlp.pam.pampac import Context, Location
+from gatenlp.pam.pampac import Context, Location, Result
 
 from gatenlp.pam.pampac import (
     Ann,
@@ -17,6 +17,11 @@ from gatenlp.pam.pampac import (
     Pampac,
     Function
 )
+
+# Disable:
+#   too-many-statements (R0915)
+#   import-outside-toplevel (C0415)
+# pylint: disable=R0915, C0415
 
 
 class TestPampac01:
@@ -107,7 +112,7 @@ class TestPampac01:
         parser = Ann(name="a1")
         tmp = dict(i=0)
 
-        def rhs1(succ, **kwargs):
+        def rhs1(_succ, **_kwargs):
             tmp["i"] = 1
 
         rule = Call(parser, rhs1)
@@ -120,7 +125,7 @@ class TestPampac01:
         assert tmp["i"] == 1
 
         # use the call method instead
-        def rhs2(succ, **kwargs):
+        def rhs2(_succ, **_kwargs):
             tmp["i"] = 2
 
         parser = Ann(name="a1").call(rhs2)
@@ -480,7 +485,6 @@ class TestPampac01:
         assert len(ret[0].matches) == 1
         assert ret[0].matches[0]["ann"].id == 2
 
-
         # This should terminate with Person and find all paths that can lead up to PErson:
         # 0,3 0,4 1,3 1,4
         ret = N(AnnAt("Ann", name="a1", matchtype="all"),
@@ -528,10 +532,10 @@ class TestPampac01:
         # first make sure the pattern works as we want
         ctx = Context(doc=doc, anns=annlist)
         pat1 = AnnAt("Ann2", name="a1") >> AnnAt("Ann2", name="a2")
-        loc = ctx.inc_location(Location(0,0), by_offset=1)
-        ret = pat1.parse(location=loc, context=ctx)
+        loc = ctx.inc_location(Location(0, 0), by_offset=1)
+        pat1.parse(location=loc, context=ctx)
 
-        def r1_action(succ, context=None, **kwargs):
+        def r1_action(succ, _context=None, **_kwargs):
             span = succ[0].span
             ann = succ.context.outset.add(span.start, span.end, "NEW")
             return ann
@@ -556,14 +560,13 @@ class TestPampac01:
         assert a.type == "NEW"
         assert len(outset) == orig_len + 1
 
+
 class TestPampacMisc:
 
     def test01(self):
         """
         Unit test method (make linter happy)
         """
-        from gatenlp.pam.pampac import Location, Result, Failure, Context, Success
-
         loc1 = Location(0, 0)
         loc2 = Location(0, 1)
         loc3 = Location(1, 0)
@@ -626,7 +629,6 @@ Caused by:
         """
         Unit test method (make linter happy)
         """
-        from gatenlp.pam.pampac import PampacParser
 
         def fun1(location, context):
             return location, context

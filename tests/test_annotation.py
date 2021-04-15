@@ -145,18 +145,18 @@ class TestAnnotationRels:
         with pytest.raises(Exception) as ex:
             Annotation(3, 2, "X")
         assert str(ex.value).startswith("Cannot create annotation")
-        with pytest.raises(Exception) as ex:
+        with pytest.raises(Exception):
             Annotation(1, 2, "X", annid="x")
-        with pytest.raises(Exception) as ex:
+        with pytest.raises(Exception):
             Annotation(1, 2, "X", features=12)
-        with pytest.raises(Exception) as ex:
+        with pytest.raises(Exception):
             Annotation(1, 2, "X", annid="x")
         assert Annotation(2, 3, "X").span == Span(2, 3)
         assert not (Annotation(1, 2, "X") == "X")
         ann1 = Annotation(1, 2, "X")
         assert ann1 == ann1
         assert hash(ann1) == hash((ann1.id, ann1._owner_set))
-        with pytest.raises(Exception) as ex:
+        with pytest.raises(Exception):
             Annotation(1, 2, "X") < 33
         assert Annotation(1, 2, "X") < Annotation(2, 3, "X")
         assert not Annotation(1, 2, "X") < Annotation(0, 3, "X")

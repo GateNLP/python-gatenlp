@@ -19,7 +19,7 @@ class TestChangeLog01:
         ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
         ann3 = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
-        ann4id = annset1.add(
+        _ann4id = annset1.add(
             14, 15, "Token", {"n": 4, "upper": False, "isshit": True}
         ).id
         ann5 = annset1.add(16, 24, "Token", {"n": 5})
@@ -36,7 +36,7 @@ class TestChangeLog01:
         # print("!!!!!!!!!!!!!!DEBUG: ",chlog1.pprint())
         assert chlog1.changes[4].get("end") == 24
         assert chlog.changes[4].get("end") == 24
-        om = OffsetMapper(doc1)
+        om = OffsetMapper(doc1.text)
         jsonstr = chlog.save_mem(offset_type=OFFSET_TYPE_JAVA, offset_mapper=om)
         chlog2 = ChangeLog.load_mem(jsonstr, offset_mapper=om)
         assert chlog.changes[4].get("end") == 24
@@ -48,11 +48,11 @@ class TestChangeLog01:
         doc1 = Document("Just a simple \U0001F4A9 document.")
         doc1.changelog = chlog
         annset1 = doc1.annset("")
-        ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
+        _ann1 = annset1.add(0, 4, "Token", {"n": 1, "upper": True})
         ann2 = annset1.add(5, 6, "Token", {"n": 2, "upper": False})
         ann3 = annset1.add(7, 13, "Token", {"n": 3, "upper": False})
-        ann4 = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
-        ann5 = annset1.add(16, 24, "Token", {"n": 5})
+        _ann4 = annset1.add(14, 15, "Token", {"n": 4, "upper": False, "isshit": True})
+        _ann5 = annset1.add(16, 24, "Token", {"n": 5})
         annset2 = doc1.annset("Set2")
         annset2.add(0, 12, "Ann1", None)
         annset1.remove(ann2.id)

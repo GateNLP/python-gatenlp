@@ -30,6 +30,7 @@ def make_doc():
     set1.add(36, 42, "Ann12")
     return doc
 
+
 class TestAnnotationSet01:
 
     def test_annotationset01m01(self):
@@ -91,15 +92,15 @@ class TestAnnotationSetRels:
         ann3 = set1.with_type("Ann3").for_idx(0)
         ann4 = set1.with_type("Ann4").for_idx(0)
         ann5 = set1.with_type("Ann5").for_idx(0)
-        ann6 = set1.with_type("Ann6").for_idx(0)
+        _ann6 = set1.with_type("Ann6").for_idx(0)
         ann7 = set1.with_type("Ann7").for_idx(0)
-        ann8 = set1.with_type("Ann8").for_idx(0)
+        _ann8 = set1.with_type("Ann8").for_idx(0)
         ann9 = set1.with_type("Ann9").for_idx(0)
-        ann10 = set1.with_type("Ann10").for_idx(0)
+        _ann10 = set1.with_type("Ann10").for_idx(0)
         ann11 = set1.with_type("Ann11").for_idx(0)
         ann12 = set1.with_type("Ann12").for_idx(0)
 
-        assert set1.changelog == None
+        assert set1.changelog is None
         assert set1.document == doc
         assert set1.end == 45
         assert not set1.immutable
@@ -254,7 +255,7 @@ class TestAnnotationSetRels:
         """
         Unit test method (make linter happy)
         """
-        import pytest
+        # import pytest
         # with pytest.raises(Exception) as ex:
         #     Annotation(3, 2, "X")
         # assert str(ex.value).startswith("Cannot create annotation")
