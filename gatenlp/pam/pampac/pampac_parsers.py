@@ -1,5 +1,5 @@
 """
-Module for PAMPAC (Pattern Matching wit PArser Combinators).
+Module for PAMPAC (Pattern Matching wit PArser Combinators) parsers.
 
 This module allows to create parsers that can match
 patterns in annotations and text and carry out actions if a match occurs.

@@ -1,11 +1,8 @@
 """
-Module for PAMPAC (Pattern Matching wit PArser Combinators).
+Module for the Pampac class.
 
-This module allows to create parsers that can match
-patterns in annotations and text and carry out actions if a match occurs.
-
-NOTE: this implementation has been inspired by https://github.com/google/compynator
 """
+from gatenlp.processing.annotator import Annotator
 from gatenlp.pam.pampac.data import Location, Context
 from gatenlp.pam.pampac.rule import Rule
 from gatenlp.utils import init_logger
@@ -158,3 +155,9 @@ class Pampac:
 
     __call__ = run
 
+
+class PampacAnnotator(Annotator):
+    """
+    Class for running a Pampac ruleset.
+    """
+    pass
