@@ -8,6 +8,7 @@
 * Pampac: use the term "matches" instead of "data" for the named information stored for each named pattern that
   fits the document. A single one of these is often called "match info" and the index for a specific info is called
   "matchidx". See issue #89
+* Pampac: a Result is now an Iterable of match infos.
 
 ## 1.0.4 (2021-04-10)
 

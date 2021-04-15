@@ -84,10 +84,13 @@ class Location:
         )
 
 
+#class Result(Iterable, Sized):
 class Result:
     """
     Represents an individual parser result. A successful parse can have any number of parser results which
-    are alternate ways of how the parser can match the document.
+    are alternate ways of how the parser can match the document. Each result can have an arbitrary number of
+    "matches" (named spans where some part of the pattern fits the document).
+    A result is an iterable of matches.
     """
 
     def __init__(self, matches=None, location=None, span=None):
@@ -133,6 +136,18 @@ class Result:
 
     def __repr__(self):
         return f"Result(loc={self.location},span=Span({self.span.start},{self.span.end}),matches={self.matches})"
+
+    def __iter__(self):
+        if self.matches is not None:
+            return iter(self.matches)
+        else:
+            return iter([])
+
+    def __len__(self):
+        if self.matches is not None:
+            return len(self.matches)
+        else:
+            return 0
 
 
 class Failure:
@@ -252,6 +267,8 @@ class Success(Iterable, Sized):
         """
         if results is None:
             self._results = []
+        elif isinstance(results, Result):   # now that the Result itself is an iterable, need to check first!
+            self._results = [results]
         elif isinstance(results, Iterable):
             self._results = list(results)
         else:
@@ -301,6 +318,7 @@ class Success(Iterable, Sized):
         Returns:
             the filtered result or all results
         """
+        print("!!!!!DEBUG: called with results=", results)
         if matchtype is None:
             matchtype = "first"
         if matchtype == "all":
