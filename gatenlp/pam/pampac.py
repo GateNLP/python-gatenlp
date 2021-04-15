@@ -6,6 +6,7 @@ patterns in annotations and text and carry out actions if a match occurs.
 
 NOTE: this implementation has been inspired by https://github.com/google/compynator
 """
+from abc import ABC, abstractmethod
 from typing import Union
 import functools
 from copy import deepcopy
@@ -84,8 +85,7 @@ class Location:
         )
 
 
-#class Result(Iterable, Sized):
-class Result:
+class Result(Iterable, Sized):
     """
     Represents an individual parser result. A successful parse can have any number of parser results which
     are alternate ways of how the parser can match the document. Each result can have an arbitrary number of
@@ -602,7 +602,7 @@ class Context:
         return location.ann_location >= len(self.anns)
 
 
-class PampacParser:
+class PampacParser(ABC):
     """
     A Pampac parser, something that takes a context and returns a result.
     This can be used to decorate a function that should be used as the parser,
@@ -615,31 +615,9 @@ class PampacParser:
 
     """
 
-    def __init__(self, parser_function):
-        """
-        Create a parser from the given function.
-
-        Args:
-            parser_function: the function to wrap into a parser.
-        """
-        self.name = None
-        self._parser_function = parser_function
-        self.name = parser_function.__name__
-        functools.update_wrapper(self, parser_function)
-
+    @abstractmethod
     def parse(self, location, context):
-        """
-        Invoking the parser function. This invokes the wrapped function for the root PampacParser
-        class and should be overriden/implemented for PampacParser subclasses.
-
-        Args:
-            location: where to start parsing
-            context: the parsing context
-
-        Returns:
-            Success or Failure
-        """
-        return self._parser_function(location, context)
+        pass
 
     def match(self, doc, anns=None, start=None, end=None, location=None):
         """
@@ -1244,6 +1222,36 @@ class PampacParser:
         return Lookahead(self, other)
 
 
+class Function(PampacParser):
+
+    def __init__(self, parser_function):
+        """
+        Create a parser from the given function.
+
+        Args:
+            parser_function: the function to wrap into a parser.
+        """
+        self.name = None
+        self._parser_function = parser_function
+        self.name = parser_function.__name__
+        functools.update_wrapper(self, parser_function)
+
+    def parse(self, location, context):
+        """
+        Invoking the parser function. This invokes the wrapped function for the root PampacParser
+        class and should be overriden/implemented for PampacParser subclasses.
+
+        Args:
+            location: where to start parsing
+            context: the parsing context
+
+        Returns:
+            Success or Failure
+        """
+        return self._parser_function(location, context)
+
+
+
 class Lookahead(PampacParser):
     """
     A parser that succeeds for a parser A only if another parser B succeeds right after it.
@@ -1430,7 +1438,7 @@ class _AnnBase(PampacParser):
                     message="Next ann not withing gap",
                 )
 
-        return PampacParser(parser_function=_parse)
+        return Function(parser_function=_parse)
 
     def findgap(self, min=0, max=0):
         """
@@ -1466,7 +1474,7 @@ class _AnnBase(PampacParser):
                     )
                 idx += 1
 
-        return PampacParser(parser_function=_parse)
+        return Function(parser_function=_parse)
 
 
 class AnnAt(_AnnBase):

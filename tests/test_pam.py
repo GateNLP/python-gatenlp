@@ -14,7 +14,8 @@ from gatenlp.pam.pampac import (
     Success,
     Failure,
     Rule,
-    Pampac
+    Pampac,
+    Function
 )
 
 
@@ -630,5 +631,5 @@ Caused by:
         def fun1(location, context):
             return location, context
 
-        parser1 = PampacParser(fun1)
+        parser1 = Function(fun1)
         assert parser1.parse(1, 2) == (1, 2)
