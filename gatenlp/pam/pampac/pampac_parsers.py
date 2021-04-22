@@ -207,7 +207,7 @@ class PampacParser(ABC):
         else:
             raise Exception("Not an integer or tuple or list of two integers")
 
-    def _make_constraint_predicate(self, matcher, constraint):
+    def _make_constraint_predicate(self, matcher, constraint, annset=None):
         """
         Create predicate that can be used to filter results according to one of the
         annotation-based constraints like .within, .coextensive.
@@ -215,20 +215,23 @@ class PampacParser(ABC):
         Args:
             matcher: the annotation matcher
             constraint: the constraint to use on the annotation set
+            annset: if not None, use that set instead of the one from the context
 
         Returns:
             predicate function
 
         """
-
-        def _predicate(result, context=None, **kwargs):
+        def _predicate(result, context=None, **_kwargs):
             anns = set()
             for m in result.matches:
                 ann = m.get("ann")
                 if ann:
                     anns.add(ann)
-            annset = context.annset
-            tocall = getattr(annset, constraint)
+            if annset is None:
+                useset = context.annset
+            else:
+                useset = annset
+            tocall = getattr(useset, constraint)
             annstocheck = tocall(result.span)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
@@ -239,7 +242,7 @@ class PampacParser(ABC):
 
         return _predicate
 
-    def _make_notconstraint_predicate(self, matcher, constraint):
+    def _make_notconstraint_predicate(self, matcher, constraint, annset=None):
         """
         Create predicate that can be used to filter results according to one of the
         annotation-based negated constraints like .notwithin, .notcoextensive.
@@ -247,20 +250,23 @@ class PampacParser(ABC):
         Args:
             matcher: the annotation matcher
             constraint: the constraint to use on the annotation set
+            annset: if not None, use that set instead of the one from the context
 
         Returns:
             predicate function
 
         """
-
-        def _predicate(result, context=None, **kwargs):
+        def _predicate(result, context=None, **_kwargs):
             anns = set()
             for m in result.matches:
                 ann = m.get("ann")
                 if ann:
                     anns.add(ann)
-            annset = context.annset
-            tocall = getattr(annset, constraint)
+            if annset is None:
+                useset = context.annset
+            else:
+                useset = annset
+            tocall = getattr(useset, constraint)
             annstocheck = tocall(result.span)
             matched = False
             for anntocheck in annstocheck:
@@ -273,7 +279,10 @@ class PampacParser(ABC):
         return _predicate
 
     def within(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+            self, type=None,
+            annset=None,
+            features=None,
+            features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is within any annotation
@@ -284,6 +293,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -295,11 +305,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "covering")
+        pred = self._make_constraint_predicate(matcher, "covering", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def notwithin(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is not within any annotation
@@ -310,6 +320,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -321,11 +332,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "covering")
+        pred = self._make_notconstraint_predicate(matcher, "covering", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def coextensive(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is coextensive with
@@ -336,6 +347,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -347,11 +359,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "coextensive")
+        pred = self._make_constraint_predicate(matcher, "coextensive", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def notcoextensive(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is not coextensive
@@ -363,6 +375,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -374,11 +387,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "coextensive")
+        pred = self._make_notconstraint_predicate(matcher, "coextensive", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def overlapping(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is overlapping with
@@ -389,6 +402,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -400,11 +414,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "overlapping")
+        pred = self._make_constraint_predicate(matcher, "overlapping", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def notoverlapping(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is not overlapping
@@ -416,6 +430,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -427,11 +442,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "overlapping")
+        pred = self._make_notconstraint_predicate(matcher, "overlapping", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def covering(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is covering any annotation
@@ -442,6 +457,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -453,11 +469,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "within")
+        pred = self._make_constraint_predicate(matcher, "within", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def notcovering(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is not covering
@@ -469,6 +485,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -480,11 +497,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "within")
+        pred = self._make_notconstraint_predicate(matcher, "within", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def at(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is starting
@@ -496,6 +513,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -507,11 +525,11 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_constraint_predicate(matcher, "startingat")
+        pred = self._make_constraint_predicate(matcher, "startingat", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def notat(
-        self, type=None, features=None, features_eq=None, text=None, matchtype="first"
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype="first"
     ):
         """
         Parser that succeeds if there is a success for the current parser that is not starting
@@ -523,6 +541,7 @@ class PampacParser(ABC):
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -534,24 +553,26 @@ class PampacParser(ABC):
         matcher = AnnMatcher(
             type=type, features=features, features_eq=features_eq, text=text
         )
-        pred = self._make_notconstraint_predicate(matcher, "startingat")
+        pred = self._make_notconstraint_predicate(matcher, "startingat", annset=annset)
         return Filter(self, pred, matchtype=matchtype)
 
     def before(
-        self,
-        type=None,
-        features=None,
-        features_eq=None,
-        text=None,
-        immediately=False,
-        matchtype="first",
-    ):
+            self,
+            type=None,
+            annset=None,
+            features=None,
+            features_eq=None,
+            text=None,
+            immediately=False,
+            matchtype="first",
+            ):
         """
         Parser that succeeds if there is a success for the current parser that is before any annotation
         that matches the given properties.
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -569,11 +590,14 @@ class PampacParser(ABC):
         # the END of the result
         def _predicate(result, context=None, **kwargs):
             anns = set(result.anns4matches())
-            annset = context.annset
-            if immediately:
-                annstocheck = annset.startingat(result.span.end)
+            if annset is None:
+                useset = context.annset
             else:
-                annstocheck = annset.startin_ge(result.span.end)
+                useset = annset
+            if immediately:
+                annstocheck = useset.startingat(result.span.end)
+            else:
+                annstocheck = useset.startin_ge(result.span.end)
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
                     if anntocheck in anns:
@@ -585,20 +609,22 @@ class PampacParser(ABC):
 
     @support_annotation_or_set
     def notbefore(
-        self,
-        type=None,
-        features=None,
-        features_eq=None,
-        text=None,
-        immediately=False,
-        matchtype="first",
-    ):
+            self,
+            type=None,
+            annset=None,
+            features=None,
+            features_eq=None,
+            text=None,
+            immediately=False,
+            matchtype="first",
+        ):
         """
         Parser that succeeds if there is a success for the current parser that is not before any annotation
         that matches the given properties.
 
         Args:
             type: as for AnnMatcher
+            annset: if not None, check for an annotation in that set instead of the default set used
             features: as for AnnMatcher
             features_eq: as for AnnMatcher
             text: as for AnnMatcher
@@ -614,11 +640,14 @@ class PampacParser(ABC):
 
         def _predicate(result, context=None, **kwargs):
             anns = set(result.anns4matches())
-            annset = context.annset
-            if immediately:
-                annstocheck = annset.startingat(result.span.end)
+            if annset is None:
+                useset = context.annset
             else:
-                annstocheck = annset.start_ge(result.span.end)
+                useset = annset
+            if immediately:
+                annstocheck = useset.startingat(result.span.end)
+            else:
+                annstocheck = useset.start_ge(result.span.end)
             matched = False
             for anntocheck in annstocheck:
                 if matcher(anntocheck, context.doc):
@@ -673,7 +702,6 @@ class Function(PampacParser):
             Success or Failure
         """
         return self._parser_function(location, context)
-
 
 
 class Lookahead(PampacParser):
@@ -746,7 +774,8 @@ class Filter(PampacParser):
 
         Args:
             parser: the parser to use
-            predicate: the function to call for each result of the parser success
+            predicate: the function to call for each result of the parser success. Should have signature
+                result, context=, location=
             take_if: if True takes if predicate returns True, otherwise if predicate returns false
             matchtype: how to choose among all the selected results
         """
