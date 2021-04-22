@@ -9,6 +9,8 @@
   fits the document. A single one of these is often called "match info" and the index for a specific info is called
   "matchidx". See issue #89
 * Pampac: a Result is now an Iterable of match infos.
+* Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
+  `.within("Person", annset=doc.annset("Other"))`. See issue #57
 
 ## 1.0.4 (2021-04-10)
 
