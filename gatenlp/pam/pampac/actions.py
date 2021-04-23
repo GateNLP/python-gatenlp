@@ -141,7 +141,7 @@ class AddAnn:
         resultidx=0,
         matchidx=0,
         silent_fail=False,
-    ):
+    ):  # pylint: disable=W0622
         """
         Create an action for adding a new annotation to the outset.
 
