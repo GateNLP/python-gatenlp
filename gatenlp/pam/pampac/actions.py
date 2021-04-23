@@ -23,23 +23,21 @@ def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     if resultidx >= len(succ):
         if not silent_fail:
             raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
-        else:
-            return None
+        return None
     res = succ[resultidx]
     matches = res.matches4name(name)
     if not matches:
         if not silent_fail:
             raise Exception(f"No match info with name {name} in result")
-        else:
-            return None
+        return None
     if matchidx >= len(matches):
         if not silent_fail:
             raise Exception(f"No match info with index {matchidx}, length is {len(matches)}")
-        else:
-            return None
+        return None
     return matches[matchidx]
 
 
+# pylint: disable=R0912
 def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     """
     Helper method to return the span for the given result index and name, or None.
@@ -57,21 +55,18 @@ def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     if resultidx >= len(succ):
         if not silent_fail:
             raise Exception(f"No resultidx {resultidx}, only {len(succ)} results")
-        else:
-            return None
+        return None
     res = succ[resultidx]
     if name:
         matches = res.matches4name(name)
         if not matches:
             if not silent_fail:
                 raise Exception(f"No match info with name {name} in result")
-            else:
-                return None
+            return None
         if matchidx >= len(matches):
             if not silent_fail:
                 raise Exception(f"No match info with index {matchidx}, length is {len(matches)}")
-            else:
-                return None
+            return None
         ret = matches[matchidx].get("span")
     else:
         ret = res.span
@@ -79,7 +74,7 @@ def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
         if silent_fail:
             return None
         else:
-            raise Exception(f"No span found")
+            raise Exception("No span found")
     return ret
 
 
@@ -131,17 +126,17 @@ class AddAnn:
     """
 
     def __init__(
-        self,
-        name=None,
-        ann=None,  # create a copy of this ann retrieved with GetAnn
-        type=None,  # or create a new annotation with this type
-        annset=None,  # if not none, create in this set instead of the one used for matching
-        features=None,
-        span=None,  # use literal span, GetSpan, if none, span from match
-        resultidx=0,
-        matchidx=0,
-        silent_fail=False,
-    ):  # pylint: disable=W0622
+            self,
+            name=None,
+            ann=None,  # create a copy of this ann retrieved with GetAnn
+            type=None,  # or create a new annotation with this type
+            annset=None,  # if not none, create in this set instead of the one used for matching
+            features=None,
+            span=None,  # use literal span, GetSpan, if none, span from match
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+        ):  # pylint: disable=W0622
         """
         Create an action for adding a new annotation to the outset.
 
@@ -177,6 +172,7 @@ class AddAnn:
         self.silent_fail = silent_fail
         self.annset = annset
 
+    # pylint: disable=R0912
     def _add4span(self, span, succ, context, location):
         if span is None:
             return
@@ -237,15 +233,15 @@ class UpdateAnnFeatures:
     """
 
     def __init__(
-        self,
-        name,
-        ann=None,
-        features=None,
-        replace=False,  # replace existing features rather than updating
-        resultidx=0,
-        matchidx=0,
-        silent_fail=False,
-    ):
+            self,
+            name,
+            ann=None,
+            features=None,
+            replace=False,  # replace existing features rather than updating
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+        ):
         """
         Create an UpdateAnnFeatures action.
 
@@ -271,6 +267,7 @@ class UpdateAnnFeatures:
         self.matchidx = matchidx
         self.silent_fail = silent_fail
 
+    # pylint: disable=R0912
     def __call__(self, succ, context=None, location=None):
         match = _get_match(
             succ, self.name, self.resultidx, self.matchidx, self.silent_fail
@@ -541,7 +538,7 @@ class GetText:
             return context.doc[span]
         else:
             if self.silent_fail:
-                return
+                return None
             else:
                 raise Exception("Could not find a span for match info")
 
@@ -577,6 +574,6 @@ class GetRegexGroup:
             return groups[self.group]
         else:
             if self.silent_fail:
-                return
+                return None
             else:
                 raise Exception("Could not find regexp groups for match info")
