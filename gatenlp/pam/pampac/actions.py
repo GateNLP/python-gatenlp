@@ -134,7 +134,7 @@ class AddAnn:
         self,
         name=None,
         ann=None,  # create a copy of this ann retrieved with GetAnn
-        anntype=None,  # or create a new annotation with this type
+        type=None,  # or create a new annotation with this type
         annset=None,  # if not none, create in this set instead of the one used for matching
         features=None,
         span=None,  # use literal span, GetSpan, if none, span from match
@@ -151,7 +151,7 @@ class AddAnn:
             ann:  either an Annotation which will be (deep) copied to create the new annotation, or
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
-            anntype: the type of a new annotation to create
+            type: the type of a new annotation to create
             annset: if not None, create the new annotation in this set instead of the one used for matching
             features: the features of a new annotation to create. This can be a GetFeatures helper for copying
                 the features from another annotation in the results
@@ -166,9 +166,9 @@ class AddAnn:
         """
         # span is either a span, the index of a match info to take the span from, or a callable that will return the
         # span at firing time
-        assert anntype is not None or ann is not None
+        assert type is not None or ann is not None
         self.name = name
-        self.anntype = anntype
+        self.anntype = type
         self.ann = ann
         self.features = features
         self.span = span
