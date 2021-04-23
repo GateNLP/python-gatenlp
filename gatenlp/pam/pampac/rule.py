@@ -46,4 +46,3 @@ class Rule(PampacParser):
 
         """
         return self.parser.parse(location, context)
-

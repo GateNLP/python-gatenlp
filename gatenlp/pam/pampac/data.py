@@ -79,8 +79,8 @@ class Result(Iterable, Sized):
         """
         Yields all the annotations, if any, in the results matches.
         """
-        for m in self.matches:
-            tmp = m.get("ann")
+        for mtch_ in self.matches:
+            tmp = mtch_.get("ann")
             if tmp:
                 yield tmp
 
@@ -115,13 +115,13 @@ class Failure:
     """
 
     def __init__(
-        self,
-        message=None,
-        parser=None,
-        location=None,
-        causes=None,
-        context=None,
-    ):
+            self,
+            message=None,
+            parser=None,
+            location=None,
+            causes=None,
+            context=None,
+        ):
         """
         Create a Failure instance.
 
@@ -255,11 +255,11 @@ class Success(Iterable, Sized):
                 print(f"Result {idx}, location={res.location}:", file=file)
             else:
                 print(f"Result {idx}, location={res.location}:", file=file)
-            for jdx, d in enumerate(res.matches):
+            for jdx, mtch_ in enumerate(res.matches):
                 if file:
-                    print(f"  {jdx}: {d}", file)
+                    print(f"  {jdx}: {mtch_}", file)
                 else:
-                    print(f"  {jdx}: {d}", file)
+                    print(f"  {jdx}: {mtch_}", file)
 
     @staticmethod
     def select_result(results, matchtype="first"):
@@ -349,15 +349,15 @@ class Context:
     """
 
     def __init__(
-        self,
-        doc,
-        anns,
-        start=None,
-        end=None,
-        outset=None,
-        # memoize=False,
-        # max_recusion=None,
-    ):
+            self,
+            doc,
+            anns,
+            start=None,
+            end=None,
+            outset=None,
+            # memoize=False,
+            # max_recusion=None,
+        ):
         """
         Initialize a parse context.
 
@@ -558,4 +558,3 @@ class Context:
             True if we are at end of anns
         """
         return location.ann_location >= len(self.anns)
-
