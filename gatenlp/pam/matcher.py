@@ -1,3 +1,7 @@
+"""
+Module for matchers to use with pampac patterns and elsewhere.
+"""
+
 import re
 from gatenlp.utils import init_logger
 
@@ -9,9 +13,9 @@ try:
     CLASS_REGEX_PATTERN = _tmp_regex_pattern.__class__
 except ImportError:
     # if the regex module is not available, make our  code still work by introducing a dummy type
-    class RegexPattern:
+    class RegexPattern:   # pylint: disable=C0115
         pass
-    CLASS_REGEX_PATTERN = RegexPattern
+    CLASS_REGEX_PATTERN = RegexPattern  # pylint: disable=C0103
     # make style checker happy
     regex = None
 
@@ -25,7 +29,7 @@ __pdoc__ = {
 }
 
 
-class isIn:
+class isIn:  # pylint: disable=C0103
     """
     Helper  for use with the Feature matcher to check if a feature value is one of the
     values given to the constructor.
@@ -93,7 +97,7 @@ class FeatureMatcher:
         Args:
             **kwargs: arbitrary key/value pairs to use for matching features.
         """
-        self.fm = kwargs  # "featurematcher"
+        self.featurematches = kwargs  # "featurematcher"
 
     def __call__(self, features):
         """
@@ -109,19 +113,17 @@ class FeatureMatcher:
             True if the feature constraints are satisfied
 
         """
-        for fmn in self.fm.keys():  # "featurematchername"
+        for fmn in self.featurematches:  # "featurematchername"
             if fmn not in features:
                 # logger.debug(f"Feature {fmn} not in features")
                 return False
-        for fmn, fmv in self.fm.items():  # "featurematchername"/"featurematchervalue"
+        for fmn, fmv in self.featurematches.items():  # "featurematchername"/"featurematchervalue"
             feature = features[fmn]
             if callable(fmv):
                 if not fmv(feature):
                     # logger.debug(f"Callable {fmn} did not return True for {feature}")
                     return False
-            elif isinstance(fmv, CLASS_RE_PATTERN) or isinstance(
-                fmv, CLASS_REGEX_PATTERN
-            ):
+            elif isinstance(fmv, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 fstr = str(feature)
                 if not fmv.match(fstr):
                     return False
@@ -149,7 +151,7 @@ class FeatureEqMatcher:
         Args:
             **kwargs: arbitrary key/value pairs to use for matching features.
         """
-        self.features = kwargs
+        self.featurematches = kwargs
         self._fm = FeatureMatcher(**kwargs)
 
     def __call__(self, features):
@@ -165,8 +167,8 @@ class FeatureEqMatcher:
         Returns:
             True if the feature constraints are satisfied
         """
-        for f in features.keys():
-            if f not in self.features:
+        for feat in features.keys():
+            if feat not in self.featurematches:
                 return False
         if not self._fm(features):
             return False
@@ -181,7 +183,7 @@ class AnnMatcher:
     defined.
     """
 
-    def __init__(self, type=None, features=None, features_eq=None, text=None):
+    def __init__(self, type=None, features=None, features_eq=None, text=None):  # pylint: disable=W0622
         """
         Create an AnnMatcher instance.
 
@@ -212,6 +214,7 @@ class AnnMatcher:
             self.features_matcher = None
         self.text = text
 
+    # pylint: disable=R0911,R0912
     def __call__(self, ann, doc=None):
         """
         Check if the annotation matches.
@@ -232,9 +235,7 @@ class AnnMatcher:
             elif callable(self.type):
                 if not self.type(ann.type):
                     return False
-            elif isinstance(self.type, CLASS_RE_PATTERN) or isinstance(
-                self.type, CLASS_REGEX_PATTERN
-            ):
+            elif isinstance(self.type, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 if not self.type.match(ann.type):
                     return False
             else:
@@ -245,9 +246,7 @@ class AnnMatcher:
             if not self.features_matcher(ann.features):
                 return False
         if self.text is not None:
-            if isinstance(self.text, CLASS_RE_PATTERN) or isinstance(
-                self.text, CLASS_REGEX_PATTERN
-            ):
+            if isinstance(self.text, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 if not self.text.match(doc[ann]):
                     return False
         return True
