@@ -277,7 +277,6 @@ class Success(Iterable, Sized):
         Returns:
             the filtered result or all results
         """
-        print("!!!!!DEBUG: called with results=", results)
         if matchtype is None:
             matchtype = "first"
         if matchtype == "all":

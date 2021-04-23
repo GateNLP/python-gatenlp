@@ -180,7 +180,7 @@ class AddAnn:
     def _add4span(self, span, succ, context, location):
         if span is None:
             return
-        if self.annset:
+        if self.annset is not None:
             outset = self.annset
         else:
             outset = context.outset
