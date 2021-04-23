@@ -2,7 +2,7 @@
 Module for the Pampac class.
 
 """
-from gatenlp.processing.annotator import Annotator
+# from gatenlp.processing.annotator import Annotator
 from gatenlp.pam.pampac.data import Location, Context
 from gatenlp.pam.pampac.rule import Rule
 from gatenlp.utils import init_logger
@@ -33,14 +33,14 @@ class Pampac:
         assert len(rules) > 0
         assert skip in ["one", "longest", "next", "once"]
         assert select in ["first", "highest", "all"]
-        for r in rules:
-            assert isinstance(r, Rule)
+        for rule_ in rules:
+            assert isinstance(rule_, Rule)
         self.rules = rules
         self.priorities = [r.priority for r in self.rules]
         self.max_priority = max(self.priorities)
-        for idx, r in enumerate(rules):
-            if r.priority == self.max_priority:
-                self.hp_rule = r
+        for idx, rule_ in enumerate(rules):
+            if rule_.priority == self.max_priority:
+                self.hp_rule = rule_
                 self.hp_rule_idx = idx
                 break
         self.skip = skip
@@ -60,7 +60,11 @@ class Pampac:
         self.select = val
         return self
 
-    def run(self, doc, annotations, outset=None, start=None, end=None, debug=False):
+    # pylint: disable=R0912, R0915
+    def run(self,
+            doc,
+            annotations,
+            outset=None, start=None, end=None, debug=False):
         """
         Run the rules from location start to location end (default: full document), using the annotation set or list.
 
@@ -70,6 +74,7 @@ class Pampac:
             outset: the output annotation set. If this is a string, retrieves the set from doc
             start: the text offset where to start matching
             end: the text offset where to end matching
+            debug: enable debug logging
 
         Returns:
             a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
@@ -80,17 +85,17 @@ class Pampac:
         ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         returntuples = []
         location = Location(ctx.start, 0)
-        while True:
+        while True:  # pylint: disable=R1702
             # try the rules at the current position
             cur_offset = location.text_location
             frets = []
             rets = dict()
-            for idx, r in enumerate(self.rules):
-                logger.debug(f"Trying rule {idx} at location {location}")
-                ret = r.parse(location, ctx)
+            for idx, rule_ in enumerate(self.rules):
+                logger.debug("Trying rule %s at location %s", idx, location)
+                ret = rule_.parse(location, ctx)
                 if ret.issuccess():
                     rets[idx] = ret
-                    logger.debug(f"Success for rule {idx}, {len(ret)} results")
+                    logger.debug("Success for rule %s, %s results", idx, len(ret))
                     if self.select == "first":
                         break
             # we now got all the matching results in rets
@@ -100,13 +105,13 @@ class Pampac:
                 # choose the rules to fire and call the actions
                 if self.select == "first":
                     idx, ret = list(rets.items())[0]
-                    logger.debug(f"Firing rule {idx} at {location}")
+                    logger.debug("Firing rule %s at %s", idx, location)
                     fret = self.rules[idx].action(ret, context=ctx, location=location)
                     frets.append(fret)
                     fired_rets.append(ret)
                 elif self.select == "all":
                     for idx, ret in rets.items():
-                        logger.debug(f"Firing rule {idx} at {location}")
+                        logger.debug("Firing rule %s at %s", idx, location)
                         fret = self.rules[idx].action(
                             ret, context=ctx, location=location
                         )
@@ -115,7 +120,7 @@ class Pampac:
                 elif self.select == "highest":
                     for idx, ret in rets.items():
                         if idx == self.hp_rule_idx:
-                            logger.debug(f"Firing rule {idx} at {location}")
+                            logger.debug("Firing rule %s at %s", idx, location)
                             fret = self.rules[idx].action(
                                 ret, context=ctx, location=location
                             )
@@ -141,8 +146,8 @@ class Pampac:
                                 location.text_location = res.location.text_location
                                 location.ann_location = res.location.ann_location
                             elif (
-                                res.location.text_location == location.text_location
-                                and res.location.ann_location > location.ann_location
+                                    res.location.text_location == location.text_location
+                                    and res.location.ann_location > location.ann_location
                             ):
                                 location.ann_location = res.location.ann_location
                 returntuples.append((cur_offset, frets))
@@ -156,8 +161,8 @@ class Pampac:
     __call__ = run
 
 
-class PampacAnnotator(Annotator):
-    """
-    Class for running a Pampac ruleset.
-    """
-    pass
+# class PampacAnnotator(Annotator):
+#     """
+#     Class for running a Pampac ruleset.
+#     """
+#     #implement

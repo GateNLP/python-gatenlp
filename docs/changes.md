@@ -11,6 +11,8 @@
 * Pampac: a Result is now an Iterable of match infos.
 * Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
   `.within("Person", annset=doc.annset("Other"))`. See issue #57
+* API changes:
+  * `pam.pampac.actions.AddAnn`: parameter `anntype` has been changed to `type`
 
 ## 1.0.4 (2021-04-10)
 
