@@ -10,7 +10,7 @@ from gatenlp.span import Span
 
 
 @total_ordering
-class Annotation:
+class Annotation:   # pylint: disable=R0904
     """
     An annotation represents information about a span of text. It contains the start and end
     offsets of the span, an "annotation type" and an arbitrary number of features.
@@ -24,8 +24,8 @@ class Annotation:
 
     @allowspan
     def __init__(
-        self, start: int, end: int, anntype: str, features=None, annid: int = 0
-    ):
+            self, start: int, end: int, anntype: str, features=None, annid: int = 0
+        ):
         """
         This constructor creates a new annotation instance. Once an annotation has been created,
         the start, end, type and id fields cannot be changed.
@@ -91,7 +91,7 @@ class Annotation:
         return self._features
 
     @property
-    def id(self):
+    def id(self):  # pylint: disable=C0103
         """
         Returns the annotation id.
         """
@@ -107,6 +107,7 @@ class Annotation:
     def _changelog(self):
         if self._owner_set is not None:
             return self._owner_set.changelog
+        return None
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable
@@ -119,8 +120,8 @@ class Annotation:
     # optional
     # on by default but still optional?)
     def _log_feature_change(
-        self, command: str, feature: str = None, value=None
-    ) -> None:
+            self, command: str, feature: str = None, value=None
+        ) -> None:
         """
 
         Args:
@@ -134,48 +135,49 @@ class Annotation:
         if self._changelog() is None:
             return
         command = "ann-" + command
-        ch = {
+        change = {
             "command": command,
             "type": "annotation",
             "set": self._owner_set.name,
             "id": self.id,
         }
         if feature is not None:
-            ch["feature"] = feature
+            change["feature"] = feature
         if value is not None:
-            ch["value"] = value
-        self._changelog().append(ch)
+            change["value"] = value
+        self._changelog().append(change)
 
-    def __eq__(self, other) -> bool:
+    def equal(self, other):
         """
-        Two annotations are identical if they are the same object or if all the fields
-        are equal (including the annotation id)!
-        """
-        if not isinstance(other, Annotation):
-            return False
-        if self is other:
-            return True
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.type == other.type
-            and self.id == other.id
-            and self._features == other._features
-        )
+        Compare the content of this annotation with other. This returns True if all attributes
+        of the annotations are equal.
 
-    def __hash__(self):
+        Args:
+            other: another object
         """
-        The hash depends on the annotation ID and the owning set.
-        """
-        return hash((self.id, self._owner_set))
+        return isinstance(other, Annotation) and \
+               self.id == other.id and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
 
     def __lt__(self, other) -> bool:
         """
         Comparison for sorting: this sorts by increasing start offset,
         then increasing annotation id.
         Since annotation ids within a set are unique, this guarantees a unique order of
-        annotations that
-        come from an annotation set.
+        annotations that come from an annotation set. For other collections of annotations,
+        the order between those with same start offset and same id is undefined.
+
+        IMPORTANT: this is not consistent with our definition of equality and meant for
+        easy sorting of annotations from a single set only! Equality is based on the actual
+        content of all the fields in an annotation, including the id, while the less than
+        relation is only based on start offset and id. It is therefore possible for two
+        annotations A1, A2 that A not < B, B not < A and A != B.
+
+        Note: this is defined to match the default order of the default iterator of an
+        AnnotationSet. The default order of Span is different, so ordering sorting annotations
+        directly and sorting them by their Span can result in different orderings.
 
         Note: for now the other object has to be an instance of Annotation, duck typing is
         not supported!
@@ -359,7 +361,15 @@ class Annotation:
             return self.start >= end
 
     @support_annotation_or_set
-    def isstartingat(self, start: int, end: int) -> bool:
+    def isstartingat(self, start: int, end_: int) -> bool:
+        """
+        Return True iff the annotation starts at the given start offset.
+
+        Args:
+            start: start offset
+            end_: only present so the method can be used with anything that can be interpreted as
+                a span (AnnotationSet, Span)
+        """
         return self._start == start
 
     @support_annotation_or_set

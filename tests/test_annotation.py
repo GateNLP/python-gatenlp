@@ -154,8 +154,10 @@ class TestAnnotationRels:
         assert Annotation(2, 3, "X").span == Span(2, 3)
         assert not (Annotation(1, 2, "X") == "X")
         ann1 = Annotation(1, 2, "X")
+        ann2 = Annotation(1, 2, "X")
         assert ann1 == ann1
-        assert hash(ann1) == hash((ann1.id, ann1._owner_set))
+        assert ann1 != ann2
+        assert ann1.equal(ann2)
         with pytest.raises(Exception):
             Annotation(1, 2, "X") < 33
         assert Annotation(1, 2, "X") < Annotation(2, 3, "X")
@@ -170,7 +172,7 @@ class TestAnnotationRels:
         ann1 = Annotation(1, 2, "x", dict(a=1), annid=3)
         dict1 = ann1.to_dict()
         ann2 = Annotation.from_dict(dict1)
-        assert ann1 == ann2
+        assert ann1.equal(ann2)
 
         assert ann2.features == {"a": 1}
 
