@@ -160,8 +160,8 @@ class TestAnnotationRels:
         assert ann1.same(ann2)
         assert ann1.equal(ann2)
         ann3 = Annotation(1, 2, "X", annid=22)
-        assert ann3.same(ann1)
-        assert not ann3.equal(ann1)
+        assert ann3.equal(ann1)
+        assert not ann3.same(ann1)
         with pytest.raises(Exception):
             Annotation(1, 2, "X") < 33
         assert Annotation(1, 2, "X") < Annotation(2, 3, "X")
