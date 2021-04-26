@@ -16,7 +16,7 @@ class Span:
     """
     Class that represents an offset range.
     """
-    __slots__ = ["start", "end"]
+    __slots__ = ["_start", "_end"]
 
     @support_annotation_or_set
     def __init__(self, start, end):
@@ -42,8 +42,22 @@ class Span:
         assert start is not None
         assert end is not None
         assert start <= end
-        self.start = start
-        self.end = end
+        self._start = start
+        self._end = end
+
+    @property
+    def start(self):
+        """
+        Return the start offset.
+        """
+        return self._start
+
+    @property
+    def end(self):
+        """
+        Return the end offset.
+        """
+        return self._end
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Span):
@@ -51,6 +65,9 @@ class Span:
         if self is other:
             return True
         return self.start == other.start and self.end == other.end
+
+    def __hash__(self):
+        return hash((self._start, self._end))
 
     def __lt__(self, other) -> bool:
         if not isinstance(other, Span):
