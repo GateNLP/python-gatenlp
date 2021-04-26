@@ -149,14 +149,27 @@ class Annotation:   # pylint: disable=R0904
 
     def equal(self, other):
         """
-        Compare the content of this annotation with other. This returns True if all attributes
-        of the annotations are equal.
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations including the annotation id are equal.
 
         Args:
             other: another object
         """
         return isinstance(other, Annotation) and \
                self.id == other.id and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
+
+    def same(self, other):
+        """
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations except the annotation id (which is ignored) are equal.
+
+        Args:
+            other: another object
+        """
+        return isinstance(other, Annotation) and \
                self.start == other.start and \
                self.end == other.end and \
                self.features == other.features
