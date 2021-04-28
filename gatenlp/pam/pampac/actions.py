@@ -3,6 +3,7 @@ Module for PAMPAC action classes.
 """
 from copy import deepcopy
 from gatenlp import Annotation
+from gatenlp.features import Features
 
 
 def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
@@ -234,40 +235,131 @@ class UpdateAnnFeatures:
 
     def __init__(
             self,
-            name,
-            ann=None,
+            name=None,
+            updateann=None,
+            fromann=None,
             features=None,
             replace=False,  # replace existing features rather than updating
             resultidx=0,
             matchidx=0,
             silent_fail=False,
+            deepcopy=False
         ):
         """
-        Create an UpdateAnnFeatures action.
+        Create an UpdateAnnFeatures action. The features to use for updating can either come from
+        an existing annotation, an annotation fetched with a GetAnn annotation getter, or from a
+        a features instance, a feature getter or a dictionary.
 
         Args:
-            name: the name of the match to use for getting the annotation span
-            ann: if specified use the features from this annotation. This can be either a literal annotation
+            name: the name of the match to use for getting the annotation to modify (if updateann is not
+                specified). This must be None if updateann is specified.
+            updateann: if specified, update the features of this annotation. This can be either a literal
+                annotation or a GetAnn help to access another annotation from the result.
+            fromann: if specified use the features from this annotation. This can be either a literal annotation
                 or a GetAnn helper to access another annotation from the result.
-            features: the features to use for updating, either literal  features or a GetFeatures helper.
+            features: the features to use for updating, either literal features or dictionary,
+                or a GetFeatures helper.
             replace: if True, replace the existing features with the new ones, otherwise update the existing features.
-            resultidx: the index of the result to use, if there is more than one
-            matchidx: the index of a matching info element to use, if more than one matches the given name
+            resultidx: the index of the result to use, if there is more than one (default: 0)
+            matchidx: the index of a matching info element to use, if more than one matches exist
+                with the given name (default: 0)
             silent_fail: if True, do not raise an exception if the features cannot be updated
+            deepcopy: if True, existing features are deep-copied, otherwise a shallow copy or new instance
+                is created.
         """
-        # span is either a span, the index of a match info to take the span from, or a callable that will return the
-        # span at firing time
-        assert isinstance(ann, GetAnn)
-        assert features is not None
+        # check parameters for getting the features:
+        if fromann is None and features is None:
+            raise Exception("Either fromann or features must be specified")
+        if fromann is not None and features is not None:
+            raise Exception("Parameters fromann and features must not be both specified at the same time")
+        # check parameters for setting features:
+        if name is None and updateann is None:
+            raise Exception("Either name or updateann must be specified")
+        if name is not None and updateann is not None:
+            raise Exception("Parameters name and updateann must not be both specified at the same time")
         self.name = name
-        self.ann = ann
+        self.updateann = updateann
+        self.fromann = fromann
         self.replace = replace
         self.features = features
         self.resultidx = resultidx
         self.matchidx = matchidx
         self.silent_fail = silent_fail
+        self.deepcopy = deepcopy
 
     # pylint: disable=R0912
+    def __call__(self, succ, context=None, location=None):
+        # determine the annotation to modify
+        if self.updateann is not None:
+            if isinstance(self.updateann, Annotation):
+                updateann = self.updateann
+            else:
+                updateann = self.updateann(succ, context=context, location=location)
+        else:
+            match = _get_match(
+                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+            )
+            if not match:
+                if self.silent_fail:
+                    return
+                else:
+                    raise Exception(f"Could not find the name {self.name}")
+            updateann = match.get("ann")
+        if updateann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f"Could not find an annotation for the name {self.name}"
+                )
+        updatefeats = updateann.features
+        # determine the features to use: either from an annotation/annotation getter or from
+        # features or a features getter
+
+        if self.fromann is not None:
+            if isinstance(self.fromann, Annotation):
+                fromfeats = self.fromann.features
+            else:
+                ann = self.fromann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception("No matching source annotation found")
+                fromfeats = ann.features
+        else:   # get it from self.features
+            if callable(self.features):
+                fromfeats = self.features(succ, context=context, location=location)
+            else:
+                fromfeats = self.features
+        # make sure we have features and optionally make sure we have a deep copy
+        fromfeats = Features(fromfeats, deepcopy=self.deepcopy)
+        if self.replace:
+            updatefeats.clear()
+        updatefeats.update(fromfeats)
+
+
+class RemoveAnn:
+    """
+    Action for removing an anntoation.
+    """
+    def __init__(self, name,
+                 resultidx=0, matchidx=0,
+                 silent_fail=True):
+        """
+        Create a remove annoation action.
+
+        Args:
+            name: the name of a match from which to get the annotation to remove
+            resultidx: index of the result to use, if several (default: 0)
+            matchidx: index of the match to use, if several (default: 0)
+            silent_fail: if True, silently ignore the error of no annotation to get removed
+        """
+        self.name = name
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+
     def __call__(self, succ, context=None, location=None):
         match = _get_match(
             succ, self.name, self.resultidx, self.matchidx, self.silent_fail
@@ -285,34 +377,10 @@ class UpdateAnnFeatures:
                 raise Exception(
                     f"Could not find an annotation for the name {self.name}"
                 )
-        if isinstance(self.ann, Annotation):
-            feats = deepcopy(self.ann.features)
-        else:
-            ann = self.ann(succ)
-            if ann is None:
-                if self.silent_fail:
-                    return
-                else:
-                    raise Exception("No matching annotation found")
-            feats = deepcopy(ann.features)
-        if not feats and callable(self.features):
-            feats = self.features(succ, context=context, location=location)
-        elif not feats:
-            feats = deepcopy(self.features)
-        if self.replace:
-            theann.features.clear()
-        theann.features.update(feats)
+        context.annset.remove(theann)
 
 
-# class RemoveAnn:
-#     def __init__(self, name, ann=None, annset=None, resultidx=0, matchidx=0, which="first", silent_fail=True):
-#         pass
-#
-#     def __call__(self, succ, context=None, location=None):
-#         pass
-#
-
-# GETTERS
+########################## GETTERS
 
 
 class GetAnn:
