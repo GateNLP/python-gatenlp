@@ -78,7 +78,7 @@ class Document:
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
         self._changelog = changelog
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON

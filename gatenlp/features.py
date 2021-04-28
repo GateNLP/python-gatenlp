@@ -28,26 +28,42 @@ class Features(UserDict):
     object must be used.
     """
 
-    def __init__(self, *args, logger=None, **kwargs):
+    def __init__(self, *args, _change_logger=None, _deepcopy=False, **kwargs):
         """
         Initialize a Features object.
 
         Args:
-            initialfeatures: the initial features, as for a dict.
-            logger: a function for logging any changes to the feature map. This should be
+            args: zero or one positional arguments which can be another Feature object, a mapping,
+                or an iterable of key value pairs.
+            _change_logger: a function for logging any changes to the feature map. This should be
                 a method implemented in the owning object. It should take the following parameters:
                 command, featurename, featurevalue. NOTE: this is not related to the usual logging
                 from the loggin package, but for making use of tracking changes in a ChangeLog!
+            _deepcopy: if False (default) the dictionary wrapped by this Features object is a shallow
+                copy of any original dictionary object. If True, all the values are deep-copied.
+            **kwargs: any number of additional keyword arguments which are used to set features.
         """
-        self._logger = logger
+        self._logger = _change_logger
+        if _deepcopy:
+            kws = lib_copy.deepcopy(kwargs)
+        else:
+            kws = kwargs
         if len(args) == 1:
             posarg = args[0]
             if isinstance(posarg, Features):
-                super().__init__(posarg.data, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg.data)
+                else:
+                    data = posarg.data
+                super().__init__(data, **kws)
             else:
-                super().__init__(posarg, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg)
+                else:
+                    data = posarg
+                super().__init__(data, **kws)
         else:
-            super().__init__(**kwargs)
+            super().__init__(**kws)
 
     def __delitem__(self, featurename):
         """

@@ -56,7 +56,7 @@ class Annotation:   # pylint: disable=R0904
                 "id={annid}, features={features}: features must not be an int, mixed up with annid?"
             )
         self._owner_set = None
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._type = anntype
         self._start = start
         self._end = end
