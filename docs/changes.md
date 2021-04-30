@@ -11,8 +11,19 @@
 * Pampac: a Result is now an Iterable of match infos.
 * Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
   `.within("Person", annset=doc.annset("Other"))`. See issue #57
+* Pampac: RemoveAnn action has been added
+* Pampac: UpdateAnnFeatures has been improved
+* Span objects are now immutable. Equality and hashing of Span objects are based on their start and end offsets.
+* Annotation equality and hashing has been changed back to the Python default: variables compare only equal if they
+  reference the same object and hashing is based on object identity. 
+  For comparing annotations by content, the methods `ann.equal(other)` (compare content without annotation id) 
+   and `ann.same(other)` (compare content including annotation id) have been implemented.
 * API changes:
   * `pam.pampac.actions.AddAnn`: parameter `anntype` has been changed to `type`
+  * The Feature() constructor kw arg `logger` has been changed to `_change_logger` and `deepcopy` has been changed to 
+    `_deepcopy`
+
+
 
 ## 1.0.4 (2021-04-10)
 
