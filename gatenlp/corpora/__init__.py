@@ -25,8 +25,6 @@ __pdoc__ = {
     "DocumentSource.__iter__": True,
 }
 
-# TODO: maybe rename append to store to make it more logical for destination AND corpus?
-
 # TODO: either always set special features on get and add an "append" method so we can use the corpus as
 # TODO: a destination, or allow to create a source/destination pair from the corpus which does this.
 
