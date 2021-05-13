@@ -35,10 +35,18 @@ class CorpusSourceBase:
     """
     @property
     def nparts(self):
+        """
+        Return the total number of parts for an EveryNth corpus or document source.
+        This is 1 for all other corpus/source instances.
+        """
         return 1
 
     @property
     def partnr(self):
+        """
+        Return the part number for an EveryNth corpus or document source.
+        This is 0 for all other corpus/source instances.
+        """
         return 0
 
 
@@ -113,9 +121,20 @@ class Corpus(ABC, CorpusSourceBase, Sized):
         pass
 
     def idxfeatname(self) -> str:
+        """
+        Return the name of the transient feature to receive the index used to access a document
+        from a corpus.
+        """
         return "__idx_" + str(id(self))
 
     def setidxfeature(self, doc: Document, idx: int):
+        """
+        Sets the special transient feature of the document to the given index.
+
+        Args:
+            doc: the document
+            idx: the index used to access the document in a corpus
+        """
         if doc is not None:
             doc.features[self.idxfeatname()] = idx
 
@@ -292,7 +311,7 @@ class EveryNthSource(EveryNthBase, DocumentSource):
 
     def __iter__(self) -> TypingIterator[Document]:
         for idx, doc in enumerate(self.source):
-            if idx % self.nparts == self.partn:
+            if idx % self.nparts == self.partnr:
                 yield doc
 
 
@@ -423,8 +442,8 @@ class CachedCorpus(Corpus):
         This cached corpus can be set up to cache on read or cache on write.
 
         Args:
-            basedataset: any corpus
-            cachedataset: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+            basecorpus: any corpus
+            cachecorpus: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
               or just an in-memory list or array.
             cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
                 Otherwise will only write to the cache dataset when an item is set. This allows to cache the result

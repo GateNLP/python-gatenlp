@@ -1,8 +1,17 @@
+"""
+Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+from in-memory objects.
+"""
+
+
 from gatenlp import Document
 from gatenlp.corpora.base import DocumentSource, Corpus
 
 
 class ListCorpus(Corpus):
+    """
+    Make a Python list of documents available as a Corpus instance.
+    """
     @classmethod
     def empty(cls, n):
         """
@@ -17,44 +26,44 @@ class ListCorpus(Corpus):
         l1 = [None] * n
         return cls(l1)
 
-    def __init__(self, list, store_none=True):
+    def __init__(self, thelist, store_none=True):
         """
         Provides a corpus interface to a list or list-like data structure.
         Note that this provides the proper implementation of append which stores back to the index
         provided in the document feature "__idx" instead of actually appending a new element to the list!
 
         Args:
-            list: the list to wrap as a corpus
+            thelist: the list to wrap as a corpus
             store_none: if True, a None value is stored into the corpus, otherwise, None will leave the
                 entry unchanged.
         """
         super().__init__()
-        self.list = list
+        self._list = thelist
         self.store_none = store_none
 
     def __getitem__(self, idx):
-        doc = self.list[idx]
+        doc = self._list[idx]
         self.setidxfeature(doc, idx)
         return doc
 
     def __setitem__(self, key, value):
         if value is None:
             if self.store_none:
-                self.list[key] = value
+                self._list[key] = value
         else:
             assert isinstance(value, Document)
-            self.list[key] = value
+            self._list[key] = value
 
     def __len__(self):
-        return len(self.list)
+        return len(self._list)
 
     def append(self, doc: Document):
         if doc is None:
             if self.store_none:
-                list.append(doc)
+                self._list.append(doc)
         else:
             assert isinstance(doc, Document)
-            self.list.append(doc)
+            self._list.append(doc)
 
 
 # TODO: implement data_cols
@@ -100,8 +109,7 @@ class PandasDfSource(DocumentSource):
                     for cname in self.data_cols:
                         data[cname] = row[cname]
                 else:
-                    data = {fname: row[fname] for fname in self.colnames }
+                    data = {fname: row[fname] for fname in self.colnames}
                 doc.features[self.data_feature] = data
             self.n += 1
             yield doc
-

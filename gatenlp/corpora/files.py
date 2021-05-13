@@ -1,19 +1,12 @@
 """
+Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+as lines or parts in a file.
 """
 
-import os
 import json
-import random
-from abc import ABC, abstractmethod
-from typing import Iterable as TypingIterable
-from typing import Iterator as TypingIterator
-from typing import Sized
-from contextlib import AbstractContextManager
-from collections import Iterable
-import numbers
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
-from gatenlp.corpora.base import DocumentSource, DocumentDestination, Corpus
+from gatenlp.corpora.base import DocumentSource, DocumentDestination
 from gatenlp.corpora.base import MultiProcessingAble
 
 
@@ -58,7 +51,7 @@ class BdocjsLinesFileDestination(DocumentDestination):
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, extype, value, traceback):
         self.fh.close()
 
     def append(self, doc):
@@ -154,7 +147,7 @@ class JsonLinesFileDestination(DocumentDestination):
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, _extype, _value, _traceback):
         self.fh.close()
 
     def append(self, doc):
@@ -272,5 +265,3 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 doc.features[self.data_feature] = data
             self.n += 1
             yield doc
-
-

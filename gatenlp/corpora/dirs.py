@@ -1,9 +1,9 @@
 """
+Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+as files in a directory.
 """
 
 import os
-import random
-import numbers
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
 from gatenlp.corpora.base import DocumentSource, DocumentDestination, Corpus
@@ -24,7 +24,7 @@ def matching_paths(dirpath, exts=None, recursive=True, relative=True):
         relative: if True (default), the paths are relative to the directory path
     """
     if recursive:
-        for root, dirnames, filenames in os.walk(dirpath):
+        for root, _, filenames in os.walk(dirpath):
             for fname in filenames:
                 if exts:
                     for ext in exts:
@@ -83,8 +83,8 @@ def maker_file_path_fromidx(digits=1, levels=1):
         or digits < levels
     ):
         raise Exception(
-            f"digits and levels must be integers larger than 0 and digits must not be smaller than "
-            "levels, got {digits}/{levels}"
+            "digits and levels must be integers larger than 0 and digits must not be smaller than "
+            f"levels, got {digits}/{levels}"
         )
 
     def file_path_fromidx(doc=None, idx=None):
@@ -99,7 +99,7 @@ def maker_file_path_fromidx(digits=1, levels=1):
         path = ""
         fromdigit = len(tmp) - per
         todigit = len(tmp)
-        for lvl in range(levels - 1):
+        for _lvl in range(levels - 1):
             path = tmp[fromdigit:todigit] + path
             # print("per=", per, "from=", fromdigit, "to=", todigit, "sec=", tmp[fromdigit:todigit])
             path = "/" + path
@@ -113,6 +113,9 @@ def maker_file_path_fromidx(digits=1, levels=1):
 
 # TODO: set the special features for the relative path, index number, document id?
 class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
+    """
+    A document source which iterates over documents represented as files in a directory.
+    """
     def __init__(
         self,
         dirpath,
@@ -148,8 +151,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             self.paths = paths
         elif paths_from is not None:
             self.paths = []
-            for p in yield_lines_from(paths_from):
-                self.paths.append(p.rstrip("\n\r"))
+            for pth in yield_lines_from(paths_from):
+                self.paths.append(pth.rstrip("\n\r"))
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
         if sort or nparts > 1:
@@ -176,8 +179,6 @@ class DirFilesDestination(DocumentDestination):
     known serialization format. The filename or path of the file can be derived from a document feature,
     the document name, the running number of file added, or any function that can derive a file path
     from the document and the running number.
-
-
     """
 
     def __init__(self, dirpath, path_from="idx", ext="bdocjs", fmt=None):
@@ -293,7 +294,6 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
             else:
                 self.paths.sort(reverse=sort_reverse)
         self.size = len(self.paths)
-        pass
 
     def __len__(self):
         return self.size
@@ -397,4 +397,3 @@ class NumberedDirFilesCorpus(Corpus, MultiProcessingAble):
                     os.remove(path)
         else:
             Document.save(os.path.join(self.dirpath, path), fmt=self.fmt)
-
