@@ -25,7 +25,7 @@ class TestCorpora1:
         lc1 = ListCorpus(docs)
         assert len(lc1) == len(docs)
         for idx, doc in enumerate(lc1):
-            assert idx == doc.features["__idx"]
+            # assert idx == doc.features["__idx"]
             assert idx == doc.features[lc1.idxfeatname()]
             assert doc.text == TEXTS[idx]
 
