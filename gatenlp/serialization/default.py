@@ -5,7 +5,7 @@ import io
 import os
 import sys
 import yaml
-
+from collections import defaultdict
 # import ruyaml as yaml
 try:
     from yaml import CFullLoader as Loader, CDumper as Dumper
@@ -1045,7 +1045,59 @@ class HtmlLoader:
         return doc
 
 
-class TweetLoader:
+class TweetV1Serializer:
+
+    @staticmethod
+    def doc2twitterv1dict(doc, annsets=None, prefix_sep=None):
+        d = doc.to_dict(annsets=annsets)
+        ret = {"full_text": doc.text}
+        ents = defaultdict(list)
+        for setname, annset in d.get("annotation_sets", {}).items():
+            for ann in annset.get("annotations", []):
+                anntype = ann["type"]
+                if prefix_sep is not None and setname != "":
+                    anntype = setname + prefix_sep + anntype
+                annlist = ents[anntype]
+                twitterann = {
+                    "indices": [ann["start"], ann["end"]]
+                }
+                twitterann.update(ann["features"])
+                annlist.append(twitterann)
+        ret["entities"] = ents
+        return ret
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        annsets=None,
+        prefix_sep=None,
+        **kwargs,
+    ):
+        """
+
+        Args:
+            clazz: the class of the object that gets saved
+            inst: the object to get saved
+            to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+            to_mem: if True, return a String serialization
+            offset_type: the offset type to use for saving, if None (default) use "p" (Python)
+            offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            prefix_types: if not None, prefix all types with the name of the annotation set the annotation comes from
+                and use the given string as the separator (can be the empty string for no seaparator).
+                For annotations from the default set the type stays unchanged.
+          **kwargs:
+        """
+        d = TweetV1Serializer.doc2twitterv1dict(inst, annsets=annsets, prefix_sep=prefix_sep)
+        if to_mem:
+            return json.dumps(d)
+        else:
+            with open(to_ext, JSON_WRITE) as outfp:
+                json.dump(d, outfp)
+
     @staticmethod
     def load(
         clazz,
@@ -1372,6 +1424,7 @@ DOCUMENT_SAVERS = {
     "text/bdocym+gzip+": YamlSerializer.save_gzip,
     "msgpack": MsgPackSerializer.save,
     "bdocmp": MsgPackSerializer.save,
+    "tweet-v1": TweetV1Serializer.save,
     "text/bdocmp": MsgPackSerializer.save,
     "application/msgpack": MsgPackSerializer.save,
     "html-ann-viewer": HtmlAnnViewerSerializer.save,
@@ -1401,7 +1454,7 @@ DOCUMENT_LOADERS = {
     "html": HtmlLoader.load,
     "html-rendered": HtmlLoader.load_rendered,
     "gatexml": GateXmlLoader.load,
-    "tweet": TweetLoader.load,
+    "tweet-v1": TweetV1Serializer.load,
     "pickle": PickleSerializer.load,
 }
 CHANGELOG_SAVERS = {
