@@ -9,6 +9,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Join the chat at https://gitter.im/GateNLP/python-gatenlp](https://badges.gitter.im/GateNLP/python-gatenlp.svg)](https://gitter.im/GateNLP/python-gatenlp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation Status](https://readthedocs.org/projects/gatenlp/badge/?version=latest)](https://gatenlp.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ccc55f10e7f5479e9a882ec3aee3222a)](https://www.codacy.com/gh/GateNLP/python-gatenlp/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=GateNLP/python-gatenlp)
+[![Updates](https://pyup.io/repos/github/GateNLP/python-gatenlp/shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
+[![Python 3](https://pyup.io/repos/github/GateNLP/python-gatenlp/python-3-shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
 
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
