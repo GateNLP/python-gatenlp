@@ -9,5 +9,7 @@ from gatenlp.pam.pampac.pampac_parsers import PampacParser, All, And, Ann, AnnAt
 from gatenlp.pam.pampac.pampac_parsers import Function, N, Or, Seq, Text
 from gatenlp.pam.pampac.pampac import Pampac
 from gatenlp.pam.pampac.rule import Rule
-from gatenlp.pam.pampac.actions import AddAnn, Actions, GetAnn, GetEnd, GetType, GetText, GetStart
-from gatenlp.pam.pampac.actions import GetFeature, GetFeatures, GetRegexGroup, UpdateAnnFeatures
+from gatenlp.pam.pampac.actions import AddAnn, Actions, UpdateAnnFeatures
+from gatenlp.pam.pampac.actions import Getter
+from gatenlp.pam.pampac.getters import GetAnn, GetEnd, GetType, GetText, GetStart
+from gatenlp.pam.pampac.getters import GetFeature, GetFeatures, GetRegexGroup
