@@ -206,7 +206,14 @@ class AddAnn:
                 if callable(self.features):
                     features = self.features(succ, context=context, location=location)
                 else:
-                    features = self.features
+                    # NOTE: if we got a dictionary where some values are helpers, we need to run the helper
+                    # and replace the value with the result. However, this would change the original dictionary
+                    # just the first time if there are several matches, so we always shallow copy the features
+                    # first!
+                    features = self.features.copy()
+                    for k, v in features.items():
+                        if isinstance(v, Getter):
+                            features[k] = v(succ, context=context, location=location)
             else:
                 features = None
             outset.add(span.start, span.end, anntype, features=features)
@@ -382,8 +389,11 @@ class RemoveAnn:
 
 ########################## GETTERS
 
+class Getter:
+    pass
 
-class GetAnn:
+
+class GetAnn(Getter):
     """
     Helper to access an annoation from a match with the given name.
     """
@@ -417,7 +427,7 @@ class GetAnn:
         return ann
 
 
-class GetFeatures:
+class GetFeatures(Getter):
     """
     Helper to access the features of an annotation in a match with the given name.
     """
@@ -451,7 +461,7 @@ class GetFeatures:
         return ann.features
 
 
-class GetType:
+class GetType(Getter):
     """
     Helper to access the type of an annotation in a match with the given name.
     """
@@ -485,7 +495,7 @@ class GetType:
         return ann.type
 
 
-class GetStart:
+class GetStart(Getter):
     """
     Helper to access the start offset of the annotation in a match with the given name.
     """
@@ -514,7 +524,7 @@ class GetStart:
         return span.start
 
 
-class GetEnd:
+class GetEnd(Getter):
     """
     Helper to access the end offset of the annotation in a match with the given name.
     """
@@ -541,7 +551,7 @@ class GetEnd:
         )["span"].end
 
 
-class GetFeature:
+class GetFeature(Getter):
     """
     Helper to access the features of the annotation in a match with the given name.
     """
@@ -576,17 +586,18 @@ class GetFeature:
         return ann.features.get(self.featurename)
 
 
-class GetText:
+class GetText(Getter):
     """
     Helper to access text, either covered document text of the annotation or matched text.
     """
 
-    def __init__(self, name, resultidx=0, matchidx=0, silent_fail=False):
+    def __init__(self, name=None, resultidx=0, matchidx=0, silent_fail=False):
         """
-        Create a GetText helper.
+        Create a GetText helper. This first gets the span that matches the name, resultidx and matchidx
+        parameters and then provides the text of the document for that span.
 
         Args:
-            name: the name of the match to use.
+            name: the name of the match to use, if None, use the span of the whole match.
             resultidx: the index of the result to use if there is more than one.
             matchidx:  the index of the match info element with the given name to use if there is more than one
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
@@ -598,10 +609,13 @@ class GetText:
         self.silent_fail = silent_fail
 
     def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
-        )
-        span = match.get("span")
+        if self.name is None:
+            span = _get_span(succ, self.name, self.resultidx, self.matchidx, self.silent_fail)
+        else:
+            match = _get_match(
+                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+            )
+            span = match.get("span")
         if span:
             return context.doc[span]
         else:
@@ -611,7 +625,7 @@ class GetText:
                 raise Exception("Could not find a span for match info")
 
 
-class GetRegexGroup:
+class GetRegexGroup(Getter):
     """
     Helper to access the given regular expression matching group in a match with the given name.
     """
