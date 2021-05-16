@@ -1,0 +1,19 @@
+# text = Er arbeitet fürs FBI (deutsch etwa: „Bundesamt für Ermittlung“).
+# text_en = He works for the FBI (German approx: “Bundesamt für Ermittlung”).
+1     Er           er           PRON    …   _
+2     arbeitet     arbeiten     VERB    …   _
+3-4   fürs         _            _       …   _
+3     für          für          ADP     …   _
+4     das          der          DET     …   _
+5     FBI          FBI          PROPN   …   _
+6     (            (            PUNCT   …   SpaceAfter=No
+7     deutsch      deutsch      ADV     …   _
+8     etwa         etwa         ADV     …   SpaceAfter=No
+9     :            :            PUNCT   …   _
+10    „            „            PUNCT   …   SpaceAfter=No
+11    Bundesamt    Bundesamt    NOUN    …   _
+12    für          für          ADP     …   _
+13    Ermittlung   Ermittlung   NOUN    …   SpaceAfter=No
+14    “            “            PUNCT   …   SpaceAfter=No
+15    )            )            PUNCT   …   SpaceAfter=No
+16    .            .            PUNCT   …   _

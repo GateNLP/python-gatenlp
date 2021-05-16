@@ -1,0 +1,11 @@
+# newdoc id = mf920901-001
+# newpar id = mf920901-001-p1
+# sent_id = mf920901-001-p1s1A
+# text = Slovenská ústava: pro i proti
+# text_en = Slovak constitution: pros and cons
+1   Slovenská   slovenský   ADJ
+2   ústava      ústava      NOUN
+3   :           :           PUNCT
+4   pro         pro         ADP
+5   i           i           CCONJ
+6   proti       proti       ADP

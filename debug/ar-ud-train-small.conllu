@@ -1,0 +1,504 @@
+# newdoc id = afp.20000715.0075
+# newpar id = afp.20000715.0075:p1
+# sent_id = afp.20000715.0075:p1u1
+# text = برلين ترفض حصول شركة اميركية على رخصة تصنيع دبابة "ليوبارد" الالمانية
+# orig_file_sentence AFP_ARB_20000715.0075#1
+1	برلين	بَرلِين	X	X---------	Foreign=Yes	2	nsubj	_	Vform=بَرلِين|Gloss=Berlin|Root=barlIn|Translit=barlīn|LTranslit=barlīn
+2	ترفض	رَفَض	VERB	VIIA-3FS--	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	0	root	_	Vform=تَرفُضُ|Gloss=reject,refuse|Root=r_f_.d|Translit=tarfuḍu|LTranslit=rafaḍ
+3	حصول	حُصُول	NOUN	N------S4R	Case=Acc|Definite=Cons|Number=Sing	2	obj	_	Vform=حُصُولَ|Gloss=acquisition,obtaining,occurrence,happening|Root=.h_.s_l|Translit=ḥuṣūla|LTranslit=ḥuṣūl
+4	شركة	شَرِكَة	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	3	nmod	_	Vform=شَرِكَةٍ|Gloss=company,corporation|Root=^s_r_k|Translit=šarikatin|LTranslit=šarikat
+5	اميركية	أَمِيرِكِيّ	ADJ	A-----FS2I	Case=Gen|Definite=Ind|Gender=Fem|Number=Sing	4	amod	_	Vform=أَمِيرِكِيَّةٍ|Gloss=American|Root='amIrik|Translit=ʾamīrikīyatin|LTranslit=ʾamīrikīy
+6	على	عَلَى	ADP	P---------	AdpType=Prep	7	case	_	Vform=عَلَى|Gloss=on,above|Root=`_l_w|Translit=ʿalā|LTranslit=ʿalā
+7	رخصة	رُخصَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	3	obj	_	Vform=رُخصَةِ|Gloss=license,permit|Root=r__h_.s|Translit=ruḫṣati|LTranslit=ruḫṣat
+8	تصنيع	تَصنِيع	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	7	nmod	_	Vform=تَصنِيعِ|Gloss=fabrication,industrialization,processing|Root=.s_n_`|Translit=taṣnīʿi|LTranslit=taṣnīʿ
+9	دبابة	دَبَّابَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	8	nmod	_	Vform=دَبَّابَةِ|Gloss=tank|Root=d_b_b|Translit=dabbābati|LTranslit=dabbābat
+10	"	"	PUNCT	G---------	_	11	punct	_	SpaceAfter=No|Vform="|Translit="
+11	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	9	nmod	_	SpaceAfter=No|Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+12	"	"	PUNCT	G---------	_	11	punct	_	Vform="|Translit="
+13	الالمانية	أَلمَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	9	amod	_	Vform=اَلأَلمَانِيَّةِ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyati|LTranslit=ʾalmānīy
+
+# newpar id = afp.20000715.0075:p2
+# sent_id = afp.20000715.0075:p2u1
+# text = برلين 15-7 (اف ب) - افادت صحيفة الاحد الالمانية "ويلت ام سونتاغ" في عددها الصادر غدا، ان المستشار غيرهارد شرودر يرفض حصول المجموعة الاميركية "جنرال ديناميكس" على رخصة لتصنيع الدبابة الالمانية "ليوبارد 2" عبر شراء المجموعة الحكومية الاسبانية للاسلحة "سانتا بربارة".
+# orig_file_sentence AFP_ARB_20000715.0075#2
+1	برلين	بَرلِين	X	X---------	Foreign=Yes	0	root	_	Vform=بَرلِين|Gloss=Berlin|Root=barlIn|Translit=barlīn|LTranslit=barlīn
+2	15	15	NUM	Q---------	NumForm=Digit	1	dep	_	SpaceAfter=No|Vform=١٥|Translit=15
+3	-	-	PUNCT	G---------	_	4	punct	_	SpaceAfter=No|Vform=-|Translit=-
+4	7	7	NUM	Q---------	NumForm=Digit	2	conj	_	Vform=٧|Translit=7
+5	(	(	PUNCT	G---------	_	7	punct	_	SpaceAfter=No|Vform=(|Translit=(
+6	اف	اف	X	U---------	_	7	nmod	_	Vform=اف|Translit=Af
+7	ب	ب	X	Y---------	Abbr=Yes	1	dep	_	SpaceAfter=No|Vform=ب|Gloss=B,2nd,P|Root=b|Translit=b|LTranslit=b
+8	)	)	PUNCT	G---------	_	7	punct	_	Vform=)|Translit=)
+9	-	-	PUNCT	G---------	_	8	punct	_	Vform=-|Translit=-
+10	افادت	أَفَاد	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=أَفَادَت|Gloss=report,inform,provide|Root=f_y_d|Translit=ʾafādat|LTranslit=ʾafād
+11	صحيفة	صَحِيفَة	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	10	nsubj	_	Vform=صَحِيفَةُ|Gloss=newspaper,sheet,leaf|Root=.s_.h_f|Translit=ṣaḥīfatu|LTranslit=ṣaḥīfat
+12	الاحد	أَحَد	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	11	nmod	_	Vform=اَلأَحَدِ|Gloss=Sunday|Root='_.h_d|Translit=al-ʾaḥadi|LTranslit=ʾaḥad
+13	الالمانية	أَلمَانِيّ	ADJ	A-----FS1D	Case=Nom|Definite=Def|Gender=Fem|Number=Sing	11	amod	_	Vform=اَلأَلمَانِيَّةُ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyatu|LTranslit=ʾalmānīy
+14	"	"	PUNCT	G---------	_	17	punct	_	SpaceAfter=No|Vform="|Translit="
+15	ويلت	ويلت	X	U---------	_	17	nmod	_	Vform=ويلت|Translit=wylt
+16	ام	ام	X	U---------	_	17	nmod	_	Vform=ام|Translit=Am
+17	سونتاغ	سونتاغ	X	U---------	_	11	nmod	_	SpaceAfter=No|Vform=سونتاغ|Translit=swntAg
+18	"	"	PUNCT	G---------	_	17	punct	_	Vform="|Translit="
+19	في	فِي	ADP	P---------	AdpType=Prep	20	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+20-21	عددها	_	_	_	_	_	_	_	_
+20	عدد	عَدَد	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	10	obl	_	Vform=عَدَدِ|Gloss=number,quantity,issue|Root=`_d_d|Translit=ʿadadi|LTranslit=ʿadad
+21	ها	هُوَ	PRON	SP---3FS2-	Case=Gen|Gender=Fem|Number=Sing|Person=3|PronType=Prs	20	nmod	_	Vform=هَا|Gloss=he,she,it|Translit=hā|LTranslit=huwa
+22	الصادر	صَادِر	ADJ	A-----MS2D	Case=Gen|Definite=Def|Gender=Masc|Number=Sing	20	amod	_	Vform=اَلصَّادِرِ|Gloss=issued,published|Root=.s_d_r|Translit=aṣ-ṣādiri|LTranslit=ṣādir
+23	غدا	غَد	NOUN	N------S4I	Case=Acc|Definite=Ind|Number=Sing	22	obl	_	SpaceAfter=No|Vform=غَدًا|Gloss=tomorrow|Root=.g_d_w|Translit=ġadan|LTranslit=ġad
+24	،	،	PUNCT	G---------	_	23	punct	_	Vform=،|Translit=،
+25	ان	أَنَّ	CCONJ	C---------	_	29	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+26	المستشار	مُستَشَار	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	29	nsubj	_	Vform=اَلمُستَشَارَ|Gloss=counselor,adviser|Root=^s_w_r|Translit=al-mustašāra|LTranslit=mustašār
+27	غيرهارد	غيرهارد	X	U---------	_	28	nmod	_	Vform=غيرهارد|Translit=gyrhArd
+28	شرودر	شرُودِر	X	X---------	Foreign=Yes	26	nmod	_	Vform=شرُودِر|Gloss=Schroder|Root=^srUdir|Translit=šrūdir|LTranslit=šrūdir
+29	يرفض	رَفَض	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	10	ccomp	_	Vform=يَرفُضُ|Gloss=reject,refuse|Root=r_f_.d|Translit=yarfuḍu|LTranslit=rafaḍ
+30	حصول	حُصُول	NOUN	N------S4R	Case=Acc|Definite=Cons|Number=Sing	29	obj	_	Vform=حُصُولَ|Gloss=acquisition,obtaining,occurrence,happening|Root=.h_.s_l|Translit=ḥuṣūla|LTranslit=ḥuṣūl
+31	المجموعة	مَجمُوعَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	30	nmod	_	Vform=اَلمَجمُوعَةِ|Gloss=collection,group,bloc|Root=^g_m_`|Translit=al-maǧmūʿati|LTranslit=maǧmūʿat
+32	الاميركية	أَمِيرِكِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	31	amod	_	Vform=اَلأَمِيرِكِيَّةِ|Gloss=American|Root='amIrik|Translit=al-ʾamīrikīyati|LTranslit=ʾamīrikīy
+33	"	"	PUNCT	G---------	_	35	punct	_	SpaceAfter=No|Vform="|Translit="
+34	جنرال	جنرال	X	U---------	_	35	nmod	_	Vform=جنرال|Translit=jnrAl
+35	ديناميكس	دِينَامِيكس	X	X---------	Foreign=Yes	31	nmod	_	SpaceAfter=No|Vform=دِينَامِيكس|Gloss=Dynamics|Root=dInAmIks|Translit=dīnāmīks|LTranslit=dīnāmīks
+36	"	"	PUNCT	G---------	_	35	punct	_	Vform="|Translit="
+37	على	عَلَى	ADP	P---------	AdpType=Prep	38	case	_	Vform=عَلَى|Gloss=on,above|Root=`_l_w|Translit=ʿalā|LTranslit=ʿalā
+38	رخصة	رُخصَة	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	30	obj	_	Vform=رُخصَةٍ|Gloss=license,permit|Root=r__h_.s|Translit=ruḫṣatin|LTranslit=ruḫṣat
+39-40	لتصنيع	_	_	_	_	_	_	_	_
+39	ل	لِ	ADP	P---------	AdpType=Prep	40	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+40	تصنيع	تَصنِيع	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	38	nmod	_	Vform=تَصنِيعِ|Gloss=fabrication,industrialization,processing|Root=.s_n_`|Translit=taṣnīʿi|LTranslit=taṣnīʿ
+41	الدبابة	دَبَّابَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	40	nmod	_	Vform=اَلدَّبَّابَةِ|Gloss=tank|Root=d_b_b|Translit=ad-dabbābati|LTranslit=dabbābat
+42	الالمانية	أَلمَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	41	amod	_	Vform=اَلأَلمَانِيَّةِ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyati|LTranslit=ʾalmānīy
+43	"	"	PUNCT	G---------	_	44	punct	_	SpaceAfter=No|Vform="|Translit="
+44	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	41	nmod	_	Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+45	2	2	NUM	Q---------	NumForm=Digit	44	nummod	_	SpaceAfter=No|Vform=٢|Translit=2
+46	"	"	PUNCT	G---------	_	44	punct	_	Vform="|Translit="
+47	عبر	عَبرَ	ADP	PI------4-	AdpType=Prep|Case=Acc	48	case	_	Vform=عَبرَ|Gloss=across,over,via,be_means_of|Root=`_b_r|Translit=ʿabra|LTranslit=ʿabra
+48	شراء	شِرَاء	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	30	obl	_	Vform=شِرَاءِ|Gloss=purchase,buying,purchasing|Root=^s_r_y|Translit=širāʾi|LTranslit=širāʾ
+49	المجموعة	مَجمُوعَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	48	nmod	_	Vform=اَلمَجمُوعَةِ|Gloss=collection,group,bloc|Root=^g_m_`|Translit=al-maǧmūʿati|LTranslit=maǧmūʿat
+50	الحكومية	حُكُومِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	49	amod	_	Vform=اَلحُكُومِيَّةِ|Gloss=governmental,state,official|Root=.h_k_m|Translit=al-ḥukūmīyati|LTranslit=ḥukūmīy
+51	الاسبانية	إِسبَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	49	amod	_	Vform=اَلإِسبَانِيَّةِ|Gloss=Spanish,Spaniard|Root='isbAn|Translit=al-ʾisbānīyati|LTranslit=ʾisbānīy
+52-53	للاسلحة	_	_	_	_	_	_	_	_
+52	ل	لِ	ADP	P---------	AdpType=Prep	53	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+53	الأسلحة	سِلَاح	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	49	nmod	_	Vform=اَلأَسلِحَةِ|Gloss=weapon|Root=s_l_.h|Translit=al-ʾasliḥati|LTranslit=silāḥ
+54	"	"	PUNCT	G---------	_	56	punct	_	SpaceAfter=No|Vform="|Translit="
+55	سانتا	سَانتَا	X	X---------	Foreign=Yes	56	nmod	_	Vform=سَانتَا|Gloss=Santa|Root=sAntA|Translit=sāntā|LTranslit=sāntā
+56	بربارة	بربارة	X	U---------	_	49	nmod	_	SpaceAfter=No|Vform=بربارة|Translit=brbArp
+57	"	"	PUNCT	G---------	_	56	punct	_	SpaceAfter=No|Vform="|Translit="
+58	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0075:p3
+# sent_id = afp.20000715.0075:p3u1
+# text = وفي نيسان/ابريل الماضي، تخلت الدولة الاسبانية عن مجموعة "سانتا بربارة" التي تصنع دبابات ليوبارد الالمانية، الى "جنرال ديناميكس" التي تنتج الدبابة الاميركية "ام1 ابرامس" المعتبرة المنافسة الرئيسية لدبابة ليوبارد في الاسواق.
+# orig_file_sentence AFP_ARB_20000715.0075#3
+1-2	وفي	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	في	فِي	ADP	P---------	AdpType=Prep	3	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+3	نيسان	نِيسَان	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	8	obl	_	SpaceAfter=No|Vform=نِيسَانَ|Gloss=April|Root=nIsAn|Translit=nīsāna|LTranslit=nīsān
+4	/	/	PUNCT	G---------	_	5	punct	_	SpaceAfter=No|Vform=/|Translit=/
+5	ابريل	أَبرِيل	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	3	appos	_	Vform=أَبرِيلَ|Gloss=April,Aprilia|Root='abrIl|Translit=ʾabrīla|LTranslit=ʾabrīl
+6	الماضي	مَاضِي	ADJ	A-----MS2D	Case=Gen|Definite=Def|Gender=Masc|Number=Sing	3	amod	_	SpaceAfter=No|Vform=اَلمَاضِي|Gloss=past,bygone|Root=m_.d_y|Translit=al-māḍī|LTranslit=māḍī
+7	،	،	PUNCT	G---------	_	6	punct	_	Vform=،|Translit=،
+8	تخلت	تَخَلَّى	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=تَخَلَّت|Gloss=relinquish,surrender|Root=_h_l_w|Translit=taḫallat|LTranslit=taḫallā
+9	الدولة	دَولَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	8	nsubj	_	Vform=اَلدَّولَةُ|Gloss=state,country|Root=d_w_l|Translit=ad-dawlatu|LTranslit=dawlat
+10	الاسبانية	إِسبَانِيّ	ADJ	A-----FS1D	Case=Nom|Definite=Def|Gender=Fem|Number=Sing	9	amod	_	Vform=اَلإِسبَانِيَّةُ|Gloss=Spanish,Spaniard|Root='isbAn|Translit=al-ʾisbānīyatu|LTranslit=ʾisbānīy
+11	عن	عَن	ADP	P---------	AdpType=Prep	12	case	_	Vform=عَن|Gloss=about,from|Root=`an|Translit=ʿan|LTranslit=ʿan
+12	مجموعة	مَجمُوعَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	8	obj	_	Vform=مَجمُوعَةِ|Gloss=collection,group,bloc|Root=^g_m_`|Translit=maǧmūʿati|LTranslit=maǧmūʿat
+13	"	"	PUNCT	G---------	_	15	punct	_	SpaceAfter=No|Vform="|Translit="
+14	سانتا	سَانتَا	X	X---------	Foreign=Yes	15	nmod	_	Vform=سَانتَا|Gloss=Santa|Root=sAntA|Translit=sāntā|LTranslit=sāntā
+15	بربارة	بربارة	X	U---------	_	12	nmod	_	SpaceAfter=No|Vform=بربارة|Translit=brbArp
+16	"	"	PUNCT	G---------	_	15	punct	_	Vform="|Translit="
+17	التي	اَلَّذِي	DET	SR----FS2-	Case=Gen|Gender=Fem|Number=Sing|PronType=Rel	12	cc	_	Vform=اَلَّتِي|Gloss=that,which|Root=l|Translit=allatī|LTranslit=allaḏī
+18	تصنع	صَنَع	VERB	VIIA-3FS--	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	12	acl	_	Vform=تَصنَعُ|Gloss=fabricate,design,build|Root=.s_n_`|Translit=taṣnaʿu|LTranslit=ṣanaʿ
+19	دبابات	دَبَّابَة	NOUN	N------P4R	Case=Acc|Definite=Cons|Number=Plur	18	obj	_	Vform=دَبَّابَاتِ|Gloss=tank|Root=d_b_b|Translit=dabbābāti|LTranslit=dabbābat
+20	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	19	nmod	_	Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+21	الالمانية	أَلمَانِيّ	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	19	amod	_	SpaceAfter=No|Vform=اَلأَلمَانِيَّةَ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyata|LTranslit=ʾalmānīy
+22	،	،	PUNCT	G---------	_	21	punct	_	Vform=،|Translit=،
+23	الى	إِلَى	ADP	P---------	AdpType=Prep	26	case	_	Vform=إِلَى|Gloss=to,towards|Root='_l_y|Translit=ʾilā|LTranslit=ʾilā
+24	"	"	PUNCT	G---------	_	26	punct	_	SpaceAfter=No|Vform="|Translit="
+25	جنرال	جنرال	X	U---------	_	26	nmod	_	Vform=جنرال|Translit=jnrAl
+26	ديناميكس	دِينَامِيكس	X	X---------	Foreign=Yes	8	obj	_	SpaceAfter=No|Vform=دِينَامِيكس|Gloss=Dynamics|Root=dInAmIks|Translit=dīnāmīks|LTranslit=dīnāmīks
+27	"	"	PUNCT	G---------	_	26	punct	_	Vform="|Translit="
+28	التي	التي	X	U---------	_	26	cc	_	Vform=التي|Translit=Alty
+29	تنتج	أَنتَج	VERB	VIIA-3FS--	Aspect=Imp|Gender=Fem|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	26	acl	_	Vform=تُنتِجُ|Gloss=produce,yield,cause|Root=n_t_^g|Translit=tuntiǧu|LTranslit=ʾantaǧ
+30	الدبابة	دَبَّابَة	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	29	obj	_	Vform=اَلدَّبَّابَةَ|Gloss=tank|Root=d_b_b|Translit=ad-dabbābata|LTranslit=dabbābat
+31	الاميركية	أَمِيرِكِيّ	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	30	amod	_	Vform=اَلأَمِيرِكِيَّةَ|Gloss=American|Root='amIrik|Translit=al-ʾamīrikīyata|LTranslit=ʾamīrikīy
+32	"	"	PUNCT	G---------	_	35	punct	_	SpaceAfter=No|Vform="|Translit="
+33	ام	إِم	X	X---------	Foreign=Yes	35	flat:foreign	_	SpaceAfter=No|Vform=إِم|Gloss=M.|Root='im|Translit=ʾim|LTranslit=ʾim
+34	1	1	NUM	Q---------	NumForm=Digit	35	nummod	_	Vform=١|Translit=1
+35	ابرامس	أَبرَامس	X	X---------	Foreign=Yes	30	nmod	_	SpaceAfter=No|Vform=أَبرَامس|Gloss=Abrams|Root='abrAms|Translit=ʾabrāms|LTranslit=ʾabrāms
+36	"	"	PUNCT	G---------	_	35	punct	_	Vform="|Translit="
+37	المعتبرة	مُعتَبَر	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	30	amod	_	Vform=اَلمُعتَبَرَةَ|Gloss=considered,regarded,considerable|Root=`_b_r|Translit=al-muʿtabarata|LTranslit=muʿtabar
+38	المنافسة	مُنَافِسَة	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	37	obj	_	Vform=اَلمُنَافِسَةَ|Gloss=competitor,competing,rival|Root=n_f_s|Translit=al-munāfisata|LTranslit=munāfisat
+39	الرئيسية	رَئِيسِيّ	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	38	amod	_	Vform=اَلرَّئِيسِيَّةَ|Gloss=main,principal|Root=r_'_s|Translit=ar-raʾīsīyata|LTranslit=raʾīsīy
+40-41	لدبابة	_	_	_	_	_	_	_	_
+40	ل	لِ	ADP	P---------	AdpType=Prep	41	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+41	دبابة	دَبَّابَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	38	nmod	_	Vform=دَبَّابَةِ|Gloss=tank|Root=d_b_b|Translit=dabbābati|LTranslit=dabbābat
+42	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	41	nmod	_	Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+43	في	فِي	ADP	P---------	AdpType=Prep	44	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+44	الاسواق	سُوق	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	38	nmod	_	SpaceAfter=No|Vform=اَلأَسوَاقِ|Gloss=market|Root=s_w_q|Translit=al-ʾaswāqi|LTranslit=sūq
+45	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0075:p4
+# sent_id = afp.20000715.0075:p4u1
+# text = وكانت خسائر المجموعة الاسبانية الرسمية تراكمت في السنوات العشر الاخيرة لتبلغ 920 مليون يورو.
+# orig_file_sentence AFP_ARB_20000715.0075#4
+1-2	وكانت	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	كانت	كَان	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=كَانَت|Gloss=be,is,exist|Root=k_w_n|Translit=kānat|LTranslit=kān
+3	خسائر	خَسَارَة	NOUN	N------P1R	Case=Nom|Definite=Cons|Number=Plur	2	nsubj	_	Vform=خَسَائِرُ|Gloss=loss,damage,casualties|Root=_h_s_r|Translit=ḫasāʾiru|LTranslit=ḫasārat
+4	المجموعة	مَجمُوعَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	3	nmod	_	Vform=اَلمَجمُوعَةِ|Gloss=collection,group,bloc|Root=^g_m_`|Translit=al-maǧmūʿati|LTranslit=maǧmūʿat
+5	الاسبانية	إِسبَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	4	amod	_	Vform=اَلإِسبَانِيَّةِ|Gloss=Spanish,Spaniard|Root='isbAn|Translit=al-ʾisbānīyati|LTranslit=ʾisbānīy
+6	الرسمية	رَسمِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	3	amod	_	Vform=اَلرَّسمِيَّةِ|Gloss=official|Root=r_s_m|Translit=ar-rasmīyati|LTranslit=rasmīy
+7	تراكمت	تَرَاكَم	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	2	xcomp	_	Vform=تَرَاكَمَت|Gloss=accumulate,gather|Root=r_k_m|Translit=tarākamat|LTranslit=tarākam
+8	في	فِي	ADP	P---------	AdpType=Prep	9	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+9	السنوات	سَنَة	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	7	obl	_	Vform=اَلسَّنَوَاتِ|Gloss=year|Root=s_n_w|Translit=as-sanawāti|LTranslit=sanat
+10	العشر	عَشَرَة	NUM	QX----F-2D	Case=Gen|Definite=Def|Gender=Fem|NumForm=Word	9	nummod	_	Vform=اَلعَشرِ|Gloss=ten|Root=`_^s_r|Translit=al-ʿašri|LTranslit=ʿašarat
+11	الاخيرة	أَخِير	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	9	amod	_	Vform=اَلأَخِيرَةِ|Gloss=last,latest,recent,latter|Root='__h_r|Translit=al-ʾaḫīrati|LTranslit=ʾaḫīr
+12-13	لتبلغ	_	_	_	_	_	_	_	_
+12	ل	لِ	CCONJ	C---------	_	13	mark	_	Vform=لِ|Gloss=in_order_to,so_that|Root=li|Translit=li|LTranslit=li
+13	تبلغ	بَلَغ	VERB	VISA-3FS--	Aspect=Imp|Gender=Fem|Mood=Sub|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	7	advcl	_	Vform=تَبلُغَ|Gloss=reach,attain|Root=b_l_.g|Translit=tabluġa|LTranslit=balaġ
+14	920	920	NUM	Q---------	NumForm=Digit	13	obj	_	Vform=٩٢٠|Translit=920
+15	مليون	مِليُون	NUM	QM-----S4R	Case=Acc|Definite=Cons|Number=Sing|NumForm=Word	14	nummod	_	Vform=مِليُونَ|Gloss=million|Root=m_l_y_n|Translit=milyūna|LTranslit=milyūn
+16	يورو	يُورُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	15	nmod	_	SpaceAfter=No|Vform=يُورُو|Gloss=Euro|Root=yUrU|Translit=yūrū|LTranslit=yūrū
+17	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0075:p5
+# sent_id = afp.20000715.0075:p5u1
+# text = واشارت صحيفة الاحد الى ان المستشار شرودر يعتبر ان حصول المجموعة الاميركية على رخصة تصنيع ليوبارد2 يعرض للخطر المصالح التكنولوجية الاساسية لالمانيا وطلب من وزير الدفاع رودولف شاربينغ التوجه الى اسبانيا.
+# orig_file_sentence AFP_ARB_20000715.0075#5
+1-2	واشارت	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	أشارت	أَشَار	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=أَشَارَت|Gloss=indicate,mention,cite|Root=^s_w_r|Translit=ʾašārat|LTranslit=ʾašār
+3	صحيفة	صَحِيفَة	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	2	nsubj	_	Vform=صَحِيفَةُ|Gloss=newspaper,sheet,leaf|Root=.s_.h_f|Translit=ṣaḥīfatu|LTranslit=ṣaḥīfat
+4	الاحد	أَحَد	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	3	nmod	_	Vform=اَلأَحَدِ|Gloss=Sunday|Root='_.h_d|Translit=al-ʾaḥadi|LTranslit=ʾaḥad
+5	الى	إِلَى	ADP	P---------	AdpType=Prep	9	mark	_	Vform=إِلَى|Gloss=to,towards|Root='_l_y|Translit=ʾilā|LTranslit=ʾilā
+6	ان	أَنَّ	CCONJ	C---------	_	9	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+7	المستشار	مُستَشَار	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	9	nsubj	_	Vform=اَلمُستَشَارَ|Gloss=counselor,adviser|Root=^s_w_r|Translit=al-mustašāra|LTranslit=mustašār
+8	شرودر	شرُودِر	X	X---------	Foreign=Yes	7	nmod	_	Vform=شرُودِر|Gloss=Schroder|Root=^srUdir|Translit=šrūdir|LTranslit=šrūdir
+9	يعتبر	اِعتَبَر	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	2	ccomp	_	Vform=يَعتَبِرُ|Gloss=consider,regard|Root=`_b_r|Translit=yaʿtabiru|LTranslit=iʿtabar
+10	ان	أَنَّ	CCONJ	C---------	_	19	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+11	حصول	حُصُول	NOUN	N------S4R	Case=Acc|Definite=Cons|Number=Sing	19	nsubj	_	Vform=حُصُولَ|Gloss=acquisition,obtaining,occurrence,happening|Root=.h_.s_l|Translit=ḥuṣūla|LTranslit=ḥuṣūl
+12	المجموعة	مَجمُوعَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	11	nmod	_	Vform=اَلمَجمُوعَةِ|Gloss=collection,group,bloc|Root=^g_m_`|Translit=al-maǧmūʿati|LTranslit=maǧmūʿat
+13	الاميركية	أَمِيرِكِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	12	amod	_	Vform=اَلأَمِيرِكِيَّةِ|Gloss=American|Root='amIrik|Translit=al-ʾamīrikīyati|LTranslit=ʾamīrikīy
+14	على	عَلَى	ADP	P---------	AdpType=Prep	15	case	_	Vform=عَلَى|Gloss=on,above|Root=`_l_w|Translit=ʿalā|LTranslit=ʿalā
+15	رخصة	رُخصَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	11	obj	_	Vform=رُخصَةِ|Gloss=license,permit|Root=r__h_.s|Translit=ruḫṣati|LTranslit=ruḫṣat
+16	تصنيع	تَصنِيع	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	15	nmod	_	Vform=تَصنِيعِ|Gloss=fabrication,industrialization,processing|Root=.s_n_`|Translit=taṣnīʿi|LTranslit=taṣnīʿ
+17	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	16	nmod	_	SpaceAfter=No|Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+18	2	2	NUM	Q---------	NumForm=Digit	17	nummod	_	Vform=٢|Translit=2
+19	يعرض	عَرَّض	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	9	ccomp	_	Vform=يُعَرِّضُ|Gloss=expose|Root=`_r_.d|Translit=yuʿarriḍu|LTranslit=ʿarraḍ
+20-21	للخطر	_	_	_	_	_	_	_	_
+20	ل	لِ	ADP	P---------	AdpType=Prep	21	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+21	الخطر	خَطَر	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	19	iobj	_	Vform=اَلخَطَرِ|Gloss=danger|Root=_h_.t_r|Translit=al-ḫaṭari|LTranslit=ḫaṭar
+22	المصالح	مَصلَحَة	NOUN	N------P4D	Case=Acc|Definite=Def|Number=Plur	19	obj	_	Vform=اَلمَصَالِحَ|Gloss=interest,advantage,agency|Root=.s_l_.h|Translit=al-maṣāliḥa|LTranslit=maṣlaḥat
+23	التكنولوجية	تِكنُولُوجِيّ	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	22	amod	_	Vform=اَلتِّكنُولُوجِيَّةَ|Gloss=technological|Root=tiknUlU^g|Translit=at-tiknūlūǧīyata|LTranslit=tiknūlūǧīy
+24	الاساسية	أَسَاسِيّ	ADJ	A-----FS4D	Case=Acc|Definite=Def|Gender=Fem|Number=Sing	22	amod	_	Vform=اَلأَسَاسِيَّةَ|Gloss=basic,fundamental|Root='_s_s|Translit=al-ʾasāsīyata|LTranslit=ʾasāsīy
+25-26	لالمانيا	_	_	_	_	_	_	_	_
+25	ل	لِ	ADP	P---------	AdpType=Prep	26	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+26	ألمانيا	أَلمَانِيَا	X	X---------	Foreign=Yes	22	nmod	_	Vform=أَلمَانِيَا|Gloss=Germany|Root='almAn|Translit=ʾalmāniyā|LTranslit=ʾalmāniyā
+27-28	وطلب	_	_	_	_	_	_	_	_
+27	و	وَ	CCONJ	C---------	_	28	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+28	طلب	طَلَب	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	9	conj	_	Vform=طَلَبَ|Gloss=request|Root=.t_l_b|Translit=ṭalaba|LTranslit=ṭalab
+29	من	مِن	ADP	P---------	AdpType=Prep	30	case	_	Vform=مِن|Gloss=from|Root=min|Translit=min|LTranslit=min
+30	وزير	وَزِير	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	28	iobj	_	Vform=وَزِيرِ|Gloss=minister|Root=w_z_r|Translit=wazīri|LTranslit=wazīr
+31	الدفاع	دِفَاع	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	30	nmod	_	Vform=اَلدِّفَاعِ|Gloss=defense|Root=d_f_`|Translit=ad-difāʿi|LTranslit=difāʿ
+32	رودولف	رُودُولف	X	X---------	Foreign=Yes	33	flat:foreign	_	Vform=رُودُولف|Gloss=Rudolf|Root=rUdUlf|Translit=rūdūlf|LTranslit=rūdūlf
+33	شاربينغ	شَاربِينغ	X	X---------	Foreign=Yes	30	nmod	_	Vform=شَاربِينغ|Gloss=Scharping|Root=^sArbIn.g|Translit=šārbīnġ|LTranslit=šārbīnġ
+34	التوجه	تَوَجُّه	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	28	obj	_	Vform=اَلتَّوَجُّهَ|Gloss=attitude,approach|Root=w_^g_h|Translit=at-tawaǧǧuha|LTranslit=tawaǧǧuh
+35	الى	إِلَى	ADP	P---------	AdpType=Prep	36	case	_	Vform=إِلَى|Gloss=to,towards|Root='_l_y|Translit=ʾilā|LTranslit=ʾilā
+36	اسبانيا	إِسبَانِيَا	X	X---------	Foreign=Yes	34	advmod	_	SpaceAfter=No|Vform=إِسبَانِيَا|Gloss=Spain|Root='isbAn|Translit=ʾisbāniyā|LTranslit=ʾisbāniyā
+37	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0075:p6
+# sent_id = afp.20000715.0075:p6u1
+# text = وتعذر لمتحدثة باسم وزارة الدفاع الالمانية ان تؤكد اليوم السبت هذه المعلومات.
+# orig_file_sentence AFP_ARB_20000715.0075#6
+1-2	وتعذر	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	تعذر	تَعَذَّر	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=تَعَذَّرَ|Gloss=be_excused,be_forgiven|Root=`__d_r|Translit=taʿaḏḏara|LTranslit=taʿaḏḏar
+3-4	لمتحدثة	_	_	_	_	_	_	_	_
+3	ل	لِ	ADP	P---------	AdpType=Prep	4	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+4	متحدثة	مُتَحَدِّثَة	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	2	iobj	_	Vform=مُتَحَدِّثَةٍ|Gloss=spokesman,speaker|Root=.h_d__t|Translit=mutaḥaddiṯatin|LTranslit=mutaḥaddiṯat
+5-6	باسم	_	_	_	_	_	_	_	_
+5	ب	بِ	ADP	P---------	AdpType=Prep	7	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+6	اسم	اِسم	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	7	cc	_	Vform=اِسمِ|Gloss=name|Root=s_m_y|Translit=ismi|LTranslit=ism
+7	وزارة	وِزَارَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	4	nmod	_	Vform=وِزَارَةِ|Gloss=ministry|Root=w_z_r|Translit=wizārati|LTranslit=wizārat
+8	الدفاع	دِفَاع	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	7	nmod	_	Vform=اَلدِّفَاعِ|Gloss=defense|Root=d_f_`|Translit=ad-difāʿi|LTranslit=difāʿ
+9	الالمانية	أَلمَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	7	amod	_	Vform=اَلأَلمَانِيَّةِ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyati|LTranslit=ʾalmānīy
+10	ان	أَن	CCONJ	C---------	_	11	mark	_	Vform=أَن|Gloss=to|Root='_n|Translit=ʾan|LTranslit=ʾan
+11	تؤكد	أَكَّد	VERB	VISA-3FS--	Aspect=Imp|Gender=Fem|Mood=Sub|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	2	ccomp	_	Vform=تُؤَكِّدَ|Gloss=affirm,assure,confirm,guarantee,emphasize|Root='_k_d|Translit=tuʾakkida|LTranslit=ʾakkad
+12	اليوم	يَوم	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	11	obl	_	Vform=اَليَومَ|Gloss=day,today|Root=y_w_m|Translit=al-yawma|LTranslit=yawm
+13	السبت	سَبت	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	12	nmod	_	Vform=اَلسَّبتَ|Gloss=Saturday,Sabbath|Root=s_b_t|Translit=as-sabta|LTranslit=sabt
+14	هذه	هٰذَا	DET	SD----FS4-	Case=Acc|Gender=Fem|Number=Sing|PronType=Dem	15	det	_	Vform=هٰذِهِ|Gloss=this,these|Root=h|Translit=hāḏihi|LTranslit=hāḏā
+15	المعلومات	مَعلُومَة	NOUN	N------P4D	Case=Acc|Definite=Def|Number=Plur	11	obj	_	SpaceAfter=No|Vform=اَلمَعلُومَاتِ|Gloss=information,known_fact,data|Root=`_l_m|Translit=al-maʿlūmāti|LTranslit=maʿlūmat
+16	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0075:p7
+# sent_id = afp.20000715.0075:p7u1
+# text = وفي 21 حزيران/يونيو، شدد وزير الدفاع الاسباني فيديريكو تريو على ان العقد الموقع في نهاية عام 1998 بين سانتا بربارة ومنتجي الدبابة الالمانية، كروس مافييه ورينمينتال لتصنيع الدبابة في اسبانيا وانتاج 235 دبابة ليوبارد2 خلال عشر سنوات، يتضمن بندا لحماية التكنولوجيا الالمانية ويجب في "جميع الاحوال" ان تحترمه شركة "جنرال ديناميكس" الاميركية.
+# orig_file_sentence AFP_ARB_20000715.0075#7
+1-2	وفي	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	في	فِي	ADP	P---------	AdpType=Prep	3	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+3	21	21	NUM	Q---------	NumForm=Digit	8	obl	_	Vform=٢١|Translit=21
+4	حزيران	حَزِيرَان	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	3	nmod	_	SpaceAfter=No|Vform=حَزِيرَانَ|Gloss=June|Root=.h_z_r|Translit=ḥazīrāna|LTranslit=ḥazīrān
+5	/	/	PUNCT	G---------	_	6	punct	_	SpaceAfter=No|Vform=/|Translit=/
+6	يونيو	يُونِيُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	4	appos	_	SpaceAfter=No|Vform=يُونِيُو|Gloss=June|Root=yUniyU|Translit=yūniyū|LTranslit=yūniyū
+7	،	،	PUNCT	G---------	_	6	punct	_	Vform=،|Translit=،
+8	شدد	شَدَّد	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=شَدَّدَ|Gloss=strengthen,intensify,emphasize|Root=^s_d_d|Translit=šaddada|LTranslit=šaddad
+9	وزير	وَزِير	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	8	nsubj	_	Vform=وَزِيرُ|Gloss=minister|Root=w_z_r|Translit=wazīru|LTranslit=wazīr
+10	الدفاع	دِفَاع	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	9	nmod	_	Vform=اَلدِّفَاعِ|Gloss=defense|Root=d_f_`|Translit=ad-difāʿi|LTranslit=difāʿ
+11	الاسباني	إِسبَانِيّ	ADJ	A-----MS1D	Case=Nom|Definite=Def|Gender=Masc|Number=Sing	9	amod	_	Vform=اَلإِسبَانِيُّ|Gloss=Spanish,Spaniard|Root='isbAn|Translit=al-ʾisbānīyu|LTranslit=ʾisbānīy
+12	فيديريكو	فيديريكو	X	U---------	_	13	nmod	_	Vform=فيديريكو|Translit=fydyrykw
+13	تريو	تريو	X	U---------	_	9	nmod	_	Vform=تريو|Translit=tryw
+14	على	عَلَى	ADP	P---------	AdpType=Prep	49	mark	_	Vform=عَلَى|Gloss=on,above|Root=`_l_w|Translit=ʿalā|LTranslit=ʿalā
+15	ان	أَنَّ	CCONJ	C---------	_	49	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+16	العقد	عَقد	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	49	nsubj	_	Vform=اَلعَقدَ|Gloss=contract,agreement|Root=`_q_d|Translit=al-ʿaqda|LTranslit=ʿaqd
+17	الموقع	مُوَقَّع	ADJ	A-----MS4D	Case=Acc|Definite=Def|Gender=Masc|Number=Sing	16	amod	_	Vform=اَلمُوَقَّعَ|Gloss=signed|Root=w_q_`|Translit=al-muwaqqaʿa|LTranslit=muwaqqaʿ
+18	في	فِي	ADP	P---------	AdpType=Prep	19	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+19	نهاية	نِهَايَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	17	obl	_	Vform=نِهَايَةِ|Gloss=end,termination|Root=n_h_y|Translit=nihāyati|LTranslit=nihāyat
+20	عام	عَام	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	19	nmod	_	Vform=عَامِ|Gloss=year|Root=`_w_m|Translit=ʿāmi|LTranslit=ʿām
+21	1998	1998	NUM	Q---------	NumForm=Digit	20	nummod	_	Vform=١٩٩٨|Translit=1998
+22	بين	بَينَ	ADP	PI------4-	AdpType=Prep|Case=Acc	24	case	_	Vform=بَينَ|Gloss=between,among|Root=b_y_n|Translit=bayna|LTranslit=bayna
+23	سانتا	سَانتَا	X	X---------	Foreign=Yes	24	nmod	_	Vform=سَانتَا|Gloss=Santa|Root=sAntA|Translit=sāntā|LTranslit=sāntā
+24	بربارة	بربارة	X	U---------	_	16	nmod	_	Vform=بربارة|Translit=brbArp
+25-26	ومنتجي	_	_	_	_	_	_	_	_
+25	و	وَ	CCONJ	C---------	_	26	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+26	منتجي	مُنتِج	NOUN	N------D2R	Case=Gen|Definite=Cons|Number=Dual	24	conj	_	Vform=مُنتِجَي|Gloss=manufacturer,maker,producer|Root=n_t_^g|Translit=muntiǧay|LTranslit=muntiǧ
+27	الدبابة	دَبَّابَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	26	nmod	_	Vform=اَلدَّبَّابَةِ|Gloss=tank|Root=d_b_b|Translit=ad-dabbābati|LTranslit=dabbābat
+28	الالمانية	أَلمَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	27	amod	_	SpaceAfter=No|Vform=اَلأَلمَانِيَّةِ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyati|LTranslit=ʾalmānīy
+29	،	،	PUNCT	G---------	_	28	punct	_	Vform=،|Translit=،
+30-31	كروس	_	_	_	_	_	_	_	_
+30	ك	كَ	ADP	P---------	AdpType=Prep	33	nmod	_	Vform=كَ|Gloss=as,like|Root=ka|Translit=ka|LTranslit=ka
+31	روس	رُوس	X	X---------	Foreign=Yes	33	nmod	_	Vform=رُوس|Gloss=Ross|Root=rUs|Translit=rūs|LTranslit=rūs
+32	مافييه	مافييه	X	U---------	_	33	nmod	_	Vform=مافييه|Translit=mAfyyh
+33	ورينمينتال	ورينمينتال	X	U---------	_	26	nmod	_	Vform=ورينمينتال|Translit=wrynmyntAl
+34-35	لتصنيع	_	_	_	_	_	_	_	_
+34	ل	لِ	ADP	P---------	AdpType=Prep	35	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+35	تصنيع	تَصنِيع	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	16	nmod	_	Vform=تَصنِيعِ|Gloss=fabrication,industrialization,processing|Root=.s_n_`|Translit=taṣnīʿi|LTranslit=taṣnīʿ
+36	الدبابة	دَبَّابَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	35	nmod	_	Vform=اَلدَّبَّابَةِ|Gloss=tank|Root=d_b_b|Translit=ad-dabbābati|LTranslit=dabbābat
+37	في	فِي	ADP	P---------	AdpType=Prep	38	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+38	اسبانيا	إِسبَانِيَا	X	X---------	Foreign=Yes	35	advmod	_	Vform=إِسبَانِيَا|Gloss=Spain|Root='isbAn|Translit=ʾisbāniyā|LTranslit=ʾisbāniyā
+39-40	وانتاج	_	_	_	_	_	_	_	_
+39	و	وَ	CCONJ	C---------	_	40	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+40	إنتاج	إِنتَاج	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	35	conj	_	Vform=إِنتَاجِ|Gloss=production,output|Root=n_t_^g|Translit=ʾintāǧi|LTranslit=ʾintāǧ
+41	235	235	NUM	Q---------	NumForm=Digit	40	nummod	_	Vform=٢٣٥|Translit=235
+42	دبابة	دَبَّابَة	NOUN	N------S4R	Case=Acc|Definite=Cons|Number=Sing	41	nmod	_	Vform=دَبَّابَةَ|Gloss=tank|Root=d_b_b|Translit=dabbābata|LTranslit=dabbābat
+43	ليوبارد	لِيُوبَارد	X	X---------	Foreign=Yes	42	nmod	_	SpaceAfter=No|Vform=لِيُوبَارد|Gloss=Leopard|Root=liyUbArd|Translit=liyūbārd|LTranslit=liyūbārd
+44	2	2	NUM	Q---------	NumForm=Digit	43	nummod	_	Vform=٢|Translit=2
+45	خلال	خِلَالَ	ADP	PI------4-	AdpType=Prep|Case=Acc	46	case	_	Vform=خِلَالَ|Gloss=during,through|Root=_h_l_l|Translit=ḫilāla|LTranslit=ḫilāla
+46	عشر	عَشَرَة	NUM	QX----F-2R	Case=Gen|Definite=Cons|Gender=Fem|NumForm=Word	40	obl	_	Vform=عَشرِ|Gloss=ten|Root=`_^s_r|Translit=ʿašri|LTranslit=ʿašarat
+47	سنوات	سَنَة	NOUN	N------P2I	Case=Gen|Definite=Ind|Number=Plur	46	nmod	_	SpaceAfter=No|Vform=سَنَوَاتٍ|Gloss=year|Root=s_n_w|Translit=sanawātin|LTranslit=sanat
+48	،	،	PUNCT	G---------	_	47	punct	_	Vform=،|Translit=،
+49	يتضمن	تَضَمَّن	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	8	ccomp	_	Vform=يَتَضَمَّنُ|Gloss=guarantee,comprise,include|Root=.d_m_n|Translit=yataḍammanu|LTranslit=taḍamman
+50	بندا	بَند	NOUN	N------S4I	Case=Acc|Definite=Ind|Number=Sing	49	obj	_	Vform=بَندًا|Gloss=article,clause|Root=b_n_d|Translit=bandan|LTranslit=band
+51-52	لحماية	_	_	_	_	_	_	_	_
+51	ل	لِ	ADP	P---------	AdpType=Prep	52	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+52	حماية	حِمَايَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	50	nmod	_	Vform=حِمَايَةِ|Gloss=protection,protecting|Root=.h_m_y|Translit=ḥimāyati|LTranslit=ḥimāyat
+53	التكنولوجيا	تِكنُولُوجِيَا	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	52	nmod	_	Vform=اَلتِّكنُولُوجِيَا|Gloss=technology|Root=tiknUlU^g|Translit=at-tiknūlūǧiyā|LTranslit=tiknūlūǧiyā
+54	الالمانية	أَلمَانِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	53	amod	_	Vform=اَلأَلمَانِيَّةِ|Gloss=German|Root='almAn|Translit=al-ʾalmānīyati|LTranslit=ʾalmānīy
+55-56	ويجب	_	_	_	_	_	_	_	_
+55	و	وَ	CCONJ	C---------	_	56	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+56	يجب	وَجَب	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	49	conj	_	Vform=يَجِبُ|Gloss=be_necessary,be_incumbent|Root=w_^g_b|Translit=yaǧibu|LTranslit=waǧab
+57	في	فِي	ADP	P---------	AdpType=Prep	59	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+58	"	"	PUNCT	G---------	_	59	punct	_	SpaceAfter=No|Vform="|Translit="
+59	جميع	جَمِيع	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	56	obl	_	Vform=جَمِيعِ|Gloss=everyone,all|Root=^g_m_`|Translit=ǧamīʿi|LTranslit=ǧamīʿ
+60	الاحوال	حَال	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	59	nmod	_	SpaceAfter=No|Vform=اَلأَحوَالِ|Gloss=situation,condition,case|Root=.h_w_l|Translit=al-ʾaḥwāli|LTranslit=ḥāl
+61	"	"	PUNCT	G---------	_	59	punct	_	Vform="|Translit="
+62	ان	أَن	CCONJ	C---------	_	63	mark	_	Vform=أَن|Gloss=to|Root='_n|Translit=ʾan|LTranslit=ʾan
+63-64	تحترمه	_	_	_	_	_	_	_	_
+63	تحترم	اِحتَرَم	VERB	VISA-3FS--	Aspect=Imp|Gender=Fem|Mood=Sub|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	56	csubj	_	Vform=تَحتَرِمَ|Gloss=respect,revere|Root=.h_r_m|Translit=taḥtarima|LTranslit=iḥtaram
+64	ه	هُوَ	PRON	SP---3MS4-	Case=Acc|Gender=Masc|Number=Sing|Person=3|PronType=Prs	63	obj	_	Vform=هُ|Gloss=he,she,it|Translit=hu|LTranslit=huwa
+65	شركة	شَرِكَة	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	63	nsubj	_	Vform=شَرِكَةُ|Gloss=company,corporation|Root=^s_r_k|Translit=šarikatu|LTranslit=šarikat
+66	"	"	PUNCT	G---------	_	68	punct	_	SpaceAfter=No|Vform="|Translit="
+67	جنرال	جنرال	X	U---------	_	68	nmod	_	Vform=جنرال|Translit=jnrAl
+68	ديناميكس	دِينَامِيكس	X	X---------	Foreign=Yes	65	nmod	_	SpaceAfter=No|Vform=دِينَامِيكس|Gloss=Dynamics|Root=dInAmIks|Translit=dīnāmīks|LTranslit=dīnāmīks
+69	"	"	PUNCT	G---------	_	68	punct	_	Vform="|Translit="
+70	الاميركية	أَمِيرِكِيّ	ADJ	A-----FS1D	Case=Nom|Definite=Def|Gender=Fem|Number=Sing	65	amod	_	SpaceAfter=No|Vform=اَلأَمِيرِكِيَّةُ|Gloss=American|Root='amIrik|Translit=al-ʾamīrikīyatu|LTranslit=ʾamīrikīy
+71	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newdoc id = afp.20000715.0076
+# newpar id = afp.20000715.0076:p1
+# sent_id = afp.20000715.0076:p1u1
+# text = مقتل ما لا يقل عن 12 شخصا في مواجهات في احدى اسواق لاغوس
+# orig_file_sentence AFP_ARB_20000715.0076#1
+1	مقتل	مَقتَل	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	0	root	_	Vform=مَقتَلُ|Gloss=murder,killing|Root=q_t_l|Translit=maqtalu|LTranslit=maqtal
+2	ما	مَا	PRON	S---------	_	1	det	_	Vform=مَا|Gloss=what,which|Root=mA|Translit=mā|LTranslit=mā
+3	لا	لَا	PART	F---------	_	4	advmod	_	Vform=لَا|Gloss=no,not|Root=lA|Translit=lā|LTranslit=lā
+4	يقل	قَلّ	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	2	acl	_	Vform=يَقِلُّ|Gloss=be_less,decrease,diminish|Root=q_l_l|Translit=yaqillu|LTranslit=qall
+5	عن	عَن	ADP	P---------	AdpType=Prep	6	case	_	Vform=عَن|Gloss=about,from|Root=`an|Translit=ʿan|LTranslit=ʿan
+6	12	12	NUM	Q---------	NumForm=Digit	4	obj	_	Vform=١٢|Translit=12
+7	شخصا	شَخص	NOUN	N------S4I	Case=Acc|Definite=Ind|Number=Sing	6	nmod	_	Vform=شَخصًا|Gloss=individual,person|Root=^s__h_.s|Translit=šaḫṣan|LTranslit=šaḫṣ
+8	في	فِي	ADP	P---------	AdpType=Prep	9	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+9	مواجهات	مُوَاجَهَة	NOUN	N------P2I	Case=Gen|Definite=Ind|Number=Plur	1	nmod	_	Vform=مُوَاجَهَاتٍ|Gloss=encounter,confrontation|Root=w_^g_h|Translit=muwāǧahātin|LTranslit=muwāǧahat
+10	في	فِي	ADP	P---------	AdpType=Prep	11	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+11	احدى	إِحدَى	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	9	nmod	_	Vform=إِحدَى|Gloss=one,someone|Root='_.h_d|Translit=ʾiḥdā|LTranslit=ʾiḥdā
+12	اسواق	سُوق	NOUN	N------P2R	Case=Gen|Definite=Cons|Number=Plur	11	nmod	_	Vform=أَسوَاقِ|Gloss=market|Root=s_w_q|Translit=ʾaswāqi|LTranslit=sūq
+13	لاغوس	لَاغُوس	X	X---------	Foreign=Yes	12	nmod	_	Vform=لَاغُوس|Gloss=Lagos|Root=lA.gUs|Translit=lāġūs|LTranslit=lāġūs
+
+# newpar id = afp.20000715.0076:p2
+# sent_id = afp.20000715.0076:p2u1
+# text = لاغوس 15-7 (اف ب) - ذكرت الشرطة النيجيرية اليوم السبت ان ما لا يقل عن 12 شخصا قتلوا في مواجهات استمرت يومين في سوق في لاغوس بين تجار وزقاقيين.
+# orig_file_sentence AFP_ARB_20000715.0076#2
+1	لاغوس	لاغوس	X	U---------	_	0	root	_	Vform=لاغوس|Translit=lAgws
+2	15	15	NUM	Q---------	NumForm=Digit	1	dep	_	SpaceAfter=No|Vform=١٥|Translit=15
+3	-	-	PUNCT	G---------	_	4	punct	_	SpaceAfter=No|Vform=-|Translit=-
+4	7	7	NUM	Q---------	NumForm=Digit	2	conj	_	Vform=٧|Translit=7
+5	(	(	PUNCT	G---------	_	7	punct	_	SpaceAfter=No|Vform=(|Translit=(
+6	اف	اف	X	U---------	_	7	nmod	_	Vform=اف|Translit=Af
+7	ب	ب	X	Y---------	Abbr=Yes	1	dep	_	SpaceAfter=No|Vform=ب|Gloss=B,2nd,P|Root=b|Translit=b|LTranslit=b
+8	)	)	PUNCT	G---------	_	7	punct	_	Vform=)|Translit=)
+9	-	-	PUNCT	G---------	_	8	punct	_	Vform=-|Translit=-
+10	ذكرت	ذَكَر	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=ذَكَرَت|Gloss=mention,cite,remember|Root=_d_k_r|Translit=ḏakarat|LTranslit=ḏakar
+11	الشرطة	شُرطَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	10	nsubj	_	Vform=اَلشُّرطَةُ|Gloss=police|Root=^s_r_.t|Translit=aš-šurṭatu|LTranslit=šurṭat
+12	النيجيرية	نَيجِيرِيّ	ADJ	A-----FS1D	Case=Nom|Definite=Def|Gender=Fem|Number=Sing	11	amod	_	Vform=اَلنَّيجِيرِيَّةُ|Gloss=Nigerian|Root=nay^gIr|Translit=an-nayǧīrīyatu|LTranslit=nayǧīrīy
+13	اليوم	يَوم	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	10	obl	_	Vform=اَليَومَ|Gloss=day,today|Root=y_w_m|Translit=al-yawma|LTranslit=yawm
+14	السبت	سَبت	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	13	nmod	_	Vform=اَلسَّبتَ|Gloss=Saturday,Sabbath|Root=s_b_t|Translit=as-sabta|LTranslit=sabt
+15	ان	أَنَّ	CCONJ	C---------	_	22	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+16	ما	مَا	DET	S---------	_	22	nsubj:pass	_	Vform=مَا|Gloss=what,which|Root=mA|Translit=mā|LTranslit=mā
+17	لا	لَا	PART	F---------	_	18	advmod	_	Vform=لَا|Gloss=no,not|Root=lA|Translit=lā|LTranslit=lā
+18	يقل	قَلّ	VERB	VIIA-3MS--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	16	acl	_	Vform=يَقِلُّ|Gloss=be_less,decrease,diminish|Root=q_l_l|Translit=yaqillu|LTranslit=qall
+19	عن	عَن	ADP	P---------	AdpType=Prep	20	case	_	Vform=عَن|Gloss=about,from|Root=`an|Translit=ʿan|LTranslit=ʿan
+20	12	12	NUM	Q---------	NumForm=Digit	18	obj	_	Vform=١٢|Translit=12
+21	شخصا	شَخص	NOUN	N------S4I	Case=Acc|Definite=Ind|Number=Sing	20	nmod	_	Vform=شَخصًا|Gloss=individual,person|Root=^s__h_.s|Translit=šaḫṣan|LTranslit=šaḫṣ
+22	قتلوا	قَتَل	VERB	VP-P-3MP--	Aspect=Perf|Gender=Masc|Number=Plur|Person=3|Voice=Pass	10	ccomp	_	Vform=قُتِلُوا|Gloss=kill|Root=q_t_l|Translit=qutilū|LTranslit=qatal
+23	في	فِي	ADP	P---------	AdpType=Prep	24	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+24	مواجهات	مُوَاجَهَة	NOUN	N------P2I	Case=Gen|Definite=Ind|Number=Plur	22	obl	_	Vform=مُوَاجَهَاتٍ|Gloss=encounter,confrontation|Root=w_^g_h|Translit=muwāǧahātin|LTranslit=muwāǧahat
+25	استمرت	اِستَمَرّ	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	24	acl	_	Vform=اِستَمَرَّت|Gloss=continue,last|Root=m_r_r|Translit=istamarrat|LTranslit=istamarr
+26	يومين	يَوم	NOUN	N------D4I	Case=Acc|Definite=Ind|Number=Dual	25	obj	_	Vform=يَومَينِ|Gloss=day,today|Root=y_w_m|Translit=yawmayni|LTranslit=yawm
+27	في	فِي	ADP	P---------	AdpType=Prep	28	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+28	سوق	سُوق	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	25	obl	_	Vform=سُوقٍ|Gloss=market|Root=s_w_q|Translit=sūqin|LTranslit=sūq
+29	في	فِي	ADP	P---------	AdpType=Prep	30	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+30	لاغوس	لَاغُوس	X	X---------	Foreign=Yes	28	nmod	_	Vform=لَاغُوس|Gloss=Lagos|Root=lA.gUs|Translit=lāġūs|LTranslit=lāġūs
+31	بين	بَينَ	ADP	PI------4-	AdpType=Prep|Case=Acc	32	case	_	Vform=بَينَ|Gloss=between,among|Root=b_y_n|Translit=bayna|LTranslit=bayna
+32	تجار	تَاجِر	NOUN	N------P2I	Case=Gen|Definite=Ind|Number=Plur	24	nmod	_	Vform=تُجَّارٍ|Gloss=merchant,businessman|Root=t_^g_r|Translit=tuǧǧārin|LTranslit=tāǧir
+33-34	وزقاقيين	_	_	_	_	_	_	_	SpaceAfter=No
+33	و	وَ	CCONJ	C---------	_	34	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+34	زقاقيين	زُقَاقِيّ	ADJ	A-----MP2I	Case=Gen|Definite=Ind|Gender=Masc|Number=Plur	32	conj	_	Vform=زُقَاقِيِّينَ|Gloss=alley_dweller|Root=z_q_q|Translit=zuqāqīyīna|LTranslit=zuqāqīy
+35	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0076:p3
+# sent_id = afp.20000715.0076:p3u1
+# text = واعلن متحدث باسم الشرطة لوكالة فرانس برس ان المواجهات التي بدأت الخميس بين التجار في سوق الابا في لاغوس، وعدد من الزقاقيين، اسفرت ايضا عن اصابة عدد من الاشخاص بجروح.
+# orig_file_sentence AFP_ARB_20000715.0076#3
+1-2	واعلن	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	أعلن	أَعلَن	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=أَعلَنَ|Gloss=announce,declare|Root=`_l_n|Translit=ʾaʿlana|LTranslit=ʾaʿlan
+3	متحدث	مُتَحَدِّث	NOUN	N------S1I	Case=Nom|Definite=Ind|Number=Sing	2	nsubj	_	Vform=مُتَحَدِّثٌ|Gloss=spokesman,speaker|Root=.h_d__t|Translit=mutaḥaddiṯun|LTranslit=mutaḥaddiṯ
+4-5	باسم	_	_	_	_	_	_	_	_
+4	ب	بِ	ADP	P---------	AdpType=Prep	6	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+5	اسم	اِسم	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	6	cc	_	Vform=اِسمِ|Gloss=name|Root=s_m_y|Translit=ismi|LTranslit=ism
+6	الشرطة	شُرطَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	3	nmod	_	Vform=اَلشُّرطَةِ|Gloss=police|Root=^s_r_.t|Translit=aš-šurṭati|LTranslit=šurṭat
+7-8	لوكالة	_	_	_	_	_	_	_	_
+7	ل	لِ	ADP	P---------	AdpType=Prep	8	case	_	Vform=لِ|Gloss=for,to|Root=l|Translit=li|LTranslit=li
+8	وكالة	وِكَالَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	2	iobj	_	Vform=وِكَالَةِ|Gloss=agency|Root=w_k_l|Translit=wikālati|LTranslit=wikālat
+9	فرانس	فرَانس	X	X---------	Foreign=Yes	10	flat:foreign	_	Vform=فرَانس|Gloss=France|Root=frAns|Translit=frāns|LTranslit=frāns
+10	برس	برِس	X	X---------	Foreign=Yes	8	nmod	_	Vform=برِس|Gloss=Press|Root=bris|Translit=bris|LTranslit=bris
+11	ان	أَنَّ	CCONJ	C---------	_	29	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+12	المواجهات	مُوَاجَهَة	NOUN	N------P4D	Case=Acc|Definite=Def|Number=Plur	29	nsubj	_	Vform=اَلمُوَاجَهَاتِ|Gloss=encounter,confrontation|Root=w_^g_h|Translit=al-muwāǧahāti|LTranslit=muwāǧahat
+13	التي	اَلَّذِي	DET	SR----FS4-	Case=Acc|Gender=Fem|Number=Sing|PronType=Rel	12	cc	_	Vform=اَلَّتِي|Gloss=that,which|Root=l|Translit=allatī|LTranslit=allaḏī
+14	بدأت	بَدَأ	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	12	acl	_	Vform=بَدَأَت|Gloss=start,begin|Root=b_d_'|Translit=badaʾat|LTranslit=badaʾ
+15	الخميس	خَمِيس	NOUN	N------S4D	Case=Acc|Definite=Def|Number=Sing	14	obl	_	Vform=اَلخَمِيسَ|Gloss=Thursday|Root=_h_m_s|Translit=al-ḫamīsa|LTranslit=ḫamīs
+16	بين	بَينَ	ADP	PI------4-	AdpType=Prep|Case=Acc	17	case	_	Vform=بَينَ|Gloss=between,among|Root=b_y_n|Translit=bayna|LTranslit=bayna
+17	التجار	تَاجِر	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	12	nmod	_	Vform=اَلتُّجَّارِ|Gloss=merchant,businessman|Root=t_^g_r|Translit=at-tuǧǧāri|LTranslit=tāǧir
+18	في	فِي	ADP	P---------	AdpType=Prep	19	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+19	سوق	سُوق	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	17	nmod	_	Vform=سُوقِ|Gloss=market|Root=s_w_q|Translit=sūqi|LTranslit=sūq
+20	الابا	الابا	X	U---------	_	19	nmod	_	Vform=الابا|Translit=AlAbA
+21	في	فِي	ADP	P---------	AdpType=Prep	22	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+22	لاغوس	لَاغُوس	X	X---------	Foreign=Yes	19	nmod	_	SpaceAfter=No|Vform=لَاغُوس|Gloss=Lagos|Root=lA.gUs|Translit=lāġūs|LTranslit=lāġūs
+23	،	،	PUNCT	G---------	_	22	punct	_	Vform=،|Translit=،
+24-25	وعدد	_	_	_	_	_	_	_	_
+24	و	وَ	CCONJ	C---------	_	25	cc	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+25	عدد	عَدَد	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	17	conj	_	Vform=عَدَدٍ|Gloss=number,quantity,issue|Root=`_d_d|Translit=ʿadadin|LTranslit=ʿadad
+26	من	مِن	ADP	P---------	AdpType=Prep	27	case	_	Vform=مِن|Gloss=from|Root=min|Translit=min|LTranslit=min
+27	الزقاقيين	زُقَاقِيّ	ADJ	A-----MP2D	Case=Gen|Definite=Def|Gender=Masc|Number=Plur	25	amod	_	SpaceAfter=No|Vform=اَلزُّقَاقِيِّينَ|Gloss=alley_dweller|Root=z_q_q|Translit=az-zuqāqīyīna|LTranslit=zuqāqīy
+28	،	،	PUNCT	G---------	_	27	punct	_	Vform=،|Translit=،
+29	اسفرت	أَسفَر	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	2	ccomp	_	Vform=أَسفَرَت|Gloss=cause,produce,result_in|Root=s_f_r|Translit=ʾasfarat|LTranslit=ʾasfar
+30	ايضا	أَيضًا	ADV	D---------	_	29	advmod:emph	_	Vform=أَيضًا|Gloss=also|Root='_y_.d|Translit=ʾayḍan|LTranslit=ʾayḍan
+31	عن	عَن	ADP	P---------	AdpType=Prep	32	case	_	Vform=عَن|Gloss=about,from|Root=`an|Translit=ʿan|LTranslit=ʿan
+32	اصابة	إِصَابَة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	29	obj	_	Vform=إِصَابَةِ|Gloss=casualty,injury|Root=.s_w_b|Translit=ʾiṣābati|LTranslit=ʾiṣābat
+33	عدد	عَدَد	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	32	nmod	_	Vform=عَدَدٍ|Gloss=number,quantity,issue|Root=`_d_d|Translit=ʿadadin|LTranslit=ʿadad
+34	من	مِن	ADP	P---------	AdpType=Prep	35	case	_	Vform=مِن|Gloss=from|Root=min|Translit=min|LTranslit=min
+35	الاشخاص	شَخص	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	33	nmod	_	Vform=اَلأَشخَاصِ|Gloss=individual,person|Root=^s__h_.s|Translit=al-ʾašḫāṣi|LTranslit=šaḫṣ
+36-37	بجروح	_	_	_	_	_	_	_	SpaceAfter=No
+36	ب	بِ	ADP	P---------	AdpType=Prep	37	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+37	جروح	جُرح	NOUN	N------P2I	Case=Gen|Definite=Ind|Number=Plur	32	obj	_	Vform=جُرُوحٍ|Gloss=wound,injury|Root=^g_r_.h|Translit=ǧurūḥin|LTranslit=ǧurḥ
+38	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0076:p4
+# sent_id = afp.20000715.0076:p4u1
+# text = وبدأت اعمال العنف فيما كان الزقاقيون يحاولون نهب المحلات التجارية بحجة انهم يبحثون عن سارق.
+# orig_file_sentence AFP_ARB_20000715.0076#4
+1-2	وبدأت	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	بدأت	بَدَأ	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=بَدَأَت|Gloss=start,begin|Root=b_d_'|Translit=badaʾat|LTranslit=badaʾ
+3	اعمال	عَمَل	NOUN	N------P1R	Case=Nom|Definite=Cons|Number=Plur	2	nsubj	_	Vform=أَعمَالُ|Gloss=work,action,activities|Root=`_m_l|Translit=ʾaʿmālu|LTranslit=ʿamal
+4	العنف	عُنف	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	3	nmod	_	Vform=اَلعُنفِ|Gloss=violence,force|Root=`_n_f|Translit=al-ʿunfi|LTranslit=ʿunf
+5	فيما	فِيمَا	CCONJ	C---------	_	6	mark	_	Vform=فِيمَا|Gloss=while,during_which|Root=fI|Translit=fīmā|LTranslit=fīmā
+6	كان	كَان	VERB	VP-A-3MS--	Aspect=Perf|Gender=Masc|Number=Sing|Person=3|Voice=Act	2	advcl	_	Vform=كَانَ|Gloss=be,is,exist|Root=k_w_n|Translit=kāna|LTranslit=kān
+7	الزقاقيون	زُقَاقِيّ	ADJ	A-----MP1D	Case=Nom|Definite=Def|Gender=Masc|Number=Plur	6	nsubj	_	Vform=اَلزُّقَاقِيُّونَ|Gloss=alley_dweller|Root=z_q_q|Translit=az-zuqāqīyūna|LTranslit=zuqāqīy
+8	يحاولون	حَاوَل	VERB	VIIA-3MP--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Plur|Person=3|VerbForm=Fin|Voice=Act	6	xcomp	_	Vform=يُحَاوِلُونَ|Gloss=attempt|Root=.h_w_l|Translit=yuḥāwilūna|LTranslit=ḥāwal
+9	نهب	نَهب	NOUN	N------S4R	Case=Acc|Definite=Cons|Number=Sing	8	obj	_	Vform=نَهبَ|Gloss=looting,plundering|Root=n_h_b|Translit=nahba|LTranslit=nahb
+10	المحلات	مَحَلّ	NOUN	N------P2D	Case=Gen|Definite=Def|Number=Plur	9	nmod	_	Vform=اَلمَحَلَّاتِ|Gloss=place,location|Root=.h_l_l|Translit=al-maḥallāti|LTranslit=maḥall
+11	التجارية	تِجَارِيّ	ADJ	A-----FS2D	Case=Gen|Definite=Def|Gender=Fem|Number=Sing	10	amod	_	Vform=اَلتِّجَارِيَّةِ|Gloss=commercial,business|Root=t_^g_r|Translit=at-tiǧārīyati|LTranslit=tiǧārīy
+12-13	بحجة	_	_	_	_	_	_	_	_
+12	ب	بِ	ADP	P---------	AdpType=Prep	13	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+13	حجة	حُجَّة	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	9	obl	_	Vform=حُجَّةِ|Gloss=pretext|Root=.h_^g_^g|Translit=ḥuǧǧati|LTranslit=ḥuǧǧat
+14-15	انهم	_	_	_	_	_	_	_	_
+14	أن	أَنَّ	CCONJ	C---------	_	16	mark	_	Vform=أَنَّ|Gloss=that|Root='_n|Translit=ʾanna|LTranslit=ʾanna
+15	هم	هُوَ	PRON	SP---3MP4-	Case=Acc|Gender=Masc|Number=Plur|Person=3|PronType=Prs	16	nsubj	_	Vform=هُم|Gloss=he,she,it|Translit=hum|LTranslit=huwa
+16	يبحثون	بَحَث	VERB	VIIA-3MP--	Aspect=Imp|Gender=Masc|Mood=Ind|Number=Plur|Person=3|VerbForm=Fin|Voice=Act	13	acl	_	Vform=يَبحَثُونَ|Gloss=discuss,search,look_for,examine,study,look_into|Root=b_.h__t|Translit=yabḥaṯūna|LTranslit=baḥaṯ
+17	عن	عَن	ADP	P---------	AdpType=Prep	18	case	_	Vform=عَن|Gloss=about,from|Root=`an|Translit=ʿan|LTranslit=ʿan
+18	سارق	سَارِق	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	16	obj	_	SpaceAfter=No|Vform=سَارِقٍ|Gloss=thief|Root=s_r_q|Translit=sāriqin|LTranslit=sāriq
+19	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0076:p5
+# sent_id = afp.20000715.0076:p5u1
+# text = واستمرت المواجهات حتى يوم الجمعة عندما تمكنت الشرطة من فرض النظام مجددا.
+# orig_file_sentence AFP_ARB_20000715.0076#5
+1-2	واستمرت	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	استمرت	اِستَمَرّ	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	1	parataxis	_	Vform=اِستَمَرَّت|Gloss=continue,last|Root=m_r_r|Translit=istamarrat|LTranslit=istamarr
+3	المواجهات	مُوَاجَهَة	NOUN	N------P1D	Case=Nom|Definite=Def|Number=Plur	2	nsubj	_	Vform=اَلمُوَاجَهَاتُ|Gloss=encounter,confrontation|Root=w_^g_h|Translit=al-muwāǧahātu|LTranslit=muwāǧahat
+4	حتى	حَتَّى	ADP	P---------	AdpType=Prep	5	case	_	Vform=حَتَّى|Gloss=until,up_to|Root=.h_t_t|Translit=ḥattā|LTranslit=ḥattā
+5	يوم	يَوم	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	2	obl	_	Vform=يَومِ|Gloss=day,today|Root=y_w_m|Translit=yawmi|LTranslit=yawm
+6	الجمعة	جُمعَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	5	nmod	_	Vform=اَلجُمعَةِ|Gloss=Friday|Root=^g_m_`|Translit=al-ǧumʿati|LTranslit=ǧumʿat
+7	عندما	عِندَمَا	CCONJ	C---------	_	8	mark	_	Vform=عِندَمَا|Gloss=when|Root=`_n_d|Translit=ʿindamā|LTranslit=ʿindamā
+8	تمكنت	تَمَكَّن	VERB	VP-A-3FS--	Aspect=Perf|Gender=Fem|Number=Sing|Person=3|Voice=Act	2	advcl	_	Vform=تَمَكَّنَت|Gloss=be_capable_of,be_able_to|Root=m_k_n|Translit=tamakkanat|LTranslit=tamakkan
+9	الشرطة	شُرطَة	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	8	nsubj	_	Vform=اَلشُّرطَةُ|Gloss=police|Root=^s_r_.t|Translit=aš-šurṭatu|LTranslit=šurṭat
+10	من	مِن	ADP	P---------	AdpType=Prep	11	case	_	Vform=مِن|Gloss=from|Root=min|Translit=min|LTranslit=min
+11	فرض	فَرض	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	8	obj	_	Vform=فَرضِ|Gloss=imposing,levying,duties,suppositions|Root=f_r_.d|Translit=farḍi|LTranslit=farḍ
+12	النظام	نِظَام	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	11	nmod	_	Vform=اَلنِّظَامِ|Gloss=system,order,methodology|Root=n_.z_m|Translit=an-niẓāmi|LTranslit=niẓām
+13	مجددا	مُجَدَّد	ADJ	A-----MS4I	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing	11	obl	_	SpaceAfter=No|Vform=مُجَدَّدًا|Gloss=renewed,renovated|Root=^g_d_d|Translit=muǧaddadan|LTranslit=muǧaddad
+14	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newpar id = afp.20000715.0076:p6
+# sent_id = afp.20000715.0076:p6u1
+# text = ولم يتم اعتقال احد بحسب المتحدث باسم الشرطة.
+# orig_file_sentence AFP_ARB_20000715.0076#6
+1-2	ولم	_	_	_	_	_	_	_	_
+1	و	وَ	CCONJ	C---------	_	0	root	_	Vform=وَ|Gloss=and|Root=wa|Translit=wa|LTranslit=wa
+2	لم	لَم	PART	F---------	_	3	advmod	_	Vform=لَم|Gloss=not|Root=lam|Translit=lam|LTranslit=lam
+3	يتم	تَمّ	VERB	VIJA-3MS--	Aspect=Imp|Gender=Masc|Mood=Jus|Number=Sing|Person=3|VerbForm=Fin|Voice=Act	1	parataxis	_	Vform=يَتِمَّ|Gloss=conclude,take_place|Root=t_m_m|Translit=yatimm-a|LTranslit=tamm
+4	اعتقال	اِعتِقَال	NOUN	N------S1R	Case=Nom|Definite=Cons|Number=Sing	3	nsubj	_	Vform=اِعتِقَالُ|Gloss=arrest,detention|Root=`_q_l|Translit=iʿtiqālu|LTranslit=iʿtiqāl
+5	احد	أَحَد	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	4	nmod	_	Vform=أَحَدٍ|Gloss=one,someone|Root='_.h_d|Translit=ʾaḥadin|LTranslit=ʾaḥad
+6-7	بحسب	_	_	_	_	_	_	_	_
+6	ب	بِ	ADP	P---------	AdpType=Prep	8	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+7	حسب	حَسَبَ	ADP	PI------2-	AdpType=Prep|Case=Gen	8	case	_	Vform=حَسَبِ|Gloss=according_to,depending_on|Root=.h_s_b|Translit=ḥasabi|LTranslit=ḥasaba
+8	المتحدث	مُتَحَدِّث	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	3	obl	_	Vform=اَلمُتَحَدِّثِ|Gloss=spokesman,speaker|Root=.h_d__t|Translit=al-mutaḥaddiṯi|LTranslit=mutaḥaddiṯ
+9-10	باسم	_	_	_	_	_	_	_	_
+9	ب	بِ	ADP	P---------	AdpType=Prep	11	case	_	Vform=بِ|Gloss=by,with|Root=bi|Translit=bi|LTranslit=bi
+10	اسم	اِسم	NOUN	N------S2R	Case=Gen|Definite=Cons|Number=Sing	11	cc	_	Vform=اِسمِ|Gloss=name|Root=s_m_y|Translit=ismi|LTranslit=ism
+11	الشرطة	شُرطَة	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	8	nmod	_	SpaceAfter=No|Vform=اَلشُّرطَةِ|Gloss=police|Root=^s_r_.t|Translit=aš-šurṭati|LTranslit=šurṭat
+12	.	.	PUNCT	G---------	_	1	punct	_	Vform=.|Translit=.
+
+# newdoc id = afp.20000715.0079
+# newpar id = afp.20000715.0079:p1
+# sent_id = afp.20000715.0079:p1u1
+# text = هذا اليوم في التاريخ 16 تموز/يوليو
+# orig_file_sentence AFP_ARB_20000715.0079#1
+1	هذا	هٰذَا	DET	SD----MS1-	Case=Nom|Gender=Masc|Number=Sing|PronType=Dem	2	det	_	Vform=هٰذَا|Gloss=this,these|Root=h|Translit=hāḏā|LTranslit=hāḏā
+2	اليوم	يَوم	NOUN	N------S1D	Case=Nom|Definite=Def|Number=Sing	0	root	_	Vform=اَليَومُ|Gloss=day,today|Root=y_w_m|Translit=al-yawmu|LTranslit=yawm
+3	في	فِي	ADP	P---------	AdpType=Prep	4	case	_	Vform=فِي|Gloss=in|Root=fI|Translit=fī|LTranslit=fī
+4	التاريخ	تَارِيخ	NOUN	N------S2D	Case=Gen|Definite=Def|Number=Sing	2	nmod	_	Vform=اَلتَّارِيخِ|Gloss=date,history|Root='_r__h|Translit=at-tārīḫi|LTranslit=tārīḫ
+5	16	16	NUM	Q---------	NumForm=Digit	2	nummod	_	Vform=١٦|Translit=16
+6	تموز	تَمُّوز	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	5	nmod	_	SpaceAfter=No|Vform=تَمُّوزَ|Gloss=July|Root=tammUz|Translit=tammūza|LTranslit=tammūz
+7	/	/	PUNCT	G---------	_	8	punct	_	SpaceAfter=No|Vform=/|Translit=/
+8	يوليو	يُولِيُو	NOUN	N------S2I	Case=Gen|Definite=Ind|Number=Sing	6	appos	_	Vform=يُولِيُو|Gloss=July|Root=yUliyU|Translit=yūliyū|LTranslit=yūliyū
+
