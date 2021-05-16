@@ -1,6 +1,5 @@
 .idea
 
-/debug
 /html-ann-viewer/debug*
 /tmpdebug
 /gatenlp/_version.py
