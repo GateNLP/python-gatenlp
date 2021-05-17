@@ -72,7 +72,7 @@ def tokentext_getter(token, doc=None, feature=None):
 
 
 # TODO: allow output annotation type to be set from the match or from the list!
-class TokenGazetteer:
+class TokenGazetteer(GazetteerAnnotator):
     def __init__(
         self,
         source,
@@ -245,7 +245,7 @@ class TokenGazetteer:
                             entry = fields[0]
                             if self.tokenizer:
                                 tmpdoc = Document(entry)
-                                self.tokenizer(tmpdoc)
+                                tmpdoc = self.tokenizer(tmpdoc)  # we MUST reassign here to allow return of a new doc!
                                 # TODO: include and handle SpaceToken if we use the speparator annoations!
                                 # TODO: maybe have a different way to retrieve the token annotations based
                                 # on the tokenizer????
