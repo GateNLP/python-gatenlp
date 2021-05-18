@@ -2,26 +2,33 @@
 
 ## 1.0.5 (upcoming)
 
-* ! `AnnotationSet.with_type()` previously returned a detached set with all annotations if no types were specified,
+Changes that break backwards compatibility:
+
+* `AnnotationSet.with_type()` previously returned a detached set with all annotations if no types were specified,
   this now returns a detached set with no annotations which is more logical. 
-* Fixed bug in Token Gazetteer: issue #93
-* Pampac: use the term "matches" instead of "data" for the named information stored for each named pattern that
-  fits the document. A single one of these is often called "match info" and the index for a specific info is called
-  "matchidx". See issue #89
-* Pampac: a Result is now an Iterable of match infos.
-* Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
-  `.within("Person", annset=doc.annset("Other"))`. See issue #57
-* Pampac: RemoveAnn action has been added
-* Pampac: UpdateAnnFeatures has been improved
-* Span objects are now immutable. Equality and hashing of Span objects are based on their start and end offsets.
-* Annotation equality and hashing has been changed back to the Python default: variables compare only equal if they
-  reference the same object and hashing is based on object identity. 
-  For comparing annotations by content, the methods `ann.equal(other)` (compare content without annotation id) 
-   and `ann.same(other)` (compare content including annotation id) have been implemented.
 * API changes:
   * `pam.pampac.actions.AddAnn`: parameter `anntype` has been changed to `type`
   * The Feature() constructor kw arg `logger` has been changed to `_change_logger` and `deepcopy` has been changed to 
     `_deepcopy`
+* Pampac: use the term "matches" instead of "data" for the named information stored for each named pattern that
+  fits the document. A single one of these is often called "match info" and the index for a specific info is now called
+  "matchidx" instead of "dataidx". See issue #89
+
+Other changes and improvements:
+
+* Fixed bug in Token Gazetteer: issue #93
+* Pampac: a Result is now an Iterable of match infos.
+* Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
+  `.within("Person", annset=doc.annset("Other"))`. See issue #57
+* Pampac: `RemoveAnn` action has been added
+* Pampac: `UpdateAnnFeatures` has been improved
+* Pampac: `AddAnn` action supports getter helpers in feature values
+* `Span` objects are now immutable. Equality and hashing of `Span` objects are based on their start and end offsets.
+* `Annotation` equality and hashing has been changed back to the Python default: variables compare only equal if they
+  reference the same object and hashing is based on object identity. 
+  For comparing annotations by content, the methods `ann.equal(other)` (compare content without annotation id) 
+   and `ann.same(other)` (compare content including annotation id) have been implemented.
+* Documents can be saved in "tweet-v1" format
 
 
 
