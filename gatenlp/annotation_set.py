@@ -157,6 +157,38 @@ class AnnotationSet:
         annset._next_annid = nextid + 1
         return annset
 
+    @staticmethod
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -> None:
+        """
+        Creates an immutable detached annotation set from the annotations
+        in anns. The set contains shallow copies of the annotations and the
+        annotation id is preserved, unless it is a duplicate in which the next
+        available id is used.
+
+        Args:
+            anns: an iterable of annotations or a single annotation
+
+        Returns:
+            An immutable detached annotation set
+        """
+        annset = AnnotationSet(name=name)
+        annset._is_immutable = True
+        annset._annotations = {}
+        annset._next_annid = 0
+        if isinstance(anns, Annotation):
+            anns = [anns]
+        for ann in anns:
+            if ann.id in annset._annotations:
+                annset._annotations[annset._next_annid] = ann
+                annset._next_annid += 1
+            else:
+                annset._annotations[ann.id] = ann
+                if ann.id >= annset._next_annid:
+                    annset._next_annid = ann.id + 1
+        return annset
+
+
+
     @property
     def immutable(self) -> bool:
         """
