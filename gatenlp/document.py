@@ -464,6 +464,57 @@ class Document:
         if self._changelog:
             self._changelog.append({"command": "annotations:remove", "set": name})
 
+    def anns(self, ann_spec):
+        """
+        Return a detached annotation set with all annotations which match the annotation specification.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Returns:
+            a detached, immutable set with all the annotations matching the annotation specification
+        """
+        return AnnotationSet.create_from(self.yield_anns(ann_spec))
+
+    def yield_anns(self, ann_spec):
+        """
+        Yield all annotations which match the annotation specification.
+        The order of the annotations is unespecified.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Yields:
+            all the annotations matching the annotation specification
+        """
+        if isinstance(ann_spec, str):
+            tmpset = self._annotation_sets.get(ann_spec)
+            if tmpset is not None:
+                for ann in tmpset._annotations.values():
+                    yield ann
+            return
+        for spec in ann_spec:
+            if isinstance(spec, str):
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        yield ann
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        if ann.type in types:
+                            yield ann
+
     def __repr__(self) -> str:
         """
         String representation of the document, showing all content.
