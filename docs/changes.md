@@ -17,7 +17,10 @@ Changes that break backwards compatibility:
 Other changes and improvements:
 
 * New method `AnnotationSet.create_from(anniterable)` to create a detached, immutable annotation set from an iterable of annotations
+* New method `Document.anns(annspec)` creates a detached set of all annotations that match the specification
+* New method `Document.yield_anns(annspec)` yields all annotations which match the specification
 * Fixed bug in Token Gazetteer: issue #93
+* Pampac: there is now a PampacAnnotator class to simplify using Pampac in a pipeline.
 * Pampac: New parameter `containing_anns` for `Pampac.run`: if specified, runs the rules on each span of each of the containing annotations
 * Pampac: a Result is now an Iterable of match infos.
 * Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
