@@ -178,10 +178,15 @@ class AnnotationSet:
         if isinstance(anns, Annotation):
             anns = [anns]
         for ann in anns:
+            # if the id is already in the set, assign the next available one
+            ann = ann.copy()
             if ann.id in annset._annotations:
+                ann._id = annset._next_annid
                 annset._annotations[annset._next_annid] = ann
                 annset._next_annid += 1
             else:
+                # if the id is not yet in the set, keep it and make sure that after adding,
+                # the next annid is adapted, if necessary!
                 annset._annotations[ann.id] = ann
                 if ann.id >= annset._next_annid:
                     annset._next_annid = ann.id + 1
