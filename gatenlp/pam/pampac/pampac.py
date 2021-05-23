@@ -5,6 +5,7 @@ Module for the Pampac class.
 # from gatenlp.processing.annotator import Annotator
 from gatenlp.pam.pampac.data import Location, Context
 from gatenlp.pam.pampac.rule import Rule
+from gatenlp.annotation_set import AnnotationSet
 from gatenlp.utils import init_logger
 
 
@@ -64,16 +65,19 @@ class Pampac:
     def run(self,
             doc,
             annotations,
-            outset=None, start=None, end=None, debug=False):
+            outset=None, start=None, end=None, containing_anns=None, debug=False):
         """
         Run the rules from location start to location end (default: full document), using the annotation set or list.
 
         Args:
             doc: the document to run on
-            annotations: the annotation set or iterable to use
+            annotations: the annotation set or iterable to use for matching.
             outset: the output annotation set. If this is a string, retrieves the set from doc
             start: the text offset where to start matching
             end: the text offset where to end matching
+            containing_anns: if this is an AnnotationSet or iterable of annotations, the rules are applied to each
+                span of each of the annotations in order, and only input annotations that are fully contained
+                in that span are processed (default: None, use the whole document)
             debug: enable debug logging
 
         Returns:
@@ -82,9 +86,28 @@ class Pampac:
         logger = init_logger(debug=debug)
         if isinstance(outset, str):
             outset = doc.annset(outset)
-        ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         returntuples = []
+        ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
         location = Location(ctx.start, 0)
+        if containing_anns is not None:
+            # in order to be able to get the contained annotations, we need to make sure the `annotations`
+            # are in a set
+            if not isinstance(annotations, AnnotationSet):
+                containing_anns = AnnotationSet.create_from(containing_anns)
+            for ann in containing_anns:
+                if ann.length == 0:
+                    continue
+                span_anns = annotations.within(ann)
+                ctx = Context(doc=doc, anns=span_anns, outset=outset, start=ann.start, end=ann.end)
+                returntuples.extend(self._run4span(logger, ctx, location))
+            return returntuples
+        else:
+            return self._run4span(logger, ctx, location)
+
+    def _run4span(self, logger, ctx, location):
+        # Runs on a single span using the given context and start location and returns a list of tuples with
+        # offset and actionreturnvals for each location where a match or matches occured
+        returntuples = []
         while True:  # pylint: disable=R1702
             # try the rules at the current position
             cur_offset = location.text_location
