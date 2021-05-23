@@ -1,12 +1,11 @@
 """
 Module for the Pampac class.
-
 """
-# from gatenlp.processing.annotator import Annotator
 from gatenlp.pam.pampac.data import Location, Context
 from gatenlp.pam.pampac.rule import Rule
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.utils import init_logger
+from gatenlp.processing.annotator import Annotator
 
 
 class Pampac:
@@ -184,8 +183,41 @@ class Pampac:
     __call__ = run
 
 
-# class PampacAnnotator(Annotator):
-#     """
-#     Class for running a Pampac ruleset.
-#     """
-#     #implement
+class PampacAnnotator(Annotator):
+    """
+    Class for running a Pampac ruleset.
+    """
+    def __init__(self,
+                 pampac,
+                 ann_desc,
+                 outset_name=None,
+                 containing_anns_desc=None):
+        """
+
+        Args:
+            pampac: a Pampac instances
+            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+                or a list of either annotation set names or tuples, where the first element is an annotation set
+                name and the second element is either a type name or a list of type names. E.g. `[("", "Token")]`
+                to get all annotations with type Token from the default set or or `[("", ["PER", "ORG"]), "Key"]`
+                to get all annotations with type PER or ORG from the default set and all annotations from the Key
+                set.
+            outset_name: the name of the annotation set where to add output annoations
+            containing_anns_desc: a specification of annotations to use for containing annotations. If specified,
+                the Pampac instance will run pattern matching on each span that corresponds to a containing annotation.
+                Containing annotations should not overlap. The outputs for each containing annotation are aggregated
+                and returned. Default: do not use containing annotations and run for the whole document.
+        """
+        self.pampac = pampac
+        self.ann_desc = ann_desc
+        self.outset_name = outset_name
+        self.containing_anns_desc = containing_anns_desc
+
+    def __call__(self, doc, **kwargs):
+        outset = doc.annset(self.outset_name)
+        anns = doc.anns(self.ann_desc)
+        if self.containing_anns_desc is not None:
+            cont = doc.anns(self.containing_anns_desc)
+        else:
+            cont = None
+        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
