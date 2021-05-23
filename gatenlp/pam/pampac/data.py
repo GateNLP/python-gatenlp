@@ -363,7 +363,10 @@ class Context:
 
         Args:
             doc: the document which should get parsed
-            anns: an iterable of annotations to use for the parsing
+            anns: an iterable of annotations to use for the parsing. The annotations are used in the order they
+                occur in the iterator (for a set, this is the default order by start offset and annotation id).
+                If the order is different from the default order, the result may be unexpected or matching may not
+                work depending on the exact patterns used.
             start: the starting text offset for the parse
             end: the ending text offset for the parse
             outset: an annotation set for where to add any new annotations in an action
