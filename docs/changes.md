@@ -16,7 +16,9 @@ Changes that break backwards compatibility:
 
 Other changes and improvements:
 
+* New method `AnnotationSet.create_from(anniterable)` to create a detached, immutable annotation set from an iterable of annotations
 * Fixed bug in Token Gazetteer: issue #93
+* Pampac: New parameter `containing_anns` for `Pampac.run`: if specified, runs the rules on each span of each of the containing annotations
 * Pampac: a Result is now an Iterable of match infos.
 * Pampac: the `.within(..)` `.contains(..)` etc. constraints now allow to use a separate annotation set, e.g.
   `.within("Person", annset=doc.annset("Other"))`. See issue #57
