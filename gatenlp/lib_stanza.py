@@ -86,7 +86,7 @@ class AnnStanza(Annotator):
             if idx >= self.batchsize:
                 break
             docs.append(doc)
-            stanza_in.append(StanzaDocument([],text=doc.text))
+            stanza_in.append(StanzaDocument([], text=doc.text))
         if len(docs) == 0:
             return
         stanza_out = self.pipeline(stanza_in)
@@ -164,6 +164,14 @@ def tok2tok(tok):
             for os in othersettings:
                 k, v = ms.split("=")
                 fm[k] = v
+    # since Stanza version 1.2.1, the start_char and end_char keys are directly included, not in misc any more
+    if "start_char" in fm:
+        ostart = int(fm["start_char"])
+        oend = int(fm["end_char"])
+        del fm["start_char"]
+        del fm["end_char"]
+        newtok["start"] = ostart
+        newtok["end"] = oend
     return newtok
 
 

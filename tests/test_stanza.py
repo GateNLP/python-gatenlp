@@ -1,4 +1,5 @@
 import os
+import time
 from gatenlp import logger, Document
 
 
@@ -41,3 +42,37 @@ class TestStanza01:
         assert len(sents) == 2
         tokens = anns.with_type("Token")
         assert len(tokens) == 14
+
+        # test Stanza batching and check speed improvement
+        nlp = stanza.Pipeline(use_gpu=False, processors="tokenize")
+        annstanza = AnnStanza(pipeline=nlp)
+        docs_p = []
+        docs_c = []
+        for i in range(200):
+            docs_p.append(Document(txt))
+            docs_c.append(Document(txt))
+        time_pipe = time.perf_counter()
+        docs_processed_pipe = list(annstanza.pipe(docs_p))
+        time_pipe = time.perf_counter() - time_pipe
+        docs_processed_call = []
+        time_call = time.perf_counter()
+        for doc in docs_c:
+            docs_processed_call.append(annstanza(doc))
+        time_call = time.perf_counter() - time_call
+        # print(f"!!!!!!! PIPE={time_pipe}, CALL={time_call}, speedup is {time_call/time_pipe}")
+        # assert time_call > time_pipe
+        # check equality of both lists of processed documents by first converting to dicts
+        assert len(docs_processed_call) == len(docs_processed_pipe)
+        d_pipe = docs_processed_pipe[0]
+        d_call = docs_processed_call[0]
+        assert d_pipe.text == d_call.text
+        assert d_pipe.annset_names() == d_call.annset_names()
+        for n in d_pipe.annset_names():
+            as_p = d_pipe.annset(n)
+            as_c = d_call.annset(n)
+            assert as_p.size == as_c.size
+            for ap, ac in zip(as_p, as_c):
+                assert ap.equal(ac)
+        d_pipe_d = d_pipe.to_dict()
+        d_call_d = d_call.to_dict()
+        assert d_pipe_d == d_call_d
