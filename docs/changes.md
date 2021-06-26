@@ -36,6 +36,7 @@ Other changes and improvements:
   For comparing annotations by content, the methods `ann.equal(other)` (compare content without annotation id) 
    and `ann.same(other)` (compare content including annotation id) have been implemented.
 * Documents can be saved in "tweet-v1" format
+* Fixed a problem with the HTML viewer: leading and multiple whitespace annotations now show correctly.
 
 
 
