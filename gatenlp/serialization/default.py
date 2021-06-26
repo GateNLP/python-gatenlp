@@ -681,7 +681,7 @@ class MsgPackSerializer:
         return doc
 
 JS_JQUERY_URL = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.13/gatenlp-ann-viewer.js"
+JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.14/gatenlp-ann-viewer.js"
 JS_JQUERY = f"<script src=\"{JS_JQUERY_URL}\"></script>"
 JS_GATENLP = f"<script src=\"{JS_GATENLP_URL}\"></script>"
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"

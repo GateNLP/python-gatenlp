@@ -8,8 +8,6 @@ var gatenlpDocRep = class {
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
 	    const regex = / +$/;
-	    this.text = this.text.replace(regex, (m, off, s) => {return "\u2002".repeat(m.length)}) ;
-	    this.text += "\u2002";
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -399,7 +397,7 @@ var gatenlpDocView = class {
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;

@@ -22,3 +22,16 @@ annset.add(20,20,"Zero2")
 
 
 doc.save("debug-html.html", fmt="html-ann-viewer", offline=True)
+
+doc = Document("   x   y   ")
+doc.annset().add(0,1,"Space")
+doc.annset().add(1,2,"Space")
+doc.annset().add(2,3,"Space")
+doc.annset().add(3,4,"Token")
+doc.annset().add(4,5,"Space")
+doc.annset().add(5,6,"Space")
+doc.annset().add(6,7,"Space")
+doc.annset().add(7,8,"Token")
+doc.annset().add(8,10,"Space")
+doc.annset().add(10,11,"Space")
+doc.save("debug-html2.html", fmt="html-ann-viewer", offline=True)
