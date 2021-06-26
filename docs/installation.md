@@ -80,6 +80,17 @@ To also install everything needed for development use "alldev":
 python -m pip install -e .[alldev]
 ```
 
+#### Creating a jupyter notebook/lab kernel:
+
+To use the conda environment with jupyter notebook/lab create kernel:
+
+* activate the environment
+* run `python -m ipykernel install --user --name=gatenlp` 
+  (or choose a different name in place of "gatenlp" for the kernel)
+* this kernel should then show up in the list of kernels within jupyter notebook or lab
+
+
+
 
 #### Requirements for using the GATE slave:
 
