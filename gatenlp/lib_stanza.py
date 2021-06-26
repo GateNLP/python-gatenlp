@@ -144,47 +144,40 @@ def tok2tok(tok):
 
     """
     newtok = {}
-    newtok["id"] = tok["id"]
     fm = {}
-    fm.update(tok)
     newtok["fm"] = fm
-    feats = fm.get("feats")
-    if feats is not None:
-        del fm["feats"]
-        for feat in feats.split("|"):
-            k, v = feat.split("=")
-            fm[k] = v
-    misc = fm.get("misc")
-    if misc is not None:
-        del fm["misc"]
-        msettings = misc.split("|")
-        ostart = None
-        oend = None
-        othersettings = []
-        for ms in msettings:
-            k, v = ms.split("=")
-            if k == "start_char":
-                ostart = int(v)
-            elif k == "end_char":
-                oend = int(v)
-            else:
-                othersettings.append(ms)
-        if ostart is not None:
-            newtok["start"] = ostart
-        if oend is not None:
-            newtok["end"] = oend
-        if othersettings:
-            for os in othersettings:
-                k, v = ms.split("=")
+    for k, v in tok.items():
+        if k == "start_char":
+            newtok["start"] = v
+        elif k == "end_char":
+            newtok["end"] = v
+        elif k == "feats":
+            for feat in v.split("|"):
+                k, v = feat.split("=")
                 fm[k] = v
-    # since Stanza version 1.2.1, the start_char and end_char keys are directly included, not in misc any more
-    if "start_char" in fm:
-        ostart = int(fm["start_char"])
-        oend = int(fm["end_char"])
-        del fm["start_char"]
-        del fm["end_char"]
-        newtok["start"] = ostart
-        newtok["end"] = oend
+        elif k == "misc":
+            msettings = v.split("|")
+            ostart = None
+            oend = None
+            othersettings = []
+            for ms in msettings:
+                k, v = ms.split("=")
+                if k == "start_char":
+                    ostart = int(v)
+                elif k == "end_char":
+                    oend = int(v)
+                else:
+                    othersettings.append(ms)
+            if ostart is not None:
+                newtok["start"] = ostart
+            if oend is not None:
+                newtok["end"] = oend
+            if othersettings:
+                for os in othersettings:
+                    k, v = ms.split("=")
+                    fm[k] = v
+        else:
+            newtok[k] = v
     return newtok
 
 
