@@ -142,7 +142,6 @@ class SplitPatternTokenizer(Tokenizer):
             l = len(self.split_pattern)
             idx = doc.text.find(self.split_pattern)
             while idx > -1:
-                print("DEBUG: found idx=", idx, idx+l)
                 if self.space_token_type is not None:
                     annset.add(idx, idx+l, self.space_token_type)
                 if idx > last_off:
@@ -153,7 +152,6 @@ class SplitPatternTokenizer(Tokenizer):
                 idx = doc.text.find(self.split_pattern, idx+1)
         else:
             for m in self.split_pattern.finditer(doc.text):
-                print("DEBUG: found idx=", m.start(), m.end())
                 if self.space_token_type is not None:
                     annset.add(m.start(), m.end(), self.space_token_type)
                 if m.start() > last_off:
