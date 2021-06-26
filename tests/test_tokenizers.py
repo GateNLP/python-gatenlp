@@ -74,4 +74,4 @@ class TestTokenizers01:
             space_token_type="SpaceToken")
         doc = tok(self.makedoc())
         assert doc.annset().with_type("Token").size == 3
-        assert doc.annset().with_type("SpaceToken").size == 13
+        assert doc.annset().with_type("SpaceToken").size == 16
