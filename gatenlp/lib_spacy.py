@@ -15,7 +15,7 @@ class AnnSpacy(Annotator):
         pipeline=None,
         outsetname="",
         token_type="Token",
-        spacetoken_type="SpaceToken",
+        space_token_type="SpaceToken",
         sentence_type="Sentence",
         nounchunk_type="NounChunk",
         add_tokens=True,
@@ -33,7 +33,7 @@ class AnnSpacy(Annotator):
           pipeline)
         :param outsetname: the annotation set name where to put the annotations
         :param token_type: the annotation type for the token annotations
-        :param spacetoken_type: type of any space token annotations
+        :param space_token_type: type of any space token annotations
         :param sentence_type: the annotation type for the sentence annotations
         :param nounchunk_type: annotation type for noun chunks
         :param add_tokens: if token annotations should be added
@@ -51,7 +51,7 @@ class AnnSpacy(Annotator):
         self.sentence_type = sentence_type
         self.add_entities = add_entities
         self.ent_prefix = ent_prefix
-        self.spacetoken_type = spacetoken_type
+        self.space_token_type = space_token_type
         self.nounchunk_type = nounchunk_type
         self.add_tokens = add_tokens
         self.add_sentences = add_sentences
@@ -69,7 +69,7 @@ class AnnSpacy(Annotator):
             doc,
             setname=self.outsetname,
             token_type=self.token_type,
-            spacetoken_type=self.spacetoken_type,
+            space_token_type=self.space_token_type,
             sentence_type=self.sentence_type,
             nounchunk_type=self.nounchunk_type,
             add_tokens=self.add_tokens,
@@ -104,7 +104,7 @@ def spacy2gatenlp(
     gatenlpdoc=None,
     setname="",
     token_type="Token",
-    spacetoken_type="SpaceToken",
+    space_token_type="SpaceToken",
     sentence_type="Sentence",
     nounchunk_type="NounChunk",
     add_tokens=True,
@@ -126,7 +126,7 @@ def spacy2gatenlp(
       setname: the annotation set name to which the annotations get added, empty string
     for the default annotation set.
       token_type: the annotation type to use for tokens (Default value = "Token")
-      spacetoken_type: the annotation type to use for space tokens (Default value = "SpaceToken")
+      space_token_type: the annotation type to use for space tokens (Default value = "SpaceToken")
       sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
       nounchunk_type: the annotation type to use for noun chunk annotations (Default value = "NounChunk")
       add_tokens: should annotations for tokens get added? If not, dependency parser
@@ -190,7 +190,7 @@ def spacy2gatenlp(
         if spacydoc.is_parsed and add_dep:
             fm["dep"] = tok.dep_
         if tok.is_space:
-            anntype = spacetoken_type
+            anntype = space_token_type
         else:
             anntype = token_type
         annid = annset.add(from_off, to_off, anntype, fm).id
@@ -198,7 +198,7 @@ def spacy2gatenlp(
         # print("Added annotation with id: {} for token {}".format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) > 0:
-            annset.add(to_off, to_off + len(ws), spacetoken_type, {"is_space": True})
+            annset.add(to_off, to_off + len(ws), space_token_type, {"is_space": True})
     # if we have a dependency parse, now also add the parse edges
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
