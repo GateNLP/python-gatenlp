@@ -79,27 +79,40 @@ class AnnStanza(Annotator):
         )
         return doc
 
-    def pipe(self, documents, **kwargs):
-        docs = []
-        stanza_in = []
-        for idx, doc in enumerate(documents):
-            if idx >= self.batchsize:
-                break
-            docs.append(doc)
-            stanza_in.append(StanzaDocument([], text=doc.text))
-        if len(docs) == 0:
-            return
-        stanza_out = self.pipeline(stanza_in)
-        assert len(stanza_out) == len(docs)
-        for doc_stanza, doc in zip(stanza_out, docs):
+    def _pipe_batch(self, gatenlp_docs, stanza_docs):
+        stanza_out = self.pipeline(stanza_docs)
+        assert len(stanza_out) == len(gatenlp_docs)
+        for doc_stanza, doc in zip(stanza_out, gatenlp_docs):
             try:
-                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type="Token",
-                               sentence_type="Sentence", add_entities=False)
+                stanza2gatenlp(doc_stanza, doc,
+                               setname=self.outsetname,
+                               token_type=self.token_type,
+                               mwt_type=self.mwt_type,
+                               space_token_type=self.space_token_type,
+                               sentence_type=self.sentence_type,
+                               add_entities=self.add_entities,
+                               ent_prefix=self.ent_prefix)
                 yield doc
             except:
                 # TODO: this should be configurable: should we terminate, log, silently return None, silently
                 #   return the unprocessed document?
                 yield None
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        idx = 0
+        for doc in documents:
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([], text=doc.text))
+            idx += 1
+            if idx >= self.batchsize:
+                yield from self._pipe_batch(docs, stanza_in)
+                idx = 0
+                docs = []
+                stanza_in = []
+        if len(docs) > 0:
+            yield from self._pipe_batch(docs, stanza_in)
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=""):

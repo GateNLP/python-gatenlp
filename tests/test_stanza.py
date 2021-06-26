@@ -35,7 +35,7 @@ class TestStanza01:
         assert len(tokens) == 14
 
         doc = Document(txt)
-        annstanza = AnnStanza(pipeline=nlp)
+        annstanza = AnnStanza(pipeline=nlp, batchsize=50)
         doc = annstanza(doc)
         anns = doc.annset()
         sents = anns.with_type("Sentence")
@@ -48,7 +48,7 @@ class TestStanza01:
         annstanza = AnnStanza(pipeline=nlp)
         docs_p = []
         docs_c = []
-        for i in range(200):
+        for i in range(103):
             docs_p.append(Document(txt))
             docs_c.append(Document(txt))
         time_pipe = time.perf_counter()
@@ -62,6 +62,7 @@ class TestStanza01:
         # print(f"!!!!!!! PIPE={time_pipe}, CALL={time_call}, speedup is {time_call/time_pipe}")
         # assert time_call > time_pipe
         # check equality of both lists of processed documents by first converting to dicts
+        assert len(docs_p) == len(docs_processed_pipe)
         assert len(docs_processed_call) == len(docs_processed_pipe)
         d_pipe = docs_processed_pipe[0]
         d_call = docs_processed_call[0]
