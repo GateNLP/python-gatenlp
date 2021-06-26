@@ -1,5 +1,6 @@
 import inspect
 import types
+import regex
 from gatenlp.processing.annotator import Annotator
 
 # NOTE we use NLTK's own aligner, but there is also get_original_spans(tk, s) from package tokenizations
@@ -71,7 +72,8 @@ class NLTKTokenizer(Tokenizer):
         if doc.text is None:
             return doc
         if self.has_span_tokenize:
-            spans = self.tokenizer.span_tokenize(doc.text)
+            # this may return a generator, convert to list so we can reuse
+            spans = list(self.tokenizer.span_tokenize(doc.text))
         else:
             if self.is_function:
                 tks = self.tokenizer(doc.text)
@@ -101,7 +103,7 @@ class SplitPatternTokenizer(Tokenizer):
     """
     # TODO: how to properly use type hinting for regex/re patterns?
     def __init__(self,
-                 split_pattern: any = "\n",
+                 split_pattern: any = regex.compile(r"\s+"),
                  token_pattern: any = None,
                  out_set: str = "",
                  token_type: str = "Token",
@@ -111,14 +113,15 @@ class SplitPatternTokenizer(Tokenizer):
         The pattern is either a literal string or a compiled regular expression.
 
         Args:
-            split_pattern: a literal string or a compile regular expression to find spans which split the text into
-                tokens.
+            split_pattern: a literal string or a compiled regular expression to find spans which split the text into
+                tokens (default: any sequence of one or more whitespace characters)
             token_pattern: if not None, a token annotation is only created if the span between splits (or the begin
                 or end of document and a split) matches this pattern: if a literal string, the literal string must
                 be present, otherwise must be a compiled regular expression that is found.
             out_set: the destination annotation set
             token_type: the type of annotation to create for the spans between splits
-            space_token_type: if not None, the type of annotation to create for the splits
+            space_token_type: if not None, the type of annotation to create for the splits. NOTE: non-splits which
+                do not match the token_pattern are not annotated by this!
         """
         self.split_pattern = split_pattern
         self.token_pattern = token_pattern
@@ -130,7 +133,7 @@ class SplitPatternTokenizer(Tokenizer):
         if isinstance(self.token_pattern, str):
             return text.find(self.token_pattern) >= 0
         else:
-            return text.search(self.token_pattern)
+            return self.token_pattern.search(text)
 
     def __call__(self, doc, **kwargs):
         annset = doc.annset(self.outset)
@@ -139,22 +142,23 @@ class SplitPatternTokenizer(Tokenizer):
             l = len(self.split_pattern)
             idx = doc.text.find(self.split_pattern)
             while idx > -1:
-                print("DEBUG: found idx=", idx)
+                print("DEBUG: found idx=", idx, idx+l)
                 if self.space_token_type is not None:
                     annset.add(idx, idx+l, self.space_token_type)
                 if idx > last_off:
                     if self.token_pattern is None or (
-                            self.token_pattern and self._match_token_pattern(doc.text[last_off, idx])):
+                            self.token_pattern and self._match_token_pattern(doc.text[last_off:idx])):
                         annset.add(last_off, idx, self.token_type)
                 last_off = idx+len(self.split_pattern)
                 idx = doc.text.find(self.split_pattern, idx+1)
         else:
             for m in self.split_pattern.finditer(doc.text):
+                print("DEBUG: found idx=", m.start(), m.end())
                 if self.space_token_type is not None:
                     annset.add(m.start(), m.end(), self.space_token_type)
                 if m.start() > last_off:
                     if self.token_pattern is None or (
-                            self.token_pattern and self._match_token_pattern(doc.text[last_off, m.start()])):
+                            self.token_pattern and self._match_token_pattern(doc.text[last_off:m.start()])):
                         annset.add(last_off, m.start(), self.token_type)
                 last_off = m.end()
         if last_off < len(doc.text):
