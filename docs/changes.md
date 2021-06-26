@@ -13,6 +13,8 @@ Changes that break backwards compatibility:
 * Pampac: use the term "matches" instead of "data" for the named information stored for each named pattern that
   fits the document. A single one of these is often called "match info" and the index for a specific info is now called
   "matchidx" instead of "dataidx". See issue #89
+* Parameter `spacetoken_type` for `AnnSpacy` and `spacy2gatenlp` has been changed to `space_token_type` to conform to 
+  the parameter name used for `AnnStanza` and `stanza2gatenlp`.
 
 Other changes and improvements:
 
