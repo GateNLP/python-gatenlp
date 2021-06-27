@@ -2,7 +2,7 @@
 
 [![PyPi version](https://img.shields.io/pypi/v/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
-[![Downloads](https://pepy.tech/badge/gatenlp)](https://pepy.tech/project/gatenlp)
+[![Downloads](https://static.pepy.tech/personalized-badge/gatenlp?period=total&units=none&left_color=blue&right_color=yellow&left_text=Downloads)](https://pepy.tech/project/gatenlp)
 [![License](https://img.shields.io/github/license/GateNLP/python-gatenlp.svg)](LICENSE)
 [![GitHub Build Status](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml/badge.svg?branch=main)](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml)
 [![CodeCov](https://img.shields.io/codecov/c/gh/GateNlp/python-gatenlp.svg)](https://codecov.io/gh/GateNLP/python-gatenlp)
