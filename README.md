@@ -2,7 +2,8 @@
 
 [![PyPi version](https://img.shields.io/pypi/v/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
-[![Downloads](https://static.pepy.tech/personalized-badge/gatenlp?period=total&units=none&left_color=blue&right_color=yellow&left_text=Downloads)](https://pepy.tech/project/gatenlp)
+[![Downloads](https://static.pepy.tech/personalized-badge/gatenlp?period=week&units=none&left_color=blue&right_color=yellow&left_text=Downloads/week)](https://pepy.tech/project/gatenlp)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp)
 [![License](https://img.shields.io/github/license/GateNLP/python-gatenlp.svg)](LICENSE)
 [![GitHub Build Status](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml/badge.svg?branch=main)](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml)
 [![CodeCov](https://img.shields.io/codecov/c/gh/GateNlp/python-gatenlp.svg)](https://codecov.io/gh/GateNLP/python-gatenlp)
@@ -11,7 +12,6 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ccc55f10e7f5479e9a882ec3aee3222a)](https://www.codacy.com/gh/GateNLP/python-gatenlp/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=GateNLP/python-gatenlp)
 [![Updates](https://pyup.io/repos/github/GateNLP/python-gatenlp/shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
 [![Python 3](https://pyup.io/repos/github/GateNLP/python-gatenlp/python-3-shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
-<!-- [![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp) -->
 
 
 This is a package for representing the basic elements of text processing
