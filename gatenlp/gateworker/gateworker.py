@@ -247,7 +247,8 @@ class GateWorker:   # pragma: no cover
 
         * Use one of the methods of the instance to perform operations on the Java side or exchange data
 
-        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side
+        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side (but for most of these
+          method there is a shortcut implementation directly on GateWorker which should be preferred!)
 
         * use GateWorker.jvm to directly construct objects or call instance or static methods
 
@@ -259,11 +260,11 @@ class GateWorker:   # pragma: no cover
 
             ```python
             gw = GateWorker()
-            pipeline = gw.worker.loadPipelineFromFile("thePipeline.xgapp")
-            doc = gw.worker.createDocument("Some document text")
-            gw.worker.run4doc(pipeline,doc)
+            pipeline = gw.loadPipelineFromFile("thePipeline.xgapp")
+            doc = gw.createDocument("Some document text")
+            gw.worker.run4Document(pipeline,doc)
             pdoc = gw.gdoc2pdoc(doc)
-            gw.worker.deleteResource(doc)
+            gw.deleteResource(doc)
             # process the document pdoc ...
             ```
 
@@ -580,11 +581,9 @@ class GateWorker:   # pragma: no cover
 
     def del_resource(self, resource):
         """
+        DEPRECATED: please use deleteResource(resource) instead!
+
         Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
-        This is particularly important to do when processing a large number of documents for each document
-        that is finished processing, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
-        GATE document does not delete/unload the document!
 
         Args:
           resource: the Java GATE resource, e.g. a document to remove
@@ -618,7 +617,11 @@ class GateWorker:   # pragma: no cover
 
     def deleteResource(self, resource):
         """
-        Remove a Java GATE resource and release its memory.
+        Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
+        GATE document does not delete/unload the document!
 
         Args:
             resource: a handle to some Java GATE resource
