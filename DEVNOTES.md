@@ -11,7 +11,11 @@
 * certain versions of gatenlp map to versions of the GATE plugin Python, e.g. 1.0.2 to 3.0.2
 * gatenlp may receive more releases, the in between releases would be 1.0.2.1 etc 
 * to better distinguish versions which are not released but part of a snapshot Python plugin release, use local
-  version numbers e.g. 1.0.2.1+snapshot which could eventually get released as 1.0.2.1
+  development version numbers e.g. 1.0.5-dev3 which could eventually get released as 1.0.5
+* since development version numbers do not refer to a single state but a range of commits, the commit should 
+  still be specified whenever referring to a development version (`git rev-parse --short HEAD`)
+* whenever a development version gets incremented, a tag of the form v1.0.5-dev3 is added just before the 
+  next development version (1.0.5-dev4)
 * Once we have reached stable release 1.1 the mapped releases would be 1.1/3.1, 1.2/3.2 etc with 
   in-between releases of gatenlp 1.1.1 etc.
 
@@ -49,7 +53,7 @@ For now rather simple:
 * create annotated tag v9.9
 * !! GateNLP is now released!
 * checkout main
-* increase the gatenlp version, make it a snapshot version (+snapshot)
+* increase the gatenlp version, make it a development version (-dev0)
 * edit `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java` and change version
   to next Python plugin snapshot
 * create next Python plugin snapshot
