@@ -110,27 +110,40 @@ class AnnStanza(Annotator):
         )
         return doc
 
-    def pipe(self, documents, **kwargs):
-        docs = []
-        stanza_in = []
-        for idx, doc in enumerate(documents):
-            if idx &gt;= self.batchsize:
-                break
-            docs.append(doc)
-            stanza_in.append(StanzaDocument([],text=doc.text))
-        if len(docs) == 0:
-            return
-        stanza_out = self.pipeline(stanza_in)
-        assert len(stanza_out) == len(docs)
-        for doc_stanza, doc in zip(stanza_out, docs):
+    def _pipe_batch(self, gatenlp_docs, stanza_docs):
+        stanza_out = self.pipeline(stanza_docs)
+        assert len(stanza_out) == len(gatenlp_docs)
+        for doc_stanza, doc in zip(stanza_out, gatenlp_docs):
             try:
-                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type=&#34;Token&#34;,
-                               sentence_type=&#34;Sentence&#34;, add_entities=False)
+                stanza2gatenlp(doc_stanza, doc,
+                               setname=self.outsetname,
+                               token_type=self.token_type,
+                               mwt_type=self.mwt_type,
+                               space_token_type=self.space_token_type,
+                               sentence_type=self.sentence_type,
+                               add_entities=self.add_entities,
+                               ent_prefix=self.ent_prefix)
                 yield doc
             except:
                 # TODO: this should be configurable: should we terminate, log, silently return None, silently
                 #   return the unprocessed document?
                 yield None
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        idx = 0
+        for doc in documents:
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([], text=doc.text))
+            idx += 1
+            if idx &gt;= self.batchsize:
+                yield from self._pipe_batch(docs, stanza_in)
+                idx = 0
+                docs = []
+                stanza_in = []
+        if len(docs) &gt; 0:
+            yield from self._pipe_batch(docs, stanza_in)
 
 
 def apply_stanza(nlp, gatenlpdoc, setname=&#34;&#34;):
@@ -162,39 +175,40 @@ def tok2tok(tok):
 
     &#34;&#34;&#34;
     newtok = {}
-    newtok[&#34;id&#34;] = tok[&#34;id&#34;]
     fm = {}
-    fm.update(tok)
     newtok[&#34;fm&#34;] = fm
-    feats = fm.get(&#34;feats&#34;)
-    if feats is not None:
-        del fm[&#34;feats&#34;]
-        for feat in feats.split(&#34;|&#34;):
-            k, v = feat.split(&#34;=&#34;)
-            fm[k] = v
-    misc = fm.get(&#34;misc&#34;)
-    if misc is not None:
-        del fm[&#34;misc&#34;]
-        msettings = misc.split(&#34;|&#34;)
-        ostart = None
-        oend = None
-        othersettings = []
-        for ms in msettings:
-            k, v = ms.split(&#34;=&#34;)
-            if k == &#34;start_char&#34;:
-                ostart = int(v)
-            elif k == &#34;end_char&#34;:
-                oend = int(v)
-            else:
-                othersettings.append(ms)
-        if ostart is not None:
-            newtok[&#34;start&#34;] = ostart
-        if oend is not None:
-            newtok[&#34;end&#34;] = oend
-        if othersettings:
-            for os in othersettings:
-                k, v = ms.split(&#34;=&#34;)
+    for k, v in tok.items():
+        if k == &#34;start_char&#34;:
+            newtok[&#34;start&#34;] = v
+        elif k == &#34;end_char&#34;:
+            newtok[&#34;end&#34;] = v
+        elif k == &#34;feats&#34;:
+            for feat in v.split(&#34;|&#34;):
+                k, v = feat.split(&#34;=&#34;)
                 fm[k] = v
+        elif k == &#34;misc&#34;:
+            msettings = v.split(&#34;|&#34;)
+            ostart = None
+            oend = None
+            othersettings = []
+            for ms in msettings:
+                k, v = ms.split(&#34;=&#34;)
+                if k == &#34;start_char&#34;:
+                    ostart = int(v)
+                elif k == &#34;end_char&#34;:
+                    oend = int(v)
+                else:
+                    othersettings.append(ms)
+            if ostart is not None:
+                newtok[&#34;start&#34;] = ostart
+            if oend is not None:
+                newtok[&#34;end&#34;] = oend
+            if othersettings:
+                for os in othersettings:
+                    k, v = ms.split(&#34;=&#34;)
+                    fm[k] = v
+        else:
+            newtok[k] = v
     return newtok
 
 
@@ -510,27 +524,40 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
         )
         return doc
 
-    def pipe(self, documents, **kwargs):
-        docs = []
-        stanza_in = []
-        for idx, doc in enumerate(documents):
-            if idx &gt;= self.batchsize:
-                break
-            docs.append(doc)
-            stanza_in.append(StanzaDocument([],text=doc.text))
-        if len(docs) == 0:
-            return
-        stanza_out = self.pipeline(stanza_in)
-        assert len(stanza_out) == len(docs)
-        for doc_stanza, doc in zip(stanza_out, docs):
+    def _pipe_batch(self, gatenlp_docs, stanza_docs):
+        stanza_out = self.pipeline(stanza_docs)
+        assert len(stanza_out) == len(gatenlp_docs)
+        for doc_stanza, doc in zip(stanza_out, gatenlp_docs):
             try:
-                stanza2gatenlp(doc_stanza, doc, setname=self.outsetname, token_type=&#34;Token&#34;,
-                               sentence_type=&#34;Sentence&#34;, add_entities=False)
+                stanza2gatenlp(doc_stanza, doc,
+                               setname=self.outsetname,
+                               token_type=self.token_type,
+                               mwt_type=self.mwt_type,
+                               space_token_type=self.space_token_type,
+                               sentence_type=self.sentence_type,
+                               add_entities=self.add_entities,
+                               ent_prefix=self.ent_prefix)
                 yield doc
             except:
                 # TODO: this should be configurable: should we terminate, log, silently return None, silently
                 #   return the unprocessed document?
-                yield None</code></pre>
+                yield None
+
+    def pipe(self, documents, **kwargs):
+        docs = []
+        stanza_in = []
+        idx = 0
+        for doc in documents:
+            docs.append(doc)
+            stanza_in.append(StanzaDocument([], text=doc.text))
+            idx += 1
+            if idx &gt;= self.batchsize:
+                yield from self._pipe_batch(docs, stanza_in)
+                idx = 0
+                docs = []
+                stanza_in = []
+        if len(docs) &gt; 0:
+            yield from self._pipe_batch(docs, stanza_in)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

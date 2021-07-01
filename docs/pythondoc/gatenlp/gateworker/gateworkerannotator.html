@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.gateworker.gateworkerannotator API documentation</title>
+<meta name="description" content="Module for interacting with a Java GATE process." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.gateworker.gateworkerannotator</code></h1>
+</header>
+<section id="section-intro">
+<p>Module for interacting with a Java GATE process.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python
+&#34;&#34;&#34;
+Module for interacting with a Java GATE process.
+&#34;&#34;&#34;
+
+from gatenlp.urlfileutils import is_url
+from gatenlp.processing.annotator import Annotator
+
+# NOTE: we delay importing py4j to the class initializer. This allows us to make GateWorker available via gatenlp
+# but does not force everyone to actually have py4j installed if they do not use the GateWorker
+# from py4j.java_gateway import JavaGateway, GatewayParameters
+from gatenlp.utils import init_logger
+
+logger = init_logger(&#34;gateworker-annotator&#34;)
+
+
+class GateWorkerAnnotator(Annotator):   # pragma: no cover
+    # TODO: parameter to influence how exceptions are handled
+    def __init__(
+            self,
+            pipeline,
+            gateworker,
+            annsets_send=None,
+            annsets_receive=None,
+            replace_anns=False,
+            update_document=False,
+    ):
+        &#34;&#34;&#34;
+        Create a GateWorker annotator.
+
+        This starts the gate worker, loads the pipeline and
+        can then be used to annotate Python gatenlp Document instances with the Java GATE
+        pipeline.
+
+        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
+        start() method should be invoked once before processing documents and finish() should
+        get called once after processing documents. (Any Executor implementation shoudl do this
+        autimatically)
+
+        If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
+        the Java GATE Worker process.
+
+        Example:
+
+            ```python
+            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
+            for idx, doc in enumerate(mycorpus):
+                corpus[idx] = pipeline(doc)
+            ```
+
+        Args:
+            pipeline: the path to a Java GATE pipeline to load into the GATE worker
+            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            annsets_send: a list of either annotation set names, or tuples where the first element
+                is the name of an annotation set and the second element is either the name of a type
+                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
+                If an empty list is specified, no annotations are sent at all.
+            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+                which annotation sets/types are
+                sent back to Python after the document has been processed on the Java side.
+            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
+                which already exists (same set and annotation id)
+                then the existing annotation is replaced (if offsets and type are also same, only the features are
+                replaced). If False, all received annotations are added which may change their annotation id.
+            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
+                received from Java GATE are added. In this case, other changes to the document, e.g. the document
+                text or document features are not applied to the current python document.
+                If False, the existing document is completely replaced with what gets
+                received from Java GATE.
+        &#34;&#34;&#34;
+        self.pipeline = pipeline
+        self.annsets_send = annsets_send
+        self.annsets_receive = annsets_receive
+        self.replace_anns = replace_anns
+        self.update_document = update_document
+        self.gateworker = gateworker
+        isurl, ext = is_url(pipeline)
+        if isurl:
+            self.controller = self.gateworker.worker.loadPipelineFromUri(ext)
+        else:
+            self.controller = self.gateworker.worker.loadPipelineFromFile(ext)
+        self.corpus = self.gateworker.worker.newCorpus()
+        self.controller.setCorpus(self.corpus)
+        self.controller.setControllerCallbacksEnabled(False)
+
+    def start(self):
+        &#34;&#34;&#34;
+        Invoke the controller execution started method on the GATE controller.
+        &#34;&#34;&#34;
+        self.controller.invokeControllerExecutionStarted()
+
+    def finish(self):
+        &#34;&#34;&#34;
+        Invoke the controller execution finished method on the GATE controller.
+        &#34;&#34;&#34;
+        self.controller.invokeControllerExecutionFinished()
+
+    def __call__(self, doc, **_kwargs):
+        &#34;&#34;&#34;
+        Run the GATE controller on the given document.
+
+        This runs the GATE pipeline (controller) on the given document by first sending the document
+        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
+        and sending the document back and converting back to a new gatenlp Document.
+
+        Args:
+            doc: the document to process
+            **kwargs: ignored so far
+
+        Returns:
+            the processed gatenlp document
+        &#34;&#34;&#34;
+        if self.annsets_send is not None:
+            # create shallow copy, we only need it for reading!
+            tmpdoc = doc.copy(annsets=self.annsets_send)
+        else:
+            tmpdoc = doc
+        gdoc = self.gateworker.pdoc2gdoc(tmpdoc)
+        self.gateworker.worker.run4Document(self.controller, gdoc)
+        if self.update_document:
+            self.gateworker.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+        else:
+            doc = self.gateworker.gdoc2pdoc(gdoc)
+        self.gateworker.del_resource(gdoc)
+        return doc</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator"><code class="flex name class">
+<span>class <span class="ident">GateWorkerAnnotator</span></span>
+<span>(</span><span>pipeline, gateworker, annsets_send=None, annsets_receive=None, replace_anns=False, update_document=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Create a GateWorker annotator.</p>
+<p>This starts the gate worker, loads the pipeline and
+can then be used to annotate Python gatenlp Document instances with the Java GATE
+pipeline.</p>
+<p>Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
+start() method should be invoked once before processing documents and finish() should
+get called once after processing documents. (Any Executor implementation shoudl do this
+autimatically)</p>
+<p>If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
+the Java GATE Worker process.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python">pipeline = GateWorkerAnnotator(&quot;annie.xgapp&quot;, GateWorker())
+for idx, doc in enumerate(mycorpus):
+    corpus[idx] = pipeline(doc)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>the path to a Java GATE pipeline to load into the GATE worker</dd>
+<dt><strong><code>gateworker</code></strong></dt>
+<dd>the gate home directory to use, if not set, uses environment variable GATE_HOME</dd>
+<dt><strong><code>annsets_send</code></strong></dt>
+<dd>a list of either annotation set names, or tuples where the first element
+is the name of an annotation set and the second element is either the name of a type
+or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
+If an empty list is specified, no annotations are sent at all.</dd>
+<dt><strong><code>annsets_receive</code></strong></dt>
+<dd>this only works if update_document is True: same format as annsets_send to specify
+which annotation sets/types are
+sent back to Python after the document has been processed on the Java side.</dd>
+<dt><strong><code>replace_anns</code></strong></dt>
+<dd>this is only relevant if update_document is True: if True and an annotation is received
+which already exists (same set and annotation id)
+then the existing annotation is replaced (if offsets and type are also same, only the features are
+replaced). If False, all received annotations are added which may change their annotation id.</dd>
+<dt><strong><code>update_document</code></strong></dt>
+<dd>if True, then existing annotations in the gatenlp document are kept and the annotations
+received from Java GATE are added. In this case, other changes to the document, e.g. the document
+text or document features are not applied to the current python document.
+If False, the existing document is completely replaced with what gets
+received from Java GATE.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GateWorkerAnnotator(Annotator):   # pragma: no cover
+    # TODO: parameter to influence how exceptions are handled
+    def __init__(
+            self,
+            pipeline,
+            gateworker,
+            annsets_send=None,
+            annsets_receive=None,
+            replace_anns=False,
+            update_document=False,
+    ):
+        &#34;&#34;&#34;
+        Create a GateWorker annotator.
+
+        This starts the gate worker, loads the pipeline and
+        can then be used to annotate Python gatenlp Document instances with the Java GATE
+        pipeline.
+
+        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
+        start() method should be invoked once before processing documents and finish() should
+        get called once after processing documents. (Any Executor implementation shoudl do this
+        autimatically)
+
+        If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
+        the Java GATE Worker process.
+
+        Example:
+
+            ```python
+            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
+            for idx, doc in enumerate(mycorpus):
+                corpus[idx] = pipeline(doc)
+            ```
+
+        Args:
+            pipeline: the path to a Java GATE pipeline to load into the GATE worker
+            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            annsets_send: a list of either annotation set names, or tuples where the first element
+                is the name of an annotation set and the second element is either the name of a type
+                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
+                If an empty list is specified, no annotations are sent at all.
+            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+                which annotation sets/types are
+                sent back to Python after the document has been processed on the Java side.
+            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
+                which already exists (same set and annotation id)
+                then the existing annotation is replaced (if offsets and type are also same, only the features are
+                replaced). If False, all received annotations are added which may change their annotation id.
+            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
+                received from Java GATE are added. In this case, other changes to the document, e.g. the document
+                text or document features are not applied to the current python document.
+                If False, the existing document is completely replaced with what gets
+                received from Java GATE.
+        &#34;&#34;&#34;
+        self.pipeline = pipeline
+        self.annsets_send = annsets_send
+        self.annsets_receive = annsets_receive
+        self.replace_anns = replace_anns
+        self.update_document = update_document
+        self.gateworker = gateworker
+        isurl, ext = is_url(pipeline)
+        if isurl:
+            self.controller = self.gateworker.worker.loadPipelineFromUri(ext)
+        else:
+            self.controller = self.gateworker.worker.loadPipelineFromFile(ext)
+        self.corpus = self.gateworker.worker.newCorpus()
+        self.controller.setCorpus(self.corpus)
+        self.controller.setControllerCallbacksEnabled(False)
+
+    def start(self):
+        &#34;&#34;&#34;
+        Invoke the controller execution started method on the GATE controller.
+        &#34;&#34;&#34;
+        self.controller.invokeControllerExecutionStarted()
+
+    def finish(self):
+        &#34;&#34;&#34;
+        Invoke the controller execution finished method on the GATE controller.
+        &#34;&#34;&#34;
+        self.controller.invokeControllerExecutionFinished()
+
+    def __call__(self, doc, **_kwargs):
+        &#34;&#34;&#34;
+        Run the GATE controller on the given document.
+
+        This runs the GATE pipeline (controller) on the given document by first sending the document
+        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
+        and sending the document back and converting back to a new gatenlp Document.
+
+        Args:
+            doc: the document to process
+            **kwargs: ignored so far
+
+        Returns:
+            the processed gatenlp document
+        &#34;&#34;&#34;
+        if self.annsets_send is not None:
+            # create shallow copy, we only need it for reading!
+            tmpdoc = doc.copy(annsets=self.annsets_send)
+        else:
+            tmpdoc = doc
+        gdoc = self.gateworker.pdoc2gdoc(tmpdoc)
+        self.gateworker.worker.run4Document(self.controller, gdoc)
+        if self.update_document:
+            self.gateworker.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+        else:
+            doc = self.gateworker.gdoc2pdoc(gdoc)
+        self.gateworker.del_resource(gdoc)
+        return doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish"><code class="name flex">
+<span>def <span class="ident">finish</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Invoke the controller execution finished method on the GATE controller.</p></div>
+</dd>
+<dt id="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.start"><code class="name flex">
+<span>def <span class="ident">start</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Invoke the controller execution started method on the GATE controller.</p></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.gateworker" href="index.html">gatenlp.gateworker</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator">GateWorkerAnnotator</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.start" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

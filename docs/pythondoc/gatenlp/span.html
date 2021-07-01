@@ -45,7 +45,7 @@ class Span:
     &#34;&#34;&#34;
     Class that represents an offset range.
     &#34;&#34;&#34;
-    __slots__ = [&#34;start&#34;, &#34;end&#34;]
+    __slots__ = [&#34;_start&#34;, &#34;_end&#34;]
 
     @support_annotation_or_set
     def __init__(self, start, end):
@@ -71,8 +71,22 @@ class Span:
         assert start is not None
         assert end is not None
         assert start &lt;= end
-        self.start = start
-        self.end = end
+        self._start = start
+        self._end = end
+
+    @property
+    def start(self):
+        &#34;&#34;&#34;
+        Return the start offset.
+        &#34;&#34;&#34;
+        return self._start
+
+    @property
+    def end(self):
+        &#34;&#34;&#34;
+        Return the end offset.
+        &#34;&#34;&#34;
+        return self._end
 
     def __eq__(self, other) -&gt; bool:
         if not isinstance(other, Span):
@@ -80,6 +94,9 @@ class Span:
         if self is other:
             return True
         return self.start == other.start and self.end == other.end
+
+    def __hash__(self):
+        return hash((self._start, self._end))
 
     def __lt__(self, other) -&gt; bool:
         if not isinstance(other, Span):
@@ -416,7 +433,7 @@ belong to the span</dd>
     &#34;&#34;&#34;
     Class that represents an offset range.
     &#34;&#34;&#34;
-    __slots__ = [&#34;start&#34;, &#34;end&#34;]
+    __slots__ = [&#34;_start&#34;, &#34;_end&#34;]
 
     @support_annotation_or_set
     def __init__(self, start, end):
@@ -442,8 +459,22 @@ belong to the span</dd>
         assert start is not None
         assert end is not None
         assert start &lt;= end
-        self.start = start
-        self.end = end
+        self._start = start
+        self._end = end
+
+    @property
+    def start(self):
+        &#34;&#34;&#34;
+        Return the start offset.
+        &#34;&#34;&#34;
+        return self._start
+
+    @property
+    def end(self):
+        &#34;&#34;&#34;
+        Return the end offset.
+        &#34;&#34;&#34;
+        return self._end
 
     def __eq__(self, other) -&gt; bool:
         if not isinstance(other, Span):
@@ -451,6 +482,9 @@ belong to the span</dd>
         if self is other:
             return True
         return self.start == other.start and self.end == other.end
+
+    def __hash__(self):
+        return hash((self._start, self._end))
 
     def __lt__(self, other) -&gt; bool:
         if not isinstance(other, Span):
@@ -770,9 +804,20 @@ The containing span must be at least of length 1.</p>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.span.Span.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dt id="gatenlp.span.Span.end"><code class="name">property/get <span class="ident">end</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the end offset.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def end(self):
+    &#34;&#34;&#34;
+    Return the end offset.
+    &#34;&#34;&#34;
+    return self._end</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.span.Span.length"><code class="name">property/get <span class="ident">length</span> : int</code></dt>
 <dd>
@@ -789,9 +834,20 @@ def length(self) -&gt; int:
     return self.end - self.start</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.span.Span.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dt id="gatenlp.span.Span.start"><code class="name">property/get <span class="ident">start</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the start offset.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def start(self):
+    &#34;&#34;&#34;
+    Return the start offset.
+    &#34;&#34;&#34;
+    return self._start</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>

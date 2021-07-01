@@ -41,7 +41,7 @@ from gatenlp.span import Span
 
 
 @total_ordering
-class Annotation:
+class Annotation:   # pylint: disable=R0904
     &#34;&#34;&#34;
     An annotation represents information about a span of text. It contains the start and end
     offsets of the span, an &#34;annotation type&#34; and an arbitrary number of features.
@@ -55,8 +55,8 @@ class Annotation:
 
     @allowspan
     def __init__(
-        self, start: int, end: int, anntype: str, features=None, annid: int = 0
-    ):
+            self, start: int, end: int, anntype: str, features=None, annid: int = 0
+        ):
         &#34;&#34;&#34;
         This constructor creates a new annotation instance. Once an annotation has been created,
         the start, end, type and id fields cannot be changed.
@@ -87,7 +87,7 @@ class Annotation:
                 &#34;id={annid}, features={features}: features must not be an int, mixed up with annid?&#34;
             )
         self._owner_set = None
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._type = anntype
         self._start = start
         self._end = end
@@ -122,7 +122,7 @@ class Annotation:
         return self._features
 
     @property
-    def id(self):
+    def id(self):  # pylint: disable=C0103
         &#34;&#34;&#34;
         Returns the annotation id.
         &#34;&#34;&#34;
@@ -138,6 +138,7 @@ class Annotation:
     def _changelog(self):
         if self._owner_set is not None:
             return self._owner_set.changelog
+        return None
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable
@@ -150,8 +151,8 @@ class Annotation:
     # optional
     # on by default but still optional?)
     def _log_feature_change(
-        self, command: str, feature: str = None, value=None
-    ) -&gt; None:
+            self, command: str, feature: str = None, value=None
+        ) -&gt; None:
         &#34;&#34;&#34;
 
         Args:
@@ -165,48 +166,62 @@ class Annotation:
         if self._changelog() is None:
             return
         command = &#34;ann-&#34; + command
-        ch = {
+        change = {
             &#34;command&#34;: command,
             &#34;type&#34;: &#34;annotation&#34;,
             &#34;set&#34;: self._owner_set.name,
             &#34;id&#34;: self.id,
         }
         if feature is not None:
-            ch[&#34;feature&#34;] = feature
+            change[&#34;feature&#34;] = feature
         if value is not None:
-            ch[&#34;value&#34;] = value
-        self._changelog().append(ch)
+            change[&#34;value&#34;] = value
+        self._changelog().append(change)
 
-    def __eq__(self, other) -&gt; bool:
+    def equal(self, other):
         &#34;&#34;&#34;
-        Two annotations are identical if they are the same object or if all the fields
-        are equal (including the annotation id)!
-        &#34;&#34;&#34;
-        if not isinstance(other, Annotation):
-            return False
-        if self is other:
-            return True
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.type == other.type
-            and self.id == other.id
-            and self._features == other._features
-        )
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations excluding the annotation id (which is ignored) are equal.
 
-    def __hash__(self):
+        Args:
+            other: another object
         &#34;&#34;&#34;
-        The hash depends on the annotation ID and the owning set.
+        return isinstance(other, Annotation) and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
+
+    def same(self, other):
         &#34;&#34;&#34;
-        return hash((self.id, self._owner_set))
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations including the annotation id are equal.
+
+        Args:
+            other: another object
+        &#34;&#34;&#34;
+        return isinstance(other, Annotation) and \
+               self.id == other.id and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
 
     def __lt__(self, other) -&gt; bool:
         &#34;&#34;&#34;
         Comparison for sorting: this sorts by increasing start offset,
         then increasing annotation id.
         Since annotation ids within a set are unique, this guarantees a unique order of
-        annotations that
-        come from an annotation set.
+        annotations that come from an annotation set. For other collections of annotations,
+        the order between those with same start offset and same id is undefined.
+
+        IMPORTANT: this is not consistent with our definition of equality and meant for
+        easy sorting of annotations from a single set only! Equality is based on the actual
+        content of all the fields in an annotation, including the id, while the less than
+        relation is only based on start offset and id. It is therefore possible for two
+        annotations A1, A2 that A not &lt; B, B not &lt; A and A != B.
+
+        Note: this is defined to match the default order of the default iterator of an
+        AnnotationSet. The default order of Span is different, so ordering sorting annotations
+        directly and sorting them by their Span can result in different orderings.
 
         Note: for now the other object has to be an instance of Annotation, duck typing is
         not supported!
@@ -390,7 +405,15 @@ class Annotation:
             return self.start &gt;= end
 
     @support_annotation_or_set
-    def isstartingat(self, start: int, end: int) -&gt; bool:
+    def isstartingat(self, start: int, end_: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Return True iff the annotation starts at the given start offset.
+
+        Args:
+            start: start offset
+            end_: only present so the method can be used with anything that can be interpreted as
+                a span (AnnotationSet, Span)
+        &#34;&#34;&#34;
         return self._start == start
 
     @support_annotation_or_set
@@ -598,7 +621,7 @@ and instead the method AnnotationSet.add should be used.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Annotation:
+<pre><code class="python">class Annotation:   # pylint: disable=R0904
     &#34;&#34;&#34;
     An annotation represents information about a span of text. It contains the start and end
     offsets of the span, an &#34;annotation type&#34; and an arbitrary number of features.
@@ -612,8 +635,8 @@ and instead the method AnnotationSet.add should be used.</p>
 
     @allowspan
     def __init__(
-        self, start: int, end: int, anntype: str, features=None, annid: int = 0
-    ):
+            self, start: int, end: int, anntype: str, features=None, annid: int = 0
+        ):
         &#34;&#34;&#34;
         This constructor creates a new annotation instance. Once an annotation has been created,
         the start, end, type and id fields cannot be changed.
@@ -644,7 +667,7 @@ and instead the method AnnotationSet.add should be used.</p>
                 &#34;id={annid}, features={features}: features must not be an int, mixed up with annid?&#34;
             )
         self._owner_set = None
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._type = anntype
         self._start = start
         self._end = end
@@ -679,7 +702,7 @@ and instead the method AnnotationSet.add should be used.</p>
         return self._features
 
     @property
-    def id(self):
+    def id(self):  # pylint: disable=C0103
         &#34;&#34;&#34;
         Returns the annotation id.
         &#34;&#34;&#34;
@@ -695,6 +718,7 @@ and instead the method AnnotationSet.add should be used.</p>
     def _changelog(self):
         if self._owner_set is not None:
             return self._owner_set.changelog
+        return None
 
     # TODO: for now at least, make sure only simple JSON serialisable things are used! We do NOT
     # allow any user specific types in order to make sure what we create is interchangeable
@@ -707,8 +731,8 @@ and instead the method AnnotationSet.add should be used.</p>
     # optional
     # on by default but still optional?)
     def _log_feature_change(
-        self, command: str, feature: str = None, value=None
-    ) -&gt; None:
+            self, command: str, feature: str = None, value=None
+        ) -&gt; None:
         &#34;&#34;&#34;
 
         Args:
@@ -722,48 +746,62 @@ and instead the method AnnotationSet.add should be used.</p>
         if self._changelog() is None:
             return
         command = &#34;ann-&#34; + command
-        ch = {
+        change = {
             &#34;command&#34;: command,
             &#34;type&#34;: &#34;annotation&#34;,
             &#34;set&#34;: self._owner_set.name,
             &#34;id&#34;: self.id,
         }
         if feature is not None:
-            ch[&#34;feature&#34;] = feature
+            change[&#34;feature&#34;] = feature
         if value is not None:
-            ch[&#34;value&#34;] = value
-        self._changelog().append(ch)
+            change[&#34;value&#34;] = value
+        self._changelog().append(change)
 
-    def __eq__(self, other) -&gt; bool:
+    def equal(self, other):
         &#34;&#34;&#34;
-        Two annotations are identical if they are the same object or if all the fields
-        are equal (including the annotation id)!
-        &#34;&#34;&#34;
-        if not isinstance(other, Annotation):
-            return False
-        if self is other:
-            return True
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.type == other.type
-            and self.id == other.id
-            and self._features == other._features
-        )
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations excluding the annotation id (which is ignored) are equal.
 
-    def __hash__(self):
+        Args:
+            other: another object
         &#34;&#34;&#34;
-        The hash depends on the annotation ID and the owning set.
+        return isinstance(other, Annotation) and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
+
+    def same(self, other):
         &#34;&#34;&#34;
-        return hash((self.id, self._owner_set))
+        Compare the content of this annotation with other. This returns True if all public attributes
+        of the annotations including the annotation id are equal.
+
+        Args:
+            other: another object
+        &#34;&#34;&#34;
+        return isinstance(other, Annotation) and \
+               self.id == other.id and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.features == other.features
 
     def __lt__(self, other) -&gt; bool:
         &#34;&#34;&#34;
         Comparison for sorting: this sorts by increasing start offset,
         then increasing annotation id.
         Since annotation ids within a set are unique, this guarantees a unique order of
-        annotations that
-        come from an annotation set.
+        annotations that come from an annotation set. For other collections of annotations,
+        the order between those with same start offset and same id is undefined.
+
+        IMPORTANT: this is not consistent with our definition of equality and meant for
+        easy sorting of annotations from a single set only! Equality is based on the actual
+        content of all the fields in an annotation, including the id, while the less than
+        relation is only based on start offset and id. It is therefore possible for two
+        annotations A1, A2 that A not &lt; B, B not &lt; A and A != B.
+
+        Note: this is defined to match the default order of the default iterator of an
+        AnnotationSet. The default order of Span is different, so ordering sorting annotations
+        directly and sorting them by their Span can result in different orderings.
 
         Note: for now the other object has to be an instance of Annotation, duck typing is
         not supported!
@@ -947,7 +985,15 @@ and instead the method AnnotationSet.add should be used.</p>
             return self.start &gt;= end
 
     @support_annotation_or_set
-    def isstartingat(self, start: int, end: int) -&gt; bool:
+    def isstartingat(self, start: int, end_: int) -&gt; bool:
+        &#34;&#34;&#34;
+        Return True iff the annotation starts at the given start offset.
+
+        Args:
+            start: start offset
+            end_: only present so the method can be used with anything that can be interpreted as
+                a span (AnnotationSet, Span)
+        &#34;&#34;&#34;
         return self._start == start
 
     @support_annotation_or_set
@@ -1171,7 +1217,7 @@ def features(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def id(self):
+def id(self):  # pylint: disable=C0103
     &#34;&#34;&#34;
     Returns the annotation id.
     &#34;&#34;&#34;
@@ -1266,6 +1312,18 @@ def type(self) -&gt; str:
 </code></dt>
 <dd>
 <div class="desc"><p>Return a deep copy of the annotation (features and their values are copied as well).</p></div>
+</dd>
+<dt id="gatenlp.annotation.Annotation.equal"><code class="name flex">
+<span>def <span class="ident">equal</span></span>(<span>self, other)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compare the content of this annotation with other. This returns True if all public attributes
+of the annotations excluding the annotation id (which is ignored) are equal.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>other</code></strong></dt>
+<dd>another object</dd>
+</dl></div>
 </dd>
 <dt id="gatenlp.annotation.Annotation.gap"><code class="name flex">
 <span>def <span class="ident">gap</span></span>(<span>self, start: int, end: int) ‑> int</span>
@@ -1441,10 +1499,18 @@ annotation set on the right, i.e. the first character is inside the span.</p>
 <p><code>True</code> if right-overlapping, <code>False</code> otherwise</p></div>
 </dd>
 <dt id="gatenlp.annotation.Annotation.isstartingat"><code class="name flex">
-<span>def <span class="ident">isstartingat</span></span>(<span>self, start: int, end: int) ‑> bool</span>
+<span>def <span class="ident">isstartingat</span></span>(<span>self, start: int, end_: int) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return True iff the annotation starts at the given start offset.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>start</code></strong></dt>
+<dd>start offset</dd>
+<dt><strong><code>end_</code></strong></dt>
+<dd>only present so the method can be used with anything that can be interpreted as
+a span (AnnotationSet, Span)</dd>
+</dl></div>
 </dd>
 <dt id="gatenlp.annotation.Annotation.iswithin"><code class="name flex">
 <span>def <span class="ident">iswithin</span></span>(<span>self, start: int, end: int) ‑> bool</span>
@@ -1464,6 +1530,18 @@ are after the given start and before the given end.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p><code>True</code> if within, <code>False</code> otherwise</p></div>
+</dd>
+<dt id="gatenlp.annotation.Annotation.same"><code class="name flex">
+<span>def <span class="ident">same</span></span>(<span>self, other)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compare the content of this annotation with other. This returns True if all public attributes
+of the annotations including the annotation id are equal.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>other</code></strong></dt>
+<dd>another object</dd>
+</dl></div>
 </dd>
 <dt id="gatenlp.annotation.Annotation.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self, offset_mapper=None, offset_type=None, **kwargs)</span>
@@ -1507,6 +1585,7 @@ used for several serialization methods.</p>
 <li><code><a title="gatenlp.annotation.Annotation.copy" href="#gatenlp.annotation.Annotation.copy">copy</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.deepcopy" href="#gatenlp.annotation.Annotation.deepcopy">deepcopy</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.end" href="#gatenlp.annotation.Annotation.end">end</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.equal" href="#gatenlp.annotation.Annotation.equal">equal</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.features" href="#gatenlp.annotation.Annotation.features">features</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.from_dict" href="#gatenlp.annotation.Annotation.from_dict">from_dict</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.gap" href="#gatenlp.annotation.Annotation.gap">gap</a></code></li>
@@ -1522,6 +1601,7 @@ used for several serialization methods.</p>
 <li><code><a title="gatenlp.annotation.Annotation.isstartingat" href="#gatenlp.annotation.Annotation.isstartingat">isstartingat</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.iswithin" href="#gatenlp.annotation.Annotation.iswithin">iswithin</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.length" href="#gatenlp.annotation.Annotation.length">length</a></code></li>
+<li><code><a title="gatenlp.annotation.Annotation.same" href="#gatenlp.annotation.Annotation.same">same</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.span" href="#gatenlp.annotation.Annotation.span">span</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.start" href="#gatenlp.annotation.Annotation.start">start</a></code></li>
 <li><code><a title="gatenlp.annotation.Annotation.to_dict" href="#gatenlp.annotation.Annotation.to_dict">to_dict</a></code></li>

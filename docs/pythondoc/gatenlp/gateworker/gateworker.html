@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
-<title>gatenlp.gateworker API documentation</title>
+<title>gatenlp.gateworker.gateworker API documentation</title>
 <meta name="description" content="Module for interacting with a Java GATE process." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>gatenlp.gateworker</code></h1>
+<h1 class="title">Module <code>gatenlp.gateworker.gateworker</code></h1>
 </header>
 <section id="section-intro">
 <p>Module for interacting with a Java GATE process.</p>
@@ -35,6 +35,7 @@ Module for interacting with a Java GATE process.
 import sys
 import subprocess
 import os
+import pathlib
 import platform as sysplatform
 import logging
 import atexit
@@ -44,14 +45,12 @@ import signal
 import glob
 import json
 from gatenlp.annotation_set import AnnotationSet
-from gatenlp.urlfileutils import is_url
 
 # NOTE: we delay importing py4j to the class initializer. This allows us to make GateWorker available via gatenlp
 # but does not force everyone to actually have py4j installed if they do not use the GateWorker
 # from py4j.java_gateway import JavaGateway, GatewayParameters
 from gatenlp import Document
 from gatenlp.utils import init_logger
-from gatenlp.processing.annotator import Annotator
 
 JARVERSION = &#34;1.0&#34;
 
@@ -60,6 +59,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 __pdoc__ = {&#34;GateWorkerAnnotator.__call__&#34;: True}
+
+
+def jar_loc():
+    return str(pathlib.Path(__file__).parent.parent.
+               joinpath(&#34;_jars&#34;).joinpath(f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;))
 
 
 def classpath_sep(platform=None):  # pragma: no cover
@@ -196,9 +200,7 @@ def start_gate_worker(
     logger.debug(
         f&#34;Starting gate worker, gatehome={gatehome}, auth_token={auth_token}, log_actions={log_actions}, keep={keep}&#34;
     )
-    jarloc = os.path.join(
-        os.path.dirname(__file__), &#34;_jars&#34;, f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;
-    )
+    jarloc = jar_loc()
     if not os.path.exists(jarloc):
         raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
     logger.debug(f&#34;Using JAR: {jarloc}&#34;)
@@ -265,7 +267,7 @@ class GateWorker:   # pragma: no cover
             log_actions=False,
             keep=False,
             debug=False,
-        ):
+            ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -274,7 +276,8 @@ class GateWorker:   # pragma: no cover
 
         * Use one of the methods of the instance to perform operations on the Java side or exchange data
 
-        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side
+        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side (but for most of these
+          method there is a shortcut implementation directly on GateWorker which should be preferred!)
 
         * use GateWorker.jvm to directly construct objects or call instance or static methods
 
@@ -285,31 +288,31 @@ class GateWorker:   # pragma: no cover
         Example:
 
             ```python
-            gs = GateWorker()
-            pipeline = gs.worker.loadPipelineFromFile(&#34;thePipeline.xgapp&#34;)
-            doc = gs.worker.createDocument(&#34;Some document text&#34;)
-            gs.worker.run4doc(pipeline,doc)
-            pdoc = gs.gdoc2pdoc(doc)
-            gs.worker.deleteResource(doc)
+            gw = GateWorker()
+            pipeline = gw.loadPipelineFromFile(&#34;thePipeline.xgapp&#34;)
+            doc = gw.createDocument(&#34;Some document text&#34;)
+            gw.worker.run4Document(pipeline,doc)
+            pdoc = gw.gdoc2pdoc(doc)
+            gw.deleteResource(doc)
             # process the document pdoc ...
             ```
 
         port: port to use
         start: if True, try to start our own GATE process, otherwise expect an already started
-           process at the host/port address
+            process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
         host: host an existing Java GATE process is running on (only relevant for start=False)
         gatehome: where GATE is installed (only relevant if start=True). If None, expects
-               environment variable GATE_HOME to be set.
+            environment variable GATE_HOME to be set.
         platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
         auth_token: if None or &#34;&#34; and use_auth_token is True, generate a random token which
-               is then accessible via the auth_token attribute, otherwise use the given auth token.
+            is then accessible via the auth_token attribute, otherwise use the given auth token.
         use_auth_token: if False, do not use an auth token, otherwise either use the one specified
-               via auth_token or generate a random one.
+            via auth_token or generate a random one.
         log_actions: if the gate worker should log the actions it is doing
         keep: normally if gs.close() is called and we are not connected to the PythonWorkerLr,
-               the worker will be shut down. If this is True, the gs.close() method does not shut down
-               the worker.
+            the worker will be shut down. If this is True, the gs.close() method does not shut down
+            the worker.
         debug: show debug messages (default: False)
         &#34;&#34;&#34;
         if debug:
@@ -343,11 +346,7 @@ class GateWorker:   # pragma: no cover
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
-            jarloc = os.path.join(
-                os.path.dirname(__file__),
-                &#34;_jars&#34;,
-                f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;,
-            )
+            jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
             cmdandparms = [java, &#34;-cp&#34;]
@@ -611,11 +610,9 @@ class GateWorker:   # pragma: no cover
 
     def del_resource(self, resource):
         &#34;&#34;&#34;
+        DEPRECATED: please use deleteResource(resource) instead!
+
         Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
-        This is particularly important to do when processing a large number of documents for each document
-        that is finished processing, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
-        GATE document does not delete/unload the document!
 
         Args:
           resource: the Java GATE resource, e.g. a document to remove
@@ -649,7 +646,11 @@ class GateWorker:   # pragma: no cover
 
     def deleteResource(self, resource):
         &#34;&#34;&#34;
-        Remove a Java GATE resource and release its memory.
+        Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
+        GATE document does not delete/unload the document!
 
         Args:
             resource: a handle to some Java GATE resource
@@ -1050,158 +1051,47 @@ class GateWorker:   # pragma: no cover
         self.worker.showGui()
 
 
-class GateWorkerAnnotator(Annotator):   # pragma: no cover
-    # TODO: parameter to influence how exceptions are handled
-    def __init__(
-            self,
-            pipeline,
-            gateworker,
-            annsets_send=None,
-            annsets_receive=None,
-            replace_anns=False,
-            update_document=False,
-    ):
-        &#34;&#34;&#34;
-        Create a GateWorker annotator.
-
-        This starts the gate worker, loads the pipeline and
-        can then be used to annotate Python gatenlp Document instances with the Java GATE
-        pipeline.
-
-        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
-        start() method should be invoked once before processing documents and finish() should
-        get called once after processing documents. (Any Executor implementation shoudl do this
-        autimatically)
-
-        If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
-        the Java GATE Worker process.
-
-        Example:
-
-            ```python
-            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
-            for idx, doc in enumerate(mycorpus):
-                corpus[idx] = pipeline(doc)
-            ```
-
-        Args:
-            pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            annsets_send: a list of either annotation set names, or tuples where the first element
-                is the name of an annotation set and the second element is either the name of a type
-                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
-                If an empty list is specified, no annotations are sent at all.
-            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
-                which annotation sets/types are
-                sent back to Python after the document has been processed on the Java side.
-            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
-                which already exists (same set and annotation id)
-                then the existing annotation is replaced (if offsets and type are also same, only the features are
-                replaced). If False, all received annotations are added which may change their annotation id.
-            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
-                received from Java GATE are added. In this case, other changes to the document, e.g. the document
-                text or document features are not applied to the current python document.
-                If False, the existing document is completely replaced with what gets
-                received from Java GATE.
-        &#34;&#34;&#34;
-        self.pipeline = pipeline
-        self.annsets_send = annsets_send
-        self.annsets_receive = annsets_receive
-        self.replace_anns = replace_anns
-        self.update_document = update_document
-        self.gw = gateworker
-        isurl, ext = is_url(pipeline)
-        if isurl:
-            self.controller = self.gw.worker.loadPipelineFromUri(ext)
-        else:
-            self.controller = self.gw.worker.loadPipelineFromFile(ext)
-        self.corpus = self.gw.worker.newCorpus()
-        self.controller.setCorpus(self.corpus)
-        self.controller.setControllerCallbacksEnabled(False)
-
-    def start(self):
-        &#34;&#34;&#34;
-        Invoke the controller execution started method on the GATE controller.
-        &#34;&#34;&#34;
-        self.controller.invokeControllerExecutionStarted()
-
-    def finish(self):
-        &#34;&#34;&#34;
-        Invoke the controller execution finished method on the GATE controller.
-        &#34;&#34;&#34;
-        self.controller.invokeControllerExecutionFinished()
-
-    def __call__(self, doc, **_kwargs):
-        &#34;&#34;&#34;
-        Run the GATE controller on the given document.
-
-        This runs the GATE pipeline (controller) on the given document by first sending the document
-        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
-        and sending the document back and converting back to a new gatenlp Document.
-
-        Args:
-            doc: the document to process
-            **kwargs: ignored so far
-
-        Returns:
-            the processed gatenlp document
-        &#34;&#34;&#34;
-        if self.annsets_send is not None:
-            # create shallow copy, we only need it for reading!
-            tmpdoc = doc.copy(annsets=self.annsets_send)
-        else:
-            tmpdoc = doc
-        gdoc = self.gw.pdoc2gdoc(tmpdoc)
-        self.gw.worker.run4Document(self.controller, gdoc)
-        if self.update_document:
-            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        else:
-            doc = self.gw.gdoc2pdoc(gdoc)
-        self.gw.del_resource(gdoc)
-        return doc
-
-
-def main():   # pragma: no cover
+def run_gate_worker():   # pragma: no cover
     &#34;&#34;&#34;
     Start a GATE worker from the command line.
 
     This is available as command `gatenlp-gate-worker`.
     Use option `--help` to get help about command line arguments.
     &#34;&#34;&#34;
-    ap = argparse.ArgumentParser(description=&#34;Start Java GATE Worker&#34;)
-    ap.add_argument(
+    argparser = argparse.ArgumentParser(description=&#34;Start Java GATE Worker&#34;)
+    argparser.add_argument(
         &#34;--download&#34;,
         action=&#34;store_true&#34;,
         help=&#34;Download GATE libraries to run GATE worker&#34;,
     )
-    ap.add_argument(&#34;--port&#34;, default=25333, type=int, help=&#34;Port (25333)&#34;)
-    ap.add_argument(
+    argparser.add_argument(&#34;--port&#34;, default=25333, type=int, help=&#34;Port (25333)&#34;)
+    argparser.add_argument(
         &#34;--host&#34;, default=&#34;127.0.0.1&#34;, type=str, help=&#34;Host to bind to (127.0.0.1)&#34;
     )
-    ap.add_argument(
+    argparser.add_argument(
         &#34;--auth&#34;, default=None, type=str, help=&#34;Auth token to use (generate random)&#34;
     )
-    ap.add_argument(&#34;--noauth&#34;, action=&#34;store_true&#34;, help=&#34;Do not use auth token&#34;)
-    ap.add_argument(
+    argparser.add_argument(&#34;--noauth&#34;, action=&#34;store_true&#34;, help=&#34;Do not use auth token&#34;)
+    argparser.add_argument(
         &#34;--gatehome&#34;,
         default=None,
         type=str,
         help=&#34;Location of GATE (environment variable GATE_HOME)&#34;,
     )
-    ap.add_argument(
+    argparser.add_argument(
         &#34;--platform&#34;,
         default=None,
         type=str,
         help=&#34;OS/Platform: windows or linux (autodetect)&#34;,
     )
-    ap.add_argument(
+    argparser.add_argument(
         &#34;--log_actions&#34;, action=&#34;store_true&#34;, help=&#34;If worker actions should be logged&#34;
     )
-    ap.add_argument(
+    argparser.add_argument(
         &#34;--keep&#34;, action=&#34;store_true&#34;, help=&#34;Prevent shutting down the worker&#34;
     )
-    ap.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
-    args = ap.parse_args()
+    argparser.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;, help=&#34;Show debug messages&#34;)
+    args = argparser.parse_args()
     if args.download:
         raise Exception(&#34;--download not implemented yet &#34;)
     start_gate_worker(
@@ -1218,7 +1108,7 @@ def main():   # pragma: no cover
 
 
 if __name__ == &#34;__main__&#34;:   # pragma: no cover
-    main()</code></pre>
+    run_gate_worker()</code></pre>
 </details>
 </section>
 <section>
@@ -1228,7 +1118,7 @@ if __name__ == &#34;__main__&#34;:   # pragma: no cover
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="gatenlp.gateworker.classpath_sep"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.classpath_sep"><code class="name flex">
 <span>def <span class="ident">classpath_sep</span></span>(<span>platform=None)</span>
 </code></dt>
 <dd>
@@ -1242,7 +1132,7 @@ If not specified, tries to determine automatically (which may fail)</dd>
 <h2 id="returns">Returns</h2>
 <p>classpath separator character</p></div>
 </dd>
-<dt id="gatenlp.gateworker.gate_classpath"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.gate_classpath"><code class="name flex">
 <span>def <span class="ident">gate_classpath</span></span>(<span>gatehome, platform=None)</span>
 </code></dt>
 <dd>
@@ -1260,15 +1150,21 @@ for the operating system.</p>
 <h2 id="raises">Raises</h2>
 <p>Exception if classpath could not be determined.</p></div>
 </dd>
-<dt id="gatenlp.gateworker.main"><code class="name flex">
-<span>def <span class="ident">main</span></span>(<span>)</span>
+<dt id="gatenlp.gateworker.gateworker.jar_loc"><code class="name flex">
+<span>def <span class="ident">jar_loc</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.gateworker.gateworker.run_gate_worker"><code class="name flex">
+<span>def <span class="ident">run_gate_worker</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Start a GATE worker from the command line.</p>
 <p>This is available as command <code>gatenlp-gate-worker</code>.
 Use option <code>--help</code> to get help about command line arguments.</p></div>
 </dd>
-<dt id="gatenlp.gateworker.start_gate_worker"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.start_gate_worker"><code class="name flex">
 <span>def <span class="ident">start_gate_worker</span></span>(<span>port=25333, host='127.0.0.1', auth_token=None, use_auth_token=True, java='java', platform=None, gatehome=None, log_actions=False, keep=False, debug=False)</span>
 </code></dt>
 <dd>
@@ -1310,7 +1206,7 @@ report to the using Pythong process that it can be closed or not.</dd>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gatenlp.gateworker.GateWorker"><code class="flex name class">
+<dt id="gatenlp.gateworker.gateworker.GateWorker"><code class="flex name class">
 <span>class <span class="ident">GateWorker</span></span>
 <span>(</span><span>port=25333, start=True, java='java', host='127.0.0.1', gatehome=None, platform=None, auth_token=None, use_auth_token=True, log_actions=False, keep=False, debug=False)</span>
 </code></dt>
@@ -1325,7 +1221,8 @@ Java GATE process.</p>
 <p>Use one of the methods of the instance to perform operations on the Java side or exchange data</p>
 </li>
 <li>
-<p>use GateWorker.worker to invoke methods from the PythonWorker class on the Java side</p>
+<p>use GateWorker.worker to invoke methods from the PythonWorker class on the Java side (but for most of these
+method there is a shortcut implementation directly on GateWorker which should be preferred!)</p>
 </li>
 <li>
 <p>use GateWorker.jvm to directly construct objects or call instance or static methods</p>
@@ -1335,12 +1232,12 @@ Java GATE process.</p>
 stderr gets captured and used for communication between the Java and Python processes. At least
 part of the output to stderr may only be passed on after the GATE process has ended.</p>
 <h2 id="example">Example</h2>
-<pre><code class="language-python">gs = GateWorker()
-pipeline = gs.worker.loadPipelineFromFile(&quot;thePipeline.xgapp&quot;)
-doc = gs.worker.createDocument(&quot;Some document text&quot;)
-gs.worker.run4doc(pipeline,doc)
-pdoc = gs.gdoc2pdoc(doc)
-gs.worker.deleteResource(doc)
+<pre><code class="language-python">gw = GateWorker()
+pipeline = gw.loadPipelineFromFile(&quot;thePipeline.xgapp&quot;)
+doc = gw.createDocument(&quot;Some document text&quot;)
+gw.worker.run4Document(pipeline,doc)
+pdoc = gw.gdoc2pdoc(doc)
+gw.deleteResource(doc)
 # process the document pdoc ...
 </code></pre>
 <p>port: port to use
@@ -1383,7 +1280,7 @@ debug: show debug messages (default: False)</p></div>
             log_actions=False,
             keep=False,
             debug=False,
-        ):
+            ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
         (start=True) or connect to an existing one (start=False).
@@ -1392,7 +1289,8 @@ debug: show debug messages (default: False)</p></div>
 
         * Use one of the methods of the instance to perform operations on the Java side or exchange data
 
-        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side
+        * use GateWorker.worker to invoke methods from the PythonWorker class on the Java side (but for most of these
+          method there is a shortcut implementation directly on GateWorker which should be preferred!)
 
         * use GateWorker.jvm to directly construct objects or call instance or static methods
 
@@ -1403,31 +1301,31 @@ debug: show debug messages (default: False)</p></div>
         Example:
 
             ```python
-            gs = GateWorker()
-            pipeline = gs.worker.loadPipelineFromFile(&#34;thePipeline.xgapp&#34;)
-            doc = gs.worker.createDocument(&#34;Some document text&#34;)
-            gs.worker.run4doc(pipeline,doc)
-            pdoc = gs.gdoc2pdoc(doc)
-            gs.worker.deleteResource(doc)
+            gw = GateWorker()
+            pipeline = gw.loadPipelineFromFile(&#34;thePipeline.xgapp&#34;)
+            doc = gw.createDocument(&#34;Some document text&#34;)
+            gw.worker.run4Document(pipeline,doc)
+            pdoc = gw.gdoc2pdoc(doc)
+            gw.deleteResource(doc)
             # process the document pdoc ...
             ```
 
         port: port to use
         start: if True, try to start our own GATE process, otherwise expect an already started
-           process at the host/port address
+            process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
         host: host an existing Java GATE process is running on (only relevant for start=False)
         gatehome: where GATE is installed (only relevant if start=True). If None, expects
-               environment variable GATE_HOME to be set.
+            environment variable GATE_HOME to be set.
         platform: system platform we run on, one of Windows, Linux (also for MacOs) or Java
         auth_token: if None or &#34;&#34; and use_auth_token is True, generate a random token which
-               is then accessible via the auth_token attribute, otherwise use the given auth token.
+            is then accessible via the auth_token attribute, otherwise use the given auth token.
         use_auth_token: if False, do not use an auth token, otherwise either use the one specified
-               via auth_token or generate a random one.
+            via auth_token or generate a random one.
         log_actions: if the gate worker should log the actions it is doing
         keep: normally if gs.close() is called and we are not connected to the PythonWorkerLr,
-               the worker will be shut down. If this is True, the gs.close() method does not shut down
-               the worker.
+            the worker will be shut down. If this is True, the gs.close() method does not shut down
+            the worker.
         debug: show debug messages (default: False)
         &#34;&#34;&#34;
         if debug:
@@ -1461,11 +1359,7 @@ debug: show debug messages (default: False)</p></div>
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
-            jarloc = os.path.join(
-                os.path.dirname(__file__),
-                &#34;_jars&#34;,
-                f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;,
-            )
+            jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
             cmdandparms = [java, &#34;-cp&#34;]
@@ -1729,11 +1623,9 @@ debug: show debug messages (default: False)</p></div>
 
     def del_resource(self, resource):
         &#34;&#34;&#34;
+        DEPRECATED: please use deleteResource(resource) instead!
+
         Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
-        This is particularly important to do when processing a large number of documents for each document
-        that is finished processing, otherwise the documents
-        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
-        GATE document does not delete/unload the document!
 
         Args:
           resource: the Java GATE resource, e.g. a document to remove
@@ -1767,7 +1659,11 @@ debug: show debug messages (default: False)</p></div>
 
     def deleteResource(self, resource):
         &#34;&#34;&#34;
-        Remove a Java GATE resource and release its memory.
+        Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+        This is particularly important to do when processing a large number of documents for each document
+        that is finished processing, otherwise the documents
+        will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
+        GATE document does not delete/unload the document!
 
         Args:
             resource: a handle to some Java GATE resource
@@ -2169,7 +2065,7 @@ debug: show debug messages (default: False)</p></div>
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.gateworker.GateWorker.gate_build"><code class="name">property/get <span class="ident">gate_build</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_build"><code class="name">property/get <span class="ident">gate_build</span></code></dt>
 <dd>
 <div class="desc"><p>Return the GATE build id of the connected GATE process.</p></div>
 <details class="source">
@@ -2184,7 +2080,7 @@ def gate_build(self):
     return self.jvm.gate.Main.build</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gate_version"><code class="name">property/get <span class="ident">gate_version</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_version"><code class="name">property/get <span class="ident">gate_version</span></code></dt>
 <dd>
 <div class="desc"><p>Return the GATE version of the connected GATE process.</p></div>
 <details class="source">
@@ -2199,7 +2095,7 @@ def gate_version(self):
     return self.jvm.gate.Main.version</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gatehome"><code class="name">property/get <span class="ident">gatehome</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gatehome"><code class="name">property/get <span class="ident">gatehome</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2211,7 +2107,7 @@ def gatehome(self):
     return self._gatehome</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gateprocess"><code class="name">property/get <span class="ident">gateprocess</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gateprocess"><code class="name">property/get <span class="ident">gateprocess</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2223,7 +2119,7 @@ def gateprocess(self):
     return self._gateprocess</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gateway"><code class="name">property/get <span class="ident">gateway</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gateway"><code class="name">property/get <span class="ident">gateway</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2235,7 +2131,7 @@ def gateway(self):
     return self._gateway</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.host"><code class="name">property/get <span class="ident">host</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.host"><code class="name">property/get <span class="ident">host</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2247,7 +2143,7 @@ def host(self):
     return self._host</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.jvm"><code class="name">property/get <span class="ident">jvm</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.jvm"><code class="name">property/get <span class="ident">jvm</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2259,7 +2155,7 @@ def jvm(self):
     return self.gateway.jvm</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.platform"><code class="name">property/get <span class="ident">platform</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.platform"><code class="name">property/get <span class="ident">platform</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2271,7 +2167,7 @@ def platform(self):
     return self._platform</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.port"><code class="name">property/get <span class="ident">port</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.port"><code class="name">property/get <span class="ident">port</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2283,7 +2179,7 @@ def port(self):
     return self._port</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.worker"><code class="name">property/get <span class="ident">worker</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker"><code class="name">property/get <span class="ident">worker</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2295,7 +2191,7 @@ def worker(self):
     return self.gateway.entry_point</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.worker_build"><code class="name">property/get <span class="ident">worker_build</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_build"><code class="name">property/get <span class="ident">worker_build</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2307,7 +2203,7 @@ def worker_build(self):
     return self.worker.pluginBuild()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.worker_version"><code class="name">property/get <span class="ident">worker_version</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_version"><code class="name">property/get <span class="ident">worker_version</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2322,7 +2218,7 @@ def worker_version(self):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="gatenlp.gateworker.GateWorker.close"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.close"><code class="name flex">
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2330,7 +2226,7 @@ def worker_version(self):
 Otherwise we can still close it if it was started by the workerrunner, not the Lr
 Note: if it was started by us, it was started via the workerrunner.</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.createDocument"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.createDocument"><code class="name flex">
 <span>def <span class="ident">createDocument</span></span>(<span>self, content)</span>
 </code></dt>
 <dd>
@@ -2343,11 +2239,23 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 <h2 id="returns">Returns</h2>
 <p>handle to Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.del_resource"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.del_resource"><code class="name flex">
 <span>def <span class="ident">del_resource</span></span>(<span>self, resource)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
+<div class="desc"><p>DEPRECATED: please use deleteResource(resource) instead!</p>
+<p>Delete/unload a GATE resource (Document, Corpus, ProcessingResource etc) from GATE.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>resource</code></strong></dt>
+<dd>the Java GATE resource, e.g. a document to remove</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.deleteResource"><code class="name flex">
+<span>def <span class="ident">deleteResource</span></span>(<span>self, resource)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
 This is particularly important to do when processing a large number of documents for each document
 that is finished processing, otherwise the documents
 will accumulate in the Java process and eat up all memory. NOTE: just removing all references to a
@@ -2355,21 +2263,10 @@ GATE document does not delete/unload the document!</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>resource</code></strong></dt>
-<dd>the Java GATE resource, e.g. a document to remove</dd>
-</dl></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorker.deleteResource"><code class="name flex">
-<span>def <span class="ident">deleteResource</span></span>(<span>self, resource)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Remove a Java GATE resource and release its memory.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>resource</code></strong></dt>
 <dd>a handle to some Java GATE resource</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.findMavenPlugin"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.findMavenPlugin"><code class="name flex">
 <span>def <span class="ident">findMavenPlugin</span></span>(<span>self, group, artifact)</span>
 </code></dt>
 <dd>
@@ -2384,7 +2281,7 @@ GATE document does not delete/unload the document!</p>
 <h2 id="returns">Returns</h2>
 <p>a handle to the plugin or None if not found</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gdoc2pdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gdoc2pdoc"><code class="name flex">
 <span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc)</span>
 </code></dt>
 <dd>
@@ -2397,7 +2294,7 @@ GATE document does not delete/unload the document!</p>
 <h2 id="returns">Returns</h2>
 <p>a gatenlp Document instance</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.gdocanns2pdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gdocanns2pdoc"><code class="name flex">
 <span>def <span class="ident">gdocanns2pdoc</span></span>(<span>self, gdoc, pdoc, annsets=None, replace=False)</span>
 </code></dt>
 <dd>
@@ -2419,7 +2316,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>the modified pdoc</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getBdocJson"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getBdocJson"><code class="name flex">
 <span>def <span class="ident">getBdocJson</span></span>(<span>self, gdoc)</span>
 </code></dt>
 <dd>
@@ -2432,7 +2329,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>BDOC serialization JSON string</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getCorpus4Name"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getCorpus4Name"><code class="name flex">
 <span>def <span class="ident">getCorpus4Name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
@@ -2445,7 +2342,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>first matching corpus or None</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getCorpusNames"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getCorpusNames"><code class="name flex">
 <span>def <span class="ident">getCorpusNames</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2453,7 +2350,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>list of corpus names</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getDocument4BdocJson"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getDocument4BdocJson"><code class="name flex">
 <span>def <span class="ident">getDocument4BdocJson</span></span>(<span>self, bdocjson)</span>
 </code></dt>
 <dd>
@@ -2466,7 +2363,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>handle to the Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getDocument4Name"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getDocument4Name"><code class="name flex">
 <span>def <span class="ident">getDocument4Name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
@@ -2479,7 +2376,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>a handle to the Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getDocumentNames"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getDocumentNames"><code class="name flex">
 <span>def <span class="ident">getDocumentNames</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2487,7 +2384,7 @@ annotaitons with potentially a new annotation id.</dd>
 <h2 id="returns">Returns</h2>
 <p>list of Java GATE document names</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getPipeline4Name"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getPipeline4Name"><code class="name flex">
 <span>def <span class="ident">getPipeline4Name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
@@ -2501,7 +2398,7 @@ None if none found.</p>
 <h2 id="returns">Returns</h2>
 <p>handle to the pipeline</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getPipelineNames"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getPipelineNames"><code class="name flex">
 <span>def <span class="ident">getPipelineNames</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2509,7 +2406,7 @@ None if none found.</p>
 <h2 id="returns">Returns</h2>
 <p>list of pipeline names</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getPr4Name"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getPr4Name"><code class="name flex">
 <span>def <span class="ident">getPr4Name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
@@ -2523,7 +2420,7 @@ or None if none found.</p>
 <h2 id="returns">Returns</h2>
 <p>a handle to the processing resource or None</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getPrNames"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getPrNames"><code class="name flex">
 <span>def <span class="ident">getPrNames</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2532,7 +2429,7 @@ processing resource names.</p>
 <h2 id="returns">Returns</h2>
 <p>list of PR names</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getResources4Name"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getResources4Name"><code class="name flex">
 <span>def <span class="ident">getResources4Name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
@@ -2545,7 +2442,7 @@ processing resource names.</p>
 <h2 id="returns">Returns</h2>
 <p>list of matching resources</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.getResources4NameClass"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass"><code class="name flex">
 <span>def <span class="ident">getResources4NameClass</span></span>(<span>self, name, clazz)</span>
 </code></dt>
 <dd>
@@ -2560,7 +2457,7 @@ processing resource names.</p>
 <h2 id="returns">Returns</h2>
 <p>list of matching resources</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.jsonAnnsets4Doc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc"><code class="name flex">
 <span>def <span class="ident">jsonAnnsets4Doc</span></span>(<span>self, gdoc, jannsets=None)</span>
 </code></dt>
 <dd>
@@ -2581,7 +2478,7 @@ specification to the Java annsets specification.</p>
 </dl>
 <p>Returns:</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadDocumentFromFile"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile"><code class="name flex">
 <span>def <span class="ident">loadDocumentFromFile</span></span>(<span>self, filename)</span>
 </code></dt>
 <dd>
@@ -2594,7 +2491,7 @@ specification to the Java annsets specification.</p>
 <h2 id="returns">Returns</h2>
 <p>a handle to the Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadDocumentFromFile4Mime"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile4Mime"><code class="name flex">
 <span>def <span class="ident">loadDocumentFromFile4Mime</span></span>(<span>self, filename, mimetype)</span>
 </code></dt>
 <dd>
@@ -2610,7 +2507,7 @@ and return a handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a handle to the Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadMavenPlugin"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadMavenPlugin"><code class="name flex">
 <span>def <span class="ident">loadMavenPlugin</span></span>(<span>self, group, artifact, version)</span>
 </code></dt>
 <dd>
@@ -2625,7 +2522,7 @@ and return a handle to it.</p>
 <dd>version of the plugin</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadPipelineFromFile"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromFile"><code class="name flex">
 <span>def <span class="ident">loadPipelineFromFile</span></span>(<span>self, filename)</span>
 </code></dt>
 <dd>
@@ -2638,7 +2535,7 @@ and return a handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a CorpusController handle to the loaded Java GATE pipeline</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadPipelineFromPlugin"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromPlugin"><code class="name flex">
 <span>def <span class="ident">loadPipelineFromPlugin</span></span>(<span>self, group, artifact, path)</span>
 </code></dt>
 <dd>
@@ -2656,7 +2553,7 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a CorpusController handle to the pipeline</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.loadPipelineFromUri"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromUri"><code class="name flex">
 <span>def <span class="ident">loadPipelineFromUri</span></span>(<span>self, uri)</span>
 </code></dt>
 <dd>
@@ -2669,7 +2566,7 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a CorpusController handle to the loaded Java GATE pipeline</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.load_gdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.load_gdoc"><code class="name flex">
 <span>def <span class="ident">load_gdoc</span></span>(<span>self, path, mimetype=None)</span>
 </code></dt>
 <dd>
@@ -2684,7 +2581,7 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>a handle to the Java GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.load_pdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.load_pdoc"><code class="name flex">
 <span>def <span class="ident">load_pdoc</span></span>(<span>self, path, mimetype=None)</span>
 </code></dt>
 <dd>
@@ -2699,7 +2596,7 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>gatenlp document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.logActions"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.logActions"><code class="name flex">
 <span>def <span class="ident">logActions</span></span>(<span>self, flag)</span>
 </code></dt>
 <dd>
@@ -2710,7 +2607,7 @@ a CorpusController handle to it.</p>
 <dd>True to enable logging of actions</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.log_actions"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.log_actions"><code class="name flex">
 <span>def <span class="ident">log_actions</span></span>(<span>self, onoff)</span>
 </code></dt>
 <dd>
@@ -2721,7 +2618,7 @@ a CorpusController handle to it.</p>
 <dd>True to log actions, False to not log them</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.newCorpus"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.newCorpus"><code class="name flex">
 <span>def <span class="ident">newCorpus</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2729,7 +2626,7 @@ a CorpusController handle to it.</p>
 <h2 id="returns">Returns</h2>
 <p>handle to the Java GATE corpus</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.pannsets2gannsets"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.pannsets2gannsets"><code class="name flex">
 <span>def <span class="ident">pannsets2gannsets</span></span>(<span>self, annsets=None)</span>
 </code></dt>
 <dd>
@@ -2745,7 +2642,7 @@ The list returned from this is already a Java list!</p>
 <h2 id="returns">Returns</h2>
 <p>java representation of the annsets specification (or None)</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.pdoc2gdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc"><code class="name flex">
 <span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc, annsets=None)</span>
 </code></dt>
 <dd>
@@ -2761,7 +2658,7 @@ second element is either a type name or a list of type names.</dd>
 <h2 id="returns">Returns</h2>
 <p>handle to GATE document</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.pluginBuild"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.pluginBuild"><code class="name flex">
 <span>def <span class="ident">pluginBuild</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2769,7 +2666,7 @@ second element is either a type name or a list of type names.</dd>
 <h2 id="returns">Returns</h2>
 <p>commit id of Python plugin</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.pluginVersion"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.pluginVersion"><code class="name flex">
 <span>def <span class="ident">pluginVersion</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2777,7 +2674,7 @@ second element is either a type name or a list of type names.</dd>
 <h2 id="returns">Returns</h2>
 <p>version string of Python plugin</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.print2err"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.print2err"><code class="name flex">
 <span>def <span class="ident">print2err</span></span>(<span>self, message)</span>
 </code></dt>
 <dd>
@@ -2788,7 +2685,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>string to output</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.print2out"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.print2out"><code class="name flex">
 <span>def <span class="ident">print2out</span></span>(<span>self, message)</span>
 </code></dt>
 <dd>
@@ -2799,7 +2696,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>string to output</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.run4Corpus"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.run4Corpus"><code class="name flex">
 <span>def <span class="ident">run4Corpus</span></span>(<span>self, pipeline, corpus)</span>
 </code></dt>
 <dd>
@@ -2812,7 +2709,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>handle to a Java GATE corpus</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.run4Document"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.run4Document"><code class="name flex">
 <span>def <span class="ident">run4Document</span></span>(<span>self, pipeline, gdoc)</span>
 </code></dt>
 <dd>
@@ -2825,7 +2722,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>handle to a Java GATE document</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.runExcecutionFinished"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.runExcecutionFinished"><code class="name flex">
 <span>def <span class="ident">runExcecutionFinished</span></span>(<span>self, pipeline)</span>
 </code></dt>
 <dd>
@@ -2836,7 +2733,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>handle to a Java GATE pipeline</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.runExcecutionStarted"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.runExcecutionStarted"><code class="name flex">
 <span>def <span class="ident">runExcecutionStarted</span></span>(<span>self, pipeline)</span>
 </code></dt>
 <dd>
@@ -2847,7 +2744,7 @@ second element is either a type name or a list of type names.</dd>
 <dd>handle to a Java GATE pipeline</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.saveDocumentToFile"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.saveDocumentToFile"><code class="name flex">
 <span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc, filename, mimetype)</span>
 </code></dt>
 <dd>
@@ -2865,7 +2762,7 @@ FormatBdoc plugins.</p>
 <dd>the mime type to determine the format, "" for GATE XML</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.save_gdoc"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.save_gdoc"><code class="name flex">
 <span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc, path, mimetype=None)</span>
 </code></dt>
 <dd>
@@ -2882,14 +2779,14 @@ application/fastinfoset, and all mimetypes supported by the
 Format_Bdoc plugin. (Default value = None)</dd>
 </dl></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.showGui"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.showGui"><code class="name flex">
 <span>def <span class="ident">showGui</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>(CAUTION: EXPERIMENTAL) this shows the GATE GUI if we a re connected to a GATE process that runs without
 showing the GUI.</p></div>
 </dd>
-<dt id="gatenlp.gateworker.GateWorker.show_gui"><code class="name flex">
+<dt id="gatenlp.gateworker.gateworker.GateWorker.show_gui"><code class="name flex">
 <span>def <span class="ident">show_gui</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2898,217 +2795,6 @@ showing the GUI.</p></div>
 when closing down the GATE worker.</p></div>
 </dd>
 </dl>
-</dd>
-<dt id="gatenlp.gateworker.GateWorkerAnnotator"><code class="flex name class">
-<span>class <span class="ident">GateWorkerAnnotator</span></span>
-<span>(</span><span>pipeline, gateworker, annsets_send=None, annsets_receive=None, replace_anns=False, update_document=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<p>Create a GateWorker annotator.</p>
-<p>This starts the gate worker, loads the pipeline and
-can then be used to annotate Python gatenlp Document instances with the Java GATE
-pipeline.</p>
-<p>Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
-start() method should be invoked once before processing documents and finish() should
-get called once after processing documents. (Any Executor implementation shoudl do this
-autimatically)</p>
-<p>If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
-the Java GATE Worker process.</p>
-<h2 id="example">Example</h2>
-<pre><code class="language-python">pipeline = GateWorkerAnnotator(&quot;annie.xgapp&quot;, GateWorker())
-for idx, doc in enumerate(mycorpus):
-    corpus[idx] = pipeline(doc)
-</code></pre>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>pipeline</code></strong></dt>
-<dd>the path to a Java GATE pipeline to load into the GATE worker</dd>
-<dt><strong><code>gateworker</code></strong></dt>
-<dd>the gate home directory to use, if not set, uses environment variable GATE_HOME</dd>
-<dt><strong><code>annsets_send</code></strong></dt>
-<dd>a list of either annotation set names, or tuples where the first element
-is the name of an annotation set and the second element is either the name of a type
-or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
-If an empty list is specified, no annotations are sent at all.</dd>
-<dt><strong><code>annsets_receive</code></strong></dt>
-<dd>this only works if update_document is True: same format as annsets_send to specify
-which annotation sets/types are
-sent back to Python after the document has been processed on the Java side.</dd>
-<dt><strong><code>replace_anns</code></strong></dt>
-<dd>this is only relevant if update_document is True: if True and an annotation is received
-which already exists (same set and annotation id)
-then the existing annotation is replaced (if offsets and type are also same, only the features are
-replaced). If False, all received annotations are added which may change their annotation id.</dd>
-<dt><strong><code>update_document</code></strong></dt>
-<dd>if True, then existing annotations in the gatenlp document are kept and the annotations
-received from Java GATE are added. In this case, other changes to the document, e.g. the document
-text or document features are not applied to the current python document.
-If False, the existing document is completely replaced with what gets
-received from Java GATE.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GateWorkerAnnotator(Annotator):   # pragma: no cover
-    # TODO: parameter to influence how exceptions are handled
-    def __init__(
-            self,
-            pipeline,
-            gateworker,
-            annsets_send=None,
-            annsets_receive=None,
-            replace_anns=False,
-            update_document=False,
-    ):
-        &#34;&#34;&#34;
-        Create a GateWorker annotator.
-
-        This starts the gate worker, loads the pipeline and
-        can then be used to annotate Python gatenlp Document instances with the Java GATE
-        pipeline.
-
-        Note: to make sure that start/finish callbacks on the Java side are invoked, the annotator
-        start() method should be invoked once before processing documents and finish() should
-        get called once after processing documents. (Any Executor implementation shoudl do this
-        autimatically)
-
-        If the GateWorkerAnnotator is not used any more, close() should be invoked to terminate
-        the Java GATE Worker process.
-
-        Example:
-
-            ```python
-            pipeline = GateWorkerAnnotator(&#34;annie.xgapp&#34;, GateWorker())
-            for idx, doc in enumerate(mycorpus):
-                corpus[idx] = pipeline(doc)
-            ```
-
-        Args:
-            pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            annsets_send: a list of either annotation set names, or tuples where the first element
-                is the name of an annotation set and the second element is either the name of a type
-                or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
-                If an empty list is specified, no annotations are sent at all.
-            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
-                which annotation sets/types are
-                sent back to Python after the document has been processed on the Java side.
-            replace_anns: this is only relevant if update_document is True: if True and an annotation is received
-                which already exists (same set and annotation id)
-                then the existing annotation is replaced (if offsets and type are also same, only the features are
-                replaced). If False, all received annotations are added which may change their annotation id.
-            update_document: if True, then existing annotations in the gatenlp document are kept and the annotations
-                received from Java GATE are added. In this case, other changes to the document, e.g. the document
-                text or document features are not applied to the current python document.
-                If False, the existing document is completely replaced with what gets
-                received from Java GATE.
-        &#34;&#34;&#34;
-        self.pipeline = pipeline
-        self.annsets_send = annsets_send
-        self.annsets_receive = annsets_receive
-        self.replace_anns = replace_anns
-        self.update_document = update_document
-        self.gw = gateworker
-        isurl, ext = is_url(pipeline)
-        if isurl:
-            self.controller = self.gw.worker.loadPipelineFromUri(ext)
-        else:
-            self.controller = self.gw.worker.loadPipelineFromFile(ext)
-        self.corpus = self.gw.worker.newCorpus()
-        self.controller.setCorpus(self.corpus)
-        self.controller.setControllerCallbacksEnabled(False)
-
-    def start(self):
-        &#34;&#34;&#34;
-        Invoke the controller execution started method on the GATE controller.
-        &#34;&#34;&#34;
-        self.controller.invokeControllerExecutionStarted()
-
-    def finish(self):
-        &#34;&#34;&#34;
-        Invoke the controller execution finished method on the GATE controller.
-        &#34;&#34;&#34;
-        self.controller.invokeControllerExecutionFinished()
-
-    def __call__(self, doc, **_kwargs):
-        &#34;&#34;&#34;
-        Run the GATE controller on the given document.
-
-        This runs the GATE pipeline (controller) on the given document by first sending the document
-        to the GATE process and coverting it to a GATE document there, running the pipeline on it,
-        and sending the document back and converting back to a new gatenlp Document.
-
-        Args:
-            doc: the document to process
-            **kwargs: ignored so far
-
-        Returns:
-            the processed gatenlp document
-        &#34;&#34;&#34;
-        if self.annsets_send is not None:
-            # create shallow copy, we only need it for reading!
-            tmpdoc = doc.copy(annsets=self.annsets_send)
-        else:
-            tmpdoc = doc
-        gdoc = self.gw.pdoc2gdoc(tmpdoc)
-        self.gw.worker.run4Document(self.controller, gdoc)
-        if self.update_document:
-            self.gw.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
-        else:
-            doc = self.gw.gdoc2pdoc(gdoc)
-        self.gw.del_resource(gdoc)
-        return doc</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="gatenlp.processing.annotator.Annotator" href="processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="gatenlp.gateworker.GateWorkerAnnotator.__call__"><code class="name flex">
-<span>def <span class="ident">__call__</span></span>(<span>self, doc, **_kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Run the GATE controller on the given document.</p>
-<p>This runs the GATE pipeline (controller) on the given document by first sending the document
-to the GATE process and coverting it to a GATE document there, running the pipeline on it,
-and sending the document back and converting back to a new gatenlp Document.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>doc</code></strong></dt>
-<dd>the document to process</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>ignored so far</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>the processed gatenlp document</p></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorkerAnnotator.finish"><code class="name flex">
-<span>def <span class="ident">finish</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Invoke the controller execution finished method on the GATE controller.</p></div>
-</dd>
-<dt id="gatenlp.gateworker.GateWorkerAnnotator.start"><code class="name flex">
-<span>def <span class="ident">start</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Invoke the controller execution started method on the GATE controller.</p></div>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
-<ul class="hlist">
-<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="processing/annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="processing/annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -3121,87 +2807,80 @@ and sending the document back and converting back to a new gatenlp Document.</p>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="gatenlp" href="index.html">gatenlp</a></code></li>
+<li><code><a title="gatenlp.gateworker" href="index.html">gatenlp.gateworker</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="gatenlp.gateworker.classpath_sep" href="#gatenlp.gateworker.classpath_sep">classpath_sep</a></code></li>
-<li><code><a title="gatenlp.gateworker.gate_classpath" href="#gatenlp.gateworker.gate_classpath">gate_classpath</a></code></li>
-<li><code><a title="gatenlp.gateworker.main" href="#gatenlp.gateworker.main">main</a></code></li>
-<li><code><a title="gatenlp.gateworker.start_gate_worker" href="#gatenlp.gateworker.start_gate_worker">start_gate_worker</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.classpath_sep" href="#gatenlp.gateworker.gateworker.classpath_sep">classpath_sep</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.gate_classpath" href="#gatenlp.gateworker.gateworker.gate_classpath">gate_classpath</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.jar_loc" href="#gatenlp.gateworker.gateworker.jar_loc">jar_loc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.run_gate_worker" href="#gatenlp.gateworker.gateworker.run_gate_worker">run_gate_worker</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.start_gate_worker" href="#gatenlp.gateworker.gateworker.start_gate_worker">start_gate_worker</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="gatenlp.gateworker.GateWorker" href="#gatenlp.gateworker.GateWorker">GateWorker</a></code></h4>
+<h4><code><a title="gatenlp.gateworker.gateworker.GateWorker" href="#gatenlp.gateworker.gateworker.GateWorker">GateWorker</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.gateworker.GateWorker.close" href="#gatenlp.gateworker.GateWorker.close">close</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.createDocument" href="#gatenlp.gateworker.GateWorker.createDocument">createDocument</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.del_resource" href="#gatenlp.gateworker.GateWorker.del_resource">del_resource</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.deleteResource" href="#gatenlp.gateworker.GateWorker.deleteResource">deleteResource</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.findMavenPlugin" href="#gatenlp.gateworker.GateWorker.findMavenPlugin">findMavenPlugin</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gate_build" href="#gatenlp.gateworker.GateWorker.gate_build">gate_build</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gate_version" href="#gatenlp.gateworker.GateWorker.gate_version">gate_version</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gatehome" href="#gatenlp.gateworker.GateWorker.gatehome">gatehome</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gateprocess" href="#gatenlp.gateworker.GateWorker.gateprocess">gateprocess</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gateway" href="#gatenlp.gateworker.GateWorker.gateway">gateway</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gdoc2pdoc" href="#gatenlp.gateworker.GateWorker.gdoc2pdoc">gdoc2pdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.gdocanns2pdoc" href="#gatenlp.gateworker.GateWorker.gdocanns2pdoc">gdocanns2pdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getBdocJson" href="#gatenlp.gateworker.GateWorker.getBdocJson">getBdocJson</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getCorpus4Name" href="#gatenlp.gateworker.GateWorker.getCorpus4Name">getCorpus4Name</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getCorpusNames" href="#gatenlp.gateworker.GateWorker.getCorpusNames">getCorpusNames</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getDocument4BdocJson" href="#gatenlp.gateworker.GateWorker.getDocument4BdocJson">getDocument4BdocJson</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getDocument4Name" href="#gatenlp.gateworker.GateWorker.getDocument4Name">getDocument4Name</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getDocumentNames" href="#gatenlp.gateworker.GateWorker.getDocumentNames">getDocumentNames</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getPipeline4Name" href="#gatenlp.gateworker.GateWorker.getPipeline4Name">getPipeline4Name</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getPipelineNames" href="#gatenlp.gateworker.GateWorker.getPipelineNames">getPipelineNames</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getPr4Name" href="#gatenlp.gateworker.GateWorker.getPr4Name">getPr4Name</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getPrNames" href="#gatenlp.gateworker.GateWorker.getPrNames">getPrNames</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getResources4Name" href="#gatenlp.gateworker.GateWorker.getResources4Name">getResources4Name</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.getResources4NameClass" href="#gatenlp.gateworker.GateWorker.getResources4NameClass">getResources4NameClass</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.host" href="#gatenlp.gateworker.GateWorker.host">host</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.jsonAnnsets4Doc" href="#gatenlp.gateworker.GateWorker.jsonAnnsets4Doc">jsonAnnsets4Doc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.jvm" href="#gatenlp.gateworker.GateWorker.jvm">jvm</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadDocumentFromFile" href="#gatenlp.gateworker.GateWorker.loadDocumentFromFile">loadDocumentFromFile</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadDocumentFromFile4Mime" href="#gatenlp.gateworker.GateWorker.loadDocumentFromFile4Mime">loadDocumentFromFile4Mime</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadMavenPlugin" href="#gatenlp.gateworker.GateWorker.loadMavenPlugin">loadMavenPlugin</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromFile" href="#gatenlp.gateworker.GateWorker.loadPipelineFromFile">loadPipelineFromFile</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromPlugin" href="#gatenlp.gateworker.GateWorker.loadPipelineFromPlugin">loadPipelineFromPlugin</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.loadPipelineFromUri" href="#gatenlp.gateworker.GateWorker.loadPipelineFromUri">loadPipelineFromUri</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.load_gdoc" href="#gatenlp.gateworker.GateWorker.load_gdoc">load_gdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.load_pdoc" href="#gatenlp.gateworker.GateWorker.load_pdoc">load_pdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.logActions" href="#gatenlp.gateworker.GateWorker.logActions">logActions</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.log_actions" href="#gatenlp.gateworker.GateWorker.log_actions">log_actions</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.newCorpus" href="#gatenlp.gateworker.GateWorker.newCorpus">newCorpus</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.pannsets2gannsets" href="#gatenlp.gateworker.GateWorker.pannsets2gannsets">pannsets2gannsets</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.pdoc2gdoc" href="#gatenlp.gateworker.GateWorker.pdoc2gdoc">pdoc2gdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.platform" href="#gatenlp.gateworker.GateWorker.platform">platform</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.pluginBuild" href="#gatenlp.gateworker.GateWorker.pluginBuild">pluginBuild</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.pluginVersion" href="#gatenlp.gateworker.GateWorker.pluginVersion">pluginVersion</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.port" href="#gatenlp.gateworker.GateWorker.port">port</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.print2err" href="#gatenlp.gateworker.GateWorker.print2err">print2err</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.print2out" href="#gatenlp.gateworker.GateWorker.print2out">print2out</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.run4Corpus" href="#gatenlp.gateworker.GateWorker.run4Corpus">run4Corpus</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.run4Document" href="#gatenlp.gateworker.GateWorker.run4Document">run4Document</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.runExcecutionFinished" href="#gatenlp.gateworker.GateWorker.runExcecutionFinished">runExcecutionFinished</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.runExcecutionStarted" href="#gatenlp.gateworker.GateWorker.runExcecutionStarted">runExcecutionStarted</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.saveDocumentToFile" href="#gatenlp.gateworker.GateWorker.saveDocumentToFile">saveDocumentToFile</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.save_gdoc" href="#gatenlp.gateworker.GateWorker.save_gdoc">save_gdoc</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.showGui" href="#gatenlp.gateworker.GateWorker.showGui">showGui</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.show_gui" href="#gatenlp.gateworker.GateWorker.show_gui">show_gui</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.worker" href="#gatenlp.gateworker.GateWorker.worker">worker</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.worker_build" href="#gatenlp.gateworker.GateWorker.worker_build">worker_build</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorker.worker_version" href="#gatenlp.gateworker.GateWorker.worker_version">worker_version</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="gatenlp.gateworker.GateWorkerAnnotator" href="#gatenlp.gateworker.GateWorkerAnnotator">GateWorkerAnnotator</a></code></h4>
-<ul class="">
-<li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.__call__" href="#gatenlp.gateworker.GateWorkerAnnotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.finish" href="#gatenlp.gateworker.GateWorkerAnnotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.gateworker.GateWorkerAnnotator.start" href="#gatenlp.gateworker.GateWorkerAnnotator.start">start</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.close" href="#gatenlp.gateworker.gateworker.GateWorker.close">close</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.createDocument" href="#gatenlp.gateworker.gateworker.GateWorker.createDocument">createDocument</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.del_resource" href="#gatenlp.gateworker.gateworker.GateWorker.del_resource">del_resource</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.deleteResource" href="#gatenlp.gateworker.gateworker.GateWorker.deleteResource">deleteResource</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.findMavenPlugin" href="#gatenlp.gateworker.gateworker.GateWorker.findMavenPlugin">findMavenPlugin</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gate_build" href="#gatenlp.gateworker.gateworker.GateWorker.gate_build">gate_build</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gate_version" href="#gatenlp.gateworker.gateworker.GateWorker.gate_version">gate_version</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gatehome" href="#gatenlp.gateworker.gateworker.GateWorker.gatehome">gatehome</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gateprocess" href="#gatenlp.gateworker.gateworker.GateWorker.gateprocess">gateprocess</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gateway" href="#gatenlp.gateworker.gateworker.GateWorker.gateway">gateway</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gdoc2pdoc" href="#gatenlp.gateworker.gateworker.GateWorker.gdoc2pdoc">gdoc2pdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.gdocanns2pdoc" href="#gatenlp.gateworker.gateworker.GateWorker.gdocanns2pdoc">gdocanns2pdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getBdocJson" href="#gatenlp.gateworker.gateworker.GateWorker.getBdocJson">getBdocJson</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getCorpus4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getCorpus4Name">getCorpus4Name</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getCorpusNames" href="#gatenlp.gateworker.gateworker.GateWorker.getCorpusNames">getCorpusNames</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getDocument4BdocJson" href="#gatenlp.gateworker.gateworker.GateWorker.getDocument4BdocJson">getDocument4BdocJson</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getDocument4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getDocument4Name">getDocument4Name</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getDocumentNames" href="#gatenlp.gateworker.gateworker.GateWorker.getDocumentNames">getDocumentNames</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getPipeline4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getPipeline4Name">getPipeline4Name</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getPipelineNames" href="#gatenlp.gateworker.gateworker.GateWorker.getPipelineNames">getPipelineNames</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getPr4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getPr4Name">getPr4Name</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getPrNames" href="#gatenlp.gateworker.gateworker.GateWorker.getPrNames">getPrNames</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getResources4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getResources4Name">getResources4Name</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass" href="#gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass">getResources4NameClass</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.host" href="#gatenlp.gateworker.gateworker.GateWorker.host">host</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc" href="#gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc">jsonAnnsets4Doc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.jvm" href="#gatenlp.gateworker.gateworker.GateWorker.jvm">jvm</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile" href="#gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile">loadDocumentFromFile</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile4Mime" href="#gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile4Mime">loadDocumentFromFile4Mime</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadMavenPlugin" href="#gatenlp.gateworker.gateworker.GateWorker.loadMavenPlugin">loadMavenPlugin</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromFile" href="#gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromFile">loadPipelineFromFile</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromPlugin" href="#gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromPlugin">loadPipelineFromPlugin</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromUri" href="#gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromUri">loadPipelineFromUri</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.load_gdoc" href="#gatenlp.gateworker.gateworker.GateWorker.load_gdoc">load_gdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.load_pdoc" href="#gatenlp.gateworker.gateworker.GateWorker.load_pdoc">load_pdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.logActions" href="#gatenlp.gateworker.gateworker.GateWorker.logActions">logActions</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.log_actions" href="#gatenlp.gateworker.gateworker.GateWorker.log_actions">log_actions</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.newCorpus" href="#gatenlp.gateworker.gateworker.GateWorker.newCorpus">newCorpus</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pannsets2gannsets" href="#gatenlp.gateworker.gateworker.GateWorker.pannsets2gannsets">pannsets2gannsets</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc" href="#gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc">pdoc2gdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.platform" href="#gatenlp.gateworker.gateworker.GateWorker.platform">platform</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pluginBuild" href="#gatenlp.gateworker.gateworker.GateWorker.pluginBuild">pluginBuild</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pluginVersion" href="#gatenlp.gateworker.gateworker.GateWorker.pluginVersion">pluginVersion</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.port" href="#gatenlp.gateworker.gateworker.GateWorker.port">port</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.print2err" href="#gatenlp.gateworker.gateworker.GateWorker.print2err">print2err</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.print2out" href="#gatenlp.gateworker.gateworker.GateWorker.print2out">print2out</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.run4Corpus" href="#gatenlp.gateworker.gateworker.GateWorker.run4Corpus">run4Corpus</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.run4Document" href="#gatenlp.gateworker.gateworker.GateWorker.run4Document">run4Document</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.runExcecutionFinished" href="#gatenlp.gateworker.gateworker.GateWorker.runExcecutionFinished">runExcecutionFinished</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.runExcecutionStarted" href="#gatenlp.gateworker.gateworker.GateWorker.runExcecutionStarted">runExcecutionStarted</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.saveDocumentToFile" href="#gatenlp.gateworker.gateworker.GateWorker.saveDocumentToFile">saveDocumentToFile</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.save_gdoc" href="#gatenlp.gateworker.gateworker.GateWorker.save_gdoc">save_gdoc</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.showGui" href="#gatenlp.gateworker.gateworker.GateWorker.showGui">showGui</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.show_gui" href="#gatenlp.gateworker.gateworker.GateWorker.show_gui">show_gui</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.worker" href="#gatenlp.gateworker.gateworker.GateWorker.worker">worker</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.worker_build" href="#gatenlp.gateworker.gateworker.GateWorker.worker_build">worker_build</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.worker_version" href="#gatenlp.gateworker.gateworker.GateWorker.worker_version">worker_version</a></code></li>
 </ul>
 </li>
 </ul>

@@ -29,7 +29,26 @@
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 Subpackage for modules related to pattern matching.
-&#34;&#34;&#34;</code></pre>
+&#34;&#34;&#34;
+
+# NOTES: Backreferences: too hard to implement this in a flexible way, simply use Filter on the final result
+# TODO: check that Context.end is respected with all individual parsers: we should not match beyond that offset!
+# TODO: figure out which parser parameters could be implemented as parser modifiers instead/in addition???
+# TODO: implement Gazetteer(gaz, matchtype=None) parser? Or TokenGazetteer(gaz, ...)
+# TODO: implement Forward() / fwd.set(fwd | Ann(&#34;X&#34;))
+# TODO: implement support for literal Text/Regexp: Seq(Ann(&#34;Token&#34;), &#34;text&#34;, regexp) and
+#   Ann &gt;&gt; &#34;text&#34; and &#34;text&#34; &gt;&gt; Ann()
+#   and Ann() | text etc.
+# !!TODO: options for skip:
+# !!TODO: * overlapping=True/False: sequence element can overlap with previous match
+# !!TODO: * skip=True/False: skip forward in annotation list until we find annotation that fits
+# !!TODO: * mingap=n, maxgap=n: gap between annotation must be in this range
+# !!TODO: so A.followedby(B) is equal to Seq(A,B, mingap=0, maxgap=0, skip=False/True)
+# mindist, maxdist: from start to start (mingap/maxgap; from end to start).
+# !!TODO: implement memoize: save recursive result and check max recursion, modifier: parser.memoize(maxdepth=5)
+#   for the wrapped parsers, before each call to the wrapped parser, we first check if the result is already in
+#   the memotable and return it. If not, calculate recursion depth and Fail if too deep, otherwise call wrapped
+#   parser and memoize (store Success or Failure)</code></pre>
 </details>
 </section>
 <section>
@@ -37,11 +56,11 @@ Subpackage for modules related to pattern matching.
 <dl>
 <dt><code class="name"><a title="gatenlp.pam.matcher" href="matcher.html">gatenlp.pam.matcher</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Module for matchers to use with pampac patterns and elsewhere.</p></div>
 </dd>
-<dt><code class="name"><a title="gatenlp.pam.pampac" href="pampac.html">gatenlp.pam.pampac</a></code></dt>
+<dt><code class="name"><a title="gatenlp.pam.pampac" href="pampac/index.html">gatenlp.pam.pampac</a></code></dt>
 <dd>
-<div class="desc"><p>Module for PAMPAC (Pattern Matching wit PArser Combinators) …</p></div>
+<div class="desc"><p>Module for the PAMPAC pattern matcher …</p></div>
 </dd>
 </dl>
 </section>
@@ -66,7 +85,7 @@ Subpackage for modules related to pattern matching.
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="gatenlp.pam.matcher" href="matcher.html">gatenlp.pam.matcher</a></code></li>
-<li><code><a title="gatenlp.pam.pampac" href="pampac.html">gatenlp.pam.pampac</a></code></li>
+<li><code><a title="gatenlp.pam.pampac" href="pampac/index.html">gatenlp.pam.pampac</a></code></li>
 </ul>
 </li>
 </ul>

@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.corpora.base API documentation</title>
+<meta name="description" content="Module that defines base classes for representing document collections …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.corpora.base</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that defines base classes for representing document collections.</p>
+<p>Corpus classes represent collections with a fixed number of documents, where each document can be
+accessed and stored by its index number, much like lists/arrays of documents.</p>
+<p>DocumentSource classes represent collections that can be iterated over, producing a sequence of Documents,
+one document a time.</p>
+<p>DocumentDestination classes represent collections that can receive Documents one document a time.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that defines base classes for representing document collections.
+
+Corpus classes represent collections with a fixed number of documents, where each document can be
+accessed and stored by its index number, much like lists/arrays of documents.
+
+DocumentSource classes represent collections that can be iterated over, producing a sequence of Documents,
+one document a time.
+
+DocumentDestination classes represent collections that can receive Documents one document a time.
+&#34;&#34;&#34;
+
+import random
+from abc import ABC, abstractmethod
+from typing import Iterable as TypingIterable
+from typing import Iterator as TypingIterator
+from typing import Sized
+from typing import Union
+from contextlib import AbstractContextManager
+import numbers
+from gatenlp.document import Document
+
+__pdoc__ = {
+    &#34;Corpus.__getitem__&#34;: True,
+    &#34;Corpus.__setitem__&#34;: True,
+    &#34;Corpus.__len__&#34;: True,
+    &#34;DocumentSource.__iter__&#34;: True,
+}
+
+
+class CorpusSourceBase:
+    &#34;&#34;&#34;
+    Common base trait for Corpus and Source classes. So far just provides methods to
+    get nparts and partnr even for objects which are not sharded.
+    &#34;&#34;&#34;
+    @property
+    def nparts(self):
+        &#34;&#34;&#34;
+        Return the total number of parts for an EveryNth corpus or document source.
+        This is 1 for all other corpus/source instances.
+        &#34;&#34;&#34;
+        return 1
+
+    @property
+    def partnr(self):
+        &#34;&#34;&#34;
+        Return the part number for an EveryNth corpus or document source.
+        This is 0 for all other corpus/source instances.
+        &#34;&#34;&#34;
+        return 0
+
+
+class MultiProcessingAble:
+    &#34;&#34;&#34;
+    A document source/destination/corpus class where duplicate instances can be used by several
+    processes on the same node in parallel.
+    &#34;&#34;&#34;
+    pass
+
+
+class DistributedProcessingAble(MultiProcessingAble):
+    &#34;&#34;&#34;
+    A document source/destination/corpus class where duplicate instances can be used from several nodes in parallel.
+    &#34;&#34;&#34;
+    pass
+
+
+class Corpus(ABC, CorpusSourceBase, Sized):
+    &#34;&#34;&#34;
+    A corpus represents a collection of documents with a fixed number of elements which can be read and written
+    using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
+    the element is either a document or (for a few corpus implementations) None (indicating that no document
+    is available for this index).
+
+    The index is an int with range 0 to N-1 where N is the number of documents in the corpus.
+
+    NOTE: for most corpus implementations, setting an index to None should not be allowed as this would
+    not work with batching and the use of the `store` method to save documents back into the corpus.
+    &#34;&#34;&#34;
+
+    @abstractmethod
+    def __getitem__(self, idx: int) -&gt; Document:
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus. Note that fetching a document from the corpus will usually set
+        a special transient document feature that contains the index of the document so it can be
+        stored back at the same index using the method `store()` later. If a corpus implementaton does not
+        set that feature, batching and the use of the `store()` method to save back documents are not
+        supported.
+
+        Args:
+            idx: the index of the document
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, idx: int, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
+        The item assigned must be a document or (in rare cases) None.
+
+        Args:
+            idx: the index of the document
+            doc: a document
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Returns the size of the corpus.
+        &#34;&#34;&#34;
+        pass
+
+    def idxfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the index used to access a document
+        from a corpus.
+        &#34;&#34;&#34;
+        return &#34;__idx_&#34; + str(id(self))
+
+    def setidxfeature(self, doc: Document, idx: int):
+        &#34;&#34;&#34;
+        Sets the special transient feature of the document to the given index.
+
+        Args:
+            doc: the document
+            idx: the index used to access the document in a corpus
+        &#34;&#34;&#34;
+        if doc is not None:
+            doc.features[self.idxfeatname()] = idx
+
+    def store(self, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        This method allows to store a document that comes from the same corpus back without the need to specify
+        the index. This is useful for processing documents in batches or in streams. For this to work, all
+        corpus implementations MUST make sure to store the index as part of returning a document with
+        `__getitem__`. The index is stored in document feature `self.idxfeatname()`.
+
+        Args:
+            doc: the document to store back into the corpus, should be a document that was retrieved from the same
+                 corpus or (in very rare cases and with specific corpus implementations only) None.
+                 The default behaviour for None is to throw an exception, this must be overriden by
+                 subclasses where store(None) should be supported.
+
+        Raises:
+            Exception: if the index is not stored in a document feature `self.idxfeatname()`
+        &#34;&#34;&#34;
+        if doc is None:
+            raise Exception(&#34;Cannot store back None into a corpus&#34;)
+        assert isinstance(doc, Document)
+        idx = doc.features.get(self.idxfeatname())
+        if idx is None:
+            raise Exception(&#34;Cannot store back document, no __idx_ID feature&#34;)
+        self.__setitem__(idx, doc)
+
+    def append(self, document: Document) -&gt; int:
+        &#34;&#34;&#34;
+        Some corpus implementations may provide the append method to allow for adding documents (i.e.
+        use the corpus like a DocumentDestination).
+
+        Important: this will probably not work properly in situations where another
+        corpus wraps a corpus that allows appending. Use with care!
+
+        Args:
+            document: the document to add to the corpus or (in rare cases and for specific Corpus
+                implementations) None.
+
+        Returns:
+            the index where the document was stored
+        &#34;&#34;&#34;
+        raise RuntimeError(&#34;Corpus does not allow appending&#34;)
+
+
+class DocumentSource(ABC, TypingIterable, CorpusSourceBase):
+    &#34;&#34;&#34;
+    A document source is an iterable of documents which will generate an unknown number of documents.
+    &#34;&#34;&#34;
+    def __iter__(self) -&gt; TypingIterator[Document]:
+        pass
+
+
+# NOTE: AbstractContextManager already inherits from ABC, so no need to list as base class here!
+class DocumentDestination(AbstractContextManager):
+    &#34;&#34;&#34;
+    A document destination is something that accepts an a priori unknown number of documents via
+    the append method.
+
+    Document destinations all provide a `close()` method and must be closed after use.
+
+    Document destinations can be used as context managers i.e. one can do
+    `with SomeDocumentDest(..) as dest: dest.append(doc)` which will take care of closing the
+    destination automatically.
+    &#34;&#34;&#34;
+
+    @abstractmethod
+    def append(self, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        Append the given document to the destination.
+
+        Args:
+            doc: the document to add, if this is None, by default nothing is actually added to the destination,
+                but specific implementations may change this behaviour.
+        &#34;&#34;&#34;
+        pass
+
+    def close(self) -&gt; None:
+        &#34;&#34;&#34;
+        Close the document destination. The default context manager implementation always calls
+        close(), even when an exception is raised.
+        &#34;&#34;&#34;
+        pass
+
+    def __exit__(self, exctype, value, traceback) -&gt; bool:
+        &#34;&#34;&#34;
+        The default implementation always invokes close() and
+        does not suppress any exception (always returns False)
+        &#34;&#34;&#34;
+        self.close()
+        return False   # do not suppress any exception
+
+
+class StringIdCorpus:
+    &#34;&#34;&#34;
+    A corpus which allows to use string ids in addition to integer indices for setting and getting documents.
+    &#34;&#34;&#34;
+    # NOTE: the only thing that is really different is the type signature for some of the methods
+    @abstractmethod
+    def __getitem__(self, key: Union[int, str]) -&gt; Document:
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus by either its numeric index or its string id.
+
+        Args:
+            key: the index of the document or the unique string id
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, idx: Union[int, str], doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        Store a document into the corpus by either its numeric index or its strign id.
+
+        Args:
+            idx: the index or the string id of the document
+            doc: a document
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+
+class EveryNthBase:
+    &#34;&#34;&#34;
+    A Source or Corpus that wraps another Source or Corpus so that only every nth document, starting
+    with some document 0 &lt;= k &lt; n is included.
+
+    Such classes must provide the initialization keyword parameters partnr and nparts which may
+    have default values of 0 and 1 for single part resources.
+    &#34;&#34;&#34;
+    def __init__(self, nparts=1, partnr=0):
+        self._nparts = nparts
+        self._partnr = partnr
+
+    @property
+    def nparts(self):
+        return self._nparts
+
+    @property
+    def partnr(self):
+        return self._partnr
+
+
+class EveryNthSource(EveryNthBase, DocumentSource):
+    &#34;&#34;&#34;
+    A wrapper to make any DocumentSource that is multiprocessing or distributed processing-able
+    viewable in parts.
+
+    Wraps a document source to only return every nparts-th document, starting with the partnr-th document.
+    For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+    documents 2,5,8,11,14 etc.
+    &#34;&#34;&#34;
+    def __init__(self, source: DocumentSource, nparts: int = 1, partnr: int = 0):
+        assert isinstance(source, DocumentSource)
+        # this uses Integral so we can also support integral types from Numpy etc!
+        if (not isinstance(nparts, numbers.Integral)) or (
+            not isinstance(partnr, numbers.Integral)
+        ):
+            raise Exception(&#34;nparts and partnr must be integers.&#34;)
+        super().__init__(nparts=nparts, partnr=partnr)
+        self.source = source
+
+        if nparts &lt; 2 or partnr &lt; 0 or partnr &gt;= nparts:
+            raise Exception(&#34;nparts must be &gt;= 2 and partnr must be &gt;= 0 and &lt; nparts&#34;)
+        self.source = source
+
+    def __iter__(self) -&gt; TypingIterator[Document]:
+        for idx, doc in enumerate(self.source):
+            if idx % self.nparts == self.partnr:
+                yield doc
+
+
+class EveryNthCorpus(EveryNthBase, Corpus):
+    &#34;&#34;&#34;
+    A wrapper to make any corpus that is multiprocessing/distributedprocessing-able shardable.
+
+    Wraps a corpus to only every nparts-th document, starting with the partnr-th document.
+    For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+    documents 2,5,8,11,14 etc.
+
+    This is useful to access a subset of documents from a corpus from different concurrent
+    processes (the wrapped corpus must be MultiProcessingAble for that!).
+    &#34;&#34;&#34;
+    def __init__(self, corpus: Corpus, nparts: int = 1, partnr: int = 0):
+        assert isinstance(corpus, Corpus)
+        # this uses Integral so we can also support integral types from Numpy etc!
+        if (not isinstance(nparts, numbers.Integral)) or (
+            not isinstance(partnr, numbers.Integral)
+        ):
+            raise Exception(&#34;nparts and partnr must be integers.&#34;)
+        if nparts &lt; 2 or partnr &lt; 0 or partnr &gt;= nparts:
+            raise Exception(&#34;nparts must be &gt;= 2 and partnr must be &gt;= 0 and &lt; nparts&#34;)
+        super().__init__(nparts=nparts, partnr=partnr)
+        self.corpus = corpus
+
+    def __len__(self):
+        olen = len(self.corpus)
+        # alternate way to calculate?
+        # int((olen + (self.nparts - self.partnr) - 1) / self.partnr)
+        return int(olen/self.nparts) + (1 if (olen % self.nparts) &gt; self.partnr else 0)
+
+    def _orig_idx(self, idx: int) -&gt; int:
+        return idx * self.nparts + self.partnr
+
+    def __getitem__(self, idx: int) -&gt; Document:
+        # NOTE: we do not store the index in a feature for this wrapper as the wrapped
+        # corpus index is eventually the only one that matters
+        return self.corpus[self._orig_idx(idx)]
+
+    def __setitem__(self, idx: int, doc: Document) -&gt; None:
+        self.corpus[self._orig_idx(idx)] = doc
+
+    def store(self, doc: Document) -&gt; None:
+        # stored using the feature from the original index!
+        self.corpus.store(doc)
+
+    def append(self, document: Document) -&gt; int:
+        raise Exception(&#34;Method append not supported for EveryNthCorpus&#34;)
+
+
+class ShuffledCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to reorder the documents in the corpus randomly.
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, seed=None):
+        &#34;&#34;&#34;
+        Create a ShuffledCorpus wrapper.
+
+        Args:
+            seed: if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+                If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+                and whatever the current state of the random generator is is used. If None, no shuffling is
+                carried out. If this is None or not an integer, same as 0.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.corpus = corpus
+        self.seed = seed
+        self.idxs = list(range(len(corpus)))
+        self.shuffle(seed)
+
+    def shuffle(self, seed=0):
+        &#34;&#34;&#34;
+        Shuffle instance list order,
+        :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+        If seed is None, no shuffling is carried out.
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
+            if seed != -1:
+                if seed == 0:
+                    random.seed()
+                else:
+                    random.seed(seed)
+            random.shuffle(self.idxs)
+        else:  # not an integer seed: None or some other type
+            # same as seed 0
+            random.seed()
+            random.shuffle(self.idxs)
+
+    def __getitem__(self, idx):
+        doc = self.corpus[self.idxs[idx]]
+        self.setidxfeature(doc, idx)
+        return self.corpus[self.idxs[idx]]
+
+    def __setitem__(self, idx, doc):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= len(self.idxs) or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(len(self)))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[self.idxs[idx]] = doc
+
+    def __len__(self):
+        return len(self.idxs)
+
+    def append(self, document: Document) -&gt; int:
+        raise Exception(&#34;Method append not supported for ShuffledCorpus&#34;)
+
+
+class CachedCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+    cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+    files. This wrapper caches documents when they are written to, but this can be changed to caching on read.
+    &#34;&#34;&#34;
+
+    def __init__(self, basecorpus, cachecorpus, cacheonread=False):
+        &#34;&#34;&#34;
+        TODO: this is still work in progress!
+
+        Creates a cached corpus.
+        This accesses data from the cachecorpus, if it does not exist in there (entry is,
+        None) will instead fall back to the base corpus.
+
+        This cached corpus can be set up to cache on read or cache on write.
+
+        Args:
+            basecorpus: any corpus
+            cachecorpus: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+              or just an in-memory list or array.
+            cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
+                Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+                of processing efficiently.
+        &#34;&#34;&#34;
+        assert len(cachecorpus) == len(basecorpus)
+        self.basecorpus = basecorpus
+        self.cachecorpus = cachecorpus
+        self.cacheonread = cacheonread
+
+    def __len__(self):
+        return len(self.basecorpus)
+
+    def __getitem__(self, index):
+        tmp = self.cachecorpus[index]
+        if tmp is None:
+            tmp = self.basecorpus[index]
+            if self.cacheonread:
+                self.basecorpus[index] = tmp
+        self.setidxfeature(tmp, index)
+        return tmp
+
+    def __setitem__(self, index, value):
+        self.cachecorpus[index] = value</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.corpora.base.CachedCorpus"><code class="flex name class">
+<span>class <span class="ident">CachedCorpus</span></span>
+<span>(</span><span>basecorpus, cachecorpus, cacheonread=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+files. This wrapper caches documents when they are written to, but this can be changed to caching on read.</p>
+<p>TODO: this is still work in progress!</p>
+<p>Creates a cached corpus.
+This accesses data from the cachecorpus, if it does not exist in there (entry is,
+None) will instead fall back to the base corpus.</p>
+<p>This cached corpus can be set up to cache on read or cache on write.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>basecorpus</code></strong></dt>
+<dd>any corpus</dd>
+<dt><strong><code>cachecorpus</code></strong></dt>
+<dd>any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+or just an in-memory list or array.</dd>
+<dt><strong><code>cacheonread</code></strong></dt>
+<dd>if True, writes to the cache as soon as an item has been read from the base dataset.
+Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+of processing efficiently.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CachedCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps two other corpora: the base corpus which may be slow to access, may not be writable etc. and the
+    cache corpus which is meant to be fast. The cache corpus may initially contain only None elements or no
+    files. This wrapper caches documents when they are written to, but this can be changed to caching on read.
+    &#34;&#34;&#34;
+
+    def __init__(self, basecorpus, cachecorpus, cacheonread=False):
+        &#34;&#34;&#34;
+        TODO: this is still work in progress!
+
+        Creates a cached corpus.
+        This accesses data from the cachecorpus, if it does not exist in there (entry is,
+        None) will instead fall back to the base corpus.
+
+        This cached corpus can be set up to cache on read or cache on write.
+
+        Args:
+            basecorpus: any corpus
+            cachecorpus: any corpus that can return None for non-existing elements, e.g. a NumberedDirFilesCorpus
+              or just an in-memory list or array.
+            cacheonread: if True, writes to the cache as soon as an item has been read from the base dataset.
+                Otherwise will only write to the cache dataset when an item is set. This allows to cache the result
+                of processing efficiently.
+        &#34;&#34;&#34;
+        assert len(cachecorpus) == len(basecorpus)
+        self.basecorpus = basecorpus
+        self.cachecorpus = cachecorpus
+        self.cacheonread = cacheonread
+
+    def __len__(self):
+        return len(self.basecorpus)
+
+    def __getitem__(self, index):
+        tmp = self.cachecorpus[index]
+        if tmp is None:
+            tmp = self.basecorpus[index]
+            if self.cacheonread:
+                self.basecorpus[index] = tmp
+        self.setidxfeature(tmp, index)
+        return tmp
+
+    def __setitem__(self, index, value):
+        self.cachecorpus[index] = value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus"><code class="flex name class">
+<span>class <span class="ident">Corpus</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus represents a collection of documents with a fixed number of elements which can be read and written
+using an index number, e.g. <code>doc = corpus[2]</code> and <code>corpus[2] = doc</code>. For each index in the allowed range,
+the element is either a document or (for a few corpus implementations) None (indicating that no document
+is available for this index).</p>
+<p>The index is an int with range 0 to N-1 where N is the number of documents in the corpus.</p>
+<p>NOTE: for most corpus implementations, setting an index to None should not be allowed as this would
+not work with batching and the use of the <code>store</code> method to save documents back into the corpus.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Corpus(ABC, CorpusSourceBase, Sized):
+    &#34;&#34;&#34;
+    A corpus represents a collection of documents with a fixed number of elements which can be read and written
+    using an index number, e.g. `doc = corpus[2]` and `corpus[2] = doc`. For each index in the allowed range,
+    the element is either a document or (for a few corpus implementations) None (indicating that no document
+    is available for this index).
+
+    The index is an int with range 0 to N-1 where N is the number of documents in the corpus.
+
+    NOTE: for most corpus implementations, setting an index to None should not be allowed as this would
+    not work with batching and the use of the `store` method to save documents back into the corpus.
+    &#34;&#34;&#34;
+
+    @abstractmethod
+    def __getitem__(self, idx: int) -&gt; Document:
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus. Note that fetching a document from the corpus will usually set
+        a special transient document feature that contains the index of the document so it can be
+        stored back at the same index using the method `store()` later. If a corpus implementaton does not
+        set that feature, batching and the use of the `store()` method to save back documents are not
+        supported.
+
+        Args:
+            idx: the index of the document
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, idx: int, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        A corpus object must allow setting an item by its idx, e.g. `mycorpus[2] = doc`
+        The item assigned must be a document or (in rare cases) None.
+
+        Args:
+            idx: the index of the document
+            doc: a document
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;
+        Returns the size of the corpus.
+        &#34;&#34;&#34;
+        pass
+
+    def idxfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the index used to access a document
+        from a corpus.
+        &#34;&#34;&#34;
+        return &#34;__idx_&#34; + str(id(self))
+
+    def setidxfeature(self, doc: Document, idx: int):
+        &#34;&#34;&#34;
+        Sets the special transient feature of the document to the given index.
+
+        Args:
+            doc: the document
+            idx: the index used to access the document in a corpus
+        &#34;&#34;&#34;
+        if doc is not None:
+            doc.features[self.idxfeatname()] = idx
+
+    def store(self, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        This method allows to store a document that comes from the same corpus back without the need to specify
+        the index. This is useful for processing documents in batches or in streams. For this to work, all
+        corpus implementations MUST make sure to store the index as part of returning a document with
+        `__getitem__`. The index is stored in document feature `self.idxfeatname()`.
+
+        Args:
+            doc: the document to store back into the corpus, should be a document that was retrieved from the same
+                 corpus or (in very rare cases and with specific corpus implementations only) None.
+                 The default behaviour for None is to throw an exception, this must be overriden by
+                 subclasses where store(None) should be supported.
+
+        Raises:
+            Exception: if the index is not stored in a document feature `self.idxfeatname()`
+        &#34;&#34;&#34;
+        if doc is None:
+            raise Exception(&#34;Cannot store back None into a corpus&#34;)
+        assert isinstance(doc, Document)
+        idx = doc.features.get(self.idxfeatname())
+        if idx is None:
+            raise Exception(&#34;Cannot store back document, no __idx_ID feature&#34;)
+        self.__setitem__(idx, doc)
+
+    def append(self, document: Document) -&gt; int:
+        &#34;&#34;&#34;
+        Some corpus implementations may provide the append method to allow for adding documents (i.e.
+        use the corpus like a DocumentDestination).
+
+        Important: this will probably not work properly in situations where another
+        corpus wraps a corpus that allows appending. Use with care!
+
+        Args:
+            document: the document to add to the corpus or (in rare cases and for specific Corpus
+                implementations) None.
+
+        Returns:
+            the index where the document was stored
+        &#34;&#34;&#34;
+        raise RuntimeError(&#34;Corpus does not allow appending&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.CachedCorpus" href="#gatenlp.corpora.base.CachedCorpus">CachedCorpus</a></li>
+<li><a title="gatenlp.corpora.base.EveryNthCorpus" href="#gatenlp.corpora.base.EveryNthCorpus">EveryNthCorpus</a></li>
+<li><a title="gatenlp.corpora.base.ShuffledCorpus" href="#gatenlp.corpora.base.ShuffledCorpus">ShuffledCorpus</a></li>
+<li><a title="gatenlp.corpora.dirs.DirFilesCorpus" href="dirs.html#gatenlp.corpora.dirs.DirFilesCorpus">DirFilesCorpus</a></li>
+<li><a title="gatenlp.corpora.dirs.NumberedDirFilesCorpus" href="dirs.html#gatenlp.corpora.dirs.NumberedDirFilesCorpus">NumberedDirFilesCorpus</a></li>
+<li><a title="gatenlp.corpora.memory.ListCorpus" href="memory.html#gatenlp.corpora.memory.ListCorpus">ListCorpus</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.Corpus.__getitem__"><code class="name flex">
+<span>def <span class="ident">__getitem__</span></span>(<span>self, idx: int) ‑> <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrieve a document from the corpus. Note that fetching a document from the corpus will usually set
+a special transient document feature that contains the index of the document so it can be
+stored back at the same index using the method <code>store()</code> later. If a corpus implementaton does not
+set that feature, batching and the use of the <code>store()</code> method to save back documents are not
+supported.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>idx</code></strong></dt>
+<dd>the index of the document</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a document or None</p>
+<h2 id="throws">Throws</h2>
+<p>exception if the index idx does not exist in the corpus</p></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.__len__"><code class="name flex">
+<span>def <span class="ident">__len__</span></span>(<span>self) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the size of the corpus.</p></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.__setitem__"><code class="name flex">
+<span>def <span class="ident">__setitem__</span></span>(<span>self, idx: int, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus object must allow setting an item by its idx, e.g. <code>mycorpus[2] = doc</code>
+The item assigned must be a document or (in rare cases) None.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>idx</code></strong></dt>
+<dd>the index of the document</dd>
+<dt><strong><code>doc</code></strong></dt>
+<dd>a document</dd>
+</dl>
+<h2 id="throws">Throws</h2>
+<p>exception if the index idx does not exist in the corpus</p></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, document: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Some corpus implementations may provide the append method to allow for adding documents (i.e.
+use the corpus like a DocumentDestination).</p>
+<p>Important: this will probably not work properly in situations where another
+corpus wraps a corpus that allows appending. Use with care!</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>document</code></strong></dt>
+<dd>the document to add to the corpus or (in rare cases and for specific Corpus
+implementations) None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>the index where the document was stored</p></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.idxfeatname"><code class="name flex">
+<span>def <span class="ident">idxfeatname</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the name of the transient feature to receive the index used to access a document
+from a corpus.</p></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.setidxfeature"><code class="name flex">
+<span>def <span class="ident">setidxfeature</span></span>(<span>self, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, idx: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the special transient feature of the document to the given index.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document</dd>
+<dt><strong><code>idx</code></strong></dt>
+<dd>the index used to access the document in a corpus</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.corpora.base.Corpus.store"><code class="name flex">
+<span>def <span class="ident">store</span></span>(<span>self, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method allows to store a document that comes from the same corpus back without the need to specify
+the index. This is useful for processing documents in batches or in streams. For this to work, all
+corpus implementations MUST make sure to store the index as part of returning a document with
+<code>__getitem__</code>. The index is stored in document feature <code>self.idxfeatname()</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document to store back into the corpus, should be a document that was retrieved from the same
+corpus or (in very rare cases and with specific corpus implementations only) None.
+The default behaviour for None is to throw an exception, this must be overriden by
+subclasses where store(None) should be supported.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>Exception</code></dt>
+<dd>if the index is not stored in a document feature <code>self.idxfeatname()</code></dd>
+</dl></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.CorpusSourceBase"><code class="flex name class">
+<span>class <span class="ident">CorpusSourceBase</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base trait for Corpus and Source classes. So far just provides methods to
+get nparts and partnr even for objects which are not sharded.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CorpusSourceBase:
+    &#34;&#34;&#34;
+    Common base trait for Corpus and Source classes. So far just provides methods to
+    get nparts and partnr even for objects which are not sharded.
+    &#34;&#34;&#34;
+    @property
+    def nparts(self):
+        &#34;&#34;&#34;
+        Return the total number of parts for an EveryNth corpus or document source.
+        This is 1 for all other corpus/source instances.
+        &#34;&#34;&#34;
+        return 1
+
+    @property
+    def partnr(self):
+        &#34;&#34;&#34;
+        Return the part number for an EveryNth corpus or document source.
+        This is 0 for all other corpus/source instances.
+        &#34;&#34;&#34;
+        return 0</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.corpora.base.CorpusSourceBase.nparts"><code class="name">property/get <span class="ident">nparts</span></code></dt>
+<dd>
+<div class="desc"><p>Return the total number of parts for an EveryNth corpus or document source.
+This is 1 for all other corpus/source instances.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def nparts(self):
+    &#34;&#34;&#34;
+    Return the total number of parts for an EveryNth corpus or document source.
+    This is 1 for all other corpus/source instances.
+    &#34;&#34;&#34;
+    return 1</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.base.CorpusSourceBase.partnr"><code class="name">property/get <span class="ident">partnr</span></code></dt>
+<dd>
+<div class="desc"><p>Return the part number for an EveryNth corpus or document source.
+This is 0 for all other corpus/source instances.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def partnr(self):
+    &#34;&#34;&#34;
+    Return the part number for an EveryNth corpus or document source.
+    This is 0 for all other corpus/source instances.
+    &#34;&#34;&#34;
+    return 0</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.base.DistributedProcessingAble"><code class="flex name class">
+<span>class <span class="ident">DistributedProcessingAble</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source/destination/corpus class where duplicate instances can be used from several nodes in parallel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DistributedProcessingAble(MultiProcessingAble):
+    &#34;&#34;&#34;
+    A document source/destination/corpus class where duplicate instances can be used from several nodes in parallel.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.MultiProcessingAble" href="#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.DocumentDestination"><code class="flex name class">
+<span>class <span class="ident">DocumentDestination</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document destination is something that accepts an a priori unknown number of documents via
+the append method.</p>
+<p>Document destinations all provide a <code>close()</code> method and must be closed after use.</p>
+<p>Document destinations can be used as context managers i.e. one can do
+<code>with SomeDocumentDest(..) as dest: dest.append(doc)</code> which will take care of closing the
+destination automatically.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DocumentDestination(AbstractContextManager):
+    &#34;&#34;&#34;
+    A document destination is something that accepts an a priori unknown number of documents via
+    the append method.
+
+    Document destinations all provide a `close()` method and must be closed after use.
+
+    Document destinations can be used as context managers i.e. one can do
+    `with SomeDocumentDest(..) as dest: dest.append(doc)` which will take care of closing the
+    destination automatically.
+    &#34;&#34;&#34;
+
+    @abstractmethod
+    def append(self, doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        Append the given document to the destination.
+
+        Args:
+            doc: the document to add, if this is None, by default nothing is actually added to the destination,
+                but specific implementations may change this behaviour.
+        &#34;&#34;&#34;
+        pass
+
+    def close(self) -&gt; None:
+        &#34;&#34;&#34;
+        Close the document destination. The default context manager implementation always calls
+        close(), even when an exception is raised.
+        &#34;&#34;&#34;
+        pass
+
+    def __exit__(self, exctype, value, traceback) -&gt; bool:
+        &#34;&#34;&#34;
+        The default implementation always invokes close() and
+        does not suppress any exception (always returns False)
+        &#34;&#34;&#34;
+        self.close()
+        return False   # do not suppress any exception</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>contextlib.AbstractContextManager</li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.dirs.DirFilesDestination" href="dirs.html#gatenlp.corpora.dirs.DirFilesDestination">DirFilesDestination</a></li>
+<li><a title="gatenlp.corpora.files.BdocjsLinesFileDestination" href="files.html#gatenlp.corpora.files.BdocjsLinesFileDestination">BdocjsLinesFileDestination</a></li>
+<li><a title="gatenlp.corpora.files.JsonLinesFileDestination" href="files.html#gatenlp.corpora.files.JsonLinesFileDestination">JsonLinesFileDestination</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.DocumentDestination.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Append the given document to the destination.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document to add, if this is None, by default nothing is actually added to the destination,
+but specific implementations may change this behaviour.</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.corpora.base.DocumentDestination.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Close the document destination. The default context manager implementation always calls
+close(), even when an exception is raised.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.base.DocumentSource"><code class="flex name class">
+<span>class <span class="ident">DocumentSource</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source is an iterable of documents which will generate an unknown number of documents.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DocumentSource(ABC, TypingIterable, CorpusSourceBase):
+    &#34;&#34;&#34;
+    A document source is an iterable of documents which will generate an unknown number of documents.
+    &#34;&#34;&#34;
+    def __iter__(self) -&gt; TypingIterator[Document]:
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+<li>typing.Iterable</li>
+<li>collections.abc.Iterable</li>
+<li>typing.Generic</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.EveryNthSource" href="#gatenlp.corpora.base.EveryNthSource">EveryNthSource</a></li>
+<li><a title="gatenlp.corpora.conll.ConllUFileSource" href="conll.html#gatenlp.corpora.conll.ConllUFileSource">ConllUFileSource</a></li>
+<li><a title="gatenlp.corpora.dirs.DirFilesSource" href="dirs.html#gatenlp.corpora.dirs.DirFilesSource">DirFilesSource</a></li>
+<li><a title="gatenlp.corpora.files.BdocjsLinesFileSource" href="files.html#gatenlp.corpora.files.BdocjsLinesFileSource">BdocjsLinesFileSource</a></li>
+<li><a title="gatenlp.corpora.files.JsonLinesFileSource" href="files.html#gatenlp.corpora.files.JsonLinesFileSource">JsonLinesFileSource</a></li>
+<li><a title="gatenlp.corpora.files.TsvFileSource" href="files.html#gatenlp.corpora.files.TsvFileSource">TsvFileSource</a></li>
+<li><a title="gatenlp.corpora.memory.PandasDfSource" href="memory.html#gatenlp.corpora.memory.PandasDfSource">PandasDfSource</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.DocumentSource.__iter__"><code class="name flex">
+<span>def <span class="ident">__iter__</span></span>(<span>self) ‑> Iterator[<a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.EveryNthBase"><code class="flex name class">
+<span>class <span class="ident">EveryNthBase</span></span>
+<span>(</span><span>nparts=1, partnr=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A Source or Corpus that wraps another Source or Corpus so that only every nth document, starting
+with some document 0 &lt;= k &lt; n is included.</p>
+<p>Such classes must provide the initialization keyword parameters partnr and nparts which may
+have default values of 0 and 1 for single part resources.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EveryNthBase:
+    &#34;&#34;&#34;
+    A Source or Corpus that wraps another Source or Corpus so that only every nth document, starting
+    with some document 0 &lt;= k &lt; n is included.
+
+    Such classes must provide the initialization keyword parameters partnr and nparts which may
+    have default values of 0 and 1 for single part resources.
+    &#34;&#34;&#34;
+    def __init__(self, nparts=1, partnr=0):
+        self._nparts = nparts
+        self._partnr = partnr
+
+    @property
+    def nparts(self):
+        return self._nparts
+
+    @property
+    def partnr(self):
+        return self._partnr</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.EveryNthCorpus" href="#gatenlp.corpora.base.EveryNthCorpus">EveryNthCorpus</a></li>
+<li><a title="gatenlp.corpora.base.EveryNthSource" href="#gatenlp.corpora.base.EveryNthSource">EveryNthSource</a></li>
+<li><a title="gatenlp.corpora.dirs.DirFilesSource" href="dirs.html#gatenlp.corpora.dirs.DirFilesSource">DirFilesSource</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.corpora.base.EveryNthBase.nparts"><code class="name">property/get <span class="ident">nparts</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def nparts(self):
+    return self._nparts</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.base.EveryNthBase.partnr"><code class="name">property/get <span class="ident">partnr</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def partnr(self):
+    return self._partnr</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.corpora.base.EveryNthCorpus"><code class="flex name class">
+<span>class <span class="ident">EveryNthCorpus</span></span>
+<span>(</span><span>corpus: <a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a>, nparts: int = 1, partnr: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper to make any corpus that is multiprocessing/distributedprocessing-able shardable.</p>
+<p>Wraps a corpus to only every nparts-th document, starting with the partnr-th document.
+For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+documents 2,5,8,11,14 etc.</p>
+<p>This is useful to access a subset of documents from a corpus from different concurrent
+processes (the wrapped corpus must be MultiProcessingAble for that!).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EveryNthCorpus(EveryNthBase, Corpus):
+    &#34;&#34;&#34;
+    A wrapper to make any corpus that is multiprocessing/distributedprocessing-able shardable.
+
+    Wraps a corpus to only every nparts-th document, starting with the partnr-th document.
+    For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+    documents 2,5,8,11,14 etc.
+
+    This is useful to access a subset of documents from a corpus from different concurrent
+    processes (the wrapped corpus must be MultiProcessingAble for that!).
+    &#34;&#34;&#34;
+    def __init__(self, corpus: Corpus, nparts: int = 1, partnr: int = 0):
+        assert isinstance(corpus, Corpus)
+        # this uses Integral so we can also support integral types from Numpy etc!
+        if (not isinstance(nparts, numbers.Integral)) or (
+            not isinstance(partnr, numbers.Integral)
+        ):
+            raise Exception(&#34;nparts and partnr must be integers.&#34;)
+        if nparts &lt; 2 or partnr &lt; 0 or partnr &gt;= nparts:
+            raise Exception(&#34;nparts must be &gt;= 2 and partnr must be &gt;= 0 and &lt; nparts&#34;)
+        super().__init__(nparts=nparts, partnr=partnr)
+        self.corpus = corpus
+
+    def __len__(self):
+        olen = len(self.corpus)
+        # alternate way to calculate?
+        # int((olen + (self.nparts - self.partnr) - 1) / self.partnr)
+        return int(olen/self.nparts) + (1 if (olen % self.nparts) &gt; self.partnr else 0)
+
+    def _orig_idx(self, idx: int) -&gt; int:
+        return idx * self.nparts + self.partnr
+
+    def __getitem__(self, idx: int) -&gt; Document:
+        # NOTE: we do not store the index in a feature for this wrapper as the wrapped
+        # corpus index is eventually the only one that matters
+        return self.corpus[self._orig_idx(idx)]
+
+    def __setitem__(self, idx: int, doc: Document) -&gt; None:
+        self.corpus[self._orig_idx(idx)] = doc
+
+    def store(self, doc: Document) -&gt; None:
+        # stored using the feature from the original index!
+        self.corpus.store(doc)
+
+    def append(self, document: Document) -&gt; int:
+        raise Exception(&#34;Method append not supported for EveryNthCorpus&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.EveryNthBase" href="#gatenlp.corpora.base.EveryNthBase">EveryNthBase</a></li>
+<li><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.EveryNthSource"><code class="flex name class">
+<span>class <span class="ident">EveryNthSource</span></span>
+<span>(</span><span>source: <a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a>, nparts: int = 1, partnr: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper to make any DocumentSource that is multiprocessing or distributed processing-able
+viewable in parts.</p>
+<p>Wraps a document source to only return every nparts-th document, starting with the partnr-th document.
+For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+documents 2,5,8,11,14 etc.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EveryNthSource(EveryNthBase, DocumentSource):
+    &#34;&#34;&#34;
+    A wrapper to make any DocumentSource that is multiprocessing or distributed processing-able
+    viewable in parts.
+
+    Wraps a document source to only return every nparts-th document, starting with the partnr-th document.
+    For example with nparts=3 and partnr=0, the documents 0,1,2,3,4 correspond to the
+    documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
+    documents 2,5,8,11,14 etc.
+    &#34;&#34;&#34;
+    def __init__(self, source: DocumentSource, nparts: int = 1, partnr: int = 0):
+        assert isinstance(source, DocumentSource)
+        # this uses Integral so we can also support integral types from Numpy etc!
+        if (not isinstance(nparts, numbers.Integral)) or (
+            not isinstance(partnr, numbers.Integral)
+        ):
+            raise Exception(&#34;nparts and partnr must be integers.&#34;)
+        super().__init__(nparts=nparts, partnr=partnr)
+        self.source = source
+
+        if nparts &lt; 2 or partnr &lt; 0 or partnr &gt;= nparts:
+            raise Exception(&#34;nparts must be &gt;= 2 and partnr must be &gt;= 0 and &lt; nparts&#34;)
+        self.source = source
+
+    def __iter__(self) -&gt; TypingIterator[Document]:
+        for idx, doc in enumerate(self.source):
+            if idx % self.nparts == self.partnr:
+                yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.EveryNthBase" href="#gatenlp.corpora.base.EveryNthBase">EveryNthBase</a></li>
+<li><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+<li>typing.Iterable</li>
+<li>collections.abc.Iterable</li>
+<li>typing.Generic</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.DocumentSource.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.MultiProcessingAble"><code class="flex name class">
+<span>class <span class="ident">MultiProcessingAble</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source/destination/corpus class where duplicate instances can be used by several
+processes on the same node in parallel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultiProcessingAble:
+    &#34;&#34;&#34;
+    A document source/destination/corpus class where duplicate instances can be used by several
+    processes on the same node in parallel.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.DistributedProcessingAble" href="#gatenlp.corpora.base.DistributedProcessingAble">DistributedProcessingAble</a></li>
+<li><a title="gatenlp.corpora.dirs.DirFilesCorpus" href="dirs.html#gatenlp.corpora.dirs.DirFilesCorpus">DirFilesCorpus</a></li>
+<li><a title="gatenlp.corpora.dirs.DirFilesSource" href="dirs.html#gatenlp.corpora.dirs.DirFilesSource">DirFilesSource</a></li>
+<li><a title="gatenlp.corpora.dirs.NumberedDirFilesCorpus" href="dirs.html#gatenlp.corpora.dirs.NumberedDirFilesCorpus">NumberedDirFilesCorpus</a></li>
+<li><a title="gatenlp.corpora.files.BdocjsLinesFileSource" href="files.html#gatenlp.corpora.files.BdocjsLinesFileSource">BdocjsLinesFileSource</a></li>
+<li><a title="gatenlp.corpora.files.JsonLinesFileSource" href="files.html#gatenlp.corpora.files.JsonLinesFileSource">JsonLinesFileSource</a></li>
+<li><a title="gatenlp.corpora.files.TsvFileSource" href="files.html#gatenlp.corpora.files.TsvFileSource">TsvFileSource</a></li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.ShuffledCorpus"><code class="flex name class">
+<span>class <span class="ident">ShuffledCorpus</span></span>
+<span>(</span><span>corpus, seed=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a corpus to reorder the documents in the corpus randomly.</p>
+<p>Create a ShuffledCorpus wrapper.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>seed</code></strong></dt>
+<dd>if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+and whatever the current state of the random generator is is used. If None, no shuffling is
+carried out. If this is None or not an integer, same as 0.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ShuffledCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a corpus to reorder the documents in the corpus randomly.
+    &#34;&#34;&#34;
+
+    def __init__(self, corpus, seed=None):
+        &#34;&#34;&#34;
+        Create a ShuffledCorpus wrapper.
+
+        Args:
+            seed: if an integer and &gt; 0, shuffle the list of instances randomly, using the given seed.
+                If the seed is 0, the RNGs random random seed is used, if seed is -1, the seed is not set at all
+                and whatever the current state of the random generator is is used. If None, no shuffling is
+                carried out. If this is None or not an integer, same as 0.
+        &#34;&#34;&#34;
+        super().__init__()
+        self.corpus = corpus
+        self.seed = seed
+        self.idxs = list(range(len(corpus)))
+        self.shuffle(seed)
+
+    def shuffle(self, seed=0):
+        &#34;&#34;&#34;
+        Shuffle instance list order,
+        :param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+        If seed is None, no shuffling is carried out.
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(seed, numbers.Integral):  # also allow for np.int8(n) and the like
+            if seed != -1:
+                if seed == 0:
+                    random.seed()
+                else:
+                    random.seed(seed)
+            random.shuffle(self.idxs)
+        else:  # not an integer seed: None or some other type
+            # same as seed 0
+            random.seed()
+            random.shuffle(self.idxs)
+
+    def __getitem__(self, idx):
+        doc = self.corpus[self.idxs[idx]]
+        self.setidxfeature(doc, idx)
+        return self.corpus[self.idxs[idx]]
+
+    def __setitem__(self, idx, doc):
+        if not isinstance(idx, numbers.Integral):
+            raise Exception(&#34;Item must be an integer&#34;)
+        if idx &gt;= len(self.idxs) or idx &lt; 0:
+            raise Exception(&#34;Index idx must be &gt;= 0 and &lt; {}&#34;.format(len(self)))
+        # the index to access in the original dataset is int(n*item)+k
+        self.corpus[self.idxs[idx]] = doc
+
+    def __len__(self):
+        return len(self.idxs)
+
+    def append(self, document: Document) -&gt; int:
+        raise Exception(&#34;Method append not supported for ShuffledCorpus&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.ShuffledCorpus.shuffle"><code class="name flex">
+<span>def <span class="ident">shuffle</span></span>(<span>self, seed=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shuffle instance list order,
+:param seed: random seed to set, if seed is 0, a random random seed is used, if -1, seed is not set.
+If seed is None, no shuffling is carried out.
+:return:</p></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.StringIdCorpus"><code class="flex name class">
+<span>class <span class="ident">StringIdCorpus</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A corpus which allows to use string ids in addition to integer indices for setting and getting documents.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StringIdCorpus:
+    &#34;&#34;&#34;
+    A corpus which allows to use string ids in addition to integer indices for setting and getting documents.
+    &#34;&#34;&#34;
+    # NOTE: the only thing that is really different is the type signature for some of the methods
+    @abstractmethod
+    def __getitem__(self, key: Union[int, str]) -&gt; Document:
+        &#34;&#34;&#34;
+        Retrieve a document from the corpus by either its numeric index or its string id.
+
+        Args:
+            key: the index of the document or the unique string id
+
+        Returns:
+            a document or None
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass
+
+    @abstractmethod
+    def __setitem__(self, idx: Union[int, str], doc: Document) -&gt; None:
+        &#34;&#34;&#34;
+        Store a document into the corpus by either its numeric index or its strign id.
+
+        Args:
+            idx: the index or the string id of the document
+            doc: a document
+
+        Throws:
+            exception if the index idx does not exist in the corpus
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.corpora" href="index.html">gatenlp.corpora</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.corpora.base.CachedCorpus" href="#gatenlp.corpora.base.CachedCorpus">CachedCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.DistributedProcessingAble" href="#gatenlp.corpora.base.DistributedProcessingAble">DistributedProcessingAble</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.DocumentDestination" href="#gatenlp.corpora.base.DocumentDestination">DocumentDestination</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.append" href="#gatenlp.corpora.base.DocumentDestination.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.close" href="#gatenlp.corpora.base.DocumentDestination.close">close</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.DocumentSource.__iter__" href="#gatenlp.corpora.base.DocumentSource.__iter__">__iter__</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.EveryNthBase" href="#gatenlp.corpora.base.EveryNthBase">EveryNthBase</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.EveryNthBase.nparts" href="#gatenlp.corpora.base.EveryNthBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.EveryNthBase.partnr" href="#gatenlp.corpora.base.EveryNthBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.EveryNthCorpus" href="#gatenlp.corpora.base.EveryNthCorpus">EveryNthCorpus</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.EveryNthSource" href="#gatenlp.corpora.base.EveryNthSource">EveryNthSource</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.MultiProcessingAble" href="#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.ShuffledCorpus" href="#gatenlp.corpora.base.ShuffledCorpus">ShuffledCorpus</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.ShuffledCorpus.shuffle" href="#gatenlp.corpora.base.ShuffledCorpus.shuffle">shuffle</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.StringIdCorpus" href="#gatenlp.corpora.base.StringIdCorpus">StringIdCorpus</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

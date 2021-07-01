@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.corpora.memory API documentation</title>
+<meta name="description" content="Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+from in-memory objects." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.corpora.memory</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+from in-memory objects.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
+from in-memory objects.
+&#34;&#34;&#34;
+
+
+from gatenlp import Document
+from gatenlp.corpora.base import DocumentSource, Corpus
+
+
+class ListCorpus(Corpus):
+    &#34;&#34;&#34;
+    Make a Python list of documents available as a Corpus instance.
+    &#34;&#34;&#34;
+    @classmethod
+    def empty(cls, n):
+        &#34;&#34;&#34;
+        Create an empty corpus of size n where all elements are None.
+
+        Args:
+            n: size of corpus
+
+        Returns:
+            a ListCorpus instance with n elements which are all None
+        &#34;&#34;&#34;
+        l1 = [None] * n
+        return cls(l1)
+
+    def __init__(self, thelist, store_none=True):
+        &#34;&#34;&#34;
+        Provides a corpus interface to a list or list-like data structure.
+        Note that this provides the proper implementation of append which stores back to the index
+        provided in the document feature &#34;__idx&#34; instead of actually appending a new element to the list!
+
+        Args:
+            thelist: the list to wrap as a corpus
+            store_none: if True, a None value is stored into the corpus, otherwise, None will leave the
+                entry unchanged.
+        &#34;&#34;&#34;
+        super().__init__()
+        self._list = thelist
+        self.store_none = store_none
+
+    def __getitem__(self, idx):
+        doc = self._list[idx]
+        self.setidxfeature(doc, idx)
+        return doc
+
+    def __setitem__(self, key, value):
+        if value is None:
+            if self.store_none:
+                self._list[key] = value
+        else:
+            assert isinstance(value, Document)
+            self._list[key] = value
+
+    def __len__(self):
+        return len(self._list)
+
+    def append(self, doc: Document):
+        if doc is None:
+            if self.store_none:
+                self._list.append(doc)
+        else:
+            assert isinstance(doc, Document)
+            self._list.append(doc)
+
+
+# TODO: implement data_cols
+class PandasDfSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which creates documents from the text in some data frame column for each row, and
+    sets features from arbitrary columns in the row.
+    &#34;&#34;&#34;
+
+    def __init__(self, df, text_col=None, feature_cols=None, data_cols=None, data_feature=&#34;__data&#34;):
+        &#34;&#34;&#34;
+        Creates a PandasDfSource.
+
+        Args:
+            df: the data frae
+            text_col:  the name of the column that contains the text
+            feature_cols: a dictionary that maps document feature names to column names of where to get the
+               feature value from (default: None)
+            data_cols: if a list, store those cols in the data feature, if True, store all cols.
+            data_feature: the name of the data feature, default is &#34;__data&#34;
+        &#34;&#34;&#34;
+        assert text_col is not None
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = df
+        self.reader = df.iterrows()
+        self.n = 0
+        self.data_cols = data_cols
+        self.data_feature = data_feature
+        self.colnames = list(df.columns)
+
+    def __iter__(self):
+        for _, row in self.reader:
+            text = row[self.text_col]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colname in self.feature_cols.items():
+                    value = row[colname]
+                    doc.features[fname] = value
+            if self.data_cols:
+                if isinstance(self.data_cols, list):
+                    data = {}
+                    for cname in self.data_cols:
+                        data[cname] = row[cname]
+                else:
+                    data = {fname: row[fname] for fname in self.colnames}
+                doc.features[self.data_feature] = data
+            self.n += 1
+            yield doc</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.corpora.memory.ListCorpus"><code class="flex name class">
+<span>class <span class="ident">ListCorpus</span></span>
+<span>(</span><span>thelist, store_none=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make a Python list of documents available as a Corpus instance.</p>
+<p>Provides a corpus interface to a list or list-like data structure.
+Note that this provides the proper implementation of append which stores back to the index
+provided in the document feature "__idx" instead of actually appending a new element to the list!</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>thelist</code></strong></dt>
+<dd>the list to wrap as a corpus</dd>
+<dt><strong><code>store_none</code></strong></dt>
+<dd>if True, a None value is stored into the corpus, otherwise, None will leave the
+entry unchanged.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ListCorpus(Corpus):
+    &#34;&#34;&#34;
+    Make a Python list of documents available as a Corpus instance.
+    &#34;&#34;&#34;
+    @classmethod
+    def empty(cls, n):
+        &#34;&#34;&#34;
+        Create an empty corpus of size n where all elements are None.
+
+        Args:
+            n: size of corpus
+
+        Returns:
+            a ListCorpus instance with n elements which are all None
+        &#34;&#34;&#34;
+        l1 = [None] * n
+        return cls(l1)
+
+    def __init__(self, thelist, store_none=True):
+        &#34;&#34;&#34;
+        Provides a corpus interface to a list or list-like data structure.
+        Note that this provides the proper implementation of append which stores back to the index
+        provided in the document feature &#34;__idx&#34; instead of actually appending a new element to the list!
+
+        Args:
+            thelist: the list to wrap as a corpus
+            store_none: if True, a None value is stored into the corpus, otherwise, None will leave the
+                entry unchanged.
+        &#34;&#34;&#34;
+        super().__init__()
+        self._list = thelist
+        self.store_none = store_none
+
+    def __getitem__(self, idx):
+        doc = self._list[idx]
+        self.setidxfeature(doc, idx)
+        return doc
+
+    def __setitem__(self, key, value):
+        if value is None:
+            if self.store_none:
+                self._list[key] = value
+        else:
+            assert isinstance(value, Document)
+            self._list[key] = value
+
+    def __len__(self):
+        return len(self._list)
+
+    def append(self, doc: Document):
+        if doc is None:
+            if self.store_none:
+                self._list.append(doc)
+        else:
+            assert isinstance(doc, Document)
+            self._list.append(doc)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.Corpus" href="base.html#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.corpora.memory.ListCorpus.empty"><code class="name flex">
+<span>def <span class="ident">empty</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create an empty corpus of size n where all elements are None.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>n</code></strong></dt>
+<dd>size of corpus</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a ListCorpus instance with n elements which are all None</p></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.Corpus" href="base.html#gatenlp.corpora.base.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="base.html#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="base.html#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="base.html#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="base.html#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="base.html#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="base.html#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="base.html#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="base.html#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="base.html#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.memory.PandasDfSource"><code class="flex name class">
+<span>class <span class="ident">PandasDfSource</span></span>
+<span>(</span><span>df, text_col=None, feature_cols=None, data_cols=None, data_feature='__data')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document source which creates documents from the text in some data frame column for each row, and
+sets features from arbitrary columns in the row.</p>
+<p>Creates a PandasDfSource.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>the data frae</dd>
+<dt><strong><code>text_col</code></strong></dt>
+<dd>the name of the column that contains the text</dd>
+<dt><strong><code>feature_cols</code></strong></dt>
+<dd>a dictionary that maps document feature names to column names of where to get the
+feature value from (default: None)</dd>
+<dt><strong><code>data_cols</code></strong></dt>
+<dd>if a list, store those cols in the data feature, if True, store all cols.</dd>
+<dt><strong><code>data_feature</code></strong></dt>
+<dd>the name of the data feature, default is "__data"</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PandasDfSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source which creates documents from the text in some data frame column for each row, and
+    sets features from arbitrary columns in the row.
+    &#34;&#34;&#34;
+
+    def __init__(self, df, text_col=None, feature_cols=None, data_cols=None, data_feature=&#34;__data&#34;):
+        &#34;&#34;&#34;
+        Creates a PandasDfSource.
+
+        Args:
+            df: the data frae
+            text_col:  the name of the column that contains the text
+            feature_cols: a dictionary that maps document feature names to column names of where to get the
+               feature value from (default: None)
+            data_cols: if a list, store those cols in the data feature, if True, store all cols.
+            data_feature: the name of the data feature, default is &#34;__data&#34;
+        &#34;&#34;&#34;
+        assert text_col is not None
+        self.text_col = text_col
+        self.feature_cols = feature_cols
+        self.source = df
+        self.reader = df.iterrows()
+        self.n = 0
+        self.data_cols = data_cols
+        self.data_feature = data_feature
+        self.colnames = list(df.columns)
+
+    def __iter__(self):
+        for _, row in self.reader:
+            text = row[self.text_col]
+            doc = Document(text)
+            if self.feature_cols:
+                for fname, colname in self.feature_cols.items():
+                    value = row[colname]
+                    doc.features[fname] = value
+            if self.data_cols:
+                if isinstance(self.data_cols, list):
+                    data = {}
+                    for cname in self.data_cols:
+                        data[cname] = row[cname]
+                else:
+                    data = {fname: row[fname] for fname in self.colnames}
+                doc.features[self.data_feature] = data
+            self.n += 1
+            yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.DocumentSource" href="base.html#gatenlp.corpora.base.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+<li>typing.Iterable</li>
+<li>collections.abc.Iterable</li>
+<li>typing.Generic</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="base.html#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.DocumentSource.nparts" href="base.html#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.partnr" href="base.html#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.corpora" href="index.html">gatenlp.corpora</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.corpora.memory.ListCorpus" href="#gatenlp.corpora.memory.ListCorpus">ListCorpus</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.memory.ListCorpus.empty" href="#gatenlp.corpora.memory.ListCorpus.empty">empty</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.memory.PandasDfSource" href="#gatenlp.corpora.memory.PandasDfSource">PandasDfSource</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

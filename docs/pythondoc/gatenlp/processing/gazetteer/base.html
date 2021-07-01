@@ -4,9 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
-<title>gatenlp.serialization.srsly API documentation</title>
-<meta name="description" content="For now, placeholder file for an implementation of a (de)serialization module based on
-https://github.com/explosion/srsly (for the formats supported …" />
+<title>gatenlp.processing.gazetteer.base API documentation</title>
+<meta name="description" content="Base class for all gazetteer annotators" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -20,19 +19,23 @@ https://github.com/explosion/srsly (for the formats supported …" />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>gatenlp.serialization.srsly</code></h1>
+<h1 class="title">Module <code>gatenlp.processing.gazetteer.base</code></h1>
 </header>
 <section id="section-intro">
-<p>For now, placeholder file for an implementation of a (de)serialization module based on
-<a href="https://github.com/explosion/srsly">https://github.com/explosion/srsly</a> (for the formats supported there only).</p>
+<p>Base class for all gazetteer annotators</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-For now, placeholder file for an implementation of a (de)serialization module based on
-https://github.com/explosion/srsly (for the formats supported there only). 
-&#34;&#34;&#34;</code></pre>
+Base class for all gazetteer annotators
+&#34;&#34;&#34;
+from gatenlp.processing.annotator import Annotator
+
+
+class GazetteerAnnotator(Annotator):
+    def __call__(self, *args, **kwargs):
+        raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -42,6 +45,47 @@ https://github.com/explosion/srsly (for the formats supported there only).
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerAnnotator"><code class="flex name class">
+<span>class <span class="ident">GazetteerAnnotator</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GazetteerAnnotator(Annotator):
+    def __call__(self, *args, **kwargs):
+        raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer" href="stringgazetteer.html#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer">StringGazetteer</a></li>
+<li><a title="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer" href="tokengazetteer.html#gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer">TokenGazetteer</a></li>
+<li><a title="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerNode" href="tokengazetteer.html#gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerNode">TokenGazetteerNode</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -52,7 +96,14 @@ https://github.com/explosion/srsly (for the formats supported there only).
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="gatenlp.serialization" href="index.html">gatenlp.serialization</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer" href="index.html">gatenlp.processing.gazetteer</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>

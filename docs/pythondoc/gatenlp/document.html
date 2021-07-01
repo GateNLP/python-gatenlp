@@ -34,7 +34,7 @@ Module that implements the Document class for representing gatenlp documents wit
 features and annotation sets.
 &#34;&#34;&#34;
 
-from typing import KeysView, Callable
+from typing import KeysView, Callable, Union, List
 import logging
 import importlib
 import copy as lib_copy
@@ -109,7 +109,7 @@ class Document:
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
         self._changelog = changelog
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
@@ -165,7 +165,7 @@ class Document:
                     ann._start = method(ann._start)
                     ann._end = method(ann._end)
 
-    def to_offset_type(self, offsettype: str) -&gt; OffsetMapper:
+    def to_offset_type(self, offsettype: str) -&gt; Union[OffsetMapper, None]:
         &#34;&#34;&#34;Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
@@ -183,9 +183,8 @@ class Document:
           offset mapper or None
 
         &#34;&#34;&#34;
-        om = None
         if offsettype == self.offset_type:
-            return
+            return None
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
             # convert from currently python to java
             om = OffsetMapper(self._text)
@@ -351,9 +350,7 @@ class Document:
           the changelog used previously or None
 
         &#34;&#34;&#34;
-        oldchlog = self._changelog
         self._changelog = chlog
-        return oldchlog
 
     @property
     def text(self) -&gt; str:
@@ -470,7 +467,7 @@ class Document:
         else:
             return self._annotation_sets[name]
 
-    def annset_names(self) -&gt; KeysView[str]:
+    def annset_names(self) -&gt; List[str]:
         &#34;&#34;&#34;
 
         Args:
@@ -497,6 +494,57 @@ class Document:
         del self._annotation_sets[name]
         if self._changelog:
             self._changelog.append({&#34;command&#34;: &#34;annotations:remove&#34;, &#34;set&#34;: name})
+
+    def anns(self, ann_spec):
+        &#34;&#34;&#34;
+        Return a detached annotation set with all annotations which match the annotation specification.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Returns:
+            a detached, immutable set with all the annotations matching the annotation specification
+        &#34;&#34;&#34;
+        return AnnotationSet.create_from(self.yield_anns(ann_spec))
+
+    def yield_anns(self, ann_spec):
+        &#34;&#34;&#34;
+        Yield all annotations which match the annotation specification.
+        The order of the annotations is unespecified.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Yields:
+            all the annotations matching the annotation specification
+        &#34;&#34;&#34;
+        if isinstance(ann_spec, str):
+            tmpset = self._annotation_sets.get(ann_spec)
+            if tmpset is not None:
+                for ann in tmpset._annotations.values():
+                    yield ann
+            return
+        for spec in ann_spec:
+            if isinstance(spec, str):
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        yield ann
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        if ann.type in types:
+                            yield ann
 
     def __repr__(self) -&gt; str:
         &#34;&#34;&#34;
@@ -582,12 +630,12 @@ class Document:
         }
 
     @staticmethod
-    def from_dict(dictrepr, **kwargs):
+    def from_dict(dictrepr, **_kwargs):
         &#34;&#34;&#34;Return a Document instance as represented by the dictionary dictrepr.
 
         Args:
           dictrepr: return: the initialized Document instance
-          **kwargs:
+          **_kwargs: not used, ignored
 
         Returns:
           the initialized Document instance
@@ -957,9 +1005,9 @@ class Document:
             raise Exception(f&#34;Cannot attach set, a set with the name {name} already exists&#34;)
         if check:
             # check if the offsets are consistent with the document
-            l = len(self)
+            mylen = len(self)
             for ann in annset._annotations.values():
-                if ann.end &gt; l:
+                if ann.end &gt; mylen:
                     raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
         self._annotation_sets[name] = annset
         annset._owner_doc = self
@@ -1179,7 +1227,7 @@ offsets accordingly)</li>
         if changelog is not None:
             assert isinstance(changelog, ChangeLog)
         self._changelog = changelog
-        self._features = Features(features, logger=self._log_feature_change)
+        self._features = Features(features, _change_logger=self._log_feature_change)
         self._annotation_sets = dict()
         self._text = text
         self.offset_type = OFFSET_TYPE_PYTHON
@@ -1235,7 +1283,7 @@ offsets accordingly)</li>
                     ann._start = method(ann._start)
                     ann._end = method(ann._end)
 
-    def to_offset_type(self, offsettype: str) -&gt; OffsetMapper:
+    def to_offset_type(self, offsettype: str) -&gt; Union[OffsetMapper, None]:
         &#34;&#34;&#34;Convert all the offsets of all the annotations in this document to the
         required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
         are already of that type, this does nothing.
@@ -1253,9 +1301,8 @@ offsets accordingly)</li>
           offset mapper or None
 
         &#34;&#34;&#34;
-        om = None
         if offsettype == self.offset_type:
-            return
+            return None
         if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
             # convert from currently python to java
             om = OffsetMapper(self._text)
@@ -1421,9 +1468,7 @@ offsets accordingly)</li>
           the changelog used previously or None
 
         &#34;&#34;&#34;
-        oldchlog = self._changelog
         self._changelog = chlog
-        return oldchlog
 
     @property
     def text(self) -&gt; str:
@@ -1540,7 +1585,7 @@ offsets accordingly)</li>
         else:
             return self._annotation_sets[name]
 
-    def annset_names(self) -&gt; KeysView[str]:
+    def annset_names(self) -&gt; List[str]:
         &#34;&#34;&#34;
 
         Args:
@@ -1567,6 +1612,57 @@ offsets accordingly)</li>
         del self._annotation_sets[name]
         if self._changelog:
             self._changelog.append({&#34;command&#34;: &#34;annotations:remove&#34;, &#34;set&#34;: name})
+
+    def anns(self, ann_spec):
+        &#34;&#34;&#34;
+        Return a detached annotation set with all annotations which match the annotation specification.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Returns:
+            a detached, immutable set with all the annotations matching the annotation specification
+        &#34;&#34;&#34;
+        return AnnotationSet.create_from(self.yield_anns(ann_spec))
+
+    def yield_anns(self, ann_spec):
+        &#34;&#34;&#34;
+        Yield all annotations which match the annotation specification.
+        The order of the annotations is unespecified.
+
+        Args:
+            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+
+        Yields:
+            all the annotations matching the annotation specification
+        &#34;&#34;&#34;
+        if isinstance(ann_spec, str):
+            tmpset = self._annotation_sets.get(ann_spec)
+            if tmpset is not None:
+                for ann in tmpset._annotations.values():
+                    yield ann
+            return
+        for spec in ann_spec:
+            if isinstance(spec, str):
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        yield ann
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    for ann in tmpset._annotations.values():
+                        if ann.type in types:
+                            yield ann
 
     def __repr__(self) -&gt; str:
         &#34;&#34;&#34;
@@ -1652,12 +1748,12 @@ offsets accordingly)</li>
         }
 
     @staticmethod
-    def from_dict(dictrepr, **kwargs):
+    def from_dict(dictrepr, **_kwargs):
         &#34;&#34;&#34;Return a Document instance as represented by the dictionary dictrepr.
 
         Args:
           dictrepr: return: the initialized Document instance
-          **kwargs:
+          **_kwargs: not used, ignored
 
         Returns:
           the initialized Document instance
@@ -2027,9 +2123,9 @@ offsets accordingly)</li>
             raise Exception(f&#34;Cannot attach set, a set with the name {name} already exists&#34;)
         if check:
             # check if the offsets are consistent with the document
-            l = len(self)
+            mylen = len(self)
             for ann in annset._annotations.values():
-                if ann.end &gt; l:
+                if ann.end &gt; mylen:
                     raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
         self._annotation_sets[name] = annset
         annset._owner_doc = self</code></pre>
@@ -2037,7 +2133,7 @@ offsets accordingly)</li>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.document.Document.from_dict"><code class="name flex">
-<span>def <span class="ident">from_dict</span></span>(<span>dictrepr, **kwargs)</span>
+<span>def <span class="ident">from_dict</span></span>(<span>dictrepr, **_kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a Document instance as represented by the dictionary dictrepr.</p>
@@ -2045,8 +2141,9 @@ offsets accordingly)</li>
 <dl>
 <dt><strong><code>dictrepr</code></strong></dt>
 <dd>return: the initialized Document instance</dd>
+<dt><strong><code>**_kwargs</code></strong></dt>
+<dd>not used, ignored</dd>
 </dl>
-<p>**kwargs:</p>
 <h2 id="returns">Returns</h2>
 <p>the initialized Document instance</p></div>
 </dd>
@@ -2192,6 +2289,22 @@ def text(self) -&gt; str:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="gatenlp.document.Document.anns"><code class="name flex">
+<span>def <span class="ident">anns</span></span>(<span>self, ann_spec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a detached annotation set with all annotations which match the annotation specification.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annset_spec</code></strong></dt>
+<dd>either a single string which is interpreted as an annotation set name, or a list where
+each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+first element of the tuple must be the annotation set name and the second element either a type
+name or a list of type names.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a detached, immutable set with all the annotations matching the annotation specification</p></div>
+</dd>
 <dt id="gatenlp.document.Document.annset"><code class="name flex">
 <span>def <span class="ident">annset</span></span>(<span>self, name: str = '') ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
 </code></dt>
@@ -2212,7 +2325,7 @@ If the annotation set does not already exist, it is created.</p>
 <p>the specified annotation set.</p></div>
 </dd>
 <dt id="gatenlp.document.Document.annset_names"><code class="name flex">
-<span>def <span class="ident">annset_names</span></span>(<span>self) ‑> KeysView[str]</span>
+<span>def <span class="ident">annset_names</span></span>(<span>self) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Args:</p>
@@ -2397,7 +2510,7 @@ in more than one specification.</dd>
 <p>the dictionary representation of this instance</p></div>
 </dd>
 <dt id="gatenlp.document.Document.to_offset_type"><code class="name flex">
-<span>def <span class="ident">to_offset_type</span></span>(<span>self, offsettype: str) ‑> <a title="gatenlp.offsetmapper.OffsetMapper" href="offsetmapper.html#gatenlp.offsetmapper.OffsetMapper">OffsetMapper</a></span>
+<span>def <span class="ident">to_offset_type</span></span>(<span>self, offsettype: str) ‑> Union[<a title="gatenlp.offsetmapper.OffsetMapper" href="offsetmapper.html#gatenlp.offsetmapper.OffsetMapper">OffsetMapper</a>, NoneType]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert all the offsets of all the annotations in this document to the
@@ -2415,6 +2528,23 @@ otherwise None.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>offset mapper or None</p></div>
+</dd>
+<dt id="gatenlp.document.Document.yield_anns"><code class="name flex">
+<span>def <span class="ident">yield_anns</span></span>(<span>self, ann_spec)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yield all annotations which match the annotation specification.
+The order of the annotations is unespecified.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>annset_spec</code></strong></dt>
+<dd>either a single string which is interpreted as an annotation set name, or a list where
+each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+first element of the tuple must be the annotation set name and the second element either a type
+name or a list of type names.</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<p>all the annotations matching the annotation specification</p></div>
 </dd>
 </dl>
 </dd>
@@ -2437,6 +2567,7 @@ otherwise None.</p>
 <li>
 <h4><code><a title="gatenlp.document.Document" href="#gatenlp.document.Document">Document</a></code></h4>
 <ul class="two-column">
+<li><code><a title="gatenlp.document.Document.anns" href="#gatenlp.document.Document.anns">anns</a></code></li>
 <li><code><a title="gatenlp.document.Document.annset" href="#gatenlp.document.Document.annset">annset</a></code></li>
 <li><code><a title="gatenlp.document.Document.annset_names" href="#gatenlp.document.Document.annset_names">annset_names</a></code></li>
 <li><code><a title="gatenlp.document.Document.apply_changes" href="#gatenlp.document.Document.apply_changes">apply_changes</a></code></li>
@@ -2456,6 +2587,7 @@ otherwise None.</p>
 <li><code><a title="gatenlp.document.Document.text" href="#gatenlp.document.Document.text">text</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_dict" href="#gatenlp.document.Document.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.to_offset_type" href="#gatenlp.document.Document.to_offset_type">to_offset_type</a></code></li>
+<li><code><a title="gatenlp.document.Document.yield_anns" href="#gatenlp.document.Document.yield_anns">yield_anns</a></code></li>
 </ul>
 </li>
 </ul>

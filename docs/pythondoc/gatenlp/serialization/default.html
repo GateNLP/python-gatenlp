@@ -34,7 +34,7 @@ import io
 import os
 import sys
 import yaml
-
+from collections import defaultdict
 # import ruyaml as yaml
 try:
     from yaml import CFullLoader as Loader, CDumper as Dumper
@@ -710,7 +710,7 @@ class MsgPackSerializer:
         return doc
 
 JS_JQUERY_URL = &#34;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&#34;
-JS_GATENLP_URL = &#34;https://unpkg.com/gatenlp-ann-viewer@1.0.13/gatenlp-ann-viewer.js&#34;
+JS_GATENLP_URL = &#34;https://unpkg.com/gatenlp-ann-viewer@1.0.14/gatenlp-ann-viewer.js&#34;
 JS_JQUERY = f&#34;&lt;script src=\&#34;{JS_JQUERY_URL}\&#34;&gt;&lt;/script&gt;&#34;
 JS_GATENLP = f&#34;&lt;script src=\&#34;{JS_GATENLP_URL}\&#34;&gt;&lt;/script&gt;&#34;
 HTML_TEMPLATE_FILE_NAME = &#34;gatenlp-ann-viewer.html&#34;
@@ -1074,7 +1074,59 @@ class HtmlLoader:
         return doc
 
 
-class TweetLoader:
+class TweetV1Serializer:
+
+    @staticmethod
+    def doc2twitterv1dict(doc, annsets=None, prefix_sep=None):
+        d = doc.to_dict(annsets=annsets)
+        ret = {&#34;full_text&#34;: doc.text}
+        ents = defaultdict(list)
+        for setname, annset in d.get(&#34;annotation_sets&#34;, {}).items():
+            for ann in annset.get(&#34;annotations&#34;, []):
+                anntype = ann[&#34;type&#34;]
+                if prefix_sep is not None and setname != &#34;&#34;:
+                    anntype = setname + prefix_sep + anntype
+                annlist = ents[anntype]
+                twitterann = {
+                    &#34;indices&#34;: [ann[&#34;start&#34;], ann[&#34;end&#34;]]
+                }
+                twitterann.update(ann[&#34;features&#34;])
+                annlist.append(twitterann)
+        ret[&#34;entities&#34;] = ents
+        return ret
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        annsets=None,
+        prefix_sep=None,
+        **kwargs,
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+            clazz: the class of the object that gets saved
+            inst: the object to get saved
+            to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+            to_mem: if True, return a String serialization
+            offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+            offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            prefix_types: if not None, prefix all types with the name of the annotation set the annotation comes from
+                and use the given string as the separator (can be the empty string for no seaparator).
+                For annotations from the default set the type stays unchanged.
+          **kwargs:
+        &#34;&#34;&#34;
+        d = TweetV1Serializer.doc2twitterv1dict(inst, annsets=annsets, prefix_sep=prefix_sep)
+        if to_mem:
+            return json.dumps(d)
+        else:
+            with open(to_ext, JSON_WRITE) as outfp:
+                json.dump(d, outfp)
+
     @staticmethod
     def load(
         clazz,
@@ -1401,6 +1453,7 @@ DOCUMENT_SAVERS = {
     &#34;text/bdocym+gzip+&#34;: YamlSerializer.save_gzip,
     &#34;msgpack&#34;: MsgPackSerializer.save,
     &#34;bdocmp&#34;: MsgPackSerializer.save,
+    &#34;tweet-v1&#34;: TweetV1Serializer.save,
     &#34;text/bdocmp&#34;: MsgPackSerializer.save,
     &#34;application/msgpack&#34;: MsgPackSerializer.save,
     &#34;html-ann-viewer&#34;: HtmlAnnViewerSerializer.save,
@@ -1430,7 +1483,7 @@ DOCUMENT_LOADERS = {
     &#34;html&#34;: HtmlLoader.load,
     &#34;html-rendered&#34;: HtmlLoader.load_rendered,
     &#34;gatexml&#34;: GateXmlLoader.load,
-    &#34;tweet&#34;: TweetLoader.load,
+    &#34;tweet-v1&#34;: TweetV1Serializer.load,
     &#34;pickle&#34;: PickleSerializer.load,
 }
 CHANGELOG_SAVERS = {
@@ -3070,8 +3123,8 @@ Returns:</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="gatenlp.serialization.default.TweetLoader"><code class="flex name class">
-<span>class <span class="ident">TweetLoader</span></span>
+<dt id="gatenlp.serialization.default.TweetV1Serializer"><code class="flex name class">
+<span>class <span class="ident">TweetV1Serializer</span></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -3079,7 +3132,59 @@ Returns:</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TweetLoader:
+<pre><code class="python">class TweetV1Serializer:
+
+    @staticmethod
+    def doc2twitterv1dict(doc, annsets=None, prefix_sep=None):
+        d = doc.to_dict(annsets=annsets)
+        ret = {&#34;full_text&#34;: doc.text}
+        ents = defaultdict(list)
+        for setname, annset in d.get(&#34;annotation_sets&#34;, {}).items():
+            for ann in annset.get(&#34;annotations&#34;, []):
+                anntype = ann[&#34;type&#34;]
+                if prefix_sep is not None and setname != &#34;&#34;:
+                    anntype = setname + prefix_sep + anntype
+                annlist = ents[anntype]
+                twitterann = {
+                    &#34;indices&#34;: [ann[&#34;start&#34;], ann[&#34;end&#34;]]
+                }
+                twitterann.update(ann[&#34;features&#34;])
+                annlist.append(twitterann)
+        ret[&#34;entities&#34;] = ents
+        return ret
+
+    @staticmethod
+    def save(
+        clazz,
+        inst,
+        to_ext=None,
+        to_mem=None,
+        annsets=None,
+        prefix_sep=None,
+        **kwargs,
+    ):
+        &#34;&#34;&#34;
+
+        Args:
+            clazz: the class of the object that gets saved
+            inst: the object to get saved
+            to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+            to_mem: if True, return a String serialization
+            offset_type: the offset type to use for saving, if None (default) use &#34;p&#34; (Python)
+            offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            prefix_types: if not None, prefix all types with the name of the annotation set the annotation comes from
+                and use the given string as the separator (can be the empty string for no seaparator).
+                For annotations from the default set the type stays unchanged.
+          **kwargs:
+        &#34;&#34;&#34;
+        d = TweetV1Serializer.doc2twitterv1dict(inst, annsets=annsets, prefix_sep=prefix_sep)
+        if to_mem:
+            return json.dumps(d)
+        else:
+            with open(to_ext, JSON_WRITE) as outfp:
+                json.dump(d, outfp)
+
     @staticmethod
     def load(
         clazz,
@@ -3174,7 +3279,13 @@ Returns:</p></div>
 </details>
 <h3>Static methods</h3>
 <dl>
-<dt id="gatenlp.serialization.default.TweetLoader.load"><code class="name flex">
+<dt id="gatenlp.serialization.default.TweetV1Serializer.doc2twitterv1dict"><code class="name flex">
+<span>def <span class="ident">doc2twitterv1dict</span></span>(<span>doc, annsets=None, prefix_sep=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.serialization.default.TweetV1Serializer.load"><code class="name flex">
 <span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, from_mem=None, include_fields=None, include_entities=True, include_quote=False, outsetname='Original markups', tweet_ann='Tweet')</span>
 </code></dt>
 <dd>
@@ -3205,6 +3316,23 @@ tweet just like the original tweet.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>document representing the tweet</p></div>
+</dd>
+<dt id="gatenlp.serialization.default.TweetV1Serializer.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, annsets=None, prefix_sep=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<p>clazz: the class of the object that gets saved
+inst: the object to get saved
+to_ext: where to save to, this should be a file path, only one of to_ext and to_mem should be specified
+to_mem: if True, return a String serialization
+offset_type: the offset type to use for saving, if None (default) use "p" (Python)
+offset_mapper: the offset mapper to use, only needed if the type needs to get converted
+annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+prefix_types: if not None, prefix all types with the name of the annotation set the annotation comes from
+and use the given string as the separator (can be the empty string for no seaparator).
+For annotations from the default set the type stays unchanged.
+**kwargs:</p></div>
 </dd>
 </dl>
 </dd>
@@ -3474,9 +3602,11 @@ Returns:</p></div>
 </ul>
 </li>
 <li>
-<h4><code><a title="gatenlp.serialization.default.TweetLoader" href="#gatenlp.serialization.default.TweetLoader">TweetLoader</a></code></h4>
+<h4><code><a title="gatenlp.serialization.default.TweetV1Serializer" href="#gatenlp.serialization.default.TweetV1Serializer">TweetV1Serializer</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.serialization.default.TweetLoader.load" href="#gatenlp.serialization.default.TweetLoader.load">load</a></code></li>
+<li><code><a title="gatenlp.serialization.default.TweetV1Serializer.doc2twitterv1dict" href="#gatenlp.serialization.default.TweetV1Serializer.doc2twitterv1dict">doc2twitterv1dict</a></code></li>
+<li><code><a title="gatenlp.serialization.default.TweetV1Serializer.load" href="#gatenlp.serialization.default.TweetV1Serializer.load">load</a></code></li>
+<li><code><a title="gatenlp.serialization.default.TweetV1Serializer.save" href="#gatenlp.serialization.default.TweetV1Serializer.save">save</a></code></li>
 </ul>
 </li>
 <li>

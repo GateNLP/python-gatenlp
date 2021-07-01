@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.pam.pampac.actions API documentation</title>
+<meta name="description" content="Module for PAMPAC action classes." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.pam.pampac.actions</code></h1>
+</header>
+<section id="section-intro">
+<p>Module for PAMPAC action classes.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module for PAMPAC action classes.
+&#34;&#34;&#34;
+from copy import deepcopy
+from gatenlp import Annotation
+from gatenlp.features import Features
+
+
+class Getter:
+    &#34;&#34;&#34;
+    Common base class of all Getter helper classes.
+    &#34;&#34;&#34;
+    pass
+
+
+def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
+    &#34;&#34;&#34;
+    Helper method to return the match info for the given result index and name, or None.
+
+    Args:
+        succ: success instance
+        name: name of the match info
+        resultidx: index of the result in success
+        matchidx: if there is more than one matching match info with that name, which one to return
+        silent_fail: if True, return None, if False, raise an exception if the match info is not present
+
+    Returns:
+        the match info or None
+
+    &#34;&#34;&#34;
+    if resultidx &gt;= len(succ):
+        if not silent_fail:
+            raise Exception(f&#34;No resultidx {resultidx}, only {len(succ)} results&#34;)
+        return None
+    res = succ[resultidx]
+    matches = res.matches4name(name)
+    if not matches:
+        if not silent_fail:
+            raise Exception(f&#34;No match info with name {name} in result&#34;)
+        return None
+    if matchidx &gt;= len(matches):
+        if not silent_fail:
+            raise Exception(f&#34;No match info with index {matchidx}, length is {len(matches)}&#34;)
+        return None
+    return matches[matchidx]
+
+
+# pylint: disable=R0912
+def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
+    &#34;&#34;&#34;
+    Helper method to return the span for the given result index and name, or None.
+
+    Args:
+        succ: success instance
+        name: name of the match info, if None, uses the entire span of the result
+        resultidx: index of the result in success
+        matchidx: if there is more than one match info with that name, which one to return, if no name, ignored
+        silent_fail: if True, return None, if False, raise an exception if the match info is not present
+
+    Returns:
+        the span or None if no Span exists
+    &#34;&#34;&#34;
+    if resultidx &gt;= len(succ):
+        if not silent_fail:
+            raise Exception(f&#34;No resultidx {resultidx}, only {len(succ)} results&#34;)
+        return None
+    res = succ[resultidx]
+    if name:
+        matches = res.matches4name(name)
+        if not matches:
+            if not silent_fail:
+                raise Exception(f&#34;No match info with name {name} in result&#34;)
+            return None
+        if matchidx &gt;= len(matches):
+            if not silent_fail:
+                raise Exception(f&#34;No match info with index {matchidx}, length is {len(matches)}&#34;)
+            return None
+        ret = matches[matchidx].get(&#34;span&#34;)
+    else:
+        ret = res.span
+    if ret is None:
+        if silent_fail:
+            return None
+        else:
+            raise Exception(&#34;No span found&#34;)
+    return ret
+
+
+class Actions:
+    &#34;&#34;&#34;
+    A container to run several actions for a rule.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 *actions,
+                 ):
+        &#34;&#34;&#34;
+        Wrap several actions for use in a rule.
+
+        Args:
+            *actions: any number of actions to run.
+        &#34;&#34;&#34;
+        self.actions = actions
+
+    def __call__(self, succ, context=None, location=None):
+        &#34;&#34;&#34;
+        Invokes the actions defined for this wrapper in sequence and
+        returns one of the following: for no wrapped actions, no action is invoked and None is returned;
+        for exactly one action the return value of that action is returned, for 2 or more actions
+        a list with the return values of each of those actions is returned.
+
+        Args:
+            succ:  the success object
+            context: the context
+            location:  the location
+
+        Returns: None, action return value or list of action return values
+
+        &#34;&#34;&#34;
+        if len(self.actions) == 1:
+            return self.actions[0](succ, context=context, location=location)
+        elif len(self.actions) == 0:
+            return None
+        else:
+            ret = []
+            for action in self.actions:
+                ret.append(action(succ, context=context, location=location))
+            return ret
+
+
+class AddAnn:
+    &#34;&#34;&#34;
+    Action for adding an annotation.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self,
+            name=None,
+            ann=None,  # create a copy of this ann retrieved with GetAnn
+            type=None,  # or create a new annotation with this type
+            annset=None,  # if not none, create in this set instead of the one used for matching
+            features=None,
+            span=None,  # use literal span, GetSpan, if none, span from match
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+        ):  # pylint: disable=W0622
+        &#34;&#34;&#34;
+        Create an action for adding a new annotation to the outset.
+
+        Args:
+            name: the name of the match to use for getting the annotation span, if None, use the
+                whole span of each match
+            ann:  either an Annotation which will be (deep) copied to create the new annotation, or
+                a GetAnn helper for copying the annoation the helper returns. If this is specified the
+                other parameters for creating a new annotation are ignored.
+            type: the type of a new annotation to create
+            annset: if not None, create the new annotation in this set instead of the one used for matching
+            features: the features of a new annotation to create. This can be a GetFeatures helper for copying
+                the features from another annotation in the results
+            span: the span of the annotation, this can be a GetSpan helper for copying the span from another
+                annotation in the results
+            resultidx: the index of the result to use if more than one result is in the Success. If None,
+                the AddAnn action is performed for all results
+            matchidx: the index of the match info to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all match info items with that name.
+            silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
+                otherwise raises an Exception.
+        &#34;&#34;&#34;
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
+        # span at firing time
+        assert type is not None or ann is not None
+        self.name = name
+        self.anntype = type
+        self.ann = ann
+        self.features = features
+        self.span = span
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+        self.annset = annset
+
+    # pylint: disable=R0912
+    def _add4span(self, span, succ, context, location):
+        if span is None:
+            return
+        if self.annset is not None:
+            outset = self.annset
+        else:
+            outset = context.outset
+        if self.ann:
+            if isinstance(self.ann, Annotation):
+                outset.add_ann(self.ann.deepcopy())
+            else:
+                ann = self.ann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception(&#34;No matching annotation found&#34;)
+                outset.add_ann(ann)
+        else:
+            if self.span:
+                if callable(self.span):
+                    span = self.span(succ, context=context, location=location)
+                else:
+                    span = self.span
+            if callable(self.anntype):
+                anntype = self.anntype(succ, context=context, location=location)
+            else:
+                anntype = self.anntype
+            if self.features:
+                if callable(self.features):
+                    features = self.features(succ, context=context, location=location)
+                else:
+                    # NOTE: if we got a dictionary where some values are helpers, we need to run the helper
+                    # and replace the value with the result. However, this would change the original dictionary
+                    # just the first time if there are several matches, so we always shallow copy the features
+                    # first!
+                    features = self.features.copy()
+                    for k, v in features.items():
+                        if isinstance(v, Getter):
+                            features[k] = v(succ, context=context, location=location)
+            else:
+                features = None
+            outset.add(span.start, span.end, anntype, features=features)
+
+    def _add4result(self, succ, resultidx, context, location):
+        if self.matchidx is None:
+            for matchidx in range(len(succ[resultidx].matches)):
+                span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
+                self._add4span(span, succ, context, location)
+        else:
+            span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
+            self._add4span(span, succ, context, location)
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx is None:
+            for resultidx in range(len(succ)):
+                self._add4result(succ, resultidx, context, location)
+        else:
+            self._add4result(succ, self.resultidx, context, location)
+
+
+class UpdateAnnFeatures:
+    &#34;&#34;&#34;
+    Action for updating the features of an annotation.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self,
+            name=None,
+            updateann=None,
+            fromann=None,
+            features=None,
+            replace=False,  # replace existing features rather than updating
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+            deepcopy=False
+        ):
+        &#34;&#34;&#34;
+        Create an UpdateAnnFeatures action. The features to use for updating can either come from
+        an existing annotation, an annotation fetched with a GetAnn annotation getter, or from a
+        a features instance, a feature getter or a dictionary.
+
+        Args:
+            name: the name of the match to use for getting the annotation to modify (if updateann is not
+                specified). This must be None if updateann is specified.
+            updateann: if specified, update the features of this annotation. This can be either a literal
+                annotation or a GetAnn help to access another annotation from the result.
+            fromann: if specified use the features from this annotation. This can be either a literal annotation
+                or a GetAnn helper to access another annotation from the result.
+            features: the features to use for updating, either literal features or dictionary,
+                or a GetFeatures helper.
+            replace: if True, replace the existing features with the new ones, otherwise update the existing features.
+            resultidx: the index of the result to use, if there is more than one (default: 0)
+            matchidx: the index of a matching info element to use, if more than one matches exist
+                with the given name (default: 0)
+            silent_fail: if True, do not raise an exception if the features cannot be updated
+            deepcopy: if True, existing features are deep-copied, otherwise a shallow copy or new instance
+                is created.
+        &#34;&#34;&#34;
+        # check parameters for getting the features:
+        if fromann is None and features is None:
+            raise Exception(&#34;Either fromann or features must be specified&#34;)
+        if fromann is not None and features is not None:
+            raise Exception(&#34;Parameters fromann and features must not be both specified at the same time&#34;)
+        # check parameters for setting features:
+        if name is None and updateann is None:
+            raise Exception(&#34;Either name or updateann must be specified&#34;)
+        if name is not None and updateann is not None:
+            raise Exception(&#34;Parameters name and updateann must not be both specified at the same time&#34;)
+        self.name = name
+        self.updateann = updateann
+        self.fromann = fromann
+        self.replace = replace
+        self.features = features
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+        self.deepcopy = deepcopy
+
+    # pylint: disable=R0912
+    def __call__(self, succ, context=None, location=None):
+        # determine the annotation to modify
+        if self.updateann is not None:
+            if isinstance(self.updateann, Annotation):
+                updateann = self.updateann
+            else:
+                updateann = self.updateann(succ, context=context, location=location)
+        else:
+            match = _get_match(
+                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+            )
+            if not match:
+                if self.silent_fail:
+                    return
+                else:
+                    raise Exception(f&#34;Could not find the name {self.name}&#34;)
+            updateann = match.get(&#34;ann&#34;)
+        if updateann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f&#34;Could not find an annotation for the name {self.name}&#34;
+                )
+        updatefeats = updateann.features
+        # determine the features to use: either from an annotation/annotation getter or from
+        # features or a features getter
+
+        if self.fromann is not None:
+            if isinstance(self.fromann, Annotation):
+                fromfeats = self.fromann.features
+            else:
+                ann = self.fromann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception(&#34;No matching source annotation found&#34;)
+                fromfeats = ann.features
+        else:   # get it from self.features
+            if callable(self.features):
+                fromfeats = self.features(succ, context=context, location=location)
+            else:
+                fromfeats = self.features
+        # make sure we have features and optionally make sure we have a deep copy
+        fromfeats = Features(fromfeats, deepcopy=self.deepcopy)
+        if self.replace:
+            updatefeats.clear()
+        updatefeats.update(fromfeats)
+
+
+class RemoveAnn:
+    &#34;&#34;&#34;
+    Action for removing an anntoation.
+    &#34;&#34;&#34;
+    def __init__(self, name,
+                 resultidx=0, matchidx=0,
+                 silent_fail=True):
+        &#34;&#34;&#34;
+        Create a remove annoation action.
+
+        Args:
+            name: the name of a match from which to get the annotation to remove
+            resultidx: index of the result to use, if several (default: 0)
+            matchidx: index of the match to use, if several (default: 0)
+            silent_fail: if True, silently ignore the error of no annotation to get removed
+        &#34;&#34;&#34;
+        self.name = name
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+        )
+        if not match:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(f&#34;Could not find the name {self.name}&#34;)
+        theann = match.get(&#34;ann&#34;)
+        if theann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f&#34;Could not find an annotation for the name {self.name}&#34;
+                )
+        context.annset.remove(theann)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.pam.pampac.actions.Actions"><code class="flex name class">
+<span>class <span class="ident">Actions</span></span>
+<span>(</span><span>*actions)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A container to run several actions for a rule.</p>
+<p>Wrap several actions for use in a rule.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>*actions</code></strong></dt>
+<dd>any number of actions to run.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Actions:
+    &#34;&#34;&#34;
+    A container to run several actions for a rule.
+    &#34;&#34;&#34;
+
+    def __init__(self,
+                 *actions,
+                 ):
+        &#34;&#34;&#34;
+        Wrap several actions for use in a rule.
+
+        Args:
+            *actions: any number of actions to run.
+        &#34;&#34;&#34;
+        self.actions = actions
+
+    def __call__(self, succ, context=None, location=None):
+        &#34;&#34;&#34;
+        Invokes the actions defined for this wrapper in sequence and
+        returns one of the following: for no wrapped actions, no action is invoked and None is returned;
+        for exactly one action the return value of that action is returned, for 2 or more actions
+        a list with the return values of each of those actions is returned.
+
+        Args:
+            succ:  the success object
+            context: the context
+            location:  the location
+
+        Returns: None, action return value or list of action return values
+
+        &#34;&#34;&#34;
+        if len(self.actions) == 1:
+            return self.actions[0](succ, context=context, location=location)
+        elif len(self.actions) == 0:
+            return None
+        else:
+            ret = []
+            for action in self.actions:
+                ret.append(action(succ, context=context, location=location))
+            return ret</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.pampac.actions.AddAnn"><code class="flex name class">
+<span>class <span class="ident">AddAnn</span></span>
+<span>(</span><span>name=None, ann=None, type=None, annset=None, features=None, span=None, resultidx=0, matchidx=0, silent_fail=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Action for adding an annotation.</p>
+<p>Create an action for adding a new annotation to the outset.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of the match to use for getting the annotation span, if None, use the
+whole span of each match</dd>
+<dt><strong><code>ann</code></strong></dt>
+<dd>either an Annotation which will be (deep) copied to create the new annotation, or
+a GetAnn helper for copying the annoation the helper returns. If this is specified the
+other parameters for creating a new annotation are ignored.</dd>
+<dt><strong><code>type</code></strong></dt>
+<dd>the type of a new annotation to create</dd>
+<dt><strong><code>annset</code></strong></dt>
+<dd>if not None, create the new annotation in this set instead of the one used for matching</dd>
+<dt><strong><code>features</code></strong></dt>
+<dd>the features of a new annotation to create. This can be a GetFeatures helper for copying
+the features from another annotation in the results</dd>
+<dt><strong><code>span</code></strong></dt>
+<dd>the span of the annotation, this can be a GetSpan helper for copying the span from another
+annotation in the results</dd>
+<dt><strong><code>resultidx</code></strong></dt>
+<dd>the index of the result to use if more than one result is in the Success. If None,
+the AddAnn action is performed for all results</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of the match info to use if more than one item matches the given name. If None,
+the AddAnn action is performed for all match info items with that name.</dd>
+<dt><strong><code>silent_fail</code></strong></dt>
+<dd>if True and the annotation can not be created for some reason, just do silently nothing,
+otherwise raises an Exception.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AddAnn:
+    &#34;&#34;&#34;
+    Action for adding an annotation.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self,
+            name=None,
+            ann=None,  # create a copy of this ann retrieved with GetAnn
+            type=None,  # or create a new annotation with this type
+            annset=None,  # if not none, create in this set instead of the one used for matching
+            features=None,
+            span=None,  # use literal span, GetSpan, if none, span from match
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+        ):  # pylint: disable=W0622
+        &#34;&#34;&#34;
+        Create an action for adding a new annotation to the outset.
+
+        Args:
+            name: the name of the match to use for getting the annotation span, if None, use the
+                whole span of each match
+            ann:  either an Annotation which will be (deep) copied to create the new annotation, or
+                a GetAnn helper for copying the annoation the helper returns. If this is specified the
+                other parameters for creating a new annotation are ignored.
+            type: the type of a new annotation to create
+            annset: if not None, create the new annotation in this set instead of the one used for matching
+            features: the features of a new annotation to create. This can be a GetFeatures helper for copying
+                the features from another annotation in the results
+            span: the span of the annotation, this can be a GetSpan helper for copying the span from another
+                annotation in the results
+            resultidx: the index of the result to use if more than one result is in the Success. If None,
+                the AddAnn action is performed for all results
+            matchidx: the index of the match info to use if more than one item matches the given name. If None,
+                the AddAnn action is performed for all match info items with that name.
+            silent_fail: if True and the annotation can not be created for some reason, just do silently nothing,
+                otherwise raises an Exception.
+        &#34;&#34;&#34;
+        # span is either a span, the index of a match info to take the span from, or a callable that will return the
+        # span at firing time
+        assert type is not None or ann is not None
+        self.name = name
+        self.anntype = type
+        self.ann = ann
+        self.features = features
+        self.span = span
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+        self.annset = annset
+
+    # pylint: disable=R0912
+    def _add4span(self, span, succ, context, location):
+        if span is None:
+            return
+        if self.annset is not None:
+            outset = self.annset
+        else:
+            outset = context.outset
+        if self.ann:
+            if isinstance(self.ann, Annotation):
+                outset.add_ann(self.ann.deepcopy())
+            else:
+                ann = self.ann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception(&#34;No matching annotation found&#34;)
+                outset.add_ann(ann)
+        else:
+            if self.span:
+                if callable(self.span):
+                    span = self.span(succ, context=context, location=location)
+                else:
+                    span = self.span
+            if callable(self.anntype):
+                anntype = self.anntype(succ, context=context, location=location)
+            else:
+                anntype = self.anntype
+            if self.features:
+                if callable(self.features):
+                    features = self.features(succ, context=context, location=location)
+                else:
+                    # NOTE: if we got a dictionary where some values are helpers, we need to run the helper
+                    # and replace the value with the result. However, this would change the original dictionary
+                    # just the first time if there are several matches, so we always shallow copy the features
+                    # first!
+                    features = self.features.copy()
+                    for k, v in features.items():
+                        if isinstance(v, Getter):
+                            features[k] = v(succ, context=context, location=location)
+            else:
+                features = None
+            outset.add(span.start, span.end, anntype, features=features)
+
+    def _add4result(self, succ, resultidx, context, location):
+        if self.matchidx is None:
+            for matchidx in range(len(succ[resultidx].matches)):
+                span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
+                self._add4span(span, succ, context, location)
+        else:
+            span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
+            self._add4span(span, succ, context, location)
+
+    def __call__(self, succ, context=None, location=None):
+        if self.resultidx is None:
+            for resultidx in range(len(succ)):
+                self._add4result(succ, resultidx, context, location)
+        else:
+            self._add4result(succ, self.resultidx, context, location)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.pampac.actions.Getter"><code class="flex name class">
+<span>class <span class="ident">Getter</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class of all Getter helper classes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Getter:
+    &#34;&#34;&#34;
+    Common base class of all Getter helper classes.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="gatenlp.pam.pampac.getters.GetAnn" href="getters.html#gatenlp.pam.pampac.getters.GetAnn">GetAnn</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetEnd" href="getters.html#gatenlp.pam.pampac.getters.GetEnd">GetEnd</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetFeature" href="getters.html#gatenlp.pam.pampac.getters.GetFeature">GetFeature</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetFeatures" href="getters.html#gatenlp.pam.pampac.getters.GetFeatures">GetFeatures</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetRegexGroup" href="getters.html#gatenlp.pam.pampac.getters.GetRegexGroup">GetRegexGroup</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetStart" href="getters.html#gatenlp.pam.pampac.getters.GetStart">GetStart</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetText" href="getters.html#gatenlp.pam.pampac.getters.GetText">GetText</a></li>
+<li><a title="gatenlp.pam.pampac.getters.GetType" href="getters.html#gatenlp.pam.pampac.getters.GetType">GetType</a></li>
+</ul>
+</dd>
+<dt id="gatenlp.pam.pampac.actions.RemoveAnn"><code class="flex name class">
+<span>class <span class="ident">RemoveAnn</span></span>
+<span>(</span><span>name, resultidx=0, matchidx=0, silent_fail=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Action for removing an anntoation.</p>
+<p>Create a remove annoation action.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of a match from which to get the annotation to remove</dd>
+<dt><strong><code>resultidx</code></strong></dt>
+<dd>index of the result to use, if several (default: 0)</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>index of the match to use, if several (default: 0)</dd>
+<dt><strong><code>silent_fail</code></strong></dt>
+<dd>if True, silently ignore the error of no annotation to get removed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RemoveAnn:
+    &#34;&#34;&#34;
+    Action for removing an anntoation.
+    &#34;&#34;&#34;
+    def __init__(self, name,
+                 resultidx=0, matchidx=0,
+                 silent_fail=True):
+        &#34;&#34;&#34;
+        Create a remove annoation action.
+
+        Args:
+            name: the name of a match from which to get the annotation to remove
+            resultidx: index of the result to use, if several (default: 0)
+            matchidx: index of the match to use, if several (default: 0)
+            silent_fail: if True, silently ignore the error of no annotation to get removed
+        &#34;&#34;&#34;
+        self.name = name
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None):
+        match = _get_match(
+            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+        )
+        if not match:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(f&#34;Could not find the name {self.name}&#34;)
+        theann = match.get(&#34;ann&#34;)
+        if theann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f&#34;Could not find an annotation for the name {self.name}&#34;
+                )
+        context.annset.remove(theann)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.pam.pampac.actions.UpdateAnnFeatures"><code class="flex name class">
+<span>class <span class="ident">UpdateAnnFeatures</span></span>
+<span>(</span><span>name=None, updateann=None, fromann=None, features=None, replace=False, resultidx=0, matchidx=0, silent_fail=False, deepcopy=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Action for updating the features of an annotation.</p>
+<p>Create an UpdateAnnFeatures action. The features to use for updating can either come from
+an existing annotation, an annotation fetched with a GetAnn annotation getter, or from a
+a features instance, a feature getter or a dictionary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of the match to use for getting the annotation to modify (if updateann is not
+specified). This must be None if updateann is specified.</dd>
+<dt><strong><code>updateann</code></strong></dt>
+<dd>if specified, update the features of this annotation. This can be either a literal
+annotation or a GetAnn help to access another annotation from the result.</dd>
+<dt><strong><code>fromann</code></strong></dt>
+<dd>if specified use the features from this annotation. This can be either a literal annotation
+or a GetAnn helper to access another annotation from the result.</dd>
+<dt><strong><code>features</code></strong></dt>
+<dd>the features to use for updating, either literal features or dictionary,
+or a GetFeatures helper.</dd>
+<dt><strong><code>replace</code></strong></dt>
+<dd>if True, replace the existing features with the new ones, otherwise update the existing features.</dd>
+<dt><strong><code>resultidx</code></strong></dt>
+<dd>the index of the result to use, if there is more than one (default: 0)</dd>
+<dt><strong><code>matchidx</code></strong></dt>
+<dd>the index of a matching info element to use, if more than one matches exist
+with the given name (default: 0)</dd>
+<dt><strong><code>silent_fail</code></strong></dt>
+<dd>if True, do not raise an exception if the features cannot be updated</dd>
+<dt><strong><code>deepcopy</code></strong></dt>
+<dd>if True, existing features are deep-copied, otherwise a shallow copy or new instance
+is created.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UpdateAnnFeatures:
+    &#34;&#34;&#34;
+    Action for updating the features of an annotation.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self,
+            name=None,
+            updateann=None,
+            fromann=None,
+            features=None,
+            replace=False,  # replace existing features rather than updating
+            resultidx=0,
+            matchidx=0,
+            silent_fail=False,
+            deepcopy=False
+        ):
+        &#34;&#34;&#34;
+        Create an UpdateAnnFeatures action. The features to use for updating can either come from
+        an existing annotation, an annotation fetched with a GetAnn annotation getter, or from a
+        a features instance, a feature getter or a dictionary.
+
+        Args:
+            name: the name of the match to use for getting the annotation to modify (if updateann is not
+                specified). This must be None if updateann is specified.
+            updateann: if specified, update the features of this annotation. This can be either a literal
+                annotation or a GetAnn help to access another annotation from the result.
+            fromann: if specified use the features from this annotation. This can be either a literal annotation
+                or a GetAnn helper to access another annotation from the result.
+            features: the features to use for updating, either literal features or dictionary,
+                or a GetFeatures helper.
+            replace: if True, replace the existing features with the new ones, otherwise update the existing features.
+            resultidx: the index of the result to use, if there is more than one (default: 0)
+            matchidx: the index of a matching info element to use, if more than one matches exist
+                with the given name (default: 0)
+            silent_fail: if True, do not raise an exception if the features cannot be updated
+            deepcopy: if True, existing features are deep-copied, otherwise a shallow copy or new instance
+                is created.
+        &#34;&#34;&#34;
+        # check parameters for getting the features:
+        if fromann is None and features is None:
+            raise Exception(&#34;Either fromann or features must be specified&#34;)
+        if fromann is not None and features is not None:
+            raise Exception(&#34;Parameters fromann and features must not be both specified at the same time&#34;)
+        # check parameters for setting features:
+        if name is None and updateann is None:
+            raise Exception(&#34;Either name or updateann must be specified&#34;)
+        if name is not None and updateann is not None:
+            raise Exception(&#34;Parameters name and updateann must not be both specified at the same time&#34;)
+        self.name = name
+        self.updateann = updateann
+        self.fromann = fromann
+        self.replace = replace
+        self.features = features
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+        self.silent_fail = silent_fail
+        self.deepcopy = deepcopy
+
+    # pylint: disable=R0912
+    def __call__(self, succ, context=None, location=None):
+        # determine the annotation to modify
+        if self.updateann is not None:
+            if isinstance(self.updateann, Annotation):
+                updateann = self.updateann
+            else:
+                updateann = self.updateann(succ, context=context, location=location)
+        else:
+            match = _get_match(
+                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+            )
+            if not match:
+                if self.silent_fail:
+                    return
+                else:
+                    raise Exception(f&#34;Could not find the name {self.name}&#34;)
+            updateann = match.get(&#34;ann&#34;)
+        if updateann is None:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f&#34;Could not find an annotation for the name {self.name}&#34;
+                )
+        updatefeats = updateann.features
+        # determine the features to use: either from an annotation/annotation getter or from
+        # features or a features getter
+
+        if self.fromann is not None:
+            if isinstance(self.fromann, Annotation):
+                fromfeats = self.fromann.features
+            else:
+                ann = self.fromann(succ)
+                if ann is None:
+                    if self.silent_fail:
+                        return
+                    else:
+                        raise Exception(&#34;No matching source annotation found&#34;)
+                fromfeats = ann.features
+        else:   # get it from self.features
+            if callable(self.features):
+                fromfeats = self.features(succ, context=context, location=location)
+            else:
+                fromfeats = self.features
+        # make sure we have features and optionally make sure we have a deep copy
+        fromfeats = Features(fromfeats, deepcopy=self.deepcopy)
+        if self.replace:
+            updatefeats.clear()
+        updatefeats.update(fromfeats)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.pam.pampac" href="index.html">gatenlp.pam.pampac</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.actions.Actions" href="#gatenlp.pam.pampac.actions.Actions">Actions</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.actions.AddAnn" href="#gatenlp.pam.pampac.actions.AddAnn">AddAnn</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.actions.Getter" href="#gatenlp.pam.pampac.actions.Getter">Getter</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.actions.RemoveAnn" href="#gatenlp.pam.pampac.actions.RemoveAnn">RemoveAnn</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.actions.UpdateAnnFeatures" href="#gatenlp.pam.pampac.actions.UpdateAnnFeatures">UpdateAnnFeatures</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

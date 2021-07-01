@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.pam.pampac.pampac API documentation</title>
+<meta name="description" content="Module for the Pampac class." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.pam.pampac.pampac</code></h1>
+</header>
+<section id="section-intro">
+<p>Module for the Pampac class.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module for the Pampac class.
+&#34;&#34;&#34;
+from gatenlp.pam.pampac.data import Location, Context
+from gatenlp.pam.pampac.rule import Rule
+from gatenlp.annotation_set import AnnotationSet
+from gatenlp.utils import init_logger
+from gatenlp.processing.annotator import Annotator
+
+
+class Pampac:
+    &#34;&#34;&#34;
+    A class for applying a sequence of rules to a document.
+    &#34;&#34;&#34;
+
+    def __init__(self, *rules, skip=&#34;longest&#34;, select=&#34;first&#34;):
+        &#34;&#34;&#34;
+        Initialize Pampac.
+
+        Args:
+            *rules: one or more rules
+            skip:  how proceed after something has been matched at a position. One of: &#34;longest&#34; to proceed
+              at the next text offset after the end of the longest match. &#34;next&#34; to use a location with the highest
+              text and annotation index over all matches. &#34;one&#34; to increment the text offset by one and adjust
+              the annotation index to point to the next annotation at or after the new text offset.
+              &#34;once&#34;: do not advance after the first location where a rule matches. NOTE: if skipping depends on
+              on the match(es), only those matches for which a rule fires are considered.
+            select: which of those rules that match to actually apply, i.e. call the action part of the rule.
+              One of: &#34;first&#34;: try all rules in sequence and call only the first one that matches. &#34;highest&#34;: try
+              all rules and only call the rules which has the highest priority, if there is more than one, the first
+              of those.
+        &#34;&#34;&#34;
+        assert len(rules) &gt; 0
+        assert skip in [&#34;one&#34;, &#34;longest&#34;, &#34;next&#34;, &#34;once&#34;]
+        assert select in [&#34;first&#34;, &#34;highest&#34;, &#34;all&#34;]
+        for rule_ in rules:
+            assert isinstance(rule_, Rule)
+        self.rules = rules
+        self.priorities = [r.priority for r in self.rules]
+        self.max_priority = max(self.priorities)
+        for idx, rule_ in enumerate(rules):
+            if rule_.priority == self.max_priority:
+                self.hp_rule = rule_
+                self.hp_rule_idx = idx
+                break
+        self.skip = skip
+        self.select = select
+
+    def set_skip(self, val):
+        &#34;&#34;&#34;
+        Different way to set the skip parameter.
+        &#34;&#34;&#34;
+        self.skip = val
+        return self
+
+    def set_select(self, val):
+        &#34;&#34;&#34;
+        Different way to set the select parameter.
+        &#34;&#34;&#34;
+        self.select = val
+        return self
+
+    # pylint: disable=R0912, R0915
+    def run(self,
+            doc,
+            annotations,
+            outset=None, start=None, end=None, containing_anns=None, debug=False):
+        &#34;&#34;&#34;
+        Run the rules from location start to location end (default: full document), using the annotation set or list.
+
+        Args:
+            doc: the document to run on
+            annotations: the annotation set or iterable to use for matching.
+            outset: the output annotation set. If this is a string, retrieves the set from doc
+            start: the text offset where to start matching
+            end: the text offset where to end matching
+            containing_anns: if this is an AnnotationSet or iterable of annotations, the rules are applied to each
+                span of each of the annotations in order, and only input annotations that are fully contained
+                in that span are processed (default: None, use the whole document)
+            debug: enable debug logging
+
+        Returns:
+            a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
+        &#34;&#34;&#34;
+        logger = init_logger(debug=debug)
+        if isinstance(outset, str):
+            outset = doc.annset(outset)
+        returntuples = []
+        ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
+        location = Location(ctx.start, 0)
+        if containing_anns is not None:
+            # in order to be able to get the contained annotations, we need to make sure the `annotations`
+            # are in a set
+            if not isinstance(annotations, AnnotationSet):
+                containing_anns = AnnotationSet.create_from(containing_anns)
+            for ann in containing_anns:
+                if ann.length == 0:
+                    continue
+                span_anns = annotations.within(ann)
+                ctx = Context(doc=doc, anns=span_anns, outset=outset, start=ann.start, end=ann.end)
+                returntuples.extend(self._run4span(logger, ctx, location))
+            return returntuples
+        else:
+            return self._run4span(logger, ctx, location)
+
+    def _run4span(self, logger, ctx, location):
+        # Runs on a single span using the given context and start location and returns a list of tuples with
+        # offset and actionreturnvals for each location where a match or matches occured
+        returntuples = []
+        while True:  # pylint: disable=R1702
+            # try the rules at the current position
+            cur_offset = location.text_location
+            frets = []
+            rets = dict()
+            for idx, rule_ in enumerate(self.rules):
+                logger.debug(&#34;Trying rule %s at location %s&#34;, idx, location)
+                ret = rule_.parse(location, ctx)
+                if ret.issuccess():
+                    rets[idx] = ret
+                    logger.debug(&#34;Success for rule %s, %s results&#34;, idx, len(ret))
+                    if self.select == &#34;first&#34;:
+                        break
+            # we now got all the matching results in rets
+            # if we have at least one matching ...
+            if len(rets) &gt; 0:
+                fired_rets = []
+                # choose the rules to fire and call the actions
+                if self.select == &#34;first&#34;:
+                    idx, ret = list(rets.items())[0]
+                    logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                    fret = self.rules[idx].action(ret, context=ctx, location=location)
+                    frets.append(fret)
+                    fired_rets.append(ret)
+                elif self.select == &#34;all&#34;:
+                    for idx, ret in rets.items():
+                        logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                        fret = self.rules[idx].action(
+                            ret, context=ctx, location=location
+                        )
+                        frets.append(fret)
+                        fired_rets.append(ret)
+                elif self.select == &#34;highest&#34;:
+                    for idx, ret in rets.items():
+                        if idx == self.hp_rule_idx:
+                            logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                            fret = self.rules[idx].action(
+                                ret, context=ctx, location=location
+                            )
+                            frets.append(fret)
+                            fired_rets.append(ret)
+                # now that we have fired rules, find out how to advance to the next position
+                if self.skip == &#34;once&#34;:
+                    return frets
+                elif self.skip == &#34;once&#34;:
+                    location = ctx.inc_location(location, by_offset=1)
+                elif self.skip == &#34;longest&#34;:
+                    longest = 0
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location &gt; longest:
+                                longest = res.location.text_location
+                    location.text_location = longest
+                    location = ctx.update_location_byoffset(location)
+                elif self.skip == &#34;next&#34;:
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location &gt; location.text_location:
+                                location.text_location = res.location.text_location
+                                location.ann_location = res.location.ann_location
+                            elif (
+                                    res.location.text_location == location.text_location
+                                    and res.location.ann_location &gt; location.ann_location
+                            ):
+                                location.ann_location = res.location.ann_location
+                returntuples.append((cur_offset, frets))
+            else:
+                # we had no match, just continue from the next offset
+                location = ctx.inc_location(location, by_offset=1)
+            if ctx.at_endofanns(location) or ctx.at_endoftext(location):
+                break
+        return returntuples
+
+    __call__ = run
+
+
+class PampacAnnotator(Annotator):
+    &#34;&#34;&#34;
+    Class for running a Pampac ruleset.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 pampac,
+                 ann_desc,
+                 outset_name=None,
+                 containing_anns_desc=None):
+        &#34;&#34;&#34;
+
+        Args:
+            pampac: a Pampac instances
+            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+                or a list of either annotation set names or tuples, where the first element is an annotation set
+                name and the second element is either a type name or a list of type names. E.g. `[(&#34;&#34;, &#34;Token&#34;)]`
+                to get all annotations with type Token from the default set or or `[(&#34;&#34;, [&#34;PER&#34;, &#34;ORG&#34;]), &#34;Key&#34;]`
+                to get all annotations with type PER or ORG from the default set and all annotations from the Key
+                set.
+            outset_name: the name of the annotation set where to add output annoations
+            containing_anns_desc: a specification of annotations to use for containing annotations. If specified,
+                the Pampac instance will run pattern matching on each span that corresponds to a containing annotation.
+                Containing annotations should not overlap. The outputs for each containing annotation are aggregated
+                and returned. Default: do not use containing annotations and run for the whole document.
+        &#34;&#34;&#34;
+        self.pampac = pampac
+        self.ann_desc = ann_desc
+        self.outset_name = outset_name
+        self.containing_anns_desc = containing_anns_desc
+
+    def __call__(self, doc, **kwargs):
+        outset = doc.annset(self.outset_name)
+        anns = doc.anns(self.ann_desc)
+        if self.containing_anns_desc is not None:
+            cont = doc.anns(self.containing_anns_desc)
+        else:
+            cont = None
+        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.pam.pampac.pampac.Pampac"><code class="flex name class">
+<span>class <span class="ident">Pampac</span></span>
+<span>(</span><span>*rules, skip='longest', select='first')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class for applying a sequence of rules to a document.</p>
+<p>Initialize Pampac.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>*rules</code></strong></dt>
+<dd>one or more rules</dd>
+<dt><strong><code>skip</code></strong></dt>
+<dd>how proceed after something has been matched at a position. One of: "longest" to proceed
+at the next text offset after the end of the longest match. "next" to use a location with the highest
+text and annotation index over all matches. "one" to increment the text offset by one and adjust
+the annotation index to point to the next annotation at or after the new text offset.
+"once": do not advance after the first location where a rule matches. NOTE: if skipping depends on
+on the match(es), only those matches for which a rule fires are considered.</dd>
+<dt><strong><code>select</code></strong></dt>
+<dd>which of those rules that match to actually apply, i.e. call the action part of the rule.
+One of: "first": try all rules in sequence and call only the first one that matches. "highest": try
+all rules and only call the rules which has the highest priority, if there is more than one, the first
+of those.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Pampac:
+    &#34;&#34;&#34;
+    A class for applying a sequence of rules to a document.
+    &#34;&#34;&#34;
+
+    def __init__(self, *rules, skip=&#34;longest&#34;, select=&#34;first&#34;):
+        &#34;&#34;&#34;
+        Initialize Pampac.
+
+        Args:
+            *rules: one or more rules
+            skip:  how proceed after something has been matched at a position. One of: &#34;longest&#34; to proceed
+              at the next text offset after the end of the longest match. &#34;next&#34; to use a location with the highest
+              text and annotation index over all matches. &#34;one&#34; to increment the text offset by one and adjust
+              the annotation index to point to the next annotation at or after the new text offset.
+              &#34;once&#34;: do not advance after the first location where a rule matches. NOTE: if skipping depends on
+              on the match(es), only those matches for which a rule fires are considered.
+            select: which of those rules that match to actually apply, i.e. call the action part of the rule.
+              One of: &#34;first&#34;: try all rules in sequence and call only the first one that matches. &#34;highest&#34;: try
+              all rules and only call the rules which has the highest priority, if there is more than one, the first
+              of those.
+        &#34;&#34;&#34;
+        assert len(rules) &gt; 0
+        assert skip in [&#34;one&#34;, &#34;longest&#34;, &#34;next&#34;, &#34;once&#34;]
+        assert select in [&#34;first&#34;, &#34;highest&#34;, &#34;all&#34;]
+        for rule_ in rules:
+            assert isinstance(rule_, Rule)
+        self.rules = rules
+        self.priorities = [r.priority for r in self.rules]
+        self.max_priority = max(self.priorities)
+        for idx, rule_ in enumerate(rules):
+            if rule_.priority == self.max_priority:
+                self.hp_rule = rule_
+                self.hp_rule_idx = idx
+                break
+        self.skip = skip
+        self.select = select
+
+    def set_skip(self, val):
+        &#34;&#34;&#34;
+        Different way to set the skip parameter.
+        &#34;&#34;&#34;
+        self.skip = val
+        return self
+
+    def set_select(self, val):
+        &#34;&#34;&#34;
+        Different way to set the select parameter.
+        &#34;&#34;&#34;
+        self.select = val
+        return self
+
+    # pylint: disable=R0912, R0915
+    def run(self,
+            doc,
+            annotations,
+            outset=None, start=None, end=None, containing_anns=None, debug=False):
+        &#34;&#34;&#34;
+        Run the rules from location start to location end (default: full document), using the annotation set or list.
+
+        Args:
+            doc: the document to run on
+            annotations: the annotation set or iterable to use for matching.
+            outset: the output annotation set. If this is a string, retrieves the set from doc
+            start: the text offset where to start matching
+            end: the text offset where to end matching
+            containing_anns: if this is an AnnotationSet or iterable of annotations, the rules are applied to each
+                span of each of the annotations in order, and only input annotations that are fully contained
+                in that span are processed (default: None, use the whole document)
+            debug: enable debug logging
+
+        Returns:
+            a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred
+        &#34;&#34;&#34;
+        logger = init_logger(debug=debug)
+        if isinstance(outset, str):
+            outset = doc.annset(outset)
+        returntuples = []
+        ctx = Context(doc=doc, anns=annotations, outset=outset, start=start, end=end)
+        location = Location(ctx.start, 0)
+        if containing_anns is not None:
+            # in order to be able to get the contained annotations, we need to make sure the `annotations`
+            # are in a set
+            if not isinstance(annotations, AnnotationSet):
+                containing_anns = AnnotationSet.create_from(containing_anns)
+            for ann in containing_anns:
+                if ann.length == 0:
+                    continue
+                span_anns = annotations.within(ann)
+                ctx = Context(doc=doc, anns=span_anns, outset=outset, start=ann.start, end=ann.end)
+                returntuples.extend(self._run4span(logger, ctx, location))
+            return returntuples
+        else:
+            return self._run4span(logger, ctx, location)
+
+    def _run4span(self, logger, ctx, location):
+        # Runs on a single span using the given context and start location and returns a list of tuples with
+        # offset and actionreturnvals for each location where a match or matches occured
+        returntuples = []
+        while True:  # pylint: disable=R1702
+            # try the rules at the current position
+            cur_offset = location.text_location
+            frets = []
+            rets = dict()
+            for idx, rule_ in enumerate(self.rules):
+                logger.debug(&#34;Trying rule %s at location %s&#34;, idx, location)
+                ret = rule_.parse(location, ctx)
+                if ret.issuccess():
+                    rets[idx] = ret
+                    logger.debug(&#34;Success for rule %s, %s results&#34;, idx, len(ret))
+                    if self.select == &#34;first&#34;:
+                        break
+            # we now got all the matching results in rets
+            # if we have at least one matching ...
+            if len(rets) &gt; 0:
+                fired_rets = []
+                # choose the rules to fire and call the actions
+                if self.select == &#34;first&#34;:
+                    idx, ret = list(rets.items())[0]
+                    logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                    fret = self.rules[idx].action(ret, context=ctx, location=location)
+                    frets.append(fret)
+                    fired_rets.append(ret)
+                elif self.select == &#34;all&#34;:
+                    for idx, ret in rets.items():
+                        logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                        fret = self.rules[idx].action(
+                            ret, context=ctx, location=location
+                        )
+                        frets.append(fret)
+                        fired_rets.append(ret)
+                elif self.select == &#34;highest&#34;:
+                    for idx, ret in rets.items():
+                        if idx == self.hp_rule_idx:
+                            logger.debug(&#34;Firing rule %s at %s&#34;, idx, location)
+                            fret = self.rules[idx].action(
+                                ret, context=ctx, location=location
+                            )
+                            frets.append(fret)
+                            fired_rets.append(ret)
+                # now that we have fired rules, find out how to advance to the next position
+                if self.skip == &#34;once&#34;:
+                    return frets
+                elif self.skip == &#34;once&#34;:
+                    location = ctx.inc_location(location, by_offset=1)
+                elif self.skip == &#34;longest&#34;:
+                    longest = 0
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location &gt; longest:
+                                longest = res.location.text_location
+                    location.text_location = longest
+                    location = ctx.update_location_byoffset(location)
+                elif self.skip == &#34;next&#34;:
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.location.text_location &gt; location.text_location:
+                                location.text_location = res.location.text_location
+                                location.ann_location = res.location.ann_location
+                            elif (
+                                    res.location.text_location == location.text_location
+                                    and res.location.ann_location &gt; location.ann_location
+                            ):
+                                location.ann_location = res.location.ann_location
+                returntuples.append((cur_offset, frets))
+            else:
+                # we had no match, just continue from the next offset
+                location = ctx.inc_location(location, by_offset=1)
+            if ctx.at_endofanns(location) or ctx.at_endoftext(location):
+                break
+        return returntuples
+
+    __call__ = run</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.pampac.pampac.Pampac.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, doc, annotations, outset=None, start=None, end=None, containing_anns=None, debug=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the rules from location start to location end (default: full document), using the annotation set or list.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document to run on</dd>
+<dt><strong><code>annotations</code></strong></dt>
+<dd>the annotation set or iterable to use for matching.</dd>
+<dt><strong><code>outset</code></strong></dt>
+<dd>the output annotation set. If this is a string, retrieves the set from doc</dd>
+<dt><strong><code>start</code></strong></dt>
+<dd>the text offset where to start matching</dd>
+<dt><strong><code>end</code></strong></dt>
+<dd>the text offset where to end matching</dd>
+<dt><strong><code>containing_anns</code></strong></dt>
+<dd>if this is an AnnotationSet or iterable of annotations, the rules are applied to each
+span of each of the annotations in order, and only input annotations that are fully contained
+in that span are processed (default: None, use the whole document)</dd>
+<dt><strong><code>debug</code></strong></dt>
+<dd>enable debug logging</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a list of tuples (offset, actionreturnvals) for each location where one or more matches occurred</p></div>
+</dd>
+<dt id="gatenlp.pam.pampac.pampac.Pampac.set_select"><code class="name flex">
+<span>def <span class="ident">set_select</span></span>(<span>self, val)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Different way to set the select parameter.</p></div>
+</dd>
+<dt id="gatenlp.pam.pampac.pampac.Pampac.set_skip"><code class="name flex">
+<span>def <span class="ident">set_skip</span></span>(<span>self, val)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Different way to set the skip parameter.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.pam.pampac.pampac.PampacAnnotator"><code class="flex name class">
+<span>class <span class="ident">PampacAnnotator</span></span>
+<span>(</span><span>pampac, ann_desc, outset_name=None, containing_anns_desc=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for running a Pampac ruleset.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pampac</code></strong></dt>
+<dd>a Pampac instances</dd>
+<dt><strong><code>ann_desc</code></strong></dt>
+<dd>annotation specification for annotations to use as input. This can be a annotation set name,
+or a list of either annotation set names or tuples, where the first element is an annotation set
+name and the second element is either a type name or a list of type names. E.g. <code>[("", "Token")]</code>
+to get all annotations with type Token from the default set or or <code>[("", ["PER", "ORG"]), "Key"]</code>
+to get all annotations with type PER or ORG from the default set and all annotations from the Key
+set.</dd>
+<dt><strong><code>outset_name</code></strong></dt>
+<dd>the name of the annotation set where to add output annoations</dd>
+<dt><strong><code>containing_anns_desc</code></strong></dt>
+<dd>a specification of annotations to use for containing annotations. If specified,
+the Pampac instance will run pattern matching on each span that corresponds to a containing annotation.
+Containing annotations should not overlap. The outputs for each containing annotation are aggregated
+and returned. Default: do not use containing annotations and run for the whole document.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PampacAnnotator(Annotator):
+    &#34;&#34;&#34;
+    Class for running a Pampac ruleset.
+    &#34;&#34;&#34;
+    def __init__(self,
+                 pampac,
+                 ann_desc,
+                 outset_name=None,
+                 containing_anns_desc=None):
+        &#34;&#34;&#34;
+
+        Args:
+            pampac: a Pampac instances
+            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+                or a list of either annotation set names or tuples, where the first element is an annotation set
+                name and the second element is either a type name or a list of type names. E.g. `[(&#34;&#34;, &#34;Token&#34;)]`
+                to get all annotations with type Token from the default set or or `[(&#34;&#34;, [&#34;PER&#34;, &#34;ORG&#34;]), &#34;Key&#34;]`
+                to get all annotations with type PER or ORG from the default set and all annotations from the Key
+                set.
+            outset_name: the name of the annotation set where to add output annoations
+            containing_anns_desc: a specification of annotations to use for containing annotations. If specified,
+                the Pampac instance will run pattern matching on each span that corresponds to a containing annotation.
+                Containing annotations should not overlap. The outputs for each containing annotation are aggregated
+                and returned. Default: do not use containing annotations and run for the whole document.
+        &#34;&#34;&#34;
+        self.pampac = pampac
+        self.ann_desc = ann_desc
+        self.outset_name = outset_name
+        self.containing_anns_desc = containing_anns_desc
+
+    def __call__(self, doc, **kwargs):
+        outset = doc.annset(self.outset_name)
+        anns = doc.anns(self.ann_desc)
+        if self.containing_anns_desc is not None:
+            cont = doc.anns(self.containing_anns_desc)
+        else:
+            cont = None
+        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.annotator.Annotator" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.annotator.Annotator" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.finish" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.annotator.Annotator.start" href="../../processing/annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.pam.pampac" href="index.html">gatenlp.pam.pampac</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.pampac.Pampac" href="#gatenlp.pam.pampac.pampac.Pampac">Pampac</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.pam.pampac.pampac.Pampac.run" href="#gatenlp.pam.pampac.pampac.Pampac.run">run</a></code></li>
+<li><code><a title="gatenlp.pam.pampac.pampac.Pampac.set_select" href="#gatenlp.pam.pampac.pampac.Pampac.set_select">set_select</a></code></li>
+<li><code><a title="gatenlp.pam.pampac.pampac.Pampac.set_skip" href="#gatenlp.pam.pampac.pampac.Pampac.set_skip">set_skip</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.pam.pampac.pampac.PampacAnnotator" href="#gatenlp.pam.pampac.pampac.PampacAnnotator">PampacAnnotator</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

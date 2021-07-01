@@ -57,26 +57,42 @@ class Features(UserDict):
     object must be used.
     &#34;&#34;&#34;
 
-    def __init__(self, *args, logger=None, **kwargs):
+    def __init__(self, *args, _change_logger=None, _deepcopy=False, **kwargs):
         &#34;&#34;&#34;
         Initialize a Features object.
 
         Args:
-            initialfeatures: the initial features, as for a dict.
-            logger: a function for logging any changes to the feature map. This should be
+            args: zero or one positional arguments which can be another Feature object, a mapping,
+                or an iterable of key value pairs.
+            _change_logger: a function for logging any changes to the feature map. This should be
                 a method implemented in the owning object. It should take the following parameters:
                 command, featurename, featurevalue. NOTE: this is not related to the usual logging
                 from the loggin package, but for making use of tracking changes in a ChangeLog!
+            _deepcopy: if False (default) the dictionary wrapped by this Features object is a shallow
+                copy of any original dictionary object. If True, all the values are deep-copied.
+            **kwargs: any number of additional keyword arguments which are used to set features.
         &#34;&#34;&#34;
-        self._logger = logger
+        self._logger = _change_logger
+        if _deepcopy:
+            kws = lib_copy.deepcopy(kwargs)
+        else:
+            kws = kwargs
         if len(args) == 1:
             posarg = args[0]
             if isinstance(posarg, Features):
-                super().__init__(posarg.data, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg.data)
+                else:
+                    data = posarg.data
+                super().__init__(data, **kws)
             else:
-                super().__init__(posarg, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg)
+                else:
+                    data = posarg
+                super().__init__(data, **kws)
         else:
-            super().__init__(**kwargs)
+            super().__init__(**kws)
 
     def __delitem__(self, featurename):
         &#34;&#34;&#34;
@@ -214,7 +230,7 @@ class Features(UserDict):
 <dl>
 <dt id="gatenlp.features.Features"><code class="flex name class">
 <span>class <span class="ident">Features</span></span>
-<span>(</span><span>*args, logger=None, **kwargs)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A dict-like class for storing features, which are mappings from string feature names to
@@ -226,13 +242,19 @@ object must be used.</p>
 <p>Initialize a Features object.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>initialfeatures</code></strong></dt>
-<dd>the initial features, as for a dict.</dd>
-<dt><strong><code>logger</code></strong></dt>
+<dt><strong><code>args</code></strong></dt>
+<dd>zero or one positional arguments which can be another Feature object, a mapping,
+or an iterable of key value pairs.</dd>
+<dt><strong><code>_change_logger</code></strong></dt>
 <dd>a function for logging any changes to the feature map. This should be
 a method implemented in the owning object. It should take the following parameters:
 command, featurename, featurevalue. NOTE: this is not related to the usual logging
 from the loggin package, but for making use of tracking changes in a ChangeLog!</dd>
+<dt><strong><code>_deepcopy</code></strong></dt>
+<dd>if False (default) the dictionary wrapped by this Features object is a shallow
+copy of any original dictionary object. If True, all the values are deep-copied.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>any number of additional keyword arguments which are used to set features.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -248,26 +270,42 @@ from the loggin package, but for making use of tracking changes in a ChangeLog!<
     object must be used.
     &#34;&#34;&#34;
 
-    def __init__(self, *args, logger=None, **kwargs):
+    def __init__(self, *args, _change_logger=None, _deepcopy=False, **kwargs):
         &#34;&#34;&#34;
         Initialize a Features object.
 
         Args:
-            initialfeatures: the initial features, as for a dict.
-            logger: a function for logging any changes to the feature map. This should be
+            args: zero or one positional arguments which can be another Feature object, a mapping,
+                or an iterable of key value pairs.
+            _change_logger: a function for logging any changes to the feature map. This should be
                 a method implemented in the owning object. It should take the following parameters:
                 command, featurename, featurevalue. NOTE: this is not related to the usual logging
                 from the loggin package, but for making use of tracking changes in a ChangeLog!
+            _deepcopy: if False (default) the dictionary wrapped by this Features object is a shallow
+                copy of any original dictionary object. If True, all the values are deep-copied.
+            **kwargs: any number of additional keyword arguments which are used to set features.
         &#34;&#34;&#34;
-        self._logger = logger
+        self._logger = _change_logger
+        if _deepcopy:
+            kws = lib_copy.deepcopy(kwargs)
+        else:
+            kws = kwargs
         if len(args) == 1:
             posarg = args[0]
             if isinstance(posarg, Features):
-                super().__init__(posarg.data, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg.data)
+                else:
+                    data = posarg.data
+                super().__init__(data, **kws)
             else:
-                super().__init__(posarg, **kwargs)
+                if _deepcopy:
+                    data = lib_copy.deepcopy(posarg)
+                else:
+                    data = posarg
+                super().__init__(data, **kws)
         else:
-            super().__init__(**kwargs)
+            super().__init__(**kws)
 
     def __delitem__(self, featurename):
         &#34;&#34;&#34;

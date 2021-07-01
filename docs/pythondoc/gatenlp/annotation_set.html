@@ -188,6 +188,43 @@ class AnnotationSet:
         annset._next_annid = nextid + 1
         return annset
 
+    @staticmethod
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an immutable detached annotation set from the annotations
+        in anns. The set contains shallow copies of the annotations and the
+        annotation id is preserved, unless it is a duplicate in which the next
+        available id is used.
+
+        Args:
+            anns: an iterable of annotations or a single annotation
+
+        Returns:
+            An immutable detached annotation set
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=name)
+        annset._is_immutable = True
+        annset._annotations = {}
+        annset._next_annid = 0
+        if isinstance(anns, Annotation):
+            anns = [anns]
+        for ann in anns:
+            # if the id is already in the set, assign the next available one
+            ann = ann.copy()
+            if ann.id in annset._annotations:
+                ann._id = annset._next_annid
+                annset._annotations[annset._next_annid] = ann
+                annset._next_annid += 1
+            else:
+                # if the id is not yet in the set, keep it and make sure that after adding,
+                # the next annid is adapted, if necessary!
+                annset._annotations[ann.id] = ann
+                if ann.id &gt;= annset._next_annid:
+                    annset._next_annid = ann.id + 1
+        return annset
+
+
+
     @property
     def immutable(self) -&gt; bool:
         &#34;&#34;&#34;
@@ -1640,6 +1677,43 @@ set has an owning document.</dd>
         annset._next_annid = nextid + 1
         return annset
 
+    @staticmethod
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; None:
+        &#34;&#34;&#34;
+        Creates an immutable detached annotation set from the annotations
+        in anns. The set contains shallow copies of the annotations and the
+        annotation id is preserved, unless it is a duplicate in which the next
+        available id is used.
+
+        Args:
+            anns: an iterable of annotations or a single annotation
+
+        Returns:
+            An immutable detached annotation set
+        &#34;&#34;&#34;
+        annset = AnnotationSet(name=name)
+        annset._is_immutable = True
+        annset._annotations = {}
+        annset._next_annid = 0
+        if isinstance(anns, Annotation):
+            anns = [anns]
+        for ann in anns:
+            # if the id is already in the set, assign the next available one
+            ann = ann.copy()
+            if ann.id in annset._annotations:
+                ann._id = annset._next_annid
+                annset._annotations[annset._next_annid] = ann
+                annset._next_annid += 1
+            else:
+                # if the id is not yet in the set, keep it and make sure that after adding,
+                # the next annid is adapted, if necessary!
+                annset._annotations[ann.id] = ann
+                if ann.id &gt;= annset._next_annid:
+                    annset._next_annid = ann.id + 1
+        return annset
+
+
+
     @property
     def immutable(self) -&gt; bool:
         &#34;&#34;&#34;
@@ -2930,6 +3004,22 @@ set has an owning document.</dd>
 </details>
 <h3>Static methods</h3>
 <dl>
+<dt id="gatenlp.annotation_set.AnnotationSet.create_from"><code class="name flex">
+<span>def <span class="ident">create_from</span></span>(<span>anns: Union[Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], name=None) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates an immutable detached annotation set from the annotations
+in anns. The set contains shallow copies of the annotations and the
+annotation id is preserved, unless it is a duplicate in which the next
+available id is used.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anns</code></strong></dt>
+<dd>an iterable of annotations or a single annotation</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>An immutable detached annotation set</p></div>
+</dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.from_anns"><code class="name flex">
 <span>def <span class="ident">from_anns</span></span>(<span>anns, deep_copy=False, **kwargs)</span>
 </code></dt>
@@ -3872,6 +3962,7 @@ annotation in the result set. (Default value = False)</dd>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.contains" href="#gatenlp.annotation_set.AnnotationSet.contains">contains</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.copy" href="#gatenlp.annotation_set.AnnotationSet.copy">copy</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.covering" href="#gatenlp.annotation_set.AnnotationSet.covering">covering</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.create_from" href="#gatenlp.annotation_set.AnnotationSet.create_from">create_from</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.deepcopy" href="#gatenlp.annotation_set.AnnotationSet.deepcopy">deepcopy</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.detach" href="#gatenlp.annotation_set.AnnotationSet.detach">detach</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.detach_from" href="#gatenlp.annotation_set.AnnotationSet.detach_from">detach_from</a></code></li>

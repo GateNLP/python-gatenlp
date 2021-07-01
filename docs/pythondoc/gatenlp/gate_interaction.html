@@ -233,20 +233,17 @@ class DefaultPr:
         logger.debug(
             &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
         )
+        logger.warning(
+            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return doc
 
     def start(self, **kwargs):
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-        logger.warning(
-            &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
-        )
         return None
 
     def finish(self, **kwargs):
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-        logger.warning(
-            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
-        )
         return None
 
     def reduce(self, resultlist, **kwargs):
@@ -543,20 +540,17 @@ processing resource to the system.</p>
         logger.debug(
             &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
         )
+        logger.warning(
+            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
+        )
         return doc
 
     def start(self, **kwargs):
         logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
-        logger.warning(
-            &#34;Running DefaultPr: did you define a @GateNlpPr class or function?&#34;
-        )
         return None
 
     def finish(self, **kwargs):
         logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
-        logger.warning(
-            &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
-        )
         return None
 
     def reduce(self, resultlist, **kwargs):
