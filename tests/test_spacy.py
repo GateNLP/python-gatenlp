@@ -45,7 +45,7 @@ class TestSpacy01:
         except ImportError:
             logger.warning("Module spacy or model en_core_web_sm not installed, skipping spacy test")
             return
-        txt = ["Barack Obama was born in Hawaii. He was elected president in 2008. "]
+        txt = "Barack Obama was born in Hawaii. He was elected president in 2008. "
         doc = Document(txt)
         annset = doc.annset()
         ann = annset.add(0,32 ,"Sentence",{})
