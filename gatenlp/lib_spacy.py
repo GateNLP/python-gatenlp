@@ -98,6 +98,27 @@ def apply_spacy(nlp, gatenlpdoc, setname=""):
     spacydoc = nlp(gatenlpdoc.text)
     return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
 
+def apply_spacy2ann(nlp, gatenlpdoc, annset , setname=""):
+    """Run the spacy nlp pipeline on the text  document and transfer the annotations.
+    This modifies the gatenlp document in place.
+
+    Args:
+      nlp: spacy pipeline
+      gatenlpdoc: gatenlp document
+      annset: annotation set. Annotations Must not overlap. If so, results will be duplicated
+      setname: annotation set to receive the annotations (Default value = "")
+      tokens: an annotation set containing already known token annotations
+
+    Returns:
+
+    """
+    for ann in annset.fast_iter():
+         covered=doc[ann.start:ann.end]
+         spacydoc = nlp(covered)
+        spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start)
+    return gatenlpdoc
+
+
 
 def spacy2gatenlp(
     spacydoc,
@@ -114,6 +135,7 @@ def spacy2gatenlp(
     add_nounchunks=True,
     add_dep=True,
     ent_prefix=None,
+    start_offset=0
 ):
     """Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
@@ -138,6 +160,8 @@ def spacy2gatenlp(
       # add_spacetokens:  (Default value = True)
       # not sure how to do this yetadd_ents:  (Default value = True)
       ent_prefix:  (Default value = None)
+      start_ofset: If a document is specified, an offset where the text starts can be defined.
+      This allows a part of a document with spacy and then include the annotations back to the document, in the corresponding possition 
 
     Returns:
       the new or modified
@@ -145,6 +169,7 @@ def spacy2gatenlp(
     """
     if gatenlpdoc is None:
         retdoc = Document(spacydoc.text)
+        start_offset=0 # no sense to have an ofset for a new document.
     else:
         retdoc = gatenlpdoc
     toki2annid = {}
@@ -193,12 +218,12 @@ def spacy2gatenlp(
             anntype = space_token_type
         else:
             anntype = token_type
-        annid = annset.add(from_off, to_off, anntype, fm).id
+        annid = annset.add(from_off+start_offset, to_off+start_offset, anntype, fm).id
         toki2annid[tok.i] = annid
         # print("Added annotation with id: {} for token {}".format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) > 0:
-            annset.add(to_off, to_off + len(ws), space_token_type, {"is_space": True})
+            annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {"is_space": True})
     # if we have a dependency parse, now also add the parse edges
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
@@ -212,11 +237,11 @@ def spacy2gatenlp(
                 entname = ent_prefix + ent.label_
             else:
                 entname = ent.label_
-            annset.add(ent.start_char, ent.end_char, entname, {"lemma": ent.lemma_})
+            annset.add(ent.start_char+start_offset, ent.end_char+start_offset, entname, {"lemma": ent.lemma_})
     if spacydoc.sents and add_sents:
         for sent in spacydoc.sents:
-            annset.add(sent.start_char, sent.end_char, sentence_type, {})
+            annset.add(sent.start_char+start_offset, sent.end_char+start_offset, sentence_type, {})
     if spacydoc.noun_chunks and add_nounchunks:
         for chunk in spacydoc.noun_chunks:
-            annset.add(chunk.start_char, chunk.end_char, nounchunk_type, {})
+            annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
     return retdoc
