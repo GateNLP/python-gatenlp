@@ -113,8 +113,8 @@ def apply_spacy2ann(nlp, gatenlpdoc, annset , setname=""):
 
     """
     for ann in annset.fast_iter():
-         covered=doc[ann.start:ann.end]
-         spacydoc = nlp(covered)
+        covered=gatenlpdoc[ann.start:ann.end]
+        spacydoc = nlp(covered)
         spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start)
     return gatenlpdoc
 

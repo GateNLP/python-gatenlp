@@ -51,11 +51,11 @@ class TestSpacy01:
         ann = annset.add(0,32 ,"Sentence",{})
         ann = annset.add(33,67,"Sentence",{})
         
-        anns = doc.annset("spacy")
+        anns = doc.annset()
         sents = anns.with_type("Sentence")
         assert len(sents) == 2
         tokens = anns.with_type("Token")
-        assert len(tokens) == 14        
+        assert len(tokens) == 0        
         gdoc=apply_spacy2ann(nlp,doc, anns , setname="spacy")
       
         annsOut = gdoc.annset("spacy")
