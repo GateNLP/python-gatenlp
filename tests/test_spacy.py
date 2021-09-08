@@ -40,7 +40,7 @@ class TestSpacy01:
         """
         try:
             import spacy
-            from gatenlp.lib_spacy import spacy2gatenlp, apply_spacy2ann
+            from gatenlp.lib_spacy import spacy2gatenlp, apply_spacy
             nlp = spacy.load("en_core_web_sm")
         except ImportError:
             logger.warning("Module spacy or model en_core_web_sm not installed, skipping spacy test")
@@ -56,12 +56,12 @@ class TestSpacy01:
         assert len(sents) == 2
         tokens = anns.with_type("Token")
         assert len(tokens) == 0        
-        gdoc=apply_spacy2ann(nlp,doc, anns , setname="spacy")
+        gdoc=apply_spacy(nlp,doc , setname="spacy", containing_anns=anns)
       
         annsOut = gdoc.annset("spacy")
         sents = annsOut.with_type("Sentence")
         assert len(sents) == 2
         tokens = annsOut.with_type("Token")
         assert len(tokens) == 14
-
+ 
  

@@ -82,7 +82,7 @@ class AnnSpacy(Annotator):
         return doc
 
 
-def apply_spacy(nlp, gatenlpdoc, setname=""):
+def apply_spacy(nlp, gatenlpdoc, setname="",containing_anns=None):
     """Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
@@ -90,37 +90,26 @@ def apply_spacy(nlp, gatenlpdoc, setname=""):
       nlp: spacy pipeline
       gatenlpdoc: gatenlp document
       setname: annotation set to receive the annotations (Default value = "")
+      containing_anns: annotation set. Annotations that contain  the text to analyze
+        Annotations must not overlap, if so, results will be duplicated
       tokens: an annotation set containing already known token annotations
+      
 
     Returns:
 
     """
-    spacydoc = nlp(gatenlpdoc.text)
-    return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
-
-def apply_spacy2ann(nlp, gatenlpdoc, annset , setname=""):
-    """Run the spacy nlp pipeline on the text  document and transfer the annotations.
-    This modifies the gatenlp document in place.
-
-    Args:
-      nlp: spacy pipeline
-      gatenlpdoc: gatenlp document
-      annset: annotation set. Annotations Must not overlap. If so, results will be duplicated
-      setname: annotation set to receive the annotations (Default value = "")
-      tokens: an annotation set containing already known token annotations
-
-    Returns:
-
-    """
-    for ann in annset.fast_iter():
-        covered=gatenlpdoc[ann.start:ann.end]
-        spacydoc = nlp(covered)
-        spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start)
-    return gatenlpdoc
+    if containing_anns:
+        for ann in containing_anns.fast_iter():
+            covered=gatenlpdoc[ann.start:ann.end]
+            spacydoc = nlp(covered)
+            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start)
+        return gatenlpdoc
+    else:
+        spacydoc = nlp(gatenlpdoc.text)
+        return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
-
-def spacy2gatenlp(
+def spacy2gatenlpspacy2gatenlp(
     spacydoc,
     gatenlpdoc=None,
     setname="",
@@ -165,8 +154,8 @@ def spacy2gatenlp(
 
     Returns:
       the new or modified
-
     """
+
     if gatenlpdoc is None:
         retdoc = Document(spacydoc.text)
         start_offset=0 # no sense to have an ofset for a new document.
