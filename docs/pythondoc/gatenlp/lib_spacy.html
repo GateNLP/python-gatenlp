@@ -31,7 +31,7 @@
 Support for using spacy: convert from spacy to gatenlp documents and annotations.
 &#34;&#34;&#34;
 
-from gatenlp import Document
+from gatenlp import Document, AnnotationSet
 from gatenlp.processing.annotator import Annotator
 import spacy
 
@@ -58,21 +58,20 @@ class AnnSpacy(Annotator):
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
-        :param pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
-          pipeline)
-        :param outsetname: the annotation set name where to put the annotations
-        :param token_type: the annotation type for the token annotations
-        :param space_token_type: type of any space token annotations
-        :param sentence_type: the annotation type for the sentence annotations
-        :param nounchunk_type: annotation type for noun chunks
-        :param add_tokens: if token annotations should be added
-        :param add_entities: if true, add entity annotations
-        :param add_sentences: if sentence annotations should be added
-        :param add_nounchunks: if nounchunks should be added
-        :param add_deps: if dependencies should be added
-        :param ent_prefix: the prefix to add to all entity annotation types
-        :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
-           the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+        Args:
+            pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
+                pipeline)
+        outsetname: the annotation set name where to put the annotations
+        token_type: the annotation type for the token annotations
+        space_token_type: type of any space token annotations
+        sentence_type: the annotation type for the sentence annotations
+        nounchunk_type: annotation type for noun chunks
+        add_tokens: if token annotations should be added
+        add_entities: if true, add entity annotations
+        add_sentences: if sentence annotations should be added
+        add_nounchunks: if nounchunks should be added
+        add_deps: if dependencies should be added
+        ent_prefix: the prefix to add to all entity annotation types
         &#34;&#34;&#34;
         self.outsetname = outsetname
 
@@ -111,7 +110,7 @@ class AnnSpacy(Annotator):
         return doc
 
 
-def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;):
+def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;, containing_anns=None):
     &#34;&#34;&#34;Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
@@ -119,13 +118,25 @@ def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;):
       nlp: spacy pipeline
       gatenlpdoc: gatenlp document
       setname: annotation set to receive the annotations (Default value = &#34;&#34;)
-      tokens: an annotation set containing already known token annotations
+      containing_anns: annotation set or iterable of annotations. If not None, only the text covered be each
+          of the annotations is analyzed. The annotations should not overlap.
 
     Returns:
-
+        The modified document.
     &#34;&#34;&#34;
-    spacydoc = nlp(gatenlpdoc.text)
-    return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
+    if containing_anns:
+        if isinstance(containing_anns, AnnotationSet):
+            annsiter = containing_anns.fast_iter()
+        else:
+            annsiter = containing_anns
+        for ann in annsiter:
+            covered = gatenlpdoc[ann.start:ann.end]
+            spacydoc = nlp(covered)
+            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname, start_offset=ann.start)
+        return gatenlpdoc
+    else:
+        spacydoc = nlp(gatenlpdoc.text)
+        return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
 def spacy2gatenlp(
@@ -143,37 +154,44 @@ def spacy2gatenlp(
     add_nounchunks=True,
     add_dep=True,
     ent_prefix=None,
+    start_offset=0
 ):
     &#34;&#34;&#34;Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
     original gatenlpdoc is used and gets modified.
 
     Args:
-      spacydoc: a spacy document
-      gatenlpdoc: if None, a new gatenlp document is created otherwise this
-    document is added to. (Default value = None)
-      setname: the annotation set name to which the annotations get added, empty string
-    for the default annotation set.
-      token_type: the annotation type to use for tokens (Default value = &#34;Token&#34;)
-      space_token_type: the annotation type to use for space tokens (Default value = &#34;SpaceToken&#34;)
-      sentence_type: the annotation type to use for sentence anntoations (Default value = &#34;Sentence&#34;)
-      nounchunk_type: the annotation type to use for noun chunk annotations (Default value = &#34;NounChunk&#34;)
-      add_tokens: should annotations for tokens get added? If not, dependency parser
-    info cannot be added either. (Default value = True)
-      add_ents: should annotations for entities get added
-      add_sents: should sentence annotations get added (Default value = True)
-      add_nounchunks: should noun chunk annotations get added (Default value = True)
-      add_dep: should dependency parser information get added (Default value = True)
-      # add_spacetokens:  (Default value = True)
-      # not sure how to do this yetadd_ents:  (Default value = True)
-      ent_prefix:  (Default value = None)
+        spacydoc: a spacy document
+        gatenlpdoc: if None, a new gatenlp document is created otherwise this
+            document is added to. (Default value = None)
+        setname: the annotation set name to which the annotations get added, empty string
+            for the default annotation set.
+        token_type: the annotation type to use for tokens (Default value = &#34;Token&#34;)
+        space_token_type: the annotation type to use for space tokens (Default value = &#34;SpaceToken&#34;)
+        sentence_type: the annotation type to use for sentence anntoations (Default value = &#34;Sentence&#34;)
+        nounchunk_type: the annotation type to use for noun chunk annotations (Default value = &#34;NounChunk&#34;)
+        add_tokens: should annotations for tokens get added? If not, dependency parser
+            info cannot be added either. (Default value = True)
+        add_ents: should annotations for entities get added
+        add_sents: should sentence annotations get added (Default value = True)
+        add_nounchunks: should noun chunk annotations get added (Default value = True)
+        add_dep: should dependency parser information get added (Default value = True)
+        add_ents:  (Default value = True)
+        ent_prefix:  (Default value = None)
+        start_offset: If a document is specified, an offset where the text starts can be defined.
+            This allows a part of a document with spacy and then include the annotations back to the document,
+            in the corresponding possition
 
     Returns:
-      the new or modified
-
+      the new or modified Document
     &#34;&#34;&#34;
+    
+    # add_spacetokens:  (Default value = True)
+    # not sure how to do this yet
+
     if gatenlpdoc is None:
         retdoc = Document(spacydoc.text)
+        start_offset = 0
     else:
         retdoc = gatenlpdoc
     toki2annid = {}
@@ -222,12 +240,12 @@ def spacy2gatenlp(
             anntype = space_token_type
         else:
             anntype = token_type
-        annid = annset.add(from_off, to_off, anntype, fm).id
+        annid = annset.add(from_off+start_offset, to_off+start_offset, anntype, fm).id
         toki2annid[tok.i] = annid
         # print(&#34;Added annotation with id: {} for token {}&#34;.format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) &gt; 0:
-            annset.add(to_off, to_off + len(ws), space_token_type, {&#34;is_space&#34;: True})
+            annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {&#34;is_space&#34;: True})
     # if we have a dependency parse, now also add the parse edges
     if spacydoc.is_parsed and add_tokens and add_dep:
         for tok in spacydoc:
@@ -241,13 +259,13 @@ def spacy2gatenlp(
                 entname = ent_prefix + ent.label_
             else:
                 entname = ent.label_
-            annset.add(ent.start_char, ent.end_char, entname, {&#34;lemma&#34;: ent.lemma_})
+            annset.add(ent.start_char+start_offset, ent.end_char+start_offset, entname, {&#34;lemma&#34;: ent.lemma_})
     if spacydoc.sents and add_sents:
         for sent in spacydoc.sents:
-            annset.add(sent.start_char, sent.end_char, sentence_type, {})
+            annset.add(sent.start_char+start_offset, sent.end_char+start_offset, sentence_type, {})
     if spacydoc.noun_chunks and add_nounchunks:
         for chunk in spacydoc.noun_chunks:
-            annset.add(chunk.start_char, chunk.end_char, nounchunk_type, {})
+            annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
     return retdoc</code></pre>
 </details>
 </section>
@@ -259,7 +277,7 @@ def spacy2gatenlp(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gatenlp.lib_spacy.apply_spacy"><code class="name flex">
-<span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='')</span>
+<span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='', containing_anns=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
@@ -272,13 +290,15 @@ This modifies the gatenlp document in place.</p>
 <dd>gatenlp document</dd>
 <dt><strong><code>setname</code></strong></dt>
 <dd>annotation set to receive the annotations (Default value = "")</dd>
-<dt><strong><code>tokens</code></strong></dt>
-<dd>an annotation set containing already known token annotations</dd>
+<dt><strong><code>containing_anns</code></strong></dt>
+<dd>annotation set or iterable of annotations. If not None, only the text covered be each
+of the annotations is analyzed. The annotations should not overlap.</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>The modified document.</p></div>
 </dd>
 <dt id="gatenlp.lib_spacy.spacy2gatenlp"><code class="name flex">
-<span>def <span class="ident">spacy2gatenlp</span></span>(<span>spacydoc, gatenlpdoc=None, setname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_ents=True, add_sents=True, add_nounchunks=True, add_dep=True, ent_prefix=None)</span>
+<span>def <span class="ident">spacy2gatenlp</span></span>(<span>spacydoc, gatenlpdoc=None, setname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_ents=True, add_sents=True, add_nounchunks=True, add_dep=True, ent_prefix=None, start_offset=0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
@@ -289,29 +309,41 @@ original gatenlpdoc is used and gets modified.</p>
 <dt><strong><code>spacydoc</code></strong></dt>
 <dd>a spacy document</dd>
 <dt><strong><code>gatenlpdoc</code></strong></dt>
-<dd>if None, a new gatenlp document is created otherwise this</dd>
+<dd>if None, a new gatenlp document is created otherwise this
+document is added to. (Default value = None)</dd>
+<dt><strong><code>setname</code></strong></dt>
+<dd>the annotation set name to which the annotations get added, empty string
+for the default annotation set.</dd>
+<dt><strong><code>token_type</code></strong></dt>
+<dd>the annotation type to use for tokens (Default value = "Token")</dd>
+<dt><strong><code>space_token_type</code></strong></dt>
+<dd>the annotation type to use for space tokens (Default value = "SpaceToken")</dd>
+<dt><strong><code>sentence_type</code></strong></dt>
+<dd>the annotation type to use for sentence anntoations (Default value = "Sentence")</dd>
+<dt><strong><code>nounchunk_type</code></strong></dt>
+<dd>the annotation type to use for noun chunk annotations (Default value = "NounChunk")</dd>
+<dt><strong><code>add_tokens</code></strong></dt>
+<dd>should annotations for tokens get added? If not, dependency parser
+info cannot be added either. (Default value = True)</dd>
+<dt><strong><code>add_ents</code></strong></dt>
+<dd>should annotations for entities get added</dd>
+<dt><strong><code>add_sents</code></strong></dt>
+<dd>should sentence annotations get added (Default value = True)</dd>
+<dt><strong><code>add_nounchunks</code></strong></dt>
+<dd>should noun chunk annotations get added (Default value = True)</dd>
+<dt><strong><code>add_dep</code></strong></dt>
+<dd>should dependency parser information get added (Default value = True)</dd>
+<dt><strong><code>add_ents</code></strong></dt>
+<dd>(Default value = True)</dd>
+<dt><strong><code>ent_prefix</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>start_offset</code></strong></dt>
+<dd>If a document is specified, an offset where the text starts can be defined.
+This allows a part of a document with spacy and then include the annotations back to the document,
+in the corresponding possition</dd>
 </dl>
-<p>document is added to. (Default value = None)
-setname: the annotation set name to which the annotations get added, empty string
-for the default annotation set.
-token_type: the annotation type to use for tokens (Default value = "Token")
-space_token_type: the annotation type to use for space tokens (Default value = "SpaceToken")
-sentence_type: the annotation type to use for sentence anntoations (Default value = "Sentence")
-nounchunk_type: the annotation type to use for noun chunk annotations (Default value = "NounChunk")
-add_tokens: should annotations for tokens get added? If not, dependency parser
-info cannot be added either. (Default value = True)
-add_ents: should annotations for entities get added
-add_sents: should sentence annotations get added (Default value = True)
-add_nounchunks: should noun chunk annotations get added (Default value = True)
-add_dep: should dependency parser information get added (Default value = True)
-# add_spacetokens:
-(Default value = True)
-# not sure how to do this yetadd_ents:
-(Default value = True)
-ent_prefix:
-(Default value = None)</p>
 <h2 id="returns">Returns</h2>
-<p>the new or modified</p></div>
+<p>the new or modified Document</p></div>
 </dd>
 </dl>
 </section>
@@ -324,21 +356,23 @@ ent_prefix:
 </code></dt>
 <dd>
 <div class="desc"><p>Create an annotator for running a spacy pipeline on documents.</p>
-<p>:param pipeline: if this is specified, a pre-configured spacy pipeline (default: "en_core_web_sm"
-pipeline)
-:param outsetname: the annotation set name where to put the annotations
-:param token_type: the annotation type for the token annotations
-:param space_token_type: type of any space token annotations
-:param sentence_type: the annotation type for the sentence annotations
-:param nounchunk_type: annotation type for noun chunks
-:param add_tokens: if token annotations should be added
-:param add_entities: if true, add entity annotations
-:param add_sentences: if sentence annotations should be added
-:param add_nounchunks: if nounchunks should be added
-:param add_deps: if dependencies should be added
-:param ent_prefix: the prefix to add to all entity annotation types
-:param kwargs: if no preconfigured pipeline is specified, pass these arguments to
-the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>if this is specified, a pre-configured spacy pipeline (default: "en_core_web_sm"
+pipeline)</dd>
+</dl>
+<p>outsetname: the annotation set name where to put the annotations
+token_type: the annotation type for the token annotations
+space_token_type: type of any space token annotations
+sentence_type: the annotation type for the sentence annotations
+nounchunk_type: annotation type for noun chunks
+add_tokens: if token annotations should be added
+add_entities: if true, add entity annotations
+add_sentences: if sentence annotations should be added
+add_nounchunks: if nounchunks should be added
+add_deps: if dependencies should be added
+ent_prefix: the prefix to add to all entity annotation types</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -365,21 +399,20 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
-        :param pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
-          pipeline)
-        :param outsetname: the annotation set name where to put the annotations
-        :param token_type: the annotation type for the token annotations
-        :param space_token_type: type of any space token annotations
-        :param sentence_type: the annotation type for the sentence annotations
-        :param nounchunk_type: annotation type for noun chunks
-        :param add_tokens: if token annotations should be added
-        :param add_entities: if true, add entity annotations
-        :param add_sentences: if sentence annotations should be added
-        :param add_nounchunks: if nounchunks should be added
-        :param add_deps: if dependencies should be added
-        :param ent_prefix: the prefix to add to all entity annotation types
-        :param kwargs: if no preconfigured pipeline is specified, pass these arguments to
-           the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+        Args:
+            pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
+                pipeline)
+        outsetname: the annotation set name where to put the annotations
+        token_type: the annotation type for the token annotations
+        space_token_type: type of any space token annotations
+        sentence_type: the annotation type for the sentence annotations
+        nounchunk_type: annotation type for noun chunks
+        add_tokens: if token annotations should be added
+        add_entities: if true, add entity annotations
+        add_sentences: if sentence annotations should be added
+        add_nounchunks: if nounchunks should be added
+        add_deps: if dependencies should be added
+        ent_prefix: the prefix to add to all entity annotation types
         &#34;&#34;&#34;
         self.outsetname = outsetname
 
