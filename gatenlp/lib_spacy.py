@@ -109,7 +109,7 @@ def apply_spacy(nlp, gatenlpdoc, setname="",containing_anns=None):
         return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)
 
 
-def spacy2gatenlpspacy2gatenlp(
+def spacy2gatenlp(
     spacydoc,
     gatenlpdoc=None,
     setname="",
