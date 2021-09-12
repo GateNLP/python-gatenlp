@@ -19,10 +19,18 @@ import stanza
 stanza.download('en')
 ```
 
-    Downloading https://raw.githubusercontent.com/stanfordnlp/stanza-resources/master/resources_1.1.0.json: 122kB [00:00, 65.9MB/s]                    
-    2020-11-29 16:43:27,915|INFO|stanza|Downloading default packages for language: en (English)...
-    2020-11-29 16:43:31,366|INFO|stanza|File exists: /home/johann/stanza_resources/en/default.zip.
-    2020-11-29 16:43:36,801|INFO|stanza|Finished downloading models and saved to /home/johann/stanza_resources.
+
+    Downloading https://raw.githubusercontent.com/stanfordnlp/stanza-resources/main/resources_1.2.2.json:   0%|   …
+
+
+    2021-09-12 20:25:46,231|INFO|stanza|Downloading default packages for language: en (English)...
+
+
+
+    Downloading http://nlp.stanford.edu/software/stanza/1.2.2/en/default.zip:   0%|          | 0.00/412M [00:00<?,…
+
+
+    2021-09-12 20:28:44,342|INFO|stanza|Finished downloading models and saved to /home/johann/stanza_resources.
 
 
 
@@ -37,13 +45,13 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+    constructor(bdoc) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
+	    this.text = bdoc["text"];
+	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -352,7 +360,7 @@ var gatenlpDocView = class {
                 // trick for zero length annotations: show them as length one annotations for now
                 var endoff = ann.end
                 if (ann.start == ann.end) endoff = endoff+1
-                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
+                for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
                     if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
@@ -370,12 +378,12 @@ var gatenlpDocView = class {
                 }
             }
         }
-        console.log("initial anns4Offset:")
-        console.log(this.anns4offset)
+        //console.log("initial anns4Offset:")
+        //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
             if (last == undefined && cur == undefined) {
                 // console.log("Offset "+i+" both undefined")
@@ -401,7 +409,8 @@ var gatenlpDocView = class {
             } 
             last = cur
         }
-        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+	let beyond = this.docrep.text.length
+	this.anns4offset[beyond] = { "anns": new Set(), "offset": beyond}
 
         // console.log("compressed anns4Offset:")
         // console.log(this.anns4offset)
@@ -417,21 +426,22 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
             last = { "anns": new Set(), "offset": 0 };
         }
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
-                console.log("Got text: "+txt) 
+                txt = txt.replace(/\n/g, "\u2002\n");
+                // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
@@ -447,26 +457,6 @@ var gatenlpDocView = class {
                 last = info;
             }
         }
-        let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
-        let span = undefined;
-        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
-        if (last["anns"].length != 0) {
-            let col = this.color4types(last.anns);
-            let sty = this.style4color(col);
-            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
-            span = $('<span>').attr("style", sty)
-            let object = this;
-            let anns = last.anns;
-            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
-            span.on("click", annhandler);
-            // console.log("Adding styled text for "+col+" : "+txt)
-        } else {
-            // console.log("Adding non-styled text "+txt)
-            span = $('<span>');
-        }
-        span.append($.parseHTML(this.htmlEntities(txt)));
-        spans.push(span);
-        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
@@ -477,37 +467,31 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
 </script>
 
 
 
 
 
-<div><style>#KLQFHRQEWN-wrapper { color: black !important; }</style>
-<div id="KLQFHRQEWN-wrapper">
+<div><style>#NHPXXFJPNJ-wrapper { color: black !important; }</style>
+<div id="NHPXXFJPNJ-wrapper">
 
 <div>
 <style>
-#KLQFHRQEWN-content {
+#NHPXXFJPNJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.KLQFHRQEWN-row {
+.NHPXXFJPNJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.KLQFHRQEWN-col {
+.NHPXXFJPNJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -517,23 +501,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.KLQFHRQEWN-hdr {
+.NHPXXFJPNJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.KLQFHRQEWN-label {
+.NHPXXFJPNJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.KLQFHRQEWN-input {
+.NHPXXFJPNJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#KLQFHRQEWN-popup {
+#NHPXXFJPNJ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -548,45 +532,43 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.KLQFHRQEWN-selection {
+.NHPXXFJPNJ-selection {
     margin-bottom: 5px;
 }
 
-.KLQFHRQEWN-featuretable {
+.NHPXXFJPNJ-featuretable {
     margin-top: 10px;
 }
 
-.KLQFHRQEWN-fname {
+.NHPXXFJPNJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.KLQFHRQEWN-fvalue {
+.NHPXXFJPNJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="KLQFHRQEWN-content">
-        <div id="KLQFHRQEWN-popup" style="display: none;">
+  <div id="NHPXXFJPNJ-content">
+        <div id="NHPXXFJPNJ-popup" style="display: none;">
         </div>
-        <div class="KLQFHRQEWN-row" id="KLQFHRQEWN-row1" style="max-height: 20em; min-height:5em;">
-            <div id="KLQFHRQEWN-text-wrapper" class="KLQFHRQEWN-col" style="width:70%;">
-                <div class="KLQFHRQEWN-hdr" id="KLQFHRQEWN-dochdr"></div>
-                <div id="KLQFHRQEWN-text">
+        <div class="NHPXXFJPNJ-row" id="NHPXXFJPNJ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="NHPXXFJPNJ-text-wrapper" class="NHPXXFJPNJ-col" style="width:70%;">
+                <div class="NHPXXFJPNJ-hdr" id="NHPXXFJPNJ-dochdr"></div>
+                <div id="NHPXXFJPNJ-text" style="">
                 </div>
             </div>
-            <div id="KLQFHRQEWN-chooser" class="KLQFHRQEWN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="NHPXXFJPNJ-chooser" class="NHPXXFJPNJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="KLQFHRQEWN-row" id="KLQFHRQEWN-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="KLQFHRQEWN-details" class="KLQFHRQEWN-col" style="width:100%; border-top-width: 0px;">
+        <div class="NHPXXFJPNJ-row" id="NHPXXFJPNJ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="NHPXXFJPNJ-details" class="NHPXXFJPNJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="KLQFHRQEWN-data">
-    {"annotation_sets": {}, "text": "This is just a sample document for experimenting with gatenlp. \nIt mentions a few named entities like the persons Barack Obama, \nAlbert Einstein and Wolfgang Amadeus Mozart and the geographical \nlocations and countries America, United States of America, \nHungary, the Atlantic Ocean, and Helskinki. \n\nIt also contains mentions of various numbers and amounts like \n12 degrees, 12.83$, 25 km/h or fortytwo kilos and mentions\norganizations and companies like the UNO, Microsoft, Apple, which\nhas an apple as it's logo, or Google. \n\n\n", "features": {}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("KLQFHRQEWN-");
+    let NHPXXFJPNJ_data = {"annotation_sets": {}, "text": "This is just a sample document for experimenting with gatenlp. \nIt mentions a few named entities like the persons Barack Obama, \nAlbert Einstein and Wolfgang Amadeus Mozart and the geographical \nlocations and countries America, United States of America, \nHungary, the Atlantic Ocean, and Helskinki. \n\nIt also contains mentions of various numbers and amounts like \n12 degrees, 12.83$, 25 km/h or fortytwo kilos and mentions\norganizations and companies like the UNO, Microsoft, Apple, which\nhas an apple as it's logo, or Google. \n\n\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(NHPXXFJPNJ_data), "NHPXXFJPNJ-").init();
     </script>
   </div>
 
@@ -604,26 +586,26 @@ and the run the document(s) through this annotator:
 stanza_annotator = AnnStanza(lang="en")
 ```
 
-    2020-11-29 16:43:37,651|INFO|stanza|Loading these models for language: en (English):
+    2021-09-12 20:28:44,689|INFO|stanza|Loading these models for language: en (English):
     =========================
     | Processor | Package   |
     -------------------------
-    | tokenize  | ewt       |
-    | pos       | ewt       |
-    | lemma     | ewt       |
-    | depparse  | ewt       |
+    | tokenize  | combined  |
+    | pos       | combined  |
+    | lemma     | combined  |
+    | depparse  | combined  |
     | sentiment | sstplus   |
     | ner       | ontonotes |
     =========================
     
-    2020-11-29 16:43:37,680|INFO|stanza|Use device: cpu
-    2020-11-29 16:43:37,681|INFO|stanza|Loading: tokenize
-    2020-11-29 16:43:37,918|INFO|stanza|Loading: pos
-    2020-11-29 16:43:38,649|INFO|stanza|Loading: lemma
-    2020-11-29 16:43:38,673|INFO|stanza|Loading: depparse
-    2020-11-29 16:43:39,477|INFO|stanza|Loading: sentiment
-    2020-11-29 16:43:40,340|INFO|stanza|Loading: ner
-    2020-11-29 16:43:40,918|INFO|stanza|Done loading processors!
+    2021-09-12 20:28:44,691|INFO|stanza|Use device: cpu
+    2021-09-12 20:28:44,692|INFO|stanza|Loading: tokenize
+    2021-09-12 20:28:44,697|INFO|stanza|Loading: pos
+    2021-09-12 20:28:44,954|INFO|stanza|Loading: lemma
+    2021-09-12 20:28:44,991|INFO|stanza|Loading: depparse
+    2021-09-12 20:28:45,369|INFO|stanza|Loading: sentiment
+    2021-09-12 20:28:45,766|INFO|stanza|Loading: ner
+    2021-09-12 20:28:46,371|INFO|stanza|Done loading processors!
 
 
 
@@ -635,25 +617,25 @@ doc
 
 
 
-<div><style>#ESBJUUMIFK-wrapper { color: black !important; }</style>
-<div id="ESBJUUMIFK-wrapper">
+<div><style>#UMOJYMDHXD-wrapper { color: black !important; }</style>
+<div id="UMOJYMDHXD-wrapper">
 
 <div>
 <style>
-#ESBJUUMIFK-content {
+#UMOJYMDHXD-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.ESBJUUMIFK-row {
+.UMOJYMDHXD-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.ESBJUUMIFK-col {
+.UMOJYMDHXD-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -663,23 +645,23 @@ doc
     overflow-y: auto;
 }
 
-.ESBJUUMIFK-hdr {
+.UMOJYMDHXD-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.ESBJUUMIFK-label {
+.UMOJYMDHXD-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.ESBJUUMIFK-input {
+.UMOJYMDHXD-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#ESBJUUMIFK-popup {
+#UMOJYMDHXD-popup {
     display: none;
     color: black;
     position: absolute;
@@ -694,45 +676,43 @@ doc
     overflow: auto;
 }
 
-.ESBJUUMIFK-selection {
+.UMOJYMDHXD-selection {
     margin-bottom: 5px;
 }
 
-.ESBJUUMIFK-featuretable {
+.UMOJYMDHXD-featuretable {
     margin-top: 10px;
 }
 
-.ESBJUUMIFK-fname {
+.UMOJYMDHXD-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.ESBJUUMIFK-fvalue {
+.UMOJYMDHXD-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="ESBJUUMIFK-content">
-        <div id="ESBJUUMIFK-popup" style="display: none;">
+  <div id="UMOJYMDHXD-content">
+        <div id="UMOJYMDHXD-popup" style="display: none;">
         </div>
-        <div class="ESBJUUMIFK-row" id="ESBJUUMIFK-row1" style="max-height: 20em; min-height:5em;">
-            <div id="ESBJUUMIFK-text-wrapper" class="ESBJUUMIFK-col" style="width:70%;">
-                <div class="ESBJUUMIFK-hdr" id="ESBJUUMIFK-dochdr"></div>
-                <div id="ESBJUUMIFK-text">
+        <div class="UMOJYMDHXD-row" id="UMOJYMDHXD-row1" style="max-height: 20em; min-height:5em;">
+            <div id="UMOJYMDHXD-text-wrapper" class="UMOJYMDHXD-col" style="width:70%;">
+                <div class="UMOJYMDHXD-hdr" id="UMOJYMDHXD-dochdr"></div>
+                <div id="UMOJYMDHXD-text" style="">
                 </div>
             </div>
-            <div id="ESBJUUMIFK-chooser" class="ESBJUUMIFK-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="UMOJYMDHXD-chooser" class="UMOJYMDHXD-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="ESBJUUMIFK-row" id="ESBJUUMIFK-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="ESBJUUMIFK-details" class="ESBJUUMIFK-col" style="width:100%; border-top-width: 0px;">
+        <div class="UMOJYMDHXD-row" id="UMOJYMDHXD-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="UMOJYMDHXD-details" class="UMOJYMDHXD-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="ESBJUUMIFK-data">
-    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {"id": 1, "text": "This", "lemma": "this", "upos": "PRON", "xpos": "DT", "head": 5, "deprel": "nsubj", "ner": "O", "Number": "Sing", "PronType": "Dem"}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {"id": 2, "text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "head": 5, "deprel": "cop", "ner": "O", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin"}}, {"type": "Token", "start": 8, "end": 12, "id": 2, "features": {"id": 3, "text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 5, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 13, "end": 14, "id": 3, "features": {"id": 4, "text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "head": 5, "deprel": "det", "ner": "O", "Definite": "Ind", "PronType": "Art"}}, {"type": "Token", "start": 15, "end": 21, "id": 4, "features": {"id": 5, "text": "sample", "lemma": "sample", "upos": "NOUN", "xpos": "NN", "head": 5, "deprel": "compound", "ner": "O", "Number": "Sing"}}, {"type": "Token", "start": 22, "end": 30, "id": 5, "features": {"id": 6, "text": "document", "lemma": "document", "upos": "NOUN", "xpos": "NN", "head": 11, "deprel": "root", "ner": "O", "Number": "Sing"}}, {"type": "Token", "start": 31, "end": 34, "id": 6, "features": {"id": 7, "text": "for", "lemma": "for", "upos": "SCONJ", "xpos": "IN", "head": 7, "deprel": "mark", "ner": "O"}}, {"type": "Token", "start": 35, "end": 48, "id": 7, "features": {"id": 8, "text": "experimenting", "lemma": "experiment", "upos": "VERB", "xpos": "VBG", "head": 5, "deprel": "acl", "ner": "O", "VerbForm": "Ger"}}, {"type": "Token", "start": 49, "end": 53, "id": 8, "features": {"id": 9, "text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 9, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 54, "end": 61, "id": 9, "features": {"id": 10, "text": "gatenlp", "lemma": "gatenlp", "upos": "NOUN", "xpos": "NN", "head": 7, "deprel": "obl", "ner": "O", "Number": "Sing"}}, {"type": "Token", "start": 61, "end": 62, "id": 10, "features": {"id": 11, "text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 62, "id": 11, "features": {}}, {"type": "Token", "start": 64, "end": 66, "id": 12, "features": {"id": 1, "text": "It", "lemma": "it", "upos": "PRON", "xpos": "PRP", "head": 13, "deprel": "nsubj", "ner": "O", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 67, "end": 75, "id": 13, "features": {"id": 2, "text": "mentions", "lemma": "mention", "upos": "VERB", "xpos": "VBZ", "head": 52, "deprel": "root", "ner": "O", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin"}}, {"type": "Token", "start": 76, "end": 77, "id": 14, "features": {"id": 3, "text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "head": 17, "deprel": "det", "ner": "O", "Definite": "Ind", "PronType": "Art"}}, {"type": "Token", "start": 78, "end": 81, "id": 15, "features": {"id": 4, "text": "few", "lemma": "few", "upos": "ADJ", "xpos": "JJ", "head": 17, "deprel": "amod", "ner": "O", "Degree": "Pos"}}, {"type": "Token", "start": 82, "end": 87, "id": 16, "features": {"id": 5, "text": "named", "lemma": "name", "upos": "VERB", "xpos": "VBN", "head": 17, "deprel": "amod", "ner": "O", "Tense": "Past", "VerbForm": "Part"}}, {"type": "Token", "start": 88, "end": 96, "id": 17, "features": {"id": 6, "text": "entities", "lemma": "entity", "upos": "NOUN", "xpos": "NNS", "head": 13, "deprel": "obj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 97, "end": 101, "id": 18, "features": {"id": 7, "text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 20, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 102, "end": 105, "id": 19, "features": {"id": 8, "text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "head": 20, "deprel": "det", "ner": "O", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 106, "end": 113, "id": 20, "features": {"id": 9, "text": "persons", "lemma": "person", "upos": "NOUN", "xpos": "NNS", "head": 17, "deprel": "nmod", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 114, "end": 120, "id": 21, "features": {"id": 10, "text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "appos", "ner": "B-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 121, "end": 126, "id": 22, "features": {"id": 11, "text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "head": 21, "deprel": "flat", "ner": "E-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 126, "end": 127, "id": 23, "features": {"id": 12, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 24, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 129, "end": 135, "id": 24, "features": {"id": 13, "text": "Albert", "lemma": "Albert", "upos": "PROPN", "xpos": "NNP", "head": 21, "deprel": "conj", "ner": "B-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 136, "end": 144, "id": 25, "features": {"id": 14, "text": "Einstein", "lemma": "Einstein", "upos": "PROPN", "xpos": "NNP", "head": 24, "deprel": "flat", "ner": "E-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 145, "end": 148, "id": 26, "features": {"id": 15, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 27, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 149, "end": 157, "id": 27, "features": {"id": 16, "text": "Wolfgang", "lemma": "Wolfgang", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "conj", "ner": "B-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 158, "end": 165, "id": 28, "features": {"id": 17, "text": "Amadeus", "lemma": "Amadeus", "upos": "PROPN", "xpos": "NNP", "head": 27, "deprel": "flat", "ner": "I-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 166, "end": 172, "id": 29, "features": {"id": 18, "text": "Mozart", "lemma": "Mozart", "upos": "PROPN", "xpos": "NNP", "head": 27, "deprel": "flat", "ner": "E-PERSON", "Number": "Sing"}}, {"type": "Token", "start": 173, "end": 176, "id": 30, "features": {"id": 19, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 33, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 177, "end": 180, "id": 31, "features": {"id": 20, "text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "head": 33, "deprel": "det", "ner": "O", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 181, "end": 193, "id": 32, "features": {"id": 21, "text": "geographical", "lemma": "geographical", "upos": "ADJ", "xpos": "JJ", "head": 33, "deprel": "amod", "ner": "O", "Degree": "Pos"}}, {"type": "Token", "start": 195, "end": 204, "id": 33, "features": {"id": 22, "text": "locations", "lemma": "location", "upos": "NOUN", "xpos": "NNS", "head": 20, "deprel": "conj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 205, "end": 208, "id": 34, "features": {"id": 23, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 36, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 209, "end": 218, "id": 35, "features": {"id": 24, "text": "countries", "lemma": "country", "upos": "NOUN", "xpos": "NNS", "head": 36, "deprel": "compound", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 219, "end": 226, "id": 36, "features": {"id": 25, "text": "America", "lemma": "America", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "conj", "ner": "S-GPE", "Number": "Sing"}}, {"type": "Token", "start": 226, "end": 227, "id": 37, "features": {"id": 26, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 39, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 38, "features": {"id": 27, "text": "United", "lemma": "United", "upos": "PROPN", "xpos": "NNP", "head": 39, "deprel": "compound", "ner": "B-GPE", "Number": "Sing"}}, {"type": "Token", "start": 235, "end": 241, "id": 39, "features": {"id": 28, "text": "States", "lemma": "States", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "conj", "ner": "I-GPE", "Number": "Sing"}}, {"type": "Token", "start": 242, "end": 244, "id": 40, "features": {"id": 29, "text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 41, "deprel": "case", "ner": "I-GPE"}}, {"type": "Token", "start": 245, "end": 252, "id": 41, "features": {"id": 30, "text": "America", "lemma": "America", "upos": "PROPN", "xpos": "NNP", "head": 39, "deprel": "nmod", "ner": "E-GPE", "Number": "Sing"}}, {"type": "Token", "start": 252, "end": 253, "id": 42, "features": {"id": 31, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 43, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 255, "end": 262, "id": 43, "features": {"id": 32, "text": "Hungary", "lemma": "Hungary", "upos": "PROPN", "xpos": "NNP", "head": 41, "deprel": "conj", "ner": "S-GPE", "Number": "Sing"}}, {"type": "Token", "start": 262, "end": 263, "id": 44, "features": {"id": 33, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 47, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 264, "end": 267, "id": 45, "features": {"id": 34, "text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "head": 47, "deprel": "det", "ner": "B-LOC", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 268, "end": 276, "id": 46, "features": {"id": 35, "text": "Atlantic", "lemma": "Atlantic", "upos": "PROPN", "xpos": "NNP", "head": 47, "deprel": "compound", "ner": "I-LOC", "Number": "Sing"}}, {"type": "Token", "start": 277, "end": 282, "id": 47, "features": {"id": 36, "text": "Ocean", "lemma": "Ocean", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "conj", "ner": "E-LOC", "Number": "Sing"}}, {"type": "Token", "start": 282, "end": 283, "id": 48, "features": {"id": 37, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 50, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 284, "end": 287, "id": 49, "features": {"id": 38, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 50, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 288, "end": 297, "id": 50, "features": {"id": 39, "text": "Helskinki", "lemma": "Helskinki", "upos": "PROPN", "xpos": "NNP", "head": 20, "deprel": "conj", "ner": "S-ORG", "Number": "Sing"}}, {"type": "Token", "start": 297, "end": 298, "id": 51, "features": {"id": 40, "text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 13, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 64, "end": 298, "id": 52, "features": {}}, {"type": "Token", "start": 301, "end": 303, "id": 53, "features": {"id": 1, "text": "It", "lemma": "it", "upos": "PRON", "xpos": "PRP", "head": 55, "deprel": "nsubj", "ner": "O", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 304, "end": 308, "id": 54, "features": {"id": 2, "text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 55, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 309, "end": 317, "id": 55, "features": {"id": 3, "text": "contains", "lemma": "contain", "upos": "VERB", "xpos": "VBZ", "head": 101, "deprel": "root", "ner": "O", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin"}}, {"type": "Token", "start": 318, "end": 326, "id": 56, "features": {"id": 4, "text": "mentions", "lemma": "mention", "upos": "NOUN", "xpos": "NNS", "head": 55, "deprel": "obj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 327, "end": 329, "id": 57, "features": {"id": 5, "text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 330, "end": 337, "id": 58, "features": {"id": 6, "text": "various", "lemma": "various", "upos": "ADJ", "xpos": "JJ", "head": 59, "deprel": "amod", "ner": "O", "Degree": "Pos"}}, {"type": "Token", "start": 338, "end": 345, "id": 59, "features": {"id": 7, "text": "numbers", "lemma": "number", "upos": "NOUN", "xpos": "NNS", "head": 56, "deprel": "nmod", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 346, "end": 349, "id": 60, "features": {"id": 8, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 61, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 350, "end": 357, "id": 61, "features": {"id": 9, "text": "amounts", "lemma": "amount", "upos": "NOUN", "xpos": "NNS", "head": 59, "deprel": "conj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 358, "end": 362, "id": 62, "features": {"id": 10, "text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 64, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 364, "end": 366, "id": 63, "features": {"id": 11, "text": "12", "lemma": "12", "upos": "NUM", "xpos": "CD", "head": 64, "deprel": "nummod", "ner": "B-QUANTITY", "NumType": "Card"}}, {"type": "Token", "start": 367, "end": 374, "id": 64, "features": {"id": 12, "text": "degrees", "lemma": "degree", "upos": "NOUN", "xpos": "NNS", "head": 59, "deprel": "nmod", "ner": "E-QUANTITY", "Number": "Plur"}}, {"type": "Token", "start": 374, "end": 375, "id": 65, "features": {"id": 13, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 67, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 376, "end": 381, "id": 66, "features": {"id": 14, "text": "12.83", "lemma": "12.83", "upos": "NUM", "xpos": "CD", "head": 67, "deprel": "nummod", "ner": "O", "NumType": "Card"}}, {"type": "Token", "start": 381, "end": 382, "id": 67, "features": {"id": 15, "text": "$", "lemma": "$", "upos": "SYM", "xpos": "$", "head": 59, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 382, "end": 383, "id": 68, "features": {"id": 16, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 70, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 384, "end": 386, "id": 69, "features": {"id": 17, "text": "25", "lemma": "25", "upos": "NUM", "xpos": "CD", "head": 70, "deprel": "nummod", "ner": "B-QUANTITY", "NumType": "Card"}}, {"type": "Token", "start": 387, "end": 389, "id": 70, "features": {"id": 18, "text": "km", "lemma": "km", "upos": "NOUN", "xpos": "NNS", "head": 67, "deprel": "conj", "ner": "I-QUANTITY", "Number": "Plur"}}, {"type": "Token", "start": 389, "end": 390, "id": 71, "features": {"id": 19, "text": "/", "lemma": "/", "upos": "PUNCT", "xpos": ",", "head": 72, "deprel": "punct", "ner": "I-QUANTITY"}}, {"type": "Token", "start": 390, "end": 391, "id": 72, "features": {"id": 20, "text": "h", "lemma": "h", "upos": "NOUN", "xpos": "NN", "head": 67, "deprel": "conj", "ner": "E-QUANTITY", "Number": "Sing"}}, {"type": "Token", "start": 392, "end": 394, "id": 73, "features": {"id": 21, "text": "or", "lemma": "or", "upos": "CCONJ", "xpos": "CC", "head": 75, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 395, "end": 403, "id": 74, "features": {"id": 22, "text": "fortytwo", "lemma": "fortytwo", "upos": "ADJ", "xpos": "JJ", "head": 75, "deprel": "amod", "ner": "B-QUANTITY", "Degree": "Pos"}}, {"type": "Token", "start": 404, "end": 409, "id": 75, "features": {"id": 23, "text": "kilos", "lemma": "kilo", "upos": "NOUN", "xpos": "NNS", "head": 67, "deprel": "conj", "ner": "E-QUANTITY", "Number": "Plur"}}, {"type": "Token", "start": 410, "end": 413, "id": 76, "features": {"id": 24, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 78, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 414, "end": 422, "id": 77, "features": {"id": 25, "text": "mentions", "lemma": "mention", "upos": "NOUN", "xpos": "NNS", "head": 78, "deprel": "compound", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 423, "end": 436, "id": 78, "features": {"id": 26, "text": "organizations", "lemma": "organization", "upos": "NOUN", "xpos": "NNS", "head": 59, "deprel": "conj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 437, "end": 440, "id": 79, "features": {"id": 27, "text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 80, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 441, "end": 450, "id": 80, "features": {"id": 28, "text": "companies", "lemma": "company", "upos": "NOUN", "xpos": "NNS", "head": 59, "deprel": "conj", "ner": "O", "Number": "Plur"}}, {"type": "Token", "start": 451, "end": 455, "id": 81, "features": {"id": 29, "text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 83, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 456, "end": 459, "id": 82, "features": {"id": 30, "text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "head": 83, "deprel": "det", "ner": "O", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 460, "end": 463, "id": 83, "features": {"id": 31, "text": "UNO", "lemma": "UNO", "upos": "PROPN", "xpos": "NNP", "head": 80, "deprel": "nmod", "ner": "S-ORG", "Number": "Sing"}}, {"type": "Token", "start": 463, "end": 464, "id": 84, "features": {"id": 32, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 83, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 465, "end": 474, "id": 85, "features": {"id": 33, "text": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "head": 83, "deprel": "appos", "ner": "S-ORG", "Number": "Sing"}}, {"type": "Token", "start": 474, "end": 475, "id": 86, "features": {"id": 34, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 85, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 476, "end": 481, "id": 87, "features": {"id": 35, "text": "Apple", "lemma": "Apple", "upos": "PROPN", "xpos": "NNP", "head": 83, "deprel": "appos", "ner": "S-ORG", "Number": "Sing"}}, {"type": "Token", "start": 481, "end": 482, "id": 88, "features": {"id": 36, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 83, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 483, "end": 488, "id": 89, "features": {"id": 37, "text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "head": 90, "deprel": "nsubj", "ner": "O", "PronType": "Rel"}}, {"type": "Token", "start": 489, "end": 492, "id": 90, "features": {"id": 38, "text": "has", "lemma": "have", "upos": "VERB", "xpos": "VBZ", "head": 83, "deprel": "acl:relcl", "ner": "O", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin"}}, {"type": "Token", "start": 493, "end": 495, "id": 91, "features": {"id": 39, "text": "an", "lemma": "a", "upos": "DET", "xpos": "DT", "head": 92, "deprel": "det", "ner": "O", "Definite": "Ind", "PronType": "Art"}}, {"type": "Token", "start": 496, "end": 501, "id": 92, "features": {"id": 40, "text": "apple", "lemma": "apple", "upos": "NOUN", "xpos": "NN", "head": 90, "deprel": "obj", "ner": "O", "Number": "Sing"}}, {"type": "Token", "start": 502, "end": 504, "id": 93, "features": {"id": 41, "text": "as", "lemma": "as", "upos": "ADP", "xpos": "IN", "head": 96, "deprel": "mark", "ner": "O"}}, {"type": "Token", "start": 505, "end": 507, "id": 94, "features": {"id": 42, "text": "it", "lemma": "it", "upos": "PRON", "xpos": "PRP", "head": 96, "deprel": "nsubj", "ner": "O", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 507, "end": 509, "id": 95, "features": {"id": 43, "text": "'s", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "head": 96, "deprel": "cop", "ner": "O", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin"}}, {"type": "Token", "start": 510, "end": 514, "id": 96, "features": {"id": 44, "text": "logo", "lemma": "logo", "upos": "NOUN", "xpos": "NN", "head": 90, "deprel": "advcl", "ner": "O", "Number": "Sing"}}, {"type": "Token", "start": 514, "end": 515, "id": 97, "features": {"id": 45, "text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 99, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 516, "end": 518, "id": 98, "features": {"id": 46, "text": "or", "lemma": "or", "upos": "CCONJ", "xpos": "CC", "head": 99, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 519, "end": 525, "id": 99, "features": {"id": 47, "text": "Google", "lemma": "Google", "upos": "PROPN", "xpos": "NNP", "head": 96, "deprel": "conj", "ner": "S-ORG", "Number": "Sing"}}, {"type": "Token", "start": 525, "end": 526, "id": 100, "features": {"id": 48, "text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 55, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 301, "end": 526, "id": 101, "features": {}}, {"type": "PERSON", "start": 114, "end": 126, "id": 102, "features": {}}, {"type": "PERSON", "start": 129, "end": 144, "id": 103, "features": {}}, {"type": "PERSON", "start": 149, "end": 172, "id": 104, "features": {}}, {"type": "GPE", "start": 219, "end": 226, "id": 105, "features": {}}, {"type": "GPE", "start": 228, "end": 252, "id": 106, "features": {}}, {"type": "GPE", "start": 255, "end": 262, "id": 107, "features": {}}, {"type": "LOC", "start": 264, "end": 282, "id": 108, "features": {}}, {"type": "ORG", "start": 288, "end": 297, "id": 109, "features": {}}, {"type": "QUANTITY", "start": 364, "end": 374, "id": 110, "features": {}}, {"type": "QUANTITY", "start": 384, "end": 391, "id": 111, "features": {}}, {"type": "QUANTITY", "start": 395, "end": 409, "id": 112, "features": {}}, {"type": "ORG", "start": 460, "end": 463, "id": 113, "features": {}}, {"type": "ORG", "start": 465, "end": 474, "id": 114, "features": {}}, {"type": "ORG", "start": 476, "end": 481, "id": 115, "features": {}}, {"type": "ORG", "start": 519, "end": 525, "id": 116, "features": {}}], "next_annid": 117}}, "text": "This is just a sample document for experimenting with gatenlp. \nIt mentions a few named entities like the persons Barack Obama, \nAlbert Einstein and Wolfgang Amadeus Mozart and the geographical \nlocations and countries America, United States of America, \nHungary, the Atlantic Ocean, and Helskinki. \n\nIt also contains mentions of various numbers and amounts like \n12 degrees, 12.83$, 25 km/h or fortytwo kilos and mentions\norganizations and companies like the UNO, Microsoft, Apple, which\nhas an apple as it's logo, or Google. \n\n\n", "features": {}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("ESBJUUMIFK-");
+    let UMOJYMDHXD_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {"text": "This", "lemma": "this", "upos": "PRON", "xpos": "DT", "Number": "Sing", "PronType": "Dem", "head": 5, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 8, "end": 12, "id": 2, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 5, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 13, "end": 14, "id": 3, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 15, "end": 21, "id": 4, "features": {"text": "sample", "lemma": "sample", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 5, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 22, "end": 30, "id": 5, "features": {"text": "document", "lemma": "document", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 11, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 31, "end": 34, "id": 6, "features": {"text": "for", "lemma": "for", "upos": "SCONJ", "xpos": "IN", "head": 7, "deprel": "mark", "ner": "O"}}, {"type": "Token", "start": 35, "end": 48, "id": 7, "features": {"text": "experimenting", "lemma": "experiment", "upos": "VERB", "xpos": "VBG", "VerbForm": "Ger", "head": 5, "deprel": "acl", "ner": "O"}}, {"type": "Token", "start": 49, "end": 53, "id": 8, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 9, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 54, "end": 61, "id": 9, "features": {"text": "gatenlp", "lemma": "gatenlp", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 7, "deprel": "obl", "ner": "O"}}, {"type": "Token", "start": 61, "end": 62, "id": 10, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 62, "id": 11, "features": {}}, {"type": "Token", "start": 64, "end": 66, "id": 12, "features": {"text": "It", "lemma": "it", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 13, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 67, "end": 75, "id": 13, "features": {"text": "mentions", "lemma": "mention", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 52, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 76, "end": 77, "id": 14, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 17, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 78, "end": 81, "id": 15, "features": {"text": "few", "lemma": "few", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 17, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 82, "end": 87, "id": 16, "features": {"text": "named", "lemma": "name", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "head": 17, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 88, "end": 96, "id": 17, "features": {"text": "entities", "lemma": "entity", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 13, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 97, "end": 101, "id": 18, "features": {"text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 20, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 102, "end": 105, "id": 19, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 20, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 106, "end": 113, "id": 20, "features": {"text": "persons", "lemma": "person", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 17, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 114, "end": 120, "id": 21, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 20, "deprel": "appos", "ner": "B-PERSON"}}, {"type": "Token", "start": 121, "end": 126, "id": 22, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 21, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 126, "end": 127, "id": 23, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 24, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 129, "end": 135, "id": 24, "features": {"text": "Albert", "lemma": "Albert", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 21, "deprel": "conj", "ner": "B-PERSON"}}, {"type": "Token", "start": 136, "end": 144, "id": 25, "features": {"text": "Einstein", "lemma": "Einstein", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 24, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 145, "end": 148, "id": 26, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 27, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 149, "end": 157, "id": 27, "features": {"text": "Wolfgang", "lemma": "Wolfgang", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 21, "deprel": "conj", "ner": "B-PERSON"}}, {"type": "Token", "start": 158, "end": 165, "id": 28, "features": {"text": "Amadeus", "lemma": "Amadeus", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 27, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 166, "end": 172, "id": 29, "features": {"text": "Mozart", "lemma": "Mozart", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 27, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 173, "end": 176, "id": 30, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 33, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 177, "end": 180, "id": 31, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 33, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 181, "end": 193, "id": 32, "features": {"text": "geographical", "lemma": "geographical", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 33, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 195, "end": 204, "id": 33, "features": {"text": "locations", "lemma": "location", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 20, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 205, "end": 208, "id": 34, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 35, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 209, "end": 218, "id": 35, "features": {"text": "countries", "lemma": "country", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 33, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 219, "end": 226, "id": 36, "features": {"text": "America", "lemma": "America", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 35, "deprel": "flat", "ner": "S-GPE"}}, {"type": "Token", "start": 226, "end": 227, "id": 37, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 39, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 38, "features": {"text": "United", "lemma": "United", "upos": "ADJ", "xpos": "NNP", "Degree": "Pos", "head": 39, "deprel": "amod", "ner": "B-GPE"}}, {"type": "Token", "start": 235, "end": 241, "id": 39, "features": {"text": "States", "lemma": "State", "upos": "PROPN", "xpos": "NNPS", "Number": "Plur", "head": 21, "deprel": "conj", "ner": "I-GPE"}}, {"type": "Token", "start": 242, "end": 244, "id": 40, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 41, "deprel": "case", "ner": "I-GPE"}}, {"type": "Token", "start": 245, "end": 252, "id": 41, "features": {"text": "America", "lemma": "America", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 39, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 252, "end": 253, "id": 42, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 43, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 255, "end": 262, "id": 43, "features": {"text": "Hungary", "lemma": "Hungary", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 21, "deprel": "conj", "ner": "S-GPE"}}, {"type": "Token", "start": 262, "end": 263, "id": 44, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 47, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 264, "end": 267, "id": 45, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 47, "deprel": "det", "ner": "B-LOC"}}, {"type": "Token", "start": 268, "end": 276, "id": 46, "features": {"text": "Atlantic", "lemma": "Atlantic", "upos": "ADJ", "xpos": "NNP", "Degree": "Pos", "head": 47, "deprel": "amod", "ner": "I-LOC"}}, {"type": "Token", "start": 277, "end": 282, "id": 47, "features": {"text": "Ocean", "lemma": "Ocean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 20, "deprel": "conj", "ner": "E-LOC"}}, {"type": "Token", "start": 282, "end": 283, "id": 48, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 50, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 284, "end": 287, "id": 49, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 50, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 288, "end": 297, "id": 50, "features": {"text": "Helskinki", "lemma": "Helskinki", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 21, "deprel": "conj", "ner": "S-ORG"}}, {"type": "Token", "start": 297, "end": 298, "id": 51, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 13, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 64, "end": 298, "id": 52, "features": {}}, {"type": "Token", "start": 301, "end": 303, "id": 53, "features": {"text": "It", "lemma": "it", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 55, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 304, "end": 308, "id": 54, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 55, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 309, "end": 317, "id": 55, "features": {"text": "contains", "lemma": "contain", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 99, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 318, "end": 326, "id": 56, "features": {"text": "mentions", "lemma": "mention", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 55, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 327, "end": 329, "id": 57, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 330, "end": 337, "id": 58, "features": {"text": "various", "lemma": "various", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 59, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 338, "end": 345, "id": 59, "features": {"text": "numbers", "lemma": "number", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 56, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 346, "end": 349, "id": 60, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 61, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 350, "end": 357, "id": 61, "features": {"text": "amounts", "lemma": "amount", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 59, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 358, "end": 362, "id": 62, "features": {"text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 64, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 364, "end": 366, "id": 63, "features": {"text": "12", "lemma": "12", "upos": "NUM", "xpos": "CD", "NumForm": "Digit", "NumType": "Card", "head": 64, "deprel": "nummod", "ner": "B-QUANTITY"}}, {"type": "Token", "start": 367, "end": 374, "id": 64, "features": {"text": "degrees", "lemma": "degree", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 59, "deprel": "nmod", "ner": "E-QUANTITY"}}, {"type": "Token", "start": 374, "end": 375, "id": 65, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 67, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 376, "end": 381, "id": 66, "features": {"text": "12.83", "lemma": "12.83", "upos": "NUM", "xpos": "CD", "NumForm": "Digit", "NumType": "Card", "head": 67, "deprel": "nummod", "ner": "O"}}, {"type": "Token", "start": 381, "end": 382, "id": 67, "features": {"text": "$", "lemma": "$", "upos": "SYM", "xpos": "$", "head": 64, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 382, "end": 383, "id": 68, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 67, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 384, "end": 386, "id": 69, "features": {"text": "25", "lemma": "25", "upos": "NUM", "xpos": "CD", "NumType": "Card", "head": 70, "deprel": "compound", "ner": "B-QUANTITY"}}, {"type": "Token", "start": 387, "end": 391, "id": 70, "features": {"text": "km/h", "lemma": "km/h", "upos": "NUM", "xpos": "CD", "NumType": "Card", "head": 73, "deprel": "nummod", "ner": "E-QUANTITY"}}, {"type": "Token", "start": 392, "end": 394, "id": 71, "features": {"text": "or", "lemma": "or", "upos": "CCONJ", "xpos": "CC", "head": 72, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 395, "end": 403, "id": 72, "features": {"text": "fortytwo", "lemma": "fortytwo", "upos": "NUM", "xpos": "CD", "NumType": "Card", "head": 70, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 404, "end": 409, "id": 73, "features": {"text": "kilos", "lemma": "kilo", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 67, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 410, "end": 413, "id": 74, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 75, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 414, "end": 422, "id": 75, "features": {"text": "mentions", "lemma": "mention", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 55, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 423, "end": 436, "id": 76, "features": {"text": "organizations", "lemma": "organization", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 75, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 437, "end": 440, "id": 77, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 78, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 441, "end": 450, "id": 78, "features": {"text": "companies", "lemma": "company", "upos": "NOUN", "xpos": "NNS", "Number": "Plur", "head": 76, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 451, "end": 455, "id": 79, "features": {"text": "like", "lemma": "like", "upos": "ADP", "xpos": "IN", "head": 81, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 456, "end": 459, "id": 80, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 81, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 460, "end": 463, "id": 81, "features": {"text": "UNO", "lemma": "UNO", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 76, "deprel": "nmod", "ner": "S-ORG"}}, {"type": "Token", "start": 463, "end": 464, "id": 82, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 83, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 465, "end": 474, "id": 83, "features": {"text": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 81, "deprel": "conj", "ner": "S-ORG"}}, {"type": "Token", "start": 474, "end": 475, "id": 84, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 85, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 476, "end": 481, "id": 85, "features": {"text": "Apple", "lemma": "Apple", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 81, "deprel": "conj", "ner": "S-ORG"}}, {"type": "Token", "start": 481, "end": 482, "id": 86, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 88, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 483, "end": 488, "id": 87, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 88, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 489, "end": 492, "id": 88, "features": {"text": "has", "lemma": "have", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 81, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 493, "end": 495, "id": 89, "features": {"text": "an", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 90, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 496, "end": 501, "id": 90, "features": {"text": "apple", "lemma": "apple", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 88, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 502, "end": 504, "id": 91, "features": {"text": "as", "lemma": "as", "upos": "ADP", "xpos": "IN", "head": 94, "deprel": "mark", "ner": "O"}}, {"type": "Token", "start": 505, "end": 507, "id": 92, "features": {"text": "it", "lemma": "it", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Neut", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 94, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 507, "end": 509, "id": 93, "features": {"text": "'s", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 94, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 510, "end": 514, "id": 94, "features": {"text": "logo", "lemma": "logo", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 88, "deprel": "advcl", "ner": "O"}}, {"type": "Token", "start": 514, "end": 515, "id": 95, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 97, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 516, "end": 518, "id": 96, "features": {"text": "or", "lemma": "or", "upos": "CCONJ", "xpos": "CC", "head": 97, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 519, "end": 525, "id": 97, "features": {"text": "Google", "lemma": "Google", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 94, "deprel": "conj", "ner": "S-ORG"}}, {"type": "Token", "start": 525, "end": 526, "id": 98, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 55, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 301, "end": 526, "id": 99, "features": {}}, {"type": "PERSON", "start": 114, "end": 126, "id": 100, "features": {}}, {"type": "PERSON", "start": 129, "end": 144, "id": 101, "features": {}}, {"type": "PERSON", "start": 149, "end": 172, "id": 102, "features": {}}, {"type": "GPE", "start": 219, "end": 226, "id": 103, "features": {}}, {"type": "GPE", "start": 228, "end": 252, "id": 104, "features": {}}, {"type": "GPE", "start": 255, "end": 262, "id": 105, "features": {}}, {"type": "LOC", "start": 264, "end": 282, "id": 106, "features": {}}, {"type": "ORG", "start": 288, "end": 297, "id": 107, "features": {}}, {"type": "QUANTITY", "start": 364, "end": 374, "id": 108, "features": {}}, {"type": "QUANTITY", "start": 384, "end": 391, "id": 109, "features": {}}, {"type": "ORG", "start": 460, "end": 463, "id": 110, "features": {}}, {"type": "ORG", "start": 465, "end": 474, "id": 111, "features": {}}, {"type": "ORG", "start": 476, "end": 481, "id": 112, "features": {}}, {"type": "ORG", "start": 519, "end": 525, "id": 113, "features": {}}], "next_annid": 114}}, "text": "This is just a sample document for experimenting with gatenlp. \nIt mentions a few named entities like the persons Barack Obama, \nAlbert Einstein and Wolfgang Amadeus Mozart and the geographical \nlocations and countries America, United States of America, \nHungary, the Atlantic Ocean, and Helskinki. \n\nIt also contains mentions of various numbers and amounts like \n12 degrees, 12.83$, 25 km/h or fortytwo kilos and mentions\norganizations and companies like the UNO, Microsoft, Apple, which\nhas an apple as it's logo, or Google. \n\n\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(UMOJYMDHXD_data), "UMOJYMDHXD-").init();
     </script>
   </div>
 
