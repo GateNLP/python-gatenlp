@@ -82,7 +82,7 @@ class AnnSpacy(Annotator):
         return doc
 
 
-def apply_spacy(nlp, gatenlpdoc, setname="",containing_anns=None):
+def apply_spacy(nlp, gatenlpdoc, setname="",containing_anns=None,component_cfg=None,retrieveSpans=[]):
     """Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
@@ -99,10 +99,17 @@ def apply_spacy(nlp, gatenlpdoc, setname="",containing_anns=None):
 
     """
     if containing_anns:
+        component_config=None
         for ann in containing_anns.fast_iter():
             covered=gatenlpdoc[ann.start:ann.end]
-            spacydoc = nlp(covered)
-            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start)
+            if component_cfg:
+                component_config= {component_cfg: ann.features.to_dict()}
+            spacydoc = nlp(covered,component_cfg=component_config)
+            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,start_offset=ann.start,retrieveSpans=retrieveSpans)
+            elems=dir(spacydoc._)
+            for elem in elems:
+                if elem not in ['get', 'set', 'has']:
+                    ann.features[elem]=spacydoc._.get(elem)
         return gatenlpdoc
     else:
         spacydoc = nlp(gatenlpdoc.text)
@@ -124,7 +131,8 @@ def spacy2gatenlp(
     add_nounchunks=True,
     add_dep=True,
     ent_prefix=None,
-    start_offset=0
+    start_offset=0,
+    retrieveSpans=[]
 ):
     """Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
@@ -233,4 +241,10 @@ def spacy2gatenlp(
     if spacydoc.noun_chunks and add_nounchunks:
         for chunk in spacydoc.noun_chunks:
             annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
+    for spanType in retrieveSpans:
+        try:
+            for span in spacydoc.spans[spanType]:
+                annset.add(span.start_char+start_offset, span.end_char+start_offset, spanType, {})
+        except Exception as e:
+            print("exception raised"+e)
     return retdoc
