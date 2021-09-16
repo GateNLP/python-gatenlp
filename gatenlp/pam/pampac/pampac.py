@@ -1,6 +1,8 @@
 """
 Module for the Pampac class.
 """
+import sys
+
 from gatenlp.pam.pampac.data import Location, Context
 from gatenlp.pam.pampac.rule import Rule
 from gatenlp.annotation_set import AnnotationSet
@@ -151,8 +153,17 @@ class Pampac:
                 # now that we have fired rules, find out how to advance to the next position
                 if self.skip == "once":
                     return frets
-                elif self.skip == "once":
-                    location = ctx.inc_location(location, by_offset=1)
+                elif self.skip == "one":
+                    # we need to advance to the offset AFTER the BEGINNING of the earliest match
+                    old_t = location.text_location
+                    old_a = location.ann_location
+                    next_o = sys.maxsize
+                    for ret in fired_rets:
+                        for res in ret:
+                            if res.span is not None and res.span.start < next_o:
+                                next_o = res.span.start
+                    location = ctx.inc_location(location, to_offset=next_o+1)
+                    # print(f"LOCATION: from {old_t}/{old_a} for {next_o} to {location.text_location}/{location.ann_location}")
                 elif self.skip == "longest":
                     longest = 0
                     for ret in fired_rets:

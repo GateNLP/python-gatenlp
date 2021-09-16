@@ -450,7 +450,7 @@ class Context:
                 return idx
             idx += 1
 
-    def inc_location(self, location, by_offset=None, by_index=None):
+    def inc_location(self, location, by_offset=None, by_index=None, to_offset=None):
         """
         Return a new location which represents the given location incremented by either the given number of index
         count (usually 1), or by the given offset length. Only one of the by parameters should be specified.
@@ -467,6 +467,8 @@ class Context:
             location:
             by_offset: the number of text characters to increment the text offset by
             by_index:  the number of annotations to increment the index by
+            to_offset: if given, the by_ arguments are ignored and instead the offset is set to the given
+                offset with the annotation index set to the next annotation at or after that offset
 
         Returns:
             new location
@@ -474,7 +476,14 @@ class Context:
         newloc = Location(
             text_location=location.text_location, ann_location=location.ann_location
         )
-        if by_index is not None:
+        if to_offset is not None:
+            assert to_offset < self.end
+            assert to_offset >= self.start
+            newloc.text_location = to_offset
+            newloc.ann_location = self.nextidx4offset(
+                location, newloc.text_location
+            )
+        elif by_index is not None:
             # get the annotation before the one we want to point at next, so we get the end offset of the
             # last annotation consumed
             newloc.ann_location += by_index - 1
