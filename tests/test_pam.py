@@ -561,6 +561,42 @@ class TestPampac01:
         assert len(outset) == orig_len + 1
 
 
+class TestPampacRemoveAnn:
+
+    def test01(self):
+        """
+        Unit test method (make linter happy)
+        """
+        from gatenlp.pam.pampac.actions import RemoveAnn
+
+        def make_doc():
+            doc = Document("Some test document")
+            doc.annset().add(0, 2, "Ann")  # 0
+            doc.annset().add(0, 2, "Ann")  # 1
+            doc.annset().add(0, 2, "Token")  # 2
+            doc.annset().add(2, 4, "Ann")  # 3
+            doc.annset().add(2, 4, "Ann")  # 4
+            doc.annset().add(4, 6, "Ann")  # 5
+            doc.annset().add(4, 6, "Ann")  # 6
+            doc.annset().add(4, 6, "Person")  # 7
+            doc.annset().add(6, 8, "Ann")  # 8
+            doc.annset().add(6, 8, "Ann")  # 9
+            doc.annset().add(8, 10, "XXXX")  # 10
+            return doc
+
+        doc = make_doc()
+
+        # match first match of Ann an remove
+        assert len(doc.annset()) == 11
+        Pampac(
+            Rule(
+                AnnAt("Ann", name="match", matchtype="all"),
+                RemoveAnn("match", doc.annset())
+            ),
+        ).run(doc, doc.annset().with_type("Ann", "XXX", "Person", "Token"))
+        assert len(doc.annset()) == 7
+
+
 class TestPampacMisc:
 
     def test01(self):

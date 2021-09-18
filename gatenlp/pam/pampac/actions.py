@@ -1,16 +1,18 @@
 """
 Module for PAMPAC action classes.
 """
-from copy import deepcopy
+from abc import ABC, abstractmethod
 from gatenlp import Annotation
 from gatenlp.features import Features
 
 
-class Getter:
+class Getter(ABC):
     """
     Common base class of all Getter helper classes.
     """
-    pass
+    @abstractmethod
+    def __call__(self, succ, context=None, location=None):
+        pass
 
 
 def _get_match(succ, name, resultidx=0, matchidx=0, silent_fail=False):
@@ -144,7 +146,7 @@ class AddAnn:
             resultidx=0,
             matchidx=0,
             silent_fail=False,
-        ):  # pylint: disable=W0622
+    ):  # pylint: disable=W0622
         """
         Create an action for adding a new annotation to the outset.
 
@@ -258,7 +260,7 @@ class UpdateAnnFeatures:
             matchidx=0,
             silent_fail=False,
             deepcopy=False
-        ):
+    ):
         """
         Create an UpdateAnnFeatures action. The features to use for updating can either come from
         an existing annotation, an annotation fetched with a GetAnn annotation getter, or from a
@@ -357,8 +359,8 @@ class RemoveAnn:
     """
     Action for removing an anntoation.
     """
-    def __init__(self, name,
-                 annset,
+    def __init__(self, name=None,
+                 annset=None,
                  resultidx=0, matchidx=0,
                  silent_fail=True):
         """
@@ -374,6 +376,8 @@ class RemoveAnn:
             matchidx: index of the match to use, if several (default: 0)
             silent_fail: if True, silently ignore the error of no annotation to get removed
         """
+        assert name is not None
+        assert annset is not None
         self.name = name
         self.annset = annset
         self.resultidx = resultidx

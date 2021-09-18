@@ -1010,16 +1010,24 @@ class AnnAt(_AnnBase):
                         name=self.name,
                     )
                 # update location
-                location = context.inc_location(location, by_index=1)
-                result = Result(matches=matches, location=location, span=Span(next_ann.start, next_ann.end))
+                result_location = context.inc_location(location, by_index=1)
+                result = Result(matches=matches, location=result_location, span=Span(next_ann.start, next_ann.end))
                 if self.matchtype == "first":
                     return Success(result, context)
                 results.append(result)
+                # have we reached the last annotation?
+                if context.at_endofanns(location):
+                    break
+                # point to the next annotation
+                location.ann_location += 1
                 next_ann = context.get_ann(location)
                 if not next_ann or next_ann.start != start:
                     break
             else:
-                location = context.inc_location(location, by_index=1)
+                if context.at_endofanns(location):
+                    break
+                # point to the next annotation
+                location.ann_location += 1
                 next_ann = context.get_ann(location)
                 if not next_ann or next_ann.start != start:
                     break
