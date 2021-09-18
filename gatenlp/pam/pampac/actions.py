@@ -358,6 +358,7 @@ class RemoveAnn:
     Action for removing an anntoation.
     """
     def __init__(self, name,
+                 annset,
                  resultidx=0, matchidx=0,
                  silent_fail=True):
         """
@@ -365,11 +366,16 @@ class RemoveAnn:
 
         Args:
             name: the name of a match from which to get the annotation to remove
+            annset: the annotation set to remove the annotation from. This must be a mutable set and
+                usually should be an attached set and has to be a set which contains the annotation
+                to be removed. Note that with complex patterns this may remove annotations which are
+                still being matched from the copy in the pampac context at a later time!
             resultidx: index of the result to use, if several (default: 0)
             matchidx: index of the match to use, if several (default: 0)
             silent_fail: if True, silently ignore the error of no annotation to get removed
         """
         self.name = name
+        self.annset = annset
         self.resultidx = resultidx
         self.matchidx = matchidx
         self.silent_fail = silent_fail
@@ -391,4 +397,4 @@ class RemoveAnn:
                 raise Exception(
                     f"Could not find an annotation for the name {self.name}"
                 )
-        context.annset.remove(theann)
+        self.annset.remove(theann)
