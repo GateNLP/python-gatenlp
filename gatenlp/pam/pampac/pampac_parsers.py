@@ -1581,7 +1581,7 @@ class N(PampacParser):  # pylint: disable=C0103
             return Success(
                 Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
-        else:
+        else:  # select="all"
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
             def depthfirst(lvl, result):
@@ -1626,8 +1626,8 @@ class N(PampacParser):  # pylint: disable=C0103
                         span = Span(location.text_location, res.location.text_location)
                         newresult = Result(tmpmatches, location=loc, span=span)
                         yield from depthfirst(lvl + 1, newresult)
-                else:
-                    if lvl <= self.min:
+                else:  # if ret.issuccess()
+                    if lvl < self.min:
                         return
                     else:
                         # we already have at least min matches: if we have no until, we can yield the result
