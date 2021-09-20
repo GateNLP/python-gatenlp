@@ -146,7 +146,6 @@ class Action(ABC):
     def _run4result(self, func, resultidx, matchidx, succ, context, location):
         if matchidx is None:
             for match in succ[resultidx].matches:
-                match = succ[resultidx].matches[matchidx]
                 func(match, succ, context, location, resultidx=resultidx, matchidx=matchidx)
         else:
             match = succ[resultidx].matches[matchidx]
@@ -206,7 +205,7 @@ class Actions(Action):
             return ret
 
 
-class AddAnn:
+class AddAnn(Action):
     """
     Action for adding an annotation.
     """
@@ -320,7 +319,7 @@ class AddAnn:
             self._add4result(succ, self.resultidx, context, location)
 
 
-class UpdateAnnFeatures:
+class UpdateAnnFeatures(Action):
     """
     Action for updating the features of an annotation.
     """
@@ -431,7 +430,7 @@ class UpdateAnnFeatures:
         updatefeats.update(fromfeats)
 
 
-class RemoveAnn:
+class RemoveAnn(Action):
     """
     Action for removing an anntoation.
     """
