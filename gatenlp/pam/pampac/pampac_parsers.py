@@ -1406,20 +1406,20 @@ class Seq(PampacParser):
                         for dmtch in res.matches:
                             tmpmatches.append(dmtch)
                         loc = res.location
-                        span = Span(location.text_location, res.location.text_location)
+                        # span = Span(location.text_location, res.location.text_location)
                         if lvl == len(self.parsers) - 1:
                             if self.name:
                                 tmpmatches.append(
                                     dict(
-                                        span=Span(start, end),
+                                        span=Span(res.span),
                                         location=loc,
                                         name=self.name,
                                     )
                                 )
-                            newresult = Result(tmpmatches, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=res.span)
                             yield newresult
                         else:
-                            newresult = Result(tmpmatches, location=loc, span=span)
+                            newresult = Result(tmpmatches, location=loc, span=res.span)
                             yield from depthfirst(lvl + 1, newresult)
 
             gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)))
@@ -1584,6 +1584,9 @@ class N(PampacParser):  # pylint: disable=C0103
         else:  # select="all"
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
+            # TODO: !!!!!!! figure out how to properly maintain the starting offset span, the way we currently
+            #   use the textoffset is has worked previously because of how we always updated the location to the end
+            #   of the annotation but not any more, as we now update the text offset by 1 for making skip=one work!
             def depthfirst(lvl, result):
                 # if we already have min matches and we can terminate early, do it
                 if self.until and lvl >= self.min:
@@ -1633,6 +1636,7 @@ class N(PampacParser):  # pylint: disable=C0103
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
                             tmpmatches = result.matches
+                            print(f"!!!!!!!!DEBUG: {result.span} ")
                             end = result.span.end
                             if self.name:
                                 tmpmatches.append(
@@ -1648,7 +1652,7 @@ class N(PampacParser):  # pylint: disable=C0103
                             # nor the until did match so we do not have a success
                             return
 
-            gen = depthfirst(0, Result(matches=[], location=location, span=(None, None)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(-1, -1)))
             all_ = []
             best = None
             for idx, result in enumerate(gen):
