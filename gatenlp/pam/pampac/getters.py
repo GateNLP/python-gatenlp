@@ -2,7 +2,7 @@
 Module for PAMPAC getter helper classes
 """
 
-from gatenlp.pam.pampac.actions import Getter, _get_span, _get_match
+from gatenlp.pam.pampac.actions import Getter
 
 
 class GetAnn(Getter):
@@ -16,19 +16,32 @@ class GetAnn(Getter):
 
         Args:
             name: the name of the match to use.
-            resultidx:  the index of the result to use if there is more than one.
-            matchidx:  the index of the match info element with the given name to use if there is more than one
+            resultidx:  the index of the result to use if there is more than one, if None, use the one(s)
+                processed by the action.
+            matchidx:  the index of the match info element with the given name to use if there is more than one, if
+                None, use the one processed by the action
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None.
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        """
+        This is how the getter should get invoked by the action. If resultidx/matchidx is not None,
+        then we use these if our own init parms for these were None.
+
+        Args:
+            succ: succes object
+            context: context object
+            location: location object
+            resultidx: resultindex getting processed by the action
+            matchidx: match index getting processed by the action
+
+        Returns:
+            Something related to the match
+        """
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         ann = match.get("ann")
         if ann is None:
@@ -55,14 +68,11 @@ class GetFeatures(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         ann = match.get("ann")
         if ann is None:
@@ -89,14 +99,11 @@ class GetType(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         ann = match.get("ann")
         if ann is None:
@@ -123,14 +130,11 @@ class GetStart(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         span = match["span"]
         return span.start
@@ -152,14 +156,11 @@ class GetEnd(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        return _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        return self._get_match(
+            succ, resultidx, matchidx
         )["span"].end
 
 
@@ -179,15 +180,12 @@ class GetFeature(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
         self.featurename = featurename
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         ann = match.get("ann")
         if ann is None:
@@ -215,18 +213,13 @@ class GetText(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
         if self.name is None:
-            span = _get_span(succ, self.name, self.resultidx, self.matchidx, self.silent_fail)
+            span = self._get_span(succ, resultidx, matchidx)
         else:
-            match = _get_match(
-                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
-            )
+            match = self._get_match(succ, resultidx, matchidx)
             span = match.get("span")
         if span:
             return context.doc[span]
@@ -253,15 +246,11 @@ class GetRegexGroup(Getter):
             silent_fail: if True, do not raise an exception if the annotation cannot be found, instead return
                 None
         """
-        self.name = name
-        self.resultidx = resultidx
-        self.matchidx = matchidx
-        self.group = group
-        self.silent_fail = silent_fail
+        super().__init__(name=name, resultidx=resultidx, matchidx=matchidx, silent_fail=silent_fail)
 
-    def __call__(self, succ, context=None, location=None):
-        match = _get_match(
-            succ, self.name, self.resultidx, self.matchidx, self.silent_fail
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        match = self._get_match(
+            succ, resultidx, matchidx
         )
         groups = match.get("groups")
         if groups:

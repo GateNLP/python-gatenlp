@@ -8,10 +8,60 @@ from gatenlp.features import Features
 
 class Getter(ABC):
     """
-    Common base class of all Getter helper classes.
+    Common base class of all Getter helper classes. A getter is a callable that takes
+    the success objet, context, location and optional resultidx and matchidx and returns something
+    related to a matching parser result. What gets returned is entirely up to the getter.
+    Getters can be used when creating standard predefined Action objects to configure the action
+    to use a match dependent value instead of a fixed value for any of its init parameters.
     """
+
+    def __init__(self, name=None, resultidx=0, matchidx=0, silent_fail=True):
+        self.name = name
+        self.silent_fail = silent_fail
+        self.resultidx = resultidx
+        self.matchidx = matchidx
+
+    def _get_match(self, succ, resultidx, matchidx):
+        use_resultidx = self.resultidx
+        use_matchidx = self.matchidx
+        if use_resultidx is None:
+            use_resultidx = resultidx
+        if use_matchidx is None:
+            use_matchidx = matchidx
+        match = _get_match(
+            succ, self.name, use_resultidx, use_matchidx, self.silent_fail
+        )
+        return match
+
+    def _get_span(self, succ, resultidx, matchidx):
+        use_resultidx = self.resultidx
+        use_matchidx = self.matchidx
+        if use_resultidx is None:
+            use_resultidx = resultidx
+        if use_matchidx is None:
+            use_matchidx = matchidx
+        match = _get_span(
+            succ, self.name, use_resultidx, use_matchidx, self.silent_fail
+        )
+        return match
+
     @abstractmethod
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, resultidx=None, matchidx=None):
+        """
+        Every Getter class should implement this method, getter functions should have the same
+        signature (without self, of course).
+
+        Args:
+            succ: a success object
+            context: a context object
+            location: a location object
+            resultidx: the result index for which the action is executed, if None, use whatever is configured
+                when the getter gets initialized
+            matchidx: the match index for which the aciton is executed, if None, use whatever is configured
+                when the getter gets initialized
+
+        Returns: any data related to the match(es) in the success object
+        """
         pass
 
 
@@ -88,7 +138,33 @@ def _get_span(succ, name, resultidx=0, matchidx=0, silent_fail=False):
     return ret
 
 
-class Actions:
+class Action(ABC):
+    """
+    Action base class, defines method for applying some action function to one or all results / matches.
+    """
+
+    def _run4result(self, func, resultidx, matchidx, succ, context, location):
+        if matchidx is None:
+            for match in succ[resultidx].matches:
+                match = succ[resultidx].matches[matchidx]
+                func(match, succ, context, location, resultidx=resultidx, matchidx=matchidx)
+        else:
+            match = succ[resultidx].matches[matchidx]
+            func(match, succ, context, location, resultidx=resultidx, matchidx=matchidx)
+
+    def _run4results(self, func, resultidx, matchidx, success=None, context=None, location=None):
+        if resultidx is None:
+            for resultidx in range(len(success)):
+                self._run4result(func, resultidx, matchidx, success, context, location)
+        else:
+            self._run4result(func, resultidx, matchidx, success, context, location)
+
+    @abstractmethod
+    def __call__(self, succ, context=None, location=None):
+        pass
+
+
+class Actions(Action):
     """
     A container to run several actions for a rule.
     """
