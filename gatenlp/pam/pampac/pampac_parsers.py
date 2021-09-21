@@ -1225,7 +1225,6 @@ class Text(PampacParser):
                 else:
                     matches = None
                 newlocation = context.inc_location(location, by_offset=len(self.text))
-                # print(f"DEBUG !!!!!!!!!!!!!!!!!!!!Incremented location from {location} to {newlocation}")
                 span = Span(
                     location.text_location, location.text_location + len(self.text)
                 )
@@ -1397,32 +1396,34 @@ class Seq(PampacParser):
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
 
-            def depthfirst(lvl, result):
+            def depthfirst(lvl, result, start):
                 parser = self.parsers[lvl]
                 ret = parser.parse(result.location, context)
                 if ret.issuccess():
                     for res in ret:
+                        if start == -1:
+                            start = res.span.start
                         tmpmatches = result.matches.copy()
                         for dmtch in res.matches:
                             tmpmatches.append(dmtch)
                         loc = res.location
-                        # span = Span(location.text_location, res.location.text_location)
+                        span = Span(start, res.span.end)
                         if lvl == len(self.parsers) - 1:
                             if self.name:
                                 tmpmatches.append(
                                     dict(
-                                        span=Span(res.span),
+                                        span=span,
                                         location=loc,
                                         name=self.name,
                                     )
                                 )
-                            newresult = Result(tmpmatches, location=loc, span=res.span)
+                            newresult = Result(tmpmatches, location=loc, span=span)
                             yield newresult
                         else:
-                            newresult = Result(tmpmatches, location=loc, span=res.span)
-                            yield from depthfirst(lvl + 1, newresult)
+                            newresult = Result(tmpmatches, location=loc, span=span)
+                            yield from depthfirst(lvl + 1, newresult, start)
 
-            gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(0, 0)), -1)
             all_ = []
             best = None
             for idx, result in enumerate(gen):
@@ -1495,6 +1496,7 @@ class N(PampacParser):  # pylint: disable=C0103
         self.name = name
 
     def parse(self, location, context):
+        # print(f"!!!!!!!!!!!DEBUG: trying to match at {location}")
         start = location.text_location
         end = start
         if self.select != "all":
@@ -1584,10 +1586,8 @@ class N(PampacParser):  # pylint: disable=C0103
         else:  # select="all"
             # This does a depth-first enumeration of all matches: each successive parser gets tried
             # for each result of the previous one.
-            # TODO: !!!!!!! figure out how to properly maintain the starting offset span, the way we currently
-            #   use the textoffset is has worked previously because of how we always updated the location to the end
-            #   of the annotation but not any more, as we now update the text offset by 1 for making skip=one work!
-            def depthfirst(lvl, result):
+            # TODO: figure out how to properly add named matches!
+            def depthfirst(lvl, result, start):
                 # if we already have min matches and we can terminate early, do it
                 if self.until and lvl >= self.min:
                     ret = self.until.parse(result.location, context)
@@ -1606,7 +1606,9 @@ class N(PampacParser):  # pylint: disable=C0103
                                         name=self.name,
                                     )
                                 )
-                            yield Result(tmpmatches, location=loc, span=Span(start, end))
+                            tmpres = Result(tmpmatches, location=loc, span=Span(start, end))
+                            # print(f"DEBUG: YIELD4 {tmpres}")
+                            yield tmpres
                             return
                 # if we got here after the max number of matches, and self.until is set, then
                 # the parse we did above did not succeed, so we end without a result
@@ -1615,20 +1617,28 @@ class N(PampacParser):  # pylint: disable=C0103
                 # if we got here after the max number of matches and self.util is not set, we
                 # can yield the current result as we found max matches
                 if lvl >= self.max:
+                    # print(f"DEBUG: YIELD2 {result}")
                     yield result
                     return
                 # lvl is still smaller than max, so we try to match more
                 ret = self.parser.parse(result.location, context)
+                # print(f"DEBUG: got success={ret}, start={start}")
                 if ret.issuccess():
                     # for each of the results, try to continue matching
                     for res in ret:
+                        # print(f"DEBUG: processing result {res}")
                         tmpmatches = result.matches.copy()
                         for matches_ in res.matches:
                             tmpmatches.append(matches_)
                         loc = res.location
-                        span = Span(location.text_location, res.location.text_location)
+                        if start == -1:
+                            start = res.span.start
+                            # print(f"!!!!!!!!! DEBUG SETTING Start to {start}")
+                        span = Span(start, res.span.end)
+                        # WAS: span = Span(location.text_location, res.location.text_location)
                         newresult = Result(tmpmatches, location=loc, span=span)
-                        yield from depthfirst(lvl + 1, newresult)
+                        # print(f"DEBUG: YIELD FROM {newresult}")
+                        yield from depthfirst(lvl + 1, newresult, start)
                 else:  # if ret.issuccess()
                     if lvl < self.min:
                         return
@@ -1636,7 +1646,6 @@ class N(PampacParser):  # pylint: disable=C0103
                         # we already have at least min matches: if we have no until, we can yield the result
                         if not self.until:
                             tmpmatches = result.matches
-                            print(f"!!!!!!!!DEBUG: {result.span} ")
                             end = result.span.end
                             if self.name:
                                 tmpmatches.append(
@@ -1646,19 +1655,27 @@ class N(PampacParser):  # pylint: disable=C0103
                                         name=self.name,
                                     )
                                 )
+                            # print(f"DEBUG: YIELD1 {result}")
                             yield result
                         else:
                             # if we have until, then the until above did not match so neither the normal parser
                             # nor the until did match so we do not have a success
                             return
 
-            gen = depthfirst(0, Result(matches=[], location=location, span=Span(-1, -1)))
+            gen = depthfirst(0, Result(matches=[], location=location, span=Span(-1, -1)), -1)
             all_ = []
             best = None
             for idx, result in enumerate(gen):
+                # if we get a result, and we have a name, add it to the list of named matches
+                if self.name:
+                    result.matches.append(
+                        dict(span=Span(result.span), location=result.location, name=self.name)
+                    )
+                # print(f"DEBUG: GENERATED RESULT {result}")
                 if self.matchtype == "first" and idx == 0:
                     return Success(result, context)
                 if self.matchtype == "all":
+                    # print(f"DEBUG: APPENDING")
                     all_.append(result)
                 elif self.matchtype == "longest":
                     if best is None:
@@ -1672,7 +1689,9 @@ class N(PampacParser):  # pylint: disable=C0103
                         best = result
             if self.matchtype == "all":
                 if len(all_) > 0:
-                    return Success(all_, context)
+                    tmpret = Success(all_, context)
+                    # print(f"DEBUG RETURNING OVERAL OF LENGTH {len(all_)}: {tmpret}")
+                    return tmpret
                 else:
                     return Failure(context=context, location=location)
             else:
