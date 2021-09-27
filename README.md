@@ -14,6 +14,8 @@
 [![Python 3](https://pyup.io/repos/github/GateNLP/python-gatenlp/python-3-shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
 
 
+![Python GateNLP](https://github.com/GateNLP/python-gatenlp/blob/main/docs/logo/gateNLP-423x145.png)
+
 This is a package for representing the basic elements of text processing
 and NLP in a way that is very similar to the
 [Java GATE NLP](https://gate.ac.uk/)
