@@ -1,6 +1,6 @@
 # Versions and changes
 
-## 1.0.5
+## 1.0.5 (2021-10-07)
 
 Changes that break backwards compatibility:
 
