@@ -38,6 +38,7 @@ version = versionfromfile("gatenlp/version.py")
 def get_install_extras_require():
     extras_require = {
         "formats": ["msgpack", "pyyaml>=5.2", "beautifulsoup4>=4.9.3", "requests", "conllu"],
+        "basic": ["recordclass"],
         "java": ["py4j"],
         "stanza": ["stanza>=1.3.0"],
         "spacy": ["spacy>=2.3"],
