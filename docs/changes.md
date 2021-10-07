@@ -1,6 +1,6 @@
 # Versions and changes
 
-## 1.0.5 (upcoming)
+## 1.0.5
 
 Changes that break backwards compatibility:
 
@@ -15,6 +15,11 @@ Changes that break backwards compatibility:
   "matchidx" instead of "dataidx". See issue #89
 * Parameter `spacetoken_type` for `AnnSpacy` and `spacy2gatenlp` has been changed to `space_token_type` to conform to 
   the parameter name used for `AnnStanza` and `stanza2gatenlp`.
+* Stanford Stanza support now requires Stanza version 1.3.0 or higher
+* Changes to `lib_spacy`: new parameter `containing_anns` to apply the spacy pipeline only to the part of the document  covered
+  by each of the annotations in the annotation set or iterator. New parameters `component_cfg` to specify a component config
+  for Spacy and `retrieve_spans` to retrieve additional span types to retrieve.
+* Several bugfixes in Pampac.
 
 Other changes and improvements:
 
