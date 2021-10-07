@@ -186,6 +186,8 @@ def tok2tok(tok):
             for feat in v.split(&#34;|&#34;):
                 k, v = feat.split(&#34;=&#34;)
                 fm[k] = v
+        elif k == &#34;id&#34;:
+            newtok[k] = v
         elif k == &#34;misc&#34;:
             msettings = v.split(&#34;|&#34;)
             ostart = None
@@ -208,7 +210,7 @@ def tok2tok(tok):
                     k, v = ms.split(&#34;=&#34;)
                     fm[k] = v
         else:
-            newtok[k] = v
+            fm[k] = v
     return newtok
 
 

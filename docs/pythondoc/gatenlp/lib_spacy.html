@@ -110,29 +110,41 @@ class AnnSpacy(Annotator):
         return doc
 
 
-def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;, containing_anns=None):
+def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;, containing_anns=None,
+                component_cfg=None, retrieve_spans=None):
     &#34;&#34;&#34;Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
     This modifies the gatenlp document in place.
 
     Args:
-      nlp: spacy pipeline
-      gatenlpdoc: gatenlp document
-      setname: annotation set to receive the annotations (Default value = &#34;&#34;)
-      containing_anns: annotation set or iterable of annotations. If not None, only the text covered be each
-          of the annotations is analyzed. The annotations should not overlap.
+        nlp: spacy pipeline
+        gatenlpdoc: gatenlp document
+        setname: annotation set to receive the annotations (Default value = &#34;&#34;)
+        containing_anns: annotation set or iterable of annotations. If not None, only the text covered be each
+            of the annotations is analyzed. The annotations should not overlap.
+        component_cfg: the component config to use for Spacy
+        retrieve_spans: if not None, a list of additional span types to retrieve from the SpaCy document
 
     Returns:
         The modified document.
     &#34;&#34;&#34;
     if containing_anns:
+        component_config = None
         if isinstance(containing_anns, AnnotationSet):
             annsiter = containing_anns.fast_iter()
         else:
             annsiter = containing_anns
         for ann in annsiter:
+            if component_cfg:
+                component_config = {component_cfg: ann.features.to_dict()}
+        
             covered = gatenlpdoc[ann.start:ann.end]
-            spacydoc = nlp(covered)
-            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname, start_offset=ann.start)
+            spacydoc = nlp(covered, component_cfg=component_config)
+            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,
+                          start_offset=ann.start, retrieve_spans=retrieve_spans)
+            elems = dir(spacydoc._)
+            for elem in elems:
+                if elem not in [&#39;get&#39;, &#39;set&#39;, &#39;has&#39;]:
+                    ann.features[elem] = spacydoc._.get(elem)
         return gatenlpdoc
     else:
         spacydoc = nlp(gatenlpdoc.text)
@@ -154,7 +166,8 @@ def spacy2gatenlp(
     add_nounchunks=True,
     add_dep=True,
     ent_prefix=None,
-    start_offset=0
+    start_offset=0,
+    retrieve_spans=None
 ):
     &#34;&#34;&#34;Convert a spacy document to a gatenlp document. If a gatenlp document is already
     provided, add the annotations from the spacy document to it. In this case the
@@ -181,6 +194,7 @@ def spacy2gatenlp(
         start_offset: If a document is specified, an offset where the text starts can be defined.
             This allows a part of a document with spacy and then include the annotations back to the document,
             in the corresponding possition
+        retrieve_spans: if not None, a list of additional Spacy span types to retrieve
 
     Returns:
       the new or modified Document
@@ -189,6 +203,8 @@ def spacy2gatenlp(
     # add_spacetokens:  (Default value = True)
     # not sure how to do this yet
 
+    if retrieve_spans is None:
+        retrieve_spans = []
     if gatenlpdoc is None:
         retdoc = Document(spacydoc.text)
         start_offset = 0
@@ -232,9 +248,9 @@ def spacy2gatenlp(
             &#34;shape&#34;: tok.shape_,
             &#34;suffix&#34;: tok.suffix_,
         }
-        if spacydoc.is_nered and add_ents:
+        if spacydoc.has_annotation(&#34;ENT_IOB&#34;) and add_ents:
             fm[&#34;ent_type&#34;] = tok.ent_type_
-        if spacydoc.is_parsed and add_dep:
+        if spacydoc.has_annotation(&#34;DEP&#34;) and add_dep:
             fm[&#34;dep&#34;] = tok.dep_
         if tok.is_space:
             anntype = space_token_type
@@ -247,7 +263,7 @@ def spacy2gatenlp(
         if len(ws) &gt; 0:
             annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {&#34;is_space&#34;: True})
     # if we have a dependency parse, now also add the parse edges
-    if spacydoc.is_parsed and add_tokens and add_dep:
+    if spacydoc.has_annotation(&#34;DEP&#34;) and add_tokens and add_dep:
         for tok in spacydoc:
             ann = annset.get(toki2annid[tok.i])
             ann.features[&#34;head&#34;] = toki2annid[tok.head.i]
@@ -266,6 +282,9 @@ def spacy2gatenlp(
     if spacydoc.noun_chunks and add_nounchunks:
         for chunk in spacydoc.noun_chunks:
             annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
+    for spanType in retrieve_spans:
+        for span in spacydoc.spans[spanType]:
+            annset.add(span.start_char+start_offset, span.end_char+start_offset, spanType, {})
     return retdoc</code></pre>
 </details>
 </section>
@@ -277,7 +296,7 @@ def spacy2gatenlp(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gatenlp.lib_spacy.apply_spacy"><code class="name flex">
-<span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='', containing_anns=None)</span>
+<span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='', containing_anns=None, component_cfg=None, retrieve_spans=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
@@ -293,12 +312,16 @@ This modifies the gatenlp document in place.</p>
 <dt><strong><code>containing_anns</code></strong></dt>
 <dd>annotation set or iterable of annotations. If not None, only the text covered be each
 of the annotations is analyzed. The annotations should not overlap.</dd>
+<dt><strong><code>component_cfg</code></strong></dt>
+<dd>the component config to use for Spacy</dd>
+<dt><strong><code>retrieve_spans</code></strong></dt>
+<dd>if not None, a list of additional span types to retrieve from the SpaCy document</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The modified document.</p></div>
 </dd>
 <dt id="gatenlp.lib_spacy.spacy2gatenlp"><code class="name flex">
-<span>def <span class="ident">spacy2gatenlp</span></span>(<span>spacydoc, gatenlpdoc=None, setname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_ents=True, add_sents=True, add_nounchunks=True, add_dep=True, ent_prefix=None, start_offset=0)</span>
+<span>def <span class="ident">spacy2gatenlp</span></span>(<span>spacydoc, gatenlpdoc=None, setname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_ents=True, add_sents=True, add_nounchunks=True, add_dep=True, ent_prefix=None, start_offset=0, retrieve_spans=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a spacy document to a gatenlp document. If a gatenlp document is already
@@ -341,6 +364,8 @@ info cannot be added either. (Default value = True)</dd>
 <dd>If a document is specified, an offset where the text starts can be defined.
 This allows a part of a document with spacy and then include the annotations back to the document,
 in the corresponding possition</dd>
+<dt><strong><code>retrieve_spans</code></strong></dt>
+<dd>if not None, a list of additional Spacy span types to retrieve</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the new or modified Document</p></div>

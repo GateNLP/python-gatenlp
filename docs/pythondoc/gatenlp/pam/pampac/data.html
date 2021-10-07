@@ -481,7 +481,7 @@ class Context:
                 return idx
             idx += 1
 
-    def inc_location(self, location, by_offset=None, by_index=None):
+    def inc_location(self, location, by_offset=None, by_index=None, to_offset=None):
         &#34;&#34;&#34;
         Return a new location which represents the given location incremented by either the given number of index
         count (usually 1), or by the given offset length. Only one of the by parameters should be specified.
@@ -498,6 +498,8 @@ class Context:
             location:
             by_offset: the number of text characters to increment the text offset by
             by_index:  the number of annotations to increment the index by
+            to_offset: if given, the by_ arguments are ignored and instead the offset is set to the given
+                offset with the annotation index set to the next annotation at or after that offset
 
         Returns:
             new location
@@ -505,7 +507,14 @@ class Context:
         newloc = Location(
             text_location=location.text_location, ann_location=location.ann_location
         )
-        if by_index is not None:
+        if to_offset is not None:
+            assert to_offset &lt; self.end
+            assert to_offset &gt;= self.start
+            newloc.text_location = to_offset
+            newloc.ann_location = self.nextidx4offset(
+                location, newloc.text_location
+            )
+        elif by_index is not None:
             # get the annotation before the one we want to point at next, so we get the end offset of the
             # last annotation consumed
             newloc.ann_location += by_index - 1
@@ -752,7 +761,7 @@ work depending on the exact patterns used.</dd>
                 return idx
             idx += 1
 
-    def inc_location(self, location, by_offset=None, by_index=None):
+    def inc_location(self, location, by_offset=None, by_index=None, to_offset=None):
         &#34;&#34;&#34;
         Return a new location which represents the given location incremented by either the given number of index
         count (usually 1), or by the given offset length. Only one of the by parameters should be specified.
@@ -769,6 +778,8 @@ work depending on the exact patterns used.</dd>
             location:
             by_offset: the number of text characters to increment the text offset by
             by_index:  the number of annotations to increment the index by
+            to_offset: if given, the by_ arguments are ignored and instead the offset is set to the given
+                offset with the annotation index set to the next annotation at or after that offset
 
         Returns:
             new location
@@ -776,7 +787,14 @@ work depending on the exact patterns used.</dd>
         newloc = Location(
             text_location=location.text_location, ann_location=location.ann_location
         )
-        if by_index is not None:
+        if to_offset is not None:
+            assert to_offset &lt; self.end
+            assert to_offset &gt;= self.start
+            newloc.text_location = to_offset
+            newloc.ann_location = self.nextidx4offset(
+                location, newloc.text_location
+            )
+        elif by_index is not None:
             # get the annotation before the one we want to point at next, so we get the end offset of the
             # last annotation consumed
             newloc.ann_location += by_index - 1
@@ -926,7 +944,7 @@ def annset(self):
 <p>annotation or None</p></div>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.inc_location"><code class="name flex">
-<span>def <span class="ident">inc_location</span></span>(<span>self, location, by_offset=None, by_index=None)</span>
+<span>def <span class="ident">inc_location</span></span>(<span>self, location, by_offset=None, by_index=None, to_offset=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a new location which represents the given location incremented by either the given number of index
@@ -944,6 +962,9 @@ of the annotation, if there is one.</p>
 <dd>the number of text characters to increment the text offset by</dd>
 <dt><strong><code>by_index</code></strong></dt>
 <dd>the number of annotations to increment the index by</dd>
+<dt><strong><code>to_offset</code></strong></dt>
+<dd>if given, the by_ arguments are ignored and instead the offset is set to the given
+offset with the annotation index set to the next annotation at or after that offset</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>new location</p></div>
