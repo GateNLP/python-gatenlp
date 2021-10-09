@@ -1,6 +1,10 @@
 # Versions and changes
 
-## 1.0.5
+## 1.0.5.1 (2021-10-09)
+
+* Bug fix: make `lib_spacy` support both versions 2.x and 3.x (1.0.5 used a method which is only available in 3.x)
+
+## 1.0.5 (2021-10-08)
 
 Changes that break backwards compatibility:
 
