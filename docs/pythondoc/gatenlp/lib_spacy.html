@@ -35,6 +35,17 @@ from gatenlp import Document, AnnotationSet
 from gatenlp.processing.annotator import Annotator
 import spacy
 
+if int(spacy.__version__.split(&#34;.&#34;)[0]) &lt; 3:
+    SPACY_IS_PARSED = lambda doc: doc.is_parsed
+    SPACY_IS_TAGGED = lambda doc: doc.is_tagged
+    SPACY_IS_SENTENCED = lambda doc: doc.is_sentenced
+    SPACY_IS_NERED = lambda doc: doc.is_nered
+else:
+    SPACY_IS_PARSED = lambda doc:  doc.has_annotation(&#34;DEP&#34;)
+    SPACY_IS_TAGGED = lambda doc: doc.has_annotation(&#34;TAG&#34;)
+    SPACY_IS_SENTENCED = lambda doc: doc.has_annotation(&#34;SENT_START&#34;)
+    SPACY_IS_NERED = lambda doc: doc.has_annotation(&#34;ENT_IOB&#34;)
+
 
 class AnnSpacy(Annotator):
     &#34;&#34;&#34; &#34;&#34;&#34;
@@ -248,9 +259,9 @@ def spacy2gatenlp(
             &#34;shape&#34;: tok.shape_,
             &#34;suffix&#34;: tok.suffix_,
         }
-        if spacydoc.has_annotation(&#34;ENT_IOB&#34;) and add_ents:
+        if SPACY_IS_NERED(spacydoc) and add_ents:
             fm[&#34;ent_type&#34;] = tok.ent_type_
-        if spacydoc.has_annotation(&#34;DEP&#34;) and add_dep:
+        if SPACY_IS_PARSED(spacydoc) and add_dep:
             fm[&#34;dep&#34;] = tok.dep_
         if tok.is_space:
             anntype = space_token_type
@@ -263,7 +274,7 @@ def spacy2gatenlp(
         if len(ws) &gt; 0:
             annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {&#34;is_space&#34;: True})
     # if we have a dependency parse, now also add the parse edges
-    if spacydoc.has_annotation(&#34;DEP&#34;) and add_tokens and add_dep:
+    if SPACY_IS_PARSED(spacydoc) and add_tokens and add_dep:
         for tok in spacydoc:
             ann = annset.get(toki2annid[tok.i])
             ann.features[&#34;head&#34;] = toki2annid[tok.head.i]
@@ -295,6 +306,30 @@ def spacy2gatenlp(
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="gatenlp.lib_spacy.SPACY_IS_NERED"><code class="name flex">
+<span>def <span class="ident">SPACY_IS_NERED</span></span>(<span>doc)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.lib_spacy.SPACY_IS_PARSED"><code class="name flex">
+<span>def <span class="ident">SPACY_IS_PARSED</span></span>(<span>doc)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.lib_spacy.SPACY_IS_SENTENCED"><code class="name flex">
+<span>def <span class="ident">SPACY_IS_SENTENCED</span></span>(<span>doc)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.lib_spacy.SPACY_IS_TAGGED"><code class="name flex">
+<span>def <span class="ident">SPACY_IS_TAGGED</span></span>(<span>doc)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="gatenlp.lib_spacy.apply_spacy"><code class="name flex">
 <span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='', containing_anns=None, component_cfg=None, retrieve_spans=None)</span>
 </code></dt>
@@ -508,7 +543,11 @@ ent_prefix: the prefix to add to all entity annotation types</p></div>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="gatenlp.lib_spacy.SPACY_IS_NERED" href="#gatenlp.lib_spacy.SPACY_IS_NERED">SPACY_IS_NERED</a></code></li>
+<li><code><a title="gatenlp.lib_spacy.SPACY_IS_PARSED" href="#gatenlp.lib_spacy.SPACY_IS_PARSED">SPACY_IS_PARSED</a></code></li>
+<li><code><a title="gatenlp.lib_spacy.SPACY_IS_SENTENCED" href="#gatenlp.lib_spacy.SPACY_IS_SENTENCED">SPACY_IS_SENTENCED</a></code></li>
+<li><code><a title="gatenlp.lib_spacy.SPACY_IS_TAGGED" href="#gatenlp.lib_spacy.SPACY_IS_TAGGED">SPACY_IS_TAGGED</a></code></li>
 <li><code><a title="gatenlp.lib_spacy.apply_spacy" href="#gatenlp.lib_spacy.apply_spacy">apply_spacy</a></code></li>
 <li><code><a title="gatenlp.lib_spacy.spacy2gatenlp" href="#gatenlp.lib_spacy.spacy2gatenlp">spacy2gatenlp</a></code></li>
 </ul>
