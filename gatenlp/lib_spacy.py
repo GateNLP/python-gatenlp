@@ -6,6 +6,17 @@ from gatenlp import Document, AnnotationSet
 from gatenlp.processing.annotator import Annotator
 import spacy
 
+if int(spacy.__version__.split(".")[0]) < 3:
+    SPACY_IS_PARSED = lambda doc: doc.is_parsed
+    SPACY_IS_TAGGED = lambda doc: doc.is_tagged
+    SPACY_IS_SENTENCED = lambda doc: doc.is_sentenced
+    SPACY_IS_NERED = lambda doc: doc.is_nered
+else:
+    SPACY_IS_PARSED = lambda doc:  doc.has_annotation("DEP")
+    SPACY_IS_TAGGED = lambda doc: doc.has_annotation("TAG")
+    SPACY_IS_SENTENCED = lambda doc: doc.has_annotation("SENT_START")
+    SPACY_IS_NERED = lambda doc: doc.has_annotation("ENT_IOB")
+
 
 class AnnSpacy(Annotator):
     """ """
@@ -219,9 +230,9 @@ def spacy2gatenlp(
             "shape": tok.shape_,
             "suffix": tok.suffix_,
         }
-        if spacydoc.has_annotation("ENT_IOB") and add_ents:
+        if SPACY_IS_NERED(spacydoc) and add_ents:
             fm["ent_type"] = tok.ent_type_
-        if spacydoc.has_annotation("DEP") and add_dep:
+        if SPACY_IS_PARSED(spacydoc) and add_dep:
             fm["dep"] = tok.dep_
         if tok.is_space:
             anntype = space_token_type
@@ -234,7 +245,7 @@ def spacy2gatenlp(
         if len(ws) > 0:
             annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {"is_space": True})
     # if we have a dependency parse, now also add the parse edges
-    if spacydoc.has_annotation("DEP") and add_tokens and add_dep:
+    if SPACY_IS_PARSED(spacydoc) and add_tokens and add_dep:
         for tok in spacydoc:
             ann = annset.get(toki2annid[tok.i])
             ann.features["head"] = toki2annid[tok.head.i]

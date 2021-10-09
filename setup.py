@@ -41,7 +41,7 @@ def get_install_extras_require():
         "basic": ["recordclass"],
         "java": ["py4j"],
         "stanza": ["stanza>=1.3.0"],
-        "spacy": ["spacy>=2.3"],
+        "spacy": ["spacy>=2.2"],
         "nltk": ["nltk>=3.5"],
         "gazetteers": ["matchtext", "recordclass"],
         # the following are not included in all but in alldev
