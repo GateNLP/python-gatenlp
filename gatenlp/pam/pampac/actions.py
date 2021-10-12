@@ -102,7 +102,7 @@ class Actions:
         Args:
             *actions: any number of actions to run.
         """
-        self.actions = actions
+        self.actions = list(actions)
 
     def __call__(self, succ, context=None, location=None):
         """
@@ -128,6 +128,19 @@ class Actions:
             for action in self.actions:
                 ret.append(action(succ, context=context, location=location))
             return ret
+
+    def add(self, action, tofront=False):
+        """
+        Add an action to the list of existing actions.
+
+        Args:
+            action: the action to add
+            tofront: if True, add as first instead of last action
+        """
+        if tofront:
+            self.actions.insert(0, action)
+        else:
+            self.actions.append(action)
 
 
 class AddAnn:

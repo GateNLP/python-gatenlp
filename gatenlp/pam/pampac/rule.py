@@ -46,3 +46,13 @@ class Rule(PampacParser):
 
         """
         return self.parser.parse(location, context)
+
+    def add_action(self, action, tofront=False):
+        """
+        Add an action to the actions defined for this rule.
+
+        Args:
+            action: the action to add
+            tofront: if True, add to the front instead of the end of the list
+        """
+        self.action.add(action, tofront=tofront)
