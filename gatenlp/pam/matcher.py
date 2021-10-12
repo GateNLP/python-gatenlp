@@ -20,7 +20,7 @@ except ImportError:
     regex = None
 
 
-logger = init_logger(debug=True)
+logger = init_logger(debug=False)
 
 __pdoc__ = {
     "FeatureMatcher.__call__": True,
