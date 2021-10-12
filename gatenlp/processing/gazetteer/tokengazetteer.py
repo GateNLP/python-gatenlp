@@ -158,7 +158,7 @@ class TokenGazetteer(GazetteerAnnotator):
         self.listfeatures = []
         self.listtypes = []
         self.logger = init_logger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
         self.source_sep = source_sep
         self.source_encoding = source_encoding
         self.append(source, fmt=fmt, listfeatures=listfeatures, listtype=listtype, source_sep=source_sep,
