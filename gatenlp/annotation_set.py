@@ -1481,3 +1481,78 @@ class AnnotationSet:
         annset._is_immutable = True
 
         return annset
+
+    def _update_offsets(self, id, start, end):
+        """
+        In-place update the offset of the annotation with the given id. THIS IS FOR INTERNAL USE ONLY!
+        Using this method can lead to many different kinds of hard to debug and surprising bugs!
+
+        Args:
+            id: id of the annotation to change
+            start: new start offset
+            end: new end offset
+        """
+        ann = self._annotations[id]
+        if self._index_by_offset is not None:
+            self._index_by_offset.remove(
+                ann.start, ann.end, ann.id
+            )
+        ann.start = start
+        ann.end = end
+        if self._index_by_offset is not None:
+            self._index_by_offset.add(ann.start, ann.end, ann.id)
+
+    def edit(self, edits, affected_strategy="keepadapt"):
+        """
+        Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+        assume it is a single edit, Otherwise assume it is an iterable of edits.
+        An edit is a tuple (start, end, intorstring) giving the old offset range and either the string which
+        replaces that range or the length that replaces that range. NOTE: no two edit offset ranges may
+        overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+        and terrible changes. The method does not check for edit spans to not overlap!
+
+        This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+        ends within an affected span, what happens depends on the affected_strategy:
+
+        delete: remove any annotation where the start and/or end offset lies between the from/to offsets of
+            the edit, if the new length is different. If the end offset coincides with the from offset or
+            the start offset coincides with the to offset, keep unchanged
+        adapt: any start and/or end offset in between from/to is changed to the from or to offset
+        keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+            new span, otherwise adapted to from/to
+
+        Args:
+            edits: single edit or iterable of edits
+            affected_strategy: one of the following strategies: delete, adapt, keepadapt
+        """
+        if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
+            edits = [edits]
+        # sort the edits by ending, then starting offsets: since we operate from start to end, as soon as
+        # processing has moved past some offset, the annotations before that offset do not need to get
+        # updated any more.
+        edits.sort(lambda x: (x[1], x[0]), reverse=False)
+
+        # optimization: instead of actually updating each affected annotation as we process edits,
+        # record the offset changes and then actually apply the changes. This prevents the index from getting
+        # updated again and again multiple times for the same annotation.
+        # To do this map each annotation id to its start and end offset
+        id2start = {}
+        id2end = {}
+        for annid, ann in self._annotations.itmes():
+            id2start[annid] = ann.start
+            id2end[annid] = ann.end
+        # optimization: instead of recalculating overlaps after each edit, calculate all overlaps beforehand and
+        # merely keep track of the offsets
+        # For each edit, we create a list of annotation ids which overlap with the edit.
+
+        for idx in range(len(edits)):
+            edit = edits[idx]
+            newlen = len(edit[2]) if isinstance(edit[2], str) else edit[2]
+            spanfrom = edit[0]
+            spanto = edit[1]
+            # since all edits have offsets from the initial documents, we need to
+            # update the offsets of all subsequent edits now
+            for idx2 in range(idx+1, len(edits)):
+                # TODO: adapt edit spans!
+                pass
+

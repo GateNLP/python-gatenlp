@@ -547,3 +547,16 @@ class Annotation:   # pylint: disable=R0904
         Return a deep copy of the annotation (features and their values are copied as well).
         """
         return lib_copy.deepcopy(self, memo=memo)
+
+    def _update_offsets(self, start, end):
+        """
+        Update the start and/or end offset of an existing annotation. THIS IS FOR INTERNAL USE ONLY!
+        This method should never be use by library users as it can cause many different, unexpected
+        and hard to debug problems. This method is here for very limited use by library-internal methods only!
+
+        Args:
+            start: new start offset
+            end: new end offset
+        """
+        self._start = start
+        self._end = end
