@@ -1527,32 +1527,88 @@ class AnnotationSet:
         """
         if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
             edits = [edits]
+        # convert the list of edits into a list of lists [start, end, replacementorlen, startlist, endlist]
+        # where the lists will contain later the ids of annotation starting/ending within that span
+        # This also makes sure that if the edits are mutable, we do not change them in any way
+        edits = [[l[0], l[1], l[2], [], []] for l in edits]
+
         # sort the edits by ending, then starting offsets: since we operate from start to end, as soon as
         # processing has moved past some offset, the annotations before that offset do not need to get
         # updated any more.
         edits.sort(lambda x: (x[1], x[0]), reverse=False)
 
+        # optimization: instead of recalculating relevant overlaps after each edit, calculate
+        # them beforehand
+
+        # For each edit, we create a list of annotation tuples which contain the annotation id
+        # and whether the annotation starts and ends in that edit
+        self._create_index_by_offset()
+        affectedids = set()
+        affectedids_start = set()
+        affectedids_end = set()
+        for edit in edits:
+            # find all annotations which start or end within the span of the edit (or both)
+            sintvs = self._index_by_offset.starting_within(edit[0], edit[1])
+            eintvs = self._index_by_offset.ending_within(edit[0], edit[1])
+            for intv in sintvs:
+                if affected_strategy != "delete":
+                    edit[3].append(intv[2])
+                affectedids.add(intv[2])
+                affectedids_start.add(intv[2])
+            for intv in eintvs:
+                if affected_strategy != "delete":
+                    edit[4].append(intv[2])
+                affectedids.add(intv[2])
+                affectedids_end.add(intv[2])
+
+        # if the strategy for affected annotations is delete, already delete them here to
+        # save upding time later
+        if affected_strategy == "delete":
+            for affectedid in affectedids:
+                self.remove(affectedid)
+
         # optimization: instead of actually updating each affected annotation as we process edits,
         # record the offset changes and then actually apply the changes. This prevents the index from getting
         # updated again and again multiple times for the same annotation.
         # To do this map each annotation id to its start and end offset
-        id2start = {}
-        id2end = {}
-        for annid, ann in self._annotations.itmes():
-            id2start[annid] = ann.start
-            id2end[annid] = ann.end
-        # optimization: instead of recalculating overlaps after each edit, calculate all overlaps beforehand and
-        # merely keep track of the offsets
-        # For each edit, we create a list of annotation ids which overlap with the edit.
+        start2ids = []
+        end2ids = []
+        # we are getting the annotations in offset order, so the two lists we create are also in starting
+        # offset order
+        for annid, ann in self.iter():
+            if annid not in affectedids_start:
+                start2ids.append((ann.start, annid))
+            if annid not in affectedids_end:
+                end2ids.append((ann.end, annid))
+        # sort the end2ids list by end offset
+        end2ids.sort(lambda x: x[0], reverse=False)
+        ptr_start = None
+        ptr_end = None
+        if len(start2ids) > 0:
+            ptr_start = 0
+        if len(end2ids) > 0:
+            ptr_end = 0
 
         for idx in range(len(edits)):
             edit = edits[idx]
             newlen = len(edit[2]) if isinstance(edit[2], str) else edit[2]
             spanfrom = edit[0]
             spanto = edit[1]
-            # since all edits have offsets from the initial documents, we need to
-            # update the offsets of all subsequent edits now
-            for idx2 in range(idx+1, len(edits)):
-                # TODO: adapt edit spans!
-                pass
+            oldlen = spanto - spanfrom + 1
+            delta = newlen - oldlen
+            spantonew = spanto + delta
+            # in order to process this span we need to do this:
+            # - adapt all affected annotations, i.e. annotations which start or end in this span,
+            #   according to the strategy.
+            # - change the offsets of all annotations after this edit if the length of the span changed
+            # - also change the offsets of all edits after this edit if the length of the span changed
+            if delta != 0:
+                for idx2 in range(idx+1, len(edits)):
+                    # TODO: adapt edit spans!
+                    pass
+                # adapt the annotations that start or end after the end of the current span:
+                # iterate only if pointer index not None
+                # iterate from the current pointer index for each list, adapt the current pointer for next time
+                # or set to None if no elements left/
+
 
