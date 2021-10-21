@@ -136,6 +136,12 @@ class SortedIntvls:
         """
         return self._by_start.irange(maximum=(offset - 1, sys.maxsize, sys.maxsize))
 
+    def starting_within(self, start, end):
+        return self._by_start.irange(minimum=(start, 0, 0), maximum=(end - 1, sys.maxsize, sys.maxsize))
+
+    def ending_within(self, start, end):
+        return self._by_end.irange(minimum=(start+1, start+1, 0), maximum=(end, end, sys.maxsize))
+
     def ending_to(self, offset):
         """
         Returns intervals that end before or at the given end offset.

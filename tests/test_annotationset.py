@@ -30,6 +30,12 @@ def make_doc():
     set1.add(36, 42, "Ann12")
     return doc
 
+def make_doc2():
+    doc = Document("0123456789")
+    annset = doc.annset()
+    for i in range(10):
+        annset.add(i, i + 1, f"ANN{i}")
+    return doc
 
 class TestAnnotationSet01:
 
@@ -267,3 +273,59 @@ class TestAnnotationSetRels:
         """
         # TODO: set1.add_ann(ann, annid=None)
         pass
+
+
+class TestAnnotationSetEdit:
+
+    def test_annotationset_edit01(self):
+        doc = make_doc2()
+        annset = doc.annset()
+        annset._edit([(2, 5, "")], affected_strategy="delete_all")
+        assert len(annset) == 7
+        for idx, n in enumerate(["ANN0", "ANN1", "ANN5", "ANN6", "ANN7", "ANN8", "ANN9"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 1
+            ann = anns[0]
+            assert ann.start == idx
+            assert ann.end == idx + 1
+        for idx, n in enumerate(["ANN2", "ANN3", "ANN4"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 0
+
+    def test_annotationset_edit02(self):
+        doc = make_doc2()
+        annset = doc.annset()
+        annset._edit([(2, 5, "aaaaa")], affected_strategy="delete_all")
+        assert len(annset) == 7
+        for idx, n in enumerate(["ANN0", "ANN1", "ANN5", "ANN6", "ANN7", "ANN8", "ANN9"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 1
+            ann = anns[0]
+            if idx < 2:
+                assert ann.start == idx
+                assert ann.end == idx + 1
+            else:
+                assert ann.start == idx + 3 + 2
+                assert ann.end == idx + 3 + 2 + 1
+        for idx, n in enumerate(["ANN2", "ANN3", "ANN4"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 0
+
+    def test_annotationset_edit10(self):
+        doc = make_doc2()
+        annset = doc.annset()
+        annset._edit([(2, 5, "")], affected_strategy="adapt")
+        assert len(annset) == 10
+        for idx, n in enumerate(["ANN0", "ANN1", "ANN5", "ANN6", "ANN7", "ANN8", "ANN9"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 1
+            ann = anns[0]
+            assert ann.start == idx
+            assert ann.end == idx + 1
+        for idx, n in enumerate(["ANN2", "ANN3", "ANN4"]):
+            anns = list(annset.with_type(n))
+            assert len(anns) == 1
+            ann = anns[0]
+            assert ann.start == 2
+            assert ann.end == 2
+
