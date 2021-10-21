@@ -26,7 +26,7 @@ a Java GATE process in two different ways:
 
 Install GateNLP with all optional dependencies: 
 
-`pip install -U gatenlpi[all]`
+`pip install -U gatenlp[all]`
 
 For more details see [Installation](installation.md)
 
