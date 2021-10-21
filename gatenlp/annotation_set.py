@@ -1481,3 +1481,206 @@ class AnnotationSet:
         annset._is_immutable = True
 
         return annset
+
+    def _update_offsets(self, id, start, end):
+        """
+        In-place update the offset of the annotation with the given id. THIS IS FOR INTERNAL USE ONLY!
+        Using this method can lead to many different kinds of hard to debug and surprising bugs!
+        NOTE: this only updates the by offset index if it already exists. If the offsets are both
+        are unchanged, this is a NOOP.
+
+        Args:
+            id: id of the annotation to change
+            start: new start offset
+            end: new end offset
+        """
+        ann = self._annotations[id]
+        if ann.start == start and ann.end == end:
+            return   # nothing to do really
+        # print(f"DEBUG: updating offset for {id} from {ann.start},{ann.end} to {start},{end}")
+        if self._index_by_offset is not None:
+            self._index_by_offset.remove(
+                ann.start, ann.end, ann.id
+            )
+        ann._update_offsets(start, end)
+        if self._index_by_offset is not None:
+            self._index_by_offset.add(ann.start, ann.end, ann.id)
+
+    def _edit_anns(self, edits, affected_strategy):
+        """
+        Edit helper method: takes a list of edits and returns two values: a dictionary annid->(start,end) of
+        new offset spans for all annotations that remain in the set, and a set of annids for annotations that
+        have to get deleted.
+
+        Args:
+            edits: the edit(s) to carry out
+
+        Returns:
+            anns: dictionary mapping annotation ids to pairs start,end of new offsets for that annotation
+            anns2delete: set of annotation ids to delete as a aresult of the edits
+        """
+        # convert the list of edits into a list of lists [startoff, endoff, len, startlist, endlist]
+        # where the lists will contain later the ids of annotation starting/ending within that span
+        # This also makes sure that if the edits are mutable, we do not change them in any way
+        edits = [[l[0], l[1], len(l[2]) if isinstance(l[2], str) else l[2], [], []] for l in edits]
+
+        # sort the edits by ending, then starting offsets: since we operate from start to end, as soon as
+        # processing has moved past some offset, the annotations before that offset do not need to get
+        # updated any more.
+        edits.sort(key=lambda x: (x[1], x[0]), reverse=False)
+
+        # optimization: instead of recalculating relevant overlaps after each edit, calculate
+        # them beforehand
+
+        # For each edit, add the ids of annotations that start/end in that interval to the start/end lists
+        # of the edit tuple. Also collect the ids of those annotations in sets for starting or ending, starting, ending
+        # in any edit. This is necessary because offset adaptions necessary for annotations starting/ending in
+        # a span need to get handled different from offset adaptations for all other annotations
+        self._create_index_by_offset()
+        affectedids_start = set()
+        affectedids_end = set()
+        for edit in edits:
+            # find all annotations which start or end within the span of the edit (or both)
+            sintvs = self._index_by_offset.starting_within(edit[0], edit[1])
+            eintvs = self._index_by_offset.ending_within(edit[0], edit[1])
+            for intv in sintvs:
+                if affected_strategy != "delete":
+                    edit[3].append(intv[2])
+                affectedids_start.add(intv[2])
+            for intv in eintvs:
+                if affected_strategy != "delete":
+                    edit[4].append(intv[2])
+                affectedids_end.add(intv[2])
+
+        # Any changes of offsets or deletions are not carried out until the very end. For this we
+        # keep a dictionary with all the annotations id to [start,end] and a set of annotations to delete
+        anns = {ann.id: [ann.start, ann.end] for ann in self._annotations.values()}
+        anns2delete = set()
+        # also keep sorted lists of annid by start and end offset, but only for non-affected annotations (outside of
+        # edits). The offset is accessed from anns because it can change during the process
+        idsbystart = []
+        idsbyend = []
+        # we are getting the annotations in offset order, so the two lists we create are also in starting
+        # offset order, for the first list this is what we need
+
+        for ann in self.iter():
+            annid = ann.id
+            if annid not in affectedids_start:
+                idsbystart.append(annid)
+            if annid not in affectedids_end:
+                idsbyend.append(annid)
+        # sort the idsbyend list by end offset
+        idsbyend.sort(key=lambda x: anns[x][1], reverse=False)
+
+        # ptr_start/end are indices into the start2ids/end2ids lists: pointing to the first entry for which
+        # annotation offsets still need to get adapted
+        ptr_start = None
+        ptr_end = None
+        if len(idsbystart) > 0:
+            ptr_start = 0
+        if len(idsbyend) > 0:
+            ptr_end = 0
+
+        for idx in range(len(edits)):
+            edit = edits[idx]
+            editfrom, editto, editlen, edit_sanns, edit_eanns = edit
+            newlen = len(edit[2]) if isinstance(edit[2], str) else edit[2]
+            oldlen = editto - editfrom
+            delta = newlen - oldlen
+            editto_new = editto + delta
+            # print(f"DEBUG: edit {editfrom},{editto},{editlen}: new to is {editto_new}, delta={delta}. sanns={edit_sanns}, eanns={edit_eanns}")
+            # in order to process this span we need to do this:
+            # - adapt all affected annotations, i.e. annotations which start or end in this span,
+            #   according to the strategy.
+            # - change the offsets of all annotations after this edit if the length of the span changed
+            # - also change the offsets of all edits after this edit if the length of the span changed
+
+            for annid in edit_sanns:  # all the ids of anns starting in this edit
+                if affected_strategy == "delete_all":
+                    if annid in anns:
+                        anns2delete.add(annid)
+                        del anns[annid]
+                elif affected_strategy == "adapt":
+                    anns[annid][0] = editfrom
+                elif affected_strategy == "keepadapt":
+                    if anns[annid][0] > editto:
+                        anns[annid][0] = editfrom
+            for annid in edit_eanns:  # all the ids of anns ending in this edit
+                if affected_strategy == "delete_all":
+                    if annid in anns:
+                        anns2delete.add(annid)
+                        del anns[annid]
+                elif affected_strategy == "adapt":
+                    anns[annid][1] = editto_new
+                elif affected_strategy == "keepadapt":
+                    if anns[annid][1] > editto_new:
+                        anns[annid][1] = editto_new
+            if delta != 0:
+                for idx2 in range(idx+1, len(edits)):
+                    otheredit = edits[idx2]
+                    otheredit[0] += delta
+                    otheredit[1] += delta
+                while anns[idsbystart[ptr_start]][0] < editto:
+                    ptr_start += 1
+                    if ptr_start >= len(idsbystart):
+                        ptr_start = None
+                        break
+                # adapt all the annotations
+                if ptr_start is not None:
+                    for idx in range(ptr_start, len(idsbystart)):
+                        annid = idsbystart[idx]
+                        if annid not in anns2delete:
+                            # print(f"DEBUG: update start for {annid} from {anns[annid][0]} by {delta}")
+                            anns[annid][0] += delta
+                # find the first annotation that ends at or after the current edit
+                while anns[idsbyend[ptr_end]][1] <= editto:
+                    ptr_end += 1
+                    if ptr_end >= len(idsbyend):
+                        ptr_end = None
+                        break
+                # adapt all the annotations
+                if ptr_end is not None:
+                    for idx in range(ptr_end, len(idsbyend)):
+                        annid = idsbyend[idx]
+                        if annid not in anns2delete:
+                            # print(f"DEBUG: update end for {annid} from {anns[annid][0]} by {delta}")
+                            anns[annid][1] += delta
+        return anns, anns2delete
+
+    def _edit(self, edits, affected_strategy="keepadapt"):
+        """
+        Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+        assume it is a single edit, Otherwise assume it is an iterable of edits.
+        An edit is a tuple (start, end, intorstring) giving the old offset range and either the string which
+        replaces that range or the length that replaces that range. NOTE: no two edit offset ranges may
+        overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+        and terrible changes. The method does not check for edit spans to not overlap!
+
+        This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+        ends within an affected span, what happens depends on the affected_strategy:
+
+        delete_all: remove any annotation where the start and/or end offset lies between the from/to offsets of
+            the edit
+        adapt: any start and/or end offset in between from/to is changed to the from or to offset
+        keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+            new span, otherwise adapted to from/to.
+
+        Args:
+            edits: single edit or iterable of edits
+            affected_strategy: one of the following strategies: delete, adapt, keepadapt
+        """
+        if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
+            edits = [edits]
+
+        anns, anns2delete = self._edit_anns(edits, affected_strategy)
+        # now delete all annotations to be delete
+        for annid in anns2delete:
+            # print(f"DEBUG: removing annotation {self[annid]}")
+            self.remove(annid)
+
+        # and adapt all annotation offsets, if necessary
+        for annid in anns:
+            start, end = anns[annid]
+            self._update_offsets(annid, start, end)
+
+

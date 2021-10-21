@@ -1,5 +1,9 @@
 # Versions and changes
 
+## 1.0.6 (upcoming)
+
+* add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
+
 ## 1.0.5.1 (2021-10-09)
 
 * Bug fix: make `lib_spacy` support both versions 2.x and 3.x (1.0.5 used a method which is only available in 3.x)

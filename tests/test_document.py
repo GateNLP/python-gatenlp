@@ -80,3 +80,54 @@ class TestDocument01:
         assert doc.text is None
         doc.text = "some text"
         assert doc.text == "some text"
+
+def make_doc():
+    doc = Document("0123456789")
+    annset = doc.annset()
+    for i in range(10):
+        annset.add(i, i + 1, f"ANN{i}")
+    return doc
+
+
+class TestDocumentEdit01:
+
+    def test_documentedit01m01(self):
+        newtext = Document._edit_text("0123456789", [(2, 3, "xx")])
+        assert newtext == "01xx3456789"
+        newtext = Document._edit_text("0123456789", [(2, 3, "")])
+        assert newtext == "013456789"
+        newtext = Document._edit_text("0123456789", [(0, 0, "asdfg")])
+        assert newtext == "asdfg0123456789"
+        newtext = Document._edit_text("0123456789", [(10, 10, "asdfg")])
+        assert newtext == "0123456789asdfg"
+        newtext = Document._edit_text("0123456789", [(0, 0, "abc"), (2, 3, "hh"), (10, 10, "xyz")])
+        assert newtext == "abc01hh3456789xyz"
+
+    def test_documentedit01m02(self):
+        doc = make_doc()
+        assert doc.text == "0123456789"
+        doc.edit([(0, 0, "abc"), (2, 5, "hh"), (10, 10, "xyz")], affected_strategy="delete_all")
+        assert doc.text == "abc01hh56789xyz"
+        annset = doc.annset()
+        assert len(annset) == 7
+        ann0 = list(annset.with_type("ANN0"))[0]
+        assert ann0.start == 3
+        assert ann0.end == 4
+        ann0 = list(annset.with_type("ANN1"))[0]
+        assert ann0.start == 4
+        assert ann0.end == 5
+        ann0 = list(annset.with_type("ANN5"))[0]
+        assert ann0.start == 7
+        assert ann0.end == 8
+        ann0 = list(annset.with_type("ANN6"))[0]
+        assert ann0.start == 8
+        assert ann0.end == 9
+        ann0 = list(annset.with_type("ANN7"))[0]
+        assert ann0.start == 9
+        assert ann0.end == 10
+        ann0 = list(annset.with_type("ANN8"))[0]
+        assert ann0.start == 10
+        assert ann0.end == 11
+        ann0 = list(annset.with_type("ANN9"))[0]
+        assert ann0.start == 11
+        assert ann0.end == 12
