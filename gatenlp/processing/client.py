@@ -32,7 +32,7 @@ class GateCloudAnnotator(Annotator):
         url=None,
         ann_types=None,
         map_types=None,
-        out_annset="",
+        outset_name="",
         min_delay_ms=501,
     ):
         """
@@ -50,7 +50,7 @@ class GateCloudAnnotator(Annotator):
                without a leading colon, the colon is added.
             map_types: a dict which maps the annotation types from the service to arbitrary new annotation types,
                any type name not in the map will remain unchanged.
-            out_annset: the annotation set in which to store the annotations
+            outset_name: the annotation set in which to store the annotations
             min_delay_ms: minimum time in milliseconds between two subsequent requests to the server
         """
         self.api_key = api_key
@@ -58,7 +58,7 @@ class GateCloudAnnotator(Annotator):
         self.url = url
         self.map_types = map_types
         self.min_delay_s = min_delay_ms / 1000.0
-        self.out_annset = out_annset
+        self.outset_name = outset_name
         if ann_types:
             if isinstance(ann_types, str):
                 self.ann_types = ann_types
@@ -93,7 +93,7 @@ class GateCloudAnnotator(Annotator):
         if self.ann_types:
             params["annotations"] = self.ann_types
         # NOTE: not sure when this is needed, for now, disabled
-        # next_annid = doc.annset(self.out_annset)._next_annid
+        # next_annid = doc.annset(self.outset_name)._next_annid
         # params["nextAnnotationId"] = str(next_annid)
         # self.logger.debug(f"Sending text={text}, params={params}")
         if self.api_key:
@@ -113,7 +113,7 @@ class GateCloudAnnotator(Annotator):
             raise Exception(f"Something went wrong, received status code {scode}")
         json = response.json()
         ents = json.get("entities", {})
-        annset = doc.annset(self.out_annset)
+        annset = doc.annset(self.outset_name)
         for typename, anns in ents.items():
             for anndata in anns:
                 feats = {}
@@ -146,7 +146,7 @@ class TagMeAnnotator(Annotator):
         lang="en",
         ann_type="Mention",
         task="tag",  # or spot
-        out_annset="",
+        outset_name="",
         min_delay_ms=501,
         tweet=False,
         include_all_spots=False,
@@ -163,7 +163,7 @@ class TagMeAnnotator(Annotator):
             auth_token: the authentication token needed to use the service
             url: the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used
             task: one of "spot" (only find mentions) or "tag" (find mentions and link), default is "tag"
-            out_annset: the annotationset to put the new annotations in
+            outset_name: the annotationset to put the new annotations in
             min_delay_ms: minimum time in ms to wait between requests to the server
             tweet: if True, TagMe expects a Tweet (default is False)
             include_all_spots: if True, include spots that cannot be linked (default is False)
@@ -192,7 +192,7 @@ class TagMeAnnotator(Annotator):
         self.url = url
         self.tweet = tweet
         self.include_all_spots = include_all_spots
-        self.out_annset = out_annset
+        self.outset_name = outset_name
         self.min_delay_s = min_delay_ms / 1000.0
         self.logger = init_logger()
         # self.logger.setLevel(logging.DEBUG)
@@ -233,7 +233,7 @@ class TagMeAnnotator(Annotator):
         json = response.json()
         # self.logger.debug(f"Response JSON: {json}")
         ents = json.get("annotations", {})
-        annset = doc.annset(self.out_annset)
+        annset = doc.annset(self.outset_name)
         om = OffsetMapper(text)
         for ent in ents:
             start = ent["start"]
@@ -269,7 +269,7 @@ class TextRazorTextAnnotator(Annotator):
         auth_token=None,
         lang=None,  # if None/not specified, TextRazor auto-detects
         extractors=None,
-        out_annset="",
+        outset_name="",
         min_delay_ms=501,
     ):
         """
@@ -282,14 +282,14 @@ class TextRazorTextAnnotator(Annotator):
             extractors: a list of extractor names or a string with comma-separated extractor names to add to the
                minimum extractors (words, sentences). If None uses words, sentences, entities.
                NOTE: currently only words, sentences, entities is supported.!
-            out_annset: the annotationset to put the new annotations in
+            outset_name: the annotationset to put the new annotations in
             min_delay_ms: minimum time in ms to wait between requests to the server
         """
         if url is None:
             url = "https://api.textrazor.com"
         self.url = url
         self.lang = lang
-        self.out_annset = out_annset
+        self.outset_name = outset_name
         self.auth_token = auth_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.logger = init_logger()
@@ -351,7 +351,7 @@ class TextRazorTextAnnotator(Annotator):
         language = resp.get("language")
         languageIsReliable = resp.get("languageIsReliable")
         tok2off = {}  # maps token idxs to tuples (start,end)
-        annset = doc.annset(self.out_annset)
+        annset = doc.annset(self.outset_name)
         for s in sentences:
             sentstart = None
             sentend = None
@@ -426,7 +426,7 @@ class ElgTextAnnotator(Annotator):
         success_code=None,
         access_token=None,
         refresh_access=False,
-        out_annset="",
+        outset_name="",
         min_delay_ms=501,
         anntypes_map=None,
     ):
@@ -458,7 +458,7 @@ class ElgTextAnnotator(Annotator):
                 on the web page for a service after logging in.
             refresh_access: if True, will try to refresh the access token if auth or success_code was specified and
                 refreshing is possible. Ignored if only access_token was specified
-            out_annset: the name of the annotation set where to create the annotations (default: "")
+            outset_name: the name of the annotation set where to create the annotations (default: "")
             min_delay_ms: the minimum delay time between requests in milliseconds (default: 501 ms)
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
@@ -510,7 +510,7 @@ class ElgTextAnnotator(Annotator):
             self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.anntypes_map = anntypes_map
-        self.out_annset = out_annset
+        self.outset_name = outset_name
         self.logger = init_logger(__name__)
         # self.logger.setLevel(logging.DEBUG)
         self._last_call_time = 0
@@ -543,7 +543,7 @@ class ElgTextAnnotator(Annotator):
         # - response value is a map which has "type"= "annotations" and
         # - "annotations" is a map with keys being the annotation types and values arrays of annoations
         ents = response_json.get("response", {}).get("annotations", {})
-        annset = doc.annset(self.out_annset)
+        annset = doc.annset(self.outset_name)
         for ret_anntype, ret_anns in ents.items():
             if self.anntypes_map:
                 anntype = self.anntypes_map.get(ret_anntype, ret_anntype)

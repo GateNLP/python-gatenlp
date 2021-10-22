@@ -22,7 +22,7 @@ class Tokenizer(Annotator):
     may add word annotations for multi-word tokens and and multi-token words.
 
     Tokenizers should have the fields token_type, space_token_type, and word_type which identify
-    the types of annotations it creates, and out_set to identify the output annotation set.
+    the types of annotations it creates, and outset to identify the output annotation set.
 
     """
 
@@ -35,7 +35,7 @@ class NLTKTokenizer(Tokenizer):
     """
 
     def __init__(
-        self, nltk_tokenizer=None, out_set="", token_type="Token", space_token_type=None
+        self, nltk_tokenizer=None, outset="", token_type="Token", space_token_type=None
     ):
         """
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
@@ -43,7 +43,7 @@ class NLTKTokenizer(Tokenizer):
         Args:
             nltk_tokenizer: either a class or instance of an nltk tokenizer, or a tokenizer function
                 that returns a list of tokens
-            out_set: annotation set to put the Token annotations in
+            outset: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
         """
         assert nltk_tokenizer is not None
@@ -64,7 +64,7 @@ class NLTKTokenizer(Tokenizer):
                 self.tokenizer.span_tokenize("text")
             except Exception as ex:
                 self.has_span_tokenize = False
-        self.out_set = out_set
+        self.outset = outset
         self.token_type = token_type
         self.space_token_type = space_token_type
 
@@ -80,7 +80,7 @@ class NLTKTokenizer(Tokenizer):
             else:
                 tks = self.tokenizer.tokenize(doc.text)
             spans = align_tokens(tks, doc.text)
-        annset = doc.annset(self.out_set)
+        annset = doc.annset(self.outset)
         for span in spans:
             annset.add(span[0], span[1], self.token_type)
         if self.space_token_type is not None:
@@ -105,7 +105,7 @@ class SplitPatternTokenizer(Tokenizer):
     def __init__(self,
                  split_pattern: any = regex.compile(r"\s+"),
                  token_pattern: any = None,
-                 out_set: str = "",
+                 outset: str = "",
                  token_type: str = "Token",
                  space_token_type: str = None):
         """
@@ -118,14 +118,14 @@ class SplitPatternTokenizer(Tokenizer):
             token_pattern: if not None, a token annotation is only created if the span between splits (or the begin
                 or end of document and a split) matches this pattern: if a literal string, the literal string must
                 be present, otherwise must be a compiled regular expression that is found.
-            out_set: the destination annotation set
+            outset: the destination annotation set
             token_type: the type of annotation to create for the spans between splits
             space_token_type: if not None, the type of annotation to create for the splits. NOTE: non-splits which
                 do not match the token_pattern are not annotated by this!
         """
         self.split_pattern = split_pattern
         self.token_pattern = token_pattern
-        self.outset = out_set
+        self.outset = outset
         self.token_type = token_type
         self.space_token_type = space_token_type
 
@@ -172,9 +172,9 @@ class ParagraphTokenizer(SplitPatternTokenizer):
     This is a convenience subclass of SplitPatternTokenizer, for more complex ways to split into paragraphs,
     that class should get used directly.
     """
-    def __init__(self, n_nl=1, out_set="", paragraph_type="Paragraph", split_type=None):
+    def __init__(self, n_nl=1, outset="", paragraph_type="Paragraph", split_type=None):
         import re
         nl_str = "\\n" * n_nl
         pat = re.compile(nl_str+"\\n*")
-        super().__init__(split_pattern=pat, token_type=paragraph_type, space_token_type=split_type, out_set=out_set)
+        super().__init__(split_pattern=pat, token_type=paragraph_type, space_token_type=split_type, outset=outset)
 

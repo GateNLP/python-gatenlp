@@ -3,6 +3,8 @@
 ## 1.0.6 (upcoming)
 
 * add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
+* ! the parameter name `out_set` in `gatenlp.processing.tokenizer` was changed to `outset` to be consistent with the name used elsewhere.
+* ! the parameter name `out_annset` in `gatenlp.processing.client` was changed to `outset_name` to be consistent with the name used elsewhere.
 
 ## 1.0.5.1 (2021-10-09)
 
