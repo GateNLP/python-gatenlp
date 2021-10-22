@@ -10,6 +10,9 @@ from gatenlp.processing.gazetteer.base import GazetteerAnnotator
 
 
 # TODO: Implement the StringGazetteer!!!!!!!!!!!!!!!!!!!!!!
+# TODO: Implement method that checks if we have a word start boundary before the current position, another for
+#    a wird end boundary after the current position (default: whitespace or begin/end of doc)
+
 
 # NOTE: Match was a dataclass originally
 Match = structclass("Match", ("start", "end", "match", "entrydata", "matcherdata"))
@@ -59,7 +62,18 @@ class StringGazetteer(GazetteerAnnotator):
             defaultdata: data to add to matches when the entry data is None
         """
         # TODO: need to figure out how to handle word boundaries
+        #     Maybe the easiest way: optionally limit the start and end of a match to a list of offsets
+        #     That list of offsets can be determined by either the offsets from annotations or by running
+        #     something that e.g. looks for whitespace first
         # TODO: need to figure out how to handle matching spaces vs. different spaces / no spaces!
+        #     Basically, certain characters in the entry can be defined to match a varying number of
+        #     characters in the text, e.g. a single space could match one or more spaces in the text
+        # TODO: need to figure out how to terminate matches, e.g. provide a list of offsets where any
+        #     match will be interrupted (e.g. split tokens).
+        # TODO: maybe make the ignorefunc, mapfunc etc. more flexible by always passing the character and the offset
+        #     that way we could implement something that pre-processes the document to e.g. get offsets where
+        #     we simply ignore. This would also allow for using a SPLITFUNC which returns true (abort match) either
+        #     when we find a Newline or we are at the offset where we have a split annotation
         # self.nodes = defaultdict(Node)
         self.ignorefunc = ignorefunc
         self.mapfunc = mapfunc
@@ -67,7 +81,6 @@ class StringGazetteer(GazetteerAnnotator):
         self.matcherdata = matcherdata
         self._root = _Node()
         self.logger = init_logger(__name__)
-        raise Exception("Not yet implemented")
 
     def add(self, entry, data=None, listdata=None, append=False):
         """
@@ -104,7 +117,7 @@ class StringGazetteer(GazetteerAnnotator):
                     node.value = data
 
     def find(
-        self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None
+        self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None,
     ):
         """
         Find gazetteer entries in text.
@@ -117,6 +130,7 @@ class StringGazetteer(GazetteerAnnotator):
         :return: an iterable of Match. The start/end fields of each Match are the character offsets if
         text is a string, otherwise are the token offsets.
         """
+        # TODO: like tokengazetter: refactor into: match, find, and findall
         matches = []
         lentext = len(text)
         if fromidx is None:
@@ -133,6 +147,7 @@ class StringGazetteer(GazetteerAnnotator):
         self.logger.debug(f"From index {i} to index {toidx} for {text}")
         while i < toidx:
             chr = text[i]
+            # TODO: if we are at a split character / position skip to next
             if self.ignorefunc and self.ignorefunc(chr):
                 i += 1
                 continue
