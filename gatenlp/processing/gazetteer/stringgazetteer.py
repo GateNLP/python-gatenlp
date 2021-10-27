@@ -14,8 +14,10 @@ from gatenlp.processing.gazetteer.base import GazetteerAnnotator
 #    a wird end boundary after the current position (default: whitespace or begin/end of doc)
 
 
-# NOTE: Match was a dataclass originally
-Match = structclass("Match", ("start", "end", "match", "entrydata", "matcherdata"))
+# NOTE: sthis was a dataclass originally
+StringGazetteerMatch = structclass(
+    "StringGazetteerMatch", ("start", "end", "match", "data", "listidx")
+)
 
 
 _NOVALUE = object()
@@ -116,95 +118,109 @@ class StringGazetteer(GazetteerAnnotator):
                 else:
                     node.value = data
 
+    def match(self, text, all=False, start=0, end=None, matchfunc=None):
+        """
+        Try to start at offset start in text, if end is not None, do not match beyond end offset.
+
+        Args:
+            text: the text/string in which to find matches
+            all:  if True, return all matches, otherwise return only the longest matches. If None, uses the setting
+                from init.
+            start: the offset where the match must start
+            end: if not None, the offset beyond which a match is not allowed to end
+            matchfunc: NOT YET USED
+
+        Returns:
+            A tuple where the first element is a list of match objects and the second the length of the longest match,
+            0 if there is no match (list of match objects is empty)
+
+        """
+        matches = []
+        lentext = len(text)
+        if start is None:
+            start = 0
+        if end is None:
+            end = lentext - 1
+        if start >= lentext:
+            return matches, 0
+        if end >= lentext:
+            end = lentext - 1
+        if start > end:
+            return matches, 0
+        self.logger.debug(f"Trying to match at offset {start} to at most index {end} for {text}")
+        chr = text[start]
+        if self.ignorefunc:
+            while self.ignorefunc(chr):
+                start += 1
+                chr = text[start]
+                if start >= end:
+                    return matches, 0
+        if self.mapfunc:
+            chr = self.mapfunc(chr)
+        longest_len = 0
+        longest_match = None
+        node = self._root
+        node = node.children.get(chr)
+        k = 0
+        while node is not None:
+            if node.value != _NOVALUE:
+                # we found a match
+                cur_len = k + 1
+                match = StringGazetteerMatch(
+                    start,
+                    start + k + 1,
+                    text[start: start + k + 1],
+                    node.value,
+                    self.matcherdata,
+                )
+                if all:
+                    matches.append(match)
+                else:
+                    # NOTE: only one longest match is possible, but it can have a list of data if append=True
+                    if cur_len > longest_len:
+                        longest_len = cur_len
+                        longest_match = match
+            if not all and longest_match is not None:
+                matches.append(longest_match)
+        return matches, longest_len
+
+
+
+    # TODO: implement in terms of match
     def find(
-        self, text, all=False, skip=True, fromidx=None, toidx=None, matchmaker=None,
+        self, text, all=False, skip=True, start=None, end=None, matchmaker=None,
     ):
         """
         Find gazetteer entries in text.
         ignored.
-        :param text: string to search
-        :param all: return all matches, if False only return longest match
-        :param skip: skip forward over longest match (do not return contained/overlapping matches)
-        :param fromidx: index where to start finding in tokens
-        :param toidx: index where to stop finding in tokens (this is the last index actually used)
-        :return: an iterable of Match. The start/end fields of each Match are the character offsets if
-        text is a string, otherwise are the token offsets.
+
+        Args:
+            text: string to search
+            all: return all matches, if False only return longest match
+            skip: skip forward over longest match (do not return contained/overlapping matches)
+            start: offset where to start matching in the text
+            end: of not None, offset beyond which no match may happen (start or end)
+
+        Returns:
+             NOT SURE YET???
         """
-        # TODO: like tokengazetter: refactor into: match, find, and findall
-        matches = []
-        lentext = len(text)
-        if fromidx is None:
-            fromidx = 0
-        if toidx is None:
-            toidx = lentext - 1
-        if fromidx >= lentext:
-            return matches
-        if toidx >= lentext:
-            toidx = lentext - 1
-        if fromidx > toidx:
-            return matches
-        i = fromidx
-        self.logger.debug(f"From index {i} to index {toidx} for {text}")
-        while i < toidx:
-            chr = text[i]
-            # TODO: if we are at a split character / position skip to next
-            if self.ignorefunc and self.ignorefunc(chr):
-                i += 1
+        if all is None:
+            all = self.all
+        offset = start
+        if end is None:
+            end = len(text) - 1
+        while offset <= end:
+            matches, long = self.match(
+                text, all=all, start=offset, end=end,
+            )
+            if long == 0:
+                offset += 1
                 continue
-            if self.mapfunc:
-                chr = self.mapfunc(chr)
-            longest_len = 0
-            longest_match = None
-            node = self._root
-            node = node.children.get(chr)
-            k = 0
-            while node is not None:
-                if node.value != _NOVALUE:
-                    # we found a match
-                    cur_len = k + 1
-                    if matchmaker:
-                        match = matchmaker(
-                            i,
-                            i + k + 1,
-                            text[i: i + k + 1],
-                            node.value,
-                            self.matcherdata,
-                        )
-                    else:
-                        match = Match(
-                            i,
-                            i + k + 1,
-                            text[i: i + k + 1],
-                            node.value,
-                            self.matcherdata,
-                        )
-                    if all:
-                        matches.append(match)
-                    else:
-                        # NOTE: only one longest match is possible, but it can have a list of data if append=True
-                        if cur_len > longest_len:
-                            longest_len = cur_len
-                            longest_match = match
-                while True:
-                    k += 1
-                    if i + k >= len(text):
-                        break
-                    chr = text[i + k]
-                    if self.ignorefunc and self.ignorefunc(chr):
-                        continue
-                    if self.mapfunc:
-                        chr = self.mapfunc(chr)
-                    node = node.children.get(chr)
-                    break
-                if i + k >= len(text):
-                    break
-            if not all and longest_match is not None:
-                matches.append(longest_match)
-            if skip:
-                i += max(k, 1)
-            else:
-                i += 1
-        return matches
+            return matches, long, offset
+        return [], 0, None
+
+    def find_all(self):
+        pass
 
     def __setitem__(self, key, value):
         node = self._get_node(key, create=True)
