@@ -6,7 +6,6 @@ gazetteer lists.
 
 import os
 from collections import defaultdict
-import logging
 
 from recordclass import structclass
 from gatenlp.document import Document

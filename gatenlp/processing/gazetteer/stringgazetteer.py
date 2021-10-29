@@ -7,8 +7,10 @@ from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 from recordclass import structclass
 from gatenlp.utils import init_logger
 from gatenlp.processing.gazetteer.base import GazetteerAnnotator
+import re
 
 _NOVALUE = None
+PAT_SPACES = re.compile(r'\s+')
 
 # NOTE: sthis was a dataclass originally
 StringGazetteerMatch = structclass(
@@ -16,14 +18,13 @@ StringGazetteerMatch = structclass(
 )
 
 # TODO: maybe add parameter compress_ws to make compression on reading and one-to-many matching optional
-#    also, need to implement compression/cleaning on read!
-# TODO: add mapfun for one-to-one character mappings only: use when reading entries and when reading a char
-#    from the text to do things like lowercase! Maybe provide predefined mapping callables like Lower, in the base.py
+#    also, need to implement optional compression on read!
 # TODO: make sure a ready/loaded gazetteer is pickleable as a whole so we can transfer to another process
 # TODO: however also check what our idea was to defer initializing/loading through config parms?
 # TODO: alternative approach: a pipeline can also have arbitrary steps/code to
 #    1) complete one-time initialization (e.g. load gazetteer): this gets run when the pipeline has been created on
 #    the other machine or process and 2) code to run before processing a source/corpus starts
+
 
 class _Node:
     """
@@ -61,20 +62,23 @@ class _Node:
             idxs = [idxs]
         return val, idxs
 
-    def print_node(self, file=sys.stderr, recursive: bool = True) -> None:
-        print(f"Node(value={self.value},listidxs={self.listidxs},children=[", end="", file=file)
+    def format_node(self, recursive: bool = True) -> None:
+        s1 = f"Node(value={self.value},listidxs={self.listidxs},children=["
         if recursive:
+            s2 = ""
             for c, n in self.children.items():
-                print(f"{c}:", end="", file=file)
-                n.print_node()
+                stmp = f"{c}:" + n.format_node()
+                s2 += stmp
         else:
-            print(f"({len(self.children)} children)", file=file)
-        print("])", end="", file=file)
+            s2 = f"({len(self.children)} children: {','.join(list(self.children.keys()))})"
+        return s1 + s2 + "])"
+
 
 
 class StringGazetteer(GazetteerAnnotator):
     def __init__(
             self,
+            annset_name: str = "",
             outset_name: str = "",
             ann_type: str = "Lookup",
             longest_only: bool = False,
@@ -85,11 +89,23 @@ class StringGazetteer(GazetteerAnnotator):
             ws_type: Optional[str] = None,
             split_chars: Union[None, str, Callable] = None,
             split_type: Optional[str] = None,
+            map_chars: Union[None, str, Callable] = None,
+            # parameters for loading
+            source: Any = None,
+            source_fmt: str = "gate-def",
+            source_encoding: str = "utf-8",
+            source_sep: str = "\t",
+            list_features: Optional[Dict] = None,
+            list_type: Optional[str] = None,
+            list_nr: Optional[int] = None,
+            ws_clean: bool = False,
     ):
         """
         Create a String Gazetteer annotor.
 
         Args:
+            annset_name: the name of the input annotation set where any of the anontations for start/end/ws/skip
+                are taken from
             outset_name: the name of the output annotation set where to place the annotations for matches
             ann_type: the annotation type name to use for match annotations, unless overriden by a load method
             longest_only: if True, only return the data for the longest match at each position, otherwise
@@ -102,15 +118,37 @@ class StringGazetteer(GazetteerAnnotator):
                 None, matches can end anywhere
             ws_chars: if None and whitespace checking is not based on offsets, use the python isspace() method.
                 Otherwise should be a string containing the possible WS characters or a callable that returns
-                True for WS
+                True for WS.
             ws_type: the annotation type of annotations indicating whitespace, if specified, ws_chars is ignored
             split_chars: if None and split character checking is not based on offsets, use a default list of new line
                 and similar characters (see https://docs.python.org/3/library/stdtypes.html#str.splitlines).
                 Otherwise should be a string containing the possible split characters or a callable that returns
                 True for split characters
             split_type: the annotation type of annotations indicating splits, if specified, split_chars is ignored
+            map_chars: how to map single characters for matching: if None, no mapping is performed, if "upper" or
+                "lower", the characters are uppercased/lowercased for entries and text to performe case-insensitive
+                matching, or a callable that does some custom mapping. The function must return a single character for
+                any single character it receives!
+            source: if not None, the source to use, e.g. a file, if None, nothing is loaded and the remaining arguments
+                are ignored.
+            source_fmt: the format of the source, one of "gate-def": a GATE def file, "gazlist": a list of tuples with 2
+                elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
+                features
+            source_encoding: the encoding of any source gazetteer files
+            source_sep: the field separator used in source gazetteer files
+            list_features: the features to use for the list or lists that get loaded from the source,
+                if None, no features are used/added to the list.
+            list_type: the annotation type to use for the list/lists loaded, if None, the type
+                specified with the constructor is used.
+            list_nr: only for fmt "gazlist", if not None, the number of an already existing/loaded list,
+                otherwise the next list number is used. If an existing list number is used, any features are added,
+                the type is overriden and all entries are added to that list.
+            ws_clean: if True, does whitespace trimming and normalization based on the ws_chars setting (even if
+                ws_type is specified). If False, expects the proper cleaning has already been done.
+
         """
         self._root: _Node = _Node()
+        self.annset_name = annset_name
         self.outset_name = outset_name
         self.ann_type = ann_type
         self.logger = init_logger(__name__)
@@ -136,8 +174,27 @@ class StringGazetteer(GazetteerAnnotator):
             self.split_chars_func = self.split_chars
         self.list_features: List[Dict] = []
         self.list_types: List[str] = []
+        if map_chars is None:
+            self.map_chars_func = lambda x: x
+        elif map_chars == "lower":
+            self.map_chars_func = str.lower
+        elif map_chars == "upper":
+            self.map_chars_func = str.upper
+        else:
+            self.map_chars_func = map_chars
+        if source is not None:
+            self.append(source=source, source_fmt=source_fmt,
+                        source_encoding=source_encoding,
+                        source_sep=source_sep,
+                        list_features=list_features,
+                        list_type=list_type,
+                        list_nr=list_nr,
+                        ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, None], data: Union[None, dict] = None, listidx: Union[None, int] = None):
+    def add(self, entry: Union[str, None],
+            data: Union[None, dict] = None, listidx: Union[None, int] = None,
+            ws_clean=False,
+            ):
         """
         Add a gazetteer entry or several entries if "entry" is not a string but iterable and store its data.
 
@@ -146,19 +203,24 @@ class StringGazetteer(GazetteerAnnotator):
         empty data (and empty dict) is stored with the entry.
         If all elements of the entry are ignored, nothing is done.
 
-        Important: this does not modify the entry itself in any way, whitespace trimming and normalization must be
-            done before calling this method!
-
         Args:
             entry: a string or an iterable of strings
             data: the data to add for that gazetteer entry or None to add no data.
             listidx: the list index to add or None
+            ws_clean: if True, does whitespace trimming and normalization based on the ws_chars setting (even if
+                ws_type is specified). If False, expects the proper cleaning has already been done.
         """
         if isinstance(entry, str):
             entry = [entry]
         for e in entry:
             if e is None or e == "" or not isinstance(e, str):
                 raise Exception(f"Cannot add gazetteer entry '{e}' must be a non-empty string")
+            if ws_clean:
+                # note: this is probably pretty slow, but guarantees the exact same replacements as for text
+                # as it uses the exact same function
+                e = "".join([" " if self.ws_chars_func(x) else self.map_chars_func(x) for x in e])
+                e = e.strip()
+                e = re.sub(PAT_SPACES, ' ', e)
             node = self._get_node(e, create=True)
             if node == self._root:
                 # empty string not allowed
@@ -188,12 +250,13 @@ class StringGazetteer(GazetteerAnnotator):
 
     def append(self,
                source: Any = None,
-               fmt: str = "gate-def",
+               source_fmt: str = "gate-def",
                source_encoding: str = "utf-8",
                source_sep: str = "\t",
                list_features: Optional[Dict] = None,
                list_type: Optional[str] = None,
-               list_nr: Optional[int] = None
+               list_nr: Optional[int] = None,
+               ws_clean: bool = False,
                ):
         """
         Append gazetteer entries from the given source to the gazetteer. Depending on the format this can load
@@ -202,7 +265,7 @@ class StringGazetteer(GazetteerAnnotator):
 
         Args:
             source: the source to use, e.g. a file
-            fmt: the format of the source, one of "gate-def": a GATE def file, "gazlist": a list of tuples with 2
+            source_fmt: the format of the source, one of "gate-def": a GATE def file, "gazlist": a list of tuples with 2
                 elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
                 features
             source_encoding: the encoding of any source gazetteer files
@@ -214,8 +277,10 @@ class StringGazetteer(GazetteerAnnotator):
             list_nr: only for fmt "gazlist", if not None, the number of an already existing/loaded list,
                 otherwise the next list number is used. If an existing list number is used, any features are added,
                 the type is overriden and all entries are added to that list.
+            ws_clean: if True, does whitespace trimming and normalization based on the ws_chars setting (even if
+                ws_type is specified). If False, expects the proper cleaning has already been done.
         """
-        if fmt == "gazlist":
+        if source_fmt == "gazlist":
             if list_nr is not None:
                 assert int(list_nr) == list_nr and 0 < list_nr < len(self.list_features)
                 if list_features is not None:
@@ -236,7 +301,7 @@ class StringGazetteer(GazetteerAnnotator):
                 entry = el[0]
                 data = el[1]
                 self.add(entry, data, listidx=list_nr)
-        elif fmt == "gate-def":
+        elif source_fmt == "gate-def":
             if list_features is None:
                 listfeatures = {}
             if list_type is None:
@@ -273,8 +338,6 @@ class StringGazetteer(GazetteerAnnotator):
                             listline = listline.rstrip("\n\r")
                             fields = listline.split(source_sep)
                             entry = fields[0]
-                            # TODO: make sure we normalize, prepare the entry and check it is not empty!
-                            # should trim and compress ws
                             if len(entry) > 1:
                                 feats = {}
                                 for fspec in fields[1:]:
@@ -283,9 +346,9 @@ class StringGazetteer(GazetteerAnnotator):
                             else:
                                 feats = None
                             listidx = len(self.list_features) - 1
-                            self.add(entry, feats, listidx=listidx)
+                            self.add(entry, feats, listidx=listidx, ws_clean=ws_clean)
         else:
-            raise Exception(f"TokenGazetteer format {fmt} not known")
+            raise Exception(f"TokenGazetteer format {source_fmt} not known")
 
     def is_ws(self, char, off, ws_offsets):
         """
@@ -354,10 +417,9 @@ class StringGazetteer(GazetteerAnnotator):
             end = lentext - 1
         if start > end:
             return matches, 0
-        self.logger.debug(f"Trying to match at offset {start} to at most index {end} for {text}")
         if start_offsets is not None and start not in start_offsets:
             return matches, 0
-        cur_chr = text[start]
+        cur_chr = self.map_chars_func(text[start])
         longest_len = 0
         longest_match = None
         node = self._root
@@ -381,12 +443,11 @@ class StringGazetteer(GazetteerAnnotator):
                         vals,
                         idxs,
                     )
+                    if cur_len > longest_len:
+                        longest_len = cur_len
+                        longest_match = match
                     if not longest_only:
                         matches.append(match)
-                    else:
-                        if cur_len > longest_len:
-                            longest_len = cur_len
-                            longest_match = match
             # if the current node/character corresponds to a whitespace character and compress whitespace is True,
             # then match any additional whitespace characters in the text
             # BUT: only if compress_ws is True
@@ -395,7 +456,7 @@ class StringGazetteer(GazetteerAnnotator):
             do_break = False
             while True:
                 cur_off += 1
-                cur_chr = text[cur_off]
+                cur_chr = self.map_chars_func(text[cur_off])
                 # ok we have reached the end
                 if cur_off >= end:
                     do_break = True
@@ -415,7 +476,7 @@ class StringGazetteer(GazetteerAnnotator):
             if do_break:
                 break
             # before we continue, get node for the character we have now
-            node = node.children.get(chr)
+            node = node.children.get(cur_chr)
         if longest_only and longest_match is not None:
             matches.append(longest_match)
         return matches, longest_len
@@ -452,10 +513,13 @@ class StringGazetteer(GazetteerAnnotator):
             end = len(text) - 1
         while offset <= end:
             if self.is_ws(text[offset], offset, ws_offsets):
+                offset += 1
                 continue
             if self.is_split(text[offset], offset, ws_offsets):
+                offset += 1
                 continue
             if start_offsets is not None and offset not in start_offsets:
+                offset += 1
                 continue
             matches, long = self.match(text, start=offset, end=end, longest_only=longest_only,
                                        start_offsets=start_offsets, end_offsets=end_offsets,
@@ -501,10 +565,13 @@ class StringGazetteer(GazetteerAnnotator):
             end = len(text) - 1
         while offset <= end:
             if self.is_ws(text[offset], offset, ws_offsets):
+                offset += 1
                 continue
             if self.is_split(text[offset], offset, ws_offsets):
+                offset += 1
                 continue
             if start_offsets is not None and offset not in start_offsets:
+                offset += 1
                 continue
             matches, maxlen, where = self.find(text, start=offset, end=end, longest_only=longest_only,
                                                start_offsets=start_offsets, end_offsets=end_offsets,
@@ -512,11 +579,12 @@ class StringGazetteer(GazetteerAnnotator):
                                                )
             if where is None:
                 return
-            yield matches
+            for match in matches:
+                yield match
             if skip_longest:
-                offset += maxlen
+                offset = where + maxlen
             else:
-                offset += 1
+                offset += where + 1
         return
 
     def __setitem__(self, key, valuesandidxs: Tuple[Union[List[Dict], Dict], Union[List[int], int]]):
@@ -526,6 +594,10 @@ class StringGazetteer(GazetteerAnnotator):
         assert isinstance(valuesandidxs[1], (int, list))
         node = self._get_node(key, create=True)
         node.value, node.listidxs = valuesandidxs
+
+    def __contains__(self, item):
+        node = self._get_node(item, create=False, raise_error=True)
+        return node.is_match()
 
     def __getitem__(self, item):
         """
@@ -542,6 +614,7 @@ class StringGazetteer(GazetteerAnnotator):
         Raises:
             KeyError if the item is not found
         """
+        print(f"||||||||||||| __getitem__={item}")
         node = self._get_node(item, create=False, raise_error=True)
         if not node.is_match():
             raise KeyError(item)
@@ -588,3 +661,68 @@ class StringGazetteer(GazetteerAnnotator):
                     else:
                         return None
         return node
+
+    @staticmethod
+    def _covering_offsets_set(anns):
+        offsets = set()
+        for ann in anns:
+            offsets.update(list(range(ann.start, ann.end)))
+        return offsets
+
+    def __call__(
+        self,
+        doc,
+    ):
+        """
+        Apply the gazetteer to the document and annotate all matches.
+
+        Args:
+            doc: the document to annotate with matches.
+
+        Returns:
+            the annotated document
+        """
+        if self.ws_type is not None:
+            ws_anns = doc.annset(self.annset_name).with_type(self.ws_type)
+            ws_offsets = StringGazetteer._covering_offsets_set(ws_anns)
+        else:
+            ws_offsets = None
+        if self.split_type is not None:
+            split_anns = doc.annset(self.annset_name).with_type(self.split_type)
+            split_offsets = StringGazetteer._covering_offsets_set(split_anns)
+        else:
+            split_offsets = None
+        if self.start_type is not None:
+            start_anns = doc.annset(self.annset_name).with_type(self.start_type)
+            start_offsets = set()
+            start_offsets.update([a.start for a in start_anns])
+        else:
+            start_offsets = None
+        if self.end_type is not None:
+            end_anns = doc.annset(self.annset_name).with_type(self.end_type)
+            end_offsets = set()
+            end_offsets.update([a.start for a in end_anns])
+        else:
+            end_offsets = None
+        outset = doc.annset(self.outset_name)
+        # TODO: make this work for individual segments?
+        for match in self.find_all(
+                doc.text,
+                start_offsets=start_offsets,
+                end_offsets=end_offsets,
+                ws_offsets=ws_offsets,
+                split_offsets=split_offsets):
+            if len(match.data) == 0 and len(match.listidx) == 0:
+                outset.add(match.start, match.end, self.ann_type)
+            else:
+                assert len(match.data) == len(match.listidxs)
+                for m, idx in zip(match.data, match.listidxs):
+                    features = {}
+                    outtype = self.ann_type
+                    if idx is not None:
+                        features.update(self.list_features[idx])
+                        outtype = self.list_types[idx]
+                    if m is not None:
+                        features.update(m)
+                    outset.add(match.start, match.end, outtype, features=features)
+        return doc
