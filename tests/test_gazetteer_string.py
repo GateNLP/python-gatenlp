@@ -1,9 +1,6 @@
 """
 Module for testing the StringGazetteer
 """
-import sys
-import os
-import pytest
 from gatenlp.document import Document
 import re
 from gatenlp.processing.gazetteer import StringGazetteer
