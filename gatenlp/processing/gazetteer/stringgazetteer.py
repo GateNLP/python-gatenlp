@@ -182,6 +182,7 @@ class StringGazetteer(GazetteerAnnotator):
             self.map_chars_func = str.upper
         else:
             self.map_chars_func = map_chars
+        self.size = 0
         if source is not None:
             self.append(source=source, source_fmt=source_fmt,
                         source_encoding=source_encoding,
@@ -222,6 +223,7 @@ class StringGazetteer(GazetteerAnnotator):
                 e = e.strip()
                 e = re.sub(PAT_SPACES, ' ', e)
             node = self._get_node(e, create=True)
+            self.size += 1
             if node == self._root:
                 # empty string not allowed
                 raise Exception(f"Cannot add gazetteer entry '{e}', matches root node")
@@ -328,7 +330,7 @@ class StringGazetteer(GazetteerAnnotator):
                         this_outtype = anntype
                     # read in the actual list
                     listfile = os.path.join(os.path.dirname(source), listFile)
-                    self.logger.info(f"Reading list file {listfile}")
+                    self.logger.debug(f"Reading list file {listfile}")
                     with open(listfile, "rt", encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
                         self.list_features.append(this_listfeatures)
@@ -727,3 +729,6 @@ class StringGazetteer(GazetteerAnnotator):
                         features.update(m)
                     outset.add(match.start, match.end, outtype, features=features)
         return doc
+
+    def __len__(self):
+        return self.size

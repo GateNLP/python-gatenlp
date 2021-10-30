@@ -21,6 +21,7 @@ __pycache__/
 /tmp-doc-sphinx
 /examples/tmp_*
 /java/target
+/debug/gazetteer
 
 # Distribution / packaging
 .Python

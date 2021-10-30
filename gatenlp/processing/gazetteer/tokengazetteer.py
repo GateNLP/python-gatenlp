@@ -179,6 +179,7 @@ class TokenGazetteer(GazetteerAnnotator):
         source_sep: str = "\t",
         source_encoding: str = "UTF-8",
         source_tokenizer: Union[None, Annotator, Callable] = None,
+        source_splitter: Optional[Callable] = None,
         list_features: Optional[Dict] = None,
         list_type: Optional[str] = None,
     ):
@@ -199,6 +200,8 @@ class TokenGazetteer(GazetteerAnnotator):
             source_tokenizer: if not None, an annotator, that creates annotations of type "Token" in the default
                 annotation set. If this is None, then when loading string gazetteer entries, they are tokenized by
                 splitting on whitespace (as defined by Python str.split())
+            source_splitter: if not None and source_tokenizer is None, a callable that takes a string and returns
+                the tokenstrings to use
             list_features: a list of dictionaries containing the features to set for all matches witch have the
               list index set, this list gets appended to the existing listfeatures. If what gets appended specifies
               its own list features, this is ignored.
@@ -256,17 +259,20 @@ class TokenGazetteer(GazetteerAnnotator):
                             listline = listline.rstrip("\n\r")
                             fields = listline.split(source_sep)
                             entry = fields[0]
-                            if source_tokenizer:
-                                tmpdoc = Document(entry)
-                                tmpdoc = source_tokenizer(tmpdoc)  # we MUST reassign here to allow return of a new doc!
-                                tokenanns = list(tmpdoc.annset().with_type("Token"))
-                                if self.getterfunc:
-                                    tokenstrings = [
-                                        self.getterfunc(a, doc=tmpdoc)
-                                        for a in tokenanns
-                                    ]
+                            if source_tokenizer or source_splitter:
+                                if source_tokenizer:
+                                    tmpdoc = Document(entry)
+                                    tmpdoc = source_tokenizer(tmpdoc)  # we MUST reassign here to allow return of a new doc!
+                                    tokenanns = list(tmpdoc.annset().with_type("Token"))
+                                    if self.getterfunc:
+                                        tokenstrings = [
+                                            self.getterfunc(a, doc=tmpdoc)
+                                            for a in tokenanns
+                                        ]
+                                    else:
+                                        tokenstrings = [tmpdoc[a] for a in tokenanns]
                                 else:
-                                    tokenstrings = [tmpdoc[a] for a in tokenanns]
+                                    tokenstrings = source_splitter(entry)
                                 if self.mapfunc:
                                     tokenstrings = [
                                         self.mapfunc(s) for s in tokenstrings
