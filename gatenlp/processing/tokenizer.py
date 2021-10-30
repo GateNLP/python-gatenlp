@@ -42,7 +42,11 @@ class NLTKTokenizer(Tokenizer):
 
         Args:
             nltk_tokenizer: either a class or instance of an nltk tokenizer, or a tokenizer function
-                that returns a list of tokens
+                that returns a list of tokens. NOTE: this must be a NLTK tokenizer which supports the
+                span_tokenize method or a tokenizer or function that is not destructive, i.e. it must
+                be possible to align the created token strings back to the original text. The created
+                token strings must not be modified from the original text e.g. " converted to `` or
+                similar. For this reason the standard NLTKWordTokenizer cannot be used.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
         """

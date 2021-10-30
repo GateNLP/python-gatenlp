@@ -707,7 +707,7 @@ class StringGazetteer(GazetteerAnnotator):
         if self.end_type is not None:
             end_anns = doc.annset(self.annset_name).with_type(self.end_type)
             end_offsets = set()
-            end_offsets.update([a.start for a in end_anns])
+            end_offsets.update([a.end for a in end_anns])
         else:
             end_offsets = None
         outset = doc.annset(self.outset_name)
