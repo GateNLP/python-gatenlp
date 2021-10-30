@@ -1,6 +1,4 @@
-import sys
 import os
-import pytest
 from gatenlp.document import Document
 import re
 from gatenlp.processing.gazetteer import TokenGazetteer
@@ -8,6 +6,7 @@ from gatenlp.processing.gazetteer import TokenGazetteer
 DOC1_TEXT = "A simple document which has a number of words in it which we will use to test matching"
 
 DOC2_TEXT = "A simple document which has a number of words in it which we will use to test matching, simple document"
+
 
 def makedoc1(text=DOC1_TEXT):
     """
@@ -54,7 +53,7 @@ class TestTokenGazetteer1:
         """
         Unit test method (make linter happy)
         """
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         # print("\n!!!!!!!!!!! nodes=", gaz.nodes, "\n")
         assert gaz.nodes is not None
         assert "simple" in gaz.nodes
@@ -79,7 +78,7 @@ class TestTokenGazetteer1:
         """
         Unit test method (make linter happy)
         """
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
         # print("\n!!!!! DEBUG: tokens=", toks, "\n")
@@ -102,9 +101,9 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # test lists
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         # add another list
-        gaz.append(source=GAZLIST2, fmt="gazlist")
+        gaz.append(source=GAZLIST2, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
         # print("\n!!!!! DEBUG: tokens=", toks, "\n")
@@ -131,14 +130,14 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # match at position 4 where we should get several matches, match all=False
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
         # print("\n!!!!! DEBUG: tokens=", toks, "\n")
         ret = gaz.match(toks, doc=doc)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
-        ret = gaz.match(toks, doc=doc, idx=4, all=False)
+        ret = gaz.match(toks, doc=doc, idx=4, longest_only=True)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
@@ -155,14 +154,14 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # match at position 4 where we should get several matches, match all=True
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
         # print("\n!!!!! DEBUG: tokens=", toks, "\n")
         ret = gaz.match(toks, doc=doc)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert ret == ([], 0)
-        ret = gaz.match(toks, doc=doc, idx=4, all=True)
+        ret = gaz.match(toks, doc=doc, idx=4, longest_only=False)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 2
         matches, maxlen = ret
@@ -188,7 +187,7 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # search from position 0
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
         ret = gaz.find(toks, doc=doc, fromidx=0)
@@ -208,10 +207,10 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # search from position 2
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        ret = gaz.find(toks, doc=doc, fromidx=2, all=True)
+        ret = gaz.find(toks, doc=doc, fromidx=2, longest_only=False)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 3
         matches, maxlen, idx = ret
@@ -237,25 +236,25 @@ class TestTokenGazetteer1:
         Unit test method (make linter happy)
         """
         # search from position 5, should not find anything
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        ret = gaz.find(toks, doc=doc, fromidx=5, all=True)
+        ret = gaz.find(toks, doc=doc, fromidx=5, longest_only=False)
         # print("\n!!!!! DEBUG: ret=", ret, "\n")
         assert len(ret) == 3
         matches, maxlen, idx = ret
         assert maxlen == 0
-        assert idx == None
+        assert idx is None
         assert len(matches) == 0
 
     def test_findall(self):
         """
         Unit test method (make linter happy)
         """
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist")
         doc = makedoc1()
         toks = list(doc.annset())
-        ret = list(gaz.find_all(toks, doc=doc, fromidx=0, all=True))
+        ret = list(gaz.find_all(toks, doc=doc, fromidx=0, longest_only=False))
         assert len(ret) == 2
         m1 = ret[0]
         assert len(m1) == 1
@@ -270,13 +269,13 @@ class TestTokenGazetteer1:
         """
         Unit test method (make linter happy)
         """
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist")
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist", longest_only=True)
         doc = makedoc1()
         gaz(doc)
         anns = doc.annset().with_type("Lookup")
         assert len(anns) == 3
         # same but with all=True, skip=False
-        gaz = TokenGazetteer(source=GAZLIST1, fmt="gazlist", all=True, skip=False)
+        gaz = TokenGazetteer(source=GAZLIST1, source_fmt="gazlist", longest_only=False, skip_longest=False)
         doc = makedoc1()
         gaz(doc)
         anns = doc.annset().with_type("Lookup")
@@ -288,7 +287,7 @@ class TestTokenGazetteer1:
         """
         testdir = os.path.join(os.curdir, "tests")
         gazfile = os.path.join(testdir, "gaz1.def")
-        gaz = TokenGazetteer(source=gazfile, fmt="gate-def")
+        gaz = TokenGazetteer(source=gazfile, source_fmt="gate-def", longest_only=True)
         doc = makedoc1()
         gaz(doc)
         anns = doc.annset().with_type("Lookup")
@@ -302,7 +301,7 @@ class TestTokenGazetteer1:
         """
         testdir = os.path.join(os.curdir, "tests")
         gazfile = os.path.join(testdir, "gaz1.def")
-        gaz = TokenGazetteer(source=gazfile, fmt="gate-def", all=True, skip=False)
+        gaz = TokenGazetteer(source=gazfile, source_fmt="gate-def", longest_only=False, skip_longest=False)
         doc = makedoc1()
         gaz(doc)
         anns = doc.annset().with_type("Lookup")
@@ -316,7 +315,7 @@ class TestTokenGazetteer1:
         """
         testdir = os.path.join(os.curdir, "tests")
         gazfile = os.path.join(testdir, "gaz1.def")
-        gaz = TokenGazetteer(source=gazfile, fmt="gate-def", all=True, skip=True)
+        gaz = TokenGazetteer(source=gazfile, source_fmt="gate-def", longest_only=False, skip_longest=True)
         doc = makedoc1(DOC2_TEXT)
         print(doc)
         gaz(doc)
@@ -324,10 +323,10 @@ class TestTokenGazetteer1:
         #     print(f"\n{msg}")
         #     for ann in anns:
         #         print(f"Matching {doc[ann]}: {ann}")
-        #printanns(doc, doc.annset().with_type("Token"), "Tokens:")
+        # printanns(doc, doc.annset().with_type("Token"), "Tokens:")
         anns = doc.annset().with_type("Lookup")
-        #printanns(doc, anns, "Lookup annotations")
+        # printanns(doc, anns, "Lookup annotations")
         assert len(anns) == 4
         anns = doc.annset().with_type("GazType1")
         assert len(anns) == 4
-        #printanns(doc, anns, "GazType1 annotations")
+        # printanns(doc, anns, "GazType1 annotations")

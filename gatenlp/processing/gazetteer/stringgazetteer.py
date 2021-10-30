@@ -249,7 +249,7 @@ class StringGazetteer(GazetteerAnnotator):
                         node.listidxs.append(listidx)
 
     def append(self,
-               source: Any = None,
+               source: Union[None, str, List] = None,
                source_fmt: str = "gate-def",
                source_encoding: str = "utf-8",
                source_sep: str = "\t",
