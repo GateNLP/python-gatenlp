@@ -30,11 +30,13 @@
 <pre><code class="python">&#34;&#34;&#34;
 Base class for all gazetteer annotators
 &#34;&#34;&#34;
+from typing import Union, List
+from gatenlp import Document
 from gatenlp.processing.annotator import Annotator
 
 
 class GazetteerAnnotator(Annotator):
-    def __call__(self, *args, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
 </section>
@@ -58,7 +60,7 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class GazetteerAnnotator(Annotator):
-    def __call__(self, *args, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>

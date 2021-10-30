@@ -30,11 +30,12 @@
 <pre><code class="python">&#34;&#34;&#34;
 This module provides the StringGazetter for matching strings against the text in a document.
 &#34;&#34;&#34;
-import sys, os
+import os
 from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 # note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
 from recordclass import structclass
 from gatenlp.utils import init_logger
+from gatenlp import Document
 from gatenlp.processing.gazetteer.base import GazetteerAnnotator
 import re
 
@@ -91,7 +92,7 @@ class _Node:
             idxs = [idxs]
         return val, idxs
 
-    def format_node(self, recursive: bool = True) -&gt; None:
+    def format_node(self, recursive: bool = True) -&gt; str:
         s1 = f&#34;Node(value={self.value},listidxs={self.listidxs},children=[&#34;
         if recursive:
             s2 = &#34;&#34;
@@ -101,7 +102,6 @@ class _Node:
         else:
             s2 = f&#34;({len(self.children)} children: {&#39;,&#39;.join(list(self.children.keys()))})&#34;
         return s1 + s2 + &#34;])&#34;
-
 
 
 class StringGazetteer(GazetteerAnnotator):
@@ -211,6 +211,7 @@ class StringGazetteer(GazetteerAnnotator):
             self.map_chars_func = str.upper
         else:
             self.map_chars_func = map_chars
+        self.size = 0
         if source is not None:
             self.append(source=source, source_fmt=source_fmt,
                         source_encoding=source_encoding,
@@ -220,9 +221,9 @@ class StringGazetteer(GazetteerAnnotator):
                         list_nr=list_nr,
                         ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, None],
-            data: Union[None, dict] = None, listidx: Union[None, int] = None,
-            ws_clean=False,
+    def add(self, entry: Union[str, List[str]],
+            data: Optional[Dict] = None, listidx: Optional[int] = None,
+            ws_clean: bool = False,
             ):
         &#34;&#34;&#34;
         Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
@@ -251,6 +252,7 @@ class StringGazetteer(GazetteerAnnotator):
                 e = e.strip()
                 e = re.sub(PAT_SPACES, &#39; &#39;, e)
             node = self._get_node(e, create=True)
+            self.size += 1
             if node == self._root:
                 # empty string not allowed
                 raise Exception(f&#34;Cannot add gazetteer entry &#39;{e}&#39;, matches root node&#34;)
@@ -278,7 +280,7 @@ class StringGazetteer(GazetteerAnnotator):
                         node.listidxs.append(listidx)
 
     def append(self,
-               source: Any = None,
+               source: Union[str, List[Optional[Dict]]],
                source_fmt: str = &#34;gate-def&#34;,
                source_encoding: str = &#34;utf-8&#34;,
                source_sep: str = &#34;\t&#34;,
@@ -296,7 +298,7 @@ class StringGazetteer(GazetteerAnnotator):
             source: the source to use, e.g. a file
             source_fmt: the format of the source, one of &#34;gate-def&#34;: a GATE def file, &#34;gazlist&#34;: a list of tuples with 2
                 elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
-                features
+                features or None
             source_encoding: the encoding of any source gazetteer files
             source_sep: the field separator used in source gazetteer files
             list_features: the features to use for the list or lists that get loaded from the source,
@@ -332,9 +334,9 @@ class StringGazetteer(GazetteerAnnotator):
                 self.add(entry, data, listidx=list_nr)
         elif source_fmt == &#34;gate-def&#34;:
             if list_features is None:
-                listfeatures = {}
+                list_features = {}
             if list_type is None:
-                listtype = self.ann_type
+                list_type = self.ann_type
             with open(source, &#34;rt&#34;, encoding=source_encoding) as infp:
                 for line in infp:
                     line = line.rstrip(&#34;\n\r&#34;)
@@ -357,7 +359,7 @@ class StringGazetteer(GazetteerAnnotator):
                         this_outtype = anntype
                     # read in the actual list
                     listfile = os.path.join(os.path.dirname(source), listFile)
-                    self.logger.info(f&#34;Reading list file {listfile}&#34;)
+                    self.logger.debug(f&#34;Reading list file {listfile}&#34;)
                     with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
                         self.list_features.append(this_listfeatures)
@@ -416,8 +418,8 @@ class StringGazetteer(GazetteerAnnotator):
             text: the text/string in which to find matches
             start: the offset where the match must start
             end: if not None, the offset beyond which a match is not allowed to end
-            longest_only:  if True, return only the longest matches, otherwise return all matches. If None, uses the setting
-                from init.
+            longest_only:  if True, return only the longest matches, otherwise return all matches.
+                If None, uses the setting from init.
             start_offsets: if not None, should be a list or set of possible start offsets. This function will only
                 find a match if the given start offset is valid
             end_offsets: if not None, should be a list of set of possible end offsets. Only matches ending at a valid
@@ -517,7 +519,7 @@ class StringGazetteer(GazetteerAnnotator):
              end_offsets: Union[List, Set, None] = None,
              ws_offsets: Union[List, Set, None] = None,
              split_offsets: Union[List, Set, None] = None,
-    ):
+             ):
         &#34;&#34;&#34;
         Find the next gazetteer match(es) in the text, if any.
 
@@ -643,29 +645,33 @@ class StringGazetteer(GazetteerAnnotator):
         Raises:
             KeyError if the item is not found
         &#34;&#34;&#34;
-        print(f&#34;||||||||||||| __getitem__={item}&#34;)
-        node = self._get_node(item, create=False, raise_error=True)
-        if not node.is_match():
+        ret = self.get(item)
+        if ret is None:
             raise KeyError(item)
-        return node.data()
+        return ret
 
-    def get(self, item: str, default: Tuple[Any, Any] = (None, None)) -&gt; Tuple[Union[None, List[Dict]], Union[None, List[int]]]:
+    def get(self, item: str, default: Optional[Dict] = None) -&gt; Optional[List[Dict]]:
         &#34;&#34;&#34;
-        Return the data corresponding the to given item. The data is a tuple where the first element is
-        a list of dicts and the second element is a list of list indices. If the item is not found, the given default
-        is returned instead
+        Return the features corresponding the to given item or None if the item is not in the gazetteer.
 
         Args:
             item: the string to look up
             default: the return value if not found
 
         Returns:
-            A tuple (listofdicts, listofindices) or (None, None) / the default value if not found
+            A list of dicts or None.
         &#34;&#34;&#34;
         node = self._get_node(item, create=False, raise_error=False)
         if not node.is_match():
             return default
-        return node.data()
+        dicts, listidxs = node.data()
+        assert len(dicts) == len(listidxs)
+        ret = []
+        for d, i in zip(dicts, listidxs):
+            new = d.copy()
+            new.update(self.list_features[i])
+            ret.append(new)
+        return ret
 
     def _get_node(self, item: str, create: bool = False, raise_error: bool = True) -&gt; Union[None, _Node]:
         &#34;&#34;&#34;
@@ -698,10 +704,7 @@ class StringGazetteer(GazetteerAnnotator):
             offsets.update(list(range(ann.start, ann.end)))
         return offsets
 
-    def __call__(
-        self,
-        doc,
-    ):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         &#34;&#34;&#34;
         Apply the gazetteer to the document and annotate all matches.
 
@@ -754,7 +757,10 @@ class StringGazetteer(GazetteerAnnotator):
                     if m is not None:
                         features.update(m)
                     outset.add(match.start, match.end, outtype, features=features)
-        return doc</code></pre>
+        return doc
+
+    def __len__(self):
+        return self.size</code></pre>
 </details>
 </section>
 <section>
@@ -949,6 +955,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             self.map_chars_func = str.upper
         else:
             self.map_chars_func = map_chars
+        self.size = 0
         if source is not None:
             self.append(source=source, source_fmt=source_fmt,
                         source_encoding=source_encoding,
@@ -958,9 +965,9 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                         list_nr=list_nr,
                         ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, None],
-            data: Union[None, dict] = None, listidx: Union[None, int] = None,
-            ws_clean=False,
+    def add(self, entry: Union[str, List[str]],
+            data: Optional[Dict] = None, listidx: Optional[int] = None,
+            ws_clean: bool = False,
             ):
         &#34;&#34;&#34;
         Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
@@ -989,6 +996,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                 e = e.strip()
                 e = re.sub(PAT_SPACES, &#39; &#39;, e)
             node = self._get_node(e, create=True)
+            self.size += 1
             if node == self._root:
                 # empty string not allowed
                 raise Exception(f&#34;Cannot add gazetteer entry &#39;{e}&#39;, matches root node&#34;)
@@ -1016,7 +1024,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                         node.listidxs.append(listidx)
 
     def append(self,
-               source: Any = None,
+               source: Union[str, List[Optional[Dict]]],
                source_fmt: str = &#34;gate-def&#34;,
                source_encoding: str = &#34;utf-8&#34;,
                source_sep: str = &#34;\t&#34;,
@@ -1034,7 +1042,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             source: the source to use, e.g. a file
             source_fmt: the format of the source, one of &#34;gate-def&#34;: a GATE def file, &#34;gazlist&#34;: a list of tuples with 2
                 elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
-                features
+                features or None
             source_encoding: the encoding of any source gazetteer files
             source_sep: the field separator used in source gazetteer files
             list_features: the features to use for the list or lists that get loaded from the source,
@@ -1070,9 +1078,9 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                 self.add(entry, data, listidx=list_nr)
         elif source_fmt == &#34;gate-def&#34;:
             if list_features is None:
-                listfeatures = {}
+                list_features = {}
             if list_type is None:
-                listtype = self.ann_type
+                list_type = self.ann_type
             with open(source, &#34;rt&#34;, encoding=source_encoding) as infp:
                 for line in infp:
                     line = line.rstrip(&#34;\n\r&#34;)
@@ -1095,7 +1103,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                         this_outtype = anntype
                     # read in the actual list
                     listfile = os.path.join(os.path.dirname(source), listFile)
-                    self.logger.info(f&#34;Reading list file {listfile}&#34;)
+                    self.logger.debug(f&#34;Reading list file {listfile}&#34;)
                     with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
                         self.list_features.append(this_listfeatures)
@@ -1154,8 +1162,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             text: the text/string in which to find matches
             start: the offset where the match must start
             end: if not None, the offset beyond which a match is not allowed to end
-            longest_only:  if True, return only the longest matches, otherwise return all matches. If None, uses the setting
-                from init.
+            longest_only:  if True, return only the longest matches, otherwise return all matches.
+                If None, uses the setting from init.
             start_offsets: if not None, should be a list or set of possible start offsets. This function will only
                 find a match if the given start offset is valid
             end_offsets: if not None, should be a list of set of possible end offsets. Only matches ending at a valid
@@ -1255,7 +1263,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
              end_offsets: Union[List, Set, None] = None,
              ws_offsets: Union[List, Set, None] = None,
              split_offsets: Union[List, Set, None] = None,
-    ):
+             ):
         &#34;&#34;&#34;
         Find the next gazetteer match(es) in the text, if any.
 
@@ -1381,29 +1389,33 @@ ws_type is specified). If False, expects the proper cleaning has already been do
         Raises:
             KeyError if the item is not found
         &#34;&#34;&#34;
-        print(f&#34;||||||||||||| __getitem__={item}&#34;)
-        node = self._get_node(item, create=False, raise_error=True)
-        if not node.is_match():
+        ret = self.get(item)
+        if ret is None:
             raise KeyError(item)
-        return node.data()
+        return ret
 
-    def get(self, item: str, default: Tuple[Any, Any] = (None, None)) -&gt; Tuple[Union[None, List[Dict]], Union[None, List[int]]]:
+    def get(self, item: str, default: Optional[Dict] = None) -&gt; Optional[List[Dict]]:
         &#34;&#34;&#34;
-        Return the data corresponding the to given item. The data is a tuple where the first element is
-        a list of dicts and the second element is a list of list indices. If the item is not found, the given default
-        is returned instead
+        Return the features corresponding the to given item or None if the item is not in the gazetteer.
 
         Args:
             item: the string to look up
             default: the return value if not found
 
         Returns:
-            A tuple (listofdicts, listofindices) or (None, None) / the default value if not found
+            A list of dicts or None.
         &#34;&#34;&#34;
         node = self._get_node(item, create=False, raise_error=False)
         if not node.is_match():
             return default
-        return node.data()
+        dicts, listidxs = node.data()
+        assert len(dicts) == len(listidxs)
+        ret = []
+        for d, i in zip(dicts, listidxs):
+            new = d.copy()
+            new.update(self.list_features[i])
+            ret.append(new)
+        return ret
 
     def _get_node(self, item: str, create: bool = False, raise_error: bool = True) -&gt; Union[None, _Node]:
         &#34;&#34;&#34;
@@ -1436,10 +1448,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             offsets.update(list(range(ann.start, ann.end)))
         return offsets
 
-    def __call__(
-        self,
-        doc,
-    ):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         &#34;&#34;&#34;
         Apply the gazetteer to the document and annotate all matches.
 
@@ -1492,7 +1501,10 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                     if m is not None:
                         features.update(m)
                     outset.add(match.start, match.end, outtype, features=features)
-        return doc</code></pre>
+        return doc
+
+    def __len__(self):
+        return self.size</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1503,7 +1515,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.add"><code class="name flex">
-<span>def <span class="ident">add</span></span>(<span>self, entry: Union[str, NoneType], data: Union[NoneType, dict] = None, listidx: Union[NoneType, int] = None, ws_clean=False)</span>
+<span>def <span class="ident">add</span></span>(<span>self, entry: Union[str, List[str]], data: Union[Dict, NoneType] = None, listidx: Union[int, NoneType] = None, ws_clean: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add a gazetteer entry or several entries if "entry" is not a string but iterable and store its data.</p>
@@ -1525,7 +1537,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 </dl></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.append"><code class="name flex">
-<span>def <span class="ident">append</span></span>(<span>self, source: Any = None, source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Union[Dict, NoneType] = None, list_type: Union[str, NoneType] = None, list_nr: Union[int, NoneType] = None, ws_clean: bool = False)</span>
+<span>def <span class="ident">append</span></span>(<span>self, source: Union[str, List[Union[Dict, NoneType]]], source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Union[Dict, NoneType] = None, list_type: Union[str, NoneType] = None, list_nr: Union[int, NoneType] = None, ws_clean: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Append gazetteer entries from the given source to the gazetteer. Depending on the format this can load
@@ -1538,7 +1550,7 @@ list-specific annotation type to use.</p>
 <dt><strong><code>source_fmt</code></strong></dt>
 <dd>the format of the source, one of "gate-def": a GATE def file, "gazlist": a list of tuples with 2
 elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
-features</dd>
+features or None</dd>
 <dt><strong><code>source_encoding</code></strong></dt>
 <dd>the encoding of any source gazetteer files</dd>
 <dt><strong><code>source_sep</code></strong></dt>
@@ -1616,12 +1628,10 @@ as the second element and the index where the match occurs or None as the third 
 <p>list of matches</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, item: str, default: Tuple[Any, Any] = (None, None)) ‑> Tuple[Union[NoneType, List[Dict]], Union[NoneType, List[int]]]</span>
+<span>def <span class="ident">get</span></span>(<span>self, item: str, default: Union[Dict, NoneType] = None) ‑> Union[List[Dict], NoneType]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return the data corresponding the to given item. The data is a tuple where the first element is
-a list of dicts and the second element is a list of list indices. If the item is not found, the given default
-is returned instead</p>
+<div class="desc"><p>Return the features corresponding the to given item or None if the item is not in the gazetteer.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>item</code></strong></dt>
@@ -1630,7 +1640,7 @@ is returned instead</p>
 <dd>the return value if not found</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>A tuple (listofdicts, listofindices) or (None, None) / the default value if not found</p></div>
+<p>A list of dicts or None.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.is_split"><code class="name flex">
 <span>def <span class="ident">is_split</span></span>(<span>self, char, off, split_offsets)</span>
@@ -1670,8 +1680,8 @@ If ws_offsets is None, then this is true if chr.isspace() is true, otherwise if 
 <dt><strong><code>end</code></strong></dt>
 <dd>if not None, the offset beyond which a match is not allowed to end</dd>
 <dt><strong><code>longest_only</code></strong></dt>
-<dd>if True, return only the longest matches, otherwise return all matches. If None, uses the setting
-from init.</dd>
+<dd>if True, return only the longest matches, otherwise return all matches.
+If None, uses the setting from init.</dd>
 <dt><strong><code>start_offsets</code></strong></dt>
 <dd>if not None, should be a list or set of possible start offsets. This function will only
 find a match if the given start offset is valid</dd>

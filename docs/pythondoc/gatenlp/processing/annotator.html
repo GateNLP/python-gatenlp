@@ -37,14 +37,16 @@ Any callable that can be called by passing a document can be used as an annotato
 but the base class &#34;Annotator&#34; defined in here is designed to allow for a more
 flexible approach to do things.
 &#34;&#34;&#34;
+from typing import Union, List, Iterable, Any, Callable
 from abc import ABC, abstractmethod
+from gatenlp import Document
 
 __pdoc__ = {&#34;Annotator.__call__&#34;: True}
 
 
 class Annotator(ABC):
     @abstractmethod
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         &#34;&#34;&#34;
         This method MUST get implemented in a concrete subclass to do the actual processing
         and annotation. It must accept a document and arbitrary keyword arguments and it must
@@ -72,31 +74,31 @@ class Annotator(ABC):
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
 
-    def pipe(self, documents, **kwargs):
+    def pipe(self, documents: Iterable[Document], **kwargs):
         &#34;&#34;&#34;
         If this method gets overridden, it should take an iterable of documents and yield processed documents.
         This allows for batching, caching, and other optimizations over streams of documents.
         If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
 
         Args:
-            documents: an iterable over documents or (document, context) tuples if with_context=True
+            documents: an iterable over documents
             **kwargs: arbitrary other keyword arguments must be accepted
 
         Yields:
             processed documents
         &#34;&#34;&#34;
-        for el in documents:
-            if el is not None:
-                docordocs = self.__call__(el, **kwargs)
+        for document in documents:
+            if document is not None:
+                docordocs = self.__call__(document, **kwargs)
                 if docordocs is not None:
                     if isinstance(docordocs, list):
-                        for el in docordocs:
-                            if el is not None:
-                                yield el
+                        for doc in docordocs:
+                            if doc is not None:
+                                yield doc
                     else:
                         yield docordocs
 
-    def start(self):
+    def start(self) -&gt; None:
         &#34;&#34;&#34;
         A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
@@ -107,7 +109,7 @@ class Annotator(ABC):
         &#34;&#34;&#34;
         pass
 
-    def finish(self):
+    def finish(self) -&gt; Any:
         &#34;&#34;&#34;
         A method that gets called when processing ends, e.g. when all documents of a corpus
         have been processed. It should return some result for processing the whole batch of documents
@@ -118,7 +120,7 @@ class Annotator(ABC):
         &#34;&#34;&#34;
         pass
 
-    def reduce(self, results):
+    def reduce(self, results: Iterable[Any]) -&gt; Any:
         &#34;&#34;&#34;
         A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
@@ -143,10 +145,10 @@ class Annotator(ABC):
 
 
 class AnnotatorFunction(Annotator):
-    def __init__(self, funct):
+    def __init__(self, funct: Callable):
         self.funct = funct
 
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         return self.funct(doc, **kwargs)</code></pre>
 </details>
 </section>
@@ -171,7 +173,7 @@ inheritance.</p></div>
 </summary>
 <pre><code class="python">class Annotator(ABC):
     @abstractmethod
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         &#34;&#34;&#34;
         This method MUST get implemented in a concrete subclass to do the actual processing
         and annotation. It must accept a document and arbitrary keyword arguments and it must
@@ -199,31 +201,31 @@ inheritance.</p></div>
         &#34;&#34;&#34;
         raise Exception(&#34;This method must be implemented!&#34;)
 
-    def pipe(self, documents, **kwargs):
+    def pipe(self, documents: Iterable[Document], **kwargs):
         &#34;&#34;&#34;
         If this method gets overridden, it should take an iterable of documents and yield processed documents.
         This allows for batching, caching, and other optimizations over streams of documents.
         If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
 
         Args:
-            documents: an iterable over documents or (document, context) tuples if with_context=True
+            documents: an iterable over documents
             **kwargs: arbitrary other keyword arguments must be accepted
 
         Yields:
             processed documents
         &#34;&#34;&#34;
-        for el in documents:
-            if el is not None:
-                docordocs = self.__call__(el, **kwargs)
+        for document in documents:
+            if document is not None:
+                docordocs = self.__call__(document, **kwargs)
                 if docordocs is not None:
                     if isinstance(docordocs, list):
-                        for el in docordocs:
-                            if el is not None:
-                                yield el
+                        for doc in docordocs:
+                            if doc is not None:
+                                yield doc
                     else:
                         yield docordocs
 
-    def start(self):
+    def start(self) -&gt; None:
         &#34;&#34;&#34;
         A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
@@ -234,7 +236,7 @@ inheritance.</p></div>
         &#34;&#34;&#34;
         pass
 
-    def finish(self):
+    def finish(self) -&gt; Any:
         &#34;&#34;&#34;
         A method that gets called when processing ends, e.g. when all documents of a corpus
         have been processed. It should return some result for processing the whole batch of documents
@@ -245,7 +247,7 @@ inheritance.</p></div>
         &#34;&#34;&#34;
         pass
 
-    def reduce(self, results):
+    def reduce(self, results: Iterable[Any]) -&gt; Any:
         &#34;&#34;&#34;
         A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
@@ -291,7 +293,7 @@ inheritance.</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.processing.annotator.Annotator.__call__"><code class="name flex">
-<span>def <span class="ident">__call__</span></span>(<span>self, doc, **kwargs)</span>
+<span>def <span class="ident">__call__</span></span>(<span>self, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, **kwargs) ‑> Union[<a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, List[<a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>], NoneType]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This method MUST get implemented in a concrete subclass to do the actual processing
@@ -318,7 +320,7 @@ is important.</p>
 <p>a document, None, or a possibly empty list of documents</p></div>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.finish"><code class="name flex">
-<span>def <span class="ident">finish</span></span>(<span>self)</span>
+<span>def <span class="ident">finish</span></span>(<span>self) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A method that gets called when processing ends, e.g. when all documents of a corpus
@@ -328,7 +330,7 @@ it has seen - that result may be None.</p>
 <p>The overall result of processing all documents or None</p></div>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.pipe"><code class="name flex">
-<span>def <span class="ident">pipe</span></span>(<span>self, documents, **kwargs)</span>
+<span>def <span class="ident">pipe</span></span>(<span>self, documents: Iterable[<a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>If this method gets overridden, it should take an iterable of documents and yield processed documents.
@@ -337,7 +339,7 @@ If with_context is True, then the documents parameter should be an iterable over
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>documents</code></strong></dt>
-<dd>an iterable over documents or (document, context) tuples if with_context=True</dd>
+<dd>an iterable over documents</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>arbitrary other keyword arguments must be accepted</dd>
 </dl>
@@ -345,7 +347,7 @@ If with_context is True, then the documents parameter should be an iterable over
 <p>processed documents</p></div>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.reduce"><code class="name flex">
-<span>def <span class="ident">reduce</span></span>(<span>self, results)</span>
+<span>def <span class="ident">reduce</span></span>(<span>self, results: Iterable[Any]) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A method that should know how to combine the results passed on in some collection into a
@@ -367,7 +369,7 @@ not call reduce, but if it does, reduce should accept None or an iterator of all
 <p>The combined overall result or None if there are no individual results</p></div>
 </dd>
 <dt id="gatenlp.processing.annotator.Annotator.start"><code class="name flex">
-<span>def <span class="ident">start</span></span>(<span>self)</span>
+<span>def <span class="ident">start</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A method that gets called when processing starts, e.g. before the first document in
@@ -380,7 +382,7 @@ can be reused even if the same annotator instance is run several times over docu
 </dd>
 <dt id="gatenlp.processing.annotator.AnnotatorFunction"><code class="flex name class">
 <span>class <span class="ident">AnnotatorFunction</span></span>
-<span>(</span><span>funct)</span>
+<span>(</span><span>funct: Callable)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -390,10 +392,10 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnnotatorFunction(Annotator):
-    def __init__(self, funct):
+    def __init__(self, funct: Callable):
         self.funct = funct
 
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         return self.funct(doc, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
