@@ -4,14 +4,16 @@ Any callable that can be called by passing a document can be used as an annotato
 but the base class "Annotator" defined in here is designed to allow for a more
 flexible approach to do things.
 """
+from typing import Union, List, Iterable, Any, Callable
 from abc import ABC, abstractmethod
+from gatenlp import Document
 
 __pdoc__ = {"Annotator.__call__": True}
 
 
 class Annotator(ABC):
     @abstractmethod
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -> Union[Document, List[Document], None]:
         """
         This method MUST get implemented in a concrete subclass to do the actual processing
         and annotation. It must accept a document and arbitrary keyword arguments and it must
@@ -39,31 +41,31 @@ class Annotator(ABC):
         """
         raise Exception("This method must be implemented!")
 
-    def pipe(self, documents, **kwargs):
+    def pipe(self, documents: Iterable[Document], **kwargs):
         """
         If this method gets overridden, it should take an iterable of documents and yield processed documents.
         This allows for batching, caching, and other optimizations over streams of documents.
         If with_context is True, then the documents parameter should be an iterable over tuples (document, context).
 
         Args:
-            documents: an iterable over documents or (document, context) tuples if with_context=True
+            documents: an iterable over documents
             **kwargs: arbitrary other keyword arguments must be accepted
 
         Yields:
             processed documents
         """
-        for el in documents:
-            if el is not None:
-                docordocs = self.__call__(el, **kwargs)
+        for document in documents:
+            if document is not None:
+                docordocs = self.__call__(document, **kwargs)
                 if docordocs is not None:
                     if isinstance(docordocs, list):
-                        for el in docordocs:
-                            if el is not None:
-                                yield el
+                        for doc in docordocs:
+                            if doc is not None:
+                                yield doc
                     else:
                         yield docordocs
 
-    def start(self):
+    def start(self) -> None:
         """
         A method that gets called when processing starts, e.g. before the first document in
         corpus gets processed. This is invoked by an executor to initialize processing a batch
@@ -74,7 +76,7 @@ class Annotator(ABC):
         """
         pass
 
-    def finish(self):
+    def finish(self) -> Any:
         """
         A method that gets called when processing ends, e.g. when all documents of a corpus
         have been processed. It should return some result for processing the whole batch of documents
@@ -85,7 +87,7 @@ class Annotator(ABC):
         """
         pass
 
-    def reduce(self, results):
+    def reduce(self, results: Iterable[Any]) -> Any:
         """
         A method that should know how to combine the results passed on in some collection into a
         single result. This method should behave like a static method, i.e. not make use of any
@@ -110,8 +112,8 @@ class Annotator(ABC):
 
 
 class AnnotatorFunction(Annotator):
-    def __init__(self, funct):
+    def __init__(self, funct: Callable):
         self.funct = funct
 
-    def __call__(self, doc, **kwargs):
+    def __call__(self, doc: Document, **kwargs) -> Union[Document, List[Document], None]:
         return self.funct(doc, **kwargs)

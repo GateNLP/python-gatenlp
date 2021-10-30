@@ -586,7 +586,6 @@ class TokenGazetteer(GazetteerAnnotator):
         Yields:
             list of matches
         """
-        logger = self.logger
         if longest_only is None:
             longest_only = self.longest_only
         if skip_longest is None:
@@ -626,10 +625,7 @@ class TokenGazetteer(GazetteerAnnotator):
             else:
                 idx += 1
 
-    def __call__(
-        self,
-        doc: Document,
-    ):
+    def __call__(self, doc: Document, **kwargs) -> Document:
         """
         Apply the gazetteer to the document and annotate all matches.
 
@@ -702,7 +698,7 @@ class TokenGazetteer(GazetteerAnnotator):
                 ret.append(new)
             return ret
         else:
-            return None
+            return default
 
     def __getitem__(self, tokenstrings):
         ret = self.get(tokenstrings)

@@ -6,6 +6,7 @@ from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 # note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
 from recordclass import structclass
 from gatenlp.utils import init_logger
+from gatenlp import Document
 from gatenlp.processing.gazetteer.base import GazetteerAnnotator
 import re
 
@@ -672,7 +673,7 @@ class StringGazetteer(GazetteerAnnotator):
             offsets.update(list(range(ann.start, ann.end)))
         return offsets
 
-    def __call__(self, doc):
+    def __call__(self, doc: Document, **kwargs) -> Union[Document, List[Document], None]:
         """
         Apply the gazetteer to the document and annotate all matches.
 
