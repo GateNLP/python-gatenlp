@@ -63,7 +63,7 @@ class TokenGazetteerNode(GazetteerAnnotator):
 
     def __repr__(self):
         nodes = TokenGazetteerNode.dict_repr(self.nodes)
-        return f"Node(is_match={self.is_match},data={self.data},nodes={nodes})"
+        return f"Node(is_match={self.is_match},data={self.data},listidx={self.listidx},nodes={nodes})"
 
 
 def tokentext_getter(token, doc=None, feature=None):
@@ -165,6 +165,7 @@ class TokenGazetteer(GazetteerAnnotator):
         self.listtypes = []
         self.logger = init_logger(__name__)
         # self.logger.setLevel(logging.DEBUG)
+        self.size = 0
         if source is not None:
             self.append(source, source_fmt=source_fmt,
                         list_features=list_features, list_type=list_type, source_sep=source_sep,
@@ -245,7 +246,7 @@ class TokenGazetteer(GazetteerAnnotator):
                         this_outtype = anntype
                     # read in the actual list
                     listfile = os.path.join(os.path.dirname(source), listFile)
-                    self.logger.info(f"Reading list file {listfile}")
+                    self.logger.debug(f"Reading list file {listfile}")
                     with open(listfile, "rt", encoding=source_encoding) as inlistfile:
                         self.listtypes.append(this_outtype)
                         self.listfeatures.append(this_listfeatures)
@@ -314,11 +315,7 @@ class TokenGazetteer(GazetteerAnnotator):
             entry = [entry]
         node = None
         i = 0
-        for (
-            token
-        ) in (
-            entry
-        ):  # each "token" is a string or None, where None indicates a separator
+        for token in entry:
             if self.mapfunc is not None:
                 token = self.mapfunc(token)
             if self.ignorefunc is not None and self.ignorefunc(token):
@@ -335,6 +332,7 @@ class TokenGazetteer(GazetteerAnnotator):
                     node = node.nodes[token]
             i += 1
         node.is_match = True
+        self.size += 1
         # For now: always store parallel lists of data and listidxs, with None elements if necessary.
         if data is not None or listidx is not None:
             if node.data is None:
@@ -667,9 +665,7 @@ class TokenGazetteer(GazetteerAnnotator):
                     ]  # end is the index after the last match!!
                     startoffset = starttoken.start
                     endoffset = endtoken.end
-                    if (
-                        match.data
-                    ):  # TODO: for now data and listidx are either both None or lists with same len
+                    if match.data:  # TODO: for now data and listidx are either both None or lists with same len
                         for data, listidx in zip(match.data, match.listidx):
                             outtype = self.outtype
                             feats = {}
@@ -685,3 +681,38 @@ class TokenGazetteer(GazetteerAnnotator):
                     else:
                         outset.add(startoffset, endoffset, self.outtype)
         return doc
+
+    def get(self, tokenstrings, default=None):
+        if isinstance(tokenstrings, str):
+            tokenstrings = [tokenstrings]
+        node = self.nodes
+        for idx, tokenstring in enumerate(tokenstrings):
+            if idx == 0:
+                node = node.get(tokenstring)   # get from defaultdict
+            else:
+                node = node.nodes.get(tokenstring)   # get from TokenGazetteerNode nodes
+            if node is None:
+                return None
+        if node.is_match:
+            ret = []
+            assert len(node.data) == len(node.listidx)
+            for d, i in zip(node.data, node.listidx):
+                new = d.copy()
+                new.update(self.listfeatures[i])
+                ret.append(new)
+            return ret
+        else:
+            return None
+
+    def __getitem__(self, tokenstrings):
+        ret = self.get(tokenstrings)
+        if ret is None:
+            raise KeyError(tokenstrings)
+        return ret
+
+    def __contains__(self, tokenstrings):
+        ret = self.get(tokenstrings)
+        return ret is not None
+
+    def __len__(self):
+        return self.size
