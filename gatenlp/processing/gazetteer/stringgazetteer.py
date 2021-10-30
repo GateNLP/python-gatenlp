@@ -98,7 +98,7 @@ class StringGazetteer(GazetteerAnnotator):
             list_features: Optional[Dict] = None,
             list_type: Optional[str] = None,
             list_nr: Optional[int] = None,
-            ws_clean: bool = False,
+            ws_clean: bool = True,
     ):
         """
         Create a String Gazetteer annotor.
@@ -194,7 +194,7 @@ class StringGazetteer(GazetteerAnnotator):
 
     def add(self, entry: Union[str, List[str]],
             data: Optional[Dict] = None, listidx: Optional[int] = None,
-            ws_clean: bool = False,
+            ws_clean: bool = True,
             ):
         """
         Add a gazetteer entry or several entries if "entry" is not a string but iterable and store its data.
@@ -258,7 +258,7 @@ class StringGazetteer(GazetteerAnnotator):
                list_features: Optional[Dict] = None,
                list_type: Optional[str] = None,
                list_nr: Optional[int] = None,
-               ws_clean: bool = False,
+               ws_clean: bool = True,
                ):
         """
         Append gazetteer entries from the given source to the gazetteer. Depending on the format this can load
@@ -376,7 +376,10 @@ class StringGazetteer(GazetteerAnnotator):
         else:
             return self.split_chars_func(char)
 
-    def match(self, text: str, start: int = 0, end: Union[None, int] = None, longest_only: Union[None, bool] = None,
+    def match(self, text: str,
+              start: int = 0,
+              end: Union[None, int] = None,
+              longest_only: Union[None, bool] = None,
               start_offsets: Union[List, Set, None] = None,
               end_offsets: Union[List, Set, None] = None,
               ws_offsets: Union[List, Set, None] = None,
@@ -388,7 +391,7 @@ class StringGazetteer(GazetteerAnnotator):
         Args:
             text: the text/string in which to find matches
             start: the offset where the match must start
-            end: if not None, the offset beyond which a match is not allowed to end
+            end: if not None, the maximum allowed end offset (one more than the offset of the last character)
             longest_only:  if True, return only the longest matches, otherwise return all matches.
                 If None, uses the setting from init.
             start_offsets: if not None, should be a list or set of possible start offsets. This function will only
@@ -412,11 +415,11 @@ class StringGazetteer(GazetteerAnnotator):
         if start is None:
             start = 0
         if end is None:
-            end = lentext - 1
+            end = lentext
         if start >= lentext:
             return matches, 0
-        if end >= lentext:
-            end = lentext - 1
+        if end > lentext:
+            end = lentext
         if start > end:
             return matches, 0
         if start_offsets is not None and start not in start_offsets:
@@ -425,10 +428,9 @@ class StringGazetteer(GazetteerAnnotator):
         longest_len = 0
         longest_match = None
         node = self._root
-        # if the current character is whitespace, map it to the character we use to represent whitespace in the
-        # the gazetteer
+        # if the current character is whitespace, no match is possible since a match cannot start with WS
         if self.is_ws(cur_chr, start, ws_offsets):
-            cur_chr = " "
+            return matches, 0
         node = node.children.get(cur_chr)
         cur_off = start
         while node is not None:
@@ -458,11 +460,11 @@ class StringGazetteer(GazetteerAnnotator):
             do_break = False
             while True:
                 cur_off += 1
-                cur_chr = self.map_chars_func(text[cur_off])
                 # ok we have reached the end
                 if cur_off >= end:
                     do_break = True
                     break
+                cur_chr = self.map_chars_func(text[cur_off])
                 # we have reached a split
                 if self.is_split(cur_chr, cur_off, split_offsets):
                     do_break = True
@@ -484,7 +486,8 @@ class StringGazetteer(GazetteerAnnotator):
         return matches, longest_len
 
     def find(self,
-             text: str, start: int = 0, end: Union[None, int] = None,
+             text: str, start: int = 0,
+             end: Union[None, int] = None,
              longest_only: Union[None, bool] = None,
              start_offsets: Union[List, Set, None] = None,
              end_offsets: Union[List, Set, None] = None,
@@ -512,8 +515,8 @@ class StringGazetteer(GazetteerAnnotator):
             longest_only = self.longest_only
         offset = start
         if end is None:
-            end = len(text) - 1
-        while offset <= end:
+            end = len(text)
+        while offset < end:
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
                 continue
@@ -564,8 +567,8 @@ class StringGazetteer(GazetteerAnnotator):
             longest_only = self.longest_only
         offset = start
         if end is None:
-            end = len(text) - 1
-        while offset <= end:
+            end = len(text)
+        while offset < end:
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
                 continue
@@ -586,7 +589,7 @@ class StringGazetteer(GazetteerAnnotator):
             if skip_longest:
                 offset = where + maxlen
             else:
-                offset += where + 1
+                offset = where + 1
         return
 
     def __setitem__(self, key, valuesandidxs: Tuple[Union[List[Dict], Dict], Union[List[int], int]]):
@@ -633,7 +636,7 @@ class StringGazetteer(GazetteerAnnotator):
             A list of dicts or None.
         """
         node = self._get_node(item, create=False, raise_error=False)
-        if not node.is_match():
+        if node is None or not node.is_match():
             return default
         dicts, listidxs = node.data()
         assert len(dicts) == len(listidxs)

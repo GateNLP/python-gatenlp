@@ -1,3 +1,17 @@
+"""
+The following classes are imported into the gatenlp package by default: `gatenlp.span.Span`, `gatenlp.annotation.Annotation`,
+`gatenlp.annotation_set.AnnotationSet`, `gatenlp.changelog.ChangeLog`, `gatenlp.document.Document` as well
+as `GateNlpPr` and `interact` for the GATE Python plugin.
+
+Where to find other important classes:
+
+* corpora, document sources, document destinations: in `gatenlp.corpora`
+* `gatenlp.gateworker.gateworker.GateWorker`, `gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator` in `gatenlp.gateworker`
+* `gatenlp.lib_spacy.AnnSpacy` in `gatenlp.lib_spacy`
+* `gatenlp.lib_stanza.AnnStanza` in `gatenlp.lib_stanza`
+* TODO: include all the others!
+"""
+
 # NOTE: do not place a comment at the end of the version assignment
 # line since we parse that line in a shell script!
 # __version__ = "0.9.9"
