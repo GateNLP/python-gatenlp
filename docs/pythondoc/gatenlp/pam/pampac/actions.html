@@ -131,7 +131,7 @@ class Actions:
         Args:
             *actions: any number of actions to run.
         &#34;&#34;&#34;
-        self.actions = actions
+        self.actions = list(actions)
 
     def __call__(self, succ, context=None, location=None):
         &#34;&#34;&#34;
@@ -157,6 +157,19 @@ class Actions:
             for action in self.actions:
                 ret.append(action(succ, context=context, location=location))
             return ret
+
+    def add(self, action, tofront=False):
+        &#34;&#34;&#34;
+        Add an action to the list of existing actions.
+
+        Args:
+            action: the action to add
+            tofront: if True, add as first instead of last action
+        &#34;&#34;&#34;
+        if tofront:
+            self.actions.insert(0, action)
+        else:
+            self.actions.append(action)
 
 
 class AddAnn:
@@ -472,7 +485,7 @@ class RemoveAnn:
         Args:
             *actions: any number of actions to run.
         &#34;&#34;&#34;
-        self.actions = actions
+        self.actions = list(actions)
 
     def __call__(self, succ, context=None, location=None):
         &#34;&#34;&#34;
@@ -497,8 +510,37 @@ class RemoveAnn:
             ret = []
             for action in self.actions:
                 ret.append(action(succ, context=context, location=location))
-            return ret</code></pre>
+            return ret
+
+    def add(self, action, tofront=False):
+        &#34;&#34;&#34;
+        Add an action to the list of existing actions.
+
+        Args:
+            action: the action to add
+            tofront: if True, add as first instead of last action
+        &#34;&#34;&#34;
+        if tofront:
+            self.actions.insert(0, action)
+        else:
+            self.actions.append(action)</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.pam.pampac.actions.Actions.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, action, tofront=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add an action to the list of existing actions.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>action</code></strong></dt>
+<dd>the action to add</dd>
+<dt><strong><code>tofront</code></strong></dt>
+<dd>if True, add as first instead of last action</dd>
+</dl></div>
+</dd>
+</dl>
 </dd>
 <dt id="gatenlp.pam.pampac.actions.AddAnn"><code class="flex name class">
 <span>class <span class="ident">AddAnn</span></span>
@@ -932,6 +974,9 @@ is created.</dd>
 <ul>
 <li>
 <h4><code><a title="gatenlp.pam.pampac.actions.Actions" href="#gatenlp.pam.pampac.actions.Actions">Actions</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.pam.pampac.actions.Actions.add" href="#gatenlp.pam.pampac.actions.Actions.add">add</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.pam.pampac.actions.AddAnn" href="#gatenlp.pam.pampac.actions.AddAnn">AddAnn</a></code></h4>

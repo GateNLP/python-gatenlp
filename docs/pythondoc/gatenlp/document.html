@@ -37,6 +37,7 @@ features and annotation sets.
 from typing import KeysView, Callable, Union, List
 import logging
 import importlib
+from typing import Iterable
 import copy as lib_copy
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
@@ -1012,6 +1013,67 @@ class Document:
         self._annotation_sets[name] = annset
         annset._owner_doc = self
 
+    @staticmethod
+    def _edit_text(oldtext, edits):
+        &#34;&#34;&#34;
+        Edit helper method: given some old text, applies the edit or edits and returns the changed text.
+
+        Args:
+            oldtext: the text to edit
+            edits: a single edit (start, end, replacementtext) or a list of such edits. The list must be sorted by
+                starting offset.
+
+        Returns: the new changed text
+        &#34;&#34;&#34;
+        # note: all the offsets in the edits refer to the current text, so we cannot simply apply one edit
+        # after the other. Instead, we collect all the text snippets we need and create the final text from them
+        snippets = []
+        lastoff = 0
+        for edit in edits:
+            start, end, newtext = edit
+            if end &lt; start:
+                raise Exception(f&#34;Edit ({start}, {end}, {newtext}): end offset smaller than start offset&#34;)
+            if start &gt; lastoff:
+                snippets.append(oldtext[lastoff:start])
+            elif start &lt; lastoff:
+                raise Exception(f&#34;Edits overlap or not sorted: ({start}, {end}, {newtext})&#34;)
+            if len(newtext) &gt; 0:
+                snippets.append(newtext)
+            lastoff = end
+        if lastoff &lt; len(oldtext):
+            snippets.append(oldtext[lastoff:])
+        newtext = &#34;&#34;.join(snippets)
+        return newtext
+
+    def edit(self, edits, affected_strategy=&#34;keepadapt&#34;):
+        &#34;&#34;&#34;
+        Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+        assume it is a single edit, Otherwise assume it is an iterable of edits.
+        An edit is a tuple (start, end, newstr) giving the old offset range and the string which
+        replaces that range. NOTE: no two edit offset ranges may
+        overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+        and terrible changes. The method does not check for edit spans to not overlap!
+
+        This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+        ends within an affected span, what happens depends on the affected_strategy:
+
+        delete_all: remove any annotation where the start and/or end offset lies between the from/to offsets of
+            the edit
+        adapt: any start and/or end offset in between from/to is changed to the from or to offset
+        keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+            new span, otherwise adapted to from/to.
+
+        Args:
+            edits: single edit or iterable of edits
+            affected_strategy: one of the following strategies: delete, adapt, keepadapt
+        &#34;&#34;&#34;
+        assert affected_strategy in [&#34;delete_all&#34;, &#34;adapt&#34;, &#34;keepadapt&#34;]
+        if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
+            edits = [edits]
+        edits.sort(key=lambda x: x[0])
+        self._text = Document._edit_text(self._text, edits)
+        for annset in self._annotation_sets.values():
+            annset._edit(edits, affected_strategy=affected_strategy)
 
 # class MultiDocument(Document):
 #     &#34;&#34;&#34;
@@ -2128,7 +2190,69 @@ offsets accordingly)</li>
                 if ann.end &gt; mylen:
                     raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
         self._annotation_sets[name] = annset
-        annset._owner_doc = self</code></pre>
+        annset._owner_doc = self
+
+    @staticmethod
+    def _edit_text(oldtext, edits):
+        &#34;&#34;&#34;
+        Edit helper method: given some old text, applies the edit or edits and returns the changed text.
+
+        Args:
+            oldtext: the text to edit
+            edits: a single edit (start, end, replacementtext) or a list of such edits. The list must be sorted by
+                starting offset.
+
+        Returns: the new changed text
+        &#34;&#34;&#34;
+        # note: all the offsets in the edits refer to the current text, so we cannot simply apply one edit
+        # after the other. Instead, we collect all the text snippets we need and create the final text from them
+        snippets = []
+        lastoff = 0
+        for edit in edits:
+            start, end, newtext = edit
+            if end &lt; start:
+                raise Exception(f&#34;Edit ({start}, {end}, {newtext}): end offset smaller than start offset&#34;)
+            if start &gt; lastoff:
+                snippets.append(oldtext[lastoff:start])
+            elif start &lt; lastoff:
+                raise Exception(f&#34;Edits overlap or not sorted: ({start}, {end}, {newtext})&#34;)
+            if len(newtext) &gt; 0:
+                snippets.append(newtext)
+            lastoff = end
+        if lastoff &lt; len(oldtext):
+            snippets.append(oldtext[lastoff:])
+        newtext = &#34;&#34;.join(snippets)
+        return newtext
+
+    def edit(self, edits, affected_strategy=&#34;keepadapt&#34;):
+        &#34;&#34;&#34;
+        Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+        assume it is a single edit, Otherwise assume it is an iterable of edits.
+        An edit is a tuple (start, end, newstr) giving the old offset range and the string which
+        replaces that range. NOTE: no two edit offset ranges may
+        overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+        and terrible changes. The method does not check for edit spans to not overlap!
+
+        This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+        ends within an affected span, what happens depends on the affected_strategy:
+
+        delete_all: remove any annotation where the start and/or end offset lies between the from/to offsets of
+            the edit
+        adapt: any start and/or end offset in between from/to is changed to the from or to offset
+        keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+            new span, otherwise adapted to from/to.
+
+        Args:
+            edits: single edit or iterable of edits
+            affected_strategy: one of the following strategies: delete, adapt, keepadapt
+        &#34;&#34;&#34;
+        assert affected_strategy in [&#34;delete_all&#34;, &#34;adapt&#34;, &#34;keepadapt&#34;]
+        if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
+            edits = [edits]
+        edits.sort(key=lambda x: x[0])
+        self._text = Document._edit_text(self._text, edits)
+        for annset in self._annotation_sets.values():
+            annset._edit(edits, affected_strategy=affected_strategy)</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -2402,6 +2526,31 @@ annotations in the copy are restricted to the given set.</p>
 <h2 id="returns">Returns</h2>
 <p>a deep copy of the document.</p></div>
 </dd>
+<dt id="gatenlp.document.Document.edit"><code class="name flex">
+<span>def <span class="ident">edit</span></span>(<span>self, edits, affected_strategy='keepadapt')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+assume it is a single edit, Otherwise assume it is an iterable of edits.
+An edit is a tuple (start, end, newstr) giving the old offset range and the string which
+replaces that range. NOTE: no two edit offset ranges may
+overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+and terrible changes. The method does not check for edit spans to not overlap!</p>
+<p>This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+ends within an affected span, what happens depends on the affected_strategy:</p>
+<p>delete_all: remove any annotation where the start and/or end offset lies between the from/to offsets of
+the edit
+adapt: any start and/or end offset in between from/to is changed to the from or to offset
+keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+new span, otherwise adapted to from/to.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>edits</code></strong></dt>
+<dd>single edit or iterable of edits</dd>
+<dt><strong><code>affected_strategy</code></strong></dt>
+<dd>one of the following strategies: delete, adapt, keepadapt</dd>
+</dl></div>
+</dd>
 <dt id="gatenlp.document.Document.remove_annset"><code class="name flex">
 <span>def <span class="ident">remove_annset</span></span>(<span>self, name: str)</span>
 </code></dt>
@@ -2575,6 +2724,7 @@ name or a list of type names.</dd>
 <li><code><a title="gatenlp.document.Document.changelog" href="#gatenlp.document.Document.changelog">changelog</a></code></li>
 <li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
 <li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
+<li><code><a title="gatenlp.document.Document.edit" href="#gatenlp.document.Document.edit">edit</a></code></li>
 <li><code><a title="gatenlp.document.Document.features" href="#gatenlp.document.Document.features">features</a></code></li>
 <li><code><a title="gatenlp.document.Document.from_dict" href="#gatenlp.document.Document.from_dict">from_dict</a></code></li>
 <li><code><a title="gatenlp.document.Document.load" href="#gatenlp.document.Document.load">load</a></code></li>
