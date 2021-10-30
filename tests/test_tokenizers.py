@@ -28,18 +28,18 @@ class TestTokenizers01:
         doc = ntok(self.makedoc())
         assert doc.annset().with_type("Token").size == 14
         assert doc.annset().with_type("SpaceToken").size == 13
-        # same but specify outset name
-        ntok = NLTKTokenizer(nltk_tokenizer=TweetTokenizer, space_token_type="SpaceToken", out_set="OUT")
+        # same but specify outset_name
+        ntok = NLTKTokenizer(nltk_tokenizer=TweetTokenizer, space_token_type="SpaceToken", outset_name="OUT")
         doc = ntok(self.makedoc())
         assert doc.annset("OUT").with_type("Token").size == 14
         assert doc.annset("OUT").with_type("SpaceToken").size == 13
         # same but use NLTK tokenizer instance
-        ntok = NLTKTokenizer(nltk_tokenizer=TweetTokenizer(), space_token_type="SpaceToken", out_set="OUT")
+        ntok = NLTKTokenizer(nltk_tokenizer=TweetTokenizer(), space_token_type="SpaceToken", outset_name="OUT")
         doc = ntok(self.makedoc())
         assert doc.annset("OUT").with_type("Token").size == 14
         assert doc.annset("OUT").with_type("SpaceToken").size == 13
         # same but specify convenience function
-        ntok = NLTKTokenizer(nltk_tokenizer=casual_tokenize, space_token_type="SpaceToken", out_set="OUT")
+        ntok = NLTKTokenizer(nltk_tokenizer=casual_tokenize, space_token_type="SpaceToken", outset_name="OUT")
         doc = ntok(self.makedoc())
         assert doc.annset("OUT").with_type("Token").size == 14
         assert doc.annset("OUT").with_type("SpaceToken").size == 13
