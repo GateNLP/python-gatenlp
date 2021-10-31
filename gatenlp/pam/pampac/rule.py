@@ -45,7 +45,9 @@ class Rule(PampacParser):
             Success or failure of the parser
 
         """
-        return self.parser.parse(location, context)
+        ret = self.parser.parse(location, context)
+        # print(f"DEBUG: rule returning {ret}")
+        return ret
 
     def add_action(self, action, tofront=False):
         """

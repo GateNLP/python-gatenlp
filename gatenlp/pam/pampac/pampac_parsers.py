@@ -1494,9 +1494,13 @@ class N(PampacParser):  # pylint: disable=C0103
         self.until = until
         self.select = select
         self.name = name
+        assert min == int(min)
+        assert max == int(max)
+        assert self.min >= 0
+        assert self.max >= 1
+        assert self.min <= self.max
 
     def parse(self, location, context):
-        # print(f"!!!!!!!!!!!DEBUG: trying to match at {location}")
         start = location.text_location
         end = start
         if self.select != "all":
@@ -1539,6 +1543,7 @@ class N(PampacParser):  # pylint: disable=C0103
                                     name=self.name,
                                 )
                             )
+                        # print(f"DEBUG N: return success 1 {start}, {end} / {i}")
                         return Success(
                             Result(matches=allmatches, location=location, span=Span(start, end)),
                             context,
@@ -1553,8 +1558,11 @@ class N(PampacParser):  # pylint: disable=C0103
                         allmatches.append(matches_)
                     location = result.location
                     i += 1
+                    # print(f"DEBUG N, i now {i}")
                     if i == self.max:
+                        # print(f"DEBUG N: breaking as max = {self.max}")
                         break
+            # end while
             if self.until:
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
@@ -1580,6 +1588,7 @@ class N(PampacParser):  # pylint: disable=C0103
                 allmatches.append(
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
+            # print(f"DEBUG N: return success 2 {start}, {end} / {i}")
             return Success(
                 Result(matches=allmatches, location=location, span=Span(start, end)), context
             )

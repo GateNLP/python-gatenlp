@@ -4,7 +4,7 @@
 
 * add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
 * The [StringGazetteer](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/stringgazetteer.html) has been implemented 
-* The TokenGazetteer parameter names got changed to match the corresponding StringGazetteer names
+* The [TokenGazetteer]((https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/tokengazetteer.html) parameter names got changed to match the corresponding `StringGazetteer` names
 * ! the parameter name `out_set` in `gatenlp.processing.tokenizer` was changed to `outset_name` to be consistent with the name used elsewhere.
 * ! the parameter name `out_annset` in `gatenlp.processing.client` was changed to `outset_name` to be consistent with the name used elsewhere.
 

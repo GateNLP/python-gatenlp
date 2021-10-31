@@ -206,7 +206,7 @@ class PampacAnnotator(Annotator):
         """
 
         Args:
-            pampac: a Pampac instances
+            pampac: a Pampac instance
             ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
                 or a list of either annotation set names or tuples, where the first element is an annotation set
                 name and the second element is either a type name or a list of type names. E.g. `[("", "Token")]`

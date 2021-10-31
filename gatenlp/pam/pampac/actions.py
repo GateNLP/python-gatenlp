@@ -244,16 +244,20 @@ class AddAnn:
         if self.matchidx is None:
             for matchidx in range(len(succ[resultidx].matches)):
                 span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
+                # print(f"DEBUG: midx=None, running for {matchidx}, span={span}")
                 self._add4span(span, succ, context, location)
         else:
             span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
+            # print(f"DEBUG: running for {self.matchidx}, span={span}")
             self._add4span(span, succ, context, location)
 
     def __call__(self, succ, context=None, location=None):
         if self.resultidx is None:
             for resultidx in range(len(succ)):
+                # print(f"DEBUG: ridx=None, running for {resultidx}")
                 self._add4result(succ, resultidx, context, location)
         else:
+            # print(f"DEBUG: running for {self.resultidx}")
             self._add4result(succ, self.resultidx, context, location)
 
 
