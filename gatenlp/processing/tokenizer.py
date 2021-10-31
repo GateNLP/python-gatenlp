@@ -35,7 +35,7 @@ class NLTKTokenizer(Tokenizer):
     """
 
     def __init__(
-        self, nltk_tokenizer=None, outset_name="", token_type="Token", space_token_type=None
+        self, nltk_tokenizer=None, nltk_sent_tokenizer=None, outset_name="", token_type="Token", space_token_type=None
     ):
         """
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
@@ -47,6 +47,11 @@ class NLTKTokenizer(Tokenizer):
                 be possible to align the created token strings back to the original text. The created
                 token strings must not be modified from the original text e.g. " converted to `` or
                 similar. For this reason the standard NLTKWordTokenizer cannot be used.
+            nltk_sent_tokenizer: some NLTK tokenizers only work correctly if applied to each sentence
+                separately after the text is splitted into sentences. This allows to specify an NLTK
+                sentence splitter or a sentence splitting function to be run before the word tokenizer.
+                Note: the sentence tokenizer is only used if the tokenizer does not have the span_tokenize
+                function.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
         """
@@ -68,6 +73,10 @@ class NLTKTokenizer(Tokenizer):
                 self.tokenizer.span_tokenize("text")
             except Exception as ex:
                 self.has_span_tokenize = False
+        self.sent_tokenizer = nltk_sent_tokenizer
+        self.sent_is_function = False
+        if self.sent_tokenizer and isinstance(self.sent_tokenizer, types.FunctionType):
+            self.sent_is_function = True
         self.outset_name = outset_name
         self.token_type = token_type
         self.space_token_type = space_token_type
@@ -79,11 +88,21 @@ class NLTKTokenizer(Tokenizer):
             # this may return a generator, convert to list so we can reuse
             spans = list(self.tokenizer.span_tokenize(doc.text))
         else:
-            if self.is_function:
-                tks = self.tokenizer(doc.text)
+            if self.sent_tokenizer:
+                if self.sent_is_function:
+                    sents = self.sent_tokenizer(doc.text)
+                else:
+                    sents = self.sent_tokenizer.tokenize(doc.text)
             else:
-                tks = self.tokenizer.tokenize(doc.text)
-            spans = align_tokens(tks, doc.text)
+                sents = [doc.text]
+            if self.is_function:
+                tks = [self.tokenizer(s) for s in sents]
+            else:
+                tks = [self.tokenizer.tokenize(s) for s in sents]
+            flat_tks = []
+            for tk in tks:
+                flat_tks.extend(tk)
+            spans = align_tokens(flat_tks, doc.text)
         annset = doc.annset(self.outset_name)
         for span in spans:
             annset.add(span[0], span[1], self.token_type)

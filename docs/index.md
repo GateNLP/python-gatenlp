@@ -56,6 +56,7 @@ for running on your own computer.
 * Modules related to NLP processing:
     * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
     * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
+    * [Tokenizers](tokenizers) / [Tokenizers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [Notebook Download](tokenizers.ipyn)
     * [Gazetteers](gazetteers) / [Gazetteers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [Notebook Download](gazetteers.ipyn)
     * Complex Annotation Patterns for matching text and annotation sequences: 
       * [PAMPAC](pampac) / [PAMPAC Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [Notebook Download](pampac.ipynb)

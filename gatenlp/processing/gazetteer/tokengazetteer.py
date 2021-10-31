@@ -543,6 +543,8 @@ class TokenGazetteer(GazetteerAnnotator):
         if longest_only is None:
             longest_only = self.longest_only
         idx = fromidx
+        if idx is None:
+            idx = 0
         if toidx is None:
             toidx = len(tokens) - 1
         if endidx is None:
