@@ -11,8 +11,6 @@ Gazetteers make it easy to find matches in a document from a large list of gazet
 import os
 from gatenlp import Document
 from gatenlp.processing.gazetteer import TokenGazetteer, StringGazetteer
-from gatenlp.processing.tokenizer import NLTKTokenizer
-from nltk.tokenize import TreebankWordTokenizer
 ```
 
 ## StringGazetteer
@@ -494,25 +492,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#RDTRXTUSQG-wrapper { color: black !important; }</style>
-<div id="RDTRXTUSQG-wrapper">
+<div><style>#TWSPQQTLMJ-wrapper { color: black !important; }</style>
+<div id="TWSPQQTLMJ-wrapper">
 
 <div>
 <style>
-#RDTRXTUSQG-content {
+#TWSPQQTLMJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RDTRXTUSQG-row {
+.TWSPQQTLMJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RDTRXTUSQG-col {
+.TWSPQQTLMJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -522,23 +520,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.RDTRXTUSQG-hdr {
+.TWSPQQTLMJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RDTRXTUSQG-label {
+.TWSPQQTLMJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RDTRXTUSQG-input {
+.TWSPQQTLMJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RDTRXTUSQG-popup {
+#TWSPQQTLMJ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -553,43 +551,43 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.RDTRXTUSQG-selection {
+.TWSPQQTLMJ-selection {
     margin-bottom: 5px;
 }
 
-.RDTRXTUSQG-featuretable {
+.TWSPQQTLMJ-featuretable {
     margin-top: 10px;
 }
 
-.RDTRXTUSQG-fname {
+.TWSPQQTLMJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RDTRXTUSQG-fvalue {
+.TWSPQQTLMJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RDTRXTUSQG-content">
-        <div id="RDTRXTUSQG-popup" style="display: none;">
+  <div id="TWSPQQTLMJ-content">
+        <div id="TWSPQQTLMJ-popup" style="display: none;">
         </div>
-        <div class="RDTRXTUSQG-row" id="RDTRXTUSQG-row1" style="max-height: 20em; min-height:5em;">
-            <div id="RDTRXTUSQG-text-wrapper" class="RDTRXTUSQG-col" style="width:70%;">
-                <div class="RDTRXTUSQG-hdr" id="RDTRXTUSQG-dochdr"></div>
-                <div id="RDTRXTUSQG-text" style="">
+        <div class="TWSPQQTLMJ-row" id="TWSPQQTLMJ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="TWSPQQTLMJ-text-wrapper" class="TWSPQQTLMJ-col" style="width:70%;">
+                <div class="TWSPQQTLMJ-hdr" id="TWSPQQTLMJ-dochdr"></div>
+                <div id="TWSPQQTLMJ-text" style="">
                 </div>
             </div>
-            <div id="RDTRXTUSQG-chooser" class="RDTRXTUSQG-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="TWSPQQTLMJ-chooser" class="TWSPQQTLMJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RDTRXTUSQG-row" id="RDTRXTUSQG-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="RDTRXTUSQG-details" class="RDTRXTUSQG-col" style="width:100%; border-top-width: 0px;">
+        <div class="TWSPQQTLMJ-row" id="TWSPQQTLMJ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="TWSPQQTLMJ-details" class="TWSPQQTLMJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let RDTRXTUSQG_data = {"annotation_sets": {}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(RDTRXTUSQG_data), "RDTRXTUSQG-").init();
+    let TWSPQQTLMJ_data = {"annotation_sets": {}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(TWSPQQTLMJ_data), "TWSPQQTLMJ-").init();
     </script>
   </div>
 
@@ -701,25 +699,25 @@ doc1
 
 
 
-<div><style>#AIGEQLEFSJ-wrapper { color: black !important; }</style>
-<div id="AIGEQLEFSJ-wrapper">
+<div><style>#LVPWBJOSVH-wrapper { color: black !important; }</style>
+<div id="LVPWBJOSVH-wrapper">
 
 <div>
 <style>
-#AIGEQLEFSJ-content {
+#LVPWBJOSVH-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.AIGEQLEFSJ-row {
+.LVPWBJOSVH-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.AIGEQLEFSJ-col {
+.LVPWBJOSVH-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -729,23 +727,23 @@ doc1
     overflow-y: auto;
 }
 
-.AIGEQLEFSJ-hdr {
+.LVPWBJOSVH-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.AIGEQLEFSJ-label {
+.LVPWBJOSVH-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.AIGEQLEFSJ-input {
+.LVPWBJOSVH-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#AIGEQLEFSJ-popup {
+#LVPWBJOSVH-popup {
     display: none;
     color: black;
     position: absolute;
@@ -760,43 +758,43 @@ doc1
     overflow: auto;
 }
 
-.AIGEQLEFSJ-selection {
+.LVPWBJOSVH-selection {
     margin-bottom: 5px;
 }
 
-.AIGEQLEFSJ-featuretable {
+.LVPWBJOSVH-featuretable {
     margin-top: 10px;
 }
 
-.AIGEQLEFSJ-fname {
+.LVPWBJOSVH-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.AIGEQLEFSJ-fvalue {
+.LVPWBJOSVH-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="AIGEQLEFSJ-content">
-        <div id="AIGEQLEFSJ-popup" style="display: none;">
+  <div id="LVPWBJOSVH-content">
+        <div id="LVPWBJOSVH-popup" style="display: none;">
         </div>
-        <div class="AIGEQLEFSJ-row" id="AIGEQLEFSJ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="AIGEQLEFSJ-text-wrapper" class="AIGEQLEFSJ-col" style="width:70%;">
-                <div class="AIGEQLEFSJ-hdr" id="AIGEQLEFSJ-dochdr"></div>
-                <div id="AIGEQLEFSJ-text" style="">
+        <div class="LVPWBJOSVH-row" id="LVPWBJOSVH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="LVPWBJOSVH-text-wrapper" class="LVPWBJOSVH-col" style="width:70%;">
+                <div class="LVPWBJOSVH-hdr" id="LVPWBJOSVH-dochdr"></div>
+                <div id="LVPWBJOSVH-text" style="">
                 </div>
             </div>
-            <div id="AIGEQLEFSJ-chooser" class="AIGEQLEFSJ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="LVPWBJOSVH-chooser" class="LVPWBJOSVH-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="AIGEQLEFSJ-row" id="AIGEQLEFSJ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="AIGEQLEFSJ-details" class="AIGEQLEFSJ-col" style="width:100%; border-top-width: 0px;">
+        <div class="LVPWBJOSVH-row" id="LVPWBJOSVH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="LVPWBJOSVH-details" class="LVPWBJOSVH-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let AIGEQLEFSJ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Lookup", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 7, "end": 12, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 43, "end": 45, "id": 2, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Lookup", "start": 62, "end": 76, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 99, "end": 111, "id": 5, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Lookup", "start": 106, "end": 111, "id": 6, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Lookup", "start": 120, "end": 124, "id": 7, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 126, "end": 138, "id": 8, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 131, "end": 138, "id": 9, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 192, "end": 203, "id": 10, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Lookup", "start": 220, "end": 224, "id": 11, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Lookup", "start": 275, "end": 279, "id": 12, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 290, "end": 309, "id": 13, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 304, "end": 309, "id": 14, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 342, "end": 346, "id": 15, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 358, "end": 363, "id": 16, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}], "next_annid": 17}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(AIGEQLEFSJ_data), "AIGEQLEFSJ-").init();
+    let LVPWBJOSVH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Lookup", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 7, "end": 12, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 43, "end": 45, "id": 2, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Lookup", "start": 62, "end": 76, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 99, "end": 111, "id": 5, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Lookup", "start": 106, "end": 111, "id": 6, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Lookup", "start": 120, "end": 124, "id": 7, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 126, "end": 138, "id": 8, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 131, "end": 138, "id": 9, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 192, "end": 203, "id": 10, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Lookup", "start": 220, "end": 224, "id": 11, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Lookup", "start": 275, "end": 279, "id": 12, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 290, "end": 309, "id": 13, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 304, "end": 309, "id": 14, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 342, "end": 346, "id": 15, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Lookup", "start": 358, "end": 363, "id": 16, "features": {"type": "country", "url": "https://en.wikipedia.org/wiki/Iran"}}], "next_annid": 17}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(LVPWBJOSVH_data), "LVPWBJOSVH-").init();
     </script>
   </div>
 
@@ -853,25 +851,25 @@ doc2
 
 
 
-<div><style>#IYXGQMYVSN-wrapper { color: black !important; }</style>
-<div id="IYXGQMYVSN-wrapper">
+<div><style>#NCAARBVOGO-wrapper { color: black !important; }</style>
+<div id="NCAARBVOGO-wrapper">
 
 <div>
 <style>
-#IYXGQMYVSN-content {
+#NCAARBVOGO-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.IYXGQMYVSN-row {
+.NCAARBVOGO-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.IYXGQMYVSN-col {
+.NCAARBVOGO-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -881,23 +879,23 @@ doc2
     overflow-y: auto;
 }
 
-.IYXGQMYVSN-hdr {
+.NCAARBVOGO-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.IYXGQMYVSN-label {
+.NCAARBVOGO-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.IYXGQMYVSN-input {
+.NCAARBVOGO-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#IYXGQMYVSN-popup {
+#NCAARBVOGO-popup {
     display: none;
     color: black;
     position: absolute;
@@ -912,43 +910,43 @@ doc2
     overflow: auto;
 }
 
-.IYXGQMYVSN-selection {
+.NCAARBVOGO-selection {
     margin-bottom: 5px;
 }
 
-.IYXGQMYVSN-featuretable {
+.NCAARBVOGO-featuretable {
     margin-top: 10px;
 }
 
-.IYXGQMYVSN-fname {
+.NCAARBVOGO-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.IYXGQMYVSN-fvalue {
+.NCAARBVOGO-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="IYXGQMYVSN-content">
-        <div id="IYXGQMYVSN-popup" style="display: none;">
+  <div id="NCAARBVOGO-content">
+        <div id="NCAARBVOGO-popup" style="display: none;">
         </div>
-        <div class="IYXGQMYVSN-row" id="IYXGQMYVSN-row1" style="max-height: 20em; min-height:5em;">
-            <div id="IYXGQMYVSN-text-wrapper" class="IYXGQMYVSN-col" style="width:70%;">
-                <div class="IYXGQMYVSN-hdr" id="IYXGQMYVSN-dochdr"></div>
-                <div id="IYXGQMYVSN-text" style="">
+        <div class="NCAARBVOGO-row" id="NCAARBVOGO-row1" style="max-height: 20em; min-height:5em;">
+            <div id="NCAARBVOGO-text-wrapper" class="NCAARBVOGO-col" style="width:70%;">
+                <div class="NCAARBVOGO-hdr" id="NCAARBVOGO-dochdr"></div>
+                <div id="NCAARBVOGO-text" style="">
                 </div>
             </div>
-            <div id="IYXGQMYVSN-chooser" class="IYXGQMYVSN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="NCAARBVOGO-chooser" class="NCAARBVOGO-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="IYXGQMYVSN-row" id="IYXGQMYVSN-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="IYXGQMYVSN-details" class="IYXGQMYVSN-col" style="width:100%; border-top-width: 0px;">
+        <div class="NCAARBVOGO-row" id="NCAARBVOGO-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="NCAARBVOGO-details" class="NCAARBVOGO-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let IYXGQMYVSN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Person", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 7, "end": 12, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 43, "end": 45, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 62, "end": 76, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 72, "end": 76, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Country", "start": 73, "end": 75, "id": 5, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 99, "end": 111, "id": 6, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 106, "end": 111, "id": 7, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 120, "end": 124, "id": 8, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Country", "start": 121, "end": 123, "id": 9, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 126, "end": 138, "id": 10, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Person", "start": 131, "end": 138, "id": 11, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Country", "start": 192, "end": 203, "id": 12, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 220, "end": 224, "id": 13, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 275, "end": 279, "id": 14, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 290, "end": 309, "id": 15, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 304, "end": 309, "id": 16, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 328, "end": 330, "id": 17, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Country", "start": 342, "end": 346, "id": 18, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 358, "end": 363, "id": 19, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Person", "start": 372, "end": 384, "id": 20, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 379, "end": 384, "id": 21, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 407, "end": 418, "id": 22, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}], "next_annid": 23}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(IYXGQMYVSN_data), "IYXGQMYVSN-").init();
+    let NCAARBVOGO_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Person", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 7, "end": 12, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 43, "end": 45, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 62, "end": 76, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 72, "end": 76, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Country", "start": 73, "end": 75, "id": 5, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 99, "end": 111, "id": 6, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 106, "end": 111, "id": 7, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 120, "end": 124, "id": 8, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Country", "start": 121, "end": 123, "id": 9, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 126, "end": 138, "id": 10, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Person", "start": 131, "end": 138, "id": 11, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Country", "start": 192, "end": 203, "id": 12, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 220, "end": 224, "id": 13, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 275, "end": 279, "id": 14, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 290, "end": 309, "id": 15, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 304, "end": 309, "id": 16, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 328, "end": 330, "id": 17, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Country", "start": 342, "end": 346, "id": 18, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 358, "end": 363, "id": 19, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Person", "start": 372, "end": 384, "id": 20, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 379, "end": 384, "id": 21, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 407, "end": 418, "id": 22, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}], "next_annid": 23}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(NCAARBVOGO_data), "NCAARBVOGO-").init();
     </script>
   </div>
 
@@ -963,11 +961,17 @@ doc2
 # document with a Tokenizer. 
 # Now, matches are restricted so the start/end matches the start/end of a Token annotation, so the 
 # lower-case matches inside words do not occur any more
+
+# create a tokenizer based on the NLTK WordPunctTokenizer. 
+from gatenlp.processing.tokenizer import NLTKTokenizer
+from nltk.tokenize.regexp import WordPunctTokenizer
+tokenizer = NLTKTokenizer(
+    nltk_tokenizer=WordPunctTokenizer(), 
+    token_type="Token", outset_name="")
+
 gaz3 = StringGazetteer(map_chars="lower", start_type="Token", end_type="Token")
 gaz3.append(source=gazlist1, source_fmt="gazlist", list_type="Person")
 gaz3.append(source=gazlist2, source_fmt="gazlist", list_type="Country")
-nltk_tok = TreebankWordTokenizer()
-tokenizer = NLTKTokenizer(nltk_tokenizer=nltk_tok)
 doc3 = Document(text)
 doc3 = tokenizer(doc3)
 doc3 = gaz3(doc3)
@@ -978,25 +982,25 @@ doc3
 
 
 
-<div><style>#RCLMLLIABZ-wrapper { color: black !important; }</style>
-<div id="RCLMLLIABZ-wrapper">
+<div><style>#TBMLZBANUE-wrapper { color: black !important; }</style>
+<div id="TBMLZBANUE-wrapper">
 
 <div>
 <style>
-#RCLMLLIABZ-content {
+#TBMLZBANUE-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RCLMLLIABZ-row {
+.TBMLZBANUE-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RCLMLLIABZ-col {
+.TBMLZBANUE-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1006,23 +1010,23 @@ doc3
     overflow-y: auto;
 }
 
-.RCLMLLIABZ-hdr {
+.TBMLZBANUE-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RCLMLLIABZ-label {
+.TBMLZBANUE-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RCLMLLIABZ-input {
+.TBMLZBANUE-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RCLMLLIABZ-popup {
+#TBMLZBANUE-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1037,43 +1041,43 @@ doc3
     overflow: auto;
 }
 
-.RCLMLLIABZ-selection {
+.TBMLZBANUE-selection {
     margin-bottom: 5px;
 }
 
-.RCLMLLIABZ-featuretable {
+.TBMLZBANUE-featuretable {
     margin-top: 10px;
 }
 
-.RCLMLLIABZ-fname {
+.TBMLZBANUE-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RCLMLLIABZ-fvalue {
+.TBMLZBANUE-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RCLMLLIABZ-content">
-        <div id="RCLMLLIABZ-popup" style="display: none;">
+  <div id="TBMLZBANUE-content">
+        <div id="TBMLZBANUE-popup" style="display: none;">
         </div>
-        <div class="RCLMLLIABZ-row" id="RCLMLLIABZ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="RCLMLLIABZ-text-wrapper" class="RCLMLLIABZ-col" style="width:70%;">
-                <div class="RCLMLLIABZ-hdr" id="RCLMLLIABZ-dochdr"></div>
-                <div id="RCLMLLIABZ-text" style="">
+        <div class="TBMLZBANUE-row" id="TBMLZBANUE-row1" style="max-height: 20em; min-height:5em;">
+            <div id="TBMLZBANUE-text-wrapper" class="TBMLZBANUE-col" style="width:70%;">
+                <div class="TBMLZBANUE-hdr" id="TBMLZBANUE-dochdr"></div>
+                <div id="TBMLZBANUE-text" style="">
                 </div>
             </div>
-            <div id="RCLMLLIABZ-chooser" class="RCLMLLIABZ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="TBMLZBANUE-chooser" class="TBMLZBANUE-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RCLMLLIABZ-row" id="RCLMLLIABZ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="RCLMLLIABZ-details" class="RCLMLLIABZ-col" style="width:100%; border-top-width: 0px;">
+        <div class="TBMLZBANUE-row" id="TBMLZBANUE-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="TBMLZBANUE-details" class="TBMLZBANUE-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let RCLMLLIABZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {}}, {"type": "Token", "start": 106, "end": 112, "id": 20, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 21, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 22, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 23, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 24, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 25, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 26, "features": {}}, {"type": "Token", "start": 143, "end": 153, "id": 27, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 28, "features": {}}, {"type": "Token", "start": 160, "end": 161, "id": 29, "features": {}}, {"type": "Token", "start": 162, "end": 166, "id": 30, "features": {}}, {"type": "Token", "start": 167, "end": 174, "id": 31, "features": {}}, {"type": "Token", "start": 175, "end": 176, "id": 32, "features": {}}, {"type": "Token", "start": 177, "end": 185, "id": 33, "features": {}}, {"type": "Token", "start": 186, "end": 191, "id": 34, "features": {}}, {"type": "Token", "start": 192, "end": 197, "id": 35, "features": {}}, {"type": "Token", "start": 198, "end": 203, "id": 36, "features": {}}, {"type": "Token", "start": 204, "end": 209, "id": 37, "features": {}}, {"type": "Token", "start": 210, "end": 212, "id": 38, "features": {}}, {"type": "Token", "start": 213, "end": 219, "id": 39, "features": {}}, {"type": "Token", "start": 220, "end": 224, "id": 40, "features": {}}, {"type": "Token", "start": 225, "end": 227, "id": 41, "features": {}}, {"type": "Token", "start": 228, "end": 235, "id": 42, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 43, "features": {}}, {"type": "Token", "start": 242, "end": 243, "id": 44, "features": {}}, {"type": "Token", "start": 244, "end": 252, "id": 45, "features": {}}, {"type": "Token", "start": 253, "end": 257, "id": 46, "features": {}}, {"type": "Token", "start": 258, "end": 261, "id": 47, "features": {}}, {"type": "Token", "start": 262, "end": 266, "id": 48, "features": {}}, {"type": "Token", "start": 267, "end": 271, "id": 49, "features": {}}, {"type": "Token", "start": 272, "end": 274, "id": 50, "features": {}}, {"type": "Token", "start": 275, "end": 279, "id": 51, "features": {}}, {"type": "Token", "start": 280, "end": 282, "id": 52, "features": {}}, {"type": "Token", "start": 283, "end": 288, "id": 53, "features": {}}, {"type": "Token", "start": 288, "end": 289, "id": 54, "features": {}}, {"type": "Token", "start": 290, "end": 296, "id": 55, "features": {}}, {"type": "Token", "start": 297, "end": 303, "id": 56, "features": {}}, {"type": "Token", "start": 304, "end": 309, "id": 57, "features": {}}, {"type": "Token", "start": 310, "end": 313, "id": 58, "features": {}}, {"type": "Token", "start": 314, "end": 318, "id": 59, "features": {}}, {"type": "Token", "start": 319, "end": 323, "id": 60, "features": {}}, {"type": "Token", "start": 327, "end": 331, "id": 61, "features": {}}, {"type": "Token", "start": 332, "end": 335, "id": 62, "features": {}}, {"type": "Token", "start": 336, "end": 340, "id": 63, "features": {}}, {"type": "Token", "start": 341, "end": 342, "id": 64, "features": {}}, {"type": "Token", "start": 342, "end": 346, "id": 65, "features": {}}, {"type": "Token", "start": 346, "end": 347, "id": 66, "features": {}}, {"type": "Token", "start": 348, "end": 350, "id": 67, "features": {}}, {"type": "Token", "start": 351, "end": 356, "id": 68, "features": {}}, {"type": "Token", "start": 356, "end": 357, "id": 69, "features": {}}, {"type": "Token", "start": 358, "end": 363, "id": 70, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 71, "features": {}}, {"type": "Token", "start": 372, "end": 378, "id": 72, "features": {}}, {"type": "Token", "start": 379, "end": 384, "id": 73, "features": {}}, {"type": "Token", "start": 385, "end": 387, "id": 74, "features": {}}, {"type": "Token", "start": 388, "end": 391, "id": 75, "features": {}}, {"type": "Token", "start": 392, "end": 397, "id": 76, "features": {}}, {"type": "Token", "start": 398, "end": 402, "id": 77, "features": {}}, {"type": "Token", "start": 403, "end": 406, "id": 78, "features": {}}, {"type": "Token", "start": 407, "end": 412, "id": 79, "features": {}}, {"type": "Token", "start": 413, "end": 418, "id": 80, "features": {}}, {"type": "Token", "start": 419, "end": 421, "id": 81, "features": {}}, {"type": "Token", "start": 422, "end": 425, "id": 82, "features": {}}, {"type": "Token", "start": 426, "end": 431, "id": 83, "features": {}}, {"type": "Token", "start": 432, "end": 436, "id": 84, "features": {}}, {"type": "Person", "start": 0, "end": 12, "id": 85, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 7, "end": 12, "id": 86, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 43, "end": 45, "id": 87, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 62, "end": 76, "id": 88, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 72, "end": 76, "id": 89, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 120, "end": 124, "id": 90, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 126, "end": 138, "id": 91, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Person", "start": 131, "end": 138, "id": 92, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Country", "start": 192, "end": 203, "id": 93, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 220, "end": 224, "id": 94, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 275, "end": 279, "id": 95, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 290, "end": 309, "id": 96, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 304, "end": 309, "id": 97, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 342, "end": 346, "id": 98, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 358, "end": 363, "id": 99, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Person", "start": 372, "end": 384, "id": 100, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 379, "end": 384, "id": 101, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 407, "end": 418, "id": 102, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}], "next_annid": 103}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(RCLMLLIABZ_data), "RCLMLLIABZ-").init();
+    let TBMLZBANUE_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 70, "id": 13, "features": {}}, {"type": "Token", "start": 70, "end": 71, "id": 14, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 15, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 16, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 17, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 18, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 19, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 20, "features": {}}, {"type": "Token", "start": 106, "end": 111, "id": 21, "features": {}}, {"type": "Token", "start": 111, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 31, "features": {}}, {"type": "Token", "start": 160, "end": 161, "id": 32, "features": {}}, {"type": "Token", "start": 162, "end": 166, "id": 33, "features": {}}, {"type": "Token", "start": 167, "end": 174, "id": 34, "features": {}}, {"type": "Token", "start": 175, "end": 176, "id": 35, "features": {}}, {"type": "Token", "start": 177, "end": 185, "id": 36, "features": {}}, {"type": "Token", "start": 186, "end": 191, "id": 37, "features": {}}, {"type": "Token", "start": 192, "end": 197, "id": 38, "features": {}}, {"type": "Token", "start": 198, "end": 203, "id": 39, "features": {}}, {"type": "Token", "start": 204, "end": 209, "id": 40, "features": {}}, {"type": "Token", "start": 210, "end": 212, "id": 41, "features": {}}, {"type": "Token", "start": 213, "end": 219, "id": 42, "features": {}}, {"type": "Token", "start": 220, "end": 224, "id": 43, "features": {}}, {"type": "Token", "start": 225, "end": 227, "id": 44, "features": {}}, {"type": "Token", "start": 228, "end": 234, "id": 45, "features": {}}, {"type": "Token", "start": 234, "end": 235, "id": 46, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 47, "features": {}}, {"type": "Token", "start": 242, "end": 243, "id": 48, "features": {}}, {"type": "Token", "start": 244, "end": 252, "id": 49, "features": {}}, {"type": "Token", "start": 253, "end": 257, "id": 50, "features": {}}, {"type": "Token", "start": 258, "end": 261, "id": 51, "features": {}}, {"type": "Token", "start": 262, "end": 266, "id": 52, "features": {}}, {"type": "Token", "start": 267, "end": 271, "id": 53, "features": {}}, {"type": "Token", "start": 272, "end": 274, "id": 54, "features": {}}, {"type": "Token", "start": 275, "end": 279, "id": 55, "features": {}}, {"type": "Token", "start": 280, "end": 282, "id": 56, "features": {}}, {"type": "Token", "start": 283, "end": 288, "id": 57, "features": {}}, {"type": "Token", "start": 288, "end": 289, "id": 58, "features": {}}, {"type": "Token", "start": 290, "end": 296, "id": 59, "features": {}}, {"type": "Token", "start": 297, "end": 303, "id": 60, "features": {}}, {"type": "Token", "start": 304, "end": 309, "id": 61, "features": {}}, {"type": "Token", "start": 310, "end": 313, "id": 62, "features": {}}, {"type": "Token", "start": 314, "end": 318, "id": 63, "features": {}}, {"type": "Token", "start": 319, "end": 323, "id": 64, "features": {}}, {"type": "Token", "start": 327, "end": 331, "id": 65, "features": {}}, {"type": "Token", "start": 332, "end": 335, "id": 66, "features": {}}, {"type": "Token", "start": 336, "end": 340, "id": 67, "features": {}}, {"type": "Token", "start": 341, "end": 342, "id": 68, "features": {}}, {"type": "Token", "start": 342, "end": 346, "id": 69, "features": {}}, {"type": "Token", "start": 346, "end": 347, "id": 70, "features": {}}, {"type": "Token", "start": 348, "end": 350, "id": 71, "features": {}}, {"type": "Token", "start": 351, "end": 356, "id": 72, "features": {}}, {"type": "Token", "start": 356, "end": 357, "id": 73, "features": {}}, {"type": "Token", "start": 358, "end": 363, "id": 74, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 75, "features": {}}, {"type": "Token", "start": 372, "end": 378, "id": 76, "features": {}}, {"type": "Token", "start": 379, "end": 384, "id": 77, "features": {}}, {"type": "Token", "start": 385, "end": 387, "id": 78, "features": {}}, {"type": "Token", "start": 388, "end": 391, "id": 79, "features": {}}, {"type": "Token", "start": 392, "end": 397, "id": 80, "features": {}}, {"type": "Token", "start": 398, "end": 402, "id": 81, "features": {}}, {"type": "Token", "start": 403, "end": 406, "id": 82, "features": {}}, {"type": "Token", "start": 407, "end": 412, "id": 83, "features": {}}, {"type": "Token", "start": 413, "end": 418, "id": 84, "features": {}}, {"type": "Token", "start": 419, "end": 421, "id": 85, "features": {}}, {"type": "Token", "start": 422, "end": 425, "id": 86, "features": {}}, {"type": "Token", "start": 426, "end": 431, "id": 87, "features": {}}, {"type": "Token", "start": 432, "end": 436, "id": 88, "features": {}}, {"type": "Person", "start": 0, "end": 12, "id": 89, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 7, "end": 12, "id": 90, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 43, "end": 45, "id": 91, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 62, "end": 76, "id": 92, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 72, "end": 76, "id": 93, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 99, "end": 111, "id": 94, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 106, "end": 111, "id": 95, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 120, "end": 124, "id": 96, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 126, "end": 138, "id": 97, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Person", "start": 131, "end": 138, "id": 98, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Country", "start": 192, "end": 203, "id": 99, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 220, "end": 224, "id": 100, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 275, "end": 279, "id": 101, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 290, "end": 309, "id": 102, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 304, "end": 309, "id": 103, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 342, "end": 346, "id": 104, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 358, "end": 363, "id": 105, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Person", "start": 372, "end": 384, "id": 106, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 379, "end": 384, "id": 107, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 407, "end": 418, "id": 108, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}], "next_annid": 109}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(TBMLZBANUE_data), "TBMLZBANUE-").init();
     </script>
   </div>
 
@@ -1083,153 +1087,35 @@ doc3
 
 
 ```python
-
-
-```
-
-
-```python
+for person in doc3.annset().with_type("Person"):
+    print(doc3[person], person)
 
 ```
 
+    Barack Obama Annotation(0,12,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=89)
+    Obama Annotation(7,12,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=90)
+    George W. Bush Annotation(62,76,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=92)
+    Bush Annotation(72,76,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=93)
+    Donald Trump Annotation(99,111,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),id=94)
+    Trump Annotation(106,111,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),id=95)
+    Bush Annotation(120,124,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=96)
+    Bill Clinton Annotation(126,138,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),id=97)
+    Clinton Annotation(131,138,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),id=98)
+    barack obama Annotation(372,384,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=106)
+    obama Annotation(379,384,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=107)
 
-```python
-
-```
-
-
-```python
-
-```
 
 ## TokenGazetteer
 
+Unlike the StringGazetteer, which matches gazetteer strings against the document text, the TokenGazetteer matches tokenstring sequences generated from the gazetteer strings against the sequences of tokens in the document. This is usually done on the `Token` annotations, but the gazetteer can be used on any sequence of annotations of some type. 
 
-```python
+Since what needs to get matched is a sequence of token strings, the gazetteer strings need to get converted to sequences of token strings as well when loading from a file. This can be achieved by a simple split-on-whitespace approach (the default) or by specifying a tokenizer or splitter to be used when loading the gazetter entries. When loading a prepared gazetteer list, the splitting into token strings must already have been done. 
 
-```
-
-
-```python
-# Tokenize the document, lets use an NLTK tokenizer
-
-tokenizer = NLTKTokenizer(nltk_tokenizer=TreebankWordTokenizer(), token_type="Token", outset_name="")
-doc4 = Document(text)
-doc4 = tokenizer(doc4)
-doc4
-```
-
-
-
-
-<div><style>#FPJCGAHHLX-wrapper { color: black !important; }</style>
-<div id="FPJCGAHHLX-wrapper">
-
-<div>
-<style>
-#FPJCGAHHLX-content {
-    width: 100%;
-    height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-.FPJCGAHHLX-row {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-}
-
-.FPJCGAHHLX-col {
-    border: 1px solid grey;
-    display: inline-block;
-    min-width: 200px;
-    padding: 5px;
-    /* white-space: normal; */
-    /* white-space: pre-wrap; */
-    overflow-y: auto;
-}
-
-.FPJCGAHHLX-hdr {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.FPJCGAHHLX-label {
-    margin-bottom: -15px;
-    display: block;
-}
-
-.FPJCGAHHLX-input {
-    vertical-align: middle;
-    position: relative;
-    *overflow: hidden;
-}
-
-#FPJCGAHHLX-popup {
-    display: none;
-    color: black;
-    position: absolute;
-    margin-top: 10%;
-    margin-left: 10%;
-    background: #aaaaaa;
-    width: 60%;
-    height: 60%;
-    z-index: 50;
-    padding: 25px 25px 25px;
-    border: 1px solid black;
-    overflow: auto;
-}
-
-.FPJCGAHHLX-selection {
-    margin-bottom: 5px;
-}
-
-.FPJCGAHHLX-featuretable {
-    margin-top: 10px;
-}
-
-.FPJCGAHHLX-fname {
-    text-align: left !important;
-    font-weight: bold;
-    margin-right: 10px;
-}
-.FPJCGAHHLX-fvalue {
-    text-align: left !important;
-}
-</style>
-  <div id="FPJCGAHHLX-content">
-        <div id="FPJCGAHHLX-popup" style="display: none;">
-        </div>
-        <div class="FPJCGAHHLX-row" id="FPJCGAHHLX-row1" style="max-height: 20em; min-height:5em;">
-            <div id="FPJCGAHHLX-text-wrapper" class="FPJCGAHHLX-col" style="width:70%;">
-                <div class="FPJCGAHHLX-hdr" id="FPJCGAHHLX-dochdr"></div>
-                <div id="FPJCGAHHLX-text" style="">
-                </div>
-            </div>
-            <div id="FPJCGAHHLX-chooser" class="FPJCGAHHLX-col" style="width:30%; border-left-width: 0px;"></div>
-        </div>
-        <div class="FPJCGAHHLX-row" id="FPJCGAHHLX-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="FPJCGAHHLX-details" class="FPJCGAHHLX-col" style="width:100%; border-top-width: 0px;">
-            </div>
-        </div>
-    </div>
-
-    <script type="text/javascript">
-    let FPJCGAHHLX_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {}}, {"type": "Token", "start": 106, "end": 112, "id": 20, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 21, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 22, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 23, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 24, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 25, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 26, "features": {}}, {"type": "Token", "start": 143, "end": 153, "id": 27, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 28, "features": {}}, {"type": "Token", "start": 160, "end": 161, "id": 29, "features": {}}, {"type": "Token", "start": 162, "end": 166, "id": 30, "features": {}}, {"type": "Token", "start": 167, "end": 174, "id": 31, "features": {}}, {"type": "Token", "start": 175, "end": 176, "id": 32, "features": {}}, {"type": "Token", "start": 177, "end": 185, "id": 33, "features": {}}, {"type": "Token", "start": 186, "end": 191, "id": 34, "features": {}}, {"type": "Token", "start": 192, "end": 197, "id": 35, "features": {}}, {"type": "Token", "start": 198, "end": 203, "id": 36, "features": {}}, {"type": "Token", "start": 204, "end": 209, "id": 37, "features": {}}, {"type": "Token", "start": 210, "end": 212, "id": 38, "features": {}}, {"type": "Token", "start": 213, "end": 219, "id": 39, "features": {}}, {"type": "Token", "start": 220, "end": 224, "id": 40, "features": {}}, {"type": "Token", "start": 225, "end": 227, "id": 41, "features": {}}, {"type": "Token", "start": 228, "end": 235, "id": 42, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 43, "features": {}}, {"type": "Token", "start": 242, "end": 243, "id": 44, "features": {}}, {"type": "Token", "start": 244, "end": 252, "id": 45, "features": {}}, {"type": "Token", "start": 253, "end": 257, "id": 46, "features": {}}, {"type": "Token", "start": 258, "end": 261, "id": 47, "features": {}}, {"type": "Token", "start": 262, "end": 266, "id": 48, "features": {}}, {"type": "Token", "start": 267, "end": 271, "id": 49, "features": {}}, {"type": "Token", "start": 272, "end": 274, "id": 50, "features": {}}, {"type": "Token", "start": 275, "end": 279, "id": 51, "features": {}}, {"type": "Token", "start": 280, "end": 282, "id": 52, "features": {}}, {"type": "Token", "start": 283, "end": 288, "id": 53, "features": {}}, {"type": "Token", "start": 288, "end": 289, "id": 54, "features": {}}, {"type": "Token", "start": 290, "end": 296, "id": 55, "features": {}}, {"type": "Token", "start": 297, "end": 303, "id": 56, "features": {}}, {"type": "Token", "start": 304, "end": 309, "id": 57, "features": {}}, {"type": "Token", "start": 310, "end": 313, "id": 58, "features": {}}, {"type": "Token", "start": 314, "end": 318, "id": 59, "features": {}}, {"type": "Token", "start": 319, "end": 323, "id": 60, "features": {}}, {"type": "Token", "start": 327, "end": 331, "id": 61, "features": {}}, {"type": "Token", "start": 332, "end": 335, "id": 62, "features": {}}, {"type": "Token", "start": 336, "end": 340, "id": 63, "features": {}}, {"type": "Token", "start": 341, "end": 342, "id": 64, "features": {}}, {"type": "Token", "start": 342, "end": 346, "id": 65, "features": {}}, {"type": "Token", "start": 346, "end": 347, "id": 66, "features": {}}, {"type": "Token", "start": 348, "end": 350, "id": 67, "features": {}}, {"type": "Token", "start": 351, "end": 356, "id": 68, "features": {}}, {"type": "Token", "start": 356, "end": 357, "id": 69, "features": {}}, {"type": "Token", "start": 358, "end": 363, "id": 70, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 71, "features": {}}, {"type": "Token", "start": 372, "end": 378, "id": 72, "features": {}}, {"type": "Token", "start": 379, "end": 384, "id": 73, "features": {}}, {"type": "Token", "start": 385, "end": 387, "id": 74, "features": {}}, {"type": "Token", "start": 388, "end": 391, "id": 75, "features": {}}, {"type": "Token", "start": 392, "end": 397, "id": 76, "features": {}}, {"type": "Token", "start": 398, "end": 402, "id": 77, "features": {}}, {"type": "Token", "start": 403, "end": 406, "id": 78, "features": {}}, {"type": "Token", "start": 407, "end": 412, "id": 79, "features": {}}, {"type": "Token", "start": 413, "end": 418, "id": 80, "features": {}}, {"type": "Token", "start": 419, "end": 421, "id": 81, "features": {}}, {"type": "Token", "start": 422, "end": 425, "id": 82, "features": {}}, {"type": "Token", "start": 426, "end": 431, "id": 83, "features": {}}, {"type": "Token", "start": 432, "end": 436, "id": 84, "features": {}}], "next_annid": 85}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(FPJCGAHHLX_data), "FPJCGAHHLX-").init();
-    </script>
-  </div>
-
-</div></div>
-
-
+## Use a NLTK tokenizer for the gazetteer strings and document
 
 
 ```python
-
-# Tokenize the strings from our gazetteer list as well
-
+# first create new gazetteer lists from the string-based gazetteer lists we already have
 def text2tokenstrings(text):
     tmpdoc = Document(text)
     tokenizer(tmpdoc)
@@ -1237,42 +1123,54 @@ def text2tokenstrings(text):
     return [tmpdoc[tok] for tok in tokens]
 
 tok_gazlist1 = [(text2tokenstrings(txt), feats) for txt, feats in gazlist1]
-tok_gazlist1
-    
+tok_gazlist2 = [(text2tokenstrings(txt), feats) for txt, feats in gazlist2]
+
+tok_gazlist1, tok_gazlist2
 ```
 
 
 
 
-    [(['Barack', 'Obama'], {'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),
-     (['Obama'], {'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),
-     (['Donald', 'Trump'], {'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),
-     (['Trump'], {'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),
-     (['George', 'W.', 'Bush'],
-      {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
-     (['George', 'Bush'], {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
-     (['Bush'], {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
-     (['Bill', 'Clinton'], {'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),
-     (['Clinton'], {'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'})]
+    ([(['Barack', 'Obama'], {'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),
+      (['Obama'], {'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),
+      (['Donald', 'Trump'], {'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),
+      (['Trump'], {'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),
+      (['George', 'W', '.', 'Bush'],
+       {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
+      (['George', 'Bush'],
+       {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
+      (['Bush'], {'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),
+      (['Bill', 'Clinton'], {'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),
+      (['Clinton'], {'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'})],
+     [(['United', 'States'],
+       {'url': 'https://en.wikipedia.org/wiki/United_States'}),
+      (['US'], {'url': 'https://en.wikipedia.org/wiki/United_States'}),
+      (['United', 'Kingdom'],
+       {'url': 'https://en.wikipedia.org/wiki/United_Kingdom'}),
+      (['UK'], {'url': 'https://en.wikipedia.org/wiki/United_Kingdom'}),
+      (['Austria'], {'url': 'https://en.wikipedia.org/wiki/Austria'}),
+      (['South', 'Korea'], {'url': 'https://en.wikipedia.org/wiki/South_Korea'}),
+      (['대한민국'], {'url': 'https://en.wikipedia.org/wiki/South_Korea'}),
+      (['Iran'], {'url': 'https://en.wikipedia.org/wiki/Iran'}),
+      (['جمهوری', 'اسلامی', 'ایران'],
+       {'url': 'https://en.wikipedia.org/wiki/Iran'}),
+      (['ایران'], {'url': 'https://en.wikipedia.org/wiki/Iran'})])
 
 
 
 
 ```python
-# Create the gazetter and apply it to the document
+# Create the token gazetter and and load the two lists, then apply to the document
 
-tok_gaz1 = TokenGazetteer(longest_only=False, 
+tok_gaz1 = TokenGazetteer(longest_only=False,
                           skip_longest=False, outset_name="", ann_type="Lookup",
                           annset_name="", token_type="Token")
-tok_gaz1.append(source=tok_gazlist1, source_fmt="gazlist")
-```
-
-
-```python
-
+tok_gaz1.append(source=tok_gazlist1, source_fmt="gazlist", list_type="Person")
+tok_gaz1.append(source=tok_gazlist2, source_fmt="gazlist", list_type="Country")
 
 doc5 = Document(text)
 doc5 = tokenizer(doc5)
+tokens = doc5.annset().with_type("Token")
 doc5 = tok_gaz1(doc5)
 doc5
 ```
@@ -1280,25 +1178,25 @@ doc5
 
 
 
-<div><style>#FWOZRNEHME-wrapper { color: black !important; }</style>
-<div id="FWOZRNEHME-wrapper">
+<div><style>#HDWIRVIKKH-wrapper { color: black !important; }</style>
+<div id="HDWIRVIKKH-wrapper">
 
 <div>
 <style>
-#FWOZRNEHME-content {
+#HDWIRVIKKH-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.FWOZRNEHME-row {
+.HDWIRVIKKH-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.FWOZRNEHME-col {
+.HDWIRVIKKH-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1308,23 +1206,23 @@ doc5
     overflow-y: auto;
 }
 
-.FWOZRNEHME-hdr {
+.HDWIRVIKKH-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.FWOZRNEHME-label {
+.HDWIRVIKKH-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.FWOZRNEHME-input {
+.HDWIRVIKKH-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#FWOZRNEHME-popup {
+#HDWIRVIKKH-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1339,43 +1237,43 @@ doc5
     overflow: auto;
 }
 
-.FWOZRNEHME-selection {
+.HDWIRVIKKH-selection {
     margin-bottom: 5px;
 }
 
-.FWOZRNEHME-featuretable {
+.HDWIRVIKKH-featuretable {
     margin-top: 10px;
 }
 
-.FWOZRNEHME-fname {
+.HDWIRVIKKH-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.FWOZRNEHME-fvalue {
+.HDWIRVIKKH-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="FWOZRNEHME-content">
-        <div id="FWOZRNEHME-popup" style="display: none;">
+  <div id="HDWIRVIKKH-content">
+        <div id="HDWIRVIKKH-popup" style="display: none;">
         </div>
-        <div class="FWOZRNEHME-row" id="FWOZRNEHME-row1" style="max-height: 20em; min-height:5em;">
-            <div id="FWOZRNEHME-text-wrapper" class="FWOZRNEHME-col" style="width:70%;">
-                <div class="FWOZRNEHME-hdr" id="FWOZRNEHME-dochdr"></div>
-                <div id="FWOZRNEHME-text" style="">
+        <div class="HDWIRVIKKH-row" id="HDWIRVIKKH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="HDWIRVIKKH-text-wrapper" class="HDWIRVIKKH-col" style="width:70%;">
+                <div class="HDWIRVIKKH-hdr" id="HDWIRVIKKH-dochdr"></div>
+                <div id="HDWIRVIKKH-text" style="">
                 </div>
             </div>
-            <div id="FWOZRNEHME-chooser" class="FWOZRNEHME-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="HDWIRVIKKH-chooser" class="HDWIRVIKKH-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="FWOZRNEHME-row" id="FWOZRNEHME-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="FWOZRNEHME-details" class="FWOZRNEHME-col" style="width:100%; border-top-width: 0px;">
+        <div class="HDWIRVIKKH-row" id="HDWIRVIKKH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="HDWIRVIKKH-details" class="HDWIRVIKKH-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let FWOZRNEHME_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {}}, {"type": "Token", "start": 106, "end": 112, "id": 20, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 21, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 22, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 23, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 24, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 25, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 26, "features": {}}, {"type": "Token", "start": 143, "end": 153, "id": 27, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 28, "features": {}}, {"type": "Token", "start": 160, "end": 161, "id": 29, "features": {}}, {"type": "Token", "start": 162, "end": 166, "id": 30, "features": {}}, {"type": "Token", "start": 167, "end": 174, "id": 31, "features": {}}, {"type": "Token", "start": 175, "end": 176, "id": 32, "features": {}}, {"type": "Token", "start": 177, "end": 185, "id": 33, "features": {}}, {"type": "Token", "start": 186, "end": 191, "id": 34, "features": {}}, {"type": "Token", "start": 192, "end": 197, "id": 35, "features": {}}, {"type": "Token", "start": 198, "end": 203, "id": 36, "features": {}}, {"type": "Token", "start": 204, "end": 209, "id": 37, "features": {}}, {"type": "Token", "start": 210, "end": 212, "id": 38, "features": {}}, {"type": "Token", "start": 213, "end": 219, "id": 39, "features": {}}, {"type": "Token", "start": 220, "end": 224, "id": 40, "features": {}}, {"type": "Token", "start": 225, "end": 227, "id": 41, "features": {}}, {"type": "Token", "start": 228, "end": 235, "id": 42, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 43, "features": {}}, {"type": "Token", "start": 242, "end": 243, "id": 44, "features": {}}, {"type": "Token", "start": 244, "end": 252, "id": 45, "features": {}}, {"type": "Token", "start": 253, "end": 257, "id": 46, "features": {}}, {"type": "Token", "start": 258, "end": 261, "id": 47, "features": {}}, {"type": "Token", "start": 262, "end": 266, "id": 48, "features": {}}, {"type": "Token", "start": 267, "end": 271, "id": 49, "features": {}}, {"type": "Token", "start": 272, "end": 274, "id": 50, "features": {}}, {"type": "Token", "start": 275, "end": 279, "id": 51, "features": {}}, {"type": "Token", "start": 280, "end": 282, "id": 52, "features": {}}, {"type": "Token", "start": 283, "end": 288, "id": 53, "features": {}}, {"type": "Token", "start": 288, "end": 289, "id": 54, "features": {}}, {"type": "Token", "start": 290, "end": 296, "id": 55, "features": {}}, {"type": "Token", "start": 297, "end": 303, "id": 56, "features": {}}, {"type": "Token", "start": 304, "end": 309, "id": 57, "features": {}}, {"type": "Token", "start": 310, "end": 313, "id": 58, "features": {}}, {"type": "Token", "start": 314, "end": 318, "id": 59, "features": {}}, {"type": "Token", "start": 319, "end": 323, "id": 60, "features": {}}, {"type": "Token", "start": 327, "end": 331, "id": 61, "features": {}}, {"type": "Token", "start": 332, "end": 335, "id": 62, "features": {}}, {"type": "Token", "start": 336, "end": 340, "id": 63, "features": {}}, {"type": "Token", "start": 341, "end": 342, "id": 64, "features": {}}, {"type": "Token", "start": 342, "end": 346, "id": 65, "features": {}}, {"type": "Token", "start": 346, "end": 347, "id": 66, "features": {}}, {"type": "Token", "start": 348, "end": 350, "id": 67, "features": {}}, {"type": "Token", "start": 351, "end": 356, "id": 68, "features": {}}, {"type": "Token", "start": 356, "end": 357, "id": 69, "features": {}}, {"type": "Token", "start": 358, "end": 363, "id": 70, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 71, "features": {}}, {"type": "Token", "start": 372, "end": 378, "id": 72, "features": {}}, {"type": "Token", "start": 379, "end": 384, "id": 73, "features": {}}, {"type": "Token", "start": 385, "end": 387, "id": 74, "features": {}}, {"type": "Token", "start": 388, "end": 391, "id": 75, "features": {}}, {"type": "Token", "start": 392, "end": 397, "id": 76, "features": {}}, {"type": "Token", "start": 398, "end": 402, "id": 77, "features": {}}, {"type": "Token", "start": 403, "end": 406, "id": 78, "features": {}}, {"type": "Token", "start": 407, "end": 412, "id": 79, "features": {}}, {"type": "Token", "start": 413, "end": 418, "id": 80, "features": {}}, {"type": "Token", "start": 419, "end": 421, "id": 81, "features": {}}, {"type": "Token", "start": 422, "end": 425, "id": 82, "features": {}}, {"type": "Token", "start": 426, "end": 431, "id": 83, "features": {}}, {"type": "Token", "start": 432, "end": 436, "id": 84, "features": {}}, {"type": "Lookup", "start": 0, "end": 12, "id": 85, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 7, "end": 12, "id": 86, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Lookup", "start": 62, "end": 76, "id": 87, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 88, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 120, "end": 124, "id": 89, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Lookup", "start": 126, "end": 138, "id": 90, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Lookup", "start": 131, "end": 138, "id": 91, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}], "next_annid": 92}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(FWOZRNEHME_data), "FWOZRNEHME-").init();
+    let HDWIRVIKKH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {}}, {"type": "Token", "start": 69, "end": 70, "id": 13, "features": {}}, {"type": "Token", "start": 70, "end": 71, "id": 14, "features": {}}, {"type": "Token", "start": 72, "end": 76, "id": 15, "features": {}}, {"type": "Token", "start": 77, "end": 80, "id": 16, "features": {}}, {"type": "Token", "start": 83, "end": 86, "id": 17, "features": {}}, {"type": "Token", "start": 87, "end": 95, "id": 18, "features": {}}, {"type": "Token", "start": 96, "end": 98, "id": 19, "features": {}}, {"type": "Token", "start": 99, "end": 105, "id": 20, "features": {}}, {"type": "Token", "start": 106, "end": 111, "id": 21, "features": {}}, {"type": "Token", "start": 111, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 31, "features": {}}, {"type": "Token", "start": 160, "end": 161, "id": 32, "features": {}}, {"type": "Token", "start": 162, "end": 166, "id": 33, "features": {}}, {"type": "Token", "start": 167, "end": 174, "id": 34, "features": {}}, {"type": "Token", "start": 175, "end": 176, "id": 35, "features": {}}, {"type": "Token", "start": 177, "end": 185, "id": 36, "features": {}}, {"type": "Token", "start": 186, "end": 191, "id": 37, "features": {}}, {"type": "Token", "start": 192, "end": 197, "id": 38, "features": {}}, {"type": "Token", "start": 198, "end": 203, "id": 39, "features": {}}, {"type": "Token", "start": 204, "end": 209, "id": 40, "features": {}}, {"type": "Token", "start": 210, "end": 212, "id": 41, "features": {}}, {"type": "Token", "start": 213, "end": 219, "id": 42, "features": {}}, {"type": "Token", "start": 220, "end": 224, "id": 43, "features": {}}, {"type": "Token", "start": 225, "end": 227, "id": 44, "features": {}}, {"type": "Token", "start": 228, "end": 234, "id": 45, "features": {}}, {"type": "Token", "start": 234, "end": 235, "id": 46, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 47, "features": {}}, {"type": "Token", "start": 242, "end": 243, "id": 48, "features": {}}, {"type": "Token", "start": 244, "end": 252, "id": 49, "features": {}}, {"type": "Token", "start": 253, "end": 257, "id": 50, "features": {}}, {"type": "Token", "start": 258, "end": 261, "id": 51, "features": {}}, {"type": "Token", "start": 262, "end": 266, "id": 52, "features": {}}, {"type": "Token", "start": 267, "end": 271, "id": 53, "features": {}}, {"type": "Token", "start": 272, "end": 274, "id": 54, "features": {}}, {"type": "Token", "start": 275, "end": 279, "id": 55, "features": {}}, {"type": "Token", "start": 280, "end": 282, "id": 56, "features": {}}, {"type": "Token", "start": 283, "end": 288, "id": 57, "features": {}}, {"type": "Token", "start": 288, "end": 289, "id": 58, "features": {}}, {"type": "Token", "start": 290, "end": 296, "id": 59, "features": {}}, {"type": "Token", "start": 297, "end": 303, "id": 60, "features": {}}, {"type": "Token", "start": 304, "end": 309, "id": 61, "features": {}}, {"type": "Token", "start": 310, "end": 313, "id": 62, "features": {}}, {"type": "Token", "start": 314, "end": 318, "id": 63, "features": {}}, {"type": "Token", "start": 319, "end": 323, "id": 64, "features": {}}, {"type": "Token", "start": 327, "end": 331, "id": 65, "features": {}}, {"type": "Token", "start": 332, "end": 335, "id": 66, "features": {}}, {"type": "Token", "start": 336, "end": 340, "id": 67, "features": {}}, {"type": "Token", "start": 341, "end": 342, "id": 68, "features": {}}, {"type": "Token", "start": 342, "end": 346, "id": 69, "features": {}}, {"type": "Token", "start": 346, "end": 347, "id": 70, "features": {}}, {"type": "Token", "start": 348, "end": 350, "id": 71, "features": {}}, {"type": "Token", "start": 351, "end": 356, "id": 72, "features": {}}, {"type": "Token", "start": 356, "end": 357, "id": 73, "features": {}}, {"type": "Token", "start": 358, "end": 363, "id": 74, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 75, "features": {}}, {"type": "Token", "start": 372, "end": 378, "id": 76, "features": {}}, {"type": "Token", "start": 379, "end": 384, "id": 77, "features": {}}, {"type": "Token", "start": 385, "end": 387, "id": 78, "features": {}}, {"type": "Token", "start": 388, "end": 391, "id": 79, "features": {}}, {"type": "Token", "start": 392, "end": 397, "id": 80, "features": {}}, {"type": "Token", "start": 398, "end": 402, "id": 81, "features": {}}, {"type": "Token", "start": 403, "end": 406, "id": 82, "features": {}}, {"type": "Token", "start": 407, "end": 412, "id": 83, "features": {}}, {"type": "Token", "start": 413, "end": 418, "id": 84, "features": {}}, {"type": "Token", "start": 419, "end": 421, "id": 85, "features": {}}, {"type": "Token", "start": 422, "end": 425, "id": 86, "features": {}}, {"type": "Token", "start": 426, "end": 431, "id": 87, "features": {}}, {"type": "Token", "start": 432, "end": 436, "id": 88, "features": {}}, {"type": "Person", "start": 0, "end": 12, "id": 89, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Person", "start": 7, "end": 12, "id": 90, "features": {"url": "https://en.wikipedia.org/wiki/Barack_Obama"}}, {"type": "Country", "start": 43, "end": 45, "id": 91, "features": {"url": "https://en.wikipedia.org/wiki/United_States"}}, {"type": "Person", "start": 62, "end": 76, "id": 92, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 72, "end": 76, "id": 93, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 99, "end": 111, "id": 94, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 106, "end": 111, "id": 95, "features": {"url": "https://en.wikipedia.org/wiki/Donald_Trump"}}, {"type": "Person", "start": 120, "end": 124, "id": 96, "features": {"url": "https://en.wikipedia.org/wiki/George_W._Bush"}}, {"type": "Person", "start": 126, "end": 138, "id": 97, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Person", "start": 131, "end": 138, "id": 98, "features": {"url": "https://en.wikipedia.org/wiki/Bill_Clinton"}}, {"type": "Country", "start": 192, "end": 203, "id": 99, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 220, "end": 224, "id": 100, "features": {"url": "https://en.wikipedia.org/wiki/South_Korea"}}, {"type": "Country", "start": 275, "end": 279, "id": 101, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 290, "end": 309, "id": 102, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 304, "end": 309, "id": 103, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 342, "end": 346, "id": 104, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}, {"type": "Country", "start": 358, "end": 363, "id": 105, "features": {"url": "https://en.wikipedia.org/wiki/Iran"}}], "next_annid": 106}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(HDWIRVIKKH_data), "HDWIRVIKKH-").init();
     </script>
   </div>
 
@@ -1385,34 +1283,18 @@ doc5
 
 
 ```python
+for person in doc5.annset().with_type("Person"):
+    print(doc5[person], person)
 
 ```
 
+    Barack Obama Annotation(0,12,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=89)
+    Obama Annotation(7,12,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}),id=90)
+    George W. Bush Annotation(62,76,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=92)
+    Bush Annotation(72,76,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=93)
+    Donald Trump Annotation(99,111,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),id=94)
+    Trump Annotation(106,111,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}),id=95)
+    Bush Annotation(120,124,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/George_W._Bush'}),id=96)
+    Bill Clinton Annotation(126,138,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),id=97)
+    Clinton Annotation(131,138,Person,features=Features({'url': 'https://en.wikipedia.org/wiki/Bill_Clinton'}),id=98)
 
-```python
-tok_gaz1[["Barack", "Obama"]]
-```
-
-
-
-
-    [{'url': 'https://en.wikipedia.org/wiki/Barack_Obama'}]
-
-
-
-
-```python
-tok_gaz1[["Donald", "Trump"]]
-```
-
-
-
-
-    [{'url': 'https://en.wikipedia.org/wiki/Donald_Trump'}]
-
-
-
-
-```python
-
-```

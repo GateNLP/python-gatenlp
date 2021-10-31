@@ -50,8 +50,8 @@ class NLTKTokenizer(Tokenizer):
             nltk_sent_tokenizer: some NLTK tokenizers only work correctly if applied to each sentence
                 separately after the text is splitted into sentences. This allows to specify an NLTK
                 sentence splitter or a sentence splitting function to be run before the word tokenizer.
-                Note: the sentence tokenizer is only used if the tokenizer does not have the span_tokenize
-                function.
+                Note: if the sentence tokenizer is used the `span_tokenize` method of a tokenizer will
+                not be used if it exists, the `tokenize` method will be used.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
         """
@@ -69,10 +69,13 @@ class NLTKTokenizer(Tokenizer):
             self.has_span_tokenize = False
             self.is_function = True
         else:
-            try:
-                self.tokenizer.span_tokenize("text")
-            except Exception as ex:
+            if nltk_sent_tokenizer is not None:
                 self.has_span_tokenize = False
+            else:
+                try:
+                    self.tokenizer.span_tokenize("text")
+                except Exception as ex:
+                    self.has_span_tokenize = False
         self.sent_tokenizer = nltk_sent_tokenizer
         self.sent_is_function = False
         if self.sent_tokenizer and isinstance(self.sent_tokenizer, types.FunctionType):
@@ -95,6 +98,7 @@ class NLTKTokenizer(Tokenizer):
                     sents = self.sent_tokenizer.tokenize(doc.text)
             else:
                 sents = [doc.text]
+            print(f"DEBUG: sentences= {sents}")
             if self.is_function:
                 tks = [self.tokenizer(s) for s in sents]
             else:
