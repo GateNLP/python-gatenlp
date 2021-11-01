@@ -1,9 +1,11 @@
 # PAMPAC: Complex Annotation/Text Pattern Matching
 
-PAMPAC stands for "PAttern Matching with PArser Combinators" and provides an easy way to describe 
+PAMPAC stands for "PAttern Matching with PArser Combinators" and provides an easy but powerful way to describe 
 complex annotation and text patterns via simple Python building blocks. 
 
 PAMPAC allows to match both the document text and annotations, with their types and features and can run arbitrary Python code for any of the matches it finds.
+
+NOTE: the examples in this document only cover the most important features and components of PAMPAC, in order to see the full range of features, consult the PAMPAC reference and the Python API documentation for the `gatenlp.pam.pampac` module.
 
 
 ```python
@@ -13,38 +15,48 @@ from gatenlp.processing.tokenizer import NLTKTokenizer
 from gatenlp.pam.pampac import *
 import stanza
 from gatenlp.lib_stanza import AnnStanza
-
-# all the example files will be created in "./tmp"
-if not os.path.exists("tmp"):
-    os.mkdir("tmp")
 ```
 
 
 ```python
-
-# Document with some text mentioning some of the names
-# Lets annotate it with Stanza first to get some tokens
-
-ann = AnnStanza(lang="en", processors="tokenize,pos")
+# The following document will be used for many of the examples
 text = """Barack Obama was the 44th president of the US and he followed George W. Bush and
-  was followed by Donald Trump. Before Bush, Bill Clinton was president."""
+  was followed by Donald Trump. Before Bush, Bill Clinton was president.
+  Also, lets include a sentence about South Korea which is called 대한민국 in Korean.
+  And a sentence with the full name of Iran in Farsi: جمهوری اسلامی ایران and also with 
+  just the word "Iran" in Farsi: ایران 
+  Also barack obama in all lower case and SOUTH KOREA in all upper case
+  """
 doc = Document(text)
-doc = ann(doc)
+
+# Create some annotations in the default set
+ann_stanza = AnnStanza(lang="en")
+doc = ann_stanza(doc)
 doc
 ```
 
-    2021-09-12 20:29:18,946|INFO|stanza|Loading these models for language: en (English):
-    ========================
-    | Processor | Package  |
-    ------------------------
-    | tokenize  | combined |
-    | pos       | combined |
-    ========================
+    2021-11-01 18:19:50,338|INFO|stanza|Loading these models for language: en (English):
+    ============================
+    | Processor    | Package   |
+    ----------------------------
+    | tokenize     | combined  |
+    | pos          | combined  |
+    | lemma        | combined  |
+    | depparse     | combined  |
+    | sentiment    | sstplus   |
+    | constituency | wsj       |
+    | ner          | ontonotes |
+    ============================
     
-    2021-09-12 20:29:18,948|INFO|stanza|Use device: cpu
-    2021-09-12 20:29:18,948|INFO|stanza|Loading: tokenize
-    2021-09-12 20:29:18,956|INFO|stanza|Loading: pos
-    2021-09-12 20:29:19,194|INFO|stanza|Done loading processors!
+    2021-11-01 18:19:50,341|INFO|stanza|Use device: cpu
+    2021-11-01 18:19:50,341|INFO|stanza|Loading: tokenize
+    2021-11-01 18:19:50,349|INFO|stanza|Loading: pos
+    2021-11-01 18:19:50,677|INFO|stanza|Loading: lemma
+    2021-11-01 18:19:50,706|INFO|stanza|Loading: depparse
+    2021-11-01 18:19:51,103|INFO|stanza|Loading: sentiment
+    2021-11-01 18:19:51,545|INFO|stanza|Loading: constituency
+    2021-11-01 18:19:52,057|INFO|stanza|Loading: ner
+    2021-11-01 18:19:52,695|INFO|stanza|Done loading processors!
 
 
 
@@ -481,25 +493,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#YKPRVZNGBZ-wrapper { color: black !important; }</style>
-<div id="YKPRVZNGBZ-wrapper">
+<div><style>#ENYRIANXCT-wrapper { color: black !important; }</style>
+<div id="ENYRIANXCT-wrapper">
 
 <div>
 <style>
-#YKPRVZNGBZ-content {
+#ENYRIANXCT-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.YKPRVZNGBZ-row {
+.ENYRIANXCT-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.YKPRVZNGBZ-col {
+.ENYRIANXCT-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -509,23 +521,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.YKPRVZNGBZ-hdr {
+.ENYRIANXCT-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.YKPRVZNGBZ-label {
+.ENYRIANXCT-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.YKPRVZNGBZ-input {
+.ENYRIANXCT-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#YKPRVZNGBZ-popup {
+#ENYRIANXCT-popup {
     display: none;
     color: black;
     position: absolute;
@@ -540,43 +552,43 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.YKPRVZNGBZ-selection {
+.ENYRIANXCT-selection {
     margin-bottom: 5px;
 }
 
-.YKPRVZNGBZ-featuretable {
+.ENYRIANXCT-featuretable {
     margin-top: 10px;
 }
 
-.YKPRVZNGBZ-fname {
+.ENYRIANXCT-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.YKPRVZNGBZ-fvalue {
+.ENYRIANXCT-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="YKPRVZNGBZ-content">
-        <div id="YKPRVZNGBZ-popup" style="display: none;">
+  <div id="ENYRIANXCT-content">
+        <div id="ENYRIANXCT-popup" style="display: none;">
         </div>
-        <div class="YKPRVZNGBZ-row" id="YKPRVZNGBZ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="YKPRVZNGBZ-text-wrapper" class="YKPRVZNGBZ-col" style="width:70%;">
-                <div class="YKPRVZNGBZ-hdr" id="YKPRVZNGBZ-dochdr"></div>
-                <div id="YKPRVZNGBZ-text" style="">
+        <div class="ENYRIANXCT-row" id="ENYRIANXCT-row1" style="max-height: 20em; min-height:5em;">
+            <div id="ENYRIANXCT-text-wrapper" class="ENYRIANXCT-col" style="width:70%;">
+                <div class="ENYRIANXCT-hdr" id="ENYRIANXCT-dochdr"></div>
+                <div id="ENYRIANXCT-text" style="">
                 </div>
             </div>
-            <div id="YKPRVZNGBZ-chooser" class="YKPRVZNGBZ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ENYRIANXCT-chooser" class="ENYRIANXCT-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="YKPRVZNGBZ-row" id="YKPRVZNGBZ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="YKPRVZNGBZ-details" class="YKPRVZNGBZ-col" style="width:100%; border-top-width: 0px;">
+        <div class="ENYRIANXCT-row" id="ENYRIANXCT-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="ENYRIANXCT-details" class="ENYRIANXCT-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let YKPRVZNGBZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}], "next_annid": 32}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(YKPRVZNGBZ_data), "YKPRVZNGBZ-").init();
+    let ENYRIANXCT_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(ENYRIANXCT_data), "ENYRIANXCT-").init();
     </script>
   </div>
 
@@ -584,84 +596,359 @@ var gatenlpDocView = class {
 
 
 
+After annotating with the AnnStanza annotator, the document has now the document text, a sequence of characters, and a sequence of Token, Sentence, PERSON and other annotations. The Token annotations have a number of features, among others, the `upos` feature which contains the universal dependencies part of speech tag.
+
+PAMPAC can now be used to find patterns in those annotations.
+
+## Using PAMPAC
+
+PAMPAC allows you to create complex patterns for matching annotations or text based on basic patterns (match an annotation, match some text) and means to combine them (match a sequence of something, match a repetition of something, match alternatives etc.). For any match found, some action can be performed.
+
+In order to do this the following steps are needed:
+* create a _pattern_ (also called _parser_) which describes this sequence
+* create a _rule_ for finding the pattern and performing an _action_ if something has been found
+* create the `Pampac` _matcher_ from the rules and configure how it should apply the rules to a document
+* create the `PampacAnnotator` _annotator_ which will actually run everything on a document
+
 
 ```python
-tokens = doc.annset().with_type("Token")
-list(tokens)[0]
+from gatenlp.pam.pampac import PampacAnnotator, Pampac, Rule
+from gatenlp.pam.pampac import Ann, AnnAt, Or, And, Filter, Find, Lookahead, N, Seq, Text
+from gatenlp.pam.pampac import AddAnn, UpdateAnnFeatures
+from gatenlp.pam.pampac import GetAnn, GetEnd, GetFeature, GetFeatures, GetRegexGroup, GetStart, GetText, GetType
+from gatenlp.pam.matcher import isIn, IfNot, Nocase
+```
+
+
+```python
+
+```
+
+## Example 1: Finding Annotations
+
+To find annotations the `Ann` parser is used. The parameters of the `Ann` parser specify which conditions have
+to be satisfied to match an annotation.
+
+Let us create a parser to find all annotations which have type "Token" and a feature "upos" with the value "NOUN"
+
+
+```python
+pat1 = Ann(type="Token", features=dict(upos="NOUN"))
+```
+
+Next, create an action which adds a new annotation of type "PATTERN" 
+
+
+```python
+action1 = AddAnn(type="PATTERN1")
+```
+
+Combine the parser and the action into a rule:
+
+
+```python
+rule1 = Rule(pat1, action1)
+```
+
+Once we have one or more rules, a Pampac matcher can be built. The matcher can be configured to influence
+how matching rules should get choosen to perform an action (e.g. only apply the first matching rule) and how to conginue matching after a match has been found: try to match at the next position or after the longest match that has been found. 
+
+
+```python
+pampac1 = Pampac(rule1, skip="longest", select="first")
+```
+
+Now, we can create a Pampac annotator from the matcher and define which input annotations to use and in which set to create any new annotations. Input annotations get specified as a list of tuples, where the first element of each tuple is the annotation set name and the second element is either a single type or a list of types. That way, the mix of annotations to use can be defined very flexibly.
+
+
+```python
+annt1 = PampacAnnotator(pampac1, 
+                        ann_desc=[("", "Token")],
+                        outset_name="example1"
+                       )
+```
+
+Now we can run the annotator on the document and inspect the result. 
+
+
+```python
+tmpdoc = doc.clone()
+annt1(tmpdoc)
+tmpdoc
 ```
 
 
 
 
-    Annotation(0,6,Token,features=Features({'text': 'Barack', 'upos': 'PROPN', 'xpos': 'NNP', 'Number': 'Sing'}),id=0)
+<div><style>#PGNFFVAVEA-wrapper { color: black !important; }</style>
+<div id="PGNFFVAVEA-wrapper">
+
+<div>
+<style>
+#PGNFFVAVEA-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.PGNFFVAVEA-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.PGNFFVAVEA-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.PGNFFVAVEA-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.PGNFFVAVEA-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.PGNFFVAVEA-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#PGNFFVAVEA-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.PGNFFVAVEA-selection {
+    margin-bottom: 5px;
+}
+
+.PGNFFVAVEA-featuretable {
+    margin-top: 10px;
+}
+
+.PGNFFVAVEA-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.PGNFFVAVEA-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="PGNFFVAVEA-content">
+        <div id="PGNFFVAVEA-popup" style="display: none;">
+        </div>
+        <div class="PGNFFVAVEA-row" id="PGNFFVAVEA-row1" style="max-height: 20em; min-height:5em;">
+            <div id="PGNFFVAVEA-text-wrapper" class="PGNFFVAVEA-col" style="width:70%;">
+                <div class="PGNFFVAVEA-hdr" id="PGNFFVAVEA-dochdr"></div>
+                <div id="PGNFFVAVEA-text" style="">
+                </div>
+            </div>
+            <div id="PGNFFVAVEA-chooser" class="PGNFFVAVEA-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="PGNFFVAVEA-row" id="PGNFFVAVEA-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="PGNFFVAVEA-details" class="PGNFFVAVEA-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let PGNFFVAVEA_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example1": {"name": "detached-from:example1", "annotations": [{"type": "PATTERN1", "start": 26, "end": 35, "id": 0, "features": {}}, {"type": "PATTERN1", "start": 143, "end": 152, "id": 1, "features": {}}, {"type": "PATTERN1", "start": 177, "end": 185, "id": 2, "features": {}}, {"type": "PATTERN1", "start": 220, "end": 224, "id": 3, "features": {}}, {"type": "PATTERN1", "start": 244, "end": 252, "id": 4, "features": {}}, {"type": "PATTERN1", "start": 267, "end": 271, "id": 5, "features": {}}, {"type": "PATTERN1", "start": 304, "end": 309, "id": 6, "features": {}}, {"type": "PATTERN1", "start": 336, "end": 340, "id": 7, "features": {}}, {"type": "PATTERN1", "start": 398, "end": 402, "id": 8, "features": {}}, {"type": "PATTERN1", "start": 432, "end": 436, "id": 9, "features": {}}], "next_annid": 10}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(PGNFFVAVEA_data), "PGNFFVAVEA-").init();
+    </script>
+  </div>
+
+</div></div>
 
 
 
-After annotating with the AnnStanza annotator, the document has now the document text, a sequence of characters, and a sequence of Token and Sentence annotations. 
+## Example 2: Annotation constraints
 
-One standard way of detecting sequences of characters in text is with a regular expression pattern matcher. 
+In the previous example the `Ann` parser was configured with two constraints: `type="Token"` and `features=dict(upos="NOUN")`. It is possible to specify additional constraints and use special constraint helpers to create more complex constraints. 
 
-Let us try to use this for creating new annotations: suppose we want to find all words which start with an uppercase alphabetic character and have then all lowercase alphabetic characters. 
+For example, lets assume we want to find all Token annotations where the upos feature is one of the values "NOUN", or "DET". This can be achieved with the `isIn` helper:
 
-This can be described by the regular expression pattern `[A-Z][a-z]+`
 
-(NOTE: a better expression that can handle all unicode characters would be `\p{Lu}\p{Ll}+` but this only works with the extra Python package `regex` which needs to get installed separately). 
+```python
+pat2 = Ann(type="Token", features=dict(upos=isIn("NOUN","DET")))
+action2 = AddAnn(type="PATTERN1")
+rule2 = Rule(pat2, action2)
+pampac2 = Pampac(rule2, skip="longest", select="first")
+annt2 = PampacAnnotator(pampac2, ann_desc=[("", "Token")], outset_name="example2")
+tmpdoc = doc.clone()
+annt2(tmpdoc)
+tmpdoc
+```
+
+
+
+
+<div><style>#LZIQATEYRO-wrapper { color: black !important; }</style>
+<div id="LZIQATEYRO-wrapper">
+
+<div>
+<style>
+#LZIQATEYRO-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.LZIQATEYRO-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.LZIQATEYRO-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.LZIQATEYRO-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.LZIQATEYRO-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.LZIQATEYRO-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#LZIQATEYRO-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.LZIQATEYRO-selection {
+    margin-bottom: 5px;
+}
+
+.LZIQATEYRO-featuretable {
+    margin-top: 10px;
+}
+
+.LZIQATEYRO-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.LZIQATEYRO-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="LZIQATEYRO-content">
+        <div id="LZIQATEYRO-popup" style="display: none;">
+        </div>
+        <div class="LZIQATEYRO-row" id="LZIQATEYRO-row1" style="max-height: 20em; min-height:5em;">
+            <div id="LZIQATEYRO-text-wrapper" class="LZIQATEYRO-col" style="width:70%;">
+                <div class="LZIQATEYRO-hdr" id="LZIQATEYRO-dochdr"></div>
+                <div id="LZIQATEYRO-text" style="">
+                </div>
+            </div>
+            <div id="LZIQATEYRO-chooser" class="LZIQATEYRO-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="LZIQATEYRO-row" id="LZIQATEYRO-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="LZIQATEYRO-details" class="LZIQATEYRO-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let LZIQATEYRO_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example2": {"name": "detached-from:example2", "annotations": [{"type": "PATTERN1", "start": 17, "end": 20, "id": 0, "features": {}}, {"type": "PATTERN1", "start": 26, "end": 35, "id": 1, "features": {}}, {"type": "PATTERN1", "start": 39, "end": 42, "id": 2, "features": {}}, {"type": "PATTERN1", "start": 143, "end": 152, "id": 3, "features": {}}, {"type": "PATTERN1", "start": 175, "end": 176, "id": 4, "features": {}}, {"type": "PATTERN1", "start": 177, "end": 185, "id": 5, "features": {}}, {"type": "PATTERN1", "start": 220, "end": 224, "id": 6, "features": {}}, {"type": "PATTERN1", "start": 242, "end": 243, "id": 7, "features": {}}, {"type": "PATTERN1", "start": 244, "end": 252, "id": 8, "features": {}}, {"type": "PATTERN1", "start": 258, "end": 261, "id": 9, "features": {}}, {"type": "PATTERN1", "start": 267, "end": 271, "id": 10, "features": {}}, {"type": "PATTERN1", "start": 304, "end": 309, "id": 11, "features": {}}, {"type": "PATTERN1", "start": 332, "end": 335, "id": 12, "features": {}}, {"type": "PATTERN1", "start": 336, "end": 340, "id": 13, "features": {}}, {"type": "PATTERN1", "start": 388, "end": 391, "id": 14, "features": {}}, {"type": "PATTERN1", "start": 398, "end": 402, "id": 15, "features": {}}, {"type": "PATTERN1", "start": 422, "end": 425, "id": 16, "features": {}}, {"type": "PATTERN1", "start": 432, "end": 436, "id": 17, "features": {}}], "next_annid": 18}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(LZIQATEYRO_data), "LZIQATEYRO-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+Another way to use more complex constraints when using `Ann` is to use a regular expression in place of a string. This works with the annotation type parameter and with the feature values in the `features` and `features_eq` parameters.
+
+BTW, the `features` parameter will check that whatever is specified occurs in the features of an annotation, but the annotation can contain other, additional features. The `features_eq` parameter instead checks that what is specified is exactly matching the features, and there are no additional other features. 
+
+Here a pattern that will match any annotation where the "text" feature contains an upper or lower case a anywhere.
 
 
 ```python
 import re
-
-re_pattern1 = re.compile(r"[A-Z][a-z]+")
-
-# Once we have the pattern we can iterate over all the matches in the text and get the offsets
-# Let as also create annotations of type "UIToken" (for upper initial token)
-anns = doc.annset()
-for m in re.finditer(re_pattern1, doc.text):
-    print("Found a match: ",m)
-    anns.add(m.start(), m.end(), "UIToken")
-```
-
-    Found a match:  <_sre.SRE_Match object; span=(0, 6), match='Barack'>
-    Found a match:  <_sre.SRE_Match object; span=(7, 12), match='Obama'>
-    Found a match:  <_sre.SRE_Match object; span=(62, 68), match='George'>
-    Found a match:  <_sre.SRE_Match object; span=(72, 76), match='Bush'>
-    Found a match:  <_sre.SRE_Match object; span=(99, 105), match='Donald'>
-    Found a match:  <_sre.SRE_Match object; span=(106, 111), match='Trump'>
-    Found a match:  <_sre.SRE_Match object; span=(113, 119), match='Before'>
-    Found a match:  <_sre.SRE_Match object; span=(120, 124), match='Bush'>
-    Found a match:  <_sre.SRE_Match object; span=(126, 130), match='Bill'>
-    Found a match:  <_sre.SRE_Match object; span=(131, 138), match='Clinton'>
-
-
-
-```python
-# This was easy.
-# The document has now the annotations for the matching text:
-doc
+PAT2b = re.compile(r'.*[aA].*')
+pat2b = Ann(type="Token", features=dict(text=PAT2b))
+action2b = AddAnn(type="PATTERN1")
+rule2b = Rule(pat2b, action2b)
+pampac2b = Pampac(rule2b, skip="longest", select="first")
+annt2b = PampacAnnotator(pampac2b, ann_desc=[("", "Token")], outset_name="example2b")
+tmpdoc = doc.clone()
+annt2b(tmpdoc)
+tmpdoc
 ```
 
 
 
 
-<div><style>#GFSPZDIRUD-wrapper { color: black !important; }</style>
-<div id="GFSPZDIRUD-wrapper">
+<div><style>#GZGVNFINKT-wrapper { color: black !important; }</style>
+<div id="GZGVNFINKT-wrapper">
 
 <div>
 <style>
-#GFSPZDIRUD-content {
+#GZGVNFINKT-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.GFSPZDIRUD-row {
+.GZGVNFINKT-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.GFSPZDIRUD-col {
+.GZGVNFINKT-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -671,23 +958,23 @@ doc
     overflow-y: auto;
 }
 
-.GFSPZDIRUD-hdr {
+.GZGVNFINKT-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.GFSPZDIRUD-label {
+.GZGVNFINKT-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.GFSPZDIRUD-input {
+.GZGVNFINKT-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#GFSPZDIRUD-popup {
+#GZGVNFINKT-popup {
     display: none;
     color: black;
     position: absolute;
@@ -702,43 +989,43 @@ doc
     overflow: auto;
 }
 
-.GFSPZDIRUD-selection {
+.GZGVNFINKT-selection {
     margin-bottom: 5px;
 }
 
-.GFSPZDIRUD-featuretable {
+.GZGVNFINKT-featuretable {
     margin-top: 10px;
 }
 
-.GFSPZDIRUD-fname {
+.GZGVNFINKT-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.GFSPZDIRUD-fvalue {
+.GZGVNFINKT-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="GFSPZDIRUD-content">
-        <div id="GFSPZDIRUD-popup" style="display: none;">
+  <div id="GZGVNFINKT-content">
+        <div id="GZGVNFINKT-popup" style="display: none;">
         </div>
-        <div class="GFSPZDIRUD-row" id="GFSPZDIRUD-row1" style="max-height: 20em; min-height:5em;">
-            <div id="GFSPZDIRUD-text-wrapper" class="GFSPZDIRUD-col" style="width:70%;">
-                <div class="GFSPZDIRUD-hdr" id="GFSPZDIRUD-dochdr"></div>
-                <div id="GFSPZDIRUD-text" style="">
+        <div class="GZGVNFINKT-row" id="GZGVNFINKT-row1" style="max-height: 20em; min-height:5em;">
+            <div id="GZGVNFINKT-text-wrapper" class="GZGVNFINKT-col" style="width:70%;">
+                <div class="GZGVNFINKT-hdr" id="GZGVNFINKT-dochdr"></div>
+                <div id="GZGVNFINKT-text" style="">
                 </div>
             </div>
-            <div id="GFSPZDIRUD-chooser" class="GFSPZDIRUD-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="GZGVNFINKT-chooser" class="GZGVNFINKT-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="GFSPZDIRUD-row" id="GFSPZDIRUD-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="GFSPZDIRUD-details" class="GFSPZDIRUD-col" style="width:100%; border-top-width: 0px;">
+        <div class="GZGVNFINKT-row" id="GZGVNFINKT-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="GZGVNFINKT-details" class="GZGVNFINKT-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let GFSPZDIRUD_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "UIToken", "start": 0, "end": 6, "id": 32, "features": {}}, {"type": "UIToken", "start": 7, "end": 12, "id": 33, "features": {}}, {"type": "UIToken", "start": 62, "end": 68, "id": 34, "features": {}}, {"type": "UIToken", "start": 72, "end": 76, "id": 35, "features": {}}, {"type": "UIToken", "start": 99, "end": 105, "id": 36, "features": {}}, {"type": "UIToken", "start": 106, "end": 111, "id": 37, "features": {}}, {"type": "UIToken", "start": 113, "end": 119, "id": 38, "features": {}}, {"type": "UIToken", "start": 120, "end": 124, "id": 39, "features": {}}, {"type": "UIToken", "start": 126, "end": 130, "id": 40, "features": {}}, {"type": "UIToken", "start": 131, "end": 138, "id": 41, "features": {}}], "next_annid": 42}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(GFSPZDIRUD_data), "GFSPZDIRUD-").init();
+    let GZGVNFINKT_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example2b": {"name": "detached-from:example2b", "annotations": [{"type": "PATTERN1", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "PATTERN1", "start": 7, "end": 12, "id": 1, "features": {}}, {"type": "PATTERN1", "start": 13, "end": 16, "id": 2, "features": {}}, {"type": "PATTERN1", "start": 46, "end": 49, "id": 3, "features": {}}, {"type": "PATTERN1", "start": 77, "end": 80, "id": 4, "features": {}}, {"type": "PATTERN1", "start": 83, "end": 86, "id": 5, "features": {}}, {"type": "PATTERN1", "start": 99, "end": 105, "id": 6, "features": {}}, {"type": "PATTERN1", "start": 139, "end": 142, "id": 7, "features": {}}, {"type": "PATTERN1", "start": 156, "end": 160, "id": 8, "features": {}}, {"type": "PATTERN1", "start": 175, "end": 176, "id": 9, "features": {}}, {"type": "PATTERN1", "start": 186, "end": 191, "id": 10, "features": {}}, {"type": "PATTERN1", "start": 198, "end": 203, "id": 11, "features": {}}, {"type": "PATTERN1", "start": 213, "end": 219, "id": 12, "features": {}}, {"type": "PATTERN1", "start": 228, "end": 234, "id": 13, "features": {}}, {"type": "PATTERN1", "start": 238, "end": 241, "id": 14, "features": {}}, {"type": "PATTERN1", "start": 242, "end": 243, "id": 15, "features": {}}, {"type": "PATTERN1", "start": 267, "end": 271, "id": 16, "features": {}}, {"type": "PATTERN1", "start": 275, "end": 279, "id": 17, "features": {}}, {"type": "PATTERN1", "start": 283, "end": 288, "id": 18, "features": {}}, {"type": "PATTERN1", "start": 310, "end": 313, "id": 19, "features": {}}, {"type": "PATTERN1", "start": 314, "end": 318, "id": 20, "features": {}}, {"type": "PATTERN1", "start": 342, "end": 346, "id": 21, "features": {}}, {"type": "PATTERN1", "start": 351, "end": 356, "id": 22, "features": {}}, {"type": "PATTERN1", "start": 367, "end": 371, "id": 23, "features": {}}, {"type": "PATTERN1", "start": 372, "end": 378, "id": 24, "features": {}}, {"type": "PATTERN1", "start": 379, "end": 384, "id": 25, "features": {}}, {"type": "PATTERN1", "start": 388, "end": 391, "id": 26, "features": {}}, {"type": "PATTERN1", "start": 398, "end": 402, "id": 27, "features": {}}, {"type": "PATTERN1", "start": 403, "end": 406, "id": 28, "features": {}}, {"type": "PATTERN1", "start": 413, "end": 418, "id": 29, "features": {}}, {"type": "PATTERN1", "start": 422, "end": 425, "id": 30, "features": {}}, {"type": "PATTERN1", "start": 432, "end": 436, "id": 31, "features": {}}], "next_annid": 32}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(GZGVNFINKT_data), "GZGVNFINKT-").init();
     </script>
   </div>
 
@@ -746,182 +1033,444 @@ doc
 
 
 
-But what if we want to create new annotations based on sequences of existing annotations or both annotations and text? For example we may want to find sequences of tokens that have certain pos tags, but only if they follow some specific text etc. 
+It is also possible to use one's own function for the type or feature value parameters: if the function returns True for the type name or feature value, it is considered a match.
 
-This is what PAMPAC is for: unlike Python regular expressions it operates on text and sequences of annoations at the same time. To get a sequence of annotations, we first need to decide which annotations to include in the sequence. Let es only include the annotations with annotation type "Token" for now. 
-
-
-```python
-token_seq = anns.with_type("Token")
-# The token annotations in the set are nicely ordered by offset:
-for ann in token_seq:
-    print (f"Annotation id={ann.id} from {ann.start} to {ann.end} for {doc[ann]}")
-```
-
-    Annotation id=0 from 0 to 6 for Barack
-    Annotation id=1 from 7 to 12 for Obama
-    Annotation id=2 from 13 to 16 for was
-    Annotation id=3 from 17 to 20 for the
-    Annotation id=4 from 21 to 25 for 44th
-    Annotation id=5 from 26 to 35 for president
-    Annotation id=6 from 36 to 38 for of
-    Annotation id=7 from 39 to 42 for the
-    Annotation id=8 from 43 to 45 for US
-    Annotation id=9 from 46 to 49 for and
-    Annotation id=10 from 50 to 52 for he
-    Annotation id=11 from 53 to 61 for followed
-    Annotation id=12 from 62 to 68 for George
-    Annotation id=13 from 69 to 71 for W.
-    Annotation id=14 from 72 to 76 for Bush
-    Annotation id=15 from 77 to 80 for and
-    Annotation id=16 from 83 to 86 for was
-    Annotation id=17 from 87 to 95 for followed
-    Annotation id=18 from 96 to 98 for by
-    Annotation id=19 from 99 to 105 for Donald
-    Annotation id=20 from 106 to 111 for Trump
-    Annotation id=21 from 111 to 112 for .
-    Annotation id=23 from 113 to 119 for Before
-    Annotation id=24 from 120 to 124 for Bush
-    Annotation id=25 from 124 to 125 for ,
-    Annotation id=26 from 126 to 130 for Bill
-    Annotation id=27 from 131 to 138 for Clinton
-    Annotation id=28 from 139 to 142 for was
-    Annotation id=29 from 143 to 152 for president
-    Annotation id=30 from 152 to 153 for .
-
-
-Let us try to annotate all sequences of one or more Tokens where the pos tag is "NNP". 
+Let us use a function to check whether the text feature of a Token annotation has a length that is 1 or 2:
 
 
 ```python
-from gatenlp.pam.pampac import Ann, AnnAt, Rule, Pampac, AddAnn
+pat2c = Ann(type="Token", features=dict(text=lambda x: len(x) == 1 or len(x) ==2))
+action2c = AddAnn(type="PATTERN1")
+rule2c = Rule(pat2c, action2c)
+pampac2c = Pampac(rule2c, skip="longest", select="first")
+annt2c = PampacAnnotator(pampac2c, ann_desc=[("", "Token")], outset_name="example2c")
+tmpdoc = doc.clone()
+annt2c(tmpdoc)
+tmpdoc
 ```
 
-## How to use Pampac
-
-Pampac works by running the Pampac matcher on a document an a list of annotations and specifying the output annotation set:
-
-```
-Pampac(rule1, rule2, rule3).run(doc, anns, outset=myoutset)
-```
-
-This runs all the rules in the list on the document and if rules match, executes the action defined for each matching rule. Pampac has additional arguments to influence how rules are matched and for which of the matching rules the actions are fired.
-
-Each rule used with Pampac should be an instance of `Rule`. A rule is created by specifying a pattern to match in the document and one or more actions: 
-
-```
-rule1 = Rule(pattern1, AddAnn(name="p1match", anntype="Test"))
-```
-
-Each action can either be one of the predefined actions available from the pampac module or an arbitrary function which gets called with parse result of a successful match of the pattern if the rule fires.
-The `name` parameter for predefined actions is used to choose the named part of pattern match one is interested in. Most patterns allow to give names to the data they create for whatever is matched by them. 
-
-There are various buildings block for creating patterns. The first set of building blocks are "Terminal Parsers" which match something present in the document, e.g. the next annotation in the sequence of annotations to process:
-
-The following pattern matches successfully if the next annotation in the annotation sequence has type "Person" 
-and has a feature `gender` which has the value `"male"`:
-
-```
-pattern1 = Ann("Person", features=dict(gender="male"))
-```
-
-Sometimes it is possible that several annotations are located at the same starting offset. The follogin pattern matches any of the annotations at the same offset as the next annotation in the annotation sequence:
-
-```
-pattern1 = AnnAt("Person", features=dict(gender="male"))
-```
-
-The following pattern matches text at the next offset thats get matched: 
-
-```
-pattern = Text("Some text", matchcase=True)
-```
-
-The same class can be used to match arbitrary regular expressions instead. 
-
-```
-pattern = Text(re.compile(r"[0-9]+"))
-```
-
-### Complex Patterns
-
-More complex patterns can be created from the simple Terminal Parsers, for example, matching a sequence of terminal parsers: 
-
-```
-Seq(Ann(anntype="Person"), Ann(anntype="Token"), Ann(anntype="Person"))
-```
-
-would match only if the annotation sequence contains annotations of exactly those types in sequence. 
-This can also be written down using operator syntax, using the "Pampac sequence operator": 
-
-```
-Ann(anntype="Person") >> Ann(anntype="Token") >> Ann(anntype="Person")
-```
-
-Another complex pattern is `N` which specifies how a given pattern should occur a certain number of times, 
-e.g. the following would match a sequence of two to three annotations of type "Type1":
-
-``` 
-N(Ann(anntype="Type1"), min=2, max=3)
-```
-
-These and other basic parser types can be combined and nested arbitrarily to create more complex patterns. 
-
-Let us try some simple examples:
 
 
 
+<div><style>#UPPUNDCURI-wrapper { color: black !important; }</style>
+<div id="UPPUNDCURI-wrapper">
+
+<div>
+<style>
+#UPPUNDCURI-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.UPPUNDCURI-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.UPPUNDCURI-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.UPPUNDCURI-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.UPPUNDCURI-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.UPPUNDCURI-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#UPPUNDCURI-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.UPPUNDCURI-selection {
+    margin-bottom: 5px;
+}
+
+.UPPUNDCURI-featuretable {
+    margin-top: 10px;
+}
+
+.UPPUNDCURI-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.UPPUNDCURI-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="UPPUNDCURI-content">
+        <div id="UPPUNDCURI-popup" style="display: none;">
+        </div>
+        <div class="UPPUNDCURI-row" id="UPPUNDCURI-row1" style="max-height: 20em; min-height:5em;">
+            <div id="UPPUNDCURI-text-wrapper" class="UPPUNDCURI-col" style="width:70%;">
+                <div class="UPPUNDCURI-hdr" id="UPPUNDCURI-dochdr"></div>
+                <div id="UPPUNDCURI-text" style="">
+                </div>
+            </div>
+            <div id="UPPUNDCURI-chooser" class="UPPUNDCURI-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="UPPUNDCURI-row" id="UPPUNDCURI-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="UPPUNDCURI-details" class="UPPUNDCURI-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let UPPUNDCURI_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example2c": {"name": "detached-from:example2c", "annotations": [{"type": "PATTERN1", "start": 36, "end": 38, "id": 0, "features": {}}, {"type": "PATTERN1", "start": 43, "end": 45, "id": 1, "features": {}}, {"type": "PATTERN1", "start": 50, "end": 52, "id": 2, "features": {}}, {"type": "PATTERN1", "start": 69, "end": 71, "id": 3, "features": {}}, {"type": "PATTERN1", "start": 96, "end": 98, "id": 4, "features": {}}, {"type": "PATTERN1", "start": 111, "end": 112, "id": 5, "features": {}}, {"type": "PATTERN1", "start": 124, "end": 125, "id": 6, "features": {}}, {"type": "PATTERN1", "start": 152, "end": 153, "id": 7, "features": {}}, {"type": "PATTERN1", "start": 160, "end": 161, "id": 8, "features": {}}, {"type": "PATTERN1", "start": 175, "end": 176, "id": 9, "features": {}}, {"type": "PATTERN1", "start": 210, "end": 212, "id": 10, "features": {}}, {"type": "PATTERN1", "start": 225, "end": 227, "id": 11, "features": {}}, {"type": "PATTERN1", "start": 234, "end": 235, "id": 12, "features": {}}, {"type": "PATTERN1", "start": 242, "end": 243, "id": 13, "features": {}}, {"type": "PATTERN1", "start": 272, "end": 274, "id": 14, "features": {}}, {"type": "PATTERN1", "start": 280, "end": 282, "id": 15, "features": {}}, {"type": "PATTERN1", "start": 288, "end": 289, "id": 16, "features": {}}, {"type": "PATTERN1", "start": 341, "end": 342, "id": 17, "features": {}}, {"type": "PATTERN1", "start": 346, "end": 347, "id": 18, "features": {}}, {"type": "PATTERN1", "start": 348, "end": 350, "id": 19, "features": {}}, {"type": "PATTERN1", "start": 356, "end": 357, "id": 20, "features": {}}, {"type": "PATTERN1", "start": 385, "end": 387, "id": 21, "features": {}}, {"type": "PATTERN1", "start": 419, "end": 421, "id": 22, "features": {}}], "next_annid": 23}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(UPPUNDCURI_data), "UPPUNDCURI-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Example 3: Matching Text
+
+It is also possible to match Text with the `Text` parser. The `Text` parser can take either some literal text to find or a compiled regular expression. If a literal text is specified the parameter `matchcase=False` can be used to enable case-insensitive matching.
+
+In this example we use the `Text` parser to directly match any sequence of characters that starts and ends with an a, but does not contain whitespace:
 
 
 ```python
-# Find any sequence of 2 to 5 Token annotations, where the xpos feature equals NNP and create a new annotation
-# with annotation type for the span matched.
+PAT3a = re.compile(r'[aA][^\s]*[aA]')
+pat3a = Text(text=PAT3a)
+action3a = AddAnn(type="PATTERN3a")
+rule3a = Rule(pat3a, action3a)
+pampac3a = Pampac(rule3a, skip="longest", select="first")
+annt3a = PampacAnnotator(pampac3a, ann_desc=[("", "Token")], outset_name="example3a")
+tmpdoc = doc.clone()
+annt3a(tmpdoc)
+tmpdoc
+```
 
-# Define a rule for matching that pattern and adding an annotation with the AddAnn action. Note that the names
-# used for the N matcher and for the action are the same.
 
-r1 = Rule(
-    N(Ann("Token", features=dict(xpos="NNP")), min=2, max=5, name="seq1"),
-    AddAnn(name="seq1", type="Name")
+
+
+<div><style>#LQRUKXNWZQ-wrapper { color: black !important; }</style>
+<div id="LQRUKXNWZQ-wrapper">
+
+<div>
+<style>
+#LQRUKXNWZQ-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.LQRUKXNWZQ-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.LQRUKXNWZQ-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.LQRUKXNWZQ-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.LQRUKXNWZQ-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.LQRUKXNWZQ-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#LQRUKXNWZQ-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.LQRUKXNWZQ-selection {
+    margin-bottom: 5px;
+}
+
+.LQRUKXNWZQ-featuretable {
+    margin-top: 10px;
+}
+
+.LQRUKXNWZQ-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.LQRUKXNWZQ-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="LQRUKXNWZQ-content">
+        <div id="LQRUKXNWZQ-popup" style="display: none;">
+        </div>
+        <div class="LQRUKXNWZQ-row" id="LQRUKXNWZQ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="LQRUKXNWZQ-text-wrapper" class="LQRUKXNWZQ-col" style="width:70%;">
+                <div class="LQRUKXNWZQ-hdr" id="LQRUKXNWZQ-dochdr"></div>
+                <div id="LQRUKXNWZQ-text" style="">
+                </div>
+            </div>
+            <div id="LQRUKXNWZQ-chooser" class="LQRUKXNWZQ-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="LQRUKXNWZQ-row" id="LQRUKXNWZQ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="LQRUKXNWZQ-details" class="LQRUKXNWZQ-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let LQRUKXNWZQ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example3a": {"name": "detached-from:example3a", "annotations": [{"type": "PATTERN3a", "start": 1, "end": 4, "id": 0, "features": {}}, {"type": "PATTERN3a", "start": 9, "end": 12, "id": 1, "features": {}}, {"type": "PATTERN3a", "start": 373, "end": 376, "id": 2, "features": {}}, {"type": "PATTERN3a", "start": 381, "end": 384, "id": 3, "features": {}}], "next_annid": 4}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(LQRUKXNWZQ_data), "LQRUKXNWZQ-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Example 4: Repetitions of annotations
+
+
+`Ann` and `Text` are the most "basic" patterns to match, PAMPAC offers a number of ways for how to build more complex patterns from those basic patterns. One is the parser `N` which can be used to find a sequence of m to n repetitions of the same sub pattern.
+
+For this example, lets find any repetition of 2 to 4 Tokens with the `upos` feature equal to "PROPN".
+
+The parser `N` allows to specify the minimum and maximum number of occurrences using the `min` and `max` parameters. 
+Note that not specifying a max parameter does NOT mean an unlimited number of repetitions but sets the max parameter to the default value 1.
+
+
+```python
+pat4a = N(
+    Ann("Token", features=dict(upos="PROPN")),
+    min=2,
+    max=4,
+)
+action4a = AddAnn(type="PATTERN4a")
+rule4a = Rule(pat4a, action4a)
+pampac4a = Pampac(rule4a, skip="longest", select="first")
+annt4a = PampacAnnotator(pampac4a, ann_desc=[("", "Token")], outset_name="example4a")
+tmpdoc = doc.clone()
+annt4a(tmpdoc)
+tmpdoc
+```
+
+
+
+
+<div><style>#GRKEATKOHE-wrapper { color: black !important; }</style>
+<div id="GRKEATKOHE-wrapper">
+
+<div>
+<style>
+#GRKEATKOHE-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GRKEATKOHE-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GRKEATKOHE-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GRKEATKOHE-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GRKEATKOHE-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GRKEATKOHE-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GRKEATKOHE-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GRKEATKOHE-selection {
+    margin-bottom: 5px;
+}
+
+.GRKEATKOHE-featuretable {
+    margin-top: 10px;
+}
+
+.GRKEATKOHE-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GRKEATKOHE-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GRKEATKOHE-content">
+        <div id="GRKEATKOHE-popup" style="display: none;">
+        </div>
+        <div class="GRKEATKOHE-row" id="GRKEATKOHE-row1" style="max-height: 20em; min-height:5em;">
+            <div id="GRKEATKOHE-text-wrapper" class="GRKEATKOHE-col" style="width:70%;">
+                <div class="GRKEATKOHE-hdr" id="GRKEATKOHE-dochdr"></div>
+                <div id="GRKEATKOHE-text" style="">
+                </div>
+            </div>
+            <div id="GRKEATKOHE-chooser" class="GRKEATKOHE-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GRKEATKOHE-row" id="GRKEATKOHE-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="GRKEATKOHE-details" class="GRKEATKOHE-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let GRKEATKOHE_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example4a": {"name": "detached-from:example4a", "annotations": [{"type": "PATTERN4a", "start": 0, "end": 12, "id": 0, "features": {}}, {"type": "PATTERN4a", "start": 62, "end": 76, "id": 1, "features": {}}, {"type": "PATTERN4a", "start": 99, "end": 111, "id": 2, "features": {}}, {"type": "PATTERN4a", "start": 126, "end": 138, "id": 3, "features": {}}, {"type": "PATTERN4a", "start": 192, "end": 203, "id": 4, "features": {}}, {"type": "PATTERN4a", "start": 372, "end": 384, "id": 5, "features": {}}, {"type": "PATTERN4a", "start": 407, "end": 418, "id": 6, "features": {}}], "next_annid": 7}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(GRKEATKOHE_data), "GRKEATKOHE-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Example 5: Sequence of annotations
+
+Often, we want to find a sequence of different annotations or a sequence of patterns, where each pattern in turn is something made up of sub-patterns. 
+
+For example, let us find all occurrences of 2 or more Tokens with the upos feature "PROPN" followed by a token with the lemma "be". So we need to combine the pattern with something that indicates that another token with some specific feature value should follow. This can be done with the `Seq` parser.
+
+We could create a pattern like this:
+
+
+```python
+pat5a = Seq(
+    N(
+        Ann("Token", features=dict(upos="PROPN")),
+        min=2,
+        max=3,
+    ),
+    Ann("Token", features=dict(lemma="be"))
 )
 ```
 
+Note, hoewever that the pattern for the 2 to 4 PROPN tokens has already been defined and assigned to the variable `pat4a` so we can simply re-use it here:
+
 
 ```python
-# Create the annotation set for the annotations we want to match (just the tokens)
-anns = doc.annset().with_type("Token")
-
-# Get the annotation set where we want to put new annotations
-outset = doc.annset("Out1")
-
-# Run Pampac
-Pampac(r1).run(doc, anns, outset=outset)
-
-doc
+pat5a = Seq(
+    pat4a,
+    Ann("Token", features=dict(lemma="be")),
+)
+action5a = AddAnn(type="PATTERN5a")
+rule5a = Rule(pat5a, action5a)
+pampac5a = Pampac(rule5a, skip="longest", select="first")
+annt5a = PampacAnnotator(pampac5a, ann_desc=[("", "Token")], outset_name="example5a")
+tmpdoc = doc.clone()
+annt5a(tmpdoc)
+tmpdoc
 ```
 
 
 
 
-<div><style>#GOTICHRKBU-wrapper { color: black !important; }</style>
-<div id="GOTICHRKBU-wrapper">
+<div><style>#OYIZBLFZGF-wrapper { color: black !important; }</style>
+<div id="OYIZBLFZGF-wrapper">
 
 <div>
 <style>
-#GOTICHRKBU-content {
+#OYIZBLFZGF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.GOTICHRKBU-row {
+.OYIZBLFZGF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.GOTICHRKBU-col {
+.OYIZBLFZGF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -931,23 +1480,23 @@ doc
     overflow-y: auto;
 }
 
-.GOTICHRKBU-hdr {
+.OYIZBLFZGF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.GOTICHRKBU-label {
+.OYIZBLFZGF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.GOTICHRKBU-input {
+.OYIZBLFZGF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#GOTICHRKBU-popup {
+#OYIZBLFZGF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -962,43 +1511,43 @@ doc
     overflow: auto;
 }
 
-.GOTICHRKBU-selection {
+.OYIZBLFZGF-selection {
     margin-bottom: 5px;
 }
 
-.GOTICHRKBU-featuretable {
+.OYIZBLFZGF-featuretable {
     margin-top: 10px;
 }
 
-.GOTICHRKBU-fname {
+.OYIZBLFZGF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.GOTICHRKBU-fvalue {
+.OYIZBLFZGF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="GOTICHRKBU-content">
-        <div id="GOTICHRKBU-popup" style="display: none;">
+  <div id="OYIZBLFZGF-content">
+        <div id="OYIZBLFZGF-popup" style="display: none;">
         </div>
-        <div class="GOTICHRKBU-row" id="GOTICHRKBU-row1" style="max-height: 20em; min-height:5em;">
-            <div id="GOTICHRKBU-text-wrapper" class="GOTICHRKBU-col" style="width:70%;">
-                <div class="GOTICHRKBU-hdr" id="GOTICHRKBU-dochdr"></div>
-                <div id="GOTICHRKBU-text" style="">
+        <div class="OYIZBLFZGF-row" id="OYIZBLFZGF-row1" style="max-height: 20em; min-height:5em;">
+            <div id="OYIZBLFZGF-text-wrapper" class="OYIZBLFZGF-col" style="width:70%;">
+                <div class="OYIZBLFZGF-hdr" id="OYIZBLFZGF-dochdr"></div>
+                <div id="OYIZBLFZGF-text" style="">
                 </div>
             </div>
-            <div id="GOTICHRKBU-chooser" class="GOTICHRKBU-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="OYIZBLFZGF-chooser" class="OYIZBLFZGF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="GOTICHRKBU-row" id="GOTICHRKBU-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="GOTICHRKBU-details" class="GOTICHRKBU-col" style="width:100%; border-top-width: 0px;">
+        <div class="OYIZBLFZGF-row" id="OYIZBLFZGF-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="OYIZBLFZGF-details" class="OYIZBLFZGF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let GOTICHRKBU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "UIToken", "start": 0, "end": 6, "id": 32, "features": {}}, {"type": "UIToken", "start": 7, "end": 12, "id": 33, "features": {}}, {"type": "UIToken", "start": 62, "end": 68, "id": 34, "features": {}}, {"type": "UIToken", "start": 72, "end": 76, "id": 35, "features": {}}, {"type": "UIToken", "start": 99, "end": 105, "id": 36, "features": {}}, {"type": "UIToken", "start": 106, "end": 111, "id": 37, "features": {}}, {"type": "UIToken", "start": 113, "end": 119, "id": 38, "features": {}}, {"type": "UIToken", "start": 120, "end": 124, "id": 39, "features": {}}, {"type": "UIToken", "start": 126, "end": 130, "id": 40, "features": {}}, {"type": "UIToken", "start": 131, "end": 138, "id": 41, "features": {}}], "next_annid": 42}, "Out1": {"name": "detached-from:Out1", "annotations": [{"type": "Name", "start": 0, "end": 12, "id": 0, "features": {}}, {"type": "Name", "start": 62, "end": 76, "id": 1, "features": {}}, {"type": "Name", "start": 99, "end": 111, "id": 2, "features": {}}, {"type": "Name", "start": 126, "end": 138, "id": 3, "features": {}}], "next_annid": 4}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(GOTICHRKBU_data), "GOTICHRKBU-").init();
+    let OYIZBLFZGF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example5a": {"name": "detached-from:example5a", "annotations": [{"type": "PATTERN5a", "start": 0, "end": 16, "id": 0, "features": {}}, {"type": "PATTERN5a", "start": 126, "end": 142, "id": 1, "features": {}}], "next_annid": 2}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(OYIZBLFZGF_data), "OYIZBLFZGF-").init();
     </script>
   </div>
 
@@ -1006,45 +1555,182 @@ doc
 
 
 
-## More examples
+### Match bindings
+
+As can be seen in the examples above, the action (in our case, adding a new annotation) will be carried out for the span and match data for the whole match, e.g. the whole sequence as in the previous example. 
+
+Sometimes, one would rather want to use just a specific sub-match for the action, or perform several actions, each for a different sub-part. This is possible in PAMPAC by binding sub matches to a name and then referring to that name in the action.
+
+To test this, lets perform the same pattern matching as above, but perform the action only for the match of the final token that matches the lemma "be":
 
 
 ```python
-# Example 01:
-# Find a Token that starts at the same offset as a Sentence:
-anns01 = doc.annset().with_type("Token", "Sentence")
+pat5b = Seq(
+    pat4a,
+    Ann("Token", features=dict(lemma="be"), name="lemma-be"),
+)
+action5b = AddAnn(type="PATTERN5b", name="lemma-be")
+rule5b = Rule(pat5b, action5b)
+pampac5b = Pampac(rule5b, skip="longest", select="first")
+annt5b = PampacAnnotator(pampac5b, ann_desc=[("", "Token")], outset_name="example5b")
+tmpdoc = doc.clone()
+annt5b(tmpdoc)
+tmpdoc
+```
 
-Pampac(
-    Rule(
-        Ann("Token", name="tok1").at("Sentence"),
-        AddAnn(name="tok1", type="FirstToken")
+
+
+
+<div><style>#ZYWCKFRQLH-wrapper { color: black !important; }</style>
+<div id="ZYWCKFRQLH-wrapper">
+
+<div>
+<style>
+#ZYWCKFRQLH-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.ZYWCKFRQLH-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.ZYWCKFRQLH-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.ZYWCKFRQLH-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.ZYWCKFRQLH-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.ZYWCKFRQLH-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#ZYWCKFRQLH-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.ZYWCKFRQLH-selection {
+    margin-bottom: 5px;
+}
+
+.ZYWCKFRQLH-featuretable {
+    margin-top: 10px;
+}
+
+.ZYWCKFRQLH-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.ZYWCKFRQLH-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="ZYWCKFRQLH-content">
+        <div id="ZYWCKFRQLH-popup" style="display: none;">
+        </div>
+        <div class="ZYWCKFRQLH-row" id="ZYWCKFRQLH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="ZYWCKFRQLH-text-wrapper" class="ZYWCKFRQLH-col" style="width:70%;">
+                <div class="ZYWCKFRQLH-hdr" id="ZYWCKFRQLH-dochdr"></div>
+                <div id="ZYWCKFRQLH-text" style="">
+                </div>
+            </div>
+            <div id="ZYWCKFRQLH-chooser" class="ZYWCKFRQLH-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="ZYWCKFRQLH-row" id="ZYWCKFRQLH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="ZYWCKFRQLH-details" class="ZYWCKFRQLH-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let ZYWCKFRQLH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example5b": {"name": "detached-from:example5b", "annotations": [{"type": "PATTERN5b", "start": 13, "end": 16, "id": 0, "features": {}}, {"type": "PATTERN5b", "start": 139, "end": 142, "id": 1, "features": {}}], "next_annid": 2}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(ZYWCKFRQLH_data), "ZYWCKFRQLH-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Example 6: Alternatives
+
+Another powerful way to combine sub patterns is by specifying that one of several patterns should be tried to get matched. This is done with the `Or` parser which will try each sub pattern in turn and return the first successful match.
+
+To illustate this, let us try to match either 2 to 4 Tokens with the "upos" feature equal to "PROPN" or 1 to 2 Tokens with an "upos" feature that has a value starting with "A". 
+
+
+```python
+pat6a = Or(
+    pat4a,
+    N(
+        Ann(type="Token", features=dict(upos=re.compile(r"^[aA]"))),
+        min=1,
+        max=2,
     )
-).run(doc, anns01, outset=doc.annset("OutEx01"))
-doc
+)
+action6a = AddAnn(type="PATTERN6a")
+rule6a = Rule(pat6a, action6a)
+pampac6a = Pampac(rule6a, skip="longest", select="first")
+annt6a = PampacAnnotator(pampac6a, ann_desc=[("", "Token")], outset_name="example6a")
+tmpdoc = doc.clone()
+annt6a(tmpdoc)
+tmpdoc
 ```
 
 
 
 
-<div><style>#HHMJUYFDNP-wrapper { color: black !important; }</style>
-<div id="HHMJUYFDNP-wrapper">
+<div><style>#FZEOTSPMTC-wrapper { color: black !important; }</style>
+<div id="FZEOTSPMTC-wrapper">
 
 <div>
 <style>
-#HHMJUYFDNP-content {
+#FZEOTSPMTC-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HHMJUYFDNP-row {
+.FZEOTSPMTC-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HHMJUYFDNP-col {
+.FZEOTSPMTC-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1054,23 +1740,23 @@ doc
     overflow-y: auto;
 }
 
-.HHMJUYFDNP-hdr {
+.FZEOTSPMTC-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HHMJUYFDNP-label {
+.FZEOTSPMTC-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HHMJUYFDNP-input {
+.FZEOTSPMTC-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HHMJUYFDNP-popup {
+#FZEOTSPMTC-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1085,43 +1771,43 @@ doc
     overflow: auto;
 }
 
-.HHMJUYFDNP-selection {
+.FZEOTSPMTC-selection {
     margin-bottom: 5px;
 }
 
-.HHMJUYFDNP-featuretable {
+.FZEOTSPMTC-featuretable {
     margin-top: 10px;
 }
 
-.HHMJUYFDNP-fname {
+.FZEOTSPMTC-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HHMJUYFDNP-fvalue {
+.FZEOTSPMTC-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HHMJUYFDNP-content">
-        <div id="HHMJUYFDNP-popup" style="display: none;">
+  <div id="FZEOTSPMTC-content">
+        <div id="FZEOTSPMTC-popup" style="display: none;">
         </div>
-        <div class="HHMJUYFDNP-row" id="HHMJUYFDNP-row1" style="max-height: 20em; min-height:5em;">
-            <div id="HHMJUYFDNP-text-wrapper" class="HHMJUYFDNP-col" style="width:70%;">
-                <div class="HHMJUYFDNP-hdr" id="HHMJUYFDNP-dochdr"></div>
-                <div id="HHMJUYFDNP-text" style="">
+        <div class="FZEOTSPMTC-row" id="FZEOTSPMTC-row1" style="max-height: 20em; min-height:5em;">
+            <div id="FZEOTSPMTC-text-wrapper" class="FZEOTSPMTC-col" style="width:70%;">
+                <div class="FZEOTSPMTC-hdr" id="FZEOTSPMTC-dochdr"></div>
+                <div id="FZEOTSPMTC-text" style="">
                 </div>
             </div>
-            <div id="HHMJUYFDNP-chooser" class="HHMJUYFDNP-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="FZEOTSPMTC-chooser" class="FZEOTSPMTC-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HHMJUYFDNP-row" id="HHMJUYFDNP-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="HHMJUYFDNP-details" class="HHMJUYFDNP-col" style="width:100%; border-top-width: 0px;">
+        <div class="FZEOTSPMTC-row" id="FZEOTSPMTC-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="FZEOTSPMTC-details" class="FZEOTSPMTC-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let HHMJUYFDNP_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "upos": "CCONJ", "xpos": "CC"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "upos": "ADP", "xpos": "IN"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "upos": "PUNCT", "xpos": ","}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "upos": "PUNCT", "xpos": "."}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "UIToken", "start": 0, "end": 6, "id": 32, "features": {}}, {"type": "UIToken", "start": 7, "end": 12, "id": 33, "features": {}}, {"type": "UIToken", "start": 62, "end": 68, "id": 34, "features": {}}, {"type": "UIToken", "start": 72, "end": 76, "id": 35, "features": {}}, {"type": "UIToken", "start": 99, "end": 105, "id": 36, "features": {}}, {"type": "UIToken", "start": 106, "end": 111, "id": 37, "features": {}}, {"type": "UIToken", "start": 113, "end": 119, "id": 38, "features": {}}, {"type": "UIToken", "start": 120, "end": 124, "id": 39, "features": {}}, {"type": "UIToken", "start": 126, "end": 130, "id": 40, "features": {}}, {"type": "UIToken", "start": 131, "end": 138, "id": 41, "features": {}}], "next_annid": 42}, "Out1": {"name": "detached-from:Out1", "annotations": [{"type": "Name", "start": 0, "end": 12, "id": 0, "features": {}}, {"type": "Name", "start": 62, "end": 76, "id": 1, "features": {}}, {"type": "Name", "start": 99, "end": 111, "id": 2, "features": {}}, {"type": "Name", "start": 126, "end": 138, "id": 3, "features": {}}], "next_annid": 4}, "OutEx01": {"name": "detached-from:OutEx01", "annotations": [{"type": "FirstToken", "start": 0, "end": 6, "id": 0, "features": {}}, {"type": "FirstToken", "start": 113, "end": 119, "id": 1, "features": {}}], "next_annid": 2}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(HHMJUYFDNP_data), "HHMJUYFDNP-").init();
+    let FZEOTSPMTC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example6a": {"name": "detached-from:example6a", "annotations": [{"type": "PATTERN6a", "start": 0, "end": 12, "id": 0, "features": {}}, {"type": "PATTERN6a", "start": 13, "end": 16, "id": 1, "features": {}}, {"type": "PATTERN6a", "start": 21, "end": 25, "id": 2, "features": {}}, {"type": "PATTERN6a", "start": 36, "end": 38, "id": 3, "features": {}}, {"type": "PATTERN6a", "start": 62, "end": 76, "id": 4, "features": {}}, {"type": "PATTERN6a", "start": 83, "end": 86, "id": 5, "features": {}}, {"type": "PATTERN6a", "start": 96, "end": 98, "id": 6, "features": {}}, {"type": "PATTERN6a", "start": 99, "end": 111, "id": 7, "features": {}}, {"type": "PATTERN6a", "start": 113, "end": 119, "id": 8, "features": {}}, {"type": "PATTERN6a", "start": 126, "end": 138, "id": 9, "features": {}}, {"type": "PATTERN6a", "start": 139, "end": 142, "id": 10, "features": {}}, {"type": "PATTERN6a", "start": 156, "end": 160, "id": 11, "features": {}}, {"type": "PATTERN6a", "start": 186, "end": 191, "id": 12, "features": {}}, {"type": "PATTERN6a", "start": 192, "end": 203, "id": 13, "features": {}}, {"type": "PATTERN6a", "start": 210, "end": 212, "id": 14, "features": {}}, {"type": "PATTERN6a", "start": 225, "end": 227, "id": 15, "features": {}}, {"type": "PATTERN6a", "start": 253, "end": 257, "id": 16, "features": {}}, {"type": "PATTERN6a", "start": 262, "end": 266, "id": 17, "features": {}}, {"type": "PATTERN6a", "start": 272, "end": 274, "id": 18, "features": {}}, {"type": "PATTERN6a", "start": 280, "end": 282, "id": 19, "features": {}}, {"type": "PATTERN6a", "start": 314, "end": 323, "id": 20, "features": {}}, {"type": "PATTERN6a", "start": 327, "end": 331, "id": 21, "features": {}}, {"type": "PATTERN6a", "start": 348, "end": 350, "id": 22, "features": {}}, {"type": "PATTERN6a", "start": 367, "end": 371, "id": 23, "features": {}}, {"type": "PATTERN6a", "start": 372, "end": 384, "id": 24, "features": {}}, {"type": "PATTERN6a", "start": 385, "end": 387, "id": 25, "features": {}}, {"type": "PATTERN6a", "start": 392, "end": 397, "id": 26, "features": {}}, {"type": "PATTERN6a", "start": 407, "end": 418, "id": 27, "features": {}}, {"type": "PATTERN6a", "start": 419, "end": 421, "id": 28, "features": {}}, {"type": "PATTERN6a", "start": 426, "end": 431, "id": 29, "features": {}}], "next_annid": 30}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(FZEOTSPMTC_data), "FZEOTSPMTC-").init();
     </script>
   </div>
 
@@ -1129,12 +1815,415 @@ doc
 
 
 
+## Example 7: Matching next annotation at offset
+
+The `Ann` parser always tries to match the next annotation in the sequence of annotations described by 
+the `ann_desc` parameter. In the examples above, there was a single annotation type and annotations occurred one after the other in the document. 
+
+In the general case however, there may be different annotation types and there may be several annotations with different or identical types and/or features starting at the same position. `gatenlp` always imposes a standard order on those annotations: they are sorted by start offset, then by annotation id (order of addition to the set). 
+
+When there are several annotations at the same offset, we sometimes want to match any of these annotations, as long as they satisfy some constraints (e.g. have a specific type or specific feature values). This would not be possible with the `Ann` parser, because that parser always tries to match the next annotation in the annotation sequence.
+
+The `AnnAt` parser instead looks at the offset of the next annotation in sequence and then tries to match any of the annotations at that offset. 
+
+In the following example we try to match any Token, followed by either a PERSON annotation, or by a upos "NOUN" Token and create a new annotation for that second Token.
+
 
 ```python
-
+pat7a = Seq(
+    Ann("Token"),
+    Or(
+        AnnAt("PERSON"),
+        AnnAt("Token", features=dict(upos="NOUN")),
+    )    
+)
+action7a = AddAnn(type="PATTERN7a")
+rule7a = Rule(pat7a, action7a)
+pampac7a = Pampac(rule7a, skip="longest", select="first")
+annt7a = PampacAnnotator(pampac7a, ann_desc=[("", ["Token","PERSON"])], outset_name="example7a")
+tmpdoc = doc.clone()
+annt7a(tmpdoc)
+tmpdoc
 ```
 
 
-```python
 
+
+<div><style>#GUDZFCWPHQ-wrapper { color: black !important; }</style>
+<div id="GUDZFCWPHQ-wrapper">
+
+<div>
+<style>
+#GUDZFCWPHQ-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GUDZFCWPHQ-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GUDZFCWPHQ-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GUDZFCWPHQ-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GUDZFCWPHQ-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GUDZFCWPHQ-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GUDZFCWPHQ-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GUDZFCWPHQ-selection {
+    margin-bottom: 5px;
+}
+
+.GUDZFCWPHQ-featuretable {
+    margin-top: 10px;
+}
+
+.GUDZFCWPHQ-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GUDZFCWPHQ-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GUDZFCWPHQ-content">
+        <div id="GUDZFCWPHQ-popup" style="display: none;">
+        </div>
+        <div class="GUDZFCWPHQ-row" id="GUDZFCWPHQ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="GUDZFCWPHQ-text-wrapper" class="GUDZFCWPHQ-col" style="width:70%;">
+                <div class="GUDZFCWPHQ-hdr" id="GUDZFCWPHQ-dochdr"></div>
+                <div id="GUDZFCWPHQ-text" style="">
+                </div>
+            </div>
+            <div id="GUDZFCWPHQ-chooser" class="GUDZFCWPHQ-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GUDZFCWPHQ-row" id="GUDZFCWPHQ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="GUDZFCWPHQ-details" class="GUDZFCWPHQ-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let GUDZFCWPHQ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example7a": {"name": "detached-from:example7a", "annotations": [{"type": "PATTERN7a", "start": 21, "end": 35, "id": 0, "features": {}}, {"type": "PATTERN7a", "start": 53, "end": 76, "id": 1, "features": {}}, {"type": "PATTERN7a", "start": 96, "end": 111, "id": 2, "features": {}}, {"type": "PATTERN7a", "start": 113, "end": 124, "id": 3, "features": {}}, {"type": "PATTERN7a", "start": 124, "end": 138, "id": 4, "features": {}}, {"type": "PATTERN7a", "start": 139, "end": 152, "id": 5, "features": {}}, {"type": "PATTERN7a", "start": 175, "end": 185, "id": 6, "features": {}}, {"type": "PATTERN7a", "start": 213, "end": 224, "id": 7, "features": {}}, {"type": "PATTERN7a", "start": 242, "end": 252, "id": 8, "features": {}}, {"type": "PATTERN7a", "start": 262, "end": 271, "id": 9, "features": {}}, {"type": "PATTERN7a", "start": 297, "end": 309, "id": 10, "features": {}}, {"type": "PATTERN7a", "start": 332, "end": 340, "id": 11, "features": {}}, {"type": "PATTERN7a", "start": 392, "end": 402, "id": 12, "features": {}}, {"type": "PATTERN7a", "start": 426, "end": 436, "id": 13, "features": {}}], "next_annid": 14}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(GUDZFCWPHQ_data), "GUDZFCWPHQ-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Example 8: More than one pattern must match
+
+The `And` parser can be used to find locations where more than one pattern matches at the same time. 
+
+To illustrate this, let's create a pattern which checks that at some location, there are 2 to 4 Tokens which have upos equal to "PROPN" and there are 1 or 2 Tokens where the "text" feature has a value that is all upper case.
+
+
+```python
+pat8a = And(
+    pat4a,    
+    N(
+        Ann(type="Token", features=dict(text=re.compile(r"^[A-Z]+$"))),
+        min=1,
+        max=2,
+    )
+)
+action8a = AddAnn(type="PATTERN6a")
+rule8a = Rule(pat8a, action8a)
+pampac8a = Pampac(rule8a, skip="longest", select="first")
+annt8a = PampacAnnotator(pampac8a, ann_desc=[("", "Token")], outset_name="example8a")
+tmpdoc = doc.clone()
+annt8a(tmpdoc)
+tmpdoc
 ```
+
+
+
+
+<div><style>#GDZUBEHCML-wrapper { color: black !important; }</style>
+<div id="GDZUBEHCML-wrapper">
+
+<div>
+<style>
+#GDZUBEHCML-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.GDZUBEHCML-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.GDZUBEHCML-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.GDZUBEHCML-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.GDZUBEHCML-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.GDZUBEHCML-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#GDZUBEHCML-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.GDZUBEHCML-selection {
+    margin-bottom: 5px;
+}
+
+.GDZUBEHCML-featuretable {
+    margin-top: 10px;
+}
+
+.GDZUBEHCML-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.GDZUBEHCML-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="GDZUBEHCML-content">
+        <div id="GDZUBEHCML-popup" style="display: none;">
+        </div>
+        <div class="GDZUBEHCML-row" id="GDZUBEHCML-row1" style="max-height: 20em; min-height:5em;">
+            <div id="GDZUBEHCML-text-wrapper" class="GDZUBEHCML-col" style="width:70%;">
+                <div class="GDZUBEHCML-hdr" id="GDZUBEHCML-dochdr"></div>
+                <div id="GDZUBEHCML-text" style="">
+                </div>
+            </div>
+            <div id="GDZUBEHCML-chooser" class="GDZUBEHCML-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="GDZUBEHCML-row" id="GDZUBEHCML-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="GDZUBEHCML-details" class="GDZUBEHCML-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let GDZUBEHCML_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example8a": {"name": "detached-from:example8a", "annotations": [{"type": "PATTERN6a", "start": 407, "end": 418, "id": 0, "features": {}}], "next_annid": 1}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(GDZUBEHCML_data), "GDZUBEHCML-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Alternate Syntax
+
+For some PAMPAC constructs, it is possible to use an alternate and more concise syntax, where Python operators are used instead of the full names. 
+
+* Instead of `Or(A, B, C)` it is possible to write `A | B | C` 
+* Instead of `Seq(A, B, C, D)` it is possible to write `A >> B >> C >> D` 
+* Instead of `And(A, B)` it is possible to write `A & B` 
+* Instead of `N(A, min=i, max=i)` it is possible to write `A * i` 
+* Instran of `N(A, min=i, max=j)` it is possible to write `A.repeat(i,j)` 
+
+## Example 9: Parser modifiers
+
+Each of the parsers above can be modified to limit matching by one of the following methods:
+
+* `where(predicate)`: the parser only matches if the predicate returns True on at least one of the match results
+* `within(...)`: the parser only matches if the match is within an annotation with the given constraints
+* `notwithin(...)`: the parser only matches if the match is not within an annotation with the given constraints
+
+Similar for:
+* `coextensive(...)`/`notcoextensive(...)`
+* `overlapping(...)`/`notoverlapping(...)`
+* `covering(...)`/`notcovering(...)` 
+* `at(...)`/`notat(...)` 
+* `before(...)`/`notbefore(...)` 
+
+To illustrate this let us again match 2 to 4 Tokens with an "upos" feature "PROPN" but only if the match does not overlap with an annotation of type "PERSON". Note that for this to work, the annotations to check for overlapping must be in the input annotation set for PAMPAC, so we need to add that type to the `ann_desc` parameter.
+
+
+```python
+pat9a = pat4a.notoverlapping(type="PERSON")    
+action9a = AddAnn(type="PATTERN9a")
+rule9a = Rule(pat9a, action9a)
+pampac9a = Pampac(rule9a, skip="longest", select="first")
+annt9a = PampacAnnotator(pampac9a, ann_desc=[("", ["Token", "PERSON"])], outset_name="example9a")
+tmpdoc = doc.clone()
+annt9a(tmpdoc)
+tmpdoc
+```
+
+
+
+
+<div><style>#VZLZIZXPBH-wrapper { color: black !important; }</style>
+<div id="VZLZIZXPBH-wrapper">
+
+<div>
+<style>
+#VZLZIZXPBH-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.VZLZIZXPBH-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.VZLZIZXPBH-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.VZLZIZXPBH-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.VZLZIZXPBH-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.VZLZIZXPBH-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#VZLZIZXPBH-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.VZLZIZXPBH-selection {
+    margin-bottom: 5px;
+}
+
+.VZLZIZXPBH-featuretable {
+    margin-top: 10px;
+}
+
+.VZLZIZXPBH-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.VZLZIZXPBH-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="VZLZIZXPBH-content">
+        <div id="VZLZIZXPBH-popup" style="display: none;">
+        </div>
+        <div class="VZLZIZXPBH-row" id="VZLZIZXPBH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="VZLZIZXPBH-text-wrapper" class="VZLZIZXPBH-col" style="width:70%;">
+                <div class="VZLZIZXPBH-hdr" id="VZLZIZXPBH-dochdr"></div>
+                <div id="VZLZIZXPBH-text" style="">
+                </div>
+            </div>
+            <div id="VZLZIZXPBH-chooser" class="VZLZIZXPBH-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="VZLZIZXPBH-row" id="VZLZIZXPBH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="VZLZIZXPBH-details" class="VZLZIZXPBH-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let VZLZIZXPBH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"text": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"text": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 0, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 13, "end": 16, "id": 2, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 17, "end": 20, "id": 3, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 5, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 21, "end": 25, "id": 4, "features": {"text": "44th", "lemma": "44th", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "NumType": "Ord", "head": 5, "deprel": "amod", "ner": "S-ORDINAL"}}, {"type": "Token", "start": 26, "end": 35, "id": 5, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 22, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 36, "end": 38, "id": 6, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 8, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 39, "end": 42, "id": 7, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 8, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 43, "end": 45, "id": 8, "features": {"text": "US", "lemma": "US", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 5, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 46, "end": 49, "id": 9, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 11, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 50, "end": 52, "id": 10, "features": {"text": "he", "lemma": "he", "upos": "PRON", "xpos": "PRP", "Case": "Nom", "Gender": "Masc", "Number": "Sing", "Person": "3", "PronType": "Prs", "head": 11, "deprel": "nsubj", "ner": "O"}}, {"type": "Token", "start": 53, "end": 61, "id": 11, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBD", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin", "head": 5, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 62, "end": 68, "id": 12, "features": {"text": "George", "lemma": "George", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 11, "deprel": "obj", "ner": "B-PERSON"}}, {"type": "Token", "start": 69, "end": 71, "id": 13, "features": {"text": "W.", "lemma": "W.", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "I-PERSON"}}, {"type": "Token", "start": 72, "end": 76, "id": 14, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 12, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 77, "end": 80, "id": 15, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 17, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 83, "end": 86, "id": 16, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 17, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 87, "end": 95, "id": 17, "features": {"text": "followed", "lemma": "follow", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 11, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 96, "end": 98, "id": 18, "features": {"text": "by", "lemma": "by", "upos": "ADP", "xpos": "IN", "head": 19, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 99, "end": 105, "id": 19, "features": {"text": "Donald", "lemma": "Donald", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 17, "deprel": "obl", "ner": "B-PERSON"}}, {"type": "Token", "start": 106, "end": 111, "id": 20, "features": {"text": "Trump", "lemma": "Trump", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 19, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 111, "end": 112, "id": 21, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 5, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 0, "end": 112, "id": 22, "features": {}}, {"type": "Token", "start": 113, "end": 119, "id": 23, "features": {"text": "Before", "lemma": "before", "upos": "ADP", "xpos": "IN", "head": 24, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 120, "end": 124, "id": 24, "features": {"text": "Bush", "lemma": "Bush", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "obl", "ner": "S-PERSON"}}, {"type": "Token", "start": 124, "end": 125, "id": 25, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 126, "end": 130, "id": 26, "features": {"text": "Bill", "lemma": "Bill", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 29, "deprel": "nsubj", "ner": "B-PERSON"}}, {"type": "Token", "start": 131, "end": 138, "id": 27, "features": {"text": "Clinton", "lemma": "Clinton", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 26, "deprel": "flat", "ner": "E-PERSON"}}, {"type": "Token", "start": 139, "end": 142, "id": 28, "features": {"text": "was", "lemma": "be", "upos": "AUX", "xpos": "VBD", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Past", "VerbForm": "Fin", "head": 29, "deprel": "cop", "ner": "O"}}, {"type": "Token", "start": 143, "end": 152, "id": 29, "features": {"text": "president", "lemma": "president", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 31, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 152, "end": 153, "id": 30, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 29, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 113, "end": 153, "id": 31, "features": {}}, {"type": "Token", "start": 156, "end": 160, "id": 32, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 34, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 160, "end": 161, "id": 33, "features": {"text": ",", "lemma": ",", "upos": "PUNCT", "xpos": ",", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 162, "end": 166, "id": 34, "features": {"text": "lets", "lemma": "let", "upos": "VERB", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 48, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 167, "end": 174, "id": 35, "features": {"text": "include", "lemma": "include", "upos": "VERB", "xpos": "VB", "VerbForm": "Inf", "head": 34, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 175, "end": 176, "id": 36, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 37, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 177, "end": 185, "id": 37, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 35, "deprel": "obj", "ner": "O"}}, {"type": "Token", "start": 186, "end": 191, "id": 38, "features": {"text": "about", "lemma": "about", "upos": "ADP", "xpos": "IN", "head": 40, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 192, "end": 197, "id": 39, "features": {"text": "South", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 40, "deprel": "compound", "ner": "B-GPE"}}, {"type": "Token", "start": 198, "end": 203, "id": 40, "features": {"text": "Korea", "lemma": "Korea", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 37, "deprel": "nmod", "ner": "E-GPE"}}, {"type": "Token", "start": 204, "end": 209, "id": 41, "features": {"text": "which", "lemma": "which", "upos": "PRON", "xpos": "WDT", "PronType": "Rel", "head": 43, "deprel": "nsubj:pass", "ner": "O"}}, {"type": "Token", "start": 210, "end": 212, "id": 42, "features": {"text": "is", "lemma": "be", "upos": "AUX", "xpos": "VBZ", "Mood": "Ind", "Number": "Sing", "Person": "3", "Tense": "Pres", "VerbForm": "Fin", "head": 43, "deprel": "aux:pass", "ner": "O"}}, {"type": "Token", "start": 213, "end": 219, "id": 43, "features": {"text": "called", "lemma": "call", "upos": "VERB", "xpos": "VBN", "Tense": "Past", "VerbForm": "Part", "Voice": "Pass", "head": 40, "deprel": "acl:relcl", "ner": "O"}}, {"type": "Token", "start": 220, "end": 224, "id": 44, "features": {"text": "\ub300\ud55c\ubbfc\uad6d", "lemma": "\ub300\ud55c\ubbfc\uad6d", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 43, "deprel": "xcomp", "ner": "O"}}, {"type": "Token", "start": 225, "end": 227, "id": 45, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 46, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 228, "end": 234, "id": 46, "features": {"text": "Korean", "lemma": "Korean", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 43, "deprel": "obl", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 234, "end": 235, "id": 47, "features": {"text": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 34, "deprel": "punct", "ner": "O"}}, {"type": "Sentence", "start": 156, "end": 235, "id": 48, "features": {}}, {"type": "Token", "start": 238, "end": 241, "id": 49, "features": {"text": "And", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 242, "end": 243, "id": 50, "features": {"text": "a", "lemma": "a", "upos": "DET", "xpos": "DT", "Definite": "Ind", "PronType": "Art", "head": 51, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 244, "end": 252, "id": 51, "features": {"text": "sentence", "lemma": "sentence", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 77, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 253, "end": 257, "id": 52, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 55, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 258, "end": 261, "id": 53, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 55, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 262, "end": 266, "id": 54, "features": {"text": "full", "lemma": "full", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 55, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 267, "end": 271, "id": 55, "features": {"text": "name", "lemma": "name", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 272, "end": 274, "id": 56, "features": {"text": "of", "lemma": "of", "upos": "ADP", "xpos": "IN", "head": 57, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 275, "end": 279, "id": 57, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 55, "deprel": "nmod", "ner": "S-GPE"}}, {"type": "Token", "start": 280, "end": 282, "id": 58, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 59, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 283, "end": 288, "id": 59, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 57, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 288, "end": 289, "id": 60, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 61, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 290, "end": 296, "id": 61, "features": {"text": "\u062c\u0645\u0647\u0648\u0631\u06cc", "lemma": "\u062c\u0645\u0647\u0648\u0631\u06cc", "upos": "X", "xpos": "FW", "head": 51, "deprel": "appos", "ner": "O"}}, {"type": "Token", "start": 297, "end": 303, "id": 62, "features": {"text": "\u0627\u0633\u0644\u0627\u0645\u06cc", "lemma": "\u0627\u0633\u0644\u0627\u0645\u06cc", "upos": "X", "xpos": "FW", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 304, "end": 309, "id": 63, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 61, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 310, "end": 313, "id": 64, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 69, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 314, "end": 318, "id": 65, "features": {"text": "also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 319, "end": 323, "id": 66, "features": {"text": "with", "lemma": "with", "upos": "ADP", "xpos": "IN", "head": 69, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 327, "end": 331, "id": 67, "features": {"text": "just", "lemma": "just", "upos": "ADV", "xpos": "RB", "head": 69, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 332, "end": 335, "id": 68, "features": {"text": "the", "lemma": "the", "upos": "DET", "xpos": "DT", "Definite": "Def", "PronType": "Art", "head": 69, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 336, "end": 340, "id": 69, "features": {"text": "word", "lemma": "word", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 51, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 341, "end": 342, "id": 70, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "``", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 342, "end": 346, "id": 71, "features": {"text": "Iran", "lemma": "Iran", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "appos", "ner": "S-GPE"}}, {"type": "Token", "start": 346, "end": 347, "id": 72, "features": {"text": "\"", "lemma": "\"", "upos": "PUNCT", "xpos": "''", "head": 71, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 348, "end": 350, "id": 73, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 74, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 351, "end": 356, "id": 74, "features": {"text": "Farsi", "lemma": "Farsi", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 69, "deprel": "nmod", "ner": "S-LANGUAGE"}}, {"type": "Token", "start": 356, "end": 357, "id": 75, "features": {"text": ":", "lemma": ":", "upos": "PUNCT", "xpos": ":", "head": 76, "deprel": "punct", "ner": "O"}}, {"type": "Token", "start": 358, "end": 363, "id": 76, "features": {"text": "\u0627\u06cc\u0631\u0627\u0646", "lemma": "\u0627\u06cc\u0631\u0627\u0646", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 74, "deprel": "appos", "ner": "O"}}, {"type": "Sentence", "start": 238, "end": 363, "id": 77, "features": {}}, {"type": "Token", "start": 367, "end": 371, "id": 78, "features": {"text": "Also", "lemma": "also", "upos": "ADV", "xpos": "RB", "head": 79, "deprel": "advmod", "ner": "O"}}, {"type": "Token", "start": 372, "end": 378, "id": 79, "features": {"text": "barack", "lemma": "barack", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 92, "deprel": "root", "ner": "O"}}, {"type": "Token", "start": 379, "end": 384, "id": 80, "features": {"text": "obama", "lemma": "obama", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 79, "deprel": "flat", "ner": "O"}}, {"type": "Token", "start": 385, "end": 387, "id": 81, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 84, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 388, "end": 391, "id": 82, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 84, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 392, "end": 397, "id": 83, "features": {"text": "lower", "lemma": "low", "upos": "ADJ", "xpos": "JJR", "Degree": "Cmp", "head": 84, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 398, "end": 402, "id": 84, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 79, "deprel": "nmod", "ner": "O"}}, {"type": "Token", "start": 403, "end": 406, "id": 85, "features": {"text": "and", "lemma": "and", "upos": "CCONJ", "xpos": "CC", "head": 87, "deprel": "cc", "ner": "O"}}, {"type": "Token", "start": 407, "end": 412, "id": 86, "features": {"text": "SOUTH", "lemma": "South", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 87, "deprel": "compound", "ner": "O"}}, {"type": "Token", "start": 413, "end": 418, "id": 87, "features": {"text": "KOREA", "lemma": "KOREA", "upos": "PROPN", "xpos": "NNP", "Number": "Sing", "head": 84, "deprel": "conj", "ner": "O"}}, {"type": "Token", "start": 419, "end": 421, "id": 88, "features": {"text": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 91, "deprel": "case", "ner": "O"}}, {"type": "Token", "start": 422, "end": 425, "id": 89, "features": {"text": "all", "lemma": "all", "upos": "DET", "xpos": "DT", "head": 91, "deprel": "det", "ner": "O"}}, {"type": "Token", "start": 426, "end": 431, "id": 90, "features": {"text": "upper", "lemma": "upper", "upos": "ADJ", "xpos": "JJ", "Degree": "Pos", "head": 91, "deprel": "amod", "ner": "O"}}, {"type": "Token", "start": 432, "end": 436, "id": 91, "features": {"text": "case", "lemma": "case", "upos": "NOUN", "xpos": "NN", "Number": "Sing", "head": 84, "deprel": "nmod", "ner": "O"}}, {"type": "Sentence", "start": 367, "end": 436, "id": 92, "features": {}}, {"type": "PERSON", "start": 0, "end": 12, "id": 93, "features": {}}, {"type": "ORDINAL", "start": 21, "end": 25, "id": 94, "features": {}}, {"type": "GPE", "start": 43, "end": 45, "id": 95, "features": {}}, {"type": "PERSON", "start": 62, "end": 76, "id": 96, "features": {}}, {"type": "PERSON", "start": 99, "end": 111, "id": 97, "features": {}}, {"type": "PERSON", "start": 120, "end": 124, "id": 98, "features": {}}, {"type": "PERSON", "start": 126, "end": 138, "id": 99, "features": {}}, {"type": "GPE", "start": 192, "end": 203, "id": 100, "features": {}}, {"type": "LANGUAGE", "start": 228, "end": 234, "id": 101, "features": {}}, {"type": "GPE", "start": 275, "end": 279, "id": 102, "features": {}}, {"type": "LANGUAGE", "start": 283, "end": 288, "id": 103, "features": {}}, {"type": "GPE", "start": 342, "end": 346, "id": 104, "features": {}}, {"type": "LANGUAGE", "start": 351, "end": 356, "id": 105, "features": {}}], "next_annid": 106}, "example9a": {"name": "detached-from:example9a", "annotations": [{"type": "PATTERN9a", "start": 192, "end": 203, "id": 0, "features": {}}, {"type": "PATTERN9a", "start": 372, "end": 384, "id": 1, "features": {}}, {"type": "PATTERN9a", "start": 407, "end": 418, "id": 2, "features": {}}], "next_annid": 3}}, "text": "Barack Obama was the 44th president of the US and he followed George W. Bush and\n  was followed by Donald Trump. Before Bush, Bill Clinton was president.\n  Also, lets include a sentence about South Korea which is called \ub300\ud55c\ubbfc\uad6d in Korean.\n  And a sentence with the full name of Iran in Farsi: \u062c\u0645\u0647\u0648\u0631\u06cc \u0627\u0633\u0644\u0627\u0645\u06cc \u0627\u06cc\u0631\u0627\u0646 and also with \n  just the word \"Iran\" in Farsi: \u0627\u06cc\u0631\u0627\u0646 \n  Also barack obama in all lower case and SOUTH KOREA in all upper case\n  ", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(VZLZIZXPBH_data), "VZLZIZXPBH-").init();
+    </script>
+  </div>
+
+</div></div>
+
+

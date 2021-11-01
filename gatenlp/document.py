@@ -1044,6 +1044,15 @@ class Document:
         for annset in self._annotation_sets.values():
             annset._edit(edits, affected_strategy=affected_strategy)
 
+    def clone(self):
+        """
+        Create a clone of the current document, no data is shared between the clone and the original.
+
+        Returns:
+            A copy of the current document
+        """
+        return Document.load_mem(self.save_mem())
+
 # class MultiDocument(Document):
 #     """
 #     NOTE: This is just experimental for now, DO NOT USE!

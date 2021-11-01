@@ -115,13 +115,11 @@ class FeatureMatcher:
         """
         for fmn in self.featurematches:  # "featurematchername"
             if fmn not in features:
-                # logger.debug(f"Feature {fmn} not in features")
                 return False
         for fmn, fmv in self.featurematches.items():  # "featurematchername"/"featurematchervalue"
             feature = features[fmn]
             if callable(fmv):
                 if not fmv(feature):
-                    # logger.debug(f"Callable {fmn} did not return True for {feature}")
                     return False
             elif isinstance(fmv, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 fstr = str(feature)
@@ -190,7 +188,7 @@ class AnnMatcher:
         Args:
             type: if not None, match the type. If this is a string, match the literal string, if it is
                 a compiled regular expression, match that expression, if it is a callable, call it and
-                use the return value.
+                pass the type and use the return value as a boolean indicating if the type is a match.
             features: if specified, it must be a FeatureMatcher or a dictionary which is used as the kwargs  to create
                 a FeatureMatcher instance for matching the features of the annotation.
             features_eq:  if specified, it must be a FeatureEqMatcher or a dictionary which is used as the kwargs

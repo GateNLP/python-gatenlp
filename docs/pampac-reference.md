@@ -1,6 +1,9 @@
 # PAMPAC Reference 
 
-This gives an overview over all the parsers, actions and helpers in the `pampac` module.
+This gives an overview over most of the parsers, actions and helpers in the `pampac` module. 
+
+NOTE: this may not always be perfectly up-to-date, to get the full information, check out the documentation for the 
+[`gatenlp.pam.pampac`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac/index.html) module.
 
 ## Pampac
 
@@ -15,9 +18,11 @@ The two main components of Pampac are the rules and the pampac matcher:
 
 ## Parsers
 
-Parsers are basic parsers which match annotations or text or combine basic parsers to match more complex patterns. 
+Parsers are either basic parsers which match annotations or text or parsers which combine basic parsers to match more complex patterns. 
 
-[`And`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.And): combines to parsers and matches only if both match at the same location. 
+[`All`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac/pampac_parsers.html#gatenlp.pam.pampac.pampac_parsers.All): Try to match all of the parsers specified and is successful if one or more parsers succeed. Returns all matches from all successful parsers. 
+
+[`And`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.And): combines several parsers and matches only if all match at the same location. 
 
 [`Ann`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.Ann): match an annotation with the given properties at the next index in the annotation list, or match the first annotation which starts at the current text offset.
 
@@ -39,12 +44,29 @@ Parsers are basic parsers which match annotations or text or combine basic parse
 
 [`Text`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.Text): match the given text or regular expression against the document text. 
 
+## Parser modifiers
+
+Any of the parsers above can be modified to only match if some additional constraint is satisfied by one of the following methods. For example,
+`AnnAt(type="Token").within(type="Person")` is an `AnnAt` parser that matches any annotation of type "Token" but only if the match is fully within
+another annotation of type "Person". The parameters allowed for `within` are the same as for `Ann` or `Annat`.
+
+Other methods:
+* `.at(...)`/`.notat(...)`: starts/does not start at the same offset
+* `.before(...)`/`.notbefore(...)`: occurs before/does not occur before 
+* `.coextensive(...)`/`.notcoextensive(...)`: is/is not coextensive
+* `.covering(...)`/`.notcovering(...)`: is/is not covering
+* `.overlapping(...)`/`.notoverlapping(...)`: is/is not overlapping
+* `.within(...)`/`.notwithin(...)`: is/is not within
+
+The `.where(predicate)` makes the parser match only if the given predicate returns True at least for one of the results of the match.
 
 ## Actions 
 
 Actions are classes that provide a simple way to perform an action if a rule fires. 
 
 [`AddAnn`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.AddAnn): Add a new annotation. 
+
+[`RemoveAnn`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.RemoveAnn): Remove the matched annotation
 
 [`UpdateAnnFeatures`](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/pam/pampac.html#gatenlp.pam.pampac.UpdateAnnFeatures): update the features of an existing annotation. 
 

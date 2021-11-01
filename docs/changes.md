@@ -7,6 +7,8 @@
 * The [TokenGazetteer]((https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/tokengazetteer.html) parameter names got changed to match the corresponding `StringGazetteer` names
 * ! the parameter name `out_set` in `gatenlp.processing.tokenizer` was changed to `outset_name` to be consistent with the name used elsewhere.
 * ! the parameter name `out_annset` in `gatenlp.processing.client` was changed to `outset_name` to be consistent with the name used elsewhere.
+* The `Document.clone()` method can be used to easily create an exact copy of a document, where none of the data is shared (deep copy)
+* The documentation has been updated and extended (especially for gazetteers and PAMPAC)
 
 ## 1.0.5.1 (2021-10-09)
 
