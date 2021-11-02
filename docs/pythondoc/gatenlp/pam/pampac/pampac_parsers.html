@@ -1526,9 +1526,13 @@ class N(PampacParser):  # pylint: disable=C0103
         self.until = until
         self.select = select
         self.name = name
+        assert min == int(min)
+        assert max == int(max)
+        assert self.min &gt;= 0
+        assert self.max &gt;= 1
+        assert self.min &lt;= self.max
 
     def parse(self, location, context):
-        # print(f&#34;!!!!!!!!!!!DEBUG: trying to match at {location}&#34;)
         start = location.text_location
         end = start
         if self.select != &#34;all&#34;:
@@ -1571,6 +1575,7 @@ class N(PampacParser):  # pylint: disable=C0103
                                     name=self.name,
                                 )
                             )
+                        # print(f&#34;DEBUG N: return success 1 {start}, {end} / {i}&#34;)
                         return Success(
                             Result(matches=allmatches, location=location, span=Span(start, end)),
                             context,
@@ -1585,8 +1590,11 @@ class N(PampacParser):  # pylint: disable=C0103
                         allmatches.append(matches_)
                     location = result.location
                     i += 1
+                    # print(f&#34;DEBUG N, i now {i}&#34;)
                     if i == self.max:
+                        # print(f&#34;DEBUG N: breaking as max = {self.max}&#34;)
                         break
+            # end while
             if self.until:
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
@@ -1612,6 +1620,7 @@ class N(PampacParser):  # pylint: disable=C0103
                 allmatches.append(
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
+            # print(f&#34;DEBUG N: return success 2 {start}, {end} / {i}&#34;)
             return Success(
                 Result(matches=allmatches, location=location, span=Span(start, end)), context
             )
@@ -2820,9 +2829,13 @@ and span of the whole sequence.</dd>
         self.until = until
         self.select = select
         self.name = name
+        assert min == int(min)
+        assert max == int(max)
+        assert self.min &gt;= 0
+        assert self.max &gt;= 1
+        assert self.min &lt;= self.max
 
     def parse(self, location, context):
-        # print(f&#34;!!!!!!!!!!!DEBUG: trying to match at {location}&#34;)
         start = location.text_location
         end = start
         if self.select != &#34;all&#34;:
@@ -2865,6 +2878,7 @@ and span of the whole sequence.</dd>
                                     name=self.name,
                                 )
                             )
+                        # print(f&#34;DEBUG N: return success 1 {start}, {end} / {i}&#34;)
                         return Success(
                             Result(matches=allmatches, location=location, span=Span(start, end)),
                             context,
@@ -2879,8 +2893,11 @@ and span of the whole sequence.</dd>
                         allmatches.append(matches_)
                     location = result.location
                     i += 1
+                    # print(f&#34;DEBUG N, i now {i}&#34;)
                     if i == self.max:
+                        # print(f&#34;DEBUG N: breaking as max = {self.max}&#34;)
                         break
+            # end while
             if self.until:
                 ret = self.until.parse(location, context)
                 if ret.issuccess():
@@ -2906,6 +2923,7 @@ and span of the whole sequence.</dd>
                 allmatches.append(
                     dict(span=Span(start, end), location=location, name=self.name)
                 )
+            # print(f&#34;DEBUG N: return success 2 {start}, {end} / {i}&#34;)
             return Success(
                 Result(matches=allmatches, location=location, span=Span(start, end)), context
             )

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<title>gatenlp.processing.gazetteer.stringregex API documentation</title>
+<meta name="description" content="Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
+of strings or annotations." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.processing.gazetteer.stringregex</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
+of strings or annotations.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
+of strings or annotations.
+&#34;&#34;&#34;
+from gatenlp import Document
+from gatenlp.processing.gazetteer.base import StringGazetteerAnnotator
+
+
+class StringRegexAnnotator(StringGazetteerAnnotator):
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
+    def __init__(self, source=None, source_fmt=&#34;file&#34;,
+                 outset_name=&#34;&#34;, out_type=&#34;Match&#34;,
+                 annset_name=&#34;&#34;, containing_type=None,
+                 features=None,
+                 skip_longest=False,
+                 match=&#34;all&#34;,
+                 engine=&#39;re&#39;
+                 ):
+        &#34;&#34;&#34;
+        Create a StringRegexAnnotator and optionally load regex patterns.
+
+        Args:
+            source: where to load the regex rules from, format depends on source_fmt. If None, nothing is loaded.
+            source_fmt: the format of the source. Either &#34;list&#34; for a list of tuples, where the first element
+                is a compiled regular expression and the second element is a tuple. That tuple describes the
+                annotations to create for a match. The first element of the tuple is the annotation type or None
+                to use the out_type. The second element is a dictionary mapping each group number of the match
+                to a dictionary of features to assign. If the feature value is the string &#34;$n&#34; with n a group
+                number, then the value for that match group is used.
+                Or the source_fmt can be &#34;file&#34; in which case the rules are loaded from a file with that path.
+            outset_name: name of the output annotation set
+            out_type: default type for output annotations, if the type is not specified with the rule
+            annset_name: the input annotation set if matching is restricted to spans covered by
+                containing annotations.
+            containing_type: if this is not None, then matching is restricted to spans covered by annotations
+                of this type. The annotations should not overlap.
+            list_features: a dictionary of arbitrary default features to add to all annotations created
+                for matches from any of the rules loaded from the current source
+            skip_longest: if True, after a match, the next match is attempted after the longest current
+                match. If False, the next match is attempted at the next offset after the start of the
+                current match.
+            match: the strategy of which rule to apply. One of: &#34;all&#34;: apply all matching rules.
+                &#34;first&#34;: apply the first matching rule, do not attempt any others. &#34;firstlongest&#34;:
+                try all rules, apply the first of all rules with the longest match. &#34;alllongest&#34;:
+                try all rules, apply all rules with the longest match.
+            engine: identifies which Python regular expression engine to use. Currently either
+                &#34;re&#34; or &#34;regexp&#34; to use the package with the corresponding name. Only the package
+                used is attempted to get loaded.
+        &#34;&#34;&#34;
+        pass
+
+    def add(self, rule):
+        &#34;&#34;&#34;
+        Add a single rule.
+
+        Args:
+            rule: a tuple where the first element is a compiled regular expression and the second
+                element is a tuple that describes the annotations to create if a match occurs.
+                The first element of that tuple is the annotation type or None
+                to use the out_type. The second element is a dictionary mapping each group number of the match
+                to a dictionary of features to assign. If the feature value is the string &#34;$n&#34; with n a group
+                number, then the value for that match group is used.
+        &#34;&#34;&#34;
+        pass
+
+    def append(self, source, source_fmt=&#34;file&#34;, list_features=None):
+        &#34;&#34;&#34;
+        Load a list of rules.
+
+        Args:
+            source: where/what to load. See the init parameter description.
+            source_fmt: the format of the source, see the init parameter description.
+            list_features: if not None a dictionary of features to assign to annotations created
+                for any of the rules loaded by that method call.
+        &#34;&#34;&#34;
+        pass
+
+    def find_all(self, text, start, end):
+        # NOTE: this must be implemented for this gazetteer to be a proper StringGazetteer which
+        # can be used by the FeatureGazetteer
+        pass
+
+    def __call__(self, doc: Document, **kwargs):
+        pass</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator"><code class="flex name class">
+<span>class <span class="ident">StringRegexAnnotator</span></span>
+<span>(</span><span>source=None, source_fmt='file', outset_name='', out_type='Match', annset_name='', containing_type=None, features=None, skip_longest=False, match='all', engine='re')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>NOT YET IMPLEMENTED</p>
+<p>Create a StringRegexAnnotator and optionally load regex patterns.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong></dt>
+<dd>where to load the regex rules from, format depends on source_fmt. If None, nothing is loaded.</dd>
+<dt><strong><code>source_fmt</code></strong></dt>
+<dd>the format of the source. Either "list" for a list of tuples, where the first element
+is a compiled regular expression and the second element is a tuple. That tuple describes the
+annotations to create for a match. The first element of the tuple is the annotation type or None
+to use the out_type. The second element is a dictionary mapping each group number of the match
+to a dictionary of features to assign. If the feature value is the string "$n" with n a group
+number, then the value for that match group is used.
+Or the source_fmt can be "file" in which case the rules are loaded from a file with that path.</dd>
+<dt><strong><code>outset_name</code></strong></dt>
+<dd>name of the output annotation set</dd>
+<dt><strong><code>out_type</code></strong></dt>
+<dd>default type for output annotations, if the type is not specified with the rule</dd>
+<dt><strong><code>annset_name</code></strong></dt>
+<dd>the input annotation set if matching is restricted to spans covered by
+containing annotations.</dd>
+<dt><strong><code>containing_type</code></strong></dt>
+<dd>if this is not None, then matching is restricted to spans covered by annotations
+of this type. The annotations should not overlap.</dd>
+<dt><strong><code>list_features</code></strong></dt>
+<dd>a dictionary of arbitrary default features to add to all annotations created
+for matches from any of the rules loaded from the current source</dd>
+<dt><strong><code>skip_longest</code></strong></dt>
+<dd>if True, after a match, the next match is attempted after the longest current
+match. If False, the next match is attempted at the next offset after the start of the
+current match.</dd>
+<dt><strong><code>match</code></strong></dt>
+<dd>the strategy of which rule to apply. One of: "all": apply all matching rules.
+"first": apply the first matching rule, do not attempt any others. "firstlongest":
+try all rules, apply the first of all rules with the longest match. "alllongest":
+try all rules, apply all rules with the longest match.</dd>
+<dt><strong><code>engine</code></strong></dt>
+<dd>identifies which Python regular expression engine to use. Currently either
+"re" or "regexp" to use the package with the corresponding name. Only the package
+used is attempted to get loaded.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StringRegexAnnotator(StringGazetteerAnnotator):
+    &#34;&#34;&#34;
+    NOT YET IMPLEMENTED
+    &#34;&#34;&#34;
+    def __init__(self, source=None, source_fmt=&#34;file&#34;,
+                 outset_name=&#34;&#34;, out_type=&#34;Match&#34;,
+                 annset_name=&#34;&#34;, containing_type=None,
+                 features=None,
+                 skip_longest=False,
+                 match=&#34;all&#34;,
+                 engine=&#39;re&#39;
+                 ):
+        &#34;&#34;&#34;
+        Create a StringRegexAnnotator and optionally load regex patterns.
+
+        Args:
+            source: where to load the regex rules from, format depends on source_fmt. If None, nothing is loaded.
+            source_fmt: the format of the source. Either &#34;list&#34; for a list of tuples, where the first element
+                is a compiled regular expression and the second element is a tuple. That tuple describes the
+                annotations to create for a match. The first element of the tuple is the annotation type or None
+                to use the out_type. The second element is a dictionary mapping each group number of the match
+                to a dictionary of features to assign. If the feature value is the string &#34;$n&#34; with n a group
+                number, then the value for that match group is used.
+                Or the source_fmt can be &#34;file&#34; in which case the rules are loaded from a file with that path.
+            outset_name: name of the output annotation set
+            out_type: default type for output annotations, if the type is not specified with the rule
+            annset_name: the input annotation set if matching is restricted to spans covered by
+                containing annotations.
+            containing_type: if this is not None, then matching is restricted to spans covered by annotations
+                of this type. The annotations should not overlap.
+            list_features: a dictionary of arbitrary default features to add to all annotations created
+                for matches from any of the rules loaded from the current source
+            skip_longest: if True, after a match, the next match is attempted after the longest current
+                match. If False, the next match is attempted at the next offset after the start of the
+                current match.
+            match: the strategy of which rule to apply. One of: &#34;all&#34;: apply all matching rules.
+                &#34;first&#34;: apply the first matching rule, do not attempt any others. &#34;firstlongest&#34;:
+                try all rules, apply the first of all rules with the longest match. &#34;alllongest&#34;:
+                try all rules, apply all rules with the longest match.
+            engine: identifies which Python regular expression engine to use. Currently either
+                &#34;re&#34; or &#34;regexp&#34; to use the package with the corresponding name. Only the package
+                used is attempted to get loaded.
+        &#34;&#34;&#34;
+        pass
+
+    def add(self, rule):
+        &#34;&#34;&#34;
+        Add a single rule.
+
+        Args:
+            rule: a tuple where the first element is a compiled regular expression and the second
+                element is a tuple that describes the annotations to create if a match occurs.
+                The first element of that tuple is the annotation type or None
+                to use the out_type. The second element is a dictionary mapping each group number of the match
+                to a dictionary of features to assign. If the feature value is the string &#34;$n&#34; with n a group
+                number, then the value for that match group is used.
+        &#34;&#34;&#34;
+        pass
+
+    def append(self, source, source_fmt=&#34;file&#34;, list_features=None):
+        &#34;&#34;&#34;
+        Load a list of rules.
+
+        Args:
+            source: where/what to load. See the init parameter description.
+            source_fmt: the format of the source, see the init parameter description.
+            list_features: if not None a dictionary of features to assign to annotations created
+                for any of the rules loaded by that method call.
+        &#34;&#34;&#34;
+        pass
+
+    def find_all(self, text, start, end):
+        # NOTE: this must be implemented for this gazetteer to be a proper StringGazetteer which
+        # can be used by the FeatureGazetteer
+        pass
+
+    def __call__(self, doc: Document, **kwargs):
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerAnnotator">StringGazetteerAnnotator</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></li>
+<li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, rule)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add a single rule.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>rule</code></strong></dt>
+<dd>a tuple where the first element is a compiled regular expression and the second
+element is a tuple that describes the annotations to create if a match occurs.
+The first element of that tuple is the annotation type or None
+to use the out_type. The second element is a dictionary mapping each group number of the match
+to a dictionary of features to assign. If the feature value is the string "$n" with n a group
+number, then the value for that match group is used.</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, source, source_fmt='file', list_features=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a list of rules.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>source</code></strong></dt>
+<dd>where/what to load. See the init parameter description.</dd>
+<dt><strong><code>source_fmt</code></strong></dt>
+<dd>the format of the source, see the init parameter description.</dd>
+<dt><strong><code>list_features</code></strong></dt>
+<dd>if not None a dictionary of features to assign to annotations created
+for any of the rules loaded by that method call.</dd>
+</dl></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.find_all"><code class="name flex">
+<span>def <span class="ident">find_all</span></span>(<span>self, text, start, end)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerAnnotator">StringGazetteerAnnotator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.processing.gazetteer" href="index.html">gatenlp.processing.gazetteer</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator" href="#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator">StringRegexAnnotator</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.add" href="#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.add">add</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.append" href="#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.append">append</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.find_all" href="#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.find_all">find_all</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+</footer>
+</body>
+</html>

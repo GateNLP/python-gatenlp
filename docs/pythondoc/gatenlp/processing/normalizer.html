@@ -41,7 +41,8 @@ Since the text is modified any annotations present in the document may be invali
 are removed when the new document is returned. Document features are preserved. Any changelog is preserved but
 the normalization is not logged.
 &#34;&#34;&#34;
-
+from unicodedata import normalize
+from gatenlp import Document
 from gatenlp.processing.annotator import Annotator
 
 
@@ -49,16 +50,27 @@ class Normalizer(Annotator):
     &#34;&#34;&#34;
     Base class of all normalizers.
     &#34;&#34;&#34;
-
     pass
 
 
 class TextNormalizer(Normalizer):
     &#34;&#34;&#34;
-    NOT YET IMPLEMENTED
+    Annotator which creates a new, unicode-normalized document from an existing document.
     &#34;&#34;&#34;
+    def __init__(self, form=&#34;NFKC&#34;):
+        &#34;&#34;&#34;
+        Create a TextNormalizer.
 
-    pass</code></pre>
+        Args:
+            form: the unicode normal form to use. Possible values are &#34;NFC&#34;, &#34;NCKC&#34;, &#34;NFD&#34; and &#34;NFKD&#34;
+        &#34;&#34;&#34;
+        self.form = form
+
+    def __call__(self, doc, **kwargs):
+        newtext = normalize(self.form, doc.text)
+        newdoc = Document(newtext)
+        newdoc.features.update(doc.features)
+        return newdoc</code></pre>
 </details>
 </section>
 <section>
@@ -83,7 +95,6 @@ class TextNormalizer(Normalizer):
     &#34;&#34;&#34;
     Base class of all normalizers.
     &#34;&#34;&#34;
-
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -110,19 +121,38 @@ class TextNormalizer(Normalizer):
 </dd>
 <dt id="gatenlp.processing.normalizer.TextNormalizer"><code class="flex name class">
 <span>class <span class="ident">TextNormalizer</span></span>
+<span>(</span><span>form='NFKC')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>NOT YET IMPLEMENTED</p></div>
+<div class="desc"><p>Annotator which creates a new, unicode-normalized document from an existing document.</p>
+<p>Create a TextNormalizer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>form</code></strong></dt>
+<dd>the unicode normal form to use. Possible values are "NFC", "NCKC", "NFD" and "NFKD"</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TextNormalizer(Normalizer):
     &#34;&#34;&#34;
-    NOT YET IMPLEMENTED
+    Annotator which creates a new, unicode-normalized document from an existing document.
     &#34;&#34;&#34;
+    def __init__(self, form=&#34;NFKC&#34;):
+        &#34;&#34;&#34;
+        Create a TextNormalizer.
 
-    pass</code></pre>
+        Args:
+            form: the unicode normal form to use. Possible values are &#34;NFC&#34;, &#34;NCKC&#34;, &#34;NFD&#34; and &#34;NFKD&#34;
+        &#34;&#34;&#34;
+        self.form = form
+
+    def __call__(self, doc, **kwargs):
+        newtext = normalize(self.form, doc.text)
+        newdoc = Document(newtext)
+        newdoc.features.update(doc.features)
+        return newdoc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

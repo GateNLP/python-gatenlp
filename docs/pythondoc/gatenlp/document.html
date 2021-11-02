@@ -1075,6 +1075,15 @@ class Document:
         for annset in self._annotation_sets.values():
             annset._edit(edits, affected_strategy=affected_strategy)
 
+    def clone(self):
+        &#34;&#34;&#34;
+        Create a clone of the current document, no data is shared between the clone and the original.
+
+        Returns:
+            A copy of the current document
+        &#34;&#34;&#34;
+        return Document.load_mem(self.save_mem())
+
 # class MultiDocument(Document):
 #     &#34;&#34;&#34;
 #     NOTE: This is just experimental for now, DO NOT USE!
@@ -2252,7 +2261,16 @@ offsets accordingly)</li>
         edits.sort(key=lambda x: x[0])
         self._text = Document._edit_text(self._text, edits)
         for annset in self._annotation_sets.values():
-            annset._edit(edits, affected_strategy=affected_strategy)</code></pre>
+            annset._edit(edits, affected_strategy=affected_strategy)
+
+    def clone(self):
+        &#34;&#34;&#34;
+        Create a clone of the current document, no data is shared between the clone and the original.
+
+        Returns:
+            A copy of the current document
+        &#34;&#34;&#34;
+        return Document.load_mem(self.save_mem())</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -2492,6 +2510,14 @@ does not yet exist at all.</p>
 <dd>if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!</dd>
 </dl></div>
 </dd>
+<dt id="gatenlp.document.Document.clone"><code class="name flex">
+<span>def <span class="ident">clone</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a clone of the current document, no data is shared between the clone and the original.</p>
+<h2 id="returns">Returns</h2>
+<p>A copy of the current document</p></div>
+</dd>
 <dt id="gatenlp.document.Document.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, annsets=None)</span>
 </code></dt>
@@ -2722,6 +2748,7 @@ name or a list of type names.</dd>
 <li><code><a title="gatenlp.document.Document.apply_changes" href="#gatenlp.document.Document.apply_changes">apply_changes</a></code></li>
 <li><code><a title="gatenlp.document.Document.attach" href="#gatenlp.document.Document.attach">attach</a></code></li>
 <li><code><a title="gatenlp.document.Document.changelog" href="#gatenlp.document.Document.changelog">changelog</a></code></li>
+<li><code><a title="gatenlp.document.Document.clone" href="#gatenlp.document.Document.clone">clone</a></code></li>
 <li><code><a title="gatenlp.document.Document.copy" href="#gatenlp.document.Document.copy">copy</a></code></li>
 <li><code><a title="gatenlp.document.Document.deepcopy" href="#gatenlp.document.Document.deepcopy">deepcopy</a></code></li>
 <li><code><a title="gatenlp.document.Document.edit" href="#gatenlp.document.Document.edit">edit</a></code></li>

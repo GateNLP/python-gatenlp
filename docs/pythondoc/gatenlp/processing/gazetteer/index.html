@@ -32,7 +32,9 @@ Module for various gazetteer annotator implementations.
 &#34;&#34;&#34;
 from gatenlp.processing.annotator import Annotator
 from gatenlp.processing.gazetteer.tokengazetteer import TokenGazetteer
-from gatenlp.processing.gazetteer.stringgazetteer import StringGazetteer</code></pre>
+from gatenlp.processing.gazetteer.stringgazetteer import StringGazetteer
+from gatenlp.processing.gazetteer.stringregex import StringRegexAnnotator
+from gatenlp.processing.gazetteer.featuregazetteer import FeatureGazetteer</code></pre>
 </details>
 </section>
 <section>
@@ -42,9 +44,19 @@ from gatenlp.processing.gazetteer.stringgazetteer import StringGazetteer</code><
 <dd>
 <div class="desc"><p>Base class for all gazetteer annotators</p></div>
 </dd>
+<dt><code class="name"><a title="gatenlp.processing.gazetteer.featuregazetteer" href="featuregazetteer.html">gatenlp.processing.gazetteer.featuregazetteer</a></code></dt>
+<dd>
+<div class="desc"><p>Module that implements the FeatureGazetteer which matches the value of some feature of some
+annotation type against a string gazetteer and adds, …</p></div>
+</dd>
 <dt><code class="name"><a title="gatenlp.processing.gazetteer.stringgazetteer" href="stringgazetteer.html">gatenlp.processing.gazetteer.stringgazetteer</a></code></dt>
 <dd>
 <div class="desc"><p>This module provides the StringGazetter for matching strings against the text in a document.</p></div>
+</dd>
+<dt><code class="name"><a title="gatenlp.processing.gazetteer.stringregex" href="stringregex.html">gatenlp.processing.gazetteer.stringregex</a></code></dt>
+<dd>
+<div class="desc"><p>Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
+of strings or annotations.</p></div>
 </dd>
 <dt><code class="name"><a title="gatenlp.processing.gazetteer.tokengazetteer" href="tokengazetteer.html">gatenlp.processing.gazetteer.tokengazetteer</a></code></dt>
 <dd>
@@ -74,7 +86,9 @@ gazetteer lists, lists of interesting texts or …</p></div>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="gatenlp.processing.gazetteer.base" href="base.html">gatenlp.processing.gazetteer.base</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.featuregazetteer" href="featuregazetteer.html">gatenlp.processing.gazetteer.featuregazetteer</a></code></li>
 <li><code><a title="gatenlp.processing.gazetteer.stringgazetteer" href="stringgazetteer.html">gatenlp.processing.gazetteer.stringgazetteer</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.stringregex" href="stringregex.html">gatenlp.processing.gazetteer.stringregex</a></code></li>
 <li><code><a title="gatenlp.processing.gazetteer.tokengazetteer" href="tokengazetteer.html">gatenlp.processing.gazetteer.tokengazetteer</a></code></li>
 </ul>
 </li>

@@ -273,16 +273,20 @@ class AddAnn:
         if self.matchidx is None:
             for matchidx in range(len(succ[resultidx].matches)):
                 span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
+                # print(f&#34;DEBUG: midx=None, running for {matchidx}, span={span}&#34;)
                 self._add4span(span, succ, context, location)
         else:
             span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
+            # print(f&#34;DEBUG: running for {self.matchidx}, span={span}&#34;)
             self._add4span(span, succ, context, location)
 
     def __call__(self, succ, context=None, location=None):
         if self.resultidx is None:
             for resultidx in range(len(succ)):
+                # print(f&#34;DEBUG: ridx=None, running for {resultidx}&#34;)
                 self._add4result(succ, resultidx, context, location)
         else:
+            # print(f&#34;DEBUG: running for {self.resultidx}&#34;)
             self._add4result(succ, self.resultidx, context, location)
 
 
@@ -683,16 +687,20 @@ otherwise raises an Exception.</dd>
         if self.matchidx is None:
             for matchidx in range(len(succ[resultidx].matches)):
                 span = _get_span(succ, self.name, resultidx, matchidx, self.silent_fail)
+                # print(f&#34;DEBUG: midx=None, running for {matchidx}, span={span}&#34;)
                 self._add4span(span, succ, context, location)
         else:
             span = _get_span(succ, self.name, resultidx, self.matchidx, self.silent_fail)
+            # print(f&#34;DEBUG: running for {self.matchidx}, span={span}&#34;)
             self._add4span(span, succ, context, location)
 
     def __call__(self, succ, context=None, location=None):
         if self.resultidx is None:
             for resultidx in range(len(succ)):
+                # print(f&#34;DEBUG: ridx=None, running for {resultidx}&#34;)
                 self._add4result(succ, resultidx, context, location)
         else:
+            # print(f&#34;DEBUG: running for {self.resultidx}&#34;)
             self._add4result(succ, self.resultidx, context, location)</code></pre>
 </details>
 </dd>

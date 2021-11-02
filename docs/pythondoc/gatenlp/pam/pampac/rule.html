@@ -74,7 +74,9 @@ class Rule(PampacParser):
             Success or failure of the parser
 
         &#34;&#34;&#34;
-        return self.parser.parse(location, context)
+        ret = self.parser.parse(location, context)
+        # print(f&#34;DEBUG: rule returning {ret}&#34;)
+        return ret
 
     def add_action(self, action, tofront=False):
         &#34;&#34;&#34;
@@ -161,7 +163,9 @@ and the kwargs context and location</dd>
             Success or failure of the parser
 
         &#34;&#34;&#34;
-        return self.parser.parse(location, context)
+        ret = self.parser.parse(location, context)
+        # print(f&#34;DEBUG: rule returning {ret}&#34;)
+        return ret
 
     def add_action(self, action, tofront=False):
         &#34;&#34;&#34;

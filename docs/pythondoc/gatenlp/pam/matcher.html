@@ -144,13 +144,11 @@ class FeatureMatcher:
         &#34;&#34;&#34;
         for fmn in self.featurematches:  # &#34;featurematchername&#34;
             if fmn not in features:
-                # logger.debug(f&#34;Feature {fmn} not in features&#34;)
                 return False
         for fmn, fmv in self.featurematches.items():  # &#34;featurematchername&#34;/&#34;featurematchervalue&#34;
             feature = features[fmn]
             if callable(fmv):
                 if not fmv(feature):
-                    # logger.debug(f&#34;Callable {fmn} did not return True for {feature}&#34;)
                     return False
             elif isinstance(fmv, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 fstr = str(feature)
@@ -219,7 +217,7 @@ class AnnMatcher:
         Args:
             type: if not None, match the type. If this is a string, match the literal string, if it is
                 a compiled regular expression, match that expression, if it is a callable, call it and
-                use the return value.
+                pass the type and use the return value as a boolean indicating if the type is a match.
             features: if specified, it must be a FeatureMatcher or a dictionary which is used as the kwargs  to create
                 a FeatureMatcher instance for matching the features of the annotation.
             features_eq:  if specified, it must be a FeatureEqMatcher or a dictionary which is used as the kwargs
@@ -364,7 +362,7 @@ defined.</p>
 <dt><strong><code>type</code></strong></dt>
 <dd>if not None, match the type. If this is a string, match the literal string, if it is
 a compiled regular expression, match that expression, if it is a callable, call it and
-use the return value.</dd>
+pass the type and use the return value as a boolean indicating if the type is a match.</dd>
 <dt><strong><code>features</code></strong></dt>
 <dd>if specified, it must be a FeatureMatcher or a dictionary which is used as the kwargs
 to create
@@ -396,7 +394,7 @@ matcher must be called with the optional <code>doc</code> parameter.</dd>
         Args:
             type: if not None, match the type. If this is a string, match the literal string, if it is
                 a compiled regular expression, match that expression, if it is a callable, call it and
-                use the return value.
+                pass the type and use the return value as a boolean indicating if the type is a match.
             features: if specified, it must be a FeatureMatcher or a dictionary which is used as the kwargs  to create
                 a FeatureMatcher instance for matching the features of the annotation.
             features_eq:  if specified, it must be a FeatureEqMatcher or a dictionary which is used as the kwargs
@@ -650,13 +648,11 @@ fmatcher2 = FeatureMatcher(name = NAMEPATTERN, size = checksize)
         &#34;&#34;&#34;
         for fmn in self.featurematches:  # &#34;featurematchername&#34;
             if fmn not in features:
-                # logger.debug(f&#34;Feature {fmn} not in features&#34;)
                 return False
         for fmn, fmv in self.featurematches.items():  # &#34;featurematchername&#34;/&#34;featurematchervalue&#34;
             feature = features[fmn]
             if callable(fmv):
                 if not fmv(feature):
-                    # logger.debug(f&#34;Callable {fmn} did not return True for {feature}&#34;)
                     return False
             elif isinstance(fmv, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 fstr = str(feature)
