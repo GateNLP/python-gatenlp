@@ -7,7 +7,8 @@ from gatenlp.processing.annotator import Annotator
 
 
 class FeatureGazetteer(Annotator):
-    def __init__(self, stringgaz,
+    def __init__(self,
+                 stringgaz,
                  ann_type,
                  containing_type=None,
                  feature="",
@@ -24,6 +25,7 @@ class FeatureGazetteer(Annotator):
         input annotation set and tries to match the value of some feature against the given string
         gazetteer. If a match is found, the action defined through the processing_mode parameter is
         taken. If the annotation does not have the feature or no match occurs, no action is performed.
+        The gazetteer uses any instance of StringGazetteer to perform the matches.
 
         Args:
             stringgaz:

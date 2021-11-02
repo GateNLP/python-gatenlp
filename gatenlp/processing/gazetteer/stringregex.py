@@ -3,10 +3,10 @@ Module that defines classes for matching annotators other than gazetteers which 
 of strings or annotations.
 """
 from gatenlp import Document
-from gatenlp.processing.annotator import Annotator
+from gatenlp.processing.gazetteer.base import StringGazetteerAnnotator
 
 
-class StringRegexAnnotator(Annotator):
+class StringRegexAnnotator(StringGazetteerAnnotator):
     """
     NOT YET IMPLEMENTED
     """
@@ -75,6 +75,11 @@ class StringRegexAnnotator(Annotator):
             list_features: if not None a dictionary of features to assign to annotations created
                 for any of the rules loaded by that method call.
         """
+        pass
+
+    def find_all(self, text, start, end):
+        # NOTE: this must be implemented for this gazetteer to be a proper StringGazetteer which
+        # can be used by the FeatureGazetteer
         pass
 
     def __call__(self, doc: Document, **kwargs):
