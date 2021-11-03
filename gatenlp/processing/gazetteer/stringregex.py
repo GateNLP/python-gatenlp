@@ -2,9 +2,11 @@
 Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
 of strings or annotations.
 """
+import re
 from gatenlp import Document
 from gatenlp.processing.gazetteer.base import StringGazetteerAnnotator
 
+PAT_MACRO_LINE = re.compile(r" *([a-zA-Z0-9_]+)=(\S+)")
 
 class StringRegexAnnotator(StringGazetteerAnnotator):
     """
@@ -13,7 +15,7 @@ class StringRegexAnnotator(StringGazetteerAnnotator):
     def __init__(self, source=None, source_fmt="file",
                  outset_name="", out_type="Match",
                  annset_name="", containing_type=None,
-                 features=None,
+                 list_features=None,
                  skip_longest=False,
                  match="all",
                  engine='re'
@@ -49,9 +51,19 @@ class StringRegexAnnotator(StringGazetteerAnnotator):
                 "re" or "regexp" to use the package with the corresponding name. Only the package
                 used is attempted to get loaded.
         """
-        pass
+        self.rules = []
+        self.outset_name = outset_name
+        self.out_type = out_type
+        self.annset_name = annset_name
+        self.containing_type = containing_type
+        self.skip_longest = skip_longest
+        self.match = match
+        self.engine = engine
+        self.features4list = []
+        if source is not None:
+            self.append(source, source_fmt=source_fmt, list_features=list_features)
 
-    def add(self, rule):
+    def add(self, rule, list_features=None):
         """
         Add a single rule.
 
@@ -63,7 +75,14 @@ class StringRegexAnnotator(StringGazetteerAnnotator):
                 to a dictionary of features to assign. If the feature value is the string "$n" with n a group
                 number, then the value for that match group is used.
         """
-        pass
+        pat, desc = rule
+        outtype, features = desc
+        if outtype is None:
+            outtype = self.out_type
+        features = features.copy()
+        if list_features is not None:
+            features.update(list_features)
+        self.rules.append((pat, (outtype, features)))
 
     def append(self, source, source_fmt="file", list_features=None):
         """
@@ -75,7 +94,50 @@ class StringRegexAnnotator(StringGazetteerAnnotator):
             list_features: if not None a dictionary of features to assign to annotations created
                 for any of the rules loaded by that method call.
         """
-        pass
+        if source_fmt == "list":
+            for rule in source:
+                self.add(rule, list_features=list_features)
+        else:
+            with open(source, "rt", encoding="utf-8") as infp:
+                cur_pats = []
+                cur_body = None
+                for line in infp:
+                    line = line.rstrip("\n\r")
+                    line = line.strip()
+                    if line == "":
+                        continue
+                    if line.startswith("//") or line.startswith("#"):
+                        continue  # comment line
+                    if line.startswith("|"):
+                        # if there is a current rule, add it
+                        if cur_body is not None:
+                            # finish and add rule
+                            self.add(rule, list_features=list_features)
+                            pass
+                        # pattern line
+                        # TODO
+                        continue
+                    mo = re.match(PAT_RULE_BODY)
+                    if mo is not None:
+                        # rule body line
+                        # TODO
+                        continue
+                    mo = re.fullmatch(PAT_MACRO_LINE, line)
+                    if mo is not None:
+                        name = mo.group(1)
+                        pat = mo.group(2)
+                        # TODO
+                        continue
+                    # if we fall through to here, the line does not match anything known, must be an error
+                    raise Exception(f"Odd line: {line}")
+                # end for line
+                if cur_body is not None:
+                    # finish and add rule
+                    self.add(rule, list_features=list_features)
+                    pass
+                else:
+                    # if there was no last rule, there was no rule at all, this is invalid
+                    raise Exception("No complete rule found")
 
     def find_all(self, text, start, end):
         # NOTE: this must be implemented for this gazetteer to be a proper StringGazetteer which
