@@ -16,16 +16,6 @@ class StringGazetteerBase(GazetteerBase):
     """
     A gazetteer annotator the can be applied to strings.
     """
-    def find(self, text: str,
-             start: int = 0,
-             end: Union[None, int] = None,
-             longest_only: Union[None, bool] = None,
-             start_offsets: Union[List, Set, None] = None,
-             end_offsets: Union[List, Set, None] = None,
-             ws_offsets: Union[List, Set, None] = None,
-             split_offsets: Union[List, Set, None] = None,):
-        pass
-
     def find_all(self, text: str,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
@@ -37,6 +27,8 @@ class StringGazetteerBase(GazetteerBase):
 
 
 Match = structclass(
+    # TODO: why do we need features and types to be lists? Can we not generate separate Match instances
+    #   for each of those, with the same offsets?????
     # A description of a match. Each match can correspond to one or more data entries. For each data entry,
     # there is a features dict and a type name.
     # Fields:

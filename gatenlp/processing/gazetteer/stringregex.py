@@ -6,7 +6,7 @@ import re
 from typing import Union, List, Set
 from collections import namedtuple
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerBase
+from gatenlp.processing.gazetteer.base import StringGazetteerBase, Match
 
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
@@ -19,9 +19,12 @@ PAT_DOLLARN = re.compile(r"^\$[0-9]+$")
 PAT_MACRO_LINE = re.compile(r"\s*([a-zA-Z0-9_]+)=(\S+)\s*$")
 PAT_SUBST = re.compile(r"{{\s*[a-zA-Z0-9_]+\s*}}")
 
-
 GroupNumber = namedtuple("GroupNumber", ["n"])
 
+def one_or(someiterator, default=None):
+    for el in someiterator:
+        return el
+    return default
 
 def subst(strg, substs):
     """
@@ -254,30 +257,6 @@ class StringRegexAnnotator(StringGazetteerBase):
                 # if there was no last rule, there was no rule at all, this is invalid
                 raise Exception("No complete rule found")
 
-    def match(self, text):
-        """
-        Return all matches for the whole text (from start to end) according the the match strategy.
-
-        Args:
-            text: the text to match
-
-        Returns:
-            A list of matches or None
-        """
-        raise Exception("Not yet implemented")
-
-    def find(self, text: str,
-             start: int = 0,
-             end: Union[None, int] = None,
-             longest_only: Union[None, bool] = None,
-             start_offsets: Union[List, Set, None] = None,
-             end_offsets: Union[List, Set, None] = None,
-             ws_offsets: Union[List, Set, None] = None,
-             split_offsets: Union[List, Set, None] = None,):
-        # TODO: find one or more matches at the first offset from start onwards where some match occurs,
-        #   limited by the start/end/ws/split offsets
-        pass
-
     def find_all(self, text: str,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
@@ -285,7 +264,85 @@ class StringRegexAnnotator(StringGazetteerBase):
                  end_offsets: Union[List, Set, None] = None,
                  ws_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None):
-        pass
+        # first of all create a list of match iterator generators that correspond to each of the rules
+        BEYOND = len(text)+1
+        if self.engine == "regex":
+            module = regex
+        else:
+            module = re
+        gens = [module.finditer(rule[0], text) for rule in self.rules]
+        # create a list of matches or None for each of the generators
+        matches = [one_or(gen) for gen in gens]
+
+        curoff = 0
+        result = []
+        while curoff < len(text):
+            # go through all matches (or None) in rule order: ignore the Nones these are done
+            # if we got a match that is smaller than where we already are, consume until we get one at the curoff
+            # or beyond. Every time we got a match at curoff or beyond, check which offset is the smallest. Also
+            # update the current longest match length.
+            # NOTE: if smallestoff is still len(text)+1 after this, we did not find any match!
+            longestspan = 0
+            smallestoff = BEYOND
+            for idx, match in enumerate(matches):
+                if match:
+                    if match.span[0] < curoff:
+                        match = one_or(gens[idx])
+                        while match and match.span[0] < curoff:
+                            match = one_or(gens[idx])
+                        matches[idx] = match
+                        if match is None:
+                            continue
+                    # we have a match for that rule
+                    if match.span[0] < smallestoff:
+                        # new smallest offset, also need to reset the longest match
+                        smallestoff = match.span[0]
+                        longestspan = 0
+                    mlen = match.span[1] - match.span[0]
+                    if mlen > longestspan:
+                        longestspan = mlen
+                # if match
+            # for
+            if smallestoff == BEYOND:
+                # no (more) matches found, break out of the while
+                break
+            # we have at least one match still at smallestoff
+            # depending on the strategy, select the rule to match:
+            # all: all rules starting at smallestoff
+            # first: the first rule at smallestoff
+            # last: the last rule at smallestoff
+            # firstlongest: the first rule at smallestoff which is of maximum length
+            idx2use = []
+            lastidx = None
+            for idx, match in enumerate(matches):
+                if match.span[0] != smallestoff:
+                    continue
+                if self.match == "all":
+                    idx2use.append(idx)
+                elif self.match == "first":
+                    idx2use.append(idx)
+                    break
+                elif self.match == "firstlongest" and match.span[1]-match.span[0] == longestspan:
+                    idx2use.append(idx)
+                elif self.match == "last":
+                    lastidx = idx
+            # end for
+            if self.match == "last":
+                idx2use.append(lastidx)
+            # now we have the list of idxs for which to add a match to the result
+            for idx in idx2use:
+                match = matches[idx]
+                acts = self.rules[idx][1]
+                for act in acts:
+                    typename = act[0]
+                    # TODO: replace GroupNumber
+                    feats = act[1]
+                    toadd = Match(match.span[0], match.span[1], text[match.span[0]:match.span[1]], typename, feats)
+                    result.append(toadd)
+            # end for
+        # end while
+        return result
+
 
     def __call__(self, doc: Document, **kwargs):
         chunks = []  # list of tuples (text, startoffset)
