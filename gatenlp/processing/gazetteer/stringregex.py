@@ -13,7 +13,7 @@ from gatenlp.processing.gazetteer.base import StringGazetteerBase
 # each feature assignment is a name followed by "=" followed by some non whitespace
 # featuer assignments are comma-separated (whitespace can be added)
 # e.g. 0,3 => Lookup f1=2, f2 = "something" , f3=True
-PAT_RULE_BODY_LINE = re.compile(r"^\s*([0-9]+(?:,[0-9]+)*)\s*=>\s*(\w+)\s*(\w+\s*=\s*\S+)*\s*$")
+PAT_RULE_BODY_LINE = re.compile(r"^\s*([0-9]+(?:,[0-9]+)*)\s*=>\s*(\w+)(\s*\w+\s*=\s*\S+)*\s*$")
 PAT_RULE_BODY_FASSIGN = re.compile(r"\s*(\w+)\s*=\s*(\S+)")
 PAT_DOLLARN = re.compile(r"^\$[0-9]+$")
 PAT_MACRO_LINE = re.compile(r"\s*([a-zA-Z0-9_]+)=(\S+)\s*$")
@@ -100,7 +100,7 @@ def make_rule(pats, acts, substs, backend="re"):
             else:
                 fval = eval(fval)
             fassignments[fname] = fval
-        anndescs.append(grpnrs, typname, fassignments)
+        anndescs.append((grpnrs, typname, fassignments))
     return pattern, anndescs
 
 
@@ -129,6 +129,7 @@ class StringRegexAnnotator(StringGazetteerBase):
                 dictionary of featurename to value mappings. If the value is an instance of GroupNumber, then
                 it represents the match group number to take the value of the feature from
                 Or the source_fmt can be "file" in which case the rules are loaded from a file with that path.
+                Or the source_fmt can be "string" in which case the rules are loaded from the given string.
             outset_name: name of the output annotation set
             annset_name: the input annotation set if matching is restricted to spans covered by
                 containing annotations.
@@ -203,49 +204,55 @@ class StringRegexAnnotator(StringGazetteerBase):
             for rule in source:
                 self.add(rule, list_features=list_features)
         else:
-            with open(source, "rt", encoding="utf-8") as infp:
-                cur_pats = []  # for each line, the original pattern string gets appended
-                cur_acts = []  # for each line, a tuple with group list string, typename string, feature assign string
-                cur_substs = {}
-                for line in infp:
-                    line = line.rstrip("\n\r")
-                    line = line.strip()
-                    if line == "":
-                        continue
-                    if line.startswith("//") or line.startswith("#"):
-                        continue  # comment line
-                    if line.startswith("|"):
-                        # if there is a current rule, add it
-                        if len(cur_acts) > 0:
-                            # finish and add rule
-                            rule = make_rule(cur_pats, cur_acts, cur_substs, backend=self.engine)
-                            cur_acts = []
-                            self.add(rule, list_features=list_features)
-                        # pattern line
-                        cur_pats.append(line[1:])
-                        continue
-                    mo = re.match(PAT_RULE_BODY_LINE)
-                    if mo is not None:
-                        grouplist, typename, featureassignments = mo.groups()
-                        cur_acts.append((grouplist, typename, featureassignments))
-                        continue
-                    mo = re.fullmatch(PAT_MACRO_LINE, line)
-                    if mo is not None:
-                        name = mo.group(1)
-                        pat = mo.group(2)
-                        cur_substs[name] = pat
-                        continue
-                    # if we fall through to here, the line does not match anything known, must be an error
-                    raise Exception(f"Odd line: {line}")
-                # end for line
-                if cur_acts:
-                    # finish and add rule
-                    rule = make_rule(cur_pats, cur_acts, cur_substs, backend=self.engine)
-                    self.add(rule, list_features=list_features)
-                    pass
-                else:
-                    # if there was no last rule, there was no rule at all, this is invalid
-                    raise Exception("No complete rule found")
+            if source_fmt == "file":
+                with open(source, "rt", encoding="utf-8") as infp:
+                    lines = infp.readlines()
+            elif source_fmt == "string":
+                lines = source.split("\n")
+            else:
+                raise Exception(f"Unknown source format: {source_fmt}")
+            cur_pats = []  # for each line, the original pattern string gets appended
+            cur_acts = []  # for each line, a tuple with group list string, typename string, feature assign string
+            cur_substs = {}
+            for line in lines:
+                line = line.rstrip("\n\r")
+                line = line.strip()
+                if line == "":
+                    continue
+                if line.startswith("//") or line.startswith("#"):
+                    continue  # comment line
+                if line.startswith("|"):
+                    # if there is a current rule, add it
+                    if len(cur_acts) > 0:
+                        # finish and add rule
+                        rule = make_rule(cur_pats, cur_acts, cur_substs, backend=self.engine)
+                        cur_acts = []
+                        self.add(rule, list_features=list_features)
+                    # pattern line
+                    cur_pats.append(line[1:])
+                    continue
+                mo = re.match(PAT_RULE_BODY_LINE, line)
+                if mo is not None:
+                    grouplist, typename, featureassignments = mo.groups()
+                    cur_acts.append((grouplist, typename, featureassignments))
+                    continue
+                mo = re.fullmatch(PAT_MACRO_LINE, line)
+                if mo is not None:
+                    name = mo.group(1)
+                    pat = mo.group(2)
+                    cur_substs[name] = pat
+                    continue
+                # if we fall through to here, the line does not match anything known, must be an error
+                raise Exception(f"Odd line: {line}")
+            # end for line
+            if cur_acts:
+                # finish and add rule
+                rule = make_rule(cur_pats, cur_acts, cur_substs, backend=self.engine)
+                self.add(rule, list_features=list_features)
+                pass
+            else:
+                # if there was no last rule, there was no rule at all, this is invalid
+                raise Exception("No complete rule found")
 
     def match(self, text):
         """
@@ -257,6 +264,7 @@ class StringRegexAnnotator(StringGazetteerBase):
         Returns:
             A list of matches or None
         """
+        raise Exception("Not yet implemented")
 
     def find(self, text: str,
              start: int = 0,
@@ -266,6 +274,8 @@ class StringRegexAnnotator(StringGazetteerBase):
              end_offsets: Union[List, Set, None] = None,
              ws_offsets: Union[List, Set, None] = None,
              split_offsets: Union[List, Set, None] = None,):
+        # TODO: find one or more matches at the first offset from start onwards where some match occurs,
+        #   limited by the start/end/ws/split offsets
         pass
 
     def find_all(self, text: str,

@@ -24,6 +24,18 @@ def makedoc(text=DOC1_TEXT):
         set1.add(fromoff, tooff, "Token")
     return doc1
 
+RULES1 = """
+DD=[0-2][0-9]|30|31
+MM=[0][0-9]|10|11|12
+YYYY=19[0-9][0-9]|20[0-9][0-9]
+date_iso={{YYYY}}-{{MM}}-{DD}}
+date_euro={{DD}}/{{MM}}/{{YYYY}}
+|{{date_iso}}
+0 => Date type="iso" date=$0
+
+|{{date_euro}}
+0 => Date type="euro" date=$0
+"""
 
 class TestStringRegexAnnotator:
 
@@ -37,5 +49,6 @@ class TestStringRegexAnnotator:
         """
         Unit test method (make linter happy)
         """
-        annt = StringRegexAnnotator()
+        annt = StringRegexAnnotator(source=RULES1, source_fmt="string")
+        # annt.find()
 
