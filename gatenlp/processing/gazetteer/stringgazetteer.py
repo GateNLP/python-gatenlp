@@ -313,23 +313,23 @@ class StringGazetteer(StringGazetteerBase):
                     line = line.rstrip("\n\r")
                     fields = line.split(":")
                     fields.extend(["", "", "", ""])
-                    listFile = fields[0]
-                    majorType = fields[1]
-                    minorType = fields[2]
+                    list_file = fields[0]
+                    major_type = fields[1]
+                    minor_type = fields[2]
                     languages = fields[3]
                     anntype = fields[4]
                     this_listfeatures = list_features.copy()
                     this_outtype = list_type
-                    if majorType:
-                        this_listfeatures["majorType"] = majorType
-                    if minorType:
-                        this_listfeatures["minorType"] = minorType
+                    if major_type:
+                        this_listfeatures["majorType"] = major_type
+                    if minor_type:
+                        this_listfeatures["minorType"] = minor_type
                     if languages:
                         this_listfeatures["lang"] = languages
                     if anntype:
                         this_outtype = anntype
                     # read in the actual list
-                    listfile = os.path.join(os.path.dirname(source), listFile)
+                    listfile = os.path.join(os.path.dirname(source), list_file)
                     self.logger.debug(f"Reading list file {listfile}")
                     with open(listfile, "rt", encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
@@ -574,7 +574,7 @@ class StringGazetteer(StringGazetteerBase):
             if start_offsets is not None and offset not in start_offsets:
                 offset += 1
                 continue
-            matches, maxlen, where = self.find(text, start=offset, end=end, longest_only=longest_only,
+            matches, maxlen, where = self.find(text, start=offset, longest_only=longest_only,
                                                start_offsets=start_offsets, end_offsets=end_offsets,
                                                ws_offsets=ws_offsets, split_offsets=split_offsets
                                                )

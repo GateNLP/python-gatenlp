@@ -37,10 +37,8 @@ class StringGazetteerBase(GazetteerBase):
 
 
 Match = structclass(
-    """
-    A description of a match. Each match can correspond to one or more data entries. For each data entry,
-    there is a features dict and a type name. 
-    """
+    # A description of a match. Each match can correspond to one or more data entries. For each data entry,
+    # there is a features dict and a type name.
     # Fields:
     # start: the offset or index (in case matching a token list) where the match starts
     # end: the offset or index one past where the match ends
