@@ -159,7 +159,10 @@ class StringRegexAnnotator(StringGazetteerBase):
         self.match = match
         self.engine = engine
         if engine == "regex":
-            import regex
+            try:
+                import regex
+            except Exception as ex:
+                raise Exception(f"Cannot use regex, import failed")
         self.features4list = []
         if source is not None:
             self.append(source, source_fmt=source_fmt, list_features=list_features)
@@ -267,7 +270,8 @@ class StringRegexAnnotator(StringGazetteerBase):
         # first of all create a list of match iterator generators that correspond to each of the rules
         BEYOND = len(text)+1
         if self.engine == "regex":
-            module = regex
+            # note: this should have been imported in the constructor, if needed
+            module = regex   # noqa: E821
         else:
             module = re
         gens = [module.finditer(rule[0], text) for rule in self.rules]
