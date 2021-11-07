@@ -84,7 +84,7 @@ def make_rule(pats, acts, substs, backend="re"):
     if backend == "re":
         pattern = re.compile("".join(pats))
     elif backend == "regex":
-        pattern = regex.compile("".join(pats))
+        pattern = regex.compile("".join(pats))  # noqa: F821
     else:
         raise Exception(f"Invalid regular expression backend: {backend}")
     anndescs = []
@@ -271,7 +271,7 @@ class StringRegexAnnotator(StringGazetteerBase):
         BEYOND = len(text)+1
         if self.engine == "regex":
             # note: this should have been imported in the constructor, if needed
-            module = regex   # noqa: E821
+            module = regex   # noqa: F821
         else:
             module = re
         gens = [module.finditer(rule[0], text) for rule in self.rules]
