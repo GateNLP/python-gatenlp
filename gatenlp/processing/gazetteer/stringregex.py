@@ -3,12 +3,14 @@ Module that defines classes for matching annotators other than gazetteers which 
 of strings or annotations.
 """
 import re
+from typing import Union, List, Set
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerAnnotator
+from gatenlp.processing.gazetteer.base import StringGazetteerBase
 
 PAT_MACRO_LINE = re.compile(r" *([a-zA-Z0-9_]+)=(\S+)")
 
-class StringRegexAnnotator(StringGazetteerAnnotator):
+
+class StringRegexAnnotator(StringGazetteerBase):
     """
     NOT YET IMPLEMENTED
     """
@@ -139,11 +141,46 @@ class StringRegexAnnotator(StringGazetteerAnnotator):
                     # if there was no last rule, there was no rule at all, this is invalid
                     raise Exception("No complete rule found")
 
-    def find_all(self, text, start, end):
-        # NOTE: this must be implemented for this gazetteer to be a proper StringGazetteer which
-        # can be used by the FeatureGazetteer
+    def match(self, text):
+        """
+        Return all matches for the whole text (from start to end) according the the match strategy.
+
+        Args:
+            text: the text to match
+
+        Returns:
+            A list of matches or None
+        """
+
+    def find(self, text: str,
+             start: int = 0,
+             end: Union[None, int] = None,
+             longest_only: Union[None, bool] = None,
+             start_offsets: Union[List, Set, None] = None,
+             end_offsets: Union[List, Set, None] = None,
+             ws_offsets: Union[List, Set, None] = None,
+             split_offsets: Union[List, Set, None] = None,):
+        pass
+
+    def find_all(self, text: str,
+                 longest_only: Union[None, bool] = None,
+                 skip_longest: Union[None, bool] = None,
+                 start_offsets: Union[List, Set, None] = None,
+                 end_offsets: Union[List, Set, None] = None,
+                 ws_offsets: Union[List, Set, None] = None,
+                 split_offsets: Union[List, Set, None] = None):
         pass
 
     def __call__(self, doc: Document, **kwargs):
-        pass
+        chunks = []  # list of tuples (text, startoffset)
+        if self.containing_type is not None:
+            for ann in doc.annset(self.annset_name).with_type(self.containing_type):
+                chunks.append((doc[ann], ann.start))
+        else:
+            chunks.append((doc.text, 0))
+        for chunk in chunks:
+            text = chunk[0]
+            offset = chunk[1]
+            # find the matches, add annotations, with the offsets adapted by offset
+        return doc
 

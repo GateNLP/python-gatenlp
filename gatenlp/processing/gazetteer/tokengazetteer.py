@@ -12,7 +12,7 @@ from recordclass import structclass
 from gatenlp.document import Document, Annotation
 from gatenlp.utils import init_logger
 from gatenlp.processing.annotator import Annotator
-from gatenlp.processing.gazetteer.base import GazetteerAnnotator
+from gatenlp.processing.gazetteer.base import GazetteerBase
 
 # TODO: better handling/support for separator annotations: this would add complexity but allow that a sequence
 #   of annotations is only matched if there is a/several? separator annotation between each of those annotations.
@@ -33,7 +33,7 @@ TokenGazetteerMatch = structclass(
 )
 
 
-class TokenGazetteerNode(GazetteerAnnotator):
+class TokenGazetteerNode:
     """
     Represent an entry in the hash map of entry first tokens.
     If is_match is True, that token is already a match and data contains the entry data.
@@ -77,7 +77,7 @@ def tokentext_getter(token, doc=None, feature=None):
 
 
 # TODO: allow output annotation type to be set from the match or from the list!
-class TokenGazetteer(GazetteerAnnotator):
+class TokenGazetteer(GazetteerBase):
     def __init__(
         self,
         source: Union[List, str, None] = None,

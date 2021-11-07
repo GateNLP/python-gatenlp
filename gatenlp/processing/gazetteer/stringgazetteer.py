@@ -7,7 +7,7 @@ from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 from recordclass import structclass
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import GazetteerAnnotator
+from gatenlp.processing.gazetteer.base import StringGazetteerBase
 import re
 
 _NOVALUE = None
@@ -75,7 +75,7 @@ class _Node:
         return s1 + s2 + "])"
 
 
-class StringGazetteer(GazetteerAnnotator):
+class StringGazetteer(StringGazetteerBase):
     def __init__(
             self,
             annset_name: str = "",
@@ -537,7 +537,7 @@ class StringGazetteer(GazetteerAnnotator):
         return [], 0, None
 
     def find_all(self,
-                 text: str, start: int = 0, end: Union[None, int] = None,
+                 text: str,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -545,12 +545,10 @@ class StringGazetteer(GazetteerAnnotator):
                  ws_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None,):
         """
-        Find the next gazetteer match(es) in the text, if any.
+        Find all gazetteer matches in the text, if any.
 
         Args:
             text: string to search
-            start: offset where to start matching in the text
-            end: if not None, offset beyond which no match may happen (start or end)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -565,10 +563,8 @@ class StringGazetteer(GazetteerAnnotator):
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = start
-        if end is None:
-            end = len(text)
-        while offset < end:
+        offset = 0
+        while offset < len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
                 continue
