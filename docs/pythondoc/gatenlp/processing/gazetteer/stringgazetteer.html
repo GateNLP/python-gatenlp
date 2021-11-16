@@ -36,7 +36,7 @@ from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 from recordclass import structclass
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import GazetteerAnnotator
+from gatenlp.processing.gazetteer.base import StringGazetteerBase
 import re
 
 _NOVALUE = None
@@ -104,7 +104,7 @@ class _Node:
         return s1 + s2 + &#34;])&#34;
 
 
-class StringGazetteer(GazetteerAnnotator):
+class StringGazetteer(StringGazetteerBase):
     def __init__(
             self,
             annset_name: str = &#34;&#34;,
@@ -342,23 +342,23 @@ class StringGazetteer(GazetteerAnnotator):
                     line = line.rstrip(&#34;\n\r&#34;)
                     fields = line.split(&#34;:&#34;)
                     fields.extend([&#34;&#34;, &#34;&#34;, &#34;&#34;, &#34;&#34;])
-                    listFile = fields[0]
-                    majorType = fields[1]
-                    minorType = fields[2]
+                    list_file = fields[0]
+                    major_type = fields[1]
+                    minor_type = fields[2]
                     languages = fields[3]
                     anntype = fields[4]
                     this_listfeatures = list_features.copy()
                     this_outtype = list_type
-                    if majorType:
-                        this_listfeatures[&#34;majorType&#34;] = majorType
-                    if minorType:
-                        this_listfeatures[&#34;minorType&#34;] = minorType
+                    if major_type:
+                        this_listfeatures[&#34;majorType&#34;] = major_type
+                    if minor_type:
+                        this_listfeatures[&#34;minorType&#34;] = minor_type
                     if languages:
                         this_listfeatures[&#34;lang&#34;] = languages
                     if anntype:
                         this_outtype = anntype
                     # read in the actual list
-                    listfile = os.path.join(os.path.dirname(source), listFile)
+                    listfile = os.path.join(os.path.dirname(source), list_file)
                     self.logger.debug(f&#34;Reading list file {listfile}&#34;)
                     with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
@@ -566,7 +566,7 @@ class StringGazetteer(GazetteerAnnotator):
         return [], 0, None
 
     def find_all(self,
-                 text: str, start: int = 0, end: Union[None, int] = None,
+                 text: str,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -574,12 +574,10 @@ class StringGazetteer(GazetteerAnnotator):
                  ws_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None,):
         &#34;&#34;&#34;
-        Find the next gazetteer match(es) in the text, if any.
+        Find all gazetteer matches in the text, if any.
 
         Args:
             text: string to search
-            start: offset where to start matching in the text
-            end: if not None, offset beyond which no match may happen (start or end)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -594,10 +592,8 @@ class StringGazetteer(GazetteerAnnotator):
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = start
-        if end is None:
-            end = len(text)
-        while offset &lt; end:
+        offset = 0
+        while offset &lt; len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
                 continue
@@ -607,7 +603,7 @@ class StringGazetteer(GazetteerAnnotator):
             if start_offsets is not None and offset not in start_offsets:
                 offset += 1
                 continue
-            matches, maxlen, where = self.find(text, start=offset, end=end, longest_only=longest_only,
+            matches, maxlen, where = self.find(text, start=offset, longest_only=longest_only,
                                                start_offsets=start_offsets, end_offsets=end_offsets,
                                                ws_offsets=ws_offsets, split_offsets=split_offsets
                                                )
@@ -780,8 +776,7 @@ class StringGazetteer(GazetteerAnnotator):
 <span>(</span><span>annset_name: str = '', outset_name: str = '', ann_type: str = 'Lookup', longest_only: bool = False, skip_longest: bool = False, start_type: Union[str, NoneType] = None, end_type: Union[str, NoneType] = None, ws_chars: Union[NoneType, str, Callable] = None, ws_type: Union[str, NoneType] = None, split_chars: Union[NoneType, str, Callable] = None, split_type: Union[str, NoneType] = None, map_chars: Union[NoneType, str, Callable] = None, source: Any = None, source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Union[Dict, NoneType] = None, list_type: Union[str, NoneType] = None, list_nr: Union[int, NoneType] = None, ws_clean: bool = True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+<div class="desc"><p>A gazetteer annotator the can be applied to strings.</p>
 <p>Create a String Gazetteer annotor.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -851,7 +846,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class StringGazetteer(GazetteerAnnotator):
+<pre><code class="python">class StringGazetteer(StringGazetteerBase):
     def __init__(
             self,
             annset_name: str = &#34;&#34;,
@@ -1089,23 +1084,23 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                     line = line.rstrip(&#34;\n\r&#34;)
                     fields = line.split(&#34;:&#34;)
                     fields.extend([&#34;&#34;, &#34;&#34;, &#34;&#34;, &#34;&#34;])
-                    listFile = fields[0]
-                    majorType = fields[1]
-                    minorType = fields[2]
+                    list_file = fields[0]
+                    major_type = fields[1]
+                    minor_type = fields[2]
                     languages = fields[3]
                     anntype = fields[4]
                     this_listfeatures = list_features.copy()
                     this_outtype = list_type
-                    if majorType:
-                        this_listfeatures[&#34;majorType&#34;] = majorType
-                    if minorType:
-                        this_listfeatures[&#34;minorType&#34;] = minorType
+                    if major_type:
+                        this_listfeatures[&#34;majorType&#34;] = major_type
+                    if minor_type:
+                        this_listfeatures[&#34;minorType&#34;] = minor_type
                     if languages:
                         this_listfeatures[&#34;lang&#34;] = languages
                     if anntype:
                         this_outtype = anntype
                     # read in the actual list
-                    listfile = os.path.join(os.path.dirname(source), listFile)
+                    listfile = os.path.join(os.path.dirname(source), list_file)
                     self.logger.debug(f&#34;Reading list file {listfile}&#34;)
                     with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
                         self.list_types.append(this_outtype)
@@ -1313,7 +1308,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
         return [], 0, None
 
     def find_all(self,
-                 text: str, start: int = 0, end: Union[None, int] = None,
+                 text: str,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -1321,12 +1316,10 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                  ws_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None,):
         &#34;&#34;&#34;
-        Find the next gazetteer match(es) in the text, if any.
+        Find all gazetteer matches in the text, if any.
 
         Args:
             text: string to search
-            start: offset where to start matching in the text
-            end: if not None, offset beyond which no match may happen (start or end)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -1341,10 +1334,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = start
-        if end is None:
-            end = len(text)
-        while offset &lt; end:
+        offset = 0
+        while offset &lt; len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
                 continue
@@ -1354,7 +1345,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             if start_offsets is not None and offset not in start_offsets:
                 offset += 1
                 continue
-            matches, maxlen, where = self.find(text, start=offset, end=end, longest_only=longest_only,
+            matches, maxlen, where = self.find(text, start=offset, longest_only=longest_only,
                                                start_offsets=start_offsets, end_offsets=end_offsets,
                                                ws_offsets=ws_offsets, split_offsets=split_offsets
                                                )
@@ -1514,7 +1505,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1605,18 +1597,14 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 as the second element and the index where the match occurs or None as the third element</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text: str, start: int = 0, end: Union[NoneType, int] = None, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
+<span>def <span class="ident">find_all</span></span>(<span>self, text: str, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Find the next gazetteer match(es) in the text, if any.</p>
+<div class="desc"><p>Find all gazetteer matches in the text, if any.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>text</code></strong></dt>
 <dd>string to search</dd>
-<dt><strong><code>start</code></strong></dt>
-<dd>offset where to start matching in the text</dd>
-<dt><strong><code>end</code></strong></dt>
-<dd>if not None, offset beyond which no match may happen (start or end)</dd>
 <dt><strong><code>longest_only</code></strong></dt>
 <dd>if True, return only the longest match at each position, if None use gazetteer setting</dd>
 <dt><strong><code>skip_longest</code></strong></dt>
@@ -1708,13 +1696,13 @@ of the longest match, 0 if there is no match (list of match objects is empty).</
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></b></code>:
+<li><code><b><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
 </li>
 </ul>

@@ -642,10 +642,12 @@ class Document:
           the initialized Document instance
 
         &#34;&#34;&#34;
-        feats = dictrepr.get(&#34;features&#34;)
+        feats = dictrepr.get(&#34;features&#34;, {})
         doc = Document(dictrepr.get(&#34;text&#34;), features=feats)
         doc.name = dictrepr.get(&#34;name&#34;)
         doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
+        if doc.offset_type is None:
+            doc.offset_type = OFFSET_TYPE_PYTHON
         if (
             doc.offset_type != OFFSET_TYPE_JAVA
             and doc.offset_type != OFFSET_TYPE_PYTHON
@@ -653,7 +655,7 @@ class Document:
             raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
         annsets = {
             name: AnnotationSet.from_dict(adict, owner_doc=doc)
-            for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+            for name, adict in dictrepr.get(&#34;annotation_sets&#34;, {}).items()
         }
         doc._annotation_sets = annsets
         return doc
@@ -1830,10 +1832,12 @@ offsets accordingly)</li>
           the initialized Document instance
 
         &#34;&#34;&#34;
-        feats = dictrepr.get(&#34;features&#34;)
+        feats = dictrepr.get(&#34;features&#34;, {})
         doc = Document(dictrepr.get(&#34;text&#34;), features=feats)
         doc.name = dictrepr.get(&#34;name&#34;)
         doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
+        if doc.offset_type is None:
+            doc.offset_type = OFFSET_TYPE_PYTHON
         if (
             doc.offset_type != OFFSET_TYPE_JAVA
             and doc.offset_type != OFFSET_TYPE_PYTHON
@@ -1841,7 +1845,7 @@ offsets accordingly)</li>
             raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
         annsets = {
             name: AnnotationSet.from_dict(adict, owner_doc=doc)
-            for name, adict in dictrepr.get(&#34;annotation_sets&#34;).items()
+            for name, adict in dictrepr.get(&#34;annotation_sets&#34;, {}).items()
         }
         doc._annotation_sets = annsets
         return doc

@@ -30,21 +30,46 @@
 <pre><code class="python">&#34;&#34;&#34;
 Base class for all gazetteer annotators
 &#34;&#34;&#34;
-from typing import Union, List
+from typing import Union, List, Set
+from recordclass import structclass
 from gatenlp import Document
 from gatenlp.processing.annotator import Annotator
 
 
-class GazetteerAnnotator(Annotator):
+class GazetteerBase(Annotator):
     def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)
 
-class StringGazetteerAnnotator(GazetteerAnnotator):
+
+class StringGazetteerBase(GazetteerBase):
     &#34;&#34;&#34;
     A gazetteer annotator the can be applied to strings.
     &#34;&#34;&#34;
-    def find_all(self, text, *args, **kwargs):
-        pass</code></pre>
+    def find_all(self, text: str,
+                 longest_only: Union[None, bool] = None,
+                 skip_longest: Union[None, bool] = None,
+                 start_offsets: Union[List, Set, None] = None,
+                 end_offsets: Union[List, Set, None] = None,
+                 ws_offsets: Union[List, Set, None] = None,
+                 split_offsets: Union[List, Set, None] = None,):
+        pass
+
+
+Match = structclass(
+    # TODO: why do we need features and types to be lists? Can we not generate separate Match instances
+    #   for each of those, with the same offsets?????
+    # A description of a match. Each match can correspond to one or more data entries. For each data entry,
+    # there is a features dict and a type name.
+    # Fields:
+    # start: the offset or index (in case matching a token list) where the match starts
+    # end: the offset or index one past where the match ends
+    # match: the matched string or tokenlist
+    # features: a list of feature dicts
+    # types: a list of type names
+    # the features and types list always have the same length, contain at least one element and 
+    # elements with the same index correspond to each other.
+    &#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;features&#34;, &#34;types&#34;)
+)</code></pre>
 </details>
 </section>
 <section>
@@ -56,8 +81,8 @@ class StringGazetteerAnnotator(GazetteerAnnotator):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gatenlp.processing.gazetteer.base.GazetteerAnnotator"><code class="flex name class">
-<span>class <span class="ident">GazetteerAnnotator</span></span>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerBase"><code class="flex name class">
+<span>class <span class="ident">GazetteerBase</span></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -66,7 +91,7 @@ inheritance.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GazetteerAnnotator(Annotator):
+<pre><code class="python">class GazetteerBase(Annotator):
     def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
@@ -77,10 +102,8 @@ inheritance.</p></div>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.StringGazetteerAnnotator">StringGazetteerAnnotator</a></li>
-<li><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer" href="stringgazetteer.html#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer">StringGazetteer</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></li>
 <li><a title="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer" href="tokengazetteer.html#gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer">TokenGazetteer</a></li>
-<li><a title="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerNode" href="tokengazetteer.html#gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerNode">TokenGazetteerNode</a></li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -95,8 +118,43 @@ inheritance.</p></div>
 </li>
 </ul>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator"><code class="flex name class">
-<span>class <span class="ident">StringGazetteerAnnotator</span></span>
+<dt id="gatenlp.processing.gazetteer.base.Match"><code class="flex name class">
+<span>class <span class="ident">Match</span></span>
+<span>(</span><span>start, end, match, features, types)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="matchstart-end-match-features-types">Match(start, end, match, features, types)</h2>
+<p>Create class instance</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>recordclass.datatype.dataobject</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.processing.gazetteer.base.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.base.Match.features"><code class="name">var <span class="ident">features</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.base.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.base.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gatenlp.processing.gazetteer.base.Match.types"><code class="name">var <span class="ident">types</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.processing.gazetteer.base.StringGazetteerBase"><code class="flex name class">
+<span>class <span class="ident">StringGazetteerBase</span></span>
 </code></dt>
 <dd>
 <div class="desc"><p>A gazetteer annotator the can be applied to strings.</p></div>
@@ -104,27 +162,34 @@ inheritance.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class StringGazetteerAnnotator(GazetteerAnnotator):
+<pre><code class="python">class StringGazetteerBase(GazetteerBase):
     &#34;&#34;&#34;
     A gazetteer annotator the can be applied to strings.
     &#34;&#34;&#34;
-    def find_all(self, text, *args, **kwargs):
+    def find_all(self, text: str,
+                 longest_only: Union[None, bool] = None,
+                 skip_longest: Union[None, bool] = None,
+                 start_offsets: Union[List, Set, None] = None,
+                 end_offsets: Union[List, Set, None] = None,
+                 ws_offsets: Union[List, Set, None] = None,
+                 split_offsets: Union[List, Set, None] = None,):
         pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer" href="stringgazetteer.html#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer">StringGazetteer</a></li>
 <li><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator" href="stringregex.html#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator">StringRegexAnnotator</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text, *args, **kwargs)</span>
+<dt id="gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all"><code class="name flex">
+<span>def <span class="ident">find_all</span></span>(<span>self, text: str, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -132,13 +197,13 @@ inheritance.</p></div>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></b></code>:
+<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
 </li>
 </ul>
@@ -160,12 +225,22 @@ inheritance.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></code></h4>
+<h4><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></code></h4>
 </li>
 <li>
-<h4><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator" href="#gatenlp.processing.gazetteer.base.StringGazetteerAnnotator">StringGazetteerAnnotator</a></code></h4>
+<h4><code><a title="gatenlp.processing.gazetteer.base.Match" href="#gatenlp.processing.gazetteer.base.Match">Match</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.find_all" href="#gatenlp.processing.gazetteer.base.StringGazetteerAnnotator.find_all">find_all</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.end" href="#gatenlp.processing.gazetteer.base.Match.end">end</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.features" href="#gatenlp.processing.gazetteer.base.Match.features">features</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.match" href="#gatenlp.processing.gazetteer.base.Match.match">match</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.start" href="#gatenlp.processing.gazetteer.base.Match.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.types" href="#gatenlp.processing.gazetteer.base.Match.types">types</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all">find_all</a></code></li>
 </ul>
 </li>
 </ul>

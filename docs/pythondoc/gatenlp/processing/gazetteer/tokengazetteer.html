@@ -44,7 +44,7 @@ from recordclass import structclass
 from gatenlp.document import Document, Annotation
 from gatenlp.utils import init_logger
 from gatenlp.processing.annotator import Annotator
-from gatenlp.processing.gazetteer.base import GazetteerAnnotator
+from gatenlp.processing.gazetteer.base import GazetteerBase
 
 # TODO: better handling/support for separator annotations: this would add complexity but allow that a sequence
 #   of annotations is only matched if there is a/several? separator annotation between each of those annotations.
@@ -65,7 +65,7 @@ TokenGazetteerMatch = structclass(
 )
 
 
-class TokenGazetteerNode(GazetteerAnnotator):
+class TokenGazetteerNode:
     &#34;&#34;&#34;
     Represent an entry in the hash map of entry first tokens.
     If is_match is True, that token is already a match and data contains the entry data.
@@ -109,7 +109,7 @@ def tokentext_getter(token, doc=None, feature=None):
 
 
 # TODO: allow output annotation type to be set from the match or from the list!
-class TokenGazetteer(GazetteerAnnotator):
+class TokenGazetteer(GazetteerBase):
     def __init__(
         self,
         source: Union[List, str, None] = None,
@@ -845,7 +845,7 @@ precedence over outtype for the data loaded from source.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TokenGazetteer(GazetteerAnnotator):
+<pre><code class="python">class TokenGazetteer(GazetteerBase):
     def __init__(
         self,
         source: Union[List, str, None] = None,
@@ -1491,7 +1491,7 @@ precedence over outtype for the data loaded from source.</dd>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></li>
+<li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1662,13 +1662,13 @@ and the second element is the length of the longest match, 0 if no match.</p></d
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></b></code>:
+<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1729,7 +1729,7 @@ start with the first token and the entry data if we have a match (all tokens mat
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TokenGazetteerNode(GazetteerAnnotator):
+<pre><code class="python">class TokenGazetteerNode:
     &#34;&#34;&#34;
     Represent an entry in the hash map of entry first tokens.
     If is_match is True, that token is already a match and data contains the entry data.
@@ -1761,12 +1761,6 @@ start with the first token and the entry data if we have a match (all tokens mat
         nodes = TokenGazetteerNode.dict_repr(self.nodes)
         return f&#34;Node(is_match={self.is_match},data={self.data},listidx={self.listidx},nodes={nodes})&#34;</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></li>
-<li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
-<li>abc.ABC</li>
-</ul>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerNode.dict_repr"><code class="name flex">
@@ -1795,18 +1789,6 @@ start with the first token and the entry data if we have a match (all tokens mat
 <div class="desc"></div>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator" href="base.html#gatenlp.processing.gazetteer.base.GazetteerAnnotator">GazetteerAnnotator</a></b></code>:
-<ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerAnnotator.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
