@@ -9,6 +9,9 @@
 * ! the parameter name `out_annset` in `gatenlp.processing.client` was changed to `outset_name` to be consistent with the name used elsewhere.
 * The `Document.clone()` method can be used to easily create an exact copy of a document, where none of the data is shared (deep copy)
 * The [TextNormalizer](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/normalizer.html) has been added. It can be used to normalize the unicode representation of the text in a document.
+* loading a document from bdocjs format now does not require any keys in the JSON map and also ignores all 
+  unknown keys. This allows to more easily import ad-hoc documents which e.g. only contain the text or text and 
+  annotations (if not offset type is specified, python is assumed).
 * The documentation has been updated and extended (especially for gazetteers and PAMPAC)
 
 ## 1.0.5.1 (2021-10-09)

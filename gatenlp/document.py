@@ -611,10 +611,12 @@ class Document:
           the initialized Document instance
 
         """
-        feats = dictrepr.get("features")
+        feats = dictrepr.get("features", {})
         doc = Document(dictrepr.get("text"), features=feats)
         doc.name = dictrepr.get("name")
         doc.offset_type = dictrepr.get("offset_type")
+        if doc.offset_type is None:
+            doc.offset_type = OFFSET_TYPE_PYTHON
         if (
             doc.offset_type != OFFSET_TYPE_JAVA
             and doc.offset_type != OFFSET_TYPE_PYTHON
@@ -622,7 +624,7 @@ class Document:
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
         annsets = {
             name: AnnotationSet.from_dict(adict, owner_doc=doc)
-            for name, adict in dictrepr.get("annotation_sets").items()
+            for name, adict in dictrepr.get("annotation_sets", {}).items()
         }
         doc._annotation_sets = annsets
         return doc
