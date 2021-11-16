@@ -9,6 +9,9 @@ from recordclass import structclass
 from gatenlp import Document
 from gatenlp.processing.gazetteer.base import StringGazetteerBase
 
+# TODO: make it so that everything in a |.. pattern line is enclosed in (?:..) and an alternative
+# TODO: make it so that everything in a +.. pattern line is appended to the previous line(s)
+
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
 # each feature assignment is basically whatever can be inside a python "dict(...)" constructor.
@@ -195,8 +198,8 @@ class StringRegexAnnotator(StringGazetteerBase):
             pats = subst(pats.strip(), substs)
         else:
             # pats = ["(?:" + subst(p.strip(), substs) + ")" for p in pats]
-            pats = [subst(p.strip(), substs) for p in pats]
-        pattern_string = "".join(pats)
+            pats = ["(?:"+subst(p.strip()+")", substs) for p in pats]
+        pattern_string = "|".join(pats)
         try:
             pattern = self.re.compile(pattern_string)  # noqa: F821
         except Exception as ex:
@@ -252,7 +255,22 @@ class StringRegexAnnotator(StringGazetteerBase):
                         cur_pats = []
                         self.rules.append(rule)
                     # pattern line
-                    cur_pats.append(line[1:])
+                    cur_pats.append(line[1:].strip())
+                    continue
+                if line.startswith("+"):
+                    # if there is a current rule, add it
+                    if len(cur_acts) > 0:
+                        # finish and add rule
+                        rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                        cur_acts = []
+                        cur_pats = []
+                        self.rules.append(rule)
+                    # pattern line: if we have already something in cur_pats, concatenate this to the last pat we have
+                    # otherwise, add a new line
+                    if len(cur_pats) == 0:
+                        cur_pats.append(line[1:].strip())
+                    else:
+                        cur_pats[-1] = cur_pats[-1] + line[1:].strip()
                     continue
                 mo = re.match(PAT_RULE_BODY_LINE, line)
                 if mo is not None:

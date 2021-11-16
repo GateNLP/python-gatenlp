@@ -8,6 +8,7 @@ from gatenlp.processing.gazetteer.stringregex import Rule, Action
 
 DOC1_TEXT = "A simple document which has a number of words in it which we will use to test matching, simple document"
 
+# TODO: test |.. lines vs. +.. lines
 
 def makedoc(text=DOC1_TEXT):
     """
