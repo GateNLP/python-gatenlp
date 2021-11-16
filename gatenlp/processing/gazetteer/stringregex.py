@@ -9,14 +9,11 @@ from recordclass import structclass
 from gatenlp import Document
 from gatenlp.processing.gazetteer.base import StringGazetteerBase
 
-# TODO: use named tuple instead of tuple for each action, to make it easier to keep track of which field used?
-
-
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
-# each feature assignment is a name followed by "=" followed by some non whitespace
-# featuer assignments are comma-separated (whitespace can be added)
+# each feature assignment is basically whatever can be inside a python "dict(...)" constructor.
 # e.g. 0,3 => Lookup f1=2, f2 = "something" , f3=True
+
 PAT_RULE_BODY_LINE = re.compile(r"^\s*([0-9]+(?:,[0-9]+)*)\s*=>\s*(\w+)\s*(.*)$")
 PAT_MACRO_LINE = re.compile(r"\s*([a-zA-Z0-9_]+)=(\S+)\s*$")
 PAT_SUBST = re.compile(r"{{\s*[a-zA-Z0-9_]+\s*}}")
@@ -90,7 +87,7 @@ def replace_group(feats: Dict, groups: Union[list, tuple]):
     ret = {}
     for k, v in feats.items():
         if isinstance(v, GroupNumber):
-            v = groups[v.n]
+            v = groups[v.n][2]  # each group is a tuple start, end, text
         ret[k] = v
     return ret
 
@@ -305,15 +302,18 @@ class StringRegexAnnotator(StringGazetteerBase):
             split_offsets: a set/list of offsets where a match cannot cross
 
         Returns:
-            None if no match is found, otherwise a tuple (start, end, groups) where groups is a tuple with all
-            groups from the RE, starting with group(0), then group(1) etc.
+            None if no match is found, otherwise a tuple (start, end, groups) where groups is a tuple/list with all
+            groups from the RE, starting with group(0), then group(1) etc. Each group in turn as a tuple
+            (start, end, text)
         """
         m = self.re.search(pat, text[from_offset:])
         while m:
             # in this loop we return the first match that is valid, iterating until we find one or
             # no more matches are found
-            groups = [m.group(0)]
-            groups.extend(m.groups())
+            lastidx = m.lastindex
+            if lastidx is None:
+                lastidx = 0
+            groups = [(m.start(i)+from_offset, m.end(i)+from_offset, m.group(i)) for i in range(lastidx+1)]
             start, end = [o+from_offset for o in m.span()]
 
             ostart = start + add_offset
@@ -424,10 +424,10 @@ class StringRegexAnnotator(StringGazetteerBase):
                 groups = match[2]
                 for act in acts:
                     feats = replace_group(act.features, groups)
-                    for gn in act.groupnumbers:
-                        toadd = Match(start=match[0],
-                                      end=match[1],
-                                      match=groups[gn],
+                    for gnr in act.groupnumbers:
+                        toadd = Match(start=groups[gnr][0],
+                                      end=groups[gnr][1],
+                                      match=groups[gnr][2],
                                       features=feats,
                                       type=act.typename)
                         result.append(toadd)
@@ -475,5 +475,5 @@ class StringRegexAnnotator(StringGazetteerBase):
             matches = self.find_all(text=text, add_offset=offset, start_offsets=start_offsets, end_offsets=end_offsets,
                                     split_offsets=split_offsets)
             for match in matches:
-                outset.add(match.start + offset, match.end + offset, match.type, match.feats)
+                outset.add(match.start + offset, match.end + offset, match.type, match.features)
         return doc

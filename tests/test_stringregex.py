@@ -63,13 +63,13 @@ class TestStringRegexAnnotator:
 
     def test_replace_group(self):
         f1 = dict(a="x", b=GroupNumber(0), c=GroupNumber(1))
-        assert replace_group(f1, ("ALL", "Group1", "Group2")) == dict(a="x", b="ALL", c="Group1")
+        assert replace_group(f1, ((0,1,"ALL"), (1,2,"Group1"), (2,3,"Group2"))) == dict(a="x", b="ALL", c="Group1")
 
     def test_create1(self):
         """
         Unit test method (make linter happy)
         """
-        annt = StringRegexAnnotator(source=RULES1, source_fmt="string")
+        annt = StringRegexAnnotator(source=RULES1, source_fmt="string", select_rules="all")
         # for rule in annt.rules:
         #     print(f"DEBUG: rule=", rule)
 
@@ -118,7 +118,7 @@ class TestStringRegexAnnotator:
         assert end == 20
         assert groups is not None
         assert len(groups) == 4
-        assert groups[0] == "2021-12-21"
+        assert groups[0] == (10, 20, "2021-12-21")
 
         ret = annt.find_all("asdf")
         assert len(ret) == 0
@@ -164,3 +164,14 @@ class TestStringRegexAnnotator:
         assert isinstance(m.features, dict)
         assert m.features["type"] == "us"
         assert m.type == "Date"
+
+        # now run the actual annotator on a document
+        doc1 = Document("asdf 02/09/2013 dfdf ")
+        doc1 = annt(doc1)
+        anns = doc1.annset()
+        for idx, ann in enumerate(anns):
+            assert ann.type == "Date"
+            assert ann.start == 5
+            assert ann.end == 15
+            assert ann.features.get("year") == "2013"
+            assert ann.features.get("date") == "02/09/2013"

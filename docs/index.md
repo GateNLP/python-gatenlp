@@ -55,9 +55,10 @@ for running on your own computer.
     * [Client Annotators](client_annotators) / [Client Annotators Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [Notebook Download](client_annotators.ipynb)
 * Modules related to NLP processing:
     * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download)(corpora.ipynb)
-    * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipyn)
-    * [Tokenizers](tokenizers) / [Tokenizers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [Notebook Download](tokenizers.ipyn)
-    * [Gazetteers](gazetteers) / [Gazetteers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [Notebook Download](gazetteers.ipyn)
+    * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipynb)
+    * [Tokenizers](tokenizers) / [Tokenizers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [Notebook Download](tokenizers.ipynb)
+    * [Gazetteers](gazetteers) / [Gazetteers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [Notebook Download](gazetteers.ipynb)
+    * [Regular Expressions Annotator](stringregex) / [Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/stringregex.ipynb) / [Notebook Download](stringregex.ipynb)
     * Complex Annotation Patterns for matching text and annotation sequences: 
       * [PAMPAC](pampac) / [PAMPAC Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [Notebook Download](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)

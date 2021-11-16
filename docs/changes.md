@@ -3,8 +3,11 @@
 ## 1.0.6 (upcoming)
 
 * add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
-* New annotator StringRegexpAnnotator
-* The [StringGazetteer](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/stringgazetteer.html) has been implemented 
+* New annotator [StringRegexpAnnotator](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/stringregex.html) which allows
+  to annotate documents using Python regular expressions in a very simple and flexible way. See the 
+  [StringRegexpAnnotator Documentation](https://gatenlp.github.io/python-gatenlp/stringregex).
+* The [StringGazetteer](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/stringgazetteer.html) has been implemented.
+  See the [Gazetteers](https://gatenlp.github.io/python-gatenlp/gazetteers) documentation.
 * The [TokenGazetteer](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/tokengazetteer.html) parameter names got changed to match the corresponding `StringGazetteer` names
 * ! the parameter name `out_set` in `gatenlp.processing.tokenizer` was changed to `outset_name` to be consistent with the name used elsewhere.
 * ! the parameter name `out_annset` in `gatenlp.processing.client` was changed to `outset_name` to be consistent with the name used elsewhere.
