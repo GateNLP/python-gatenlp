@@ -194,8 +194,13 @@ class StringRegexAnnotator(StringGazetteerBase):
         if isinstance(pats, str):
             pats = subst(pats.strip(), substs)
         else:
-            pats = ["(?:" + subst(p.strip(), substs) + ")" for p in pats]
-        pattern = self.re.compile("".join(pats))  # noqa: F821
+            # pats = ["(?:" + subst(p.strip(), substs) + ")" for p in pats]
+            pats = [subst(p.strip(), substs) for p in pats]
+        pattern_string = "".join(pats)
+        try:
+            pattern = self.re.compile(pattern_string)  # noqa: F821
+        except Exception as ex:
+            raise Exception(f"Problem in pattern {pattern_string}", ex)
         anndescs = []
         for act in acts:
             grpnrs, typname, feats = act
@@ -375,10 +380,11 @@ class StringRegexAnnotator(StringGazetteerBase):
                 if match[0] < smallestoff:
                     # new smallest offset, also need to reset the longest match
                     smallestoff = match[0]
-                    longestspan = 0
-                mlen = match[1] - match[0]
-                if mlen > longestspan:
-                    longestspan = mlen
+                    longestspan = match[1] - match[0]
+                if match[0] <= smallestoff:
+                    mlen = match[1] - match[0]
+                    if mlen > longestspan:
+                        longestspan = mlen
             # for
             # we now know where the next match(es) is/are happening and what the longest match(es) is/are
             if smallestoff == beyond:
