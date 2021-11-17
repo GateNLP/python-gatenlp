@@ -9,8 +9,9 @@ from recordclass import structclass
 from gatenlp import Document
 from gatenlp.processing.gazetteer.base import StringGazetteerBase
 
-# TODO: make it so that everything in a |.. pattern line is enclosed in (?:..) and an alternative
-# TODO: make it so that everything in a +.. pattern line is appended to the previous line(s)
+# TODO: make it so that everything in a |.. pattern line is enclosed in (?:..) and an alternative: DONE, test!
+# TODO: make it so that everything in a +.. pattern line is appended to the previous line(s): DONE, test!
+# TODO: check how to set flags, and possibly add something to define the flags per rule (maybe a line !..)
 
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments

@@ -1,5 +1,6 @@
 # Python GateNLP 
-## A Python package for NLP similar to the Java GATE NLP framework
+
+## A Python NLP framework
 
 Python GateNLP is an NLP and text processing framework implemented in Python. 
 
@@ -32,35 +33,36 @@ For more details see [Installation](installation.md)
 
 ## Overview of the documentation:
 
-NOTE: most of the documentation pages below can be viewed as HTML, as a Jupyter notebook, and the Jupyter notebook can be downloaded 
-for running on your own computer.
+NOTE: most of the documentation pages below can be viewed as HTML, as a Jupyter notebook (NB), and the Jupyter notebook can be downloaded 
+for running on your own computer (NB-DL).
 
 * [Installation](installation.md)
-* [Getting Started](getting-started) / [Getting Started Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/getting-started.ipynb) / [Notebook Download](getting-started.ipynb)
+* [Getting Started](getting-started) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/getting-started.ipynb) / [NB-DL](getting-started.ipynb)
 * The Document class and classes related to components of a document:
-    * [Annotation](annotations) / [Annotation Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [Notebook Download](annotations.ipynb)
-    * [AnnotationSet](annotationsets) / [AnnotationSet Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [Notebook Download](annotationsets.ipynb)
-    * [Document](documents) / [Document Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [Notebook Download](documents.ipynb)
+    * [Annotation](annotations) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [NB-DL](annotations.ipynb)
+    * [AnnotationSet](annotationsets) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [NB-DL](annotationsets.ipynb)
+    * [Document](documents) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [NB-DL](documents.ipynb)
 * The Changelog class for recording changes to a document
-    * [ChangeLogs](changelogs) / [ChangeLogs Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/changelogs.ipynb)) / [Notebook Download](changelogs.ipynb)
+    * [ChangeLogs](changelogs) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/changelogs.ipynb)) / [NB-DL](changelogs.ipynb)
 * A [comparison with the Java GATE API](diffs2gate)
 * The module for running python code from the GATE Python plugin
     * [GateInteraction](gateinteraction)
 * The module for running Java GATE code from python
-    * [GateWorker](gateworker) / [GateWorker Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateworker.ipynb)) / [Notebook Download](gateworker.ipynb)
+    * [GateWorker](gateworker) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateworker.ipynb)) / [NB-DL](gateworker.ipynb)
 * Modules for interaction with other NLP packages and converting their documents
-    * [`lib_spacy`](lib_spacy) / [`lib_spacy` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [Notebook Download](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
-    * [`lib_stanza`](lib_stanza) / [`lib_stanza` Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [Notebook Download](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
+    * [`lib_spacy`](lib_spacy) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [NB-DL](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
+    * [`lib_stanza`](lib_stanza) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [NB-DL](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
 * Connecting to annotation services on the web:
-    * [Client Annotators](client_annotators) / [Client Annotators Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [Notebook Download](client_annotators.ipynb)
+    * [Client Annotators](client_annotators) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [NB-DL](client_annotators.ipynb)
 * Modules related to NLP processing:
-    * [Corpora](corpora) / [Corpora Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [Notebook Download](corpora.ipynb)
-    * [Processing](processing) / [Processing Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [Notebook Download](processing.ipynb)
-    * [Tokenizers](tokenizers) / [Tokenizers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [Notebook Download](tokenizers.ipynb)
-    * [Gazetteers](gazetteers) / [Gazetteers Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [Notebook Download](gazetteers.ipynb)
-    * [Regular Expressions Annotator](stringregex) / [Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/stringregex.ipynb) / [Notebook Download](stringregex.ipynb)
+    * [Corpora](corpora) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [NB-DL](corpora.ipynb)
+    * [Processing](processing) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [NB-DL](processing.ipynb)
+    * [Tokenizers](tokenizers) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [NB-DL](tokenizers.ipynb)
+    * Matching strings and token sequences:
+      * [Gazetteers](gazetteers) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [NB-DL](gazetteers.ipynb)
+      * [Regular Expressions Annotator](stringregex) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/stringregex.ipynb) / [NB-DL](stringregex.ipynb)
     * Complex Annotation Patterns for matching text and annotation sequences: 
-      * [PAMPAC](pampac) / [PAMPAC Notebook](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [Notebook Download](pampac.ipynb)
+      * [PAMPAC](pampac) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [NB-DL](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)
 
 ## Course Materials

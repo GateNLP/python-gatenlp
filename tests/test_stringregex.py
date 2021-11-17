@@ -8,7 +8,6 @@ from gatenlp.processing.gazetteer.stringregex import Rule, Action
 
 DOC1_TEXT = "A simple document which has a number of words in it which we will use to test matching, simple document"
 
-# TODO: test |.. lines vs. +.. lines
 
 def makedoc(text=DOC1_TEXT):
     """
@@ -66,7 +65,51 @@ class TestStringRegexAnnotator:
         f1 = dict(a="x", b=GroupNumber(0), c=GroupNumber(1))
         assert replace_group(f1, ((0,1,"ALL"), (1,2,"Group1"), (2,3,"Group2"))) == dict(a="x", b="ALL", c="Group1")
 
-    def test_create1(self):
+    def test_pat1(self):
+        rules1 = """
+        |[abc]
+        |[012]
+        0 => Match
+        """
+        annt = StringRegexAnnotator(source=rules1, source_fmt="string")
+        assert annt.rules is not None
+        assert len(annt.rules) == 1
+        r0 = annt.rules[0]
+        assert isinstance(r0, Rule)
+        pat = r0.pattern
+        assert pat.pattern == '(?:[abc])|(?:[012])'
+
+    def test_pat2(self):
+        rules1 = """
+        |[abc]
+        +[012]
+        0 => Match
+        """
+        annt = StringRegexAnnotator(source=rules1, source_fmt="string")
+        assert annt.rules is not None
+        assert len(annt.rules) == 1
+        r0 = annt.rules[0]
+        assert isinstance(r0, Rule)
+        pat = r0.pattern
+        assert pat.pattern == '(?:[abc][012])'
+
+    def test_pat3(self):
+        rules1 = """
+        |[abc]
+        +[012]
+        |[xyz]
+        0 => Match
+        """
+        annt = StringRegexAnnotator(source=rules1, source_fmt="string")
+        assert annt.rules is not None
+        assert len(annt.rules) == 1
+        r0 = annt.rules[0]
+        assert isinstance(r0, Rule)
+        pat = r0.pattern
+        assert pat.pattern == '(?:[abc][012])|(?:[xyz])'
+
+
+    def test_misc1(self):
         """
         Unit test method (make linter happy)
         """
