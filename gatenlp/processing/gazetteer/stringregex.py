@@ -11,7 +11,7 @@ from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 
 # TODO: check how to set flags, and possibly add something to define the flags per rule (maybe a line !..)
 # TODO: add a new rule pattern: GAZETTEER which uses a string gazetteer defined at init time instead of
-#   a regex. That way, we can combine stringgazetteer and regex matcher in one rule file!
+#   a regex. That way, we can combine stringgazetteer and regex matcher in one rule file!gith
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
 # each feature assignment is basically whatever can be inside a python "dict(...)" constructor.
