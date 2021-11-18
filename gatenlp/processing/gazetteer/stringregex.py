@@ -9,10 +9,9 @@ from recordclass import structclass
 from gatenlp import Document
 from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 
-# TODO: make it so that everything in a |.. pattern line is enclosed in (?:..) and an alternative: DONE, test!
-# TODO: make it so that everything in a +.. pattern line is appended to the previous line(s): DONE, test!
 # TODO: check how to set flags, and possibly add something to define the flags per rule (maybe a line !..)
-
+# TODO: add a new rule pattern: GAZETTEER which uses a string gazetteer defined at init time instead of
+#   a regex. That way, we can combine stringgazetteer and regex matcher in one rule file!
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
 # each feature assignment is basically whatever can be inside a python "dict(...)" constructor.
