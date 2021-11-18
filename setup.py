@@ -7,8 +7,8 @@ import os
 from setuptools import setup, find_packages
 import re
 
-if sys.version_info < (3, 6):
-    sys.exit("ERROR: gatenlp requires Python 3.6+")
+if sys.version_info < (3, 7):
+    sys.exit("ERROR: gatenlp requires Python 3.7+")
 
 JARFILE = "gatetools-gatenlpworker-1.0.jar"
 JARFILE_DEST = os.path.join(
@@ -122,10 +122,10 @@ setup(
         # "Development Status :: 2 - Pre-Alpha",
         # "Development Status :: 1 - Planning",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
         "Intended Audience :: Developers",

@@ -2,6 +2,7 @@
 
 ## 1.0.6 (upcoming)
 
+* The minimum Python version has been changed from 3.6 to 3.7. This now allows the use of postponed evaluation of type annotations and the use of dataclasses. 
 * add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
 * New annotator [StringRegexpAnnotator](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/processing/gazetteer/stringregex.html) which allows
   to annotate documents using Python regular expressions in a very simple and flexible way. See the 
