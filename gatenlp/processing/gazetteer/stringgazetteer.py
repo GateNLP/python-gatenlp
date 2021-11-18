@@ -4,19 +4,13 @@ This module provides the StringGazetter for matching strings against the text in
 import os
 from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 # note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
-from recordclass import structclass
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerBase
+from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 import re
 
 _NOVALUE = None
 PAT_SPACES = re.compile(r'\s+')
-
-# NOTE: sthis was a dataclass originally
-StringGazetteerMatch = structclass(
-    "StringGazetteerMatch", ("start", "end", "match", "data", "listidxs")
-)
 
 # TODO: maybe add parameter compress_ws to make compression on reading and one-to-many matching optional
 #    also, need to implement optional compression on read!
@@ -75,7 +69,7 @@ class _Node:
         return s1 + s2 + "])"
 
 
-class StringGazetteer(StringGazetteerBase):
+class StringGazetteer(GazetteerBase):
     def __init__(
             self,
             annset_name: str = "",
@@ -426,32 +420,27 @@ class StringGazetteer(StringGazetteerBase):
             return matches, 0
         cur_chr = self.map_chars_func(text[start])
         longest_len = 0
-        longest_match = None
+        longest_matchdata = None
         node = self._root
         # if the current character is whitespace, no match is possible since a match cannot start with WS
         if self.is_ws(cur_chr, start, ws_offsets):
             return matches, 0
         node = node.children.get(cur_chr)
         cur_off = start
+        matchdatas = []
         while node is not None:
             if node.is_match():
                 cur_end = cur_off + 1
                 # we found a match, but if we have end offsets, also check if the end offset is valid
                 if end_offsets is None or (end_offsets is not None and cur_end in end_offsets):
                     cur_len = cur_end - start
-                    vals, idxs = node.data()
-                    match = StringGazetteerMatch(
-                        start,
-                        cur_end,
-                        text[start: cur_end],
-                        vals,
-                        idxs,
-                    )
+                    v, i = node.data()
+                    matchdata = (start, cur_end, text[start: cur_end], v, i)
                     if cur_len > longest_len:
                         longest_len = cur_len
-                        longest_match = match
+                        longest_matchdata = matchdata
                     if not longest_only:
-                        matches.append(match)
+                        matchdatas.append(matchdata)
             # if the current node/character corresponds to a whitespace character and compress whitespace is True,
             # then match any additional whitespace characters in the text
             # BUT: only if compress_ws is True
@@ -481,8 +470,24 @@ class StringGazetteer(StringGazetteerBase):
                 break
             # before we continue, get node for the character we have now
             node = node.children.get(cur_chr)
-        if longest_only and longest_match is not None:
-            matches.append(longest_match)
+        if longest_only and longest_matchdata is not None:
+            matchdatas.append(longest_matchdata)
+        # convert the matchdatas list into the match list
+        for matchdata in matchdatas:
+            start, end, text, vals, idxs = matchdata
+            assert len(vals) == len(idxs)
+            if len(vals) == 0:
+                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+            else:
+                for val, idx, in zip(vals, idxs):
+                    features = {}
+                    outtype = self.ann_type
+                    if idx is not None:
+                        features.update(self.list_features[idx])
+                        outtype = self.list_types[idx]
+                    if val is not None:
+                        features.update(val)
+                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
@@ -538,6 +543,7 @@ class StringGazetteer(StringGazetteerBase):
 
     def find_all(self,
                  text: str,
+                 start: int = 0,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -549,6 +555,7 @@ class StringGazetteer(StringGazetteerBase):
 
         Args:
             text: string to search
+            start: offset where to start searching (0)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -563,7 +570,7 @@ class StringGazetteer(StringGazetteerBase):
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = 0
+        offset = start
         while offset < len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
@@ -714,19 +721,7 @@ class StringGazetteer(StringGazetteerBase):
                 end_offsets=end_offsets,
                 ws_offsets=ws_offsets,
                 split_offsets=split_offsets):
-            if len(match.data) == 0 and len(match.listidx) == 0:
-                outset.add(match.start, match.end, self.ann_type)
-            else:
-                assert len(match.data) == len(match.listidxs)
-                for m, idx in zip(match.data, match.listidxs):
-                    features = {}
-                    outtype = self.ann_type
-                    if idx is not None:
-                        features.update(self.list_features[idx])
-                        outtype = self.list_types[idx]
-                    if m is not None:
-                        features.update(m)
-                    outset.add(match.start, match.end, outtype, features=features)
+            outset.add(match.start, match.end, match.type, features=match.features)
         return doc
 
     def __len__(self):

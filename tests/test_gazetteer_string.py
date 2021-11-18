@@ -85,36 +85,37 @@ class TestStringGazetteer1:
         assert match.start == 2
         assert match.end == 17
         assert match.match == "simple document"
-        assert isinstance(match.data, list)
-        assert isinstance(match.listidxs, list)
-        assert len(match.data) == 1
-        assert len(match.listidxs) == 1
-        assert match.data[0] == {"match": 1}
-        assert match.listidxs[0] == 0
+        assert isinstance(match.features, dict)
+        assert isinstance(match.type, str)
+        assert match.features == dict(match=1)
+        assert match.type == "Lookup"
 
         ret = gaz.find(doc.text, start=17)
         matches, longest, where = ret
-        assert len(matches) == 3
+        assert len(matches) == 4
         assert longest == 12
         assert where == 24
         assert matches[0].match == "has"
         assert matches[1].match == "has a"
         assert matches[2].match == "has a number"
+        assert matches[3].match == "has a number"
 
         # same but only find longest
         ret = gaz.find(doc.text, start=17, longest_only=True)
         matches, longest, where = ret
-        assert len(matches) == 1
+        assert len(matches) == 2
         assert longest == 12
         assert where == 24
         assert matches[0].match == "has a number"
+        assert matches[1].match == "has a number"
 
         matches = list(gaz.find_all(doc.text))
-        assert len(matches) == 4
+        assert len(matches) == 5
         assert matches[0].match == "simple document"
         assert matches[1].match == "has"
         assert matches[2].match == "has a"
         assert matches[3].match == "has a number"
+        assert matches[4].match == "has a number"
 
     def test_match2(self):
         """

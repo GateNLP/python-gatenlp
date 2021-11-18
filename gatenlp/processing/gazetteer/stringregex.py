@@ -7,7 +7,7 @@ from typing import Union, List, Set, Optional, Dict, Iterable, Any, Tuple
 from collections import namedtuple
 from recordclass import structclass
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerBase
+from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 
 # TODO: make it so that everything in a |.. pattern line is enclosed in (?:..) and an alternative: DONE, test!
 # TODO: make it so that everything in a +.. pattern line is appended to the previous line(s): DONE, test!
@@ -28,17 +28,6 @@ GLOBALS = {f"G{i}": GroupNumber(i) for i in range(99)}
 
 Rule = namedtuple("Rule", ["pattern", "actions"])
 Action = namedtuple("Action", ["groupnumbers", "typename", "features"])
-
-Match = structclass(
-    # A description of a match.
-    # Fields:
-    # start: the offset or index (in case matching a token list) where the match starts
-    # end: the offset or index one past where the match ends
-    # match: the matched string
-    # features: the features as merged from the match rule/entry and the list features
-    # type : the type as specified in the rule
-    "Match", ("start", "end", "match", "features", "type")
-)
 
 
 def one_or(someiterator: Iterable, default: Any = None) -> Any:
@@ -96,7 +85,7 @@ def replace_group(feats: Dict, groups: Union[list, tuple]):
     return ret
 
 
-class StringRegexAnnotator(StringGazetteerBase):
+class StringRegexAnnotator(GazetteerBase):
     """
     NOT YET IMPLEMENTED
     """
