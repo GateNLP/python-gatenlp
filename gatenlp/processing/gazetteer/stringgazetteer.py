@@ -294,8 +294,14 @@ class StringGazetteer(GazetteerBase):
                 else:
                     self.list_types.append(self.ann_type)
             for el in source:
-                entry = el[0]
-                data = el[1]
+                if isinstance(el, str):
+                    entry = el
+                else:
+                    entry = el[0]
+                    if len(el) > 1:
+                        data = el[1]
+                    else:
+                        data = {}
                 self.add(entry, data, listidx=list_nr)
         elif source_fmt == "gate-def":
             if list_features is None:
@@ -491,7 +497,8 @@ class StringGazetteer(GazetteerBase):
         return matches, longest_len
 
     def find(self,
-             text: str, start: int = 0,
+             text: str,
+             start: int = 0,
              end: Union[None, int] = None,
              longest_only: Union[None, bool] = None,
              start_offsets: Union[List, Set, None] = None,
@@ -506,7 +513,8 @@ class StringGazetteer(GazetteerBase):
             text: string to search
             start: offset where to start matching in the text
             end: if not None, offset beyond which no match may happen (start or end)
-            longest_only: if True, return only the longest match at each position
+            longest_only: if True, return only the longest match at each position, if False, return all, if None,
+                use what is configured for the StringGazetteer instance.
             start_offsets: if not None, a list/set of offsets where a match can start
             end_offsets: if not None, a list/set of offsets where a match can end
             ws_offsets: if not None, a list/set of offsets which are considered whitespace

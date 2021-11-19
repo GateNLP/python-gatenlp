@@ -7,6 +7,7 @@ This is used by the Java GATE Python plugin.
 import sys
 import os
 import io
+import json
 import traceback
 from argparse import ArgumentParser
 import inspect
@@ -16,7 +17,6 @@ from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import init_logger
 from gatenlp.version import __version__ as gatenlp_version
-import json
 
 # NOTE: this is the global variable that holds the current function or class defined for interaction
 # In order to avoid use of global, we use a list and just always use element 0
@@ -50,6 +50,9 @@ class _PrWrapper:
         self.logger = None
 
     def execute(self, doc):
+        """
+        Invoke the wrapped function or the __call__ method of the wrapped callable.
+        """
         if self.func_execute_allowkws and self.script_parms:
             ret = self.func_execute(doc, **self.script_parms)
         else:
@@ -62,6 +65,9 @@ class _PrWrapper:
         return ret
 
     def start(self, script_params):
+        """
+        Invoke any wrapped start method.
+        """
         if script_params:
             self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
@@ -72,19 +78,27 @@ class _PrWrapper:
                 self.func_start()
 
     def finish(self):
+        """
+        Invoke any wrapped finish method.
+        """
         if self.func_finish is not None:
             if self.func_finish_allowkws and self.script_parms:
                 return self.func_finish(**self.script_parms)
             else:
                 return self.func_finish()
+        return None
 
     def reduce(self, resultslist):
+        """
+        Invoke any wrapped reduce method.
+        """
         if self.func_reduce is not None:
             if self.func_reduce_allowkws and self.script_parms:
                 ret = self.func_reduce(resultslist, **self.script_parms)
             else:
                 ret = self.func_reduce(resultslist)
             return ret
+        return None
 
 
 def _check_exec(func):
@@ -112,10 +126,7 @@ def _check_exec(func):
         raise Exception(
             "Processing resource execution function does not accept exactly one or any number of arguments"
         )
-    if argspec.varkw is not None:
-        return True
-    else:
-        return False
+    return argspec.varkw is not None
 
 
 def _has_method(theobj, name):
@@ -198,9 +209,16 @@ def _pr_decorator(what):
 
 
 class DefaultPr:
+    """
+    A default annotator which does nothing but shows a warning. All the implemented methods also
+    log debug messages.
+    """
     def __call__(self, doc, **kwargs):
+        """
+        Do-nothing except showing a warning and logging a debug message showing the document and kwargs
+        """
         logger.debug(
-            "DefaultPr: called __call__() with doc={}, kwargs={}".format(doc, kwargs)
+            "DefaultPr: called __call__() with doc=%s, kwargs=%s", doc, kwargs
         )
         logger.warning(
             "Finished DefaultPr: did you define a @GateNlpPr class or function?"
@@ -208,23 +226,33 @@ class DefaultPr:
         return doc
 
     def start(self, **kwargs):
-        logger.debug("DefaultPr: called start() with kwargs={}".format(kwargs))
+        """
+        Do-nothing except showing logging a debug message showing the kwargs
+        """
+        logger.debug("DefaultPr: called start() with kwargs=%s", kwargs)
         return None
 
     def finish(self, **kwargs):
-        logger.debug("DefaultPr: called finish() with kwargs={}".format(kwargs))
+        """
+        Do-nothing except showing logging a debug message showing the kwargs
+        """
+        logger.debug("DefaultPr: called finish() with kwargs=%s", kwargs)
         return None
 
     def reduce(self, resultlist, **kwargs):
+        """
+        Do-nothing except showing logging a debug message showing resultlist the kwargs
+        """
         logger.debug(
-            "DefaultPr: called reduce() with results {} and kwargs={}".format(
-                resultlist, kwargs
-            )
+            "DefaultPr: called reduce() with results %s and kwargs=%s", resultlist, kwargs
         )
         return None
 
 
 def get_arguments(from_main=False):
+    """
+    Parse the command line arguments and return them.
+    """
     argparser = ArgumentParser()
     argparser.add_argument(
         "--mode",
@@ -258,8 +286,8 @@ def get_arguments(from_main=False):
     )
     if from_main:
         argparser.add_argument("pythonfile")
-    args = argparser.parse_args()
-    return args
+    theargs = argparser.parse_args()
+    return theargs
 
 
 def interact(args=None, annotator=None):
@@ -447,11 +475,11 @@ def interact(args=None, annotator=None):
 
 if __name__ == "__main__":
     # we run this from the command line so we need to also first load the PR code from the python file
-    args = get_arguments(from_main=True)
-    logger = init_logger(__name__)
+    arguments = get_arguments(from_main=True)
+    loggr = init_logger(__name__)
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("gateapp", args.pythonfile)
+    spec = importlib.util.spec_from_file_location("gateapp", arguments.pythonfile)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
-    interact(args=args)
+    interact(args=arguments)

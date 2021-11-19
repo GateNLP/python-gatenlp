@@ -1,4 +1,4 @@
-# String Regex Annotator
+# String Regex Annotator Tutorial
 
 The `StringRegexAnnotator` makes it extremely easy to match several complex regular expressions against 
 a document and annotate the matches and/or the part of a match corresponding to a capturing regular expression 
@@ -11,7 +11,7 @@ simpler ones.
 ```python
 import os
 from gatenlp import Document
-from gatenlp.processing.gazetteer import StringRegexAnnotator
+from gatenlp.processing.gazetteer import StringRegexAnnotator, StringGazetteer
 ```
 
 ## Creating the Annotator
@@ -473,25 +473,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#TOQISEXBCD-wrapper { color: black !important; }</style>
-<div id="TOQISEXBCD-wrapper">
+<div><style>#ZKQTKZBVWN-wrapper { color: black !important; }</style>
+<div id="ZKQTKZBVWN-wrapper">
 
 <div>
 <style>
-#TOQISEXBCD-content {
+#ZKQTKZBVWN-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.TOQISEXBCD-row {
+.ZKQTKZBVWN-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.TOQISEXBCD-col {
+.ZKQTKZBVWN-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -501,23 +501,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.TOQISEXBCD-hdr {
+.ZKQTKZBVWN-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.TOQISEXBCD-label {
+.ZKQTKZBVWN-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.TOQISEXBCD-input {
+.ZKQTKZBVWN-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#TOQISEXBCD-popup {
+#ZKQTKZBVWN-popup {
     display: none;
     color: black;
     position: absolute;
@@ -532,43 +532,43 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.TOQISEXBCD-selection {
+.ZKQTKZBVWN-selection {
     margin-bottom: 5px;
 }
 
-.TOQISEXBCD-featuretable {
+.ZKQTKZBVWN-featuretable {
     margin-top: 10px;
 }
 
-.TOQISEXBCD-fname {
+.ZKQTKZBVWN-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.TOQISEXBCD-fvalue {
+.ZKQTKZBVWN-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="TOQISEXBCD-content">
-        <div id="TOQISEXBCD-popup" style="display: none;">
+  <div id="ZKQTKZBVWN-content">
+        <div id="ZKQTKZBVWN-popup" style="display: none;">
         </div>
-        <div class="TOQISEXBCD-row" id="TOQISEXBCD-row1" style="max-height: 20em; min-height:5em;">
-            <div id="TOQISEXBCD-text-wrapper" class="TOQISEXBCD-col" style="width:70%;">
-                <div class="TOQISEXBCD-hdr" id="TOQISEXBCD-dochdr"></div>
-                <div id="TOQISEXBCD-text" style="">
+        <div class="ZKQTKZBVWN-row" id="ZKQTKZBVWN-row1" style="max-height: 20em; min-height:5em;">
+            <div id="ZKQTKZBVWN-text-wrapper" class="ZKQTKZBVWN-col" style="width:70%;">
+                <div class="ZKQTKZBVWN-hdr" id="ZKQTKZBVWN-dochdr"></div>
+                <div id="ZKQTKZBVWN-text" style="">
                 </div>
             </div>
-            <div id="TOQISEXBCD-chooser" class="TOQISEXBCD-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ZKQTKZBVWN-chooser" class="ZKQTKZBVWN-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="TOQISEXBCD-row" id="TOQISEXBCD-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="TOQISEXBCD-details" class="TOQISEXBCD-col" style="width:100%; border-top-width: 0px;">
+        <div class="ZKQTKZBVWN-row" id="ZKQTKZBVWN-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="ZKQTKZBVWN-details" class="ZKQTKZBVWN-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let TOQISEXBCD_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(TOQISEXBCD_data), "TOQISEXBCD-").init();
+    let ZKQTKZBVWN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(ZKQTKZBVWN_data), "ZKQTKZBVWN-").init();
     </script>
   </div>
 
@@ -636,25 +636,25 @@ doc2
 
 
 
-<div><style>#HDMQXIPPPW-wrapper { color: black !important; }</style>
-<div id="HDMQXIPPPW-wrapper">
+<div><style>#YIZSRCACRL-wrapper { color: black !important; }</style>
+<div id="YIZSRCACRL-wrapper">
 
 <div>
 <style>
-#HDMQXIPPPW-content {
+#YIZSRCACRL-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.HDMQXIPPPW-row {
+.YIZSRCACRL-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.HDMQXIPPPW-col {
+.YIZSRCACRL-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -664,23 +664,23 @@ doc2
     overflow-y: auto;
 }
 
-.HDMQXIPPPW-hdr {
+.YIZSRCACRL-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.HDMQXIPPPW-label {
+.YIZSRCACRL-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.HDMQXIPPPW-input {
+.YIZSRCACRL-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#HDMQXIPPPW-popup {
+#YIZSRCACRL-popup {
     display: none;
     color: black;
     position: absolute;
@@ -695,43 +695,43 @@ doc2
     overflow: auto;
 }
 
-.HDMQXIPPPW-selection {
+.YIZSRCACRL-selection {
     margin-bottom: 5px;
 }
 
-.HDMQXIPPPW-featuretable {
+.YIZSRCACRL-featuretable {
     margin-top: 10px;
 }
 
-.HDMQXIPPPW-fname {
+.YIZSRCACRL-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.HDMQXIPPPW-fvalue {
+.YIZSRCACRL-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="HDMQXIPPPW-content">
-        <div id="HDMQXIPPPW-popup" style="display: none;">
+  <div id="YIZSRCACRL-content">
+        <div id="YIZSRCACRL-popup" style="display: none;">
         </div>
-        <div class="HDMQXIPPPW-row" id="HDMQXIPPPW-row1" style="max-height: 20em; min-height:5em;">
-            <div id="HDMQXIPPPW-text-wrapper" class="HDMQXIPPPW-col" style="width:70%;">
-                <div class="HDMQXIPPPW-hdr" id="HDMQXIPPPW-dochdr"></div>
-                <div id="HDMQXIPPPW-text" style="">
+        <div class="YIZSRCACRL-row" id="YIZSRCACRL-row1" style="max-height: 20em; min-height:5em;">
+            <div id="YIZSRCACRL-text-wrapper" class="YIZSRCACRL-col" style="width:70%;">
+                <div class="YIZSRCACRL-hdr" id="YIZSRCACRL-dochdr"></div>
+                <div id="YIZSRCACRL-text" style="">
                 </div>
             </div>
-            <div id="HDMQXIPPPW-chooser" class="HDMQXIPPPW-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="YIZSRCACRL-chooser" class="YIZSRCACRL-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="HDMQXIPPPW-row" id="HDMQXIPPPW-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="HDMQXIPPPW-details" class="HDMQXIPPPW-col" style="width:100%; border-top-width: 0px;">
+        <div class="YIZSRCACRL-row" id="YIZSRCACRL-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="YIZSRCACRL-details" class="YIZSRCACRL-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let HDMQXIPPPW_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(HDMQXIPPPW_data), "HDMQXIPPPW-").init();
+    let YIZSRCACRL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(YIZSRCACRL_data), "YIZSRCACRL-").init();
     </script>
   </div>
 
@@ -766,25 +766,25 @@ doc3
 
 
 
-<div><style>#NXFLVJCGGM-wrapper { color: black !important; }</style>
-<div id="NXFLVJCGGM-wrapper">
+<div><style>#MSUFSHMGSL-wrapper { color: black !important; }</style>
+<div id="MSUFSHMGSL-wrapper">
 
 <div>
 <style>
-#NXFLVJCGGM-content {
+#MSUFSHMGSL-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.NXFLVJCGGM-row {
+.MSUFSHMGSL-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.NXFLVJCGGM-col {
+.MSUFSHMGSL-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -794,23 +794,23 @@ doc3
     overflow-y: auto;
 }
 
-.NXFLVJCGGM-hdr {
+.MSUFSHMGSL-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.NXFLVJCGGM-label {
+.MSUFSHMGSL-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.NXFLVJCGGM-input {
+.MSUFSHMGSL-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#NXFLVJCGGM-popup {
+#MSUFSHMGSL-popup {
     display: none;
     color: black;
     position: absolute;
@@ -825,43 +825,43 @@ doc3
     overflow: auto;
 }
 
-.NXFLVJCGGM-selection {
+.MSUFSHMGSL-selection {
     margin-bottom: 5px;
 }
 
-.NXFLVJCGGM-featuretable {
+.MSUFSHMGSL-featuretable {
     margin-top: 10px;
 }
 
-.NXFLVJCGGM-fname {
+.MSUFSHMGSL-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.NXFLVJCGGM-fvalue {
+.MSUFSHMGSL-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="NXFLVJCGGM-content">
-        <div id="NXFLVJCGGM-popup" style="display: none;">
+  <div id="MSUFSHMGSL-content">
+        <div id="MSUFSHMGSL-popup" style="display: none;">
         </div>
-        <div class="NXFLVJCGGM-row" id="NXFLVJCGGM-row1" style="max-height: 20em; min-height:5em;">
-            <div id="NXFLVJCGGM-text-wrapper" class="NXFLVJCGGM-col" style="width:70%;">
-                <div class="NXFLVJCGGM-hdr" id="NXFLVJCGGM-dochdr"></div>
-                <div id="NXFLVJCGGM-text" style="">
+        <div class="MSUFSHMGSL-row" id="MSUFSHMGSL-row1" style="max-height: 20em; min-height:5em;">
+            <div id="MSUFSHMGSL-text-wrapper" class="MSUFSHMGSL-col" style="width:70%;">
+                <div class="MSUFSHMGSL-hdr" id="MSUFSHMGSL-dochdr"></div>
+                <div id="MSUFSHMGSL-text" style="">
                 </div>
             </div>
-            <div id="NXFLVJCGGM-chooser" class="NXFLVJCGGM-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MSUFSHMGSL-chooser" class="MSUFSHMGSL-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="NXFLVJCGGM-row" id="NXFLVJCGGM-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="NXFLVJCGGM-details" class="NXFLVJCGGM-col" style="width:100%; border-top-width: 0px;">
+        <div class="MSUFSHMGSL-row" id="MSUFSHMGSL-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="MSUFSHMGSL-details" class="MSUFSHMGSL-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let NXFLVJCGGM_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {"type": "iso", "year": "1999", "month": "12", "day": "31"}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {"year": "1999", "month": "12", "day": "31"}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(NXFLVJCGGM_data), "NXFLVJCGGM-").init();
+    let MSUFSHMGSL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {"type": "iso", "year": "1999", "month": "12", "day": "31"}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {"year": "1999", "month": "12", "day": "31"}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(MSUFSHMGSL_data), "MSUFSHMGSL-").init();
     </script>
   </div>
 
@@ -869,7 +869,1283 @@ doc3
 
 
 
+## Having more than one rule
+
+A rule file/string can contain any number of rules. The following example includes 2 rules, matching either an
+ISO date, or a traditional date (DD/MM/YYYY). The example also contains comment lines, which start either with a "#" or a double slash "//":
+
 
 ```python
+rules4 = """
+// The ISO date:
+|([0-9]{4})-([0-9]{2})-([0-9]{2})
+0 => Date  type="iso", year=G1, month=G2, day=G3
 
+# The traditional way of writing a date:
+|([0-9]{2})/([0-9]{2})/([0-9]{4})
+0 => Date  type="traditional", year=G3, month=G2, day=G1
+"""
+
+annt4 = StringRegexAnnotator(source=rules4, source_fmt="string")
+
+doc4 = Document("A document that contains a date here: 2013-01-12 and also here: 14/02/1991")
+
+annt4(doc4)
+doc4
 ```
+
+
+
+
+<div><style>#SLJSIXYSNC-wrapper { color: black !important; }</style>
+<div id="SLJSIXYSNC-wrapper">
+
+<div>
+<style>
+#SLJSIXYSNC-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.SLJSIXYSNC-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.SLJSIXYSNC-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.SLJSIXYSNC-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.SLJSIXYSNC-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.SLJSIXYSNC-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#SLJSIXYSNC-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.SLJSIXYSNC-selection {
+    margin-bottom: 5px;
+}
+
+.SLJSIXYSNC-featuretable {
+    margin-top: 10px;
+}
+
+.SLJSIXYSNC-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.SLJSIXYSNC-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="SLJSIXYSNC-content">
+        <div id="SLJSIXYSNC-popup" style="display: none;">
+        </div>
+        <div class="SLJSIXYSNC-row" id="SLJSIXYSNC-row1" style="max-height: 20em; min-height:5em;">
+            <div id="SLJSIXYSNC-text-wrapper" class="SLJSIXYSNC-col" style="width:70%;">
+                <div class="SLJSIXYSNC-hdr" id="SLJSIXYSNC-dochdr"></div>
+                <div id="SLJSIXYSNC-text" style="">
+                </div>
+            </div>
+            <div id="SLJSIXYSNC-chooser" class="SLJSIXYSNC-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="SLJSIXYSNC-row" id="SLJSIXYSNC-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="SLJSIXYSNC-details" class="SLJSIXYSNC-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let SLJSIXYSNC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {"type": "traditional", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(SLJSIXYSNC_data), "SLJSIXYSNC-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Longest match only
+
+Dates are sometimes written with 2 digits for the year only. The following example has two rules for a traditional date format. Because of the parameter `longest_only=False` the second date now matches both the first and the second rule. 
+
+
+```python
+rules5 = """
+# The traditional way of writing a date, 2 digit year
+|([0-9]{2})/([0-9]{2})/([0-9]{2})
+0 => Date  type="traditional-short", year=G3, month=G2, day=G1
+
+# The traditional way of writing a date, 4 digit year
+|([0-9]{2})/([0-9]{2})/([0-9]{4})
+0 => Date  type="traditional-long", year=G3, month=G2, day=G1
+
+"""
+
+annt5 = StringRegexAnnotator(source=rules5, source_fmt="string", longest_only=False)
+
+doc5 = Document("A document that contains a date here: 12/04/98 and also here: 14/02/1991")
+
+annt5(doc5)
+doc5
+```
+
+
+
+
+<div><style>#YRCRTKNNBR-wrapper { color: black !important; }</style>
+<div id="YRCRTKNNBR-wrapper">
+
+<div>
+<style>
+#YRCRTKNNBR-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.YRCRTKNNBR-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.YRCRTKNNBR-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.YRCRTKNNBR-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.YRCRTKNNBR-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.YRCRTKNNBR-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#YRCRTKNNBR-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.YRCRTKNNBR-selection {
+    margin-bottom: 5px;
+}
+
+.YRCRTKNNBR-featuretable {
+    margin-top: 10px;
+}
+
+.YRCRTKNNBR-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.YRCRTKNNBR-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="YRCRTKNNBR-content">
+        <div id="YRCRTKNNBR-popup" style="display: none;">
+        </div>
+        <div class="YRCRTKNNBR-row" id="YRCRTKNNBR-row1" style="max-height: 20em; min-height:5em;">
+            <div id="YRCRTKNNBR-text-wrapper" class="YRCRTKNNBR-col" style="width:70%;">
+                <div class="YRCRTKNNBR-hdr" id="YRCRTKNNBR-dochdr"></div>
+                <div id="YRCRTKNNBR-text" style="">
+                </div>
+            </div>
+            <div id="YRCRTKNNBR-chooser" class="YRCRTKNNBR-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="YRCRTKNNBR-row" id="YRCRTKNNBR-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="YRCRTKNNBR-details" class="YRCRTKNNBR-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let YRCRTKNNBR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}, {"type": "Date", "start": 62, "end": 72, "id": 2, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 3}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(YRCRTKNNBR_data), "YRCRTKNNBR-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+With `longest_only=True` at each matching position, only the longest match (or longest matches if there are several matches with the same longest length) are annotated. Now only the rule that produces the longer match is used:
+
+
+```python
+annt5a = StringRegexAnnotator(source=rules5, source_fmt="string", longest_only=True)
+
+doc5a = Document("A document that contains a date here: 12/04/98 and also here: 14/02/1991")
+
+annt5a(doc5a)
+doc5a
+```
+
+
+
+
+<div><style>#NCTSGITTRH-wrapper { color: black !important; }</style>
+<div id="NCTSGITTRH-wrapper">
+
+<div>
+<style>
+#NCTSGITTRH-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.NCTSGITTRH-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.NCTSGITTRH-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.NCTSGITTRH-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.NCTSGITTRH-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.NCTSGITTRH-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#NCTSGITTRH-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.NCTSGITTRH-selection {
+    margin-bottom: 5px;
+}
+
+.NCTSGITTRH-featuretable {
+    margin-top: 10px;
+}
+
+.NCTSGITTRH-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.NCTSGITTRH-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="NCTSGITTRH-content">
+        <div id="NCTSGITTRH-popup" style="display: none;">
+        </div>
+        <div class="NCTSGITTRH-row" id="NCTSGITTRH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="NCTSGITTRH-text-wrapper" class="NCTSGITTRH-col" style="width:70%;">
+                <div class="NCTSGITTRH-hdr" id="NCTSGITTRH-dochdr"></div>
+                <div id="NCTSGITTRH-text" style="">
+                </div>
+            </div>
+            <div id="NCTSGITTRH-chooser" class="NCTSGITTRH-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="NCTSGITTRH-row" id="NCTSGITTRH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="NCTSGITTRH-details" class="NCTSGITTRH-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let NCTSGITTRH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 72, "id": 1, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(NCTSGITTRH_data), "NCTSGITTRH-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Choosing matching rules
+
+It is possible that several rules match the same position. The `select_rules` parameter can be used to configure which of all matching rules should actually be used. The default is "all", so all matching rules are considered, but if `longest_only=True` then only the longest of all rules are considered. 
+
+If `select_rules="first"` then whichever rule is the first (in order of appearance in the rule file/string) to match is the one used, all other rules which may also match at a position are ignored. Similarly, if `select_rules="last"` only the last of all matching rules is used. 
+
+In the following example, `longest_only=False` and `select_rules="first"` so the first rule that matches is the only one used:
+
+
+```python
+annt5b = StringRegexAnnotator(source=rules5, source_fmt="string", longest_only=False, select_rules="first")
+
+doc5b = Document("A document that contains a date here: 12/04/98 and also here: 14/02/1991")
+
+annt5b(doc5b)
+doc5b
+```
+
+
+
+
+<div><style>#DJQMNIPWML-wrapper { color: black !important; }</style>
+<div id="DJQMNIPWML-wrapper">
+
+<div>
+<style>
+#DJQMNIPWML-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.DJQMNIPWML-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.DJQMNIPWML-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.DJQMNIPWML-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.DJQMNIPWML-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.DJQMNIPWML-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#DJQMNIPWML-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.DJQMNIPWML-selection {
+    margin-bottom: 5px;
+}
+
+.DJQMNIPWML-featuretable {
+    margin-top: 10px;
+}
+
+.DJQMNIPWML-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.DJQMNIPWML-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="DJQMNIPWML-content">
+        <div id="DJQMNIPWML-popup" style="display: none;">
+        </div>
+        <div class="DJQMNIPWML-row" id="DJQMNIPWML-row1" style="max-height: 20em; min-height:5em;">
+            <div id="DJQMNIPWML-text-wrapper" class="DJQMNIPWML-col" style="width:70%;">
+                <div class="DJQMNIPWML-hdr" id="DJQMNIPWML-dochdr"></div>
+                <div id="DJQMNIPWML-text" style="">
+                </div>
+            </div>
+            <div id="DJQMNIPWML-chooser" class="DJQMNIPWML-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="DJQMNIPWML-row" id="DJQMNIPWML-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="DJQMNIPWML-details" class="DJQMNIPWML-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let DJQMNIPWML_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(DJQMNIPWML_data), "DJQMNIPWML-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Overlapping matches
+
+Sometimes it is possible that matches from different rules or the same rule can overlap, here is a simple example: the following rule simply matches any number of basic ASCII lower case characters. At each position where such a sequence starts, a match is found and an annotation is created. 
+
+
+```python
+rules6a = """
+|[a-z]+
+0 => Match
+"""
+
+annt6a = StringRegexAnnotator(source=rules6a, source_fmt="string")
+
+doc6a = Document("A document that contains a date here: 12/04/98 and also here: 14/02/1991")
+
+annt6a(doc6a)
+print("Matching:", [doc6a[a] for a in doc6a.annset()])
+doc6a
+```
+
+    Matching: ['document', 'ocument', 'cument', 'ument', 'ment', 'ent', 'nt', 't', 'that', 'hat', 'at', 't', 'contains', 'ontains', 'ntains', 'tains', 'ains', 'ins', 'ns', 's', 'a', 'date', 'ate', 'te', 'e', 'here', 'ere', 're', 'e', 'and', 'nd', 'd', 'also', 'lso', 'so', 'o', 'here', 'ere', 're', 'e']
+
+
+
+
+
+<div><style>#SQHXDVGKIS-wrapper { color: black !important; }</style>
+<div id="SQHXDVGKIS-wrapper">
+
+<div>
+<style>
+#SQHXDVGKIS-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.SQHXDVGKIS-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.SQHXDVGKIS-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.SQHXDVGKIS-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.SQHXDVGKIS-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.SQHXDVGKIS-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#SQHXDVGKIS-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.SQHXDVGKIS-selection {
+    margin-bottom: 5px;
+}
+
+.SQHXDVGKIS-featuretable {
+    margin-top: 10px;
+}
+
+.SQHXDVGKIS-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.SQHXDVGKIS-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="SQHXDVGKIS-content">
+        <div id="SQHXDVGKIS-popup" style="display: none;">
+        </div>
+        <div class="SQHXDVGKIS-row" id="SQHXDVGKIS-row1" style="max-height: 20em; min-height:5em;">
+            <div id="SQHXDVGKIS-text-wrapper" class="SQHXDVGKIS-col" style="width:70%;">
+                <div class="SQHXDVGKIS-hdr" id="SQHXDVGKIS-dochdr"></div>
+                <div id="SQHXDVGKIS-text" style="">
+                </div>
+            </div>
+            <div id="SQHXDVGKIS-chooser" class="SQHXDVGKIS-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="SQHXDVGKIS-row" id="SQHXDVGKIS-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="SQHXDVGKIS-details" class="SQHXDVGKIS-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let SQHXDVGKIS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 3, "end": 10, "id": 1, "features": {}}, {"type": "Match", "start": 4, "end": 10, "id": 2, "features": {}}, {"type": "Match", "start": 5, "end": 10, "id": 3, "features": {}}, {"type": "Match", "start": 6, "end": 10, "id": 4, "features": {}}, {"type": "Match", "start": 7, "end": 10, "id": 5, "features": {}}, {"type": "Match", "start": 8, "end": 10, "id": 6, "features": {}}, {"type": "Match", "start": 9, "end": 10, "id": 7, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 8, "features": {}}, {"type": "Match", "start": 12, "end": 15, "id": 9, "features": {}}, {"type": "Match", "start": 13, "end": 15, "id": 10, "features": {}}, {"type": "Match", "start": 14, "end": 15, "id": 11, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 12, "features": {}}, {"type": "Match", "start": 17, "end": 24, "id": 13, "features": {}}, {"type": "Match", "start": 18, "end": 24, "id": 14, "features": {}}, {"type": "Match", "start": 19, "end": 24, "id": 15, "features": {}}, {"type": "Match", "start": 20, "end": 24, "id": 16, "features": {}}, {"type": "Match", "start": 21, "end": 24, "id": 17, "features": {}}, {"type": "Match", "start": 22, "end": 24, "id": 18, "features": {}}, {"type": "Match", "start": 23, "end": 24, "id": 19, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 20, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 21, "features": {}}, {"type": "Match", "start": 28, "end": 31, "id": 22, "features": {}}, {"type": "Match", "start": 29, "end": 31, "id": 23, "features": {}}, {"type": "Match", "start": 30, "end": 31, "id": 24, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 25, "features": {}}, {"type": "Match", "start": 33, "end": 36, "id": 26, "features": {}}, {"type": "Match", "start": 34, "end": 36, "id": 27, "features": {}}, {"type": "Match", "start": 35, "end": 36, "id": 28, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 29, "features": {}}, {"type": "Match", "start": 48, "end": 50, "id": 30, "features": {}}, {"type": "Match", "start": 49, "end": 50, "id": 31, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 32, "features": {}}, {"type": "Match", "start": 52, "end": 55, "id": 33, "features": {}}, {"type": "Match", "start": 53, "end": 55, "id": 34, "features": {}}, {"type": "Match", "start": 54, "end": 55, "id": 35, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 36, "features": {}}, {"type": "Match", "start": 57, "end": 60, "id": 37, "features": {}}, {"type": "Match", "start": 58, "end": 60, "id": 38, "features": {}}, {"type": "Match", "start": 59, "end": 60, "id": 39, "features": {}}], "next_annid": 40}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(SQHXDVGKIS_data), "SQHXDVGKIS-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+In such cases, it is often desirable to only try and find a match _after_ any match that has already been found, so in this case, once "document" has been matched, only try and find the next match after the end of that match. This can be achieved by setting the parameter `skip_longest=True`:
+
+
+```python
+rules6b = """
+|[a-z]+
+0 => Match
+"""
+
+annt6b = StringRegexAnnotator(source=rules6b, source_fmt="string", skip_longest=True)
+
+doc6b = Document("A document that contains a date here: 12/04/98 and also here: 14/02/1991")
+
+annt6b(doc6b)
+print("Matching:", [doc6b[a] for a in doc6b.annset()])
+doc6b
+```
+
+    Matching: ['document', 'that', 'contains', 'a', 'date', 'here', 'and', 'also', 'here']
+
+
+
+
+
+<div><style>#FADZPXCVUF-wrapper { color: black !important; }</style>
+<div id="FADZPXCVUF-wrapper">
+
+<div>
+<style>
+#FADZPXCVUF-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.FADZPXCVUF-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.FADZPXCVUF-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.FADZPXCVUF-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.FADZPXCVUF-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.FADZPXCVUF-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#FADZPXCVUF-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.FADZPXCVUF-selection {
+    margin-bottom: 5px;
+}
+
+.FADZPXCVUF-featuretable {
+    margin-top: 10px;
+}
+
+.FADZPXCVUF-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.FADZPXCVUF-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="FADZPXCVUF-content">
+        <div id="FADZPXCVUF-popup" style="display: none;">
+        </div>
+        <div class="FADZPXCVUF-row" id="FADZPXCVUF-row1" style="max-height: 20em; min-height:5em;">
+            <div id="FADZPXCVUF-text-wrapper" class="FADZPXCVUF-col" style="width:70%;">
+                <div class="FADZPXCVUF-hdr" id="FADZPXCVUF-dochdr"></div>
+                <div id="FADZPXCVUF-text" style="">
+                </div>
+            </div>
+            <div id="FADZPXCVUF-chooser" class="FADZPXCVUF-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="FADZPXCVUF-row" id="FADZPXCVUF-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="FADZPXCVUF-details" class="FADZPXCVUF-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let FADZPXCVUF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 1, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 2, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 3, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 4, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 5, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 6, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 7, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 8, "features": {}}], "next_annid": 9}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(FADZPXCVUF_data), "FADZPXCVUF-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Macros: creating complex regular expressions from simpler ones
+
+Complex regular expressions can get hard to read quickly especially when there are many nested alternatives, and often, the same complex sub-expression can be part of a bigger expression several times. 
+
+The `StringRegexAnnotator` therefore provides a macro mechanism which allows for complex regular expression to get composed by simpler ones in steps: one can assign the simpler regular expressions to a macro variable and then 
+use such variables in the final complex regular expression.
+
+Here is an example where either ISO or "traditional" dates should get matched and where the year, month and day parts of the regular expression are more specific than in the examples above. Instead of copy-pasting those sub-expressions for the year, month and day into each rule, macro assignments are used:
+
+
+```python
+rules7 = """
+year=(19[0-9]{2}|20[0-9]{2})
+month=(0[0-9]|10|11|12)
+day=([012][0-9]|3[01])
+
+// The ISO date:
+|{{year}}-{{month}}-{{day}}
+0 => Date  type="iso", year=G1, month=G2, day=G3
+
+# The traditional way of writing a date:
+|{{day}}/({{month}})/{{year}}
+0 => Date  type="traditional", year=G3, month=G2, day=G1
+"""
+
+annt7 = StringRegexAnnotator(source=rules7, source_fmt="string")
+
+doc7 = Document("""
+A document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not 
+get matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also
+this, despite not being a valid data: 31/02/2000
+""")
+
+annt7(doc7)
+doc7
+```
+
+
+
+
+<div><style>#EFZUVFHRSH-wrapper { color: black !important; }</style>
+<div id="EFZUVFHRSH-wrapper">
+
+<div>
+<style>
+#EFZUVFHRSH-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.EFZUVFHRSH-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.EFZUVFHRSH-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.EFZUVFHRSH-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.EFZUVFHRSH-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.EFZUVFHRSH-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#EFZUVFHRSH-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.EFZUVFHRSH-selection {
+    margin-bottom: 5px;
+}
+
+.EFZUVFHRSH-featuretable {
+    margin-top: 10px;
+}
+
+.EFZUVFHRSH-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.EFZUVFHRSH-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="EFZUVFHRSH-content">
+        <div id="EFZUVFHRSH-popup" style="display: none;">
+        </div>
+        <div class="EFZUVFHRSH-row" id="EFZUVFHRSH-row1" style="max-height: 20em; min-height:5em;">
+            <div id="EFZUVFHRSH-text-wrapper" class="EFZUVFHRSH-col" style="width:70%;">
+                <div class="EFZUVFHRSH-hdr" id="EFZUVFHRSH-dochdr"></div>
+                <div id="EFZUVFHRSH-text" style="">
+                </div>
+            </div>
+            <div id="EFZUVFHRSH-chooser" class="EFZUVFHRSH-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="EFZUVFHRSH-row" id="EFZUVFHRSH-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="EFZUVFHRSH-details" class="EFZUVFHRSH-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let EFZUVFHRSH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 39, "end": 49, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 65, "end": 75, "id": 1, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Date", "start": 165, "end": 175, "id": 2, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Date", "start": 223, "end": 233, "id": 3, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 4}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(EFZUVFHRSH_data), "EFZUVFHRSH-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Combine with a String Gazetteer
+
+In addition to the type of rules described above, there is a special rule which can be used to 
+combine the regular expressions with `StringGazetteer` matching. The initialized StringGazetteer instances can be specified when creating the `StringRegexAnnotator`.
+
+The rule consists of a single line of the form `GAZETTEER =>` or `GAZETTEER => feat1 = val1, feat2=val2` to assign some constant features (in addition to the features from the gazetteer entry and gazetteer list).
+
+This examples illustrates this by additing a small string gazetteer to the previous example which matches the strings "date", "a date", "and", "also":
+
+
+```python
+gazlist1 = [
+    ("date", ),
+    ("a date",),
+    ("and",),
+    ("also",),
+]
+
+gaz1 = StringGazetteer(source=gazlist1, source_fmt="gazlist")
+
+rules8 = """
+year=(19[0-9]{2}|20[0-9]{2})
+month=(0[0-9]|10|11|12)
+day=([012][0-9]|3[01])
+
+// The ISO date:
+|{{year}}-{{month}}-{{day}}
+0 => Date  type="iso", year=G1, month=G2, day=G3
+
+# The traditional way of writing a date:
+|{{day}}/({{month}})/{{year}}
+0 => Date  type="traditional", year=G3, month=G2, day=G1
+
+# The rule to match the GAZETTEER
+GAZETTEER => somefeature="some value"
+"""
+
+annt8 = StringRegexAnnotator(source=rules8, source_fmt="string", string_gazetteer=gaz1)
+
+doc8 = Document("""
+A document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not 
+get matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also
+this, despite not being a valid data: 31/02/2000
+""")
+
+annt8(doc8)
+doc8
+```
+
+
+
+
+<div><style>#IQIMKEUVLZ-wrapper { color: black !important; }</style>
+<div id="IQIMKEUVLZ-wrapper">
+
+<div>
+<style>
+#IQIMKEUVLZ-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.IQIMKEUVLZ-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.IQIMKEUVLZ-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.IQIMKEUVLZ-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.IQIMKEUVLZ-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.IQIMKEUVLZ-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#IQIMKEUVLZ-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.IQIMKEUVLZ-selection {
+    margin-bottom: 5px;
+}
+
+.IQIMKEUVLZ-featuretable {
+    margin-top: 10px;
+}
+
+.IQIMKEUVLZ-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.IQIMKEUVLZ-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="IQIMKEUVLZ-content">
+        <div id="IQIMKEUVLZ-popup" style="display: none;">
+        </div>
+        <div class="IQIMKEUVLZ-row" id="IQIMKEUVLZ-row1" style="max-height: 20em; min-height:5em;">
+            <div id="IQIMKEUVLZ-text-wrapper" class="IQIMKEUVLZ-col" style="width:70%;">
+                <div class="IQIMKEUVLZ-hdr" id="IQIMKEUVLZ-dochdr"></div>
+                <div id="IQIMKEUVLZ-text" style="">
+                </div>
+            </div>
+            <div id="IQIMKEUVLZ-chooser" class="IQIMKEUVLZ-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="IQIMKEUVLZ-row" id="IQIMKEUVLZ-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="IQIMKEUVLZ-details" class="IQIMKEUVLZ-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let IQIMKEUVLZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Lookup", "start": 26, "end": 32, "id": 0, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 28, "end": 32, "id": 1, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 39, "end": 49, "id": 2, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Lookup", "start": 50, "end": 53, "id": 3, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 54, "end": 58, "id": 4, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 65, "end": 75, "id": 5, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Lookup", "start": 118, "end": 121, "id": 6, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 165, "end": 175, "id": 7, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Lookup", "start": 176, "end": 179, "id": 8, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 180, "end": 184, "id": 9, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 223, "end": 233, "id": 10, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 11}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(IQIMKEUVLZ_data), "IQIMKEUVLZ-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+## Using the StringRegexAnnotator API directly
+
+The main methods of `StringRegexAnnotator` are:
+
+* `append(source, source_fmt="file", list_features=None)`: to add one or more rule files/strings/rulelists to the annotator
+* `find_all(..)` to search some string using the stored rules and return a generator of Match objects
+
+The `find_all` method can be useful when some string outside of a document should get processed, or when the matches need to get processed by code before they should get added as annotations to the document.
+
+The following shows the result of calling `find_all` on the document text with the annotator configured above:
+
+
+```python
+for m in annt8.find_all(doc8.text):
+    print(m)
+```
+
+    Match(start=26, end=32, match='a date', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=28, end=32, match='date', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=39, end=49, match='2013-01-12', features={'type': 'iso', 'year': '2013', 'month': '01', 'day': '12'}, type='Date')
+    Match(start=50, end=53, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=54, end=58, match='also', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=65, end=75, match='14/02/1991', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '14'}, type='Date')
+    Match(start=118, end=121, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=165, end=175, match='13/12/2012', features={'type': 'traditional', 'year': '12', 'month': '12', 'day': '13'}, type='Date')
+    Match(start=176, end=179, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=180, end=184, match='also', features={'somefeature': 'some value'}, type='Lookup')
+    Match(start=223, end=233, match='31/02/2000', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '31'}, type='Date')
+
+
+## Example use: GATE  default tokenizer
+
+The StringRegexAnnotator is used to implement the `default_tokenizer`, a tokenizer annotator which should work
+in the same way as the Java GATE DefaultTokenizer PR. The rules from the Java tokenizer have been directly 
+converted into StringRegexAnnotator rules:
+
+
+```python
+from gatenlp.lang.en.gatetokenizers import default_tokenizer, default_tokenizer_rules
+
+print(default_tokenizer_rules)
+```
+
+    
+    #words#
+    // a word can be any combination of letters, including hyphens,
+    // but excluding symbols and punctuation, e.g. apostrophes
+    // Note that there is an alternative version of the tokeniser that
+    // treats hyphens as separate tokens
+    
+    
+    |(?:\p{Lu}(?:\p{Mn})*)(?:(?:\p{Ll}(?:\p{Mn})*)(?:(?:\p{Ll}(?:\p{Mn})*)|\p{Pd}|\p{Cf})*)*
+    0 =>  Token orth="upperInitial", kind="word", 
+    
+    |(?:\p{Lu}(?:\p{Mn})*)(?:\p{Pd}|\p{Cf})*(?:(?:\p{Lu}(?:\p{Mn})*)|\p{Pd}|\p{Cf})+
+    0 =>  Token orth="allCaps", kind="word", 
+    
+    |(?:\p{Ll}(?:\p{Mn})*)(?:(?:\p{Ll}(?:\p{Mn})*)|\p{Pd}|\p{Cf})*
+    0 =>  Token orth="lowercase", kind="word", 
+    
+    // MixedCaps is any mixture of caps and small letters that doesn't
+    // fit in the preceding categories
+    
+    |(?:(?:\p{Ll}(?:\p{Mn})*)(?:\p{Ll}(?:\p{Mn})*)+(?:\p{Lu}(?:\p{Mn})*)+(?:(?:\p{Lu}(?:\p{Mn})*)|(?:\p{Ll}(?:\p{Mn})*))*)|(?:(?:\p{Ll}(?:\p{Mn})*)(?:\p{Ll}(?:\p{Mn})*)*(?:\p{Lu}(?:\p{Mn})*)+(?:(?:\p{Lu}(?:\p{Mn})*)|(?:\p{Ll}(?:\p{Mn})*)|\p{Pd}|\p{Cf})*)|(?:(?:\p{Lu}(?:\p{Mn})*)(?:\p{Pd})*(?:\p{Lu}(?:\p{Mn})*)(?:(?:\p{Lu}(?:\p{Mn})*)|(?:\p{Ll}(?:\p{Mn})*)|\p{Pd}|\p{Cf})*(?:(?:\p{Ll}(?:\p{Mn})*))+(?:(?:\p{Lu}(?:\p{Mn})*)|(?:\p{Ll}(?:\p{Mn})*)|\p{Pd}|\p{Cf})*)|(?:(?:\p{Lu}(?:\p{Mn})*)(?:\p{Ll}(?:\p{Mn})*)+(?:(?:\p{Lu}(?:\p{Mn})*)+(?:\p{Ll}(?:\p{Mn})*)+)+)|(?:(?:(?:\p{Lu}(?:\p{Mn})*))+(?:(?:\p{Ll}(?:\p{Mn})*))+(?:(?:\p{Lu}(?:\p{Mn})*))+)
+    0 =>  Token orth="mixedCaps", kind="word", 
+    
+    |(?:\p{Lo}|\p{Mc}|\p{Mn})+
+    0 => Token kind="word", type="other", 
+    
+    #numbers#
+    // a number is any combination of digits
+    |\p{Nd}+
+    0 => Token kind="number", 
+    
+    |\p{No}+
+    0 => Token kind="number", 
+    
+    #whitespace#
+    |(?:\p{Zs}) 
+    0 => SpaceToken kind="space", 
+    
+    |(?:\p{Cc}) 
+    0 => SpaceToken kind="control", 
+    
+    #symbols#
+    |(?:\p{Sk}|\p{Sm}|\p{So}) 
+    0 =>  Token kind="symbol", 
+    
+    |\p{Sc} 
+    0 =>  Token kind="symbol", symbolkind="currency", 
+    
+    #punctuation#
+    |(?:\p{Pd}|\p{Cf}) 
+    0 => Token kind="punctuation", subkind="dashpunct", 
+    
+    |(?:\p{Pc}|\p{Po})
+    0 => Token kind="punctuation", 
+    
+    |(?:\p{Ps}|\p{Pi}) 
+    0 => Token kind="punctuation", position="startpunct", 
+    
+    |(?:\p{Pe}|\p{Pf}) 
+    0 => Token kind="punctuation", position="endpunct", 
+    
+
+
+
+```python
+doc = Document("""
+This is a short document. Has miXedCaps and ALLUPPER and 1234 and hyphen-word. 
+Also something after a new line. And another sentence. A float 3.4123 and a code XZ-2323-a.
+""")
+
+default_tokenizer(doc)
+doc
+```
+
+
+
+
+<div><style>#CTFSGMGCWR-wrapper { color: black !important; }</style>
+<div id="CTFSGMGCWR-wrapper">
+
+<div>
+<style>
+#CTFSGMGCWR-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.CTFSGMGCWR-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.CTFSGMGCWR-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.CTFSGMGCWR-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.CTFSGMGCWR-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.CTFSGMGCWR-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#CTFSGMGCWR-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.CTFSGMGCWR-selection {
+    margin-bottom: 5px;
+}
+
+.CTFSGMGCWR-featuretable {
+    margin-top: 10px;
+}
+
+.CTFSGMGCWR-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.CTFSGMGCWR-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="CTFSGMGCWR-content">
+        <div id="CTFSGMGCWR-popup" style="display: none;">
+        </div>
+        <div class="CTFSGMGCWR-row" id="CTFSGMGCWR-row1" style="max-height: 20em; min-height:5em;">
+            <div id="CTFSGMGCWR-text-wrapper" class="CTFSGMGCWR-col" style="width:70%;">
+                <div class="CTFSGMGCWR-hdr" id="CTFSGMGCWR-dochdr"></div>
+                <div id="CTFSGMGCWR-text" style="">
+                </div>
+            </div>
+            <div id="CTFSGMGCWR-chooser" class="CTFSGMGCWR-col" style="width:30%; border-left-width: 0px;"></div>
+        </div>
+        <div class="CTFSGMGCWR-row" id="CTFSGMGCWR-row2" style="max-height: 14em; min-height: 3em;">
+            <div id="CTFSGMGCWR-details" class="CTFSGMGCWR-col" style="width:100%; border-top-width: 0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let CTFSGMGCWR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SpaceToken", "start": 0, "end": 1, "id": 0, "features": {"kind": "control"}}, {"type": "Token", "start": 1, "end": 5, "id": 1, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 5, "end": 6, "id": 2, "features": {"kind": "space"}}, {"type": "Token", "start": 6, "end": 8, "id": 3, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 8, "end": 9, "id": 4, "features": {"kind": "space"}}, {"type": "Token", "start": 9, "end": 10, "id": 5, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 10, "end": 11, "id": 6, "features": {"kind": "space"}}, {"type": "Token", "start": 11, "end": 16, "id": 7, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 16, "end": 17, "id": 8, "features": {"kind": "space"}}, {"type": "Token", "start": 17, "end": 25, "id": 9, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 25, "end": 26, "id": 10, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 11, "features": {"kind": "space"}}, {"type": "Token", "start": 27, "end": 30, "id": 12, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 30, "end": 31, "id": 13, "features": {"kind": "space"}}, {"type": "Token", "start": 31, "end": 40, "id": 14, "features": {"orth": "mixedCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 40, "end": 41, "id": 15, "features": {"kind": "space"}}, {"type": "Token", "start": 41, "end": 44, "id": 16, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 17, "features": {"kind": "space"}}, {"type": "Token", "start": 45, "end": 53, "id": 18, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 53, "end": 54, "id": 19, "features": {"kind": "space"}}, {"type": "Token", "start": 54, "end": 57, "id": 20, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 57, "end": 58, "id": 21, "features": {"kind": "space"}}, {"type": "Token", "start": 58, "end": 62, "id": 22, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 62, "end": 63, "id": 23, "features": {"kind": "space"}}, {"type": "Token", "start": 63, "end": 66, "id": 24, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 66, "end": 67, "id": 25, "features": {"kind": "space"}}, {"type": "Token", "start": 67, "end": 78, "id": 26, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 78, "end": 79, "id": 27, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 79, "end": 80, "id": 28, "features": {"kind": "space"}}, {"type": "SpaceToken", "start": 80, "end": 81, "id": 29, "features": {"kind": "control"}}, {"type": "Token", "start": 81, "end": 85, "id": 30, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 85, "end": 86, "id": 31, "features": {"kind": "space"}}, {"type": "Token", "start": 86, "end": 95, "id": 32, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 33, "features": {"kind": "space"}}, {"type": "Token", "start": 96, "end": 101, "id": 34, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 101, "end": 102, "id": 35, "features": {"kind": "space"}}, {"type": "Token", "start": 102, "end": 103, "id": 36, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 103, "end": 104, "id": 37, "features": {"kind": "space"}}, {"type": "Token", "start": 104, "end": 107, "id": 38, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 107, "end": 108, "id": 39, "features": {"kind": "space"}}, {"type": "Token", "start": 108, "end": 112, "id": 40, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 112, "end": 113, "id": 41, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 113, "end": 114, "id": 42, "features": {"kind": "space"}}, {"type": "Token", "start": 114, "end": 117, "id": 43, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 117, "end": 118, "id": 44, "features": {"kind": "space"}}, {"type": "Token", "start": 118, "end": 125, "id": 45, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 125, "end": 126, "id": 46, "features": {"kind": "space"}}, {"type": "Token", "start": 126, "end": 134, "id": 47, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 134, "end": 135, "id": 48, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 135, "end": 136, "id": 49, "features": {"kind": "space"}}, {"type": "Token", "start": 136, "end": 137, "id": 50, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 137, "end": 138, "id": 51, "features": {"kind": "space"}}, {"type": "Token", "start": 138, "end": 143, "id": 52, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 143, "end": 144, "id": 53, "features": {"kind": "space"}}, {"type": "Token", "start": 144, "end": 145, "id": 54, "features": {"kind": "number"}}, {"type": "Token", "start": 145, "end": 146, "id": 55, "features": {"kind": "punctuation"}}, {"type": "Token", "start": 146, "end": 150, "id": 56, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 150, "end": 151, "id": 57, "features": {"kind": "space"}}, {"type": "Token", "start": 151, "end": 154, "id": 58, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 154, "end": 155, "id": 59, "features": {"kind": "space"}}, {"type": "Token", "start": 155, "end": 156, "id": 60, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 156, "end": 157, "id": 61, "features": {"kind": "space"}}, {"type": "Token", "start": 157, "end": 161, "id": 62, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 161, "end": 162, "id": 63, "features": {"kind": "space"}}, {"type": "Token", "start": 162, "end": 165, "id": 64, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "Token", "start": 165, "end": 169, "id": 65, "features": {"kind": "number"}}, {"type": "Token", "start": 169, "end": 170, "id": 66, "features": {"kind": "punctuation", "subkind": "dashpunct"}}, {"type": "Token", "start": 170, "end": 171, "id": 67, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 171, "end": 172, "id": 68, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 172, "end": 173, "id": 69, "features": {"kind": "control"}}], "next_annid": 70}}, "text": "\nThis is a short document. Has miXedCaps and ALLUPPER and 1234 and hyphen-word. \nAlso something after a new line. And another sentence. A float 3.4123 and a code XZ-2323-a.\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(CTFSGMGCWR_data), "CTFSGMGCWR-").init();
+    </script>
+  </div>
+
+</div></div>
+
+

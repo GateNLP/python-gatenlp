@@ -1,12 +1,14 @@
 """
-The following classes are imported into the gatenlp package by default: `gatenlp.span.Span`, `gatenlp.annotation.Annotation`,
+The following classes are imported into the gatenlp package by default: `gatenlp.span.Span`,
+`gatenlp.annotation.Annotation`,
 `gatenlp.annotation_set.AnnotationSet`, `gatenlp.changelog.ChangeLog`, `gatenlp.document.Document` as well
 as `GateNlpPr` and `interact` for the GATE Python plugin.
 
 Where to find other important classes:
 
 * corpora, document sources, document destinations: in `gatenlp.corpora`
-* `gatenlp.gateworker.gateworker.GateWorker`, `gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator` in `gatenlp.gateworker`
+* `gatenlp.gateworker.gateworker.GateWorker`, `gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator`
+   in `gatenlp.gateworker`
 * `gatenlp.lib_spacy.AnnSpacy` in `gatenlp.lib_spacy`
 * `gatenlp.lib_stanza.AnnStanza` in `gatenlp.lib_stanza`
 * TODO: include all the others!
@@ -46,7 +48,11 @@ from gatenlp.gate_interaction import interact
 # break the Python plugin!
 # from gatenlp.gateworker import GateWorker, GateWorkerAnnotator
 
+
 def init_notebook():   # pragma: no cover
+    """
+    Helper method to initialize a Jupyter or similar notebook.
+    """
     from gatenlp.serialization.default import HtmlAnnViewerSerializer
     from gatenlp.gatenlpconfig import gatenlpconfig
 

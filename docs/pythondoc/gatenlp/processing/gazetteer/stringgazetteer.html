@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.processing.gazetteer.stringgazetteer API documentation</title>
 <meta name="description" content="This module provides the StringGazetter for matching strings against the text in a document." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -33,19 +33,13 @@ This module provides the StringGazetter for matching strings against the text in
 import os
 from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
 # note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
-from recordclass import structclass
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerBase
+from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 import re
 
 _NOVALUE = None
 PAT_SPACES = re.compile(r&#39;\s+&#39;)
-
-# NOTE: sthis was a dataclass originally
-StringGazetteerMatch = structclass(
-    &#34;StringGazetteerMatch&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;data&#34;, &#34;listidxs&#34;)
-)
 
 # TODO: maybe add parameter compress_ws to make compression on reading and one-to-many matching optional
 #    also, need to implement optional compression on read!
@@ -104,7 +98,7 @@ class _Node:
         return s1 + s2 + &#34;])&#34;
 
 
-class StringGazetteer(StringGazetteerBase):
+class StringGazetteer(GazetteerBase):
     def __init__(
             self,
             annset_name: str = &#34;&#34;,
@@ -329,8 +323,14 @@ class StringGazetteer(StringGazetteerBase):
                 else:
                     self.list_types.append(self.ann_type)
             for el in source:
-                entry = el[0]
-                data = el[1]
+                if isinstance(el, str):
+                    entry = el
+                else:
+                    entry = el[0]
+                    if len(el) &gt; 1:
+                        data = el[1]
+                    else:
+                        data = {}
                 self.add(entry, data, listidx=list_nr)
         elif source_fmt == &#34;gate-def&#34;:
             if list_features is None:
@@ -455,32 +455,27 @@ class StringGazetteer(StringGazetteerBase):
             return matches, 0
         cur_chr = self.map_chars_func(text[start])
         longest_len = 0
-        longest_match = None
+        longest_matchdata = None
         node = self._root
         # if the current character is whitespace, no match is possible since a match cannot start with WS
         if self.is_ws(cur_chr, start, ws_offsets):
             return matches, 0
         node = node.children.get(cur_chr)
         cur_off = start
+        matchdatas = []
         while node is not None:
             if node.is_match():
                 cur_end = cur_off + 1
                 # we found a match, but if we have end offsets, also check if the end offset is valid
                 if end_offsets is None or (end_offsets is not None and cur_end in end_offsets):
                     cur_len = cur_end - start
-                    vals, idxs = node.data()
-                    match = StringGazetteerMatch(
-                        start,
-                        cur_end,
-                        text[start: cur_end],
-                        vals,
-                        idxs,
-                    )
+                    v, i = node.data()
+                    matchdata = (start, cur_end, text[start: cur_end], v, i)
                     if cur_len &gt; longest_len:
                         longest_len = cur_len
-                        longest_match = match
+                        longest_matchdata = matchdata
                     if not longest_only:
-                        matches.append(match)
+                        matchdatas.append(matchdata)
             # if the current node/character corresponds to a whitespace character and compress whitespace is True,
             # then match any additional whitespace characters in the text
             # BUT: only if compress_ws is True
@@ -510,12 +505,29 @@ class StringGazetteer(StringGazetteerBase):
                 break
             # before we continue, get node for the character we have now
             node = node.children.get(cur_chr)
-        if longest_only and longest_match is not None:
-            matches.append(longest_match)
+        if longest_only and longest_matchdata is not None:
+            matchdatas.append(longest_matchdata)
+        # convert the matchdatas list into the match list
+        for matchdata in matchdatas:
+            start, end, text, vals, idxs = matchdata
+            assert len(vals) == len(idxs)
+            if len(vals) == 0:
+                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+            else:
+                for val, idx, in zip(vals, idxs):
+                    features = {}
+                    outtype = self.ann_type
+                    if idx is not None:
+                        features.update(self.list_features[idx])
+                        outtype = self.list_types[idx]
+                    if val is not None:
+                        features.update(val)
+                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
-             text: str, start: int = 0,
+             text: str,
+             start: int = 0,
              end: Union[None, int] = None,
              longest_only: Union[None, bool] = None,
              start_offsets: Union[List, Set, None] = None,
@@ -530,7 +542,8 @@ class StringGazetteer(StringGazetteerBase):
             text: string to search
             start: offset where to start matching in the text
             end: if not None, offset beyond which no match may happen (start or end)
-            longest_only: if True, return only the longest match at each position
+            longest_only: if True, return only the longest match at each position, if False, return all, if None,
+                use what is configured for the StringGazetteer instance.
             start_offsets: if not None, a list/set of offsets where a match can start
             end_offsets: if not None, a list/set of offsets where a match can end
             ws_offsets: if not None, a list/set of offsets which are considered whitespace
@@ -567,6 +580,7 @@ class StringGazetteer(StringGazetteerBase):
 
     def find_all(self,
                  text: str,
+                 start: int = 0,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -578,6 +592,7 @@ class StringGazetteer(StringGazetteerBase):
 
         Args:
             text: string to search
+            start: offset where to start searching (0)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -592,7 +607,7 @@ class StringGazetteer(StringGazetteerBase):
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = 0
+        offset = start
         while offset &lt; len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
@@ -743,19 +758,7 @@ class StringGazetteer(StringGazetteerBase):
                 end_offsets=end_offsets,
                 ws_offsets=ws_offsets,
                 split_offsets=split_offsets):
-            if len(match.data) == 0 and len(match.listidx) == 0:
-                outset.add(match.start, match.end, self.ann_type)
-            else:
-                assert len(match.data) == len(match.listidxs)
-                for m, idx in zip(match.data, match.listidxs):
-                    features = {}
-                    outtype = self.ann_type
-                    if idx is not None:
-                        features.update(self.list_features[idx])
-                        outtype = self.list_types[idx]
-                    if m is not None:
-                        features.update(m)
-                    outset.add(match.start, match.end, outtype, features=features)
+            outset.add(match.start, match.end, match.type, features=match.features)
         return doc
 
     def __len__(self):
@@ -773,10 +776,11 @@ class StringGazetteer(StringGazetteerBase):
 <dl>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer"><code class="flex name class">
 <span>class <span class="ident">StringGazetteer</span></span>
-<span>(</span><span>annset_name: str = '', outset_name: str = '', ann_type: str = 'Lookup', longest_only: bool = False, skip_longest: bool = False, start_type: Union[str, NoneType] = None, end_type: Union[str, NoneType] = None, ws_chars: Union[NoneType, str, Callable] = None, ws_type: Union[str, NoneType] = None, split_chars: Union[NoneType, str, Callable] = None, split_type: Union[str, NoneType] = None, map_chars: Union[NoneType, str, Callable] = None, source: Any = None, source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Union[Dict, NoneType] = None, list_type: Union[str, NoneType] = None, list_nr: Union[int, NoneType] = None, ws_clean: bool = True)</span>
+<span>(</span><span>annset_name: str = '', outset_name: str = '', ann_type: str = 'Lookup', longest_only: bool = False, skip_longest: bool = False, start_type: Optional[str] = None, end_type: Optional[str] = None, ws_chars: Union[None, str, Callable] = None, ws_type: Optional[str] = None, split_chars: Union[None, str, Callable] = None, split_type: Optional[str] = None, map_chars: Union[None, str, Callable] = None, source: Any = None, source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Optional[Dict[~KT, ~VT]] = None, list_type: Optional[str] = None, list_nr: Optional[int] = None, ws_clean: bool = True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A gazetteer annotator the can be applied to strings.</p>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <p>Create a String Gazetteer annotor.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -846,7 +850,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class StringGazetteer(StringGazetteerBase):
+<pre><code class="python">class StringGazetteer(GazetteerBase):
     def __init__(
             self,
             annset_name: str = &#34;&#34;,
@@ -1071,8 +1075,14 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                 else:
                     self.list_types.append(self.ann_type)
             for el in source:
-                entry = el[0]
-                data = el[1]
+                if isinstance(el, str):
+                    entry = el
+                else:
+                    entry = el[0]
+                    if len(el) &gt; 1:
+                        data = el[1]
+                    else:
+                        data = {}
                 self.add(entry, data, listidx=list_nr)
         elif source_fmt == &#34;gate-def&#34;:
             if list_features is None:
@@ -1197,32 +1207,27 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             return matches, 0
         cur_chr = self.map_chars_func(text[start])
         longest_len = 0
-        longest_match = None
+        longest_matchdata = None
         node = self._root
         # if the current character is whitespace, no match is possible since a match cannot start with WS
         if self.is_ws(cur_chr, start, ws_offsets):
             return matches, 0
         node = node.children.get(cur_chr)
         cur_off = start
+        matchdatas = []
         while node is not None:
             if node.is_match():
                 cur_end = cur_off + 1
                 # we found a match, but if we have end offsets, also check if the end offset is valid
                 if end_offsets is None or (end_offsets is not None and cur_end in end_offsets):
                     cur_len = cur_end - start
-                    vals, idxs = node.data()
-                    match = StringGazetteerMatch(
-                        start,
-                        cur_end,
-                        text[start: cur_end],
-                        vals,
-                        idxs,
-                    )
+                    v, i = node.data()
+                    matchdata = (start, cur_end, text[start: cur_end], v, i)
                     if cur_len &gt; longest_len:
                         longest_len = cur_len
-                        longest_match = match
+                        longest_matchdata = matchdata
                     if not longest_only:
-                        matches.append(match)
+                        matchdatas.append(matchdata)
             # if the current node/character corresponds to a whitespace character and compress whitespace is True,
             # then match any additional whitespace characters in the text
             # BUT: only if compress_ws is True
@@ -1252,12 +1257,29 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                 break
             # before we continue, get node for the character we have now
             node = node.children.get(cur_chr)
-        if longest_only and longest_match is not None:
-            matches.append(longest_match)
+        if longest_only and longest_matchdata is not None:
+            matchdatas.append(longest_matchdata)
+        # convert the matchdatas list into the match list
+        for matchdata in matchdatas:
+            start, end, text, vals, idxs = matchdata
+            assert len(vals) == len(idxs)
+            if len(vals) == 0:
+                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+            else:
+                for val, idx, in zip(vals, idxs):
+                    features = {}
+                    outtype = self.ann_type
+                    if idx is not None:
+                        features.update(self.list_features[idx])
+                        outtype = self.list_types[idx]
+                    if val is not None:
+                        features.update(val)
+                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
-             text: str, start: int = 0,
+             text: str,
+             start: int = 0,
              end: Union[None, int] = None,
              longest_only: Union[None, bool] = None,
              start_offsets: Union[List, Set, None] = None,
@@ -1272,7 +1294,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             text: string to search
             start: offset where to start matching in the text
             end: if not None, offset beyond which no match may happen (start or end)
-            longest_only: if True, return only the longest match at each position
+            longest_only: if True, return only the longest match at each position, if False, return all, if None,
+                use what is configured for the StringGazetteer instance.
             start_offsets: if not None, a list/set of offsets where a match can start
             end_offsets: if not None, a list/set of offsets where a match can end
             ws_offsets: if not None, a list/set of offsets which are considered whitespace
@@ -1309,6 +1332,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 
     def find_all(self,
                  text: str,
+                 start: int = 0,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
                  start_offsets: Union[List, Set, None] = None,
@@ -1320,6 +1344,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 
         Args:
             text: string to search
+            start: offset where to start searching (0)
             longest_only: if True, return only the longest match at each position, if None use gazetteer setting
             skip_longest: if True, find next match after longest match, if None use gazetteer setting
             start_offsets: if not None, a list/set of offsets where a match can start
@@ -1334,7 +1359,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             skip_longest = self.skip_longest
         if longest_only is None:
             longest_only = self.longest_only
-        offset = 0
+        offset = start
         while offset &lt; len(text):
             if self.is_ws(text[offset], offset, ws_offsets):
                 offset += 1
@@ -1485,19 +1510,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                 end_offsets=end_offsets,
                 ws_offsets=ws_offsets,
                 split_offsets=split_offsets):
-            if len(match.data) == 0 and len(match.listidx) == 0:
-                outset.add(match.start, match.end, self.ann_type)
-            else:
-                assert len(match.data) == len(match.listidxs)
-                for m, idx in zip(match.data, match.listidxs):
-                    features = {}
-                    outtype = self.ann_type
-                    if idx is not None:
-                        features.update(self.list_features[idx])
-                        outtype = self.list_types[idx]
-                    if m is not None:
-                        features.update(m)
-                    outset.add(match.start, match.end, outtype, features=features)
+            outset.add(match.start, match.end, match.type, features=match.features)
         return doc
 
     def __len__(self):
@@ -1505,7 +1518,6 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></li>
 <li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
@@ -1513,7 +1525,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.add"><code class="name flex">
-<span>def <span class="ident">add</span></span>(<span>self, entry: Union[str, List[str]], data: Union[Dict, NoneType] = None, listidx: Union[int, NoneType] = None, ws_clean: bool = True)</span>
+<span>def <span class="ident">add</span></span>(<span>self, entry: Union[str, List[str]], data: Optional[Dict[~KT, ~VT]] = None, listidx: Optional[int] = None, ws_clean: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add a gazetteer entry or several entries if "entry" is not a string but iterable and store its data.</p>
@@ -1533,9 +1545,71 @@ If all elements of the entry are ignored, nothing is done.</p>
 <dd>if True, does whitespace trimming and normalization based on the ws_chars setting (even if
 ws_type is specified). If False, expects the proper cleaning has already been done.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, entry: Union[str, List[str]],
+        data: Optional[Dict] = None, listidx: Optional[int] = None,
+        ws_clean: bool = True,
+        ):
+    &#34;&#34;&#34;
+    Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
+
+    If data is not None, it is stored or added to a list of data stored with the entry. If listidx is not None
+    it is stored or added to a list of listidxs stored with the entry. If data and listidx are None a match with
+    empty data (and empty dict) is stored with the entry.
+    If all elements of the entry are ignored, nothing is done.
+
+    Args:
+        entry: a string or an iterable of strings
+        data: the data to add for that gazetteer entry or None to add no data.
+        listidx: the list index to add or None
+        ws_clean: if True, does whitespace trimming and normalization based on the ws_chars setting (even if
+            ws_type is specified). If False, expects the proper cleaning has already been done.
+    &#34;&#34;&#34;
+    if isinstance(entry, str):
+        entry = [entry]
+    for e in entry:
+        if e is None or e == &#34;&#34; or not isinstance(e, str):
+            raise Exception(f&#34;Cannot add gazetteer entry &#39;{e}&#39; must be a non-empty string&#34;)
+        if ws_clean:
+            # note: this is probably pretty slow, but guarantees the exact same replacements as for text
+            # as it uses the exact same function
+            e = &#34;&#34;.join([&#34; &#34; if self.ws_chars_func(x) else self.map_chars_func(x) for x in e])
+            e = e.strip()
+            e = re.sub(PAT_SPACES, &#39; &#39;, e)
+        node = self._get_node(e, create=True)
+        self.size += 1
+        if node == self._root:
+            # empty string not allowed
+            raise Exception(f&#34;Cannot add gazetteer entry &#39;{e}&#39;, matches root node&#34;)
+        if node.value == _NOVALUE:
+            if data is None:
+                node.value = {}
+            else:
+                node.value = data
+        else:
+            if data is not None:
+                if isinstance(node.value, list):
+                    node.value.append(data)
+                else:
+                    node.value = [node.value]
+                    node.value.append(data)
+        if node.listidxs == _NOVALUE:
+            if listidx is not None:
+                node.listidxs = listidx
+        else:
+            if listidx is not None:
+                if isinstance(node.listidxs, list):
+                    node.listidxs.append(listidx)
+                else:
+                    node.listidxs = [node.listidxs]
+                    node.listidxs.append(listidx)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.append"><code class="name flex">
-<span>def <span class="ident">append</span></span>(<span>self, source: Union[str, List[Union[Dict, NoneType]]], source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Union[Dict, NoneType] = None, list_type: Union[str, NoneType] = None, list_nr: Union[int, NoneType] = None, ws_clean: bool = True)</span>
+<span>def <span class="ident">append</span></span>(<span>self, source: Union[str, List[Optional[Dict[~KT, ~VT]]]], source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Optional[Dict[~KT, ~VT]] = None, list_type: Optional[str] = None, list_nr: Optional[int] = None, ws_clean: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Append gazetteer entries from the given source to the gazetteer. Depending on the format this can load
@@ -1567,9 +1641,121 @@ the type is overriden and all entries are added to that list.</dd>
 <dd>if True, does whitespace trimming and normalization based on the ws_chars setting (even if
 ws_type is specified). If False, expects the proper cleaning has already been done.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self,
+           source: Union[str, List[Optional[Dict]]],
+           source_fmt: str = &#34;gate-def&#34;,
+           source_encoding: str = &#34;utf-8&#34;,
+           source_sep: str = &#34;\t&#34;,
+           list_features: Optional[Dict] = None,
+           list_type: Optional[str] = None,
+           list_nr: Optional[int] = None,
+           ws_clean: bool = True,
+           ):
+    &#34;&#34;&#34;
+    Append gazetteer entries from the given source to the gazetteer. Depending on the format this can load
+    one or more gazetteer lists, where each list can share common list-spcific features and can have an optional
+    list-specific annotation type to use.
+
+    Args:
+        source: the source to use, e.g. a file
+        source_fmt: the format of the source, one of &#34;gate-def&#34;: a GATE def file, &#34;gazlist&#34;: a list of tuples with 2
+            elements, where the first element is the gazetteer entry (string), and the second is a dictionary of
+            features or None
+        source_encoding: the encoding of any source gazetteer files
+        source_sep: the field separator used in source gazetteer files
+        list_features: the features to use for the list or lists that get loaded from the source,
+            if None, no features are used/added to the list.
+        list_type: the annotation type to use for the list/lists loaded, if None, the type
+            specified with the constructor is used.
+        list_nr: only for fmt &#34;gazlist&#34;, if not None, the number of an already existing/loaded list,
+            otherwise the next list number is used. If an existing list number is used, any features are added,
+            the type is overriden and all entries are added to that list.
+        ws_clean: if True, does whitespace trimming and normalization based on the ws_chars setting (even if
+            ws_type is specified). If False, expects the proper cleaning has already been done.
+    &#34;&#34;&#34;
+    if source_fmt == &#34;gazlist&#34;:
+        if list_nr is not None:
+            assert int(list_nr) == list_nr and 0 &lt; list_nr &lt; len(self.list_features)
+            if list_features is not None:
+                self.list_features[list_nr].update(list_features)
+            if list_type is not None:
+                self.list_types[list_nr] = list_type
+        else:
+            list_nr = len(self.list_features)
+            if list_features is not None:
+                self.list_features.append(list_features)
+            else:
+                self.list_features.append({})
+            if list_type is not None:
+                self.list_types.append(list_type)
+            else:
+                self.list_types.append(self.ann_type)
+        for el in source:
+            if isinstance(el, str):
+                entry = el
+            else:
+                entry = el[0]
+                if len(el) &gt; 1:
+                    data = el[1]
+                else:
+                    data = {}
+            self.add(entry, data, listidx=list_nr)
+    elif source_fmt == &#34;gate-def&#34;:
+        if list_features is None:
+            list_features = {}
+        if list_type is None:
+            list_type = self.ann_type
+        with open(source, &#34;rt&#34;, encoding=source_encoding) as infp:
+            for line in infp:
+                line = line.rstrip(&#34;\n\r&#34;)
+                fields = line.split(&#34;:&#34;)
+                fields.extend([&#34;&#34;, &#34;&#34;, &#34;&#34;, &#34;&#34;])
+                list_file = fields[0]
+                major_type = fields[1]
+                minor_type = fields[2]
+                languages = fields[3]
+                anntype = fields[4]
+                this_listfeatures = list_features.copy()
+                this_outtype = list_type
+                if major_type:
+                    this_listfeatures[&#34;majorType&#34;] = major_type
+                if minor_type:
+                    this_listfeatures[&#34;minorType&#34;] = minor_type
+                if languages:
+                    this_listfeatures[&#34;lang&#34;] = languages
+                if anntype:
+                    this_outtype = anntype
+                # read in the actual list
+                listfile = os.path.join(os.path.dirname(source), list_file)
+                self.logger.debug(f&#34;Reading list file {listfile}&#34;)
+                with open(listfile, &#34;rt&#34;, encoding=source_encoding) as inlistfile:
+                    self.list_types.append(this_outtype)
+                    self.list_features.append(this_listfeatures)
+                    linenr = 0
+                    for listline in inlistfile:
+                        linenr += 1
+                        listline = listline.rstrip(&#34;\n\r&#34;)
+                        fields = listline.split(source_sep)
+                        entry = fields[0]
+                        if len(entry) &gt; 1:
+                            feats = {}
+                            for fspec in fields[1:]:
+                                fname, fval = fspec.split(&#34;=&#34;)
+                                feats[fname] = fval
+                        else:
+                            feats = None
+                        listidx = len(self.list_features) - 1
+                        self.add(entry, feats, listidx=listidx, ws_clean=ws_clean)
+    else:
+        raise Exception(f&#34;TokenGazetteer format {source_fmt} not known&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.find"><code class="name flex">
-<span>def <span class="ident">find</span></span>(<span>self, text: str, start: int = 0, end: Union[NoneType, int] = None, longest_only: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
+<span>def <span class="ident">find</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find the next gazetteer match(es) in the text, if any.</p>
@@ -1582,7 +1768,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <dt><strong><code>end</code></strong></dt>
 <dd>if not None, offset beyond which no match may happen (start or end)</dd>
 <dt><strong><code>longest_only</code></strong></dt>
-<dd>if True, return only the longest match at each position</dd>
+<dd>if True, return only the longest match at each position, if False, return all, if None,
+use what is configured for the StringGazetteer instance.</dd>
 <dt><strong><code>start_offsets</code></strong></dt>
 <dd>if not None, a list/set of offsets where a match can start</dd>
 <dt><strong><code>end_offsets</code></strong></dt>
@@ -1595,9 +1782,66 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <h2 id="returns">Returns</h2>
 <p>A triple with the list of matches as the first element, the max length of matches or 0 if no matches
 as the second element and the index where the match occurs or None as the third element</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find(self,
+         text: str,
+         start: int = 0,
+         end: Union[None, int] = None,
+         longest_only: Union[None, bool] = None,
+         start_offsets: Union[List, Set, None] = None,
+         end_offsets: Union[List, Set, None] = None,
+         ws_offsets: Union[List, Set, None] = None,
+         split_offsets: Union[List, Set, None] = None,
+         ):
+    &#34;&#34;&#34;
+    Find the next gazetteer match(es) in the text, if any.
+
+    Args:
+        text: string to search
+        start: offset where to start matching in the text
+        end: if not None, offset beyond which no match may happen (start or end)
+        longest_only: if True, return only the longest match at each position, if False, return all, if None,
+            use what is configured for the StringGazetteer instance.
+        start_offsets: if not None, a list/set of offsets where a match can start
+        end_offsets: if not None, a list/set of offsets where a match can end
+        ws_offsets: if not None, a list/set of offsets which are considered whitespace
+        split_offsets: if not None, a list/set of offsets which are considered split locations
+
+    Returns:
+        A triple with the list of matches as the first element, the max length of matches or 0 if no matches
+        as the second element and the index where the match occurs or None as the third element
+    &#34;&#34;&#34;
+    if longest_only is None:
+        longest_only = self.longest_only
+    offset = start
+    if end is None:
+        end = len(text)
+    while offset &lt; end:
+        if self.is_ws(text[offset], offset, ws_offsets):
+            offset += 1
+            continue
+        if self.is_split(text[offset], offset, ws_offsets):
+            offset += 1
+            continue
+        if start_offsets is not None and offset not in start_offsets:
+            offset += 1
+            continue
+        matches, long = self.match(text, start=offset, end=end, longest_only=longest_only,
+                                   start_offsets=start_offsets, end_offsets=end_offsets,
+                                   ws_offsets=ws_offsets, split_offsets=split_offsets
+                                   )
+        if long == 0:
+            offset += 1
+            continue
+        return matches, long, offset
+    return [], 0, None</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text: str, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
+<span>def <span class="ident">find_all</span></span>(<span>self, text: str, start: int = 0, longest_only: Optional[None] = None, skip_longest: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find all gazetteer matches in the text, if any.</p>
@@ -1605,6 +1849,8 @@ as the second element and the index where the match occurs or None as the third 
 <dl>
 <dt><strong><code>text</code></strong></dt>
 <dd>string to search</dd>
+<dt><strong><code>start</code></strong></dt>
+<dd>offset where to start searching (0)</dd>
 <dt><strong><code>longest_only</code></strong></dt>
 <dd>if True, return only the longest match at each position, if None use gazetteer setting</dd>
 <dt><strong><code>skip_longest</code></strong></dt>
@@ -1620,9 +1866,67 @@ as the second element and the index where the match occurs or None as the third 
 </dl>
 <h2 id="yields">Yields</h2>
 <p>list of matches</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_all(self,
+             text: str,
+             start: int = 0,
+             longest_only: Union[None, bool] = None,
+             skip_longest: Union[None, bool] = None,
+             start_offsets: Union[List, Set, None] = None,
+             end_offsets: Union[List, Set, None] = None,
+             ws_offsets: Union[List, Set, None] = None,
+             split_offsets: Union[List, Set, None] = None,):
+    &#34;&#34;&#34;
+    Find all gazetteer matches in the text, if any.
+
+    Args:
+        text: string to search
+        start: offset where to start searching (0)
+        longest_only: if True, return only the longest match at each position, if None use gazetteer setting
+        skip_longest: if True, find next match after longest match, if None use gazetteer setting
+        start_offsets: if not None, a list/set of offsets where a match can start
+        end_offsets: if not None, a list/set of offsets where a match can end
+        ws_offsets: if not None, a list/set of offsets which are considered whitespace
+        split_offsets: if not None, a list/set of offsets which are considered split locations
+
+    Yields:
+        list of matches
+    &#34;&#34;&#34;
+    if skip_longest is None:
+        skip_longest = self.skip_longest
+    if longest_only is None:
+        longest_only = self.longest_only
+    offset = start
+    while offset &lt; len(text):
+        if self.is_ws(text[offset], offset, ws_offsets):
+            offset += 1
+            continue
+        if self.is_split(text[offset], offset, ws_offsets):
+            offset += 1
+            continue
+        if start_offsets is not None and offset not in start_offsets:
+            offset += 1
+            continue
+        matches, maxlen, where = self.find(text, start=offset, longest_only=longest_only,
+                                           start_offsets=start_offsets, end_offsets=end_offsets,
+                                           ws_offsets=ws_offsets, split_offsets=split_offsets
+                                           )
+        if where is None:
+            return
+        for match in matches:
+            yield match
+        if skip_longest:
+            offset = where + maxlen
+        else:
+            offset = where + 1
+    return</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, item: str, default: Union[Dict, NoneType] = None) ‑> Union[List[Dict], NoneType]</span>
+<span>def <span class="ident">get</span></span>(<span>self, item: str, default: Optional[Dict[~KT, ~VT]] = None) ‑> Optional[List[Dict[~KT, ~VT]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the features corresponding the to given item or None if the item is not in the gazetteer.</p>
@@ -1635,12 +1939,49 @@ as the second element and the index where the match occurs or None as the third 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A list of dicts or None.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, item: str, default: Optional[Dict] = None) -&gt; Optional[List[Dict]]:
+    &#34;&#34;&#34;
+    Return the features corresponding the to given item or None if the item is not in the gazetteer.
+
+    Args:
+        item: the string to look up
+        default: the return value if not found
+
+    Returns:
+        A list of dicts or None.
+    &#34;&#34;&#34;
+    node = self._get_node(item, create=False, raise_error=False)
+    if node is None or not node.is_match():
+        return default
+    dicts, listidxs = node.data()
+    assert len(dicts) == len(listidxs)
+    ret = []
+    for d, i in zip(dicts, listidxs):
+        new = d.copy()
+        new.update(self.list_features[i])
+        ret.append(new)
+    return ret</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.is_split"><code class="name flex">
 <span>def <span class="ident">is_split</span></span>(<span>self, char, off, split_offsets)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_split(self, char, off, split_offsets):
+    if split_offsets is not None:
+        return off in split_offsets
+    else:
+        return self.split_chars_func(char)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.is_ws"><code class="name flex">
 <span>def <span class="ident">is_ws</span></span>(<span>self, char, off, ws_offsets)</span>
@@ -1659,9 +2000,31 @@ If ws_offsets is None, then this is true if chr.isspace() is true, otherwise if 
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if we have a whitespace character</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_ws(self, char, off, ws_offsets):
+    &#34;&#34;&#34;
+    Return True if the character or offset is corresponding to a whitespace character.
+    If ws_offsets is None, then this is true if chr.isspace() is true, otherwise if the off is in ws_offsets.
+
+    Args:
+        char: the character to check
+        off: the offset to check
+        ws_offsets: the known whitespace offsets or None if we should check the character instead of the offset
+
+    Returns:
+        True if we have a whitespace character
+    &#34;&#34;&#34;
+    if ws_offsets is not None:
+        return off in ws_offsets
+    else:
+        return self.ws_chars_func(char)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.match"><code class="name flex">
-<span>def <span class="ident">match</span></span>(<span>self, text: str, start: int = 0, end: Union[NoneType, int] = None, longest_only: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
+<span>def <span class="ident">match</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Try to start at offset start in text, if end is not None, do not match beyond end offset.</p>
@@ -1692,55 +2055,144 @@ across no matching is possible</dd>
 <h2 id="returns">Returns</h2>
 <p>A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
 of the longest match, 0 if there is no match (list of match objects is empty).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match(self, text: str,
+          start: int = 0,
+          end: Union[None, int] = None,
+          longest_only: Union[None, bool] = None,
+          start_offsets: Union[List, Set, None] = None,
+          end_offsets: Union[List, Set, None] = None,
+          ws_offsets: Union[List, Set, None] = None,
+          split_offsets: Union[List, Set, None] = None,
+          ):
+    &#34;&#34;&#34;
+    Try to start at offset start in text, if end is not None, do not match beyond end offset.
+
+    Args:
+        text: the text/string in which to find matches
+        start: the offset where the match must start
+        end: if not None, the maximum allowed end offset (one more than the offset of the last character)
+        longest_only:  if True, return only the longest matches, otherwise return all matches.
+            If None, uses the setting from init.
+        start_offsets: if not None, should be a list or set of possible start offsets. This function will only
+            find a match if the given start offset is valid
+        end_offsets: if not None, should be a list of set of possible end offsets. Only matches ending at a valid
+            offset are considered
+        ws_offsets: if not None, should be a list/set of offsets which contain whitespace. Any offset considered
+            whitespace will get mapped to an actual space character for matching the gazetteer entry
+        split_offsets: if not None, should be a list or set of offsets which are considered splits, i.e. something
+            across no matching is possible
+    Returns:
+        A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+        of the longest match, 0 if there is no match (list of match objects is empty).
+    &#34;&#34;&#34;
+    # NOTE: this method does not check for any start condition (e.g. word start), the caller should do this!
+
+    if longest_only is None:
+        longest_only = self.longest_only
+    matches = []
+    lentext = len(text)
+    if start is None:
+        start = 0
+    if end is None:
+        end = lentext
+    if start &gt;= lentext:
+        return matches, 0
+    if end &gt; lentext:
+        end = lentext
+    if start &gt; end:
+        return matches, 0
+    if start_offsets is not None and start not in start_offsets:
+        return matches, 0
+    cur_chr = self.map_chars_func(text[start])
+    longest_len = 0
+    longest_matchdata = None
+    node = self._root
+    # if the current character is whitespace, no match is possible since a match cannot start with WS
+    if self.is_ws(cur_chr, start, ws_offsets):
+        return matches, 0
+    node = node.children.get(cur_chr)
+    cur_off = start
+    matchdatas = []
+    while node is not None:
+        if node.is_match():
+            cur_end = cur_off + 1
+            # we found a match, but if we have end offsets, also check if the end offset is valid
+            if end_offsets is None or (end_offsets is not None and cur_end in end_offsets):
+                cur_len = cur_end - start
+                v, i = node.data()
+                matchdata = (start, cur_end, text[start: cur_end], v, i)
+                if cur_len &gt; longest_len:
+                    longest_len = cur_len
+                    longest_matchdata = matchdata
+                if not longest_only:
+                    matchdatas.append(matchdata)
+        # if the current node/character corresponds to a whitespace character and compress whitespace is True,
+        # then match any additional whitespace characters in the text
+        # BUT: only if compress_ws is True
+        # BUT: only until we have reached the end of the match area or until we have reached a split character
+        have_ws = self.is_ws(cur_chr, cur_off, ws_offsets)
+        do_break = False
+        while True:
+            cur_off += 1
+            # ok we have reached the end
+            if cur_off &gt;= end:
+                do_break = True
+                break
+            cur_chr = self.map_chars_func(text[cur_off])
+            # we have reached a split
+            if self.is_split(cur_chr, cur_off, split_offsets):
+                do_break = True
+                break
+            # if we did not have a WS char, definitely already break after one time through the above code
+            if not have_ws:
+                break
+            # otherwise we go through this loop again, until we reach some other exit condition (end, split)
+            # tested above or we hit a character that is not a whitespace:
+            if not self.is_ws(cur_chr, cur_off, ws_offsets):
+                break
+        # if we found end/split, end all
+        if do_break:
+            break
+        # before we continue, get node for the character we have now
+        node = node.children.get(cur_chr)
+    if longest_only and longest_matchdata is not None:
+        matchdatas.append(longest_matchdata)
+    # convert the matchdatas list into the match list
+    for matchdata in matchdatas:
+        start, end, text, vals, idxs = matchdata
+        assert len(vals) == len(idxs)
+        if len(vals) == 0:
+            matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+        else:
+            for val, idx, in zip(vals, idxs):
+                features = {}
+                outtype = self.ann_type
+                if idx is not None:
+                    features.update(self.list_features[idx])
+                    outtype = self.list_types[idx]
+                if val is not None:
+                    features.update(val)
+                matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
+    return matches, longest_len</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></b></code>:
+<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
 </li>
 </ul>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch"><code class="flex name class">
-<span>class <span class="ident">StringGazetteerMatch</span></span>
-<span>(</span><span>start, end, match, data, listidxs)</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="stringgazetteermatchstart-end-match-data-listidxs">StringGazetteerMatch(start, end, match, data, listidxs)</h2>
-<p>Create class instance</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>recordclass.datatype.dataobject</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.data"><code class="name">var <span class="ident">data</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.end"><code class="name">var <span class="ident">end</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.listidxs"><code class="name">var <span class="ident">listidxs</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.match"><code class="name">var <span class="ident">match</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.start"><code class="name">var <span class="ident">start</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
@@ -1771,23 +2223,13 @@ of the longest match, 0 if there is no match (list of match objects is empty).</
 <li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.match" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.match">match</a></code></li>
 </ul>
 </li>
-<li>
-<h4><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch">StringGazetteerMatch</a></code></h4>
-<ul class="">
-<li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.data" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.data">data</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.end" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.end">end</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.listidxs" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.listidxs">listidxs</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.match" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.match">match</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.start" href="#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteerMatch.start">start</a></code></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

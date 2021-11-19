@@ -7,19 +7,21 @@ from gatenlp.processing.annotator import Annotator
 import spacy
 
 if int(spacy.__version__.split(".")[0]) < 3:
-    SPACY_IS_PARSED = lambda doc: doc.is_parsed
-    SPACY_IS_TAGGED = lambda doc: doc.is_tagged
-    SPACY_IS_SENTENCED = lambda doc: doc.is_sentenced
-    SPACY_IS_NERED = lambda doc: doc.is_nered
+    SPACY_IS_PARSED = lambda doc: doc.is_parsed   # noqa: E731
+    SPACY_IS_TAGGED = lambda doc: doc.is_tagged   # noqa: E731
+    SPACY_IS_SENTENCED = lambda doc: doc.is_sentenced   # noqa: E731
+    SPACY_IS_NERED = lambda doc: doc.is_nered   # noqa: E731
 else:
-    SPACY_IS_PARSED = lambda doc:  doc.has_annotation("DEP")
-    SPACY_IS_TAGGED = lambda doc: doc.has_annotation("TAG")
-    SPACY_IS_SENTENCED = lambda doc: doc.has_annotation("SENT_START")
-    SPACY_IS_NERED = lambda doc: doc.has_annotation("ENT_IOB")
+    SPACY_IS_PARSED = lambda doc: doc.has_annotation("DEP")  # noqa: E731
+    SPACY_IS_TAGGED = lambda doc: doc.has_annotation("TAG")  # noqa: E731
+    SPACY_IS_SENTENCED = lambda doc: doc.has_annotation("SENT_START")  # noqa: E731
+    SPACY_IS_NERED = lambda doc: doc.has_annotation("ENT_IOB")  # noqa: E731
 
 
 class AnnSpacy(Annotator):
-    """ """
+    """
+    An annotator that runs a Spacy pipeline to annotate a gatenlp document.
+    """
 
     def __init__(
         self,
@@ -118,7 +120,7 @@ def apply_spacy(nlp, gatenlpdoc, setname="", containing_anns=None,
         for ann in annsiter:
             if component_cfg:
                 component_config = {component_cfg: ann.features.to_dict()}
-        
+
             covered = gatenlpdoc[ann.start:ann.end]
             spacydoc = nlp(covered, component_cfg=component_config)
             spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,
@@ -181,7 +183,7 @@ def spacy2gatenlp(
     Returns:
       the new or modified Document
     """
-    
+
     # add_spacetokens:  (Default value = True)
     # not sure how to do this yet
 
@@ -238,12 +240,12 @@ def spacy2gatenlp(
             anntype = space_token_type
         else:
             anntype = token_type
-        annid = annset.add(from_off+start_offset, to_off+start_offset, anntype, fm).id
+        annid = annset.add(from_off + start_offset, to_off + start_offset, anntype, fm).id
         toki2annid[tok.i] = annid
         # print("Added annotation with id: {} for token {}".format(annid, tok.i))
         ws = tok.whitespace_
         if len(ws) > 0:
-            annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {"is_space": True})
+            annset.add(to_off + start_offset, to_off + len(ws) + start_offset, space_token_type, {"is_space": True})
     # if we have a dependency parse, now also add the parse edges
     if SPACY_IS_PARSED(spacydoc) and add_tokens and add_dep:
         for tok in spacydoc:
@@ -257,14 +259,14 @@ def spacy2gatenlp(
                 entname = ent_prefix + ent.label_
             else:
                 entname = ent.label_
-            annset.add(ent.start_char+start_offset, ent.end_char+start_offset, entname, {"lemma": ent.lemma_})
+            annset.add(ent.start_char + start_offset, ent.end_char + start_offset, entname, {"lemma": ent.lemma_})
     if spacydoc.sents and add_sents:
         for sent in spacydoc.sents:
-            annset.add(sent.start_char+start_offset, sent.end_char+start_offset, sentence_type, {})
+            annset.add(sent.start_char + start_offset, sent.end_char + start_offset, sentence_type, {})
     if spacydoc.noun_chunks and add_nounchunks:
         for chunk in spacydoc.noun_chunks:
-            annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
-    for spanType in retrieve_spans:
-        for span in spacydoc.spans[spanType]:
-            annset.add(span.start_char+start_offset, span.end_char+start_offset, spanType, {})
+            annset.add(chunk.start_char + start_offset, chunk.end_char + start_offset, nounchunk_type, {})
+    for span_type in retrieve_spans:
+        for span in spacydoc.spans[span_type]:
+            annset.add(span.start_char + start_offset, span.end_char + start_offset, span_type, {})
     return retdoc

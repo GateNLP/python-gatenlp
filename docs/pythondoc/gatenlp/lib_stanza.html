@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.lib_stanza API documentation</title>
 <meta name="description" content="Support for using stanford stanza (see https://stanfordnlp.github.io/stanza/):
 convert from stanford Stanza output to gatenlp documents and annotations." />
@@ -364,6 +364,25 @@ This modifies the gatenlp document in place.</p>
 <dd>set to use (Default value = "")</dd>
 </dl>
 <p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply_stanza(nlp, gatenlpdoc, setname=&#34;&#34;):
+    &#34;&#34;&#34;Run the stanford stanza pipeline on the gatenlp document and transfer the annotations.
+    This modifies the gatenlp document in place.
+
+    Args:
+      nlp: StanfordNLP pipeline
+      gatenlpdoc: gatenlp document
+      setname: set to use (Default value = &#34;&#34;)
+
+    Returns:
+
+    &#34;&#34;&#34;
+    doc = nlp(gatenlpdoc.text)
+    return stanza2gatenlp(doc, gatenlpdoc=gatenlpdoc, setname=setname)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_stanza.stanza2gatenlp"><code class="name flex">
 <span>def <span class="ident">stanza2gatenlp</span></span>(<span>stanzadoc, gatenlpdoc=None, setname='', token_type='Token', mwt_type='MWT', space_token_type=None, sentence_type='Sentence', add_entities=True, ent_prefix=None)</span>
@@ -399,6 +418,136 @@ to the annotation type as a prefix. (Default value = None)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the new or modified gatenlp document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stanza2gatenlp(
+    stanzadoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    token_type=&#34;Token&#34;,
+    mwt_type=&#34;MWT&#34;,
+    space_token_type=None,
+    sentence_type=&#34;Sentence&#34;,
+    add_entities=True,
+    ent_prefix=None,
+):
+    &#34;&#34;&#34;
+    Convert a Stanford Stanza document to a gatenlp document. If a gatenlp document is already
+    provided, add the annotations from the Stanford Stanza document to it. In this case the
+    original gatenlpdoc is used and gets modified.
+
+    Args:
+        stanzadoc: a Stanford Stanza document
+        gatenlpdoc: if None, a new gatenlp document is created otherwise this
+            document is added to. (Default value = None)
+        setname: the annotation set name to which the annotations get added, empty string
+            for the default annotation set.
+        token_type: the annotation type to use for tokens, if needed (Default value = &#34;Token&#34;)
+        mwt_type: annotation type for multi-word token annotations
+        space_token_type: annotation type for space tokens. If not None, adds space tokens of this type
+            for all characters in the document not covered by tokens.
+        sentence_type: the annotation type to use for sentence anntoations (Default value = &#34;Sentence&#34;)
+        add_entities: if True, add any entities as well (Default value = True)
+        ent_prefix: if None, use the original entity type as annotation type, otherwise add the given string
+            to the annotation type as a prefix. (Default value = None)
+
+    Returns:
+      the new or modified gatenlp document
+
+    &#34;&#34;&#34;
+    if gatenlpdoc is None:
+        retdoc = Document(stanzadoc.text)
+    else:
+        retdoc = gatenlpdoc
+    annset = retdoc.annset(setname)
+    # stanford nlp processes text in sentence chunks, so we do everything per sentence
+    prev_end = 0
+    for sent in stanzadoc.sentences:
+        # go through the tokens: in stanza, each token is a list of dicts, normally there is one dict
+        # which also has the offset information in &#34;misc&#34;, but for multiword tokens, there seems to be
+        # one &#34;header&#34; dict for the range of words which has the offset info and NER label and then
+        # one additional element per word which has all the rest.
+        # For our purposes we create a list of dicts where for normal tokens we just copy the element, but for
+        # multiword tokens we copy over something that has fake offsets and all the features
+        newtokens = []
+        mwtokens = []
+        for t in sent.tokens:
+            t = t.to_dict()
+            if len(t) == 1:
+                # normal token
+                newtokens.append(tok2tok(t[0]))
+            else:
+                # multiword token
+                tokinfo = tok2tok(t[0])  # a dict with field &#34;id&#34; that contains a list of indices of words
+                words = t[1:]   # the rest of the list is words
+                fm = tokinfo.get(&#34;fm&#34;)
+                ner = fm.get(&#34;ner&#34;)
+                text = fm.get(&#34;text&#34;)
+                start = tokinfo[&#34;start&#34;]
+                end = tokinfo[&#34;end&#34;]
+                mwtokens.append(dict(start=start, end=end, ids=t[0][&#34;id&#34;]))
+                # create the spans for the annotations
+                spans = Span.squeeze(start, end, len(words))
+                for i, w in enumerate(words):
+                    tok = tok2tok(w)
+                    tok[&#34;fm&#34;][&#34;ner&#34;] = ner
+                    tok[&#34;fm&#34;][&#34;token_text&#34;] = text
+                    span = spans[i]
+                    tok[&#34;start&#34;] = span.start
+                    tok[&#34;end&#34;] = span.end
+                    newtokens.append(tok)
+        # print(f&#34;\n!!!!!!DEBUG: newtokens={newtokens}&#34;)
+        # now go through the new token list and create annotations
+        idx2annid = {}  # map stanza word id to annotation id
+        starts = []
+        ends = []
+        # offset of any previous token ann, used to insert space tokens between token annotations
+        for t in newtokens:
+            start = t[&#34;start&#34;]
+            end = t[&#34;end&#34;]
+            stanzaid = t[&#34;id&#34;]
+            starts.append(start)
+            ends.append(end)
+            if space_token_type is not None and prev_end &lt; start:
+                annset.add(prev_end, start, space_token_type)
+            annid = annset.add(start, end, token_type, features=t[&#34;fm&#34;]).id
+            prev_end = end
+            idx2annid[str(stanzaid)] = annid
+        for mwtinfo in mwtokens:
+            annids = [idx2annid[str(sid)] for sid in mwtinfo[&#34;ids&#34;]]
+            annset.add(mwtinfo[&#34;start&#34;], mwtinfo[&#34;end&#34;], mwt_type, dict(word_ids=annids))
+        # print(f&#34;\n!!!!!!DEBUG: idx2annid={idx2annid}&#34;)
+        # create a sentence annotation from beginning of first word to end of last
+        sentid = annset.add(starts[0], ends[-1], sentence_type).id
+        # now replace the head index with the corresponding annid, the head index &#34;0&#34; is
+        # mapped to the sentence annotation
+        idx2annid[&#34;0&#34;] = sentid
+        for annid in list(idx2annid.values()):
+            ann = annset.get(annid)
+            hd = ann.features.get(&#34;head&#34;)
+            if hd is not None:
+                headId = idx2annid.get(str(hd))
+                if headId is None:
+                    logger.error(
+                        f&#34;Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}&#34;
+                    )
+                else:
+                    ann.features[&#34;head&#34;] = headId
+    # if necessary add a final space token
+    if space_token_type is not None and prev_end &lt; len(retdoc.text):
+        annset.add(prev_end, len(retdoc.text), space_token_type)
+    # add the entities
+    if add_entities:
+        for e in stanzadoc.entities:
+            if ent_prefix:
+                anntype = ent_prefix + e.type
+            else:
+                anntype = e.type
+            annset.add(e.start_char, e.end_char, anntype)
+    return retdoc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_stanza.tok2tok"><code class="name flex">
 <span>def <span class="ident">tok2tok</span></span>(<span>tok)</span>
@@ -413,6 +562,61 @@ start, end and id keys and everything else in a nested dict "fm".</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>what we use to create a Token annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tok2tok(tok):
+    &#34;&#34;&#34;
+    Create a copy of a Stanza token, prepared for creating an annotation: this is a dict that has
+    start, end and id keys and everything else in a nested dict &#34;fm&#34;.
+
+    Args:
+      tok: original stanza token
+
+    Returns:
+      what we use to create a Token annotation
+
+    &#34;&#34;&#34;
+    newtok = {}
+    fm = {}
+    newtok[&#34;fm&#34;] = fm
+    for k, v in tok.items():
+        if k == &#34;start_char&#34;:
+            newtok[&#34;start&#34;] = v
+        elif k == &#34;end_char&#34;:
+            newtok[&#34;end&#34;] = v
+        elif k == &#34;feats&#34;:
+            for feat in v.split(&#34;|&#34;):
+                k, v = feat.split(&#34;=&#34;)
+                fm[k] = v
+        elif k == &#34;id&#34;:
+            newtok[k] = v
+        elif k == &#34;misc&#34;:
+            msettings = v.split(&#34;|&#34;)
+            ostart = None
+            oend = None
+            othersettings = []
+            for ms in msettings:
+                k, v = ms.split(&#34;=&#34;)
+                if k == &#34;start_char&#34;:
+                    ostart = int(v)
+                elif k == &#34;end_char&#34;:
+                    oend = int(v)
+                else:
+                    othersettings.append(ms)
+            if ostart is not None:
+                newtok[&#34;start&#34;] = ostart
+            if oend is not None:
+                newtok[&#34;end&#34;] = oend
+            if othersettings:
+                for os in othersettings:
+                    k, v = ms.split(&#34;=&#34;)
+                    fm[k] = v
+        else:
+            fm[k] = v
+    return newtok</code></pre>
+</details>
 </dd>
 </dl>
 </section>
@@ -611,7 +815,7 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

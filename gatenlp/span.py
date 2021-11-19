@@ -342,9 +342,9 @@ class Span:
         l = end - start  # length of the containing span
         assert l > 0
         if n == l:
-            return [Span(start+i, start+i+1) for i in range(n)]
+            return [Span(start + i, start + i + 1) for i in range(n)]
         elif n < l:
-            slen = l//n
+            slen = l // n
             rem = l - slen * n
             spans = []
             soff = start
@@ -357,8 +357,7 @@ class Span:
             return spans
         else:  # n > l, more to embed than there are characters
             rem = n - l
-            spans = [Span(start+i, start+i+1) for i in range(l)]
+            spans = [Span(start + i, start + i + 1) for i in range(l)]
             for i in range(rem):
-                spans.append(Span(end-1, end))
+                spans.append(Span(end - 1, end))
             return spans
-

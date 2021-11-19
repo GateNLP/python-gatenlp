@@ -156,20 +156,21 @@ class TestStringRegexAnnotator:
         # test if match_next works
         ret = annt.match_next(pat0, "some text 2021-12-21 some more")
         assert ret is not None
-        assert len(ret) == 3
-        start, end, groups = ret
+        assert len(ret) == 4
+        start, end, groups, flag = ret
         assert start == 10
         assert end == 20
         assert groups is not None
+        assert not flag
         assert len(groups) == 4
         assert groups[0] == (10, 20, "2021-12-21")
 
-        ret = annt.find_all("asdf")
+        ret = list(annt.find_all("asdf"))
         assert len(ret) == 0
-        ret = annt.find_all("asdf 2013-12-21 dfdf ")
+        ret = list(annt.find_all("asdf 2013-12-21 dfdf "))
         assert len(ret) == 4
 
-        ret = annt.find_all("asdf 02/09/2013 dfdf ", select_rules="last")
+        ret = list(annt.find_all("asdf 02/09/2013 dfdf ", select_rules="last"))
         assert ret is not None
         assert len(ret) == 1
         m = ret[0]
@@ -180,7 +181,7 @@ class TestStringRegexAnnotator:
         assert m.features["type"] == "us"
         assert m.type == "Date"
 
-        ret = annt.find_all("asdf 02/09/2013 dfdf ", select_rules="first")
+        ret = list(annt.find_all("asdf 02/09/2013 dfdf ", select_rules="first"))
         assert ret is not None
         assert len(ret) == 1
         m = ret[0]
@@ -191,7 +192,7 @@ class TestStringRegexAnnotator:
         assert m.features["type"] == "euro"
         assert m.type == "Date"
 
-        ret = annt.find_all("asdf 02/09/2013 dfdf ", select_rules="all")
+        ret = list(annt.find_all("asdf 02/09/2013 dfdf ", select_rules="all"))
         assert ret is not None
         assert len(ret) == 2
         m = ret[0]

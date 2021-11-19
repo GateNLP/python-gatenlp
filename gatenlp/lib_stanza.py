@@ -289,13 +289,11 @@ def stanza2gatenlp(
             ann = annset.get(annid)
             hd = ann.features.get("head")
             if hd is not None:
-                headId = idx2annid.get(str(hd))
-                if headId is None:
-                    logger.error(
-                        f"Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}"
-                    )
+                head_id = idx2annid.get(str(hd))
+                if head_id is None:
+                    logger.error(f"Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}")
                 else:
-                    ann.features["head"] = headId
+                    ann.features["head"] = head_id
     # if necessary add a final space token
     if space_token_type is not None and prev_end < len(retdoc.text):
         annset.add(prev_end, len(retdoc.text), space_token_type)

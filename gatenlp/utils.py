@@ -350,5 +350,3 @@ def get_nested(adict, name, default=None, silent=False):
         return default
     else:
         return ret
-
-

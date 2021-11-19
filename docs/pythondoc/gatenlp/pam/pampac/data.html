@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.pam.pampac.data API documentation</title>
 <meta name="description" content="Module for PAMPAC data structures …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -884,7 +884,7 @@ work depending on the exact patterns used.</dd>
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.pam.pampac.data.Context.annset"><code class="name">property/get <span class="ident">annset</span></code></dt>
+<dt id="gatenlp.pam.pampac.data.Context.annset"><code class="name">var <span class="ident">annset</span></code></dt>
 <dd>
 <div class="desc"><p>Return the annotations as a set.</p>
 <h2 id="returns">Returns</h2>
@@ -921,6 +921,22 @@ def annset(self):
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if we are at end of anns</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at_endofanns(self, location):
+    &#34;&#34;&#34;
+    Returns true if the location represents the end of anns location
+
+    Args:
+        location: location
+
+    Returns:
+        True if we are at end of anns
+    &#34;&#34;&#34;
+    return location.ann_location &gt;= len(self.anns)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.at_endoftext"><code class="name flex">
 <span>def <span class="ident">at_endoftext</span></span>(<span>self, location)</span>
@@ -934,14 +950,45 @@ def annset(self):
 </dl>
 <h2 id="returns">Returns</h2>
 <p>True if we are at end of text</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at_endoftext(self, location):
+    &#34;&#34;&#34;
+    Returns true if the location represents the end of text location
+
+    Args:
+        location: location
+
+    Returns:
+        True if we are at end of text
+    &#34;&#34;&#34;
+    return location.text_location &gt;= self.end</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.get_ann"><code class="name flex">
-<span>def <span class="ident">get_ann</span></span>(<span>self, location) ‑> Union[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>, NoneType]</span>
+<span>def <span class="ident">get_ann</span></span>(<span>self, location) ‑> Optional[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the ann at the given location, or None if there is none (mainly for the end-of-anns index).</p>
 <h2 id="returns">Returns</h2>
 <p>annotation or None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_ann(self, location) -&gt; Union[Annotation, None]:
+    &#34;&#34;&#34;
+    Return the ann at the given location, or None if there is none (mainly for the end-of-anns index).
+
+    Returns:
+        annotation or None
+    &#34;&#34;&#34;
+    if location.ann_location &gt;= len(self.anns):
+        return None
+    return self.anns[location.ann_location]</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.inc_location"><code class="name flex">
 <span>def <span class="ident">inc_location</span></span>(<span>self, location, by_offset=None, by_index=None, to_offset=None)</span>
@@ -968,6 +1015,71 @@ offset with the annotation index set to the next annotation at or after that off
 </dl>
 <h2 id="returns">Returns</h2>
 <p>new location</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inc_location(self, location, by_offset=None, by_index=None, to_offset=None):
+    &#34;&#34;&#34;
+    Return a new location which represents the given location incremented by either the given number of index
+    count (usually 1), or by the given offset length. Only one of the by parameters should be specified.
+
+    If the update occurs by offset, then the annotation index is updated to that of the next index with
+    a start offset equal or larger than the updated text offset.  This may be the end of annotations index.
+    If the text offset hits the end of text offset, the annotation index is set to the end of annotations index.
+
+    If the update occurs by index, then the text offset is updated to the offset corresponding to the end offset
+    of the annotation, if there is one.
+
+
+    Args:
+        location:
+        by_offset: the number of text characters to increment the text offset by
+        by_index:  the number of annotations to increment the index by
+        to_offset: if given, the by_ arguments are ignored and instead the offset is set to the given
+            offset with the annotation index set to the next annotation at or after that offset
+
+    Returns:
+        new location
+    &#34;&#34;&#34;
+    newloc = Location(
+        text_location=location.text_location, ann_location=location.ann_location
+    )
+    if to_offset is not None:
+        assert to_offset &lt; self.end
+        assert to_offset &gt;= self.start
+        newloc.text_location = to_offset
+        newloc.ann_location = self.nextidx4offset(
+            location, newloc.text_location
+        )
+    elif by_index is not None:
+        # get the annotation before the one we want to point at next, so we get the end offset of the
+        # last annotation consumed
+        newloc.ann_location += by_index - 1
+        ann = self.get_ann(location)
+        # if we already are at the end of the annotations, just leave everything as it is
+        if not ann:
+            return location
+        newloc.text_location = ann.end
+        # this is now the index of the next ann or the end of anns index
+        newloc.ann_location += 1
+    else:
+        # update by text offset
+        # print(f&#34;DEBUG Updating by text offset: {by_offset}, current loc is {newloc.text_location}&#34;)
+        if newloc.text_location + by_offset &gt;= self.end:
+            # if we reach the end of the text, update the annotation index to end of annotations as well
+            newloc.text_location = self.end
+            newloc.ann_location = len(self.anns)
+        else:
+            # otherwise try to find the next matching annotation
+            newloc.text_location += by_offset
+            newloc.ann_location = self.nextidx4offset(
+                location, newloc.text_location
+            )
+            # if we got end of annotations index, we do NOT update the text to end of text!
+            # we could still want to match something in the text after the last annotation.
+    return newloc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.nextidx4offset"><code class="name flex">
 <span>def <span class="ident">nextidx4offset</span></span>(<span>self, location, offset, next_ann=False)</span>
@@ -988,6 +1100,38 @@ If false keeps the current one if it is still the next one.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>annotation index</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nextidx4offset(self, location, offset, next_ann=False):
+    &#34;&#34;&#34;
+    Return the index of the next annotation that starts at or after the given text offset.
+    If no such annotation exists the end of annotations index (equal to length of annotations) is returned.
+
+    Args:
+        location: current location, the annotation is searched from the annotation index following the one in the
+           current location
+        offset: offset to look for
+        next_ann: if True, always finds the NEXT annotation after the one pointed at with the current location.
+           If false keeps the current one if it is still the next one.
+
+    Returns:
+        annotation index
+    &#34;&#34;&#34;
+    idx = location.ann_location
+    # print(f&#34;DEBUG Trying to find next idx for curlocation={location} and curidx={idx}, offset={offset}&#34;)
+    if next_ann:
+        idx += 1
+    while True:
+        if idx &gt;= len(self.anns):
+            return len(self.anns)
+        ann = self.anns[idx]
+        # print(f&#34;DEBUG Checking ann={ann}&#34;)
+        if ann.start &gt;= offset:
+            return idx
+        idx += 1</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.update_location_byindex"><code class="name flex">
 <span>def <span class="ident">update_location_byindex</span></span>(<span>self, location)</span>
@@ -1002,6 +1146,30 @@ annotation or the end of the document.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a new location with the text offset updated</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_location_byindex(self, location):
+    &#34;&#34;&#34;
+    Update the passed location from the annotation index and make sure it points to the end of the current
+    annotation or the end of the document.
+
+    Args:
+        location: the location to update
+
+    Returns:
+        a new location with the text offset updated
+    &#34;&#34;&#34;
+    if location.ann_location == len(self.anns):
+        # we already are beyond the last annotation so we set the text offset to beyond the text
+        return Location(len(self.doc.text), location.ann_location)
+    else:
+        # set the text location to the end of the current annotation
+        return Location(
+            self.anns[location.ann_location].end, location.ann_location
+        )</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Context.update_location_byoffset"><code class="name flex">
 <span>def <span class="ident">update_location_byoffset</span></span>(<span>self, location)</span>
@@ -1016,6 +1184,26 @@ skipped until the start offset of the annotation is at or past the text offset.<
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a new location with the annotation index updated</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_location_byoffset(self, location):
+    &#34;&#34;&#34;
+    Update the passed location so that the annotation index is updated by the text offset: all annotations are
+    skipped until the start offset of the annotation is at or past the text offset.
+
+    Args:
+        location: the location to update
+
+    Returns:
+        a new location with the annotation index updated
+    &#34;&#34;&#34;
+    for i in range(location.ann_location, len(self.anns)):
+        if self.anns[i].start &gt;= location.text_location:
+            return Location(location.text_location, i)
+    return Location(location.text_location, len(self.anns))</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -1152,6 +1340,33 @@ the context should not get modified after the failure is constructed.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>String with information about the failure</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def describe(self, indent=4, level=0):
+    &#34;&#34;&#34;
+    Return a string with information about the failure.
+
+    Args:
+        indent: number of characters to indent for each recursive failure.
+        level: recursive level of failure
+
+    Returns:
+        String with information about the failure
+    &#34;&#34;&#34;
+    lead = &#34; &#34; * indent * level
+    desc = (
+        f&#34;{lead}{self._parser} at {self._cur_text}/{self._cur_ann}: &#34;
+        f&#34;{self.message}&#34;
+    )
+    tail = &#34;&#34;
+    if self._causes:
+        tail = f&#34;\n{lead}Caused by:\n&#34; + &#34;\n&#34;.join(
+            x.describe(indent, level + 1) for x in self._get_causes()
+        )
+    return desc + tail</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Failure.issuccess"><code class="name flex">
 <span>def <span class="ident">issuccess</span></span>(<span>self)</span>
@@ -1160,6 +1375,20 @@ the context should not get modified after the failure is constructed.</dd>
 <div class="desc"><p>Method for success and failure results which indicates if we have a success or failure.</p>
 <h2 id="returns">Returns</h2>
 <p>False</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def issuccess(self):
+    &#34;&#34;&#34;
+    Method for success and failure results which indicates if we have a success or failure.
+
+    Returns:
+        False
+
+    &#34;&#34;&#34;
+    return False</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -1319,12 +1548,35 @@ associated with the result, this can be a single item or a list of items.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Yields all the annotations, if any, in the results matches.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def anns4matches(self):
+    &#34;&#34;&#34;
+    Yields all the annotations, if any, in the results matches.
+    &#34;&#34;&#34;
+    for mtch_ in self.matches:
+        tmp = mtch_.get(&#34;ann&#34;)
+        if tmp:
+            yield tmp</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Result.matches4name"><code class="name flex">
 <span>def <span class="ident">matches4name</span></span>(<span>self, name)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a list of match info dictionaries with the given name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def matches4name(self, name):
+    &#34;&#34;&#34;
+    Return a list of match info dictionaries with the given name.
+    &#34;&#34;&#34;
+    return [m for m in self.matches if m.get(&#34;name&#34;) == name]</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -1512,6 +1764,51 @@ result, the first one of those in the list is returned.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the filtered result or all results</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def select_result(results, matchtype=&#34;first&#34;):
+    &#34;&#34;&#34;
+    Return the result described by parameter matchtype.
+
+    If &#34;all&#34; returns the whole list of matches.
+
+    Args:
+        results: list of results to select from
+        matchtype: one of  &#34;first&#34;, &#34;shortest&#34;, &#34;longest&#34;, &#34;all&#34;.
+            If there is more than one longest or shortest
+            result, the first one of those in the list is returned.
+
+    Returns:
+        the filtered result or all results
+    &#34;&#34;&#34;
+    if matchtype is None:
+        matchtype = &#34;first&#34;
+    if matchtype == &#34;all&#34;:
+        return results
+    elif matchtype == &#34;first&#34;:
+        return results[0]
+    elif matchtype == &#34;longest&#34;:
+        result = results[0]
+        loc = result.location
+        for res in results:
+            if res.location.text_location &gt; loc.text_location:
+                loc = res.location
+                result = res
+        return result
+    elif matchtype == &#34;shortest&#34;:
+        result = results[0]
+        loc = result.location
+        for res in results:
+            if res.location.text_location &lt; loc.text_location:
+                loc = res.location
+                result = res
+        return result
+    else:
+        raise Exception(f&#34;Not a valid value for matchtype: {matchtype}&#34;)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1523,6 +1820,19 @@ result, the first one of those in the list is returned.</dd>
 <div class="desc"><p>Method for success and failure results which indicates if we have a success or failure.</p>
 <h2 id="returns">Returns</h2>
 <p>True</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def issuccess(self):
+    &#34;&#34;&#34;
+    Method for success and failure results which indicates if we have a success or failure.
+
+    Returns:
+        True
+    &#34;&#34;&#34;
+    return True</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Success.pprint"><code class="name flex">
 <span>def <span class="ident">pprint</span></span>(<span>self, file=None)</span>
@@ -1534,6 +1844,28 @@ result, the first one of those in the list is returned.</dd>
 <dt><strong><code>file</code></strong></dt>
 <dd>open file handle for use with print.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pprint(self, file=None):  # pragma: no cover
+    &#34;&#34;&#34;
+    Pretty print the success instance to the file or stdout if no file is specified.
+
+    Args:
+        file: open file handle for use with print.
+    &#34;&#34;&#34;
+    for idx, res in enumerate(self._results):
+        if file:
+            print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
+        else:
+            print(f&#34;Result {idx}, location={res.location}:&#34;, file=file)
+        for jdx, mtch_ in enumerate(res.matches):
+            if file:
+                print(f&#34;  {jdx}: {mtch_}&#34;, file)
+            else:
+                print(f&#34;  {jdx}: {mtch_}&#34;, file)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.data.Success.result"><code class="name flex">
 <span>def <span class="ident">result</span></span>(<span>self, matchtype='first')</span>
@@ -1550,6 +1882,24 @@ result, the first one of those in the list is returned.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the filtered result or all results</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def result(self, matchtype=&#34;first&#34;):
+    &#34;&#34;&#34;
+    Return the result described by parameter matchtype. If &#34;all&#34; returns the whole list of matches.
+
+    Args:
+        matchtype: one of  &#34;first&#34;, &#34;shortest&#34;, &#34;longest&#34;, &#34;all&#34;.
+            If there is more than one longest or shortest
+            result, the first one of those in the list is returned.
+
+    Returns:
+        the filtered result or all results
+    &#34;&#34;&#34;
+    return Success.select_result(self._results, matchtype)</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -1614,7 +1964,7 @@ result, the first one of those in the list is returned.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

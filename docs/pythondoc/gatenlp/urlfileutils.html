@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.urlfileutils API documentation</title>
 <meta name="description" content="Module for functions that help reading binary and textual data from either URLs or local files." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -171,6 +171,23 @@ def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the bytes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bytes_from_url(url):  # pragma: no cover
+    &#34;&#34;&#34;
+    Reads bytes from url.
+
+    Args:
+      url: the URL
+
+    Returns:
+        the bytes
+    &#34;&#34;&#34;
+    req = requests.get(url)
+    return req.content</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.urlfileutils.get_str_from_url"><code class="name flex">
 <span>def <span class="ident">get_str_from_url</span></span>(<span>url, encoding=None)</span>
@@ -186,6 +203,25 @@ def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_str_from_url(url, encoding=None):  # pragma: no cover
+    &#34;&#34;&#34;Read a string from the URL.
+
+    Args:
+      url: some URL
+      encoding: override the encoding that would have determined automatically (Default value = None)
+
+    Returns:
+        the string
+    &#34;&#34;&#34;
+    req = requests.get(url)
+    if encoding is not None:
+        req.encoding = encoding
+    return req.text</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.urlfileutils.is_url"><code class="name flex">
 <span>def <span class="ident">is_url</span></span>(<span>ext)</span>
@@ -201,6 +237,40 @@ If ext is None, returns None, None.</p>
 <h2 id="returns">Returns</h2>
 <p>a tuple (True, urlstring)
 or (False,pathstring)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_url(ext):
+    &#34;&#34;&#34;
+    Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
+    If ext is None, returns None, None.
+
+    Args:
+      ext: something that represents an external resource: string, url parse, pathlib path object ...
+
+    Returns:
+        a tuple (True, urlstring)  or (False,pathstring)
+
+    &#34;&#34;&#34;
+    if ext is None:
+        return None, None
+    if isinstance(ext, str):
+        if ext.startswith(&#34;http://&#34;) or ext.startswith(&#34;https://&#34;):
+            return True, ext
+        else:
+            # for now, if we have ext starting with file:// we just remove that part and assume the
+            # rest is supposed to be a proper file path
+            if ext.startswith(&#34;file://&#34;):
+                ext = ext[7:]
+            return False, ext
+    elif isinstance(ext, Path):
+        return False, str(ext)
+    elif isinstance(ext, ParseResult):
+        return True, ext.geturl()
+    else:
+        raise Exception(f&#34;Odd type: {ext}&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.urlfileutils.stream_from"><code class="name flex">
 <span>def <span class="ident">stream_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
@@ -217,6 +287,38 @@ in text mode with the given encoding.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>open stream or None if we cannot determine if it is an URL or file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+    &#34;&#34;&#34;
+    Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
+    in text mode with the given encoding.
+
+    Args:
+        url_or_file: URL or file
+        encoding: if None, open in binary mode, otherwise in text mode with this encoding
+
+    Returns:
+        open stream or None if we cannot determine if it is an URL or file
+
+    &#34;&#34;&#34;
+    isurl, extstr = is_url(url_or_file)
+    if isurl is None:
+        return
+    if isurl:
+        tmpfp = urlopen(extstr)
+        if encoding is not None:
+            return TextIOWrapper(tmpfp, encoding=encoding)
+        else:
+            return tmpfp
+    else:
+        if encoding is not None:
+            return open(extstr, &#34;rt&#34;, encoding=encoding)
+        else:
+            return open(extstr, &#34;rb&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.urlfileutils.yield_lines_from"><code class="name flex">
 <span>def <span class="ident">yield_lines_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
@@ -232,6 +334,32 @@ or a pathlib path</dd>
 <dt><strong><code>encoding</code></strong></dt>
 <dd>the encoding to use</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def yield_lines_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+    &#34;&#34;&#34;
+    Yields lines of text from either a file or an URL
+
+    Args:
+        url_or_file: either a file path or URL. If this is a string, then it is interpreted as an URL
+            only if it starts with http:// or https://, otherwise it can be a parsed urllib url
+            or a pathlib path
+        encoding: the encoding to use
+    &#34;&#34;&#34;
+    isurl, extstr = is_url(url_or_file)
+    if isurl is None:
+        return
+    if isurl:
+        for line in urlopen(extstr):
+            line = line.decode(encoding)
+            yield line
+    else:
+        with open(extstr, &#34;rt&#34;, encoding=encoding) as infp:
+            for line in infp:
+                yield line</code></pre>
+</details>
 </dd>
 </dl>
 </section>
@@ -262,7 +390,7 @@ or a pathlib path</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

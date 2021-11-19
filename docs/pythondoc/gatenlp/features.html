@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.features API documentation</title>
 <meta name="description" content="Module that implements class Feature for representing features." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -460,6 +460,33 @@ copy of any original dictionary object. If True, all the values are deep-copied.
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the Features instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_dict(thedict, deepcopy=False, memo=None):
+    &#34;&#34;&#34;
+    Create a Features instance from a dictionary. If deepcopy is True, a deepcopy is created.
+
+    NOTE: no checks are done to make sure that feature names are string only!
+
+    Args:
+      thedict: the dictionary from which to create the Features.
+      deepcopy: if True and copy is True, use a deep copy of the dictionary (Default value = False)
+      memo: if deepcopy is True, the memo object to use for deepcopying
+
+    Returns:
+      the Features instance
+
+    &#34;&#34;&#34;
+    ret = Features()
+    if deepcopy:
+        ret.data = lib_copy.deepcopy(thedict, memo=memo)
+    else:
+        ret.data = thedict.copy()
+    return ret</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -469,6 +496,18 @@ copy of any original dictionary object. If True, all the values are deep-copied.
 </code></dt>
 <dd>
 <div class="desc"><p>Remove all features.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear(self):
+    &#34;&#34;&#34;
+    Remove all features.
+    &#34;&#34;&#34;
+    if self._logger:
+        self._logger(&#34;features:clear&#34;)
+    self.data.clear()</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.features.Features.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, deep=False)</span>
@@ -486,12 +525,48 @@ any logging!).</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a dictionary with the features</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self, deep=False):
+    &#34;&#34;&#34;
+    Return a shallow (or deep if deep=True) copy of the features. The result is another
+    instance of Features which is detached from the owner and which does not log
+    the changes. However, if the copy is shallow and feature values are references
+    to mutable objects, they can still get modified in the original set (without
+    any logging!).
+
+    Args:
+      deep: if True return a deep instead of a shallow copy of the features. (Default value = False)
+
+    Returns:
+      a dictionary with the features
+    &#34;&#34;&#34;
+    ret = Features()
+    if deep:
+        ret.data = deep(self.data)
+    else:
+        ret.data = self.data.copy()
+    ret._logger = None
+    return ret</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.features.Features.names"><code class="name flex">
 <span>def <span class="ident">names</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a list of all feature names.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def names(self):
+    &#34;&#34;&#34;
+    Returns a list of all feature names.
+    &#34;&#34;&#34;
+    return list(self.keys())</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.features.Features.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self, deepcopy=False, include_internal=False, memo=None)</span>
@@ -516,6 +591,41 @@ are included in the result dictionary, these features are usually dropped.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the dict representation of the features</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self, deepcopy=False, include_internal=False, memo=None):
+    &#34;&#34;&#34;
+    Return a dictionary representation of the features. The returned dictionary is always a shallow
+    copy of the original dictionary of features, but will be a deep copy if the parameter `deepcopy` is True.
+
+    Note:
+        Features with names that start with two underscores are considered &#34;internal/transient&#34; features
+        and not saved. Features with names that start with one underscore are considered &#34;internal&#34; but
+        do get saved/serialized.
+
+    Args:
+        deepcopy: if True, the dictionary is a deep copy so that mutable objects
+            in the original are unaffected if they get modified in the copy. (Default value = False)
+        include_internal: if True, all features, even those with names that start with double underscore (&#34;__&#34;)
+            are included in the result dictionary, these features are usually dropped.
+        memo: if deepcopy is True, the memo object to use for deepcopy, if any
+
+    Returns:
+      the dict representation of the features
+
+    &#34;&#34;&#34;
+    ret = dict()
+    for k, v in self.data.items():
+        if not include_internal and k.startswith(&#34;__&#34;):
+            continue
+        if deepcopy:
+            ret[k] = lib_copy.deepcopy(v)
+        else:
+            ret[k] = v
+    return ret</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -551,7 +661,7 @@ are included in the result dictionary, these features are usually dropped.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

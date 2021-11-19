@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.processing.gazetteer.base API documentation</title>
 <meta name="description" content="Base class for all gazetteer annotators" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -40,35 +40,15 @@ class GazetteerBase(Annotator):
     def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)
 
-
-class StringGazetteerBase(GazetteerBase):
-    &#34;&#34;&#34;
-    A gazetteer annotator the can be applied to strings.
-    &#34;&#34;&#34;
-    def find_all(self, text: str,
-                 longest_only: Union[None, bool] = None,
-                 skip_longest: Union[None, bool] = None,
-                 start_offsets: Union[List, Set, None] = None,
-                 end_offsets: Union[List, Set, None] = None,
-                 ws_offsets: Union[List, Set, None] = None,
-                 split_offsets: Union[List, Set, None] = None,):
-        pass
-
-
 Match = structclass(
-    # TODO: why do we need features and types to be lists? Can we not generate separate Match instances
-    #   for each of those, with the same offsets?????
-    # A description of a match. Each match can correspond to one or more data entries. For each data entry,
-    # there is a features dict and a type name.
+    # A description of a match.
     # Fields:
     # start: the offset or index (in case matching a token list) where the match starts
     # end: the offset or index one past where the match ends
-    # match: the matched string or tokenlist
-    # features: a list of feature dicts
-    # types: a list of type names
-    # the features and types list always have the same length, contain at least one element and 
-    # elements with the same index correspond to each other.
-    &#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;features&#34;, &#34;types&#34;)
+    # match: the matched string
+    # features: the features as merged from the match rule/entry and the list features
+    # type : the type as specified in the rule
+    &#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;features&#34;, &#34;type&#34;)
 )</code></pre>
 </details>
 </section>
@@ -102,7 +82,8 @@ inheritance.</p></div>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></li>
+<li><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer" href="stringgazetteer.html#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer">StringGazetteer</a></li>
+<li><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator" href="stringregex.html#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator">StringRegexAnnotator</a></li>
 <li><a title="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer" href="tokengazetteer.html#gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer">TokenGazetteer</a></li>
 </ul>
 <h3>Inherited members</h3>
@@ -120,11 +101,11 @@ inheritance.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.base.Match"><code class="flex name class">
 <span>class <span class="ident">Match</span></span>
-<span>(</span><span>start, end, match, features, types)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="matchstart-end-match-features-types">Match(start, end, match, features, types)</h2>
-<p>Create class instance</p></div>
+<div class="desc"><h2 id="matchstart-end-match-features-type">Match(start, end, match, features, type)</h2>
+<p>Create class Match instance</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>recordclass.datatype.dataobject</li>
@@ -133,80 +114,25 @@ inheritance.</p></div>
 <dl>
 <dt id="gatenlp.processing.gazetteer.base.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.base.Match.features"><code class="name">var <span class="ident">features</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.base.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
 <dt id="gatenlp.processing.gazetteer.base.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match.types"><code class="name">var <span class="ident">types</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.Match.type"><code class="name">var <span class="ident">type</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
 </dd>
 </dl>
-</dd>
-<dt id="gatenlp.processing.gazetteer.base.StringGazetteerBase"><code class="flex name class">
-<span>class <span class="ident">StringGazetteerBase</span></span>
-</code></dt>
-<dd>
-<div class="desc"><p>A gazetteer annotator the can be applied to strings.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class StringGazetteerBase(GazetteerBase):
-    &#34;&#34;&#34;
-    A gazetteer annotator the can be applied to strings.
-    &#34;&#34;&#34;
-    def find_all(self, text: str,
-                 longest_only: Union[None, bool] = None,
-                 skip_longest: Union[None, bool] = None,
-                 start_offsets: Union[List, Set, None] = None,
-                 end_offsets: Union[List, Set, None] = None,
-                 ws_offsets: Union[List, Set, None] = None,
-                 split_offsets: Union[List, Set, None] = None,):
-        pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
-<li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer" href="stringgazetteer.html#gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer">StringGazetteer</a></li>
-<li><a title="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator" href="stringregex.html#gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator">StringRegexAnnotator</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text: str, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, ws_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></b></code>:
-<ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -234,13 +160,7 @@ inheritance.</p></div>
 <li><code><a title="gatenlp.processing.gazetteer.base.Match.features" href="#gatenlp.processing.gazetteer.base.Match.features">features</a></code></li>
 <li><code><a title="gatenlp.processing.gazetteer.base.Match.match" href="#gatenlp.processing.gazetteer.base.Match.match">match</a></code></li>
 <li><code><a title="gatenlp.processing.gazetteer.base.Match.start" href="#gatenlp.processing.gazetteer.base.Match.start">start</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.types" href="#gatenlp.processing.gazetteer.base.Match.types">types</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></code></h4>
-<ul class="">
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all" href="#gatenlp.processing.gazetteer.base.StringGazetteerBase.find_all">find_all</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.Match.type" href="#gatenlp.processing.gazetteer.base.Match.type">type</a></code></li>
 </ul>
 </li>
 </ul>
@@ -249,7 +169,7 @@ inheritance.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

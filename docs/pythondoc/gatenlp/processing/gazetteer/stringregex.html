@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.processing.gazetteer.stringregex API documentation</title>
 <meta name="description" content="Module that defines classes for matching annotators other than gazetteers which match e.g. regular expressions
 of strings or annotations." />
@@ -36,19 +36,17 @@ of strings or annotations.
 import re
 from typing import Union, List, Set, Optional, Dict, Iterable, Any, Tuple
 from collections import namedtuple
-from recordclass import structclass
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import StringGazetteerBase
-
-# TODO: use named tuple instead of tuple for each action, to make it easier to keep track of which field used?
-
+from gatenlp.processing.gazetteer.stringgazetteer import StringGazetteer
+from gatenlp.processing.gazetteer.base import GazetteerBase, Match
 
 # rule body line:
 # one or more comma separated group numbers followed by a &#34;=&gt;&#34; followed by feature assignments
-# each feature assignment is a name followed by &#34;=&#34; followed by some non whitespace
-# featuer assignments are comma-separated (whitespace can be added)
+# each feature assignment is basically whatever can be inside a python &#34;dict(...)&#34; constructor.
 # e.g. 0,3 =&gt; Lookup f1=2, f2 = &#34;something&#34; , f3=True
+
 PAT_RULE_BODY_LINE = re.compile(r&#34;^\s*([0-9]+(?:,[0-9]+)*)\s*=&gt;\s*(\w+)\s*(.*)$&#34;)
+PAT_GAZ_RULE_LINE = re.compile(r&#34;^\s*GAZETTEER\s*=&gt;\s*(.*)$&#34;)
 PAT_MACRO_LINE = re.compile(r&#34;\s*([a-zA-Z0-9_]+)=(\S+)\s*$&#34;)
 PAT_SUBST = re.compile(r&#34;{{\s*[a-zA-Z0-9_]+\s*}}&#34;)
 
@@ -57,21 +55,13 @@ GroupNumber = namedtuple(&#34;GroupNumber&#34;, [&#34;n&#34;])
 GLOBALS = {f&#34;G{i}&#34;: GroupNumber(i) for i in range(99)}
 
 Rule = namedtuple(&#34;Rule&#34;, [&#34;pattern&#34;, &#34;actions&#34;])
-Action = namedtuple(&#34;Action&#34;, [&#34;groupnumbers&#34;, &#34;typename&#34;, &#34;features&#34;])
 
-Match = structclass(
-    # A description of a match.
-    # Fields:
-    # start: the offset or index (in case matching a token list) where the match starts
-    # end: the offset or index one past where the match ends
-    # match: the matched string
-    # features: the features as merged from the match rule/entry and the list features
-    # type : the type as specified in the rule
-    &#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;features&#34;, &#34;type&#34;)
-)
+# Note: groupnumbers is none for the (single) Action we get for a GAZETTEER rule.
+Action = namedtuple(&#34;Action&#34;, [&#34;groupnumbers&#34;, &#34;typename&#34;, &#34;features&#34;])
 
 
 def one_or(someiterator: Iterable, default: Any = None) -&gt; Any:
+    &#34;&#34;&#34;Return the next element in the iterator or the defaul value if there is no next element.&#34;&#34;&#34;
     for el in someiterator:
         return el
     return default
@@ -121,17 +111,18 @@ def replace_group(feats: Dict, groups: Union[list, tuple]):
     ret = {}
     for k, v in feats.items():
         if isinstance(v, GroupNumber):
-            v = groups[v.n]
+            v = groups[v.n][2]  # each group is a tuple start, end, text
         ret[k] = v
     return ret
 
 
-class StringRegexAnnotator(StringGazetteerBase):
+class StringRegexAnnotator(GazetteerBase):
     &#34;&#34;&#34;
-    NOT YET IMPLEMENTED
+    An annotator for finding matches for any number of complex regular expression rules in a document.
     &#34;&#34;&#34;
     def __init__(self,
                  source=None, source_fmt=&#34;file&#34;,
+                 string_gazetteer=None,
                  outset_name=&#34;&#34;,
                  annset_name=&#34;&#34;,
                  containing_type=None,
@@ -153,6 +144,8 @@ class StringRegexAnnotator(StringGazetteerBase):
                 or &#34;file&#34; in which case the rules are loaded from a file with that path
                 or &#34;string&#34; in which case the rules are loaded from the given string.
             outset_name: name of the output annotation set
+            string_gazetteer: an initialized instance of StringGazetteer, if specified, will be used for GAZETTEER
+                rules. If not specified, no GAZETTEER rules are allowed.
             annset_name: the input annotation set if matching is restricted to spans covered by
                 containing annotations.
             containing_type: if this is not None, then matching is restricted to spans covered by annotations
@@ -188,6 +181,7 @@ class StringRegexAnnotator(StringGazetteerBase):
         self.end_type = end_type
         self.split_type = split_type
         self.list_features = list_features
+        self.gazetteer = string_gazetteer
         if regex_module == &#34;regex&#34;:
             try:
                 import regex
@@ -209,11 +203,12 @@ class StringRegexAnnotator(StringGazetteerBase):
         &#34;&#34;&#34;
         Create a rule representation from a pattern string or list of pattern strings, an a list of action line tuples
         (groupnumbersstring, typenamestring, featureassignmentsstring) and a dictionary of name substitutions.
+        Alternately, the pats parameter could be the instance of a gazetteer.
 
         Each featureassignmentsstring is a string of the form &#34;fname1=fval1, fname2=fval2&#34;.
 
         Args:
-            pats: a list of pattern strings, or a single pattern string
+            pats: a list of pattern strings, or a single pattern string, or a gazetteer instance
             acts: list of tuples (groupnumbersstring, typenamestring, features)
             substs: dictionary of name -&gt; string substituions
             list_features: features to add to each action, if None, add the ones specified at init time
@@ -227,9 +222,19 @@ class StringRegexAnnotator(StringGazetteerBase):
                 list_features = {}
         if isinstance(pats, str):
             pats = subst(pats.strip(), substs)
+        elif isinstance(pats, list):
+            # pats = [&#34;(?:&#34; + subst(p.strip(), substs) + &#34;)&#34; for p in pats]
+            pats = [&#34;(?:&#34;+subst(p.strip()+&#34;)&#34;, substs) for p in pats]
+        elif isinstance(pats, GazetteerBase):
+            pattern = pats
         else:
-            pats = [&#34;(?:&#34; + subst(p.strip(), substs) + &#34;)&#34; for p in pats]
-        pattern = self.re.compile(&#34;&#34;.join(pats))  # noqa: F821
+            raise Exception(f&#34;Parameter pats neither a string, list of strings or gazetteer instance but {type(pats)}&#34;)
+        if isinstance(pats, list):
+            pattern_string = &#34;|&#34;.join(pats)
+            try:
+                pattern = self.re.compile(pattern_string)  # noqa: F821
+            except Exception as ex:
+                raise Exception(f&#34;Problem in pattern {pattern_string}&#34;, ex)
         anndescs = []
         for act in acts:
             grpnrs, typname, feats = act
@@ -281,7 +286,22 @@ class StringRegexAnnotator(StringGazetteerBase):
                         cur_pats = []
                         self.rules.append(rule)
                     # pattern line
-                    cur_pats.append(line[1:])
+                    cur_pats.append(line[1:].strip())
+                    continue
+                if line.startswith(&#34;+&#34;):
+                    # if there is a current rule, add it
+                    if len(cur_acts) &gt; 0:
+                        # finish and add rule
+                        rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                        cur_acts = []
+                        cur_pats = []
+                        self.rules.append(rule)
+                    # pattern line: if we have already something in cur_pats, concatenate this to the last pat we have
+                    # otherwise, add a new line
+                    if len(cur_pats) == 0:
+                        cur_pats.append(line[1:].strip())
+                    else:
+                        cur_pats[-1] = cur_pats[-1] + line[1:].strip()
                     continue
                 mo = re.match(PAT_RULE_BODY_LINE, line)
                 if mo is not None:
@@ -293,6 +313,25 @@ class StringRegexAnnotator(StringGazetteerBase):
                     except Exception as ex:
                         raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
                     cur_acts.append((grouplist, typename, features))
+                    continue
+                mo = re.fullmatch(PAT_GAZ_RULE_LINE, line)
+                if mo is not None:
+                    if self.gazetteer is None:
+                        raise Exception(&#34;GAZETTEER rule found but no gazetteer specified for StringRegexAnnotator&#34;)
+                    if len(cur_acts) &gt; 0:
+                        # finish and add rule
+                        rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                        cur_acts = []
+                        cur_pats = []
+                        self.rules.append(rule)
+                    featureassignments = mo.groups()[0]
+                    try:
+                        features = eval(&#34;dict(&#34;+featureassignments+&#34;)&#34;, GLOBALS)
+                    except Exception as ex:
+                        raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
+                    self.rules.append(
+                        self.make_rule(self.gazetteer, [(&#34;0&#34;, &#34;DUMMY-NOT-USED&#34;, features)],
+                                       substs=None, list_features=list_features))
                     continue
                 mo = re.fullmatch(PAT_MACRO_LINE, line)
                 if mo is not None:
@@ -308,8 +347,9 @@ class StringRegexAnnotator(StringGazetteerBase):
                 rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
                 self.rules.append(rule)
             else:
-                # if there was no last rule, there was no rule at all, this is invalid
-                raise Exception(&#34;No complete rule found&#34;)
+                # if there was no last rule, and if rules is still empty, complain
+                if len(self.rules) == 0:
+                    raise Exception(&#34;No complete rule found&#34;)
 
     def match_next(self, pat: Any, text: str,
                    from_offset: int = 0,
@@ -327,7 +367,7 @@ class StringRegexAnnotator(StringGazetteerBase):
         (because text may just be a substring of the full text to which those offsets refer).
 
         Args:
-            pat: a pre-compiled re/regex pattern
+            pat: a pre-compiled re/regex pattern or the gazetteer object for a gazetteer rule
             text: the text in which to search for the pattern
             from_offset: the offset in text from which on to search for the pattern
             add_offset: this gets added to a match offset in order to be comparable to the start/end/split offsets
@@ -336,15 +376,33 @@ class StringRegexAnnotator(StringGazetteerBase):
             split_offsets: a set/list of offsets where a match cannot cross
 
         Returns:
-            None if no match is found, otherwise a tuple (start, end, groups) where groups is a tuple with all
-            groups from the RE, starting with group(0), then group(1) etc.
+            None if no match is found, otherwise, if pat is a regex,
+            a tuple (start, end, groups, False) where groups is a tuple/list with all
+            groups from the RE, starting with group(0), then group(1) etc. Each group in turn as a tuple
+            (start, end, text).
+            If pat is a gezetter, a tuple (start, end, matches, True) where matches is the list of matches returned
+            from the gazetteer find method.
         &#34;&#34;&#34;
+        if isinstance(pat, StringGazetteer):
+            # use the gazetteer to find the next match(es) in the text, starting at the given offset
+            # Note: this sets longest_only to None to use whatever is configured for the StringGazetteer
+            # The annotatation type will also be determined by that gazetteer, while the offsets are determined
+            # by what is defined in this StringRegexAnnotator
+            matches, maxlen, where = pat.find(text, start=from_offset, longest_only=False,
+                                              start_offsets=start_offsets, end_offsets=end_offsets,
+                                              split_offsets=split_offsets)
+            if maxlen == 0:
+                return None
+            else:
+                return where, where+maxlen, matches, True
         m = self.re.search(pat, text[from_offset:])
         while m:
             # in this loop we return the first match that is valid, iterating until we find one or
             # no more matches are found
-            groups = [m.group(0)]
-            groups.extend(m.groups())
+            lastidx = m.lastindex
+            if lastidx is None:
+                lastidx = 0
+            groups = [(m.start(i)+from_offset, m.end(i)+from_offset, m.group(i)) for i in range(lastidx+1)]
             start, end = [o+from_offset for o in m.span()]
 
             ostart = start + add_offset
@@ -358,11 +416,12 @@ class StringRegexAnnotator(StringGazetteerBase):
                     if i in split_offsets:
                         continue
             # the match should be valid, return it
-            return start, end, groups
+            return start, end, groups, False
         # end while
         return None
 
     def find_all(self, text: str,
+                 start: int = 0,
                  add_offset: int = 0,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
@@ -370,6 +429,26 @@ class StringRegexAnnotator(StringGazetteerBase):
                  start_offsets: Union[List, Set, None] = None,
                  end_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None):
+        &#34;&#34;&#34;
+        Find all matches for the rules in this annotator and satisfying any addition constraints specified through
+        the parameters.
+
+        Args:
+            text: string to search
+            start: offset where to start searching (0)
+            add_offset: what to add to compare the within-text offsets to the offsets in start_offsets etc. This is
+                used when text is a substring of the original string to match and the start_offsets refer to offsets
+                in the original string.
+            longest_only: if True, return only the longest match at each position, if None use gazetteer setting
+            skip_longest: if True, find next match after longest match, if None use gazetteer setting
+            select_rules: if not None, overrides the setting from the StringRegexAnnotator instance
+            start_offsets: if not None, a list/set of offsets where a match can start
+            end_offsets: if not None, a list/set of offsets where a match can end
+            split_offsets: if not None, a list/set of offsets which are considered split locations
+
+        Yields:
+            each of the matches
+        &#34;&#34;&#34;
         # first of all create a list of match iterator generators that correspond to each of the rules
         if longest_only is None:
             longest_only = self.longest_only
@@ -380,11 +459,11 @@ class StringRegexAnnotator(StringGazetteerBase):
         beyond = len(text)+1
 
         # initialize the matches
-        matches = [self.match_next(rule.pattern, text, from_offset=0, add_offset=add_offset,
+        curoff = start
+        matches = [self.match_next(rule.pattern, text, from_offset=start, add_offset=add_offset,
                                    start_offsets=start_offsets, end_offsets=end_offsets,
                                    split_offsets=split_offsets) for rule in self.rules]
 
-        curoff = 0
         result = []
         finished = False   # set to true once all matches are None, i.e. there is no match for any pattern left
         while not finished and curoff &lt; len(text):
@@ -406,10 +485,11 @@ class StringRegexAnnotator(StringGazetteerBase):
                 if match[0] &lt; smallestoff:
                     # new smallest offset, also need to reset the longest match
                     smallestoff = match[0]
-                    longestspan = 0
-                mlen = match[1] - match[0]
-                if mlen &gt; longestspan:
-                    longestspan = mlen
+                    longestspan = match[1] - match[0]
+                if match[0] &lt;= smallestoff:
+                    mlen = match[1] - match[0]
+                    if mlen &gt; longestspan:
+                        longestspan = mlen
             # for
             # we now know where the next match(es) is/are happening and what the longest match(es) is/are
             if smallestoff == beyond:
@@ -451,25 +531,39 @@ class StringRegexAnnotator(StringGazetteerBase):
             # now we have the list of idxs for which to add a match to the result
             for idx in idx2use:
                 match = matches[idx]
+                # check if we got a match that corresponds to a gazetteer rule, in that case, just
+                # use the matches we got from there.
+                if match[3]:
+                    for m in match[2]:
+                        # we need to splice in the features from the rule, if necessary
+                        act = self.rules[idx].actions[0]   # for GAZETTEER rules, there is always only one act exactly
+                        if len(act.features) &gt; 0:
+                            features = {}
+                            features.update(m.features)
+                            features.update(act.features)
+                            m.features = features
+                        # result.append(m)
+                        yield m
+                    continue
                 acts = self.rules[idx].actions
                 groups = match[2]
                 for act in acts:
                     feats = replace_group(act.features, groups)
-                    for gn in act.groupnumbers:
-                        toadd = Match(start=match[0],
-                                      end=match[1],
-                                      match=groups[gn],
+                    for gnr in act.groupnumbers:
+                        toadd = Match(start=groups[gnr][0],
+                                      end=groups[gnr][1],
+                                      match=groups[gnr][2],
                                       features=feats,
                                       type=act.typename)
-                        result.append(toadd)
+                        # result.append(toadd)
+                        yield toadd
             # end for
             # now depending on skip_longest, skip either one offset or the length of the longest match
-            if self.skip_longest:
+            if skip_longest:
                 curoff += longestspan
             else:
                 curoff += 1
         # end while
-        return result
 
     def __call__(self, doc: Document, **kwargs):
         outset = doc.annset(self.outset_name)
@@ -506,7 +600,7 @@ class StringRegexAnnotator(StringGazetteerBase):
             matches = self.find_all(text=text, add_offset=offset, start_offsets=start_offsets, end_offsets=end_offsets,
                                     split_offsets=split_offsets)
             for match in matches:
-                outset.add(match.start + offset, match.end + offset, match.type, match.feats)
+                outset.add(match.start + offset, match.end + offset, match.type, match.features)
         return doc</code></pre>
 </details>
 </section>
@@ -518,19 +612,42 @@ class StringRegexAnnotator(StringGazetteerBase):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gatenlp.processing.gazetteer.stringregex.one_or"><code class="name flex">
-<span>def <span class="ident">one_or</span></span>(<span>someiterator: Iterable, default: Any = None) ‑> Any</span>
+<span>def <span class="ident">one_or</span></span>(<span>someiterator: Iterable[+T_co], default: Any = None) ‑> Any</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the next element in the iterator or the defaul value if there is no next element.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def one_or(someiterator: Iterable, default: Any = None) -&gt; Any:
+    &#34;&#34;&#34;Return the next element in the iterator or the defaul value if there is no next element.&#34;&#34;&#34;
+    for el in someiterator:
+        return el
+    return default</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.replace_group"><code class="name flex">
-<span>def <span class="ident">replace_group</span></span>(<span>feats: Dict, groups: Union[list, tuple])</span>
+<span>def <span class="ident">replace_group</span></span>(<span>feats: Dict[~KT, ~VT], groups: Union[list, tuple])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Replace any group placeholders in any of the feats with the text from the group in the match</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace_group(feats: Dict, groups: Union[list, tuple]):
+    &#34;&#34;&#34;Replace any group placeholders in any of the feats with the text from the group in the match&#34;&#34;&#34;
+    ret = {}
+    for k, v in feats.items():
+        if isinstance(v, GroupNumber):
+            v = groups[v.n][2]  # each group is a tuple start, end, text
+        ret[k] = v
+    return ret</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.subst"><code class="name flex">
-<span>def <span class="ident">subst</span></span>(<span>strg: str, substs: Union[Dict, NoneType]) ‑> str</span>
+<span>def <span class="ident">subst</span></span>(<span>strg: str, substs: Optional[Dict[~KT, ~VT]]) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Substitute any predefined replacements in the strg. If the strg contains sometime {{name}} and
@@ -546,6 +663,48 @@ they get recursively substituted too.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the modified string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def subst(strg: str, substs: Optional[Dict]) -&gt; str:
+    &#34;&#34;&#34;
+    Substitute any predefined replacements in the strg. If the strg contains sometime {{name}} and
+    &#34;name&#34; is a key in substs, the &#34;{{name}}&#34; substring gets replaced with the value in substs.
+    If the name is not in substs, the string remains unchanged. If the replacement string has placeholders,
+    they get recursively substituted too.
+
+    Args:
+        strg: some string
+        substs: dictionary of name-&gt;replacementstring or None
+
+    Returns:
+        the modified string
+    &#34;&#34;&#34;
+    if substs is None or len(substs) == 0:
+        return strg
+    matches = list(re.finditer(PAT_SUBST, strg))
+    if len(matches) == 0:
+        return strg
+    lastidx = 0
+    parts = []
+    for m in matches:
+        start, end = m.span()
+        txt = m.group()
+        var = txt[2:-2]
+        val = substs.get(var)
+        if val is not None:
+            val = &#34;(?:&#34; + str(val) + &#34;)&#34;
+            txt = subst(str(val), substs)
+        if start &gt; lastidx:
+            parts.append(strg[lastidx:start])
+        parts.append(txt)
+        lastidx = end
+    if lastidx &lt; len(strg):
+        parts.append(strg[lastidx:])
+    ret = &#34;&#34;.join(parts)
+    return ret</code></pre>
+</details>
 </dd>
 </dl>
 </section>
@@ -564,15 +723,15 @@ they get recursively substituted too.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.stringregex.Action.features"><code class="name">property/get <span class="ident">features</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.Action.features"><code class="name">var <span class="ident">features</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 2</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Action.groupnumbers"><code class="name">property/get <span class="ident">groupnumbers</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.Action.groupnumbers"><code class="name">var <span class="ident">groupnumbers</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Action.typename"><code class="name">property/get <span class="ident">typename</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.Action.typename"><code class="name">var <span class="ident">typename</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 1</p></div>
 </dd>
@@ -590,44 +749,9 @@ they get recursively substituted too.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.stringregex.GroupNumber.n"><code class="name">property/get <span class="ident">n</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.GroupNumber.n"><code class="name">var <span class="ident">n</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
-</dd>
-</dl>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match"><code class="flex name class">
-<span>class <span class="ident">Match</span></span>
-<span>(</span><span>start, end, match, features, type)</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="matchstart-end-match-features-type">Match(start, end, match, features, type)</h2>
-<p>Create class instance</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>recordclass.datatype.dataobject</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match.features"><code class="name">var <span class="ident">features</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Match.type"><code class="name">var <span class="ident">type</span></code></dt>
-<dd>
-<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -643,11 +767,11 @@ they get recursively substituted too.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.stringregex.Rule.actions"><code class="name">property/get <span class="ident">actions</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.Rule.actions"><code class="name">var <span class="ident">actions</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 1</p></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.stringregex.Rule.pattern"><code class="name">property/get <span class="ident">pattern</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.stringregex.Rule.pattern"><code class="name">var <span class="ident">pattern</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
 </dd>
@@ -655,10 +779,10 @@ they get recursively substituted too.</p>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator"><code class="flex name class">
 <span>class <span class="ident">StringRegexAnnotator</span></span>
-<span>(</span><span>source=None, source_fmt='file', outset_name='', annset_name='', containing_type=None, list_features=None, skip_longest=False, longest_only: bool = False, select_rules='all', regex_module='re', start_type: Union[str, NoneType] = None, end_type: Union[str, NoneType] = None, split_type: Union[str, NoneType] = None)</span>
+<span>(</span><span>source=None, source_fmt='file', string_gazetteer=None, outset_name='', annset_name='', containing_type=None, list_features=None, skip_longest=False, longest_only: bool = False, select_rules='all', regex_module='re', start_type: Optional[str] = None, end_type: Optional[str] = None, split_type: Optional[str] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>NOT YET IMPLEMENTED</p>
+<div class="desc"><p>An annotator for finding matches for any number of complex regular expression rules in a document.</p>
 <p>Create a StringRegexAnnotator and optionally load regex patterns.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -670,6 +794,9 @@ or "file" in which case the rules are loaded from a file with that path
 or "string" in which case the rules are loaded from the given string.</dd>
 <dt><strong><code>outset_name</code></strong></dt>
 <dd>name of the output annotation set</dd>
+<dt><strong><code>string_gazetteer</code></strong></dt>
+<dd>an initialized instance of StringGazetteer, if specified, will be used for GAZETTEER
+rules. If not specified, no GAZETTEER rules are allowed.</dd>
 <dt><strong><code>annset_name</code></strong></dt>
 <dd>the input annotation set if matching is restricted to spans covered by
 containing annotations.</dd>
@@ -707,12 +834,13 @@ None, matches can end anywhere</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class StringRegexAnnotator(StringGazetteerBase):
+<pre><code class="python">class StringRegexAnnotator(GazetteerBase):
     &#34;&#34;&#34;
-    NOT YET IMPLEMENTED
+    An annotator for finding matches for any number of complex regular expression rules in a document.
     &#34;&#34;&#34;
     def __init__(self,
                  source=None, source_fmt=&#34;file&#34;,
+                 string_gazetteer=None,
                  outset_name=&#34;&#34;,
                  annset_name=&#34;&#34;,
                  containing_type=None,
@@ -734,6 +862,8 @@ None, matches can end anywhere</dd>
                 or &#34;file&#34; in which case the rules are loaded from a file with that path
                 or &#34;string&#34; in which case the rules are loaded from the given string.
             outset_name: name of the output annotation set
+            string_gazetteer: an initialized instance of StringGazetteer, if specified, will be used for GAZETTEER
+                rules. If not specified, no GAZETTEER rules are allowed.
             annset_name: the input annotation set if matching is restricted to spans covered by
                 containing annotations.
             containing_type: if this is not None, then matching is restricted to spans covered by annotations
@@ -769,6 +899,7 @@ None, matches can end anywhere</dd>
         self.end_type = end_type
         self.split_type = split_type
         self.list_features = list_features
+        self.gazetteer = string_gazetteer
         if regex_module == &#34;regex&#34;:
             try:
                 import regex
@@ -790,11 +921,12 @@ None, matches can end anywhere</dd>
         &#34;&#34;&#34;
         Create a rule representation from a pattern string or list of pattern strings, an a list of action line tuples
         (groupnumbersstring, typenamestring, featureassignmentsstring) and a dictionary of name substitutions.
+        Alternately, the pats parameter could be the instance of a gazetteer.
 
         Each featureassignmentsstring is a string of the form &#34;fname1=fval1, fname2=fval2&#34;.
 
         Args:
-            pats: a list of pattern strings, or a single pattern string
+            pats: a list of pattern strings, or a single pattern string, or a gazetteer instance
             acts: list of tuples (groupnumbersstring, typenamestring, features)
             substs: dictionary of name -&gt; string substituions
             list_features: features to add to each action, if None, add the ones specified at init time
@@ -808,9 +940,19 @@ None, matches can end anywhere</dd>
                 list_features = {}
         if isinstance(pats, str):
             pats = subst(pats.strip(), substs)
+        elif isinstance(pats, list):
+            # pats = [&#34;(?:&#34; + subst(p.strip(), substs) + &#34;)&#34; for p in pats]
+            pats = [&#34;(?:&#34;+subst(p.strip()+&#34;)&#34;, substs) for p in pats]
+        elif isinstance(pats, GazetteerBase):
+            pattern = pats
         else:
-            pats = [&#34;(?:&#34; + subst(p.strip(), substs) + &#34;)&#34; for p in pats]
-        pattern = self.re.compile(&#34;&#34;.join(pats))  # noqa: F821
+            raise Exception(f&#34;Parameter pats neither a string, list of strings or gazetteer instance but {type(pats)}&#34;)
+        if isinstance(pats, list):
+            pattern_string = &#34;|&#34;.join(pats)
+            try:
+                pattern = self.re.compile(pattern_string)  # noqa: F821
+            except Exception as ex:
+                raise Exception(f&#34;Problem in pattern {pattern_string}&#34;, ex)
         anndescs = []
         for act in acts:
             grpnrs, typname, feats = act
@@ -862,7 +1004,22 @@ None, matches can end anywhere</dd>
                         cur_pats = []
                         self.rules.append(rule)
                     # pattern line
-                    cur_pats.append(line[1:])
+                    cur_pats.append(line[1:].strip())
+                    continue
+                if line.startswith(&#34;+&#34;):
+                    # if there is a current rule, add it
+                    if len(cur_acts) &gt; 0:
+                        # finish and add rule
+                        rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                        cur_acts = []
+                        cur_pats = []
+                        self.rules.append(rule)
+                    # pattern line: if we have already something in cur_pats, concatenate this to the last pat we have
+                    # otherwise, add a new line
+                    if len(cur_pats) == 0:
+                        cur_pats.append(line[1:].strip())
+                    else:
+                        cur_pats[-1] = cur_pats[-1] + line[1:].strip()
                     continue
                 mo = re.match(PAT_RULE_BODY_LINE, line)
                 if mo is not None:
@@ -874,6 +1031,25 @@ None, matches can end anywhere</dd>
                     except Exception as ex:
                         raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
                     cur_acts.append((grouplist, typename, features))
+                    continue
+                mo = re.fullmatch(PAT_GAZ_RULE_LINE, line)
+                if mo is not None:
+                    if self.gazetteer is None:
+                        raise Exception(&#34;GAZETTEER rule found but no gazetteer specified for StringRegexAnnotator&#34;)
+                    if len(cur_acts) &gt; 0:
+                        # finish and add rule
+                        rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                        cur_acts = []
+                        cur_pats = []
+                        self.rules.append(rule)
+                    featureassignments = mo.groups()[0]
+                    try:
+                        features = eval(&#34;dict(&#34;+featureassignments+&#34;)&#34;, GLOBALS)
+                    except Exception as ex:
+                        raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
+                    self.rules.append(
+                        self.make_rule(self.gazetteer, [(&#34;0&#34;, &#34;DUMMY-NOT-USED&#34;, features)],
+                                       substs=None, list_features=list_features))
                     continue
                 mo = re.fullmatch(PAT_MACRO_LINE, line)
                 if mo is not None:
@@ -889,8 +1065,9 @@ None, matches can end anywhere</dd>
                 rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
                 self.rules.append(rule)
             else:
-                # if there was no last rule, there was no rule at all, this is invalid
-                raise Exception(&#34;No complete rule found&#34;)
+                # if there was no last rule, and if rules is still empty, complain
+                if len(self.rules) == 0:
+                    raise Exception(&#34;No complete rule found&#34;)
 
     def match_next(self, pat: Any, text: str,
                    from_offset: int = 0,
@@ -908,7 +1085,7 @@ None, matches can end anywhere</dd>
         (because text may just be a substring of the full text to which those offsets refer).
 
         Args:
-            pat: a pre-compiled re/regex pattern
+            pat: a pre-compiled re/regex pattern or the gazetteer object for a gazetteer rule
             text: the text in which to search for the pattern
             from_offset: the offset in text from which on to search for the pattern
             add_offset: this gets added to a match offset in order to be comparable to the start/end/split offsets
@@ -917,15 +1094,33 @@ None, matches can end anywhere</dd>
             split_offsets: a set/list of offsets where a match cannot cross
 
         Returns:
-            None if no match is found, otherwise a tuple (start, end, groups) where groups is a tuple with all
-            groups from the RE, starting with group(0), then group(1) etc.
+            None if no match is found, otherwise, if pat is a regex,
+            a tuple (start, end, groups, False) where groups is a tuple/list with all
+            groups from the RE, starting with group(0), then group(1) etc. Each group in turn as a tuple
+            (start, end, text).
+            If pat is a gezetter, a tuple (start, end, matches, True) where matches is the list of matches returned
+            from the gazetteer find method.
         &#34;&#34;&#34;
+        if isinstance(pat, StringGazetteer):
+            # use the gazetteer to find the next match(es) in the text, starting at the given offset
+            # Note: this sets longest_only to None to use whatever is configured for the StringGazetteer
+            # The annotatation type will also be determined by that gazetteer, while the offsets are determined
+            # by what is defined in this StringRegexAnnotator
+            matches, maxlen, where = pat.find(text, start=from_offset, longest_only=False,
+                                              start_offsets=start_offsets, end_offsets=end_offsets,
+                                              split_offsets=split_offsets)
+            if maxlen == 0:
+                return None
+            else:
+                return where, where+maxlen, matches, True
         m = self.re.search(pat, text[from_offset:])
         while m:
             # in this loop we return the first match that is valid, iterating until we find one or
             # no more matches are found
-            groups = [m.group(0)]
-            groups.extend(m.groups())
+            lastidx = m.lastindex
+            if lastidx is None:
+                lastidx = 0
+            groups = [(m.start(i)+from_offset, m.end(i)+from_offset, m.group(i)) for i in range(lastidx+1)]
             start, end = [o+from_offset for o in m.span()]
 
             ostart = start + add_offset
@@ -939,11 +1134,12 @@ None, matches can end anywhere</dd>
                     if i in split_offsets:
                         continue
             # the match should be valid, return it
-            return start, end, groups
+            return start, end, groups, False
         # end while
         return None
 
     def find_all(self, text: str,
+                 start: int = 0,
                  add_offset: int = 0,
                  longest_only: Union[None, bool] = None,
                  skip_longest: Union[None, bool] = None,
@@ -951,6 +1147,26 @@ None, matches can end anywhere</dd>
                  start_offsets: Union[List, Set, None] = None,
                  end_offsets: Union[List, Set, None] = None,
                  split_offsets: Union[List, Set, None] = None):
+        &#34;&#34;&#34;
+        Find all matches for the rules in this annotator and satisfying any addition constraints specified through
+        the parameters.
+
+        Args:
+            text: string to search
+            start: offset where to start searching (0)
+            add_offset: what to add to compare the within-text offsets to the offsets in start_offsets etc. This is
+                used when text is a substring of the original string to match and the start_offsets refer to offsets
+                in the original string.
+            longest_only: if True, return only the longest match at each position, if None use gazetteer setting
+            skip_longest: if True, find next match after longest match, if None use gazetteer setting
+            select_rules: if not None, overrides the setting from the StringRegexAnnotator instance
+            start_offsets: if not None, a list/set of offsets where a match can start
+            end_offsets: if not None, a list/set of offsets where a match can end
+            split_offsets: if not None, a list/set of offsets which are considered split locations
+
+        Yields:
+            each of the matches
+        &#34;&#34;&#34;
         # first of all create a list of match iterator generators that correspond to each of the rules
         if longest_only is None:
             longest_only = self.longest_only
@@ -961,11 +1177,11 @@ None, matches can end anywhere</dd>
         beyond = len(text)+1
 
         # initialize the matches
-        matches = [self.match_next(rule.pattern, text, from_offset=0, add_offset=add_offset,
+        curoff = start
+        matches = [self.match_next(rule.pattern, text, from_offset=start, add_offset=add_offset,
                                    start_offsets=start_offsets, end_offsets=end_offsets,
                                    split_offsets=split_offsets) for rule in self.rules]
 
-        curoff = 0
         result = []
         finished = False   # set to true once all matches are None, i.e. there is no match for any pattern left
         while not finished and curoff &lt; len(text):
@@ -987,10 +1203,11 @@ None, matches can end anywhere</dd>
                 if match[0] &lt; smallestoff:
                     # new smallest offset, also need to reset the longest match
                     smallestoff = match[0]
-                    longestspan = 0
-                mlen = match[1] - match[0]
-                if mlen &gt; longestspan:
-                    longestspan = mlen
+                    longestspan = match[1] - match[0]
+                if match[0] &lt;= smallestoff:
+                    mlen = match[1] - match[0]
+                    if mlen &gt; longestspan:
+                        longestspan = mlen
             # for
             # we now know where the next match(es) is/are happening and what the longest match(es) is/are
             if smallestoff == beyond:
@@ -1032,25 +1249,39 @@ None, matches can end anywhere</dd>
             # now we have the list of idxs for which to add a match to the result
             for idx in idx2use:
                 match = matches[idx]
+                # check if we got a match that corresponds to a gazetteer rule, in that case, just
+                # use the matches we got from there.
+                if match[3]:
+                    for m in match[2]:
+                        # we need to splice in the features from the rule, if necessary
+                        act = self.rules[idx].actions[0]   # for GAZETTEER rules, there is always only one act exactly
+                        if len(act.features) &gt; 0:
+                            features = {}
+                            features.update(m.features)
+                            features.update(act.features)
+                            m.features = features
+                        # result.append(m)
+                        yield m
+                    continue
                 acts = self.rules[idx].actions
                 groups = match[2]
                 for act in acts:
                     feats = replace_group(act.features, groups)
-                    for gn in act.groupnumbers:
-                        toadd = Match(start=match[0],
-                                      end=match[1],
-                                      match=groups[gn],
+                    for gnr in act.groupnumbers:
+                        toadd = Match(start=groups[gnr][0],
+                                      end=groups[gnr][1],
+                                      match=groups[gnr][2],
                                       features=feats,
                                       type=act.typename)
-                        result.append(toadd)
+                        # result.append(toadd)
+                        yield toadd
             # end for
             # now depending on skip_longest, skip either one offset or the length of the longest match
-            if self.skip_longest:
+            if skip_longest:
                 curoff += longestspan
             else:
                 curoff += 1
         # end while
-        return result
 
     def __call__(self, doc: Document, **kwargs):
         outset = doc.annset(self.outset_name)
@@ -1087,12 +1318,11 @@ None, matches can end anywhere</dd>
             matches = self.find_all(text=text, add_offset=offset, start_offsets=start_offsets, end_offsets=end_offsets,
                                     split_offsets=split_offsets)
             for match in matches:
-                outset.add(match.start + offset, match.end + offset, match.type, match.feats)
+                outset.add(match.start + offset, match.end + offset, match.type, match.features)
         return doc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></li>
 <li><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></li>
 <li><a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></li>
 <li>abc.ABC</li>
@@ -1100,7 +1330,7 @@ None, matches can end anywhere</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.append"><code class="name flex">
-<span>def <span class="ident">append</span></span>(<span>self, source: Union[str, List], source_fmt: str = 'file', list_features=None)</span>
+<span>def <span class="ident">append</span></span>(<span>self, source: Union[str, List[~T]], source_fmt: str = 'file', list_features=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a list of rules.</p>
@@ -1114,24 +1344,310 @@ None, matches can end anywhere</dd>
 <dd>if not None a dictionary of features to assign to annotations created
 for any of the rules loaded by that method call.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self, source: Union[str, List], source_fmt: str = &#34;file&#34;, list_features = None):
+    &#34;&#34;&#34;
+    Load a list of rules.
+
+    Args:
+        source: where/what to load. See the init parameter description.
+        source_fmt: the format of the source, see the init parameter description.
+        list_features: if not None a dictionary of features to assign to annotations created
+            for any of the rules loaded by that method call.
+    &#34;&#34;&#34;
+    if list_features is None:
+        list_features = self.list_features
+    if source_fmt == &#34;rule-list&#34;:
+        for rule in source:
+            self.rules.append(rule)
+    else:
+        if source_fmt == &#34;file&#34;:
+            with open(source, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
+                lines = infp.readlines()
+        elif source_fmt == &#34;string&#34;:
+            lines = source.split(&#34;\n&#34;)
+        else:
+            raise Exception(f&#34;Unknown source format: {source_fmt}&#34;)
+        cur_pats = []  # for each line, the original pattern string gets appended
+        cur_acts = []  # for each line, a tuple with group list string, typename string, feature assign string
+        cur_substs = {}
+        for line in lines:
+            line = line.rstrip(&#34;\n\r&#34;)
+            line = line.strip()
+            if line == &#34;&#34;:
+                continue
+            if line.startswith(&#34;//&#34;) or line.startswith(&#34;#&#34;):
+                continue  # comment line
+            if line.startswith(&#34;|&#34;):
+                # if there is a current rule, add it
+                if len(cur_acts) &gt; 0:
+                    # finish and add rule
+                    rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                    cur_acts = []
+                    cur_pats = []
+                    self.rules.append(rule)
+                # pattern line
+                cur_pats.append(line[1:].strip())
+                continue
+            if line.startswith(&#34;+&#34;):
+                # if there is a current rule, add it
+                if len(cur_acts) &gt; 0:
+                    # finish and add rule
+                    rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                    cur_acts = []
+                    cur_pats = []
+                    self.rules.append(rule)
+                # pattern line: if we have already something in cur_pats, concatenate this to the last pat we have
+                # otherwise, add a new line
+                if len(cur_pats) == 0:
+                    cur_pats.append(line[1:].strip())
+                else:
+                    cur_pats[-1] = cur_pats[-1] + line[1:].strip()
+                continue
+            mo = re.match(PAT_RULE_BODY_LINE, line)
+            if mo is not None:
+                grouplist, typename, featureassignments = mo.groups()
+                # now try to match the feature assignments as the initializer of a dict, if that works,
+                # it is a proper line, otherwise we get an error
+                try:
+                    features = eval(&#34;dict(&#34;+featureassignments+&#34;)&#34;, GLOBALS)
+                except Exception as ex:
+                    raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
+                cur_acts.append((grouplist, typename, features))
+                continue
+            mo = re.fullmatch(PAT_GAZ_RULE_LINE, line)
+            if mo is not None:
+                if self.gazetteer is None:
+                    raise Exception(&#34;GAZETTEER rule found but no gazetteer specified for StringRegexAnnotator&#34;)
+                if len(cur_acts) &gt; 0:
+                    # finish and add rule
+                    rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+                    cur_acts = []
+                    cur_pats = []
+                    self.rules.append(rule)
+                featureassignments = mo.groups()[0]
+                try:
+                    features = eval(&#34;dict(&#34;+featureassignments+&#34;)&#34;, GLOBALS)
+                except Exception as ex:
+                    raise Exception(f&#34;Not a valid feature assignment: {featureassignments}&#34;, ex)
+                self.rules.append(
+                    self.make_rule(self.gazetteer, [(&#34;0&#34;, &#34;DUMMY-NOT-USED&#34;, features)],
+                                   substs=None, list_features=list_features))
+                continue
+            mo = re.fullmatch(PAT_MACRO_LINE, line)
+            if mo is not None:
+                name = mo.group(1)
+                pat = mo.group(2)
+                cur_substs[name] = pat
+                continue
+            # if we fall through to here, the line does not match anything known, must be an error
+            raise Exception(f&#34;Odd line: {line}&#34;)
+        # end for line
+        if cur_acts:
+            # finish and add rule
+            rule = self.make_rule(cur_pats, cur_acts, substs=cur_substs, list_features=list_features)
+            self.rules.append(rule)
+        else:
+            # if there was no last rule, and if rules is still empty, complain
+            if len(self.rules) == 0:
+                raise Exception(&#34;No complete rule found&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text: str, add_offset: int = 0, longest_only: Union[NoneType, bool] = None, skip_longest: Union[NoneType, bool] = None, select_rules: Union[NoneType, str] = None, start_offsets: Union[List, Set, NoneType] = None, end_offsets: Union[List, Set, NoneType] = None, split_offsets: Union[List, Set, NoneType] = None)</span>
+<span>def <span class="ident">find_all</span></span>(<span>self, text: str, start: int = 0, add_offset: int = 0, longest_only: Optional[None] = None, skip_longest: Optional[None] = None, select_rules: Optional[str] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Find all matches for the rules in this annotator and satisfying any addition constraints specified through
+the parameters.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>text</code></strong></dt>
+<dd>string to search</dd>
+<dt><strong><code>start</code></strong></dt>
+<dd>offset where to start searching (0)</dd>
+<dt><strong><code>add_offset</code></strong></dt>
+<dd>what to add to compare the within-text offsets to the offsets in start_offsets etc. This is
+used when text is a substring of the original string to match and the start_offsets refer to offsets
+in the original string.</dd>
+<dt><strong><code>longest_only</code></strong></dt>
+<dd>if True, return only the longest match at each position, if None use gazetteer setting</dd>
+<dt><strong><code>skip_longest</code></strong></dt>
+<dd>if True, find next match after longest match, if None use gazetteer setting</dd>
+<dt><strong><code>select_rules</code></strong></dt>
+<dd>if not None, overrides the setting from the StringRegexAnnotator instance</dd>
+<dt><strong><code>start_offsets</code></strong></dt>
+<dd>if not None, a list/set of offsets where a match can start</dd>
+<dt><strong><code>end_offsets</code></strong></dt>
+<dd>if not None, a list/set of offsets where a match can end</dd>
+<dt><strong><code>split_offsets</code></strong></dt>
+<dd>if not None, a list/set of offsets which are considered split locations</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<p>each of the matches</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_all(self, text: str,
+             start: int = 0,
+             add_offset: int = 0,
+             longest_only: Union[None, bool] = None,
+             skip_longest: Union[None, bool] = None,
+             select_rules: Union[None, str] = None,
+             start_offsets: Union[List, Set, None] = None,
+             end_offsets: Union[List, Set, None] = None,
+             split_offsets: Union[List, Set, None] = None):
+    &#34;&#34;&#34;
+    Find all matches for the rules in this annotator and satisfying any addition constraints specified through
+    the parameters.
+
+    Args:
+        text: string to search
+        start: offset where to start searching (0)
+        add_offset: what to add to compare the within-text offsets to the offsets in start_offsets etc. This is
+            used when text is a substring of the original string to match and the start_offsets refer to offsets
+            in the original string.
+        longest_only: if True, return only the longest match at each position, if None use gazetteer setting
+        skip_longest: if True, find next match after longest match, if None use gazetteer setting
+        select_rules: if not None, overrides the setting from the StringRegexAnnotator instance
+        start_offsets: if not None, a list/set of offsets where a match can start
+        end_offsets: if not None, a list/set of offsets where a match can end
+        split_offsets: if not None, a list/set of offsets which are considered split locations
+
+    Yields:
+        each of the matches
+    &#34;&#34;&#34;
+    # first of all create a list of match iterator generators that correspond to each of the rules
+    if longest_only is None:
+        longest_only = self.longest_only
+    if skip_longest is None:
+        skip_longest = self.skip_longest
+    if select_rules is None:
+        select_rules = self.select_rules
+    beyond = len(text)+1
+
+    # initialize the matches
+    curoff = start
+    matches = [self.match_next(rule.pattern, text, from_offset=start, add_offset=add_offset,
+                               start_offsets=start_offsets, end_offsets=end_offsets,
+                               split_offsets=split_offsets) for rule in self.rules]
+
+    result = []
+    finished = False   # set to true once all matches are None, i.e. there is no match for any pattern left
+    while not finished and curoff &lt; len(text):
+        longestspan = 0
+        smallestoff = beyond
+        # find the smallest offset of all matches, and also the length of the longest span among all smallestoff
+        # matches
+        for idx, match in enumerate(matches):
+            # if the match is starting before curoff, update it
+            if match and match[0] &lt; curoff:
+                match = self.match_next(self.rules[idx].pattern, text,
+                                        from_offset=curoff, add_offset=add_offset,
+                                        start_offsets=start_offsets, end_offsets=end_offsets,
+                                        split_offsets=split_offsets)
+                matches[idx] = match
+            if not match:
+                continue
+            # if there actually is a valid match, use it to determine the smallest offset and the longest match len
+            if match[0] &lt; smallestoff:
+                # new smallest offset, also need to reset the longest match
+                smallestoff = match[0]
+                longestspan = match[1] - match[0]
+            if match[0] &lt;= smallestoff:
+                mlen = match[1] - match[0]
+                if mlen &gt; longestspan:
+                    longestspan = mlen
+        # for
+        # we now know where the next match(es) is/are happening and what the longest match(es) is/are
+        if smallestoff == beyond:
+            # no (more) matches found, break out of the while
+            break
+        curoff = smallestoff
+        # we have at least one match still at smallestoff
+        # depending on the strategy, select the rule to match:
+        # all: all rules starting at smallestoff
+        # first: the first rule at smallestoff
+        # last: the last rule at smallestoff
+        # firstlongest: the first rule at smallestoff which is of maximum length
+        # We select the indices of all rules for which the match should get considered
+        idx2use = []
+        lastidx = None
+        for idx, match in enumerate(matches):
+            if not match:
+                continue
+            matchlen = match[1] - match[0]
+            if match[0] != smallestoff:
+                continue
+            if not longest_only and select_rules == &#34;all&#34;:
+                idx2use.append(idx)
+            elif longest_only and select_rules == &#34;all&#34; and matchlen == longestspan:
+                idx2use.append(idx)
+            elif not longest_only and select_rules == &#34;first&#34;:
+                idx2use.append(idx)
+                break
+            elif longest_only and select_rules == &#34;first&#34; and matchlen == longestspan:
+                idx2use.append(idx)
+                break
+            elif not longest_only and select_rules == &#34;last&#34;:
+                lastidx = idx
+            elif longest_only and select_rules == &#34;last&#34; and matchlen == longestspan:
+                lastidx = idx
+        # end for
+        if select_rules == &#34;last&#34;:
+            idx2use.append(lastidx)
+        # now we have the list of idxs for which to add a match to the result
+        for idx in idx2use:
+            match = matches[idx]
+            # check if we got a match that corresponds to a gazetteer rule, in that case, just
+            # use the matches we got from there.
+            if match[3]:
+                for m in match[2]:
+                    # we need to splice in the features from the rule, if necessary
+                    act = self.rules[idx].actions[0]   # for GAZETTEER rules, there is always only one act exactly
+                    if len(act.features) &gt; 0:
+                        features = {}
+                        features.update(m.features)
+                        features.update(act.features)
+                        m.features = features
+                    # result.append(m)
+                    yield m
+                continue
+            acts = self.rules[idx].actions
+            groups = match[2]
+            for act in acts:
+                feats = replace_group(act.features, groups)
+                for gnr in act.groupnumbers:
+                    toadd = Match(start=groups[gnr][0],
+                                  end=groups[gnr][1],
+                                  match=groups[gnr][2],
+                                  features=feats,
+                                  type=act.typename)
+                    # result.append(toadd)
+                    yield toadd
+        # end for
+        # now depending on skip_longest, skip either one offset or the length of the longest match
+        if skip_longest:
+            curoff += longestspan
+        else:
+            curoff += 1</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.make_rule"><code class="name flex">
-<span>def <span class="ident">make_rule</span></span>(<span>self, pats: Union[str, List[str]], acts: List[Tuple[str, str, dict]], substs: Union[Dict, NoneType] = None, list_features: Union[Dict, NoneType] = None)</span>
+<span>def <span class="ident">make_rule</span></span>(<span>self, pats: Union[str, List[str]], acts: List[Tuple[str, str, dict]], substs: Optional[Dict[~KT, ~VT]] = None, list_features: Optional[Dict[~KT, ~VT]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a rule representation from a pattern string or list of pattern strings, an a list of action line tuples
-(groupnumbersstring, typenamestring, featureassignmentsstring) and a dictionary of name substitutions.</p>
+(groupnumbersstring, typenamestring, featureassignmentsstring) and a dictionary of name substitutions.
+Alternately, the pats parameter could be the instance of a gazetteer.</p>
 <p>Each featureassignmentsstring is a string of the form "fname1=fval1, fname2=fval2".</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>pats</code></strong></dt>
-<dd>a list of pattern strings, or a single pattern string</dd>
+<dd>a list of pattern strings, or a single pattern string, or a gazetteer instance</dd>
 <dt><strong><code>acts</code></strong></dt>
 <dd>list of tuples (groupnumbersstring, typenamestring, features)</dd>
 <dt><strong><code>substs</code></strong></dt>
@@ -1141,9 +1657,63 @@ for any of the rules loaded by that method call.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a Rule instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_rule(self,
+              pats: Union[str, List[str]],
+              acts: List[Tuple[str, str, dict]],
+              substs: Optional[Dict] = None,
+              list_features: Optional[Dict] = None,
+              ):
+    &#34;&#34;&#34;
+    Create a rule representation from a pattern string or list of pattern strings, an a list of action line tuples
+    (groupnumbersstring, typenamestring, featureassignmentsstring) and a dictionary of name substitutions.
+    Alternately, the pats parameter could be the instance of a gazetteer.
+
+    Each featureassignmentsstring is a string of the form &#34;fname1=fval1, fname2=fval2&#34;.
+
+    Args:
+        pats: a list of pattern strings, or a single pattern string, or a gazetteer instance
+        acts: list of tuples (groupnumbersstring, typenamestring, features)
+        substs: dictionary of name -&gt; string substituions
+        list_features: features to add to each action, if None, add the ones specified at init time
+
+    Returns:
+        a Rule instance
+    &#34;&#34;&#34;
+    if list_features is None:
+        list_features = self.list_features
+        if list_features is None:
+            list_features = {}
+    if isinstance(pats, str):
+        pats = subst(pats.strip(), substs)
+    elif isinstance(pats, list):
+        # pats = [&#34;(?:&#34; + subst(p.strip(), substs) + &#34;)&#34; for p in pats]
+        pats = [&#34;(?:&#34;+subst(p.strip()+&#34;)&#34;, substs) for p in pats]
+    elif isinstance(pats, GazetteerBase):
+        pattern = pats
+    else:
+        raise Exception(f&#34;Parameter pats neither a string, list of strings or gazetteer instance but {type(pats)}&#34;)
+    if isinstance(pats, list):
+        pattern_string = &#34;|&#34;.join(pats)
+        try:
+            pattern = self.re.compile(pattern_string)  # noqa: F821
+        except Exception as ex:
+            raise Exception(f&#34;Problem in pattern {pattern_string}&#34;, ex)
+    anndescs = []
+    for act in acts:
+        grpnrs, typname, feats = act
+        grpnrs = [int(x) for x in grpnrs.strip().split(&#34;,&#34;)]
+        fassignments = list_features.copy()
+        fassignments.update(feats)
+        anndescs.append(Action(groupnumbers=grpnrs, typename=typname, features=fassignments))
+    return Rule(pattern=pattern, actions=anndescs)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringregex.StringRegexAnnotator.match_next"><code class="name flex">
-<span>def <span class="ident">match_next</span></span>(<span>self, pat: Any, text: str, from_offset: int = 0, add_offset: int = 0, start_offsets: Union[NoneType, list, set] = None, end_offsets: Union[NoneType, list, set] = None, split_offsets: Union[NoneType, list, set] = None)</span>
+<span>def <span class="ident">match_next</span></span>(<span>self, pat: Any, text: str, from_offset: int = 0, add_offset: int = 0, start_offsets: Union[None, list, set] = None, end_offsets: Union[None, list, set] = None, split_offsets: Union[None, list, set] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find the next metch for the compiled pattern in text, at or after from_offset, but only if
@@ -1154,7 +1724,7 @@ to get added so we can compare to any of the start_offsets, end_offsets, split_o
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>pat</code></strong></dt>
-<dd>a pre-compiled re/regex pattern</dd>
+<dd>a pre-compiled re/regex pattern or the gazetteer object for a gazetteer rule</dd>
 <dt><strong><code>text</code></strong></dt>
 <dd>the text in which to search for the pattern</dd>
 <dt><strong><code>from_offset</code></strong></dt>
@@ -1169,19 +1739,96 @@ to get added so we can compare to any of the start_offsets, end_offsets, split_o
 <dd>a set/list of offsets where a match cannot cross</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>None if no match is found, otherwise a tuple (start, end, groups) where groups is a tuple with all
-groups from the RE, starting with group(0), then group(1) etc.</p></div>
+<p>None if no match is found, otherwise, if pat is a regex,
+a tuple (start, end, groups, False) where groups is a tuple/list with all
+groups from the RE, starting with group(0), then group(1) etc. Each group in turn as a tuple
+(start, end, text).
+If pat is a gezetter, a tuple (start, end, matches, True) where matches is the list of matches returned
+from the gazetteer find method.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match_next(self, pat: Any, text: str,
+               from_offset: int = 0,
+               add_offset: int = 0,
+               start_offsets: Union[None, list, set] = None,
+               end_offsets: Union[None, list, set] = None,
+               split_offsets: Union[None, list, set] = None
+               ):
+    &#34;&#34;&#34;
+    Find the next metch for the compiled pattern in text, at or after from_offset, but only if
+    all of the start/end/split offset limitations are satisfied (if present).
+
+    The from_offset is the offset within text, while add_offset is an additional offset value
+    to get added so we can compare to any of the start_offsets, end_offsets, split_offsets
+    (because text may just be a substring of the full text to which those offsets refer).
+
+    Args:
+        pat: a pre-compiled re/regex pattern or the gazetteer object for a gazetteer rule
+        text: the text in which to search for the pattern
+        from_offset: the offset in text from which on to search for the pattern
+        add_offset: this gets added to a match offset in order to be comparable to the start/end/split offsets
+        start_offsets: a set/list of offsets where a match must start
+        end_offsets: a set/list of offsets where a match must end
+        split_offsets: a set/list of offsets where a match cannot cross
+
+    Returns:
+        None if no match is found, otherwise, if pat is a regex,
+        a tuple (start, end, groups, False) where groups is a tuple/list with all
+        groups from the RE, starting with group(0), then group(1) etc. Each group in turn as a tuple
+        (start, end, text).
+        If pat is a gezetter, a tuple (start, end, matches, True) where matches is the list of matches returned
+        from the gazetteer find method.
+    &#34;&#34;&#34;
+    if isinstance(pat, StringGazetteer):
+        # use the gazetteer to find the next match(es) in the text, starting at the given offset
+        # Note: this sets longest_only to None to use whatever is configured for the StringGazetteer
+        # The annotatation type will also be determined by that gazetteer, while the offsets are determined
+        # by what is defined in this StringRegexAnnotator
+        matches, maxlen, where = pat.find(text, start=from_offset, longest_only=False,
+                                          start_offsets=start_offsets, end_offsets=end_offsets,
+                                          split_offsets=split_offsets)
+        if maxlen == 0:
+            return None
+        else:
+            return where, where+maxlen, matches, True
+    m = self.re.search(pat, text[from_offset:])
+    while m:
+        # in this loop we return the first match that is valid, iterating until we find one or
+        # no more matches are found
+        lastidx = m.lastindex
+        if lastidx is None:
+            lastidx = 0
+        groups = [(m.start(i)+from_offset, m.end(i)+from_offset, m.group(i)) for i in range(lastidx+1)]
+        start, end = [o+from_offset for o in m.span()]
+
+        ostart = start + add_offset
+        oend = end + add_offset
+        if start_offsets and ostart not in start_offsets:
+            continue
+        if end_offsets and oend not in end_offsets:
+            continue
+        if split_offsets:
+            for i in range(ostart, oend):
+                if i in split_offsets:
+                    continue
+        # the match should be valid, return it
+        return start, end, groups, False
+    # end while
+    return None</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.StringGazetteerBase">StringGazetteerBase</a></b></code>:
+<li><code><b><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="base.html#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.StringGazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.__call__" href="../annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.finish" href="../annotator.html#gatenlp.processing.annotator.Annotator.finish">finish</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.pipe" href="../annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.reduce" href="../annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase.start" href="../annotator.html#gatenlp.processing.annotator.Annotator.start">start</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1224,16 +1871,6 @@ groups from the RE, starting with group(0), then group(1) etc.</p></div>
 </ul>
 </li>
 <li>
-<h4><code><a title="gatenlp.processing.gazetteer.stringregex.Match" href="#gatenlp.processing.gazetteer.stringregex.Match">Match</a></code></h4>
-<ul class="">
-<li><code><a title="gatenlp.processing.gazetteer.stringregex.Match.end" href="#gatenlp.processing.gazetteer.stringregex.Match.end">end</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringregex.Match.features" href="#gatenlp.processing.gazetteer.stringregex.Match.features">features</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringregex.Match.match" href="#gatenlp.processing.gazetteer.stringregex.Match.match">match</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringregex.Match.start" href="#gatenlp.processing.gazetteer.stringregex.Match.start">start</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.stringregex.Match.type" href="#gatenlp.processing.gazetteer.stringregex.Match.type">type</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="gatenlp.processing.gazetteer.stringregex.Rule" href="#gatenlp.processing.gazetteer.stringregex.Rule">Rule</a></code></h4>
 <ul class="">
 <li><code><a title="gatenlp.processing.gazetteer.stringregex.Rule.actions" href="#gatenlp.processing.gazetteer.stringregex.Rule.actions">actions</a></code></li>
@@ -1255,7 +1892,7 @@ groups from the RE, starting with group(0), then group(1) etc.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

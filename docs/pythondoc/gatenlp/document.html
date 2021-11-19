@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.document API documentation</title>
 <meta name="description" content="Module that implements the Document class for representing gatenlp documents with
 features and annotation sets." />
@@ -2292,6 +2292,40 @@ offsets accordingly)</li>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the initialized Document instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_dict(dictrepr, **_kwargs):
+    &#34;&#34;&#34;Return a Document instance as represented by the dictionary dictrepr.
+
+    Args:
+      dictrepr: return: the initialized Document instance
+      **_kwargs: not used, ignored
+
+    Returns:
+      the initialized Document instance
+
+    &#34;&#34;&#34;
+    feats = dictrepr.get(&#34;features&#34;, {})
+    doc = Document(dictrepr.get(&#34;text&#34;), features=feats)
+    doc.name = dictrepr.get(&#34;name&#34;)
+    doc.offset_type = dictrepr.get(&#34;offset_type&#34;)
+    if doc.offset_type is None:
+        doc.offset_type = OFFSET_TYPE_PYTHON
+    if (
+        doc.offset_type != OFFSET_TYPE_JAVA
+        and doc.offset_type != OFFSET_TYPE_PYTHON
+    ):
+        raise Exception(&#34;Invalid offset type, cannot load: &#34;, doc.offset_type)
+    annsets = {
+        name: AnnotationSet.from_dict(adict, owner_doc=doc)
+        for name, adict in dictrepr.get(&#34;annotation_sets&#34;, {}).items()
+    }
+    doc._annotation_sets = annsets
+    return doc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.load"><code class="name flex">
 <span>def <span class="ident">load</span></span>(<span>source, fmt=None, mod='gatenlp.serialization.default', **kwargs)</span>
@@ -2319,6 +2353,47 @@ the URL using urllib.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the loaded document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load(source, fmt=None, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    &#34;&#34;&#34;
+    Load or import a document from the given source. The source can be a file path or
+    file name or a URL. If the type of the source is str, then if it starts with
+    &#34;http[s]://&#34; it will get treated as a URL. In order to deliberatly use a file instead of
+    a URL, create a pathlib Path, in order to deliberately use URL instead of a file parse
+    the URL using urllib.
+
+    Example: `Document.load(urllib.parse.urlparse(someurl), fmt=theformat)`
+
+    Example: `Document.load(pathlib.Path(somepath), fmt=theformat)`
+
+    NOTE: the offset type of the document is always converted to PYTHON when loading!
+
+    Args:
+        source: the URL or file path to load from.
+        fmt: the format of the source. By default the format is inferred by the file extension.
+            The format can be a format memnonic like &#34;json&#34;, &#34;html&#34;, or a known mime type
+            like &#34;text/bdocjs&#34;.
+      mod: the name of a module where the document loader is implemented.
+          (Default value = &#34;gatenlp.serialization.default&#34;)
+      kwargs: additional format specific keyword arguments to pass to the loader
+
+    Returns:
+      the loaded document
+    &#34;&#34;&#34;
+    if fmt is None or isinstance(fmt, str):
+        m = importlib.import_module(mod)
+        loader = m.get_document_loader(source, fmt)
+        doc = loader(Document, from_ext=source, **kwargs)
+    else:
+        doc = fmt(Document, from_ext=source, **kwargs)
+    if doc.offset_type == OFFSET_TYPE_JAVA:
+        doc.to_offset_type(OFFSET_TYPE_PYTHON)
+    return doc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.load_mem"><code class="name flex">
 <span>def <span class="ident">load_mem</span></span>(<span>source, fmt='json', mod='gatenlp.serialization.default', **kwargs)</span>
@@ -2340,11 +2415,43 @@ assumed to be a callable that retrieves and returns the document</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional arguments to pass to the loader</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load_mem(source, fmt=&#34;json&#34;, mod=&#34;gatenlp.serialization.default&#34;, **kwargs):
+    &#34;&#34;&#34;
+    Create a document from the in-memory serialization in source. Source can be a string or
+    bytes, depending on the format.
+
+    Note: the offset type is always converted to PYTHON when loading!
+
+    Args:
+        source: the string/bytes to deserialize
+        fmt: if string, the format identifier or mime type (Default value = &#34;json&#34;), otherwise
+            assumed to be a callable that retrieves and returns the document
+        mod: the name of the module where the loader is implemented
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        kwargs: additional arguments to pass to the loader
+    &#34;&#34;&#34;
+    if not fmt:
+        raise Exception(&#34;Format required.&#34;)
+    if isinstance(fmt, str):
+        m = importlib.import_module(mod)
+        loader = m.get_document_loader(None, fmt)
+        doc = loader(Document, from_mem=source, **kwargs)
+    else:
+        doc = fmt(Document, from_mem=source, **kwargs)
+    if doc.offset_type == OFFSET_TYPE_JAVA:
+        doc.to_offset_type(OFFSET_TYPE_PYTHON)
+    return doc</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.document.Document.changelog"><code class="name">property/get/set <span class="ident">changelog</span></code></dt>
+<dt id="gatenlp.document.Document.changelog"><code class="name">var <span class="ident">changelog</span></code></dt>
 <dd>
 <div class="desc"><p>Get the ChangeLog or None if no ChangeLog has been set.</p>
 <p>:return: the changelog</p>
@@ -2368,7 +2475,7 @@ def changelog(self):
     return self._changelog</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.document.Document.features"><code class="name">property/get <span class="ident">features</span></code></dt>
+<dt id="gatenlp.document.Document.features"><code class="name">var <span class="ident">features</span></code></dt>
 <dd>
 <div class="desc"><p>Accesses the features as a FeatureViewer instance. Changes made on this object are
 reflected in the document and recorded in the change log, if there is one.</p>
@@ -2394,7 +2501,7 @@ def features(self):
     return self._features</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.document.Document.name"><code class="name">property/get/set <span class="ident">name</span></code></dt>
+<dt id="gatenlp.document.Document.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2407,7 +2514,7 @@ def name(self):
     return self._name</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.document.Document.text"><code class="name">property/get/set <span class="ident">text</span> : str</code></dt>
+<dt id="gatenlp.document.Document.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
 <dd>
 <div class="desc"><p>Get the text of the document. For a partial document, the text may be None.</p>
 <p>:return: the text of the document</p>
@@ -2450,6 +2557,25 @@ name or a list of type names.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a detached, immutable set with all the annotations matching the annotation specification</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def anns(self, ann_spec):
+    &#34;&#34;&#34;
+    Return a detached annotation set with all annotations which match the annotation specification.
+
+    Args:
+        annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+            each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+            first element of the tuple must be the annotation set name and the second element either a type
+            name or a list of type names.
+
+    Returns:
+        a detached, immutable set with all the annotations matching the annotation specification
+    &#34;&#34;&#34;
+    return AnnotationSet.create_from(self.yield_anns(ann_spec))</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.annset"><code class="name flex">
 <span>def <span class="ident">annset</span></span>(<span>self, name: str = '') ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
@@ -2469,6 +2595,35 @@ If the annotation set does not already exist, it is created.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the specified annotation set.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def annset(self, name: str = &#34;&#34;) -&gt; AnnotationSet:
+    &#34;&#34;&#34;
+    Get the named annotation set, if name is not given or the empty string,
+    the default annotation set.
+    If the annotation set does not already exist, it is created.
+
+    Args:
+        name: the annotation set name, the empty string is used for the
+            &#34;default annotation set&#34;.
+        name: str:  (Default value = &#34;&#34;)
+
+    Returns:
+      the specified annotation set.
+
+    &#34;&#34;&#34;
+    self._ensure_type_python()
+    if name not in self._annotation_sets:
+        annset = AnnotationSet(owner_doc=self, name=name)
+        self._annotation_sets[name] = annset
+        if self._changelog:
+            self._changelog.append({&#34;command&#34;: &#34;annotations:add&#34;, &#34;set&#34;: name})
+        return annset
+    else:
+        return self._annotation_sets[name]</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.annset_names"><code class="name flex">
 <span>def <span class="ident">annset_names</span></span>(<span>self) ‑> List[str]</span>
@@ -2477,6 +2632,22 @@ If the annotation set does not already exist, it is created.</p>
 <div class="desc"><p>Args:</p>
 <h2 id="returns">Returns</h2>
 <p>:return: annotation set names</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def annset_names(self) -&gt; List[str]:
+    &#34;&#34;&#34;
+
+    Args:
+
+    Returns:
+      :return: annotation set names
+
+    &#34;&#34;&#34;
+    self._ensure_type_python()
+    return list(self._annotation_sets.keys())</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.apply_changes"><code class="name flex">
 <span>def <span class="ident">apply_changes</span></span>(<span>self, changes, handle_existing_anns='add-with-new-id')</span>
@@ -2495,6 +2666,122 @@ change object.</p>
 add an annotation with an annotation id that already exists in the target set.
 (Default value = ADDANN_ADD_WITH_NEW_ID)</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply_changes(self, changes, handle_existing_anns=ADDANN_ADD_WITH_NEW_ID):
+    &#34;&#34;&#34;Apply changes from a ChangeLog to this document. `changes` can be a ChangeLog instance,
+    a sequence of change objects (dicts) as stored in a ChangeLog instance, or a single
+    change object.
+
+    The document is modified in-place.
+
+    Args:
+      changes: one or more changes
+      handle_existing_anns: what to do if the change from the changelog tries to
+          add an annotation with an annotation id that already exists in the target set.
+          (Default value = ADDANN_ADD_WITH_NEW_ID)
+
+    &#34;&#34;&#34;
+    if isinstance(changes, dict):
+        changes = [changes]
+    elif isinstance(changes, ChangeLog):
+        changes = changes.changes
+    for change in changes:
+        cmd = change.get(&#34;command&#34;)
+        fname = change.get(&#34;feature&#34;)
+        fvalue = change.get(&#34;value&#34;)
+        features = change.get(&#34;features&#34;)
+        sname = change.get(&#34;set&#34;)
+        annid = change.get(&#34;id&#34;)
+        if cmd is None:
+            raise Exception(&#34;Change without field &#39;command&#39;&#34;)
+        if cmd == ACTION_ADD_ANNSET:
+            assert sname is not None
+            self.annset(sname)
+        elif cmd == ACTION_ADD_ANN:
+            assert sname is not None
+            assert annid is not None
+            anns = self.annset(sname)
+            ann = anns.get(annid)
+            start = change.get(&#34;start&#34;)
+            end = change.get(&#34;end&#34;)
+            anntype = change.get(&#34;type&#34;)
+
+            if ann is None:
+                anns.add(start, end, anntype, annid=annid, features=features)
+            else:
+                if handle_existing_anns == ADDANN_IGNORE:
+                    pass
+                elif handle_existing_anns == ADDANN_ADD_WITH_NEW_ID:
+                    anns.add(start, end, anntype)
+                elif handle_existing_anns == ADDANN_REPLACE_ANNOTATION:
+                    anns.remove(annid)
+                    anns.add(start, end, anntype, annid)
+                elif handle_existing_anns == ADDANN_UPDATE_FEATURES:
+                    ann.features.update(features)
+                elif handle_existing_anns == ADDANN_REPLACE_FEATURES:
+                    ann.features.clear()
+                    ann.features.update(features)
+                elif handle_existing_anns == ADDANN_ADD_NEW_FEATURES:
+                    fns = ann.features.names()
+                    for f in features.keys():
+                        if f not in fns:
+                            ann.features[f] = features[f]
+                elif handle_existing_anns == ADDANN_IGNORE:
+                    pass
+
+        elif cmd == ACTION_CLEAR_ANNS:
+            assert sname is not None
+            anns = self.annset(sname)
+            anns.clear()
+        elif cmd == ACTION_CLEAR_ANN_FEATURES:
+            assert sname is not None
+            assert annid is not None
+            anns = self.annset(sname)
+            ann = anns.get(annid)
+            if ann is not None:
+                ann.features.clear()
+            else:
+                pass  # ignore, could happen with a detached annotation
+        elif cmd == ACTION_CLEAR_DOC_FEATURES:
+            self.features.clear()
+        elif cmd == ACTION_SET_ANN_FEATURE:
+            assert fname is not None
+            assert sname is not None
+            assert annid is not None
+            ann = self.annset(sname).get(annid)
+            ann.features[fname] = fvalue
+        elif cmd == ACTION_DEL_ANN_FEATURE:
+            assert sname is not None
+            assert annid is not None
+            anns = self.annset(sname)
+            ann = anns.get(annid)
+            if ann is not None:
+                if fname is not None:
+                    ann.features.pop(fname, None)
+            else:
+                pass  # ignore, could happen with a detached annotation
+        elif cmd == ACTION_DEL_DOC_FEATURE:
+            assert fname is not None
+            self.features.pop(fname, None)
+        elif cmd == ACTION_DEL_ANN:
+            assert sname is not None
+            assert annid is not None
+            anns = self.annset(sname)
+            anns.remove(annid)
+        elif cmd == ACTION_SET_DOC_FEATURE:
+            assert fname is not None
+            self.features[fname] = fvalue
+        elif cmd == ACTION_CLEAR_DOC_FEATURES:
+            self._features.clear()
+        elif cmd == ACTION_DEL_DOC_FEATURE:
+            assert fname is not None
+            del self._features[fname]
+        else:
+            raise Exception(&#34;Unknown ChangeLog action: &#34;, cmd)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.attach"><code class="name flex">
 <span>def <span class="ident">attach</span></span>(<span>self, annset, name, check=True)</span>
@@ -2513,6 +2800,33 @@ does not yet exist at all.</p>
 <dt><strong><code>check</code></strong></dt>
 <dd>if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def attach(self, annset, name, check=True):
+    &#34;&#34;&#34;
+    Attach a detached set to the document. This should get used with caution and is mainly
+    intended for use inside the gatenlp library to allow for fast incremental creation of
+    new documents and document sets. The set can only be added if a set with the given name
+    does not yet exist at all.
+
+    Args:
+        annset: the annotation set to attach
+        name: the name for the annotation set
+        check: if False, prevent any checking. WARNING: this may create an inconsistent/illegal document!
+    &#34;&#34;&#34;
+    if name in self._annotation_sets:
+        raise Exception(f&#34;Cannot attach set, a set with the name {name} already exists&#34;)
+    if check:
+        # check if the offsets are consistent with the document
+        mylen = len(self)
+        for ann in annset._annotations.values():
+            if ann.end &gt; mylen:
+                raise Exception(f&#34;Cannot attach set, annotation beyond text end: {ann}&#34;)
+    self._annotation_sets[name] = annset
+    annset._owner_doc = self</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.clone"><code class="name flex">
 <span>def <span class="ident">clone</span></span>(<span>self)</span>
@@ -2521,6 +2835,19 @@ does not yet exist at all.</p>
 <div class="desc"><p>Create a clone of the current document, no data is shared between the clone and the original.</p>
 <h2 id="returns">Returns</h2>
 <p>A copy of the current document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clone(self):
+    &#34;&#34;&#34;
+    Create a clone of the current document, no data is shared between the clone and the original.
+
+    Returns:
+        A copy of the current document
+    &#34;&#34;&#34;
+    return Document.load_mem(self.save_mem())</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.copy"><code class="name flex">
 <span>def <span class="ident">copy</span></span>(<span>self, annsets=None)</span>
@@ -2539,6 +2866,50 @@ in more than one specification.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>shallow copy of the document, optionally with some annotations removed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self, annsets=None):
+    &#34;&#34;&#34;
+    Creates a shallow copy except the changelog which is set to None. If annsets is specified,
+    creates a shallow copy but also limits the annotations to the one specified.
+
+    Args:
+      annsets: if not None, a list of annotation set/type specifications: each element
+          is either a string, the name of the annotation set to include, or a tuple where the
+          first element is the annotation set name and the second element is either a
+          type name or a list of type names. The same annotation set name should not be used
+          in more than one specification.
+
+    Returns:
+        shallow copy of the document, optionally with some annotations removed
+    &#34;&#34;&#34;
+    if annsets is None:
+        return self.__copy__()
+    doc = Document(self._text)
+    doc.offset_type = self.offset_type
+    doc._features = self._features.copy()
+    doc._annotation_sets = dict()
+    for spec in annsets:
+        if isinstance(spec, str):
+            tmpset = self._annotation_sets.get(spec)
+            if tmpset is not None:
+                doc._annotation_sets[spec] = self._annotation_sets[spec].copy()
+                doc._annotation_sets[spec]._owner_doc = doc
+        else:
+            setname, types = spec
+            if isinstance(types, str):
+                types = [types]
+            tmpset = self._annotation_sets.get(setname)
+            if tmpset is not None:
+                annset = AnnotationSet(owner_doc=doc, name=setname)
+                anns = self.annset(setname).with_type(types)
+                for ann in anns:
+                    annset.add_ann(ann)
+                doc._annotation_sets[setname] = annset
+    return doc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.deepcopy"><code class="name flex">
 <span>def <span class="ident">deepcopy</span></span>(<span>self, annsets=None, memo=None)</span>
@@ -2555,6 +2926,52 @@ annotations in the copy are restricted to the given set.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a deep copy of the document.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deepcopy(self, annsets=None, memo=None):
+    &#34;&#34;&#34;
+    Creates a deep copy, except the changelog which is set to None. If annset is not None, the
+    annotations in the copy are restricted to the given set.
+
+    Args:
+        memo: the memoization dictionary to use.
+        annsets: which annsets and types to include
+
+    Returns:
+        a deep copy of the document.
+    &#34;&#34;&#34;
+    if self._features is not None:
+        fts = lib_copy.deepcopy(self._features.to_dict(), memo)
+    else:
+        fts = None
+    doc = Document(self._text, features=fts)
+    doc._changelog = None
+    doc.offset_type = self.offset_type
+    if annsets is None:
+        doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
+    else:
+        doc._annotation_sets = dict()
+        for spec in annsets:
+            if isinstance(spec, str):
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    doc._annotation_sets[spec] = lib_copy.deepcopy(tmpset, memo)
+                    doc._annotation_sets[spec]._owner_doc = doc
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    annset = AnnotationSet(owner_doc=doc, name=setname)
+                    anns = tmpset.with_type(types)
+                    for ann in anns:
+                        annset.add_ann(lib_copy.deepcopy(ann, memo))
+                    doc._annotation_sets[setname] = annset
+    return doc</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.edit"><code class="name flex">
 <span>def <span class="ident">edit</span></span>(<span>self, edits, affected_strategy='keepadapt')</span>
@@ -2580,6 +2997,40 @@ new span, otherwise adapted to from/to.</p>
 <dt><strong><code>affected_strategy</code></strong></dt>
 <dd>one of the following strategies: delete, adapt, keepadapt</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def edit(self, edits, affected_strategy=&#34;keepadapt&#34;):
+    &#34;&#34;&#34;
+    Carry out one or more edits. If edits is a tuple of length 3 with the first element not being iterable,
+    assume it is a single edit, Otherwise assume it is an iterable of edits.
+    An edit is a tuple (start, end, newstr) giving the old offset range and the string which
+    replaces that range. NOTE: no two edit offset ranges may
+    overlap, if ranges do overlap, this method may raise an exception or silently perform unexpected
+    and terrible changes. The method does not check for edit spans to not overlap!
+
+    This method adapts the offsets of all annotations after the affected span, if an annotation begins or
+    ends within an affected span, what happens depends on the affected_strategy:
+
+    delete_all: remove any annotation where the start and/or end offset lies between the from/to offsets of
+        the edit
+    adapt: any start and/or end offset in between from/to is changed to the from or to offset
+    keepadapt: any start and/or end offset in between is left unchanged if that offset still exists in the
+        new span, otherwise adapted to from/to.
+
+    Args:
+        edits: single edit or iterable of edits
+        affected_strategy: one of the following strategies: delete, adapt, keepadapt
+    &#34;&#34;&#34;
+    assert affected_strategy in [&#34;delete_all&#34;, &#34;adapt&#34;, &#34;keepadapt&#34;]
+    if isinstance(edits, tuple) and not isinstance(edits[0], Iterable):
+        edits = [edits]
+    edits.sort(key=lambda x: x[0])
+    self._text = Document._edit_text(self._text, edits)
+    for annset in self._annotation_sets.values():
+        annset._edit(edits, affected_strategy=affected_strategy)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.remove_annset"><code class="name flex">
 <span>def <span class="ident">remove_annset</span></span>(<span>self, name: str)</span>
@@ -2594,6 +3045,26 @@ new span, otherwise adapted to from/to.</p>
 <dd>str:</dd>
 </dl>
 <p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_annset(self, name: str):
+    &#34;&#34;&#34;Completely remove the annotation set.
+
+    Args:
+      name: name of the annotation set to remove
+      name: str:
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if name not in self._annotation_sets:
+        raise Exception(f&#34;AnnotationSet with name {name} does not exist&#34;)
+    del self._annotation_sets[name]
+    if self._changelog:
+        self._changelog.append({&#34;command&#34;: &#34;annotations:remove&#34;, &#34;set&#34;: name})</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, destination, fmt=None, offset_type=None, mod='gatenlp.serialization.default', annsets=None, **kwargs)</span>
@@ -2618,6 +3089,42 @@ list of annotation types to include in the serialized document.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the document saver.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(
+    self,
+    destination,
+    fmt=None,
+    offset_type=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    annsets=None,
+    **kwargs,
+):
+    &#34;&#34;&#34;Save the document to the destination file.
+
+    Args:
+        destination: either a file name or something that has a write(string) method.
+        fmt: serialization format, by default the format is inferred from the file extension.
+        offset_type: store using the given offset type or keep the current if None
+            (Default value = None)
+        mod: module where the document saver is implemented.
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        annsets: if not None, a list of annotation set names or tuples of set name and a
+            list of annotation types to include in the serialized document.
+        kwargs: additional parameters for the document saver.
+    &#34;&#34;&#34;
+    if annsets is not None:
+        kwargs[&#34;annsets&#34;] = annsets
+    if fmt is None or isinstance(fmt, str):
+        m = importlib.import_module(mod)
+        saver = m.get_document_saver(destination, fmt)
+        saver(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)
+    else:
+        # assume fmt is a callable to get used directly
+        fmt(Document, self, to_ext=destination, offset_type=offset_type, **kwargs)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.save_mem"><code class="name flex">
 <span>def <span class="ident">save_mem</span></span>(<span>self, fmt='json', offset_type=None, mod='gatenlp.serialization.default', **kwargs)</span>
@@ -2637,6 +3144,36 @@ list of annotation types to include in the serialized document.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>additional parameters for the format.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_mem(
+    self,
+    fmt=&#34;json&#34;,
+    offset_type=None,
+    mod=&#34;gatenlp.serialization.default&#34;,
+    **kwargs,
+):
+    &#34;&#34;&#34;Serialize to a string or bytes in the given format.
+
+    Args:
+        fmt: serialization format to use. (Default value = &#34;json&#34;)
+        offset_type: store using the given offset type or keep the current if None
+            (Default value = None)
+        mod: module where the document saver is implemented.
+            (Default value = &#34;gatenlp.serialization.default&#34;)
+        kwargs: additional parameters for the format.
+    &#34;&#34;&#34;
+    if not fmt:
+        raise Exception(&#34;Format required.&#34;)
+    if isinstance(fmt, str):
+        m = importlib.import_module(mod)
+        saver = m.get_document_saver(None, fmt)
+        return saver(Document, self, to_mem=True, offset_type=offset_type, **kwargs)
+    else:
+        fmt(Document, self, to_mem=True, offset_type=offset_type, **kwargs)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.show"><code class="name flex">
 <span>def <span class="ident">show</span></span>(<span>self, to=None, htmlid=None, annsets=None, doc_style=None)</span>
@@ -2663,6 +3200,49 @@ and with a single type name or a list of type names as the second element</dd>
 <dt><strong><code>doc_style</code></strong></dt>
 <dd>if not None, use this as the style for the document text box</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show(self, to=None, htmlid=None, annsets=None, doc_style=None):
+    &#34;&#34;&#34;
+    Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
+    the generated HTML can be directly styled afterwards.
+    This directly sends the rendered document to the cell (no display/HTML necessary) if
+    the destination is a notebook.
+
+    Args:
+        to: if None, try to guess if this is called from within a notebook and if yes, which kind.
+            Otherwise, explicitly specify where to show the document to, one of &#34;console&#34;, &#34;jupyter&#34;,
+            &#34;colab&#34;.
+        htmlid: the HTML id prefix to use for classes and element ids.
+        annsets: if not None, a list of annotation set/type specifications.
+            Each element is either
+            the name of a set to fully include, or a tuple with the name of the set as
+            the first element
+            and with a single type name or a list of type names as the second element
+        doc_style: if not None, use this as the style for the document text box
+    &#34;&#34;&#34;
+    if to == &#34;colab&#34;:
+        self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+        return
+    elif to == &#34;jupyter&#34;:
+        self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+        return
+    elif to == &#34;console&#34;:
+        return self.__str__()
+    elif to is not None:
+        raise Exception(f&#34;Not a valid value for parameter to: {to}. Use one of console, jupyter, colab&#34;)
+    if in_notebook():
+        if in_colab():
+            self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+        else:
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            return
+    else:
+        return self.__str__()</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self, offset_type=None, annsets=None, **kwargs)</span>
@@ -2687,9 +3267,76 @@ in more than one specification.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the dictionary representation of this instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self, offset_type=None, annsets=None, **kwargs):
+    &#34;&#34;&#34;Convert this instance to a dictionary that can be used to re-create the instance with
+    from_dict.
+    NOTE: if there is an active changelog, it is not included in the output as this
+    field is considered a transient field!
+
+    Args:
+      offset_type: convert to the given offset type on the fly (Default value = None)
+      annsets: if not None, a list of annotation set/type specifications: each element
+          is either a string, the name of the annotation set to include, or a tuple where the
+          first element is the annotation set name and the second element is either a
+          type name or a list of type names. The same annotation set name should not be used
+          in more than one specification.
+      **kwargs: get passed on to the to_dict methods of included objects.
+
+    Returns:
+      the dictionary representation of this instance
+
+    &#34;&#34;&#34;
+    # if the specified offset type is equal to what we have, do nothing, otherwise
+    # create an offset mapper and pass it down to where we actually convert the annotations
+
+    if offset_type is not None:
+        assert offset_type == OFFSET_TYPE_JAVA or offset_type == OFFSET_TYPE_PYTHON
+        if offset_type != self.offset_type:
+            if self._text is not None:
+                om = OffsetMapper(self._text)
+                kwargs[&#34;offset_mapper&#34;] = om
+                kwargs[&#34;offset_type&#34;] = offset_type
+    else:
+        offset_type = self.offset_type
+
+    # create the annotation sets map
+    if annsets is not None:
+        annsets_dict = {}
+        for spec in annsets:
+            if isinstance(spec, str):
+                tmpset = self._annotation_sets.get(spec)
+                if tmpset is not None:
+                    annsets_dict[spec] = tmpset.to_dict(**kwargs)
+            else:
+                setname, types = spec
+                if isinstance(types, str):
+                    types = [types]
+                tmpset = self._annotation_sets.get(setname)
+                if tmpset is not None:
+                    annsets_dict[setname] = self._annotation_sets[setname].to_dict(
+                        anntypes=types, **kwargs
+                    )
+    else:
+        annsets_dict = {
+            name: aset.to_dict(**kwargs)
+            for name, aset in self._annotation_sets.items()
+        }
+
+    return {
+        &#34;annotation_sets&#34;: annsets_dict,
+        &#34;text&#34;: self._text,
+        &#34;features&#34;: self._features.to_dict(),
+        &#34;offset_type&#34;: offset_type,
+        &#34;name&#34;: self.name,
+    }</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.to_offset_type"><code class="name flex">
-<span>def <span class="ident">to_offset_type</span></span>(<span>self, offsettype: str) ‑> Union[<a title="gatenlp.offsetmapper.OffsetMapper" href="offsetmapper.html#gatenlp.offsetmapper.OffsetMapper">OffsetMapper</a>, NoneType]</span>
+<span>def <span class="ident">to_offset_type</span></span>(<span>self, offsettype: str) ‑> Optional[<a title="gatenlp.offsetmapper.OffsetMapper" href="offsetmapper.html#gatenlp.offsetmapper.OffsetMapper">OffsetMapper</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert all the offsets of all the annotations in this document to the
@@ -2707,6 +3354,44 @@ otherwise None.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>offset mapper or None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_offset_type(self, offsettype: str) -&gt; Union[OffsetMapper, None]:
+    &#34;&#34;&#34;Convert all the offsets of all the annotations in this document to the
+    required type, either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON. If the offsets
+    are already of that type, this does nothing.
+
+    NOTE: if the document has a ChangeLog, it is NOT also converted!
+
+    The method returns the offset mapper if anything actually was converted,
+    otherwise None.
+
+    Args:
+      offsettype: either OFFSET_TYPE_JAVA or OFFSET_TYPE_PYTHON
+      offsettype: str:
+
+    Returns:
+      offset mapper or None
+
+    &#34;&#34;&#34;
+    if offsettype == self.offset_type:
+        return None
+    if offsettype == OFFSET_TYPE_JAVA and self.offset_type == OFFSET_TYPE_PYTHON:
+        # convert from currently python to java
+        om = OffsetMapper(self._text)
+        self._fixup_annotations(om.convert_to_java)
+        self.offset_type = OFFSET_TYPE_JAVA
+    elif offsettype == OFFSET_TYPE_PYTHON and self.offset_type == OFFSET_TYPE_JAVA:
+        # convert from currently java to python
+        om = OffsetMapper(self._text)
+        self._fixup_annotations(om.convert_to_python)
+        self.offset_type = OFFSET_TYPE_PYTHON
+    else:
+        raise Exception(&#34;Odd offset type&#34;)
+    return om</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.document.Document.yield_anns"><code class="name flex">
 <span>def <span class="ident">yield_anns</span></span>(<span>self, ann_spec)</span>
@@ -2724,6 +3409,46 @@ name or a list of type names.</dd>
 </dl>
 <h2 id="yields">Yields</h2>
 <p>all the annotations matching the annotation specification</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def yield_anns(self, ann_spec):
+    &#34;&#34;&#34;
+    Yield all annotations which match the annotation specification.
+    The order of the annotations is unespecified.
+
+    Args:
+        annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+            each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+            first element of the tuple must be the annotation set name and the second element either a type
+            name or a list of type names.
+
+    Yields:
+        all the annotations matching the annotation specification
+    &#34;&#34;&#34;
+    if isinstance(ann_spec, str):
+        tmpset = self._annotation_sets.get(ann_spec)
+        if tmpset is not None:
+            for ann in tmpset._annotations.values():
+                yield ann
+        return
+    for spec in ann_spec:
+        if isinstance(spec, str):
+            tmpset = self._annotation_sets.get(spec)
+            if tmpset is not None:
+                for ann in tmpset._annotations.values():
+                    yield ann
+        else:
+            setname, types = spec
+            if isinstance(types, str):
+                types = [types]
+            tmpset = self._annotation_sets.get(setname)
+            if tmpset is not None:
+                for ann in tmpset._annotations.values():
+                    if ann.type in types:
+                        yield ann</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -2777,7 +3502,7 @@ name or a list of type names.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

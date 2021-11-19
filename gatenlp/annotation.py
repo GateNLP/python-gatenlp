@@ -23,9 +23,7 @@ class Annotation:   # pylint: disable=R0904
     """
 
     @allowspan
-    def __init__(
-            self, start: int, end: int, anntype: str, features=None, annid: int = 0
-        ):
+    def __init__(self, start: int, end: int, anntype: str, features=None, annid: int = 0):
         """
         This constructor creates a new annotation instance. Once an annotation has been created,
         the start, end, type and id fields cannot be changed.
@@ -119,9 +117,7 @@ class Annotation:   # pylint: disable=R0904
     # For performance reasons we check the feature name but not the value (maybe make checking
     # optional
     # on by default but still optional?)
-    def _log_feature_change(
-            self, command: str, feature: str = None, value=None
-        ) -> None:
+    def _log_feature_change(self, command: str, feature: str = None, value=None) -> None:
         """
 
         Args:
@@ -156,9 +152,9 @@ class Annotation:   # pylint: disable=R0904
             other: another object
         """
         return isinstance(other, Annotation) and \
-               self.start == other.start and \
-               self.end == other.end and \
-               self.features == other.features
+            self.start == other.start and \
+            self.end == other.end and \
+            self.features == other.features
 
     def same(self, other):
         """
@@ -169,10 +165,10 @@ class Annotation:   # pylint: disable=R0904
             other: another object
         """
         return isinstance(other, Annotation) and \
-               self.id == other.id and \
-               self.start == other.start and \
-               self.end == other.end and \
-               self.features == other.features
+            self.id == other.id and \
+            self.start == other.start and \
+            self.end == other.end and \
+            self.features == other.features
 
     def __lt__(self, other) -> bool:
         """

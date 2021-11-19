@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.utils API documentation</title>
 <meta name="description" content="Various utilities that could be useful in several modules." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -393,6 +393,27 @@ def get_nested(adict, name, default=None, silent=False):
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def allowspan(method):
+    @wraps(method)
+    def _allowspan(self, *args, **kwargs):
+        if len(args) == 0:
+            # maybe the start and end parameters are given as kwargs?
+            if &#34;start&#34; in kwargs and &#34;end&#34; in kwargs:
+                return method(self, **kwargs)
+            else:
+                raise Exception(&#34;Need a span, or start and end parameters!&#34;)
+        maybespan = args[0]
+        if hasattr(maybespan, &#34;start&#34;) and hasattr(maybespan, &#34;end&#34;):
+            return method(self, maybespan.start, maybespan.end, *args[1:], **kwargs)
+        else:
+            return method(self, *args, **kwargs)
+
+    return _allowspan</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.file4logger"><code class="name flex">
 <span>def <span class="ident">file4logger</span></span>(<span>thelogger, noext=False)</span>
@@ -406,6 +427,29 @@ def get_nested(adict, name, default=None, silent=False):
 </dl>
 <h2 id="returns">Returns</h2>
 <p>file path (string)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def file4logger(thelogger, noext=False):
+    &#34;&#34;&#34;
+    Return the first logging file found for this logger or None if there is no file handler.
+
+    Args:
+        thelogger: logger
+
+    Returns:
+        file path (string)
+    &#34;&#34;&#34;
+    lpath = None
+    for h in thelogger.handlers:
+        if isinstance(h, logging.FileHandler):
+            lpath = h.baseFilename
+            if noext:
+                lpath = os.path.splitext(lpath)[0]
+            break
+    return lpath</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.get_nested"><code class="name flex">
 <span>def <span class="ident">get_nested</span></span>(<span>adict, name, default=None, silent=False)</span>
@@ -428,18 +472,72 @@ an excpetion is raised unless silent is True</dd>
 <p>The value for the field or None if not found</p>
 <h2 id="raises">Raises</h2>
 <p>Exception if an expected nested dictionary is not a dictionary and silent is False</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_nested(adict, name, default=None, silent=False):
+    &#34;&#34;&#34;
+    Get a field from a nested map or return the default if the submap/field does not exist.
+
+    Args:
+        adict: a dictionary with possibly nested dictionaries
+        name:  the key to access where dots are used to separate keys for nested maps, e.g.
+            &#34;key1.key2.key3&#34; would access the value of key3 in the map stored under key2 in
+            the map stored under key1 in adict. If key1 returns something that is not a map,
+            an excpetion is raised unless silent is True
+        default: the default value to return if a field with the given name cannot be accessed
+
+    Returns:
+        The value for the field or None if not found
+
+    Raises:
+        Exception if an expected nested dictionary is not a dictionary and silent is False
+    &#34;&#34;&#34;
+    origname = name
+    names = name.split(&#34;.&#34;)
+    for name in names:
+        if not isinstance(adict, dict):
+            if silent:
+                return None
+            else:
+                raise Exception(
+                    f&#34;Not a dictionary for {name}, original name was {origname}, got {type(adict)}&#34;
+                )
+        ret = adict.get(name)
+        adict = ret
+    if ret is None:
+        return default
+    else:
+        return ret</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.identity"><code class="name flex">
 <span>def <span class="ident">identity</span></span>(<span>x)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def identity(x):
+    return x</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.in_colab"><code class="name flex">
 <span>def <span class="ident">in_colab</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def in_colab():
+    from IPython.core import getipython
+    return &#39;google.colab&#39; in str(getipython.get_ipython())</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.in_notebook"><code class="name flex">
 <span>def <span class="ident">in_notebook</span></span>(<span>)</span>
@@ -447,6 +545,38 @@ an excpetion is raised unless silent is True</dd>
 <dd>
 <div class="desc"><p>Check if we are running from within a jupyter-like notebook.</p>
 <p>Returns: True if likely within a notebook.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def in_notebook():
+    &#34;&#34;&#34;
+    Check if we are running from within a jupyter-like notebook.
+
+    Returns: True if likely within a notebook.
+    &#34;&#34;&#34;
+    if _in_notebook[0] is not None:
+        return _in_notebook[0]
+    try:
+        from IPython import get_ipython
+
+        ip = get_ipython()
+        if ip is None:
+            # we have IPython installed but not running from IPython
+            _in_notebook[0] = False
+        else:
+            from IPython.core.interactiveshell import InteractiveShell
+
+            format = InteractiveShell.instance().display_formatter.format
+            if len(format(_checkhtml, include=&#34;text/html&#34;)[0]):
+                _in_notebook[0] = True
+            else:
+                _in_notebook[0] = False
+    except Exception:
+        # We do not even have IPython installed
+        _in_notebook[0] = False
+    return _in_notebook[0]</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.init_logger"><code class="name flex">
 <span>def <span class="ident">init_logger</span></span>(<span>name=None, file=None, lvl=None, config=None, debug=False, args=None, fmt=None)</span>
@@ -477,12 +607,81 @@ file "outpref.DATETIME.log" as well.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A logger instance for name (always the same instance for the same name)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=None, fmt=None):
+    &#34;&#34;&#34;
+    Configure the root logger (this only works the very first time, all subsequent
+    invocations will not modify the root logger). The root logger is initialized
+    with a standard format the given log level and, if specified the outputs to the
+    given file.
+
+    The get a new logger for the given name is retrieved using the given name or
+    the invoking command if None. It is also set to the given logging leve and returned.
+
+    TODO: If file is not given but args is given and has &#34;outpref&#34; parameter, log to
+    file &#34;outpref.DATETIME.log&#34; as well.
+
+    Args:
+        name: name to use in the log, if None, __name__
+        file: if given, log to this destination in addition to stderr
+        lvl: set logging level
+        config: if specified, set logger config from this file
+        args: not used yet
+        fmt: logging format to use, if None uses a default format
+
+    Returns:
+        A logger instance for name (always the same instance for the same name)
+    &#34;&#34;&#34;
+
+    if name is None:
+        name = sys.argv[0]
+    if fmt is None:
+        fmt = LOGGING_FORMAT
+    if lvl is None:
+        if debug:
+            lvl = logging.DEBUG
+        else:
+            lvl = logging.INFO
+    if config:
+        # NOTE we could also configure from a yaml file or a dictionary, see
+        # http://zetcode.com/python/logging/
+        # see doc on logging.config
+        logging.config.fileConfig(fname=config)
+    # get the root logger
+    rl = logging.getLogger()
+    rl.setLevel(lvl)
+    # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
+    # handler for the file, if needed, only if the root logger has no handlers yet as well
+    addhandlers = []
+    fmt = logging.Formatter(fmt)
+    hndlr = logging.StreamHandler(sys.stderr)
+    hndlr.setFormatter(fmt)
+    addhandlers.append(hndlr)
+    if file and len(logging.getLogger().handlers) == 0:
+        hndlr = logging.FileHandler(file)
+        hndlr.setFormatter(fmt)
+        addhandlers.append(hndlr)
+    logging.basicConfig(level=lvl, handlers=addhandlers)
+    # now get the handler for name
+    logger = logging.getLogger(name)
+    return logger</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.isequal"><code class="name flex">
 <span>def <span class="ident">isequal</span></span>(<span>x, y)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isequal(x, y):
+    return x == y</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.match_substrings"><code class="name flex">
 <span>def <span class="ident">match_substrings</span></span>(<span>text, items, getstr=None, cmp=None, unmatched=False)</span>
@@ -513,6 +712,72 @@ contains the offsets of text not matched by the items (Default value = False)</d
 <h2 id="returns">Returns</h2>
 <p>a list of tuples (start, end, item) where start and end are the
 start and end offsets of a substring in the text and item is the item for that substring.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
+    &#34;&#34;&#34;
+    Matches each item from the items sequence with sum substring of the text
+    in a greedy fashion. An item is either already a string or getstr is used
+    to retrieve a string from it. The text and substrings are normally
+    compared with normal string equality but cmp can be replaced with
+    a two-argument function that does the comparison instead.
+    This function expects that all items are present in the text, in their order
+    and without overlapping! If this is not the case, an exception is raised.
+
+    Args:
+      text: the text to use for matching
+      items: items that are or contains substrings to match
+      getstr: a function that retrieves the text from an item (Default value = None)
+      cmp: a function that compares to strings and returns a boolean \
+    that indicates if they should be considered to be equal. (Default value = None)
+      unmatched: if true returns two lists of tuples, where the second list\
+    contains the offsets of text not matched by the items (Default value = False)
+
+    Returns:
+      a list of tuples (start, end, item) where start and end are the\
+      start and end offsets of a substring in the text and item is the item for that substring.
+
+    &#34;&#34;&#34;
+    if getstr is None:
+        getstr = identity
+    if cmp is None:
+        cmp = isequal
+    ltxt = len(text)
+    ret = []
+    ret2 = []
+    item_idx = 0
+    start = 0
+    lastunmatched = 0
+    while start &lt; ltxt:
+        itemorig = items[item_idx]
+        item = getstr(itemorig)
+        end = start + len(item)
+        if end &gt; ltxt:
+            raise Exception(&#34;Text too short to match next item: {}&#34;.format(item))
+        if cmp(text[start:end], item):
+            if unmatched and start &gt; lastunmatched:
+                ret2.append((lastunmatched, start))
+                lastunmatched = start + len(item)
+            ret.append((start, end, itemorig))
+            start += len(item)
+            item_idx += 1
+            if item_idx == len(items):
+                break
+        else:
+            start += 1
+    if item_idx != len(items):
+        raise Exception(
+            &#34;Not all items matched but {} of {}&#34;.format(item_idx, len(items))
+        )
+    if unmatched and lastunmatched != ltxt:
+        ret2.append((lastunmatched, ltxt))
+    if unmatched:
+        return ret, ret2
+    else:
+        return ret</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.run_start"><code class="name flex">
 <span>def <span class="ident">run_start</span></span>(<span>logger=None, name=None, lvl=None)</span>
@@ -521,6 +786,26 @@ start and end offsets of a substring in the text and item is the item for that s
 <div class="desc"><p>Define time when running starts.</p>
 <h2 id="returns">Returns</h2>
 <p>system time in seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_start(logger=None, name=None, lvl=None):
+    &#34;&#34;&#34;
+    Define time when running starts.
+
+    Returns:
+        system time in seconds
+    &#34;&#34;&#34;
+    global start
+    if logger is None:
+        logger = init_logger(name=name, lvl=lvl)
+    logger.info(
+        &#34;Started: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
+    start = time.time()
+    return start</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.run_stop"><code class="name flex">
 <span>def <span class="ident">run_stop</span></span>(<span>logger=None, name=None)</span>
@@ -529,6 +814,31 @@ start and end offsets of a substring in the text and item is the item for that s
 <div class="desc"><p>Log and return formatted elapsed run time.</p>
 <h2 id="returns">Returns</h2>
 <p>tuple of formatted run time, run time in seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_stop(logger=None, name=None):
+    &#34;&#34;&#34;
+    Log and return formatted elapsed run time.
+
+    Returns:
+        tuple of formatted run time, run time in seconds
+    &#34;&#34;&#34;
+    if logger is None:
+        logger = init_logger(name=name)
+    logger.info(
+        &#34;Stopped: {}&#34;.format(datetime.datetime.now().strftime(&#34;%Y-%m-%d %H:%M%S&#34;))
+    )
+    if start == 0:
+        logger.warning(&#34;Run timing not set up properly, no time!&#34;)
+        return &#34;&#34;, 0
+    stop = time.time()
+    delta = stop - start
+    deltastr = str(datetime.timedelta(seconds=delta))
+    logger.info(f&#34;Runtime: {deltastr}&#34;)
+    return deltastr, delta</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.utils.support_annotation_or_set"><code class="name flex">
 <span>def <span class="ident">support_annotation_or_set</span></span>(<span>method)</span>
@@ -547,6 +857,56 @@ offset.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the adapted method which now takes an annotation or annotation set as well as start/end offsets.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def support_annotation_or_set(method):
+    &#34;&#34;&#34;
+    Decorator to allow a method that normally takes a start and end
+    offset to take an annotation or annotation set, or any other object that has
+    &#34;start&#34; and &#34;end&#34; attributes, or a pair of offsets instead.
+    It also allows to take a single offset instead in which case the end offset will
+    get passed on as None: this is to support those methods which can take a span or a single
+    offset.
+
+    Args:
+      method: the method that gets converted by this decorator.
+
+    Returns:
+        the adapted method which now takes an annotation or annotation set as well as start/end offsets.
+    &#34;&#34;&#34;
+
+    @wraps(method)
+    def _support_annotation_or_set(self, *args, **kwargs):
+        from gatenlp.annotation import Annotation
+
+        annid = None
+        if len(args) == 1:
+            obj = args[0]
+            if hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
+                left, right = obj.start, obj.end
+            elif isinstance(obj, (tuple, list)) and len(obj) == 2:
+                left, right = obj
+            elif isinstance(obj, numbers.Integral):
+                left, right = obj, None
+            else:
+                raise Exception(
+                    &#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0])
+                )
+            if isinstance(obj, Annotation):
+                annid = obj.id
+        else:
+            assert len(args) == 2
+            left, right = args
+        # if the called method/function does have an annid keyword, pass it, otherwise omit
+        if &#34;annid&#34; in method.__code__.co_varnames:
+            return method(self, left, right, annid=annid, **kwargs)
+        else:
+            return method(self, left, right, **kwargs)
+
+    return _support_annotation_or_set</code></pre>
+</details>
 </dd>
 </dl>
 </section>
@@ -584,7 +944,7 @@ offset.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

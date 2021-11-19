@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.lib_spacy API documentation</title>
 <meta name="description" content="Support for using spacy: convert from spacy to gatenlp documents and annotations." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -311,24 +311,48 @@ def spacy2gatenlp(
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">SPACY_IS_NERED = lambda doc: doc.has_annotation(&#34;ENT_IOB&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_spacy.SPACY_IS_PARSED"><code class="name flex">
 <span>def <span class="ident">SPACY_IS_PARSED</span></span>(<span>doc)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">SPACY_IS_PARSED = lambda doc:  doc.has_annotation(&#34;DEP&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_spacy.SPACY_IS_SENTENCED"><code class="name flex">
 <span>def <span class="ident">SPACY_IS_SENTENCED</span></span>(<span>doc)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">SPACY_IS_SENTENCED = lambda doc: doc.has_annotation(&#34;SENT_START&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_spacy.SPACY_IS_TAGGED"><code class="name flex">
 <span>def <span class="ident">SPACY_IS_TAGGED</span></span>(<span>doc)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">SPACY_IS_TAGGED = lambda doc: doc.has_annotation(&#34;TAG&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_spacy.apply_spacy"><code class="name flex">
 <span>def <span class="ident">apply_spacy</span></span>(<span>nlp, gatenlpdoc, setname='', containing_anns=None, component_cfg=None, retrieve_spans=None)</span>
@@ -354,6 +378,50 @@ of the annotations is analyzed. The annotations should not overlap.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>The modified document.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply_spacy(nlp, gatenlpdoc, setname=&#34;&#34;, containing_anns=None,
+                component_cfg=None, retrieve_spans=None):
+    &#34;&#34;&#34;Run the spacy nlp pipeline on the gatenlp document and transfer the annotations.
+    This modifies the gatenlp document in place.
+
+    Args:
+        nlp: spacy pipeline
+        gatenlpdoc: gatenlp document
+        setname: annotation set to receive the annotations (Default value = &#34;&#34;)
+        containing_anns: annotation set or iterable of annotations. If not None, only the text covered be each
+            of the annotations is analyzed. The annotations should not overlap.
+        component_cfg: the component config to use for Spacy
+        retrieve_spans: if not None, a list of additional span types to retrieve from the SpaCy document
+
+    Returns:
+        The modified document.
+    &#34;&#34;&#34;
+    if containing_anns:
+        component_config = None
+        if isinstance(containing_anns, AnnotationSet):
+            annsiter = containing_anns.fast_iter()
+        else:
+            annsiter = containing_anns
+        for ann in annsiter:
+            if component_cfg:
+                component_config = {component_cfg: ann.features.to_dict()}
+        
+            covered = gatenlpdoc[ann.start:ann.end]
+            spacydoc = nlp(covered, component_cfg=component_config)
+            spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname,
+                          start_offset=ann.start, retrieve_spans=retrieve_spans)
+            elems = dir(spacydoc._)
+            for elem in elems:
+                if elem not in [&#39;get&#39;, &#39;set&#39;, &#39;has&#39;]:
+                    ann.features[elem] = spacydoc._.get(elem)
+        return gatenlpdoc
+    else:
+        spacydoc = nlp(gatenlpdoc.text)
+        return spacy2gatenlp(spacydoc, gatenlpdoc=gatenlpdoc, setname=setname)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.lib_spacy.spacy2gatenlp"><code class="name flex">
 <span>def <span class="ident">spacy2gatenlp</span></span>(<span>spacydoc, gatenlpdoc=None, setname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_ents=True, add_sents=True, add_nounchunks=True, add_dep=True, ent_prefix=None, start_offset=0, retrieve_spans=None)</span>
@@ -404,6 +472,146 @@ in the corresponding possition</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>the new or modified Document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def spacy2gatenlp(
+    spacydoc,
+    gatenlpdoc=None,
+    setname=&#34;&#34;,
+    token_type=&#34;Token&#34;,
+    space_token_type=&#34;SpaceToken&#34;,
+    sentence_type=&#34;Sentence&#34;,
+    nounchunk_type=&#34;NounChunk&#34;,
+    add_tokens=True,
+    # add_spacetokens=True, # not sure how to do this yet
+    add_ents=True,
+    add_sents=True,
+    add_nounchunks=True,
+    add_dep=True,
+    ent_prefix=None,
+    start_offset=0,
+    retrieve_spans=None
+):
+    &#34;&#34;&#34;Convert a spacy document to a gatenlp document. If a gatenlp document is already
+    provided, add the annotations from the spacy document to it. In this case the
+    original gatenlpdoc is used and gets modified.
+
+    Args:
+        spacydoc: a spacy document
+        gatenlpdoc: if None, a new gatenlp document is created otherwise this
+            document is added to. (Default value = None)
+        setname: the annotation set name to which the annotations get added, empty string
+            for the default annotation set.
+        token_type: the annotation type to use for tokens (Default value = &#34;Token&#34;)
+        space_token_type: the annotation type to use for space tokens (Default value = &#34;SpaceToken&#34;)
+        sentence_type: the annotation type to use for sentence anntoations (Default value = &#34;Sentence&#34;)
+        nounchunk_type: the annotation type to use for noun chunk annotations (Default value = &#34;NounChunk&#34;)
+        add_tokens: should annotations for tokens get added? If not, dependency parser
+            info cannot be added either. (Default value = True)
+        add_ents: should annotations for entities get added
+        add_sents: should sentence annotations get added (Default value = True)
+        add_nounchunks: should noun chunk annotations get added (Default value = True)
+        add_dep: should dependency parser information get added (Default value = True)
+        add_ents:  (Default value = True)
+        ent_prefix:  (Default value = None)
+        start_offset: If a document is specified, an offset where the text starts can be defined.
+            This allows a part of a document with spacy and then include the annotations back to the document,
+            in the corresponding possition
+        retrieve_spans: if not None, a list of additional Spacy span types to retrieve
+
+    Returns:
+      the new or modified Document
+    &#34;&#34;&#34;
+    
+    # add_spacetokens:  (Default value = True)
+    # not sure how to do this yet
+
+    if retrieve_spans is None:
+        retrieve_spans = []
+    if gatenlpdoc is None:
+        retdoc = Document(spacydoc.text)
+        start_offset = 0
+    else:
+        retdoc = gatenlpdoc
+    toki2annid = {}
+    annset = retdoc.annset(setname)
+    for tok in spacydoc:
+        from_off = tok.idx
+        to_off = tok.idx + len(tok)
+        # is_space = tok.is_space
+        fm = {
+            &#34;_i&#34;: tok.i,
+            &#34;is_alpha&#34;: tok.is_alpha,
+            &#34;is_bracket&#34;: tok.is_bracket,
+            &#34;is_currency&#34;: tok.is_currency,
+            &#34;is_digit&#34;: tok.is_digit,
+            &#34;is_left_punct&#34;: tok.is_left_punct,
+            &#34;is_lower&#34;: tok.is_lower,
+            &#34;is_oov&#34;: tok.is_oov,
+            &#34;is_punct&#34;: tok.is_punct,
+            &#34;is_quote&#34;: tok.is_quote,
+            &#34;is_right_punct&#34;: tok.is_right_punct,
+            &#34;is_sent_start&#34;: tok.is_sent_start,
+            &#34;is_space&#34;: tok.is_space,
+            &#34;is_stop&#34;: tok.is_stop,
+            &#34;is_title&#34;: tok.is_title,
+            &#34;is_upper&#34;: tok.is_upper,
+            &#34;lang&#34;: tok.lang_,
+            &#34;lemma&#34;: tok.lemma_,
+            &#34;like_email&#34;: tok.like_email,
+            &#34;like_num&#34;: tok.like_num,
+            &#34;like_url&#34;: tok.like_url,
+            &#34;orth&#34;: tok.orth,
+            &#34;pos&#34;: tok.pos_,
+            &#34;prefix&#34;: tok.prefix_,
+            &#34;prob&#34;: tok.prob,
+            &#34;rank&#34;: tok.rank,
+            &#34;sentiment&#34;: tok.sentiment,
+            &#34;tag&#34;: tok.tag_,
+            &#34;shape&#34;: tok.shape_,
+            &#34;suffix&#34;: tok.suffix_,
+        }
+        if SPACY_IS_NERED(spacydoc) and add_ents:
+            fm[&#34;ent_type&#34;] = tok.ent_type_
+        if SPACY_IS_PARSED(spacydoc) and add_dep:
+            fm[&#34;dep&#34;] = tok.dep_
+        if tok.is_space:
+            anntype = space_token_type
+        else:
+            anntype = token_type
+        annid = annset.add(from_off+start_offset, to_off+start_offset, anntype, fm).id
+        toki2annid[tok.i] = annid
+        # print(&#34;Added annotation with id: {} for token {}&#34;.format(annid, tok.i))
+        ws = tok.whitespace_
+        if len(ws) &gt; 0:
+            annset.add(to_off+start_offset, to_off + len(ws)+start_offset, space_token_type, {&#34;is_space&#34;: True})
+    # if we have a dependency parse, now also add the parse edges
+    if SPACY_IS_PARSED(spacydoc) and add_tokens and add_dep:
+        for tok in spacydoc:
+            ann = annset.get(toki2annid[tok.i])
+            ann.features[&#34;head&#34;] = toki2annid[tok.head.i]
+            ann.features[&#34;left_edge&#34;] = toki2annid[tok.left_edge.i]
+            ann.features[&#34;right_edge&#34;] = toki2annid[tok.right_edge.i]
+    if spacydoc.ents and add_ents:
+        for ent in spacydoc.ents:
+            if ent_prefix:
+                entname = ent_prefix + ent.label_
+            else:
+                entname = ent.label_
+            annset.add(ent.start_char+start_offset, ent.end_char+start_offset, entname, {&#34;lemma&#34;: ent.lemma_})
+    if spacydoc.sents and add_sents:
+        for sent in spacydoc.sents:
+            annset.add(sent.start_char+start_offset, sent.end_char+start_offset, sentence_type, {})
+    if spacydoc.noun_chunks and add_nounchunks:
+        for chunk in spacydoc.noun_chunks:
+            annset.add(chunk.start_char+start_offset, chunk.end_char+start_offset, nounchunk_type, {})
+    for spanType in retrieve_spans:
+        for span in spacydoc.spans[spanType]:
+            annset.add(span.start_char+start_offset, span.end_char+start_offset, spanType, {})
+    return retdoc</code></pre>
+</details>
 </dd>
 </dl>
 </section>
@@ -563,7 +771,7 @@ ent_prefix: the prefix to add to all entity annotation types</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

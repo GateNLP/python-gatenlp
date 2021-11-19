@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2.dev22+gf4251dd" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gatenlp.pam.pampac.pampac_parsers API documentation</title>
 <meta name="description" content="Module for PAMPAC (Pattern Matching wit PArser Combinators) parsers …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -2605,6 +2605,24 @@ class and should be overriden/implemented for PampacParser subclasses.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Success or Failure</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse(self, location, context):
+    &#34;&#34;&#34;
+    Invoking the parser function. This invokes the wrapped function for the root PampacParser
+    class and should be overriden/implemented for PampacParser subclasses.
+
+    Args:
+        location: where to start parsing
+        context: the parsing context
+
+    Returns:
+        Success or Failure
+    &#34;&#34;&#34;
+    return self._parser_function(location, context)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -3876,6 +3894,24 @@ must be overriden!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A parser that succeeds if this parser and the other parser both succeed at the same location.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __and__(self, other):
+    &#34;&#34;&#34;
+    Binary And via the `&amp;` operator.
+
+    This allows to write `Parser1(..) &amp; Parser2(..)` instead of `And(Parser1(..), Parser2(...))`
+
+    Args:
+        other: the other parser
+
+    Returns:
+        A parser that succeeds if this parser and the other parser both succeed at the same location.
+    &#34;&#34;&#34;
+    return And(self, other)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.__mul__"><code class="name flex">
 <span>def <span class="ident">__mul__</span></span>(<span>self, n)</span>
@@ -3892,6 +3928,35 @@ return a parser where the current parser is successful a minimum of a and a maxi
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser to match this parser min to max times.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __mul__(self, n):  # pylint: disable=C0103
+    &#34;&#34;&#34;
+    Return a parser where the current parser is successful n times.
+
+    If n is a tuple (a,b)
+    return a parser where the current parser is successful a minimum of a and a maximum of b times.
+
+    `Parser1(...) * (a,b)` is the same as `N(Parser1(...), min=a, max=b)`
+
+    Args:
+        n: either an integer used for min and max, or a tuple (min, max)
+
+    Returns:
+        Parser to match this parser min to max times.
+    &#34;&#34;&#34;
+
+    if isinstance(n, int):
+        return N(self, min=n, max=n)
+    elif isinstance(n, tuple) and len(n) == 2:
+        return N(self, min=n[0], max=n[1])
+    elif isinstance(n, list) and len(n) == 2:
+        return N(self, min=n[0], max=n[1])
+    else:
+        raise Exception(&#34;Not an integer or tuple or list of two integers&#34;)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.__or__"><code class="name flex">
 <span>def <span class="ident">__or__</span></span>(<span>self, other)</span>
@@ -3906,6 +3971,24 @@ return a parser where the current parser is successful a minimum of a and a maxi
 </dl>
 <h2 id="returns">Returns</h2>
 <p>A parser that succeeds if either this or the other parser succeeds.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __or__(self, other):
+    &#34;&#34;&#34;
+    Binary Or via the `|` operator.
+
+    This allows to write `Parser1(..) | Parser2(..)` instead of `Or(Parser1(..), Parser2(...))`
+
+    Args:
+        other: the other parser
+
+    Returns:
+        A parser that succeeds if either this or the other parser succeeds.
+    &#34;&#34;&#34;
+    return Or(self, other)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.__rshift__"><code class="name flex">
 <span>def <span class="ident">__rshift__</span></span>(<span>self, other)</span>
@@ -3921,6 +4004,25 @@ return a parser where the current parser is successful a minimum of a and a maxi
 <h2 id="returns">Returns</h2>
 <p>A parser that succeeds if this parser succeeds and then the other parser succeeds
 after it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __rshift__(self, other):
+    &#34;&#34;&#34;
+    Binary Seq via the `&gt;&gt;` operator.
+
+    This allows to write `Parser1(..) &gt;&gt; Parser2(..)` instead of `Seq(Parser1(..), Parser2(...))`
+
+    Args:
+        other: the other parser
+
+    Returns:
+        A parser that succeeds if this parser succeeds and then the other parser succeeds
+        after it.
+    &#34;&#34;&#34;
+    return Seq(self, other)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.__xor__"><code class="name flex">
 <span>def <span class="ident">__xor__</span></span>(<span>self, other)</span>
@@ -3938,6 +4040,28 @@ still return <code>a ^ c</code></p>
 <h2 id="returns">Returns</h2>
 <p>Returns if this and the other parser succeeds at the current location and returns the
 union of all results.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __xor__(self, other):
+    &#34;&#34;&#34;
+    Binary All via the `^` operator.
+
+    This allows to write `Parser1(...) ^ Parser2(...)` instead of `All(Parser1(...), Parser2(...))`
+
+    NOTE: `a ^ b ^ c` is NOT the same as All(a,b,c) as the first will fail if b fails but the second will
+    still return `a ^ c`
+
+    Args:
+        other: the other parser
+
+    Returns:
+        Returns if this and the other parser succeeds at the current location and returns the
+        union of all results.
+    &#34;&#34;&#34;
+    return All(self, other)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.at"><code class="name flex">
 <span>def <span class="ident">at</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -3965,6 +4089,38 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if starting with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622,C0103
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is starting
+    at the same offset as an annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if starting with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_constraint_predicate(matcher, &#34;startingat&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.before"><code class="name flex">
 <span>def <span class="ident">before</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, immediately=False, matchtype='first')</span>
@@ -3991,6 +4147,61 @@ that matches the given properties.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match (immediately) before a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def before(
+        self,
+        type=None,
+        annset=None,
+        features=None,
+        features_eq=None,
+        text=None,
+        immediately=False,
+        matchtype=&#34;first&#34;,
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is before any annotation
+    that matches the given properties.
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        immediately: limit checking to annotations that start right after the end of the current match
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match (immediately) before a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+
+    # predicate for this needs to check if there are matching annotations that start at or after
+    # the END of the result
+    def _predicate(result, context=None, **kwargs):
+        anns = set(result.anns4matches())
+        if annset is None:
+            useset = context.annset
+        else:
+            useset = annset
+        if immediately:
+            annstocheck = useset.startingat(result.span.end)
+        else:
+            annstocheck = useset.startin_ge(result.span.end)
+        for anntocheck in annstocheck:
+            if matcher(anntocheck, context.doc):
+                if anntocheck in anns:
+                    continue
+                return True
+        return False
+
+    return Filter(self, _predicate, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, func, onfailure=None)</span>
@@ -4007,6 +4218,25 @@ context and location are kwargs that get passed.</dd>
 context and location are kwargs that get passed.</dd>
 </dl>
 <p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, func, onfailure=None):
+    &#34;&#34;&#34;
+    Returns a parser that is equivalent to this parser, but also calls the given function if there is success.
+
+    Args:
+        func: the function to call on the success. Should take the success object and arbitrary kwargs.
+            context and location are kwargs that get passed.
+        onfailure: the function to call on failure. Should take the failure object and arbitrary kwargs.
+            context and location are kwargs that get passed.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    return Call(self, func, onfailure=onfailure)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.coextensive"><code class="name flex">
 <span>def <span class="ident">coextensive</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4033,6 +4263,37 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match when coextensive with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def coextensive(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is coextensive with
+    any annotation that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match when coextensive with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_constraint_predicate(matcher, &#34;coextensive&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.covering"><code class="name flex">
 <span>def <span class="ident">covering</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4059,6 +4320,37 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if there is a covering matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def covering(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is covering any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if there is a covering matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_constraint_predicate(matcher, &#34;within&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.lookahead"><code class="name flex">
 <span>def <span class="ident">lookahead</span></span>(<span>self, other)</span>
@@ -4075,6 +4367,26 @@ next parsing location.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a parser that mast be followed by a match of the other parser</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookahead(self, other):
+    &#34;&#34;&#34;
+    Return a parser that only matches the current parser if the given parser can be matched
+    afterwards.
+
+    The match of the given parser is not part of the success and does not increment the
+    next parsing location.
+
+    Args:
+        other: a parser that must match after this parser but the match is discarded.
+
+    Returns:
+        a parser that mast be followed by a match of the other parser
+    &#34;&#34;&#34;
+    return Lookahead(self, other)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.match"><code class="name flex">
 <span>def <span class="ident">match</span></span>(<span>self, doc, anns=None, start=None, end=None, location=None)</span>
@@ -4099,6 +4411,38 @@ offset and not text that ends after that offset should get included in the resul
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Success or Failure</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match(self, doc, anns=None, start=None, end=None, location=None):
+    &#34;&#34;&#34;
+    Runs the matcher/parser on the given document and the given annotations.
+
+    Annotations may be empty in which case only matching on text makes sense.
+
+    Args:
+        doc: the document to run matching on.
+        anns: (default: None) a set or Iterable of annotations. If this is a list or Iterable, the annotations
+           will get matched in the order given. If it is a set the &#34;natural&#34; order of annotations used
+           by the annotation set iterator will be used.
+        start:  the minimum text offset of a range where to look for matches. No annotations that start before
+           that offset are included.
+        end: the maximum text offset of a range where to look for matches. No annotation that ends after that
+           offset and not text that ends after that offset should get included in the result.
+
+    Returns:
+        Success or Failure
+    &#34;&#34;&#34;
+    if anns is None:
+        anns = []
+    else:
+        anns = list(anns)
+    ctx = Context(doc, anns, start=start, end=end)
+    if location is None:
+        location = Location(ctx.start, 0)
+    return self.parse(location, ctx)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notat"><code class="name flex">
 <span>def <span class="ident">notat</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4126,6 +4470,38 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not starting with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notat(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not starting
+    with any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not starting with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_notconstraint_predicate(matcher, &#34;startingat&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notbefore"><code class="name flex">
 <span>def <span class="ident">notbefore</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, immediately=False, matchtype='first')</span>
@@ -4152,6 +4528,61 @@ that matches the given properties.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not (immediately) before a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@support_annotation_or_set
+def notbefore(
+        self,
+        type=None,
+        annset=None,
+        features=None,
+        features_eq=None,
+        text=None,
+        immediately=False,
+        matchtype=&#34;first&#34;,
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not before any annotation
+    that matches the given properties.
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        immediately: limit checking to annotations that start right after the end of the current match
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not (immediately) before a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+
+    def _predicate(result, context=None, **kwargs):
+        anns = set(result.anns4matches())
+        if annset is None:
+            useset = context.annset
+        else:
+            useset = annset
+        if immediately:
+            annstocheck = useset.startingat(result.span.end)
+        else:
+            annstocheck = useset.start_ge(result.span.end)
+        matched = False
+        for anntocheck in annstocheck:
+            if matcher(anntocheck, context.doc):
+                if anntocheck in anns:
+                    continue
+                matched = True
+        return not matched
+
+    return Filter(self, _predicate, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notcoextensive"><code class="name flex">
 <span>def <span class="ident">notcoextensive</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4179,6 +4610,38 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not coextensive with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notcoextensive(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not coextensive
+    with any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not coextensive with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_notconstraint_predicate(matcher, &#34;coextensive&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notcovering"><code class="name flex">
 <span>def <span class="ident">notcovering</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4206,6 +4669,38 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not covering a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notcovering(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not covering
+    any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not covering a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_notconstraint_predicate(matcher, &#34;within&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notoverlapping"><code class="name flex">
 <span>def <span class="ident">notoverlapping</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4233,6 +4728,38 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not overlapping with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notoverlapping(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not overlapping
+    within any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not overlapping with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_notconstraint_predicate(matcher, &#34;overlapping&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.notwithin"><code class="name flex">
 <span>def <span class="ident">notwithin</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4259,6 +4786,37 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match if not within a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notwithin(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is not within any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match if not within a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_notconstraint_predicate(matcher, &#34;covering&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.overlapping"><code class="name flex">
 <span>def <span class="ident">overlapping</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4285,6 +4843,37 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match overlapping with a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def overlapping(
+        self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype=&#34;first&#34;
+    ):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is overlapping with
+    any annotation that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match overlapping with a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_constraint_predicate(matcher, &#34;overlapping&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.parse"><code class="name flex">
 <span>def <span class="ident">parse</span></span>(<span>self, location, context)</span>
@@ -4300,6 +4889,24 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>success or failure instance</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def parse(self, location, context):
+    &#34;&#34;&#34;
+    The parsing method that needs to get overridden by each parser implementation.
+
+    Args:
+        location: current location for where to continue parsing
+        context:  the context instance
+
+    Returns:
+        success or failure instance
+
+    &#34;&#34;&#34;</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.repeat"><code class="name flex">
 <span>def <span class="ident">repeat</span></span>(<span>self, min=1, max=1)</span>
@@ -4317,6 +4924,27 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser to match this parser min to max times.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def repeat(self, min=1, max=1):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Return a parser where the current parser is successful at least `min` and at most `max` times.
+
+    `Parser1(...).repeat(min=a, max=b)` is the same as `N(Parser1(...), min=a, max=b)`
+
+    NOTE: this is also the same as `Parser1(...) * (a, b)`
+
+    Args:
+        min: minimum number of times the parser must be successful in sequence
+        max: maximum number of times the parser may be successfull in sequence
+
+    Returns:
+        Parser to match this parser min to max times.
+    &#34;&#34;&#34;
+    return N(self, min=min, max=max)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.where"><code class="name flex">
 <span>def <span class="ident">where</span></span>(<span>self, predicate, take_if=True)</span>
@@ -4335,6 +4963,26 @@ should return true if a result should get accepted.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Success with all the results that have been accepted or Failure if no result was accepted</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def where(self, predicate, take_if=True):
+    &#34;&#34;&#34;
+    Return a parser that only succeeds if the predicate is true on at least one result of
+    a success of this parser.
+
+    Args:
+        predicate: the predicate to call on each result which should accept the result and arbitrary
+            keyword arguments. The kwargs `context` and `location` are also passed. The predicate
+            should return true if a result should get accepted.
+        take_if: if False the result is accepted if the predicate function returns False for it
+
+    Returns:
+        Success with all the results that have been accepted or Failure if no result was accepted
+    &#34;&#34;&#34;
+    return Filter(self, predicate, take_if=take_if)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.PampacParser.within"><code class="name flex">
 <span>def <span class="ident">within</span></span>(<span>self, type=None, annset=None, features=None, features_eq=None, text=None, matchtype='first')</span>
@@ -4361,6 +5009,40 @@ the candidates for checking this constraint!</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Parser modified to only match within a matching annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def within(
+        self, type=None,
+        annset=None,
+        features=None,
+        features_eq=None, text=None, matchtype=&#34;first&#34;
+):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Parser that succeeds if there is a success for the current parser that is within any annotation
+    that matches the given properties.
+
+    NOTE: all the annotations matched in any of the results of this parser are excluded from
+    the candidates for checking this constraint!
+
+    Args:
+        type: as for AnnMatcher
+        annset: if not None, check for an annotation in that set instead of the default set used
+        features: as for AnnMatcher
+        features_eq: as for AnnMatcher
+        text: as for AnnMatcher
+        matchtype: matchtype to use for filtering
+
+    Returns:
+        Parser modified to only match within a matching annotation
+    &#34;&#34;&#34;
+    matcher = AnnMatcher(
+        type=type, features=features, features_eq=features_eq, text=text
+    )
+    pred = self._make_constraint_predicate(matcher, &#34;covering&#34;, annset=annset)
+    return Filter(self, pred, matchtype=matchtype)</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -4447,10 +5129,10 @@ match object instance.
 Return None if no match is found.</p></div>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.Pattern.split"><code class="name flex">
-<span>def <span class="ident">split</span></span>(<span>...)</span>
+<span>def <span class="ident">split</span></span>(<span>string, maxsplit=0, concurrent=None, timeout=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>split(string, string, maxsplit=0, concurrent=None, timeout=None) &ndash;&gt; list.
+<div class="desc"><p>split(string, maxsplit=0, concurrent=None, timeout=None) &ndash;&gt; list.
 Split string by the occurrences of pattern.</p></div>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers.Pattern.splititer"><code class="name flex">
@@ -4926,6 +5608,46 @@ with respect to the current text location.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>parser that tries to match at the next annotation found within the gap range</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def findgap(self, min=0, max=0):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Return a parser which matches at the next location where an annotation satisfies the gap constraint
+    with respect to the current text location.
+
+    Args:
+        min: minimum gap size (default 0)
+        max: maximum gap size (default 0)
+
+    Returns:
+        parser that tries to match at the next annotation found within the gap range
+    &#34;&#34;&#34;
+
+    def _parse(location, context):
+        idx = location.ann_location
+        while True:
+            ann = context.get_ann(idx)
+            if ann is None:
+                return Failure(
+                    context=context, location=location, message=&#34;No annotation left&#34;
+                )
+            if (
+                    ann.start &gt;= location.text_location + min
+                    and ann.start &lt;= location.text_location + max
+            ):
+                return self.parse(location, context)
+            if ann.ann.start &gt; location.text_location + max:
+                return Failure(
+                    context=context,
+                    location=location,
+                    message=&#34;No annotation found withing gap&#34;,
+                )
+            idx += 1
+
+    return Function(parser_function=_parse)</code></pre>
+</details>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac_parsers._AnnBase.gap"><code class="name flex">
 <span>def <span class="ident">gap</span></span>(<span>self, min=0, max=0)</span>
@@ -4942,6 +5664,43 @@ from the current next text offset.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>parser that tries to match only if the next annotation is within the gap range</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gap(self, min=0, max=0):  # pylint: disable=W0622
+    &#34;&#34;&#34;
+    Return a parser which only matches self if the next annotation offset starts at this distance
+    from the current next text offset.
+
+    Args:
+        min: minimum gap size (default: 0)
+        max: maximum gap size (default: 0)
+
+    Returns:
+        parser that tries to match only if the next annotation is within the gap range
+    &#34;&#34;&#34;
+
+    def _parse(location, context):
+        ann = context.get_ann(location.ann_location)
+        if ann is None:
+            return Failure(
+                context=context, location=location, message=&#34;No annotation left&#34;
+            )
+        if (
+                ann.start &gt;= location.text_location + min
+                and ann.start &lt;= location.text_location + max
+        ):
+            return self.parse(location, context)
+        else:
+            return Failure(
+                context=context,
+                location=location,
+                message=&#34;Next ann not withing gap&#34;,
+            )
+
+    return Function(parser_function=_parse)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -5096,7 +5855,7 @@ from the current next text offset.</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2.dev22+gf4251dd</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

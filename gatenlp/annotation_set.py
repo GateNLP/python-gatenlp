@@ -25,12 +25,16 @@ __pdoc__ = {
 
 
 class InvalidOffsetError(KeyError):
-    """ """
-
+    """
+    Error that indicates some invalid offset in an operation.
+    """
     pass
 
 
 class AnnotationSet:
+    """
+    Represents a collection of annotations for a document.
+    """
     def __init__(self, name: str = "", owner_doc=None):
         """
         Creates an annotation set. This should not be used directly by the
@@ -158,7 +162,7 @@ class AnnotationSet:
         return annset
 
     @staticmethod
-    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -> None:
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -> "AnnotationSet":
         """
         Creates an immutable detached annotation set from the annotations
         in anns. The set contains shallow copies of the annotations and the
@@ -167,6 +171,7 @@ class AnnotationSet:
 
         Args:
             anns: an iterable of annotations or a single annotation
+            name: an optional name for the set
 
         Returns:
             An immutable detached annotation set
@@ -191,8 +196,6 @@ class AnnotationSet:
                 if ann.id >= annset._next_annid:
                     annset._next_annid = ann.id + 1
         return annset
-
-
 
     @property
     def immutable(self) -> bool:
@@ -490,24 +493,6 @@ class AnnotationSet:
             }
             self.changelog.append(entry)
         return ann
-
-    def add_ann(self, ann, annid: int = None):
-        """
-        Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or with the one given.
-        If an annotation id that already exists in the set is specified,
-        an exception is raised.
-
-        Args:
-          ann: the annotation to copy into the set
-          annid: the annotation id, if not specified the next free one for
-              this set is used. Note: the id should normally be left unspecified
-              and get assigned automatically.
-
-        Returns:
-          the added annotation
-        """
-        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
     def add_ann(self, ann, annid: int = None):
         """
@@ -1588,7 +1573,6 @@ class AnnotationSet:
             oldlen = editto - editfrom
             delta = newlen - oldlen
             editto_new = editto + delta
-            # print(f"DEBUG: edit {editfrom},{editto},{editlen}: new to is {editto_new}, delta={delta}. sanns={edit_sanns}, eanns={edit_eanns}")
             # in order to process this span we need to do this:
             # - adapt all affected annotations, i.e. annotations which start or end in this span,
             #   according to the strategy.
@@ -1627,8 +1611,8 @@ class AnnotationSet:
                         break
                 # adapt all the annotations
                 if ptr_start is not None:
-                    for idx in range(ptr_start, len(idsbystart)):
-                        annid = idsbystart[idx]
+                    for idx2 in range(ptr_start, len(idsbystart)):
+                        annid = idsbystart[idx2]
                         if annid not in anns2delete:
                             # print(f"DEBUG: update start for {annid} from {anns[annid][0]} by {delta}")
                             anns[annid][0] += delta
@@ -1640,8 +1624,8 @@ class AnnotationSet:
                         break
                 # adapt all the annotations
                 if ptr_end is not None:
-                    for idx in range(ptr_end, len(idsbyend)):
-                        annid = idsbyend[idx]
+                    for idx2 in range(ptr_end, len(idsbyend)):
+                        annid = idsbyend[idx2]
                         if annid not in anns2delete:
                             # print(f"DEBUG: update end for {annid} from {anns[annid][0]} by {delta}")
                             anns[annid][1] += delta
@@ -1682,5 +1666,3 @@ class AnnotationSet:
         for annid in anns:
             start, end = anns[annid]
             self._update_offsets(annid, start, end)
-
-
