@@ -59,7 +59,7 @@ public class GatenlpWorker {
       if(DEBUG) System.err.println("Initializing GATE");
       Gate.init();
       if(DEBUG) System.err.println("Loading plugin python");
-      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","3.0.6"));
+      Gate.getCreoleRegister().registerPlugin(new Plugin.Maven("uk.ac.gate.plugins","python","3.0.7-SNAPSHOT"));
       FeatureMap parms = Factory.newFeatureMap();
       parms.put("port", port);
       parms.put("host", host);
