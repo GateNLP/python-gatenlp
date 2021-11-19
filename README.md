@@ -12,6 +12,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ccc55f10e7f5479e9a882ec3aee3222a)](https://www.codacy.com/gh/GateNLP/python-gatenlp/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=GateNLP/python-gatenlp)
 [![Updates](https://pyup.io/repos/github/GateNLP/python-gatenlp/shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
 [![Python 3](https://pyup.io/repos/github/GateNLP/python-gatenlp/python-3-shield.svg)](https://pyup.io/repos/github/GateNLP/python-gatenlp/)
+[![Documentation Status](https://readthedocs.org/projects/gatenlp/badge/?version=latest)](https://gatenlp.readthedocs.io/en/latest/?badge=latest)
 
 
 ![Python GateNLP](https://github.com/GateNLP/python-gatenlp/blob/main/docs/logo/gateNLP-423x145.png)
