@@ -1,6 +1,6 @@
 # Versions and changes
 
-## 1.0.6 (upcoming)
+## 1.0.6 (2021-11-19)
 
 * The minimum Python version has been changed from 3.6 to 3.7. This now allows the use of postponed evaluation of type annotations and the use of dataclasses. 
 * add `Document.edit(edits, affected_strategy="keepadapt")` method: update document text and change offsets/indices for all annotations, if necessary.
