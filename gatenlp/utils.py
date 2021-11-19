@@ -21,7 +21,7 @@ def isequal(x, y):
 
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     """
-    Matches each item from the items sequence with sum substring of the text
+    Matches each item from the items sequence with some substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with
@@ -104,6 +104,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
         config: if specified, set logger config from this file
+        debug: if true, set the level to DEBUG
         args: not used yet
         fmt: logging format to use, if None uses a default format
 

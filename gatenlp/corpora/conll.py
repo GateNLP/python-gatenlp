@@ -2,13 +2,16 @@
 Module that provides document source/destination classes for importing and exporting documents
 from/to various conll formats.
 """
+from conllu import parse, parse_incr
 from gatenlp.urlfileutils import stream_from
 from gatenlp import Document, AnnotationSet, Span
 from gatenlp.corpora import DocumentSource
-from conllu import parse, parse_incr
 
 
 class ConllUFileSource(DocumentSource):
+    """
+    A document source represented as a ConllU file.
+    """
     def __init__(self, source, from_string=False,
                  group_by="sent", n=1,
                  outset="",
@@ -64,13 +67,20 @@ class ConllUFileSource(DocumentSource):
         self.n_conllu_tokens = 0
         self.n_conllu_mwts = 0
 
-    def gen4list(self, l):
+    @staticmethod
+    def gen4list(l):
+        """
+        Create a generator from a list.
+        """
         for el in l:
             yield el
 
     def tokenlist_generator(self):
+        """
+        Create and return the tokenlist generator
+        """
         if self.from_string:
-            return self.gen4list(parse(self.source))
+            return ConllUFileSource.gen4list(parse(self.source))
         else:
             infp = stream_from(self.source)
             p = parse_incr(infp)

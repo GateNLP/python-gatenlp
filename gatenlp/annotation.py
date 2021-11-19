@@ -5,7 +5,7 @@ import copy as lib_copy
 from functools import total_ordering
 from gatenlp.features import Features
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
-from gatenlp.utils import support_annotation_or_set, allowspan
+from gatenlp.utils import allowspan, support_annotation_or_set
 from gatenlp.span import Span
 
 
@@ -98,7 +98,7 @@ class Annotation:   # pylint: disable=R0904
     @property
     def span(self) -> Span:
         """
-        Returns a tuple with the start and end offset of the annotation.
+        Returns a Span instance for this annotation.
         """
         return Span(self._start, self._end)
 
