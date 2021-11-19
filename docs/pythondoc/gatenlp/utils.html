@@ -50,7 +50,7 @@ def isequal(x, y):
 
 def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     &#34;&#34;&#34;
-    Matches each item from the items sequence with sum substring of the text
+    Matches each item from the items sequence with some substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with
@@ -133,6 +133,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
         config: if specified, set logger config from this file
+        debug: if true, set the level to DEBUG
         args: not used yet
         fmt: logging format to use, if None uses a default format
 
@@ -600,6 +601,8 @@ file "outpref.DATETIME.log" as well.</p>
 <dd>set logging level</dd>
 <dt><strong><code>config</code></strong></dt>
 <dd>if specified, set logger config from this file</dd>
+<dt><strong><code>debug</code></strong></dt>
+<dd>if true, set the level to DEBUG</dd>
 <dt><strong><code>args</code></strong></dt>
 <dd>not used yet</dd>
 <dt><strong><code>fmt</code></strong></dt>
@@ -629,6 +632,7 @@ file "outpref.DATETIME.log" as well.</p>
         file: if given, log to this destination in addition to stderr
         lvl: set logging level
         config: if specified, set logger config from this file
+        debug: if true, set the level to DEBUG
         args: not used yet
         fmt: logging format to use, if None uses a default format
 
@@ -687,7 +691,7 @@ file "outpref.DATETIME.log" as well.</p>
 <span>def <span class="ident">match_substrings</span></span>(<span>text, items, getstr=None, cmp=None, unmatched=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Matches each item from the items sequence with sum substring of the text
+<div class="desc"><p>Matches each item from the items sequence with some substring of the text
 in a greedy fashion. An item is either already a string or getstr is used
 to retrieve a string from it. The text and substrings are normally
 compared with normal string equality but cmp can be replaced with
@@ -718,7 +722,7 @@ start and end offsets of a substring in the text and item is the item for that s
 </summary>
 <pre><code class="python">def match_substrings(text, items, getstr=None, cmp=None, unmatched=False):
     &#34;&#34;&#34;
-    Matches each item from the items sequence with sum substring of the text
+    Matches each item from the items sequence with some substring of the text
     in a greedy fashion. An item is either already a string or getstr is used
     to retrieve a string from it. The text and substrings are normally
     compared with normal string equality but cmp can be replaced with

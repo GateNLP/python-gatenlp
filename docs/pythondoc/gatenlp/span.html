@@ -371,9 +371,9 @@ class Span:
         l = end - start  # length of the containing span
         assert l &gt; 0
         if n == l:
-            return [Span(start+i, start+i+1) for i in range(n)]
+            return [Span(start + i, start + i + 1) for i in range(n)]
         elif n &lt; l:
-            slen = l//n
+            slen = l // n
             rem = l - slen * n
             spans = []
             soff = start
@@ -386,9 +386,9 @@ class Span:
             return spans
         else:  # n &gt; l, more to embed than there are characters
             rem = n - l
-            spans = [Span(start+i, start+i+1) for i in range(l)]
+            spans = [Span(start + i, start + i + 1) for i in range(l)]
             for i in range(rem):
-                spans.append(Span(end-1, end))
+                spans.append(Span(end - 1, end))
             return spans</code></pre>
 </details>
 </section>
@@ -759,9 +759,9 @@ belong to the span</dd>
         l = end - start  # length of the containing span
         assert l &gt; 0
         if n == l:
-            return [Span(start+i, start+i+1) for i in range(n)]
+            return [Span(start + i, start + i + 1) for i in range(n)]
         elif n &lt; l:
-            slen = l//n
+            slen = l // n
             rem = l - slen * n
             spans = []
             soff = start
@@ -774,9 +774,9 @@ belong to the span</dd>
             return spans
         else:  # n &gt; l, more to embed than there are characters
             rem = n - l
-            spans = [Span(start+i, start+i+1) for i in range(l)]
+            spans = [Span(start + i, start + i + 1) for i in range(l)]
             for i in range(rem):
-                spans.append(Span(end-1, end))
+                spans.append(Span(end - 1, end))
             return spans</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -825,9 +825,9 @@ def squeeze(start: int, end: int, n: int) -&gt; List:
     l = end - start  # length of the containing span
     assert l &gt; 0
     if n == l:
-        return [Span(start+i, start+i+1) for i in range(n)]
+        return [Span(start + i, start + i + 1) for i in range(n)]
     elif n &lt; l:
-        slen = l//n
+        slen = l // n
         rem = l - slen * n
         spans = []
         soff = start
@@ -840,9 +840,9 @@ def squeeze(start: int, end: int, n: int) -&gt; List:
         return spans
     else:  # n &gt; l, more to embed than there are characters
         rem = n - l
-        spans = [Span(start+i, start+i+1) for i in range(l)]
+        spans = [Span(start + i, start + i + 1) for i in range(l)]
         for i in range(rem):
-            spans.append(Span(end-1, end))
+            spans.append(Span(end - 1, end))
         return spans</code></pre>
 </details>
 </dd>

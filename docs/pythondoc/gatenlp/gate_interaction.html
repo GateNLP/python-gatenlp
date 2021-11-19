@@ -38,6 +38,7 @@ This is used by the Java GATE Python plugin.
 import sys
 import os
 import io
+import json
 import traceback
 from argparse import ArgumentParser
 import inspect
@@ -47,7 +48,6 @@ from gatenlp.document import Document
 from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import init_logger
 from gatenlp.version import __version__ as gatenlp_version
-import json
 
 # NOTE: this is the global variable that holds the current function or class defined for interaction
 # In order to avoid use of global, we use a list and just always use element 0
@@ -81,6 +81,9 @@ class _PrWrapper:
         self.logger = None
 
     def execute(self, doc):
+        &#34;&#34;&#34;
+        Invoke the wrapped function or the __call__ method of the wrapped callable.
+        &#34;&#34;&#34;
         if self.func_execute_allowkws and self.script_parms:
             ret = self.func_execute(doc, **self.script_parms)
         else:
@@ -93,6 +96,9 @@ class _PrWrapper:
         return ret
 
     def start(self, script_params):
+        &#34;&#34;&#34;
+        Invoke any wrapped start method.
+        &#34;&#34;&#34;
         if script_params:
             self.script_parms = script_params
         # TODO: amend the script params with additional data from here?
@@ -103,19 +109,27 @@ class _PrWrapper:
                 self.func_start()
 
     def finish(self):
+        &#34;&#34;&#34;
+        Invoke any wrapped finish method.
+        &#34;&#34;&#34;
         if self.func_finish is not None:
             if self.func_finish_allowkws and self.script_parms:
                 return self.func_finish(**self.script_parms)
             else:
                 return self.func_finish()
+        return None
 
     def reduce(self, resultslist):
+        &#34;&#34;&#34;
+        Invoke any wrapped reduce method.
+        &#34;&#34;&#34;
         if self.func_reduce is not None:
             if self.func_reduce_allowkws and self.script_parms:
                 ret = self.func_reduce(resultslist, **self.script_parms)
             else:
                 ret = self.func_reduce(resultslist)
             return ret
+        return None
 
 
 def _check_exec(func):
@@ -143,10 +157,7 @@ def _check_exec(func):
         raise Exception(
             &#34;Processing resource execution function does not accept exactly one or any number of arguments&#34;
         )
-    if argspec.varkw is not None:
-        return True
-    else:
-        return False
+    return argspec.varkw is not None
 
 
 def _has_method(theobj, name):
@@ -229,9 +240,16 @@ def _pr_decorator(what):
 
 
 class DefaultPr:
+    &#34;&#34;&#34;
+    A default annotator which does nothing but shows a warning. All the implemented methods also
+    log debug messages.
+    &#34;&#34;&#34;
     def __call__(self, doc, **kwargs):
+        &#34;&#34;&#34;
+        Do-nothing except showing a warning and logging a debug message showing the document and kwargs
+        &#34;&#34;&#34;
         logger.debug(
-            &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
+            &#34;DefaultPr: called __call__() with doc=%s, kwargs=%s&#34;, doc, kwargs
         )
         logger.warning(
             &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
@@ -239,23 +257,33 @@ class DefaultPr:
         return doc
 
     def start(self, **kwargs):
-        logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing the kwargs
+        &#34;&#34;&#34;
+        logger.debug(&#34;DefaultPr: called start() with kwargs=%s&#34;, kwargs)
         return None
 
     def finish(self, **kwargs):
-        logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing the kwargs
+        &#34;&#34;&#34;
+        logger.debug(&#34;DefaultPr: called finish() with kwargs=%s&#34;, kwargs)
         return None
 
     def reduce(self, resultlist, **kwargs):
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing resultlist the kwargs
+        &#34;&#34;&#34;
         logger.debug(
-            &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-                resultlist, kwargs
-            )
+            &#34;DefaultPr: called reduce() with results %s and kwargs=%s&#34;, resultlist, kwargs
         )
         return None
 
 
 def get_arguments(from_main=False):
+    &#34;&#34;&#34;
+    Parse the command line arguments and return them.
+    &#34;&#34;&#34;
     argparser = ArgumentParser()
     argparser.add_argument(
         &#34;--mode&#34;,
@@ -289,8 +317,8 @@ def get_arguments(from_main=False):
     )
     if from_main:
         argparser.add_argument(&#34;pythonfile&#34;)
-    args = argparser.parse_args()
-    return args
+    theargs = argparser.parse_args()
+    return theargs
 
 
 def interact(args=None, annotator=None):
@@ -478,14 +506,14 @@ def interact(args=None, annotator=None):
 
 if __name__ == &#34;__main__&#34;:
     # we run this from the command line so we need to also first load the PR code from the python file
-    args = get_arguments(from_main=True)
-    logger = init_logger(__name__)
+    arguments = get_arguments(from_main=True)
+    loggr = init_logger(__name__)
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, args.pythonfile)
+    spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, arguments.pythonfile)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
-    interact(args=args)</code></pre>
+    interact(args=arguments)</code></pre>
 </details>
 </section>
 <section>
@@ -499,12 +527,15 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">get_arguments</span></span>(<span>from_main=False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Parse the command line arguments and return them.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_arguments(from_main=False):
+    &#34;&#34;&#34;
+    Parse the command line arguments and return them.
+    &#34;&#34;&#34;
     argparser = ArgumentParser()
     argparser.add_argument(
         &#34;--mode&#34;,
@@ -538,8 +569,8 @@ if __name__ == &#34;__main__&#34;:
     )
     if from_main:
         argparser.add_argument(&#34;pythonfile&#34;)
-    args = argparser.parse_args()
-    return args</code></pre>
+    theargs = argparser.parse_args()
+    return theargs</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.gate_interaction.interact"><code class="name flex">
@@ -757,15 +788,23 @@ processing resource to the system.</p>
 <span>class <span class="ident">DefaultPr</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A default annotator which does nothing but shows a warning. All the implemented methods also
+log debug messages.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DefaultPr:
+    &#34;&#34;&#34;
+    A default annotator which does nothing but shows a warning. All the implemented methods also
+    log debug messages.
+    &#34;&#34;&#34;
     def __call__(self, doc, **kwargs):
+        &#34;&#34;&#34;
+        Do-nothing except showing a warning and logging a debug message showing the document and kwargs
+        &#34;&#34;&#34;
         logger.debug(
-            &#34;DefaultPr: called __call__() with doc={}, kwargs={}&#34;.format(doc, kwargs)
+            &#34;DefaultPr: called __call__() with doc=%s, kwargs=%s&#34;, doc, kwargs
         )
         logger.warning(
             &#34;Finished DefaultPr: did you define a @GateNlpPr class or function?&#34;
@@ -773,18 +812,25 @@ processing resource to the system.</p>
         return doc
 
     def start(self, **kwargs):
-        logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing the kwargs
+        &#34;&#34;&#34;
+        logger.debug(&#34;DefaultPr: called start() with kwargs=%s&#34;, kwargs)
         return None
 
     def finish(self, **kwargs):
-        logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing the kwargs
+        &#34;&#34;&#34;
+        logger.debug(&#34;DefaultPr: called finish() with kwargs=%s&#34;, kwargs)
         return None
 
     def reduce(self, resultlist, **kwargs):
+        &#34;&#34;&#34;
+        Do-nothing except showing logging a debug message showing resultlist the kwargs
+        &#34;&#34;&#34;
         logger.debug(
-            &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-                resultlist, kwargs
-            )
+            &#34;DefaultPr: called reduce() with results %s and kwargs=%s&#34;, resultlist, kwargs
         )
         return None</code></pre>
 </details>
@@ -794,13 +840,16 @@ processing resource to the system.</p>
 <span>def <span class="ident">finish</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Do-nothing except showing logging a debug message showing the kwargs</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def finish(self, **kwargs):
-    logger.debug(&#34;DefaultPr: called finish() with kwargs={}&#34;.format(kwargs))
+    &#34;&#34;&#34;
+    Do-nothing except showing logging a debug message showing the kwargs
+    &#34;&#34;&#34;
+    logger.debug(&#34;DefaultPr: called finish() with kwargs=%s&#34;, kwargs)
     return None</code></pre>
 </details>
 </dd>
@@ -808,16 +857,17 @@ processing resource to the system.</p>
 <span>def <span class="ident">reduce</span></span>(<span>self, resultlist, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Do-nothing except showing logging a debug message showing resultlist the kwargs</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reduce(self, resultlist, **kwargs):
+    &#34;&#34;&#34;
+    Do-nothing except showing logging a debug message showing resultlist the kwargs
+    &#34;&#34;&#34;
     logger.debug(
-        &#34;DefaultPr: called reduce() with results {} and kwargs={}&#34;.format(
-            resultlist, kwargs
-        )
+        &#34;DefaultPr: called reduce() with results %s and kwargs=%s&#34;, resultlist, kwargs
     )
     return None</code></pre>
 </details>
@@ -826,13 +876,16 @@ processing resource to the system.</p>
 <span>def <span class="ident">start</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Do-nothing except showing logging a debug message showing the kwargs</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start(self, **kwargs):
-    logger.debug(&#34;DefaultPr: called start() with kwargs={}&#34;.format(kwargs))
+    &#34;&#34;&#34;
+    Do-nothing except showing logging a debug message showing the kwargs
+    &#34;&#34;&#34;
+    logger.debug(&#34;DefaultPr: called start() with kwargs=%s&#34;, kwargs)
     return None</code></pre>
 </details>
 </dd>

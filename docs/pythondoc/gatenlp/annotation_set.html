@@ -56,12 +56,16 @@ __pdoc__ = {
 
 
 class InvalidOffsetError(KeyError):
-    &#34;&#34;&#34; &#34;&#34;&#34;
-
+    &#34;&#34;&#34;
+    Error that indicates some invalid offset in an operation.
+    &#34;&#34;&#34;
     pass
 
 
 class AnnotationSet:
+    &#34;&#34;&#34;
+    Represents a collection of annotations for a document.
+    &#34;&#34;&#34;
     def __init__(self, name: str = &#34;&#34;, owner_doc=None):
         &#34;&#34;&#34;
         Creates an annotation set. This should not be used directly by the
@@ -189,7 +193,7 @@ class AnnotationSet:
         return annset
 
     @staticmethod
-    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; None:
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Creates an immutable detached annotation set from the annotations
         in anns. The set contains shallow copies of the annotations and the
@@ -198,6 +202,7 @@ class AnnotationSet:
 
         Args:
             anns: an iterable of annotations or a single annotation
+            name: an optional name for the set
 
         Returns:
             An immutable detached annotation set
@@ -222,8 +227,6 @@ class AnnotationSet:
                 if ann.id &gt;= annset._next_annid:
                     annset._next_annid = ann.id + 1
         return annset
-
-
 
     @property
     def immutable(self) -&gt; bool:
@@ -521,24 +524,6 @@ class AnnotationSet:
             }
             self.changelog.append(entry)
         return ann
-
-    def add_ann(self, ann, annid: int = None):
-        &#34;&#34;&#34;
-        Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or with the one given.
-        If an annotation id that already exists in the set is specified,
-        an exception is raised.
-
-        Args:
-          ann: the annotation to copy into the set
-          annid: the annotation id, if not specified the next free one for
-              this set is used. Note: the id should normally be left unspecified
-              and get assigned automatically.
-
-        Returns:
-          the added annotation
-        &#34;&#34;&#34;
-        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
     def add_ann(self, ann, annid: int = None):
         &#34;&#34;&#34;
@@ -1619,7 +1604,6 @@ class AnnotationSet:
             oldlen = editto - editfrom
             delta = newlen - oldlen
             editto_new = editto + delta
-            # print(f&#34;DEBUG: edit {editfrom},{editto},{editlen}: new to is {editto_new}, delta={delta}. sanns={edit_sanns}, eanns={edit_eanns}&#34;)
             # in order to process this span we need to do this:
             # - adapt all affected annotations, i.e. annotations which start or end in this span,
             #   according to the strategy.
@@ -1658,8 +1642,8 @@ class AnnotationSet:
                         break
                 # adapt all the annotations
                 if ptr_start is not None:
-                    for idx in range(ptr_start, len(idsbystart)):
-                        annid = idsbystart[idx]
+                    for idx2 in range(ptr_start, len(idsbystart)):
+                        annid = idsbystart[idx2]
                         if annid not in anns2delete:
                             # print(f&#34;DEBUG: update start for {annid} from {anns[annid][0]} by {delta}&#34;)
                             anns[annid][0] += delta
@@ -1671,8 +1655,8 @@ class AnnotationSet:
                         break
                 # adapt all the annotations
                 if ptr_end is not None:
-                    for idx in range(ptr_end, len(idsbyend)):
-                        annid = idsbyend[idx]
+                    for idx2 in range(ptr_end, len(idsbyend)):
+                        annid = idsbyend[idx2]
                         if annid not in anns2delete:
                             # print(f&#34;DEBUG: update end for {annid} from {anns[annid][0]} by {delta}&#34;)
                             anns[annid][1] += delta
@@ -1729,7 +1713,8 @@ class AnnotationSet:
 <span>(</span><span>name: str = '', owner_doc=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates an annotation set. This should not be used directly by the
+<div class="desc"><p>Represents a collection of annotations for a document.</p>
+<p>Creates an annotation set. This should not be used directly by the
 user, instead the method <code>Document.annset(name)</code> should be used to
 access the annotation set with a given name from the document.</p>
 <p>An annotation set contains an arbitrary number of annotations, which
@@ -1752,6 +1737,9 @@ set has an owning document.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnnotationSet:
+    &#34;&#34;&#34;
+    Represents a collection of annotations for a document.
+    &#34;&#34;&#34;
     def __init__(self, name: str = &#34;&#34;, owner_doc=None):
         &#34;&#34;&#34;
         Creates an annotation set. This should not be used directly by the
@@ -1879,7 +1867,7 @@ set has an owning document.</dd>
         return annset
 
     @staticmethod
-    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; None:
+    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; &#34;AnnotationSet&#34;:
         &#34;&#34;&#34;
         Creates an immutable detached annotation set from the annotations
         in anns. The set contains shallow copies of the annotations and the
@@ -1888,6 +1876,7 @@ set has an owning document.</dd>
 
         Args:
             anns: an iterable of annotations or a single annotation
+            name: an optional name for the set
 
         Returns:
             An immutable detached annotation set
@@ -1912,8 +1901,6 @@ set has an owning document.</dd>
                 if ann.id &gt;= annset._next_annid:
                     annset._next_annid = ann.id + 1
         return annset
-
-
 
     @property
     def immutable(self) -&gt; bool:
@@ -2211,24 +2198,6 @@ set has an owning document.</dd>
             }
             self.changelog.append(entry)
         return ann
-
-    def add_ann(self, ann, annid: int = None):
-        &#34;&#34;&#34;
-        Adds a shallow copy of the given ann to the annotation set,
-        either with a new annotation id or with the one given.
-        If an annotation id that already exists in the set is specified,
-        an exception is raised.
-
-        Args:
-          ann: the annotation to copy into the set
-          annid: the annotation id, if not specified the next free one for
-              this set is used. Note: the id should normally be left unspecified
-              and get assigned automatically.
-
-        Returns:
-          the added annotation
-        &#34;&#34;&#34;
-        return self.add(ann.start, ann.end, ann.type, ann.features, annid=annid)
 
     def add_ann(self, ann, annid: int = None):
         &#34;&#34;&#34;
@@ -3309,7 +3278,6 @@ set has an owning document.</dd>
             oldlen = editto - editfrom
             delta = newlen - oldlen
             editto_new = editto + delta
-            # print(f&#34;DEBUG: edit {editfrom},{editto},{editlen}: new to is {editto_new}, delta={delta}. sanns={edit_sanns}, eanns={edit_eanns}&#34;)
             # in order to process this span we need to do this:
             # - adapt all affected annotations, i.e. annotations which start or end in this span,
             #   according to the strategy.
@@ -3348,8 +3316,8 @@ set has an owning document.</dd>
                         break
                 # adapt all the annotations
                 if ptr_start is not None:
-                    for idx in range(ptr_start, len(idsbystart)):
-                        annid = idsbystart[idx]
+                    for idx2 in range(ptr_start, len(idsbystart)):
+                        annid = idsbystart[idx2]
                         if annid not in anns2delete:
                             # print(f&#34;DEBUG: update start for {annid} from {anns[annid][0]} by {delta}&#34;)
                             anns[annid][0] += delta
@@ -3361,8 +3329,8 @@ set has an owning document.</dd>
                         break
                 # adapt all the annotations
                 if ptr_end is not None:
-                    for idx in range(ptr_end, len(idsbyend)):
-                        annid = idsbyend[idx]
+                    for idx2 in range(ptr_end, len(idsbyend)):
+                        annid = idsbyend[idx2]
                         if annid not in anns2delete:
                             # print(f&#34;DEBUG: update end for {annid} from {anns[annid][0]} by {delta}&#34;)
                             anns[annid][1] += delta
@@ -3407,7 +3375,7 @@ set has an owning document.</dd>
 <h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.annotation_set.AnnotationSet.create_from"><code class="name flex">
-<span>def <span class="ident">create_from</span></span>(<span>anns: Union[Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], name=None) ‑> None</span>
+<span>def <span class="ident">create_from</span></span>(<span>anns: Union[Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], <a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], name=None) ‑> <a title="gatenlp.annotation_set.AnnotationSet" href="#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates an immutable detached annotation set from the annotations
@@ -3418,6 +3386,8 @@ available id is used.</p>
 <dl>
 <dt><strong><code>anns</code></strong></dt>
 <dd>an iterable of annotations or a single annotation</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>an optional name for the set</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>An immutable detached annotation set</p></div>
@@ -3426,7 +3396,7 @@ available id is used.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; None:
+def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; &#34;AnnotationSet&#34;:
     &#34;&#34;&#34;
     Creates an immutable detached annotation set from the annotations
     in anns. The set contains shallow copies of the annotations and the
@@ -3435,6 +3405,7 @@ def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -&gt; 
 
     Args:
         anns: an iterable of annotations or a single annotation
+        name: an optional name for the set
 
     Returns:
         An immutable detached annotation set
@@ -5592,14 +5563,15 @@ def within(self, start: int, end: int, annid=None, include_self=False):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Error that indicates some invalid offset in an operation.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class InvalidOffsetError(KeyError):
-    &#34;&#34;&#34; &#34;&#34;&#34;
-
+    &#34;&#34;&#34;
+    Error that indicates some invalid offset in an operation.
+    &#34;&#34;&#34;
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>

@@ -320,13 +320,11 @@ def stanza2gatenlp(
             ann = annset.get(annid)
             hd = ann.features.get(&#34;head&#34;)
             if hd is not None:
-                headId = idx2annid.get(str(hd))
-                if headId is None:
-                    logger.error(
-                        f&#34;Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}&#34;
-                    )
+                head_id = idx2annid.get(str(hd))
+                if head_id is None:
+                    logger.error(f&#34;Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}&#34;)
                 else:
-                    ann.features[&#34;head&#34;] = headId
+                    ann.features[&#34;head&#34;] = head_id
     # if necessary add a final space token
     if space_token_type is not None and prev_end &lt; len(retdoc.text):
         annset.add(prev_end, len(retdoc.text), space_token_type)
@@ -528,13 +526,11 @@ to the annotation type as a prefix. (Default value = None)</dd>
             ann = annset.get(annid)
             hd = ann.features.get(&#34;head&#34;)
             if hd is not None:
-                headId = idx2annid.get(str(hd))
-                if headId is None:
-                    logger.error(
-                        f&#34;Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}&#34;
-                    )
+                head_id = idx2annid.get(str(hd))
+                if head_id is None:
+                    logger.error(f&#34;Could not find head id: {hd} for {ann} in document {gatenlpdoc.name}&#34;)
                 else:
-                    ann.features[&#34;head&#34;] = headId
+                    ann.features[&#34;head&#34;] = head_id
     # if necessary add a final space token
     if space_token_type is not None and prev_end &lt; len(retdoc.text):
         annset.add(prev_end, len(retdoc.text), space_token_type)

@@ -33,13 +33,16 @@ from/to various conll formats.</p>
 Module that provides document source/destination classes for importing and exporting documents
 from/to various conll formats.
 &#34;&#34;&#34;
+from conllu import parse, parse_incr
 from gatenlp.urlfileutils import stream_from
 from gatenlp import Document, AnnotationSet, Span
 from gatenlp.corpora import DocumentSource
-from conllu import parse, parse_incr
 
 
 class ConllUFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source represented as a ConllU file.
+    &#34;&#34;&#34;
     def __init__(self, source, from_string=False,
                  group_by=&#34;sent&#34;, n=1,
                  outset=&#34;&#34;,
@@ -95,13 +98,20 @@ class ConllUFileSource(DocumentSource):
         self.n_conllu_tokens = 0
         self.n_conllu_mwts = 0
 
-    def gen4list(self, l):
+    @staticmethod
+    def gen4list(l):
+        &#34;&#34;&#34;
+        Create a generator from a list.
+        &#34;&#34;&#34;
         for el in l:
             yield el
 
     def tokenlist_generator(self):
+        &#34;&#34;&#34;
+        Create and return the tokenlist generator
+        &#34;&#34;&#34;
         if self.from_string:
-            return self.gen4list(parse(self.source))
+            return ConllUFileSource.gen4list(parse(self.source))
         else:
             infp = stream_from(self.source)
             p = parse_incr(infp)
@@ -351,7 +361,7 @@ class ConllUFileSource(DocumentSource):
 <span>(</span><span>source, from_string=False, group_by='sent', n=1, outset='', token_type='Token', mwt_type='MWT', sentence_type='Sentence', add_feats=False, paragraph_type='Paragraph', document_type='Document')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A document source is an iterable of documents which will generate an unknown number of documents.</p>
+<div class="desc"><p>A document source represented as a ConllU file.</p>
 <p>Document source for importing CONLL-U format. Many CONLL-U files do not know about documents
 so documents can be created by reading everything into a single document, creating a document
 per sentence or creating a document per 5 sentences and similar, based on the group_by and n
@@ -388,6 +398,9 @@ document is created.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ConllUFileSource(DocumentSource):
+    &#34;&#34;&#34;
+    A document source represented as a ConllU file.
+    &#34;&#34;&#34;
     def __init__(self, source, from_string=False,
                  group_by=&#34;sent&#34;, n=1,
                  outset=&#34;&#34;,
@@ -443,13 +456,20 @@ document is created.</dd>
         self.n_conllu_tokens = 0
         self.n_conllu_mwts = 0
 
-    def gen4list(self, l):
+    @staticmethod
+    def gen4list(l):
+        &#34;&#34;&#34;
+        Create a generator from a list.
+        &#34;&#34;&#34;
         for el in l:
             yield el
 
     def tokenlist_generator(self):
+        &#34;&#34;&#34;
+        Create and return the tokenlist generator
+        &#34;&#34;&#34;
         if self.from_string:
-            return self.gen4list(parse(self.source))
+            return ConllUFileSource.gen4list(parse(self.source))
         else:
             infp = stream_from(self.source)
             p = parse_incr(infp)
@@ -692,22 +712,29 @@ document is created.</dd>
 <li>typing.Generic</li>
 <li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
 </ul>
-<h3>Methods</h3>
+<h3>Static methods</h3>
 <dl>
 <dt id="gatenlp.corpora.conll.ConllUFileSource.gen4list"><code class="name flex">
-<span>def <span class="ident">gen4list</span></span>(<span>self, l)</span>
+<span>def <span class="ident">gen4list</span></span>(<span>l)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create a generator from a list.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gen4list(self, l):
+<pre><code class="python">@staticmethod
+def gen4list(l):
+    &#34;&#34;&#34;
+    Create a generator from a list.
+    &#34;&#34;&#34;
     for el in l:
         yield el</code></pre>
 </details>
 </dd>
+</dl>
+<h3>Methods</h3>
+<dl>
 <dt id="gatenlp.corpora.conll.ConllUFileSource.tok2features"><code class="name flex">
 <span>def <span class="ident">tok2features</span></span>(<span>self, tok)</span>
 </code></dt>
@@ -754,14 +781,17 @@ document is created.</dd>
 <span>def <span class="ident">tokenlist_generator</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create and return the tokenlist generator</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def tokenlist_generator(self):
+    &#34;&#34;&#34;
+    Create and return the tokenlist generator
+    &#34;&#34;&#34;
     if self.from_string:
-        return self.gen4list(parse(self.source))
+        return ConllUFileSource.gen4list(parse(self.source))
     else:
         infp = stream_from(self.source)
         p = parse_incr(infp)
