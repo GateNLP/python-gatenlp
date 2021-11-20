@@ -587,11 +587,18 @@ class AnnotationSet:
             )
         self._remove_from_indices(annoriter)
 
-    def clear(self) -> None:
+    def clear(self, reset_annids=False) -> None:
         """
         Removes all annotations from the set.
+
+        Args:
+            reset_annids: if True, also reset the next annotation id to 0, after this newly added annotations
+                will get annotation ids starting from 0. IMPORTANT: this must not be used for code to run in the
+                Java GATE Python plugin, as Java GATE handles annotation ids differently!
         """
         self._annotations.clear()
+        if reset_annids:
+            self._next_annid = 0
         self._index_by_offset = None
         self._index_by_type = None
         if self.changelog is not None:
