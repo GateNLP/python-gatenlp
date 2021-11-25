@@ -17,12 +17,12 @@ class GatenlpConfig:
         self.notebook_js_initialized = False
 
         # The height to use for row1/row2 and row1 if stretch_height is True
-        self.doc_html_repr_height1_stretch = "height: 67vh;"
-        self.doc_html_repr_height2_stretch = "height: 30vh;"
+        self.doc_html_repr_row1style_stretch = "min-height:5em;height:67vh;"
+        self.doc_html_repr_row2style_stretch = "min-height:3em;height:30vh;"
 
         # The height to use for row1/row2 and row1 if stretch_height is False
-        self.doc_html_repr_height1_nostretch = "max-height: 20em;"
-        self.doc_html_repr_height2_nostretch = "max-height: 14em;"
+        self.doc_html_repr_row1style_nostretch = "min-height:5em;max-height:20em;"
+        self.doc_html_repr_row2style_nostretch = "min-height:3em;max-height:14em;"
 
         # If string, use this as the default style for the document text
         self.doc_html_repr_doc_style = None

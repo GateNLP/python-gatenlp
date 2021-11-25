@@ -468,6 +468,8 @@ class Document:
     def anns(self, ann_spec):
         """
         Return a detached annotation set with all annotations which match the annotation specification.
+        Annotation ids are preserved if possible, but if annotations from different sets have duplicate
+        ids, new ids are assigned instead.
 
         Args:
             annset_spec: either a single string which is interpreted as an annotation set name, or a list where
@@ -879,7 +881,7 @@ class Document:
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, to=None, htmlid=None, annsets=None, doc_style=None):
+    def show(self, to=None, htmlid=None, annsets=None, doc_style=None, row1_style=None, row2_style=None):
         """
         Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -897,12 +899,18 @@ class Document:
                 the first element
                 and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
+            row1_style: if not None, use this for the first row of the HTML viewer, which contains the document text
+                and annotation sets and types panes. Default is gatenlpconfig.doc_html_repr_row1style_nostretch
+            row2_style: if not None, use this for the second row of the HTML viewer, which contains the document and
+                annottion features pane. Default is gatenlpconfig.doc_html_repr_row2style_nostretch
         """
         if to == "colab":
-            self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            self._show_colab(htmlid=htmlid, display=True, annsets=annsets,
+                             doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "jupyter":
-            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+            self._show_notebook(htmlid=htmlid, display=True, annsets=annsets,
+                                doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "console":
             return self.__str__()
@@ -910,15 +918,18 @@ class Document:
             raise Exception(f"Not a valid value for parameter to: {to}. Use one of console, jupyter, colab")
         if in_notebook():
             if in_colab():
-                self._show_colab(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                self._show_colab(htmlid=htmlid, display=True, annsets=annsets,
+                                 doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
             else:
-                self._show_notebook(htmlid=htmlid, display=True, annsets=annsets, doc_style=doc_style)
+                self._show_notebook(htmlid=htmlid, display=True, annsets=annsets,
+                                    doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
         else:
             return self.__str__()
 
-    def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None):
+    def _show_colab(self, htmlid=None, display=False, annsets=None, doc_style=None,
+                    row1_style=None, row2_style=None):
         from gatenlp.serialization.default import JS_GATENLP_URL, JS_JQUERY_URL
         from IPython.display import display_html, Javascript
         from IPython.display import display as i_display
@@ -932,14 +943,18 @@ class Document:
             offline=True,
             htmlid=htmlid,
             annsets=annsets,
+            stretch_height=False,
             doc_style=doc_style,
+            row1_style=row1_style,
+            row2_style=row2_style,
         )
         if display:
             display_html(html, raw=True)
         else:
             return html
 
-    def _show_notebook(self, htmlid=None, display=False, annsets=None, doc_style=None):
+    def _show_notebook(self, htmlid=None, display=False, annsets=None, doc_style=None,
+                       row1_style=None, row2_style=None):
         from gatenlp.gatenlpconfig import gatenlpconfig
         from gatenlp.serialization.default import HtmlAnnViewerSerializer
         from IPython.display import display_html
@@ -954,7 +969,10 @@ class Document:
             offline=True,
             htmlid=htmlid,
             annsets=annsets,
+            stretch_height=False,
             doc_style=doc_style,
+            row1_style=row1_style,
+            row2_style=row2_style,
         )
         if display:
             display_html(html, raw=True)

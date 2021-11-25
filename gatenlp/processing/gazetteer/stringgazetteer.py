@@ -296,6 +296,7 @@ class StringGazetteer(GazetteerBase):
             for el in source:
                 if isinstance(el, str):
                     entry = el
+                    data = {}
                 else:
                     entry = el[0]
                     if len(el) > 1:

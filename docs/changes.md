@@ -3,8 +3,8 @@
 ## Upcoming
 
 * added new parameter `reset_annids` `AnnotatationSet.clear` 
-* fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead
-  of a tuple.
+* fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead of a tuple.
+* Added parameters `row1_style` and `row2_style` to `Document.show`
 
 ## 1.0.6 (2021-11-19)
 

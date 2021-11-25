@@ -732,6 +732,8 @@ class HtmlAnnViewerSerializer:
         stretch_height=False,
         annsets=None,
         doc_style=None,
+        row1_style=None,
+        row2_style=None,
         **kwargs,
     ):
         """Convert a document to HTML for visualizing it.
@@ -750,17 +752,22 @@ class HtmlAnnViewerSerializer:
                 notebook=True).
             htmlid: the id to use for HTML ids so it is possible to have several independent viewers in the
                 same HTML page and to style the output from a separate notebook cell
-            max_height1: if this is set, then the maximum height of the first row of the viewer is set to the
-                given value (default: 20em). If this is None, then the height is set to
             stretch_height: if False, rows 1 and 2 of the viewer will not have the height set, but only
                 min and max height (default min is 10em for row1 and 7em for row2, max is the double of those).
                 If True, no max haight is set and instead the height is set to a percentage (default is
-                67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig.
+                67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
+                complete style for the rows can be set directly via row1_style and row2_style.
             annsets: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
-                is defined in gatenlpconfig or do not use.
+                is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
+            row1_style: the style to use for the first row of the document viewer which shows the document text and
+                annotation set and type panes. The default is gatenlpconfig.doc_html_repr_row1style_nostretch or
+                gatenlpconfig.doc_html_repr_row1style_nostretch depending on the stretch_height parameter.
+            row2_style: the style to use for the second row of the document viewer which shows the document or
+                annotation features. The default is gatenlpconfig.doc_html_repr_row2style_nostretch or
+                gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height parameter.
             kwargs: swallow any other kwargs.
 
         Returns: if to_mem is True, returns the representation, otherwise None.
@@ -820,20 +827,24 @@ class HtmlAnnViewerSerializer:
         else:
             js = JS_JQUERY + JS_GATENLP
         if stretch_height:
-            height1 = gatenlpconfig.doc_html_repr_height1_stretch
-            height2 = gatenlpconfig.doc_html_repr_height2_stretch
+            if row1_style is None:
+                row1_style = gatenlpconfig.doc_html_repr_row1style_stretch
+            if row2_style is None:
+                row2_style = gatenlpconfig.doc_html_repr_row2style_stretch
         else:
-            height1 = gatenlpconfig.doc_html_repr_height1_nostretch
-            height2 = gatenlpconfig.doc_html_repr_height2_nostretch
+            if row1_style is None:
+                row1_style = gatenlpconfig.doc_html_repr_row1style_nostretch
+            if row2_style is None:
+                row2_style = gatenlpconfig.doc_html_repr_row2style_nostretch
         html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)
-        html = html.replace("$$HEIGHT1$$", height1, 1).replace(
-            "$$HEIGHT2$$", height2, 1
+        html = html.replace("$$ROW1STYLE$$", row1_style, 1).replace(
+            "$$ROW2STYLE$$", row2_style, 1
         )
         if doc_style is None:
             doc_style = gatenlpconfig.doc_html_repr_doc_style
         if doc_style is None:
             doc_style = ""
-        html = html.replace("$$DOCTEXTSTYLE$$", doc_style, 1)
+        html = html.replace("$$TEXTSTYLE$$", doc_style, 1)
         if to_mem:
             return html
         else:

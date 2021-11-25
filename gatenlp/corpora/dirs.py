@@ -287,6 +287,10 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
         self.dirpath = dirpath
         self.ext = ext
         self.fmt = fmt
+        if not os.path.exists(dirpath):
+            raise Exception(f"Directory {dirpath} does not exist")
+        if not os.path.isdir(dirpath):
+            raise Exception(f"Not a directory: {dirpath}")
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
         if sort:
             if callable(sort):
