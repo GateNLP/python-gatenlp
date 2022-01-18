@@ -423,6 +423,7 @@ class ElgTextAnnotator(Annotator):
         url=None,
         service=None,
         auth=None,
+        auth_file=None,
         success_code=None,
         access_token=None,
         refresh_access=False,
@@ -445,7 +446,8 @@ class ElgTextAnnotator(Annotator):
             service: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
                 This may raise an exception. If successful, the url and service_meta attributes are set.
             auth: a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
-                success_code or access_token parameter must be specified.
+                success_code or access_token parameter must be specified for authentication, or none of those
+                to use an ELG-like endpoint without required authentication.
             success_code: the success code returned from the ELG web page for one of the URLs to obtain
                 success codes. This will try to obtain the authentication information and store it in the
                 `auth` attribute.  Requires the elg package.
@@ -465,9 +467,9 @@ class ElgTextAnnotator(Annotator):
         """
         if [x is not None for x in [url, service]].count(True) != 1:
             raise Exception("Exactly one of service or url must be specified")
-        if [x is not None for x in [auth, success_code, access_token]].count(True) != 1:
+        if [x is not None for x in [auth, success_code, access_token]].count(True) > 1:
             raise Exception(
-                "Exactly one of auth, success_code, or access_token must be specified"
+                "None or exactly one of auth, success_code, or access_token must be specified"
             )
         self.access_token = access_token
         self.success_code = success_code
@@ -482,7 +484,7 @@ class ElgTextAnnotator(Annotator):
             self.refresh_access = False
         if service is not None:
             import_elg = True
-        if auth or success_code:
+        if auth or success_code or auth_file:
             import_elg = True
         if import_elg:
             try:
@@ -506,6 +508,8 @@ class ElgTextAnnotator(Annotator):
             self.url = self.service_meta["service_info"]["elg_execution_location_sync"]
         if success_code is not None:
             self.auth = Authentication.from_success_code(success_code, domain="live")
+        if auth_file is not None:
+            self.auth = Authentication.from_json(auth_file)
         if self.auth:
             self.access_token = self.auth.access_token
         self.min_delay_s = min_delay_ms / 1000.0
@@ -535,8 +539,14 @@ class ElgTextAnnotator(Annotator):
             raise Exception(
                 f"Something went wrong, received status code/text {scode} / {response.text}"
             )
+        #print(f"Response encoding:", response.encoding)
+        assert response.encoding.lower() == "utf-8"
+        #print(f"Response headers:", response.headers)
+        #print(f"Response status code:", response.status_code)
+        assert response.status_code == 200
+        #print(f"Response text:", response.text)
         response_json = response.json()
-        # self.logger.debug(f"Response JSON: {json}")
+        # self.logger.info(f"Response JSON: {response_json}")
         # TODO: check that we have got
         # - a map
         # - which has the "response" key
@@ -553,6 +563,6 @@ class ElgTextAnnotator(Annotator):
                 start = ret_ann["start"]
                 end = ret_ann["end"]
                 feats = ret_ann.get("features", {})
-                start, end = om.convert_to_python([start, end])
+                # start, end = om.convert_to_python([start, end])
                 annset.add(start, end, anntype, features=feats)
         return doc
