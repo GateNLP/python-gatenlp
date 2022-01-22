@@ -4,6 +4,7 @@ ELG client.
 import json
 import time
 import requests
+import logging
 from elg import Authentication
 from elg.utils import get_domain, get_metadatarecord
 
@@ -48,6 +49,7 @@ class ElgTextAnnotator(Annotator):
         outset_name="",
         min_delay_ms=501,
         anntypes_map=None,
+        debug=False,
     ):
         """
         Create an ElgTextAnnotator.
@@ -100,6 +102,7 @@ class ElgTextAnnotator(Annotator):
         self.refresh_access = refresh_access
         self.sync_mode = sync_mode
         self.timeout = timeout
+        self.debug = debug
         # first check if we need to import the elg package
         if access_token:
             self.refresh_access = False
@@ -124,7 +127,9 @@ class ElgTextAnnotator(Annotator):
         self.anntypes_map = anntypes_map
         self.outset_name = outset_name
         self.logger = init_logger(__name__)
-        # self.logger.setLevel(logging.DEBUG)
+        self.response_json = None
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
         self._last_call_time = 0
 
     def __call__(self, doc, **kwargs):
@@ -148,6 +153,9 @@ class ElgTextAnnotator(Annotator):
         assert response.encoding.lower() == "utf-8"
         assert response.status_code == 200
         response_json = response.json()
+        if self.debug:
+            self.logger.debug(f"Response JSON: {response_json}")
+        self.response_data = response_json
         ents = response_json.get("response", {}).get("annotations", {})
         annset = doc.annset(self.outset_name)
         for ret_anntype, ret_anns in ents.items():
@@ -198,17 +206,38 @@ class ElgTextAnnotator(Annotator):
         return response
 
 
-def udptoken2tokens(udptoken_set, outset, token_type="Token", mwt_type="MWT"):
-    for utoken in udptoken_set:
-        words = utoken.features["words"]
-        if len(words) == 1:
-            outset.add(utoken.start, utoken.end, token_type, features=words[0])
-        else:
-            spans = Span.squeeze(utoken.start, utoken.end, len(words))
-            assert len(words) == len(spans)
-            annids = []
-            for word, span in zip(words, spans):
-                ann = outset.add(span.start, span.end, token_type, features=word)
-                annids.append(ann.id)
-            outset.add(utoken.start, utoken.end, mwt_type, features=dict(word_ids=annids))
+def udptoken2tokens(udptoken_set, udpsentence_set, outset, token_type="Token", mwt_type="MWT"):
+    for sent in udpsentence_set:
+        udptokens4sent = udptoken_set.within(sent)
+        anns4sent = []
+        for utoken in udptokens4sent:
+            words = utoken.features["words"]
+            if len(words) == 1:
+                ann = outset.add(utoken.start, utoken.end, token_type, features=words[0])
+                anns4sent.append(ann)
+            else:
+                spans = Span.squeeze(utoken.start, utoken.end, len(words))
+                assert len(words) == len(spans)
+                annids = []
+                for word, span in zip(words, spans):
+                    ann = outset.add(span.start, span.end, token_type, features=word)
+                    annids.append(ann.id)
+                    anns4sent.append(ann)
+                outset.add(utoken.start, utoken.end, mwt_type, features=dict(word_ids=annids))
+        # now patch up the head ids: replace id 0 with the annotation id of the containing sentence,
+        # and replace all other ids with the annotation id of the corresponding token
+        # also replace the "feats" feature with individual features for its contents
+        for ann in anns4sent:
+            if ann.features["head"] == 0:
+                ann.features["head"] = sent.id
+            else:
+                ann.features["head"] = anns4sent[ann.features["head"]-1].id
+            feats = ann.features.get("feats")
+            if feats is not None:
+                assignments = feats.split("|")
+                for assignment in assignments:
+                    name, value = assignment.split("=")
+                    ann.features[name] = value
+                ann.features.pop("feats")
+
 
