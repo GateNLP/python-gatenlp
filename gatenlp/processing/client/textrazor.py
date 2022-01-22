@@ -2,14 +2,11 @@
 TextRazor client.
 """
 import logging
-import json
 import time
 import requests
-from requests.auth import HTTPBasicAuth
 
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
-from gatenlp.offsetmapper import OffsetMapper
 
 
 class TextRazorTextAnnotator(Annotator):
@@ -50,7 +47,7 @@ class TextRazorTextAnnotator(Annotator):
         self.auth_token = auth_token
         self.min_delay_s = min_delay_ms / 1000.0
         self.logger = init_logger()
-        self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
         self._last_call_time = 0
         if extractors is not None:
             if isinstance(extractors, str):

@@ -38,24 +38,26 @@ class AnnSpacy(Annotator):
         add_nounchunks=True,
         add_deps=True,
         ent_prefix=None,
+        **kwargs
     ):
         """
         Create an annotator for running a spacy pipeline on documents.
 
         Args:
-            pipeline: if this is specified, a pre-configured spacy pipeline (default: "en_core_web_sm"
-                pipeline)
-        outsetname: the annotation set name where to put the annotations
-        token_type: the annotation type for the token annotations
-        space_token_type: type of any space token annotations
-        sentence_type: the annotation type for the sentence annotations
-        nounchunk_type: annotation type for noun chunks
-        add_tokens: if token annotations should be added
-        add_entities: if true, add entity annotations
-        add_sentences: if sentence annotations should be added
-        add_nounchunks: if nounchunks should be added
-        add_deps: if dependencies should be added
-        ent_prefix: the prefix to add to all entity annotation types
+            pipeline: a pre-configure spacy pipeline to use
+            outsetname: the annotation set name where to put the annotations
+            token_type: the annotation type for the token annotations
+            space_token_type: type of any space token annotations
+            sentence_type: the annotation type for the sentence annotations
+            nounchunk_type: annotation type for noun chunks
+            add_tokens: if token annotations should be added
+            add_entities: if true, add entity annotations
+            add_sentences: if sentence annotations should be added
+            add_nounchunks: if nounchunks should be added
+            add_deps: if dependencies should be added
+            ent_prefix: the prefix to add to all entity annotation types
+            kwargs: if no pipeline is specified, pass these arguments to the spacy.load method,
+                use name= to specify the model name
         """
         self.outsetname = outsetname
 

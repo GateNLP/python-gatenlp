@@ -1,11 +1,8 @@
 """
 TagMe client.
 """
-import logging
-import json
 import time
 import requests
-from requests.auth import HTTPBasicAuth
 
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
@@ -14,7 +11,8 @@ from gatenlp.offsetmapper import OffsetMapper
 
 class TagMeAnnotator(Annotator):
     """
-    An annotator that sends text to the TagMe Annotation service (https://sobigdata.d4science.org/group/tagme/tagme)
+    An annotator that sends text to the TagMe Annotation service
+    (https://sobigdata.d4science.org/group/tagme/tagme)
     and uses the result to annotate the document.
     """
 
@@ -37,10 +35,10 @@ class TagMeAnnotator(Annotator):
         Create a TagMeAnnotator.
 
         Args:
+            url: the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used
+            auth_token: the authentication token needed to use the service
             lang: the language of the text, one of 'de', 'en' (default), 'it'
             ann_type: the annotation type for the new annotations, default is "Mention"
-            auth_token: the authentication token needed to use the service
-            url: the annotation service endpoint, is None, the default endpoint for the task (spot or tag) is used
             task: one of "spot" (only find mentions) or "tag" (find mentions and link), default is "tag"
             outset_name: the annotationset to put the new annotations in
             min_delay_ms: minimum time in ms to wait between requests to the server

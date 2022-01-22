@@ -52,8 +52,11 @@ for running on your own computer (NB-DL).
 * Modules for interaction with other NLP packages and converting their documents
     * [`lib_spacy`](lib_spacy) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [NB-DL](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)
     * [`lib_stanza`](lib_stanza) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_stanza.ipynb) / [NB-DL](lib_stanza.ipynb) for interacting with [Stanza](https://stanfordnlp.github.io/stanza/)
-* Connecting to annotation services on the web:
-    * [Client Annotators](client_annotators) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_annotators.ipynb) / [NB-DL](client_annotators.ipynb)
+* Connecting to annotation services on the web (clients): annotators which connect to a web/cloud service to annotate documents.
+    * [GateCloud Client](client_gatecloud) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_gatecloud.ipynb) / [NB-DL](client_gatecloud.ipynb)
+    * [ELG (European Language Grid) Client](client_elg) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_elg.ipynb) / [NB-DL](client_elg.ipynb)
+    * [TagMe Client](client_tagme) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_tagme.ipynb) / [NB-DL](client_tagme.ipynb)
+    * [TextRazor Client](client_textrazor) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_textrazor.ipynb) / [NB-DL](client_textrazor.ipynb)
 * Modules related to NLP processing:
     * [Corpora](corpora) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [NB-DL](corpora.ipynb)
     * [Processing](processing) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [NB-DL](processing.ipynb)

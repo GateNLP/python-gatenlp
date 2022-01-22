@@ -45,6 +45,7 @@ class AnnStanza(Annotator):
                 internally re-batches those batches again, depending on the size of the documents in the sequence.
             kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+                use lang= to specify the default pipeline for a language.
         """
         self.outsetname = outsetname
         self.token_type = token_type

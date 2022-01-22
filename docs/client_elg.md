@@ -1,58 +1,52 @@
-# Web Service Client Annotators
+# European Language Grid (ELG) Annotator
 
-Web service client annotators are annotators which use a web service to annotate documents: for each document that gets processed, data is sent to a HTTP endpoint, processed there and information is sent back that is then used to annotate the document. 
+The `ElgAnnotator` is an annotator that onne of the  [ELG](https://live.european-language-grid.eu/catalogue/?&elg_compatible_service__term=Yes) services to annotate documents: for each document that gets processed, data is sent to a HTTP endpoint, processed there and information is sent back that is then used to annotate the document. 
 
-Currently the following client annotators are implemented:
-
-* GateCloudAnnotator: this annotator connects to one of the many services on the GATE Cloud platform (https://cloud.gate.ac.uk/). Services include named entity recognition for tweets or standard texts in several  languages, entity disambiguation and linking to Wikipedia or MeSH or Snomed. NOTE: some services require input that is not just plain text, at the moment only those services are supported which can annotate plain text
-* TagMeAnnotator: this annotator connects to the TagMe mention disambiguation and linking service (https://sobigdata.d4science.org/group/tagme/tagme) to either perform the task "tag" (disambiguation and linking of mentions) or "spot" finding mentions only. 
-* TextRazorTextAnnotator: this annotator connects to the TextRazor API endpoint (see https://www.textrazor.com/) to annotate the text of the document
-* ElgTextAnnotator: this annotator connects to one of the public endpoints from the European Language Grid project (see https://live.european-language-grid.eu) 
 
 
 
 ```python
 from gatenlp import Document
-from gatenlp.processing.client import GateCloudAnnotator
+# It is called "ElgTextAnnotator" because ELG also provides services to analyze audio and other kinds of data.
+from gatenlp.processing.client import ElgTextAnnotator
+from elg import Authentication
 ```
 
-Lets try annotating a document with the English Named Entity Recognizer on GATE
-cloud (https://cloud.gate.ac.uk/shopfront/displayItem/annie-named-entity-recognizer). 
+Lets try annotating a document with the UDPipe English: Morphosyntactic Analysis service 
+(https://live.european-language-grid.eu/catalogue/tool-service/423). 
 
-The information page for that service shows that the following annotation types can be requested of which the first 5 are requested by default if no alternate list is specified:
+The service requires authentication, and there are several ways to get a key and provide the information to the ElgTextAnnotator class:
 
-* Address  (included by default)
-* Date (included by default)
-* Location (included by default)
-* Organization (included by default)
-* Person (included by default)
-* Money 
-* Percent 
-* Token 
-* SpaceToken 
-* Sentence
+* `auth`: a pre-initialized ELG Authentication object
+* `auth_file`: a json file that contains authentication information, generated with the ELG Authentication class
+* `access_token`: this is the token that is shown on the service web page in the "Code samples" tab, under "cURL"
+* `success_code`: the code created on the ELG web site for a logged in user when visiting one of these urls:
+  * for short-term authentication that needs to get refreshed regularly: https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?client_id=elg-oob&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=openid
+  * for offline access: https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?client_id=elg-oob&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=offline_access
 
-We create a GateCloudAnnotator an specify the full list of all supported annotation types. We also specify the URL of the service endpoint as provided on the info page and specify that the annotations should be put into the annotation set "ANNIE". Note that a limited number of documents can be annotated for free and without authentication, so we do not need to specify the `api_key` and `api_password` parameters. 
+To create and store authentication for offline access in a file `tokens.json` you can run the following code interactively (it will show the offline access URL from above and prompt for the success code): 
+```
+auth = Authentication.init(scope="offline_access")
+auth..to_json("tokens.json")
+print(f"The tokens will expire: {auth.refresh_expires_time}")
+```
+The following code assumes that a valid `tokens.json` file exists.
+
+The service can be specified by:
+* specify the ELG service nr using the `servicenr` parameter, e.g. `servicenr=423`
+* specify the ELG service URL using the `url` parameter. The URL for the synchronous service is shown on the service page under the "Code samples" tab under "cURL"
+
+Each service returns its own set of annotations and features. The ElgTextAnnotator constructor allows to specify a map via the `anntypes_map` to replace the original annotation types with new names when processing the document.
 
 
 ```python
-annotator = GateCloudAnnotator(
-    url="https://cloud-api.gate.ac.uk/process-document/annie-named-entity-recognizer", 
-    out_annset="ANNIE", 
-    ann_types=":Address,:Date,:Location,:Organization,:Person,:Money,:Percent,:Token,:SpaceToken,:Sentence"
-)
-```
-
-
-```python
-# an example document to annotate
 doc = Document("Barack Obama visited Microsoft in New York last May.")
-```
-
-
-```python
-# Run the annotator and show the annotated document
-doc = annotator(doc)
+annt = ElgTextAnnotator(
+    url="https://live.european-language-grid.eu/execution/process/udpipede",
+    auth_file="tokens.json", 
+    anntypes_map = {"udpipe/paragraphs": "Paragraph", "udpipe/sentences": "Sentence", "udpipe/tokens": "UDPToken"}
+)
+doc = annt(doc)
 doc
 ```
 
@@ -62,13 +56,13 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+    constructor(bdoc) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
+	    this.text = bdoc["text"];
+	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -377,7 +371,7 @@ var gatenlpDocView = class {
                 // trick for zero length annotations: show them as length one annotations for now
                 var endoff = ann.end
                 if (ann.start == ann.end) endoff = endoff+1
-                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
+                for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
                     if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
@@ -395,12 +389,12 @@ var gatenlpDocView = class {
                 }
             }
         }
-        console.log("initial anns4Offset:")
-        console.log(this.anns4offset)
+        //console.log("initial anns4Offset:")
+        //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
             if (last == undefined && cur == undefined) {
                 // console.log("Offset "+i+" both undefined")
@@ -426,7 +420,8 @@ var gatenlpDocView = class {
             } 
             last = cur
         }
-        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+	let beyond = this.docrep.text.length
+	this.anns4offset[beyond] = { "anns": new Set(), "offset": beyond}
 
         // console.log("compressed anns4Offset:")
         // console.log(this.anns4offset)
@@ -442,21 +437,22 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
             last = { "anns": new Set(), "offset": 0 };
         }
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
-                console.log("Got text: "+txt) 
+                txt = txt.replace(/\n/g, "\u2002\n");
+                // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
@@ -472,26 +468,6 @@ var gatenlpDocView = class {
                 last = info;
             }
         }
-        let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
-        let span = undefined;
-        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
-        if (last["anns"].length != 0) {
-            let col = this.color4types(last.anns);
-            let sty = this.style4color(col);
-            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
-            span = $('<span>').attr("style", sty)
-            let object = this;
-            let anns = last.anns;
-            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
-            span.on("click", annhandler);
-            // console.log("Adding styled text for "+col+" : "+txt)
-        } else {
-            // console.log("Adding non-styled text "+txt)
-            span = $('<span>');
-        }
-        span.append($.parseHTML(this.htmlEntities(txt)));
-        spans.push(span);
-        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
@@ -502,37 +478,31 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
 </script>
 
 
 
 
 
-<div><style>#NTGLJUSMWD-wrapper { color: black !important; }</style>
-<div id="NTGLJUSMWD-wrapper">
+<div><style>#OPOLCMOLVY-wrapper { color: black !important; }</style>
+<div id="OPOLCMOLVY-wrapper">
 
 <div>
 <style>
-#NTGLJUSMWD-content {
+#OPOLCMOLVY-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.NTGLJUSMWD-row {
+.OPOLCMOLVY-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.NTGLJUSMWD-col {
+.OPOLCMOLVY-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -542,23 +512,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.NTGLJUSMWD-hdr {
+.OPOLCMOLVY-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.NTGLJUSMWD-label {
+.OPOLCMOLVY-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.NTGLJUSMWD-input {
+.OPOLCMOLVY-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#NTGLJUSMWD-popup {
+#OPOLCMOLVY-popup {
     display: none;
     color: black;
     position: absolute;
@@ -573,48 +543,168 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.NTGLJUSMWD-selection {
+.OPOLCMOLVY-selection {
     margin-bottom: 5px;
 }
 
-.NTGLJUSMWD-featuretable {
+.OPOLCMOLVY-featuretable {
     margin-top: 10px;
 }
 
-.NTGLJUSMWD-fname {
+.OPOLCMOLVY-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.NTGLJUSMWD-fvalue {
+.OPOLCMOLVY-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="NTGLJUSMWD-content">
-        <div id="NTGLJUSMWD-popup" style="display: none;">
+  <div id="OPOLCMOLVY-content">
+        <div id="OPOLCMOLVY-popup" style="display: none;">
         </div>
-        <div class="NTGLJUSMWD-row" id="NTGLJUSMWD-row1" style="max-height: 20em; min-height:5em;">
-            <div id="NTGLJUSMWD-text-wrapper" class="NTGLJUSMWD-col" style="width:70%;">
-                <div class="NTGLJUSMWD-hdr" id="NTGLJUSMWD-dochdr"></div>
-                <div id="NTGLJUSMWD-text">
+        <div class="OPOLCMOLVY-row" id="OPOLCMOLVY-row1" style="min-height:5em;max-height:20em;">
+            <div id="OPOLCMOLVY-text-wrapper" class="OPOLCMOLVY-col" style="width:70%;">
+                <div class="OPOLCMOLVY-hdr" id="OPOLCMOLVY-dochdr"></div>
+                <div id="OPOLCMOLVY-text" style="">
                 </div>
             </div>
-            <div id="NTGLJUSMWD-chooser" class="NTGLJUSMWD-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="OPOLCMOLVY-chooser" class="OPOLCMOLVY-col" style="width:30%;border-left-width:0px;"></div>
         </div>
-        <div class="NTGLJUSMWD-row" id="NTGLJUSMWD-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="NTGLJUSMWD-details" class="NTGLJUSMWD-col" style="width:100%; border-top-width: 0px;">
+        <div class="OPOLCMOLVY-row" id="OPOLCMOLVY-row2" style="min-height:3em;max-height:14em;">
+            <div id="OPOLCMOLVY-details" class="OPOLCMOLVY-col" style="width:100%;border-top-width:0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="NTGLJUSMWD-data">
-    {"annotation_sets": {"ANNIE": {"name": "detached-from:ANNIE", "annotations": [{"type": "Date", "start": 43, "end": 51, "id": 0, "features": {"rule": "ModifierNamedDate", "ruleFinal": "DateOnlyFinal", "kind": "date"}}, {"type": "Location", "start": 34, "end": 42, "id": 1, "features": {"kind": "locName", "rule": "InLoc1", "locType": "city", "ruleFinal": "LocFinal"}}, {"type": "Organization", "start": 21, "end": 30, "id": 2, "features": {"orgType": "company", "rule": "GazOrganization", "ruleFinal": "OrgFinal"}}, {"type": "Person", "start": 0, "end": 12, "id": 3, "features": {"firstName": "Barack", "surname": "Obama", "kind": "fullName", "rule": "GazPerson", "gender": "male", "ruleFinal": "PersonFinal"}}, {"type": "Token", "start": 0, "end": 6, "id": 4, "features": {"string": "Barack", "length": "6", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 7, "end": 12, "id": 5, "features": {"string": "Obama", "length": "5", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 13, "end": 20, "id": 6, "features": {"string": "visited", "length": "7", "orth": "lowercase", "kind": "word", "category": "VBD"}}, {"type": "Token", "start": 21, "end": 30, "id": 7, "features": {"string": "Microsoft", "length": "9", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 31, "end": 33, "id": 8, "features": {"string": "in", "length": "2", "orth": "lowercase", "kind": "word", "category": "IN"}}, {"type": "Token", "start": 34, "end": 37, "id": 9, "features": {"string": "New", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 38, "end": 42, "id": 10, "features": {"string": "York", "length": "4", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 43, "end": 47, "id": 11, "features": {"string": "last", "length": "4", "orth": "lowercase", "kind": "word", "category": "JJ"}}, {"type": "Token", "start": 48, "end": 51, "id": 12, "features": {"string": "May", "length": "3", "orth": "upperInitial", "kind": "word", "category": "NNP"}}, {"type": "Token", "start": 51, "end": 52, "id": 13, "features": {"string": ".", "length": "1", "kind": "punctuation", "category": "."}}, {"type": "SpaceToken", "start": 6, "end": 7, "id": 14, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 15, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 20, "end": 21, "id": 16, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 30, "end": 31, "id": 17, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 33, "end": 34, "id": 18, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 37, "end": 38, "id": 19, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 42, "end": 43, "id": 20, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 21, "features": {"string": " ", "length": "1", "kind": "space"}}, {"type": "Sentence", "start": 0, "end": 52, "id": 22, "features": {}}], "next_annid": 23}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("NTGLJUSMWD-");
+    let OPOLCMOLVY_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visited", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NE", "feats": "Case=Nom|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "APPR", "head": 6, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 1, "deprel": "nmod"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 6, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "laben", "upos": "AUX", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 9, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": "$.", "head": 1, "deprel": "punct"}]}}], "next_annid": 12}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(OPOLCMOLVY_data), "OPOLCMOLVY-").init();
     </script>
   </div>
 
 </div></div>
 
 
+
+UDPToken annotations are not very useful as they are, because each token contains a single feature describing one or more words corresponding to these tokens (UDPipe services support multi-word tokens). 
+
+To convert these tokens to token annotations (for single word tokens) and MWT (multi word token) and Token annotations for multi word tokens the following utility method can be used. This method will also adapt the dependency parser ids to refer to the respective Token annotation ids and will split the "feats" feature up into separate features on the annotation.
+
+
+```python
+from gatenlp.processing.client.elg import udptoken2tokens
+udptoken2tokens(doc.annset().with_type("UDPToken"), doc.annset())
+doc
+```
+
+
+
+
+<div><style>#ARACFPYFZC-wrapper { color: black !important; }</style>
+<div id="ARACFPYFZC-wrapper">
+
+<div>
+<style>
+#ARACFPYFZC-content {
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.ARACFPYFZC-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.ARACFPYFZC-col {
+    border: 1px solid grey;
+    display: inline-block;
+    min-width: 200px;
+    padding: 5px;
+    /* white-space: normal; */
+    /* white-space: pre-wrap; */
+    overflow-y: auto;
+}
+
+.ARACFPYFZC-hdr {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.ARACFPYFZC-label {
+    margin-bottom: -15px;
+    display: block;
+}
+
+.ARACFPYFZC-input {
+    vertical-align: middle;
+    position: relative;
+    *overflow: hidden;
+}
+
+#ARACFPYFZC-popup {
+    display: none;
+    color: black;
+    position: absolute;
+    margin-top: 10%;
+    margin-left: 10%;
+    background: #aaaaaa;
+    width: 60%;
+    height: 60%;
+    z-index: 50;
+    padding: 25px 25px 25px;
+    border: 1px solid black;
+    overflow: auto;
+}
+
+.ARACFPYFZC-selection {
+    margin-bottom: 5px;
+}
+
+.ARACFPYFZC-featuretable {
+    margin-top: 10px;
+}
+
+.ARACFPYFZC-fname {
+    text-align: left !important;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.ARACFPYFZC-fvalue {
+    text-align: left !important;
+}
+</style>
+  <div id="ARACFPYFZC-content">
+        <div id="ARACFPYFZC-popup" style="display: none;">
+        </div>
+        <div class="ARACFPYFZC-row" id="ARACFPYFZC-row1" style="min-height:5em;max-height:20em;">
+            <div id="ARACFPYFZC-text-wrapper" class="ARACFPYFZC-col" style="width:70%;">
+                <div class="ARACFPYFZC-hdr" id="ARACFPYFZC-dochdr"></div>
+                <div id="ARACFPYFZC-text" style="">
+                </div>
+            </div>
+            <div id="ARACFPYFZC-chooser" class="ARACFPYFZC-col" style="width:30%;border-left-width:0px;"></div>
+        </div>
+        <div class="ARACFPYFZC-row" id="ARACFPYFZC-row2" style="min-height:3em;max-height:14em;">
+            <div id="ARACFPYFZC-details" class="ARACFPYFZC-col" style="width:100%;border-top-width:0px;">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    let ARACFPYFZC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visited", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NE", "feats": "Case=Nom|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "APPR", "head": 6, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 1, "deprel": "nmod"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 6, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "laben", "upos": "AUX", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 9, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": "$.", "head": 1, "deprel": "punct"}]}}, {"type": "Token", "start": 0, "end": 6, "id": 12, "features": {"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 0, "deprel": "root"}}, {"type": "Token", "start": 7, "end": 12, "id": 13, "features": {"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}}, {"type": "Token", "start": 13, "end": 20, "id": 14, "features": {"form": "visited", "lemma": "visited", "upos": "PROPN", "xpos": "NE", "feats": "Case=Acc|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}}, {"type": "Token", "start": 21, "end": 30, "id": 15, "features": {"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NE", "feats": "Case=Nom|Number=Sing", "head": 1, "deprel": "flat"}}, {"type": "Token", "start": 31, "end": 33, "id": 16, "features": {"form": "in", "lemma": "in", "upos": "ADP", "xpos": "APPR", "head": 6, "deprel": "case"}}, {"type": "Token", "start": 34, "end": 37, "id": 17, "features": {"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 1, "deprel": "nmod"}}, {"type": "Token", "start": 38, "end": 42, "id": 18, "features": {"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Neut|Number=Sing", "head": 6, "deprel": "flat"}}, {"type": "Token", "start": 43, "end": 47, "id": 19, "features": {"form": "last", "lemma": "laben", "upos": "AUX", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 9, "deprel": "flat"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NE", "feats": "Case=Dat|Gender=Masc|Number=Sing", "head": 1, "deprel": "flat"}}, {"type": "Token", "start": 51, "end": 52, "id": 21, "features": {"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": "$.", "head": 1, "deprel": "punct"}}], "next_annid": 22}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    new gatenlpDocView(new gatenlpDocRep(ARACFPYFZC_data), "ARACFPYFZC-").init();
+    </script>
+  </div>
+
+</div></div>
+
+
+
+
+```python
+
+```

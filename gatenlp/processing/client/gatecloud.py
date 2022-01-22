@@ -2,14 +2,13 @@
 GATE Cloud annotator client.
 """
 import logging
-import json
 import time
 import requests
 from requests.auth import HTTPBasicAuth
 
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
-from gatenlp.offsetmapper import OffsetMapper
+
 
 class GateCloudAnnotator(Annotator):
     """

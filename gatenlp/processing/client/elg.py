@@ -1,21 +1,21 @@
 """
 ELG client.
 """
-import logging
 import json
 import time
 import requests
-from requests.auth import HTTPBasicAuth
+from elg import Authentication
+from elg.utils import get_domain, get_metadatarecord
 
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
-from gatenlp.offsetmapper import OffsetMapper
+from gatenlp import Span
 
 class ElgTextAnnotator(Annotator):
-    # TODO: maybe we should eventually always use the elg package and the elg Service class!
-    # TODO: however, currently their way how handling auth is done is too limiting see issues #8, #9
+    # NOTE: maybe we should eventually always use the elg package and the elg Service class!
+    #   however, currently their way how handling auth is done is too limiting see issues #8, #9
 
-    # TODO: use template and return the URL from a method or use elg.utils
+    # NOTE: use template and return the URL from a method or use elg.utils
     ELG_SC_LIVE_URL_PREFIX = "https://live.european-language-grid.eu/auth/realms/ELG/protocol/openid-connect/auth?"
     ELG_SC_LIVE_URL_PREFIX += (
         "client_id=python-sdk&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code"
@@ -32,16 +32,16 @@ class ElgTextAnnotator(Annotator):
     """
     An annotator that sends text to one of the services registered with the European Language Grid
     (https://live.european-language-grid.eu/) and uses the result to create annotations.
-
-    NOTE: This is maybe not properly implemented and not properly tested yet!
     """
 
     def __init__(
         self,
         url=None,
-        service=None,
+        sync_mode=True,
+        servicenr=None,
         auth=None,
         auth_file=None,
+        timeout=None,
         success_code=None,
         access_token=None,
         refresh_access=False,
@@ -52,20 +52,22 @@ class ElgTextAnnotator(Annotator):
         """
         Create an ElgTextAnnotator.
 
-        NOTE: error handling is not properly implemented yet since we do not know yet how exactly the various
-        error conditions are represented in the result returned from the ELG services. For now, any error will
-        throw an exception when `__call__` is invoked.
-
         NOTE: initialization can fail with an exception if success_code is specified and retrieving the
         authentification information fails.
 
         Args:
             url:  the annotation service URL to use. If not specified, the service parameter must be specified.
-            service: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
+            sync_mode: if True call the service synchronously, otherwise asynchronously. Note that the
+                url must match the sync_mode. E.g.
+                https://live.european-language-grid.eu/execution/async/process/SERVICE vs
+                https://live.european-language-grid.eu/execution/process/SERVICE
+            servicenr: the ELG service number or a tuple (servicenumber, domain). This requires the elg package.
                 This may raise an exception. If successful, the url and service_meta attributes are set.
             auth: a pre-initialized ELG Authentication object. Requires the elg package. If not specified, the
                 success_code or access_token parameter must be specified for authentication, or none of those
                 to use an ELG-like endpoint without required authentication.
+            auth_file: the path to an auth_file created in advance
+            timeout: timeout in seconds or None to leave unspecified
             success_code: the success code returned from the ELG web page for one of the URLs to obtain
                 success codes. This will try to obtain the authentication information and store it in the
                 `auth` attribute.  Requires the elg package.
@@ -83,7 +85,7 @@ class ElgTextAnnotator(Annotator):
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         """
-        if [x is not None for x in [url, service]].count(True) != 1:
+        if [x is not None for x in [url, servicenr]].count(True) != 1:
             raise Exception("Exactly one of service or url must be specified")
         if [x is not None for x in [auth, success_code, access_token]].count(True) > 1:
             raise Exception(
@@ -93,37 +95,25 @@ class ElgTextAnnotator(Annotator):
         self.success_code = success_code
         self.auth = auth
         self.url = url
-        self.service = service
+        self.servicenr = servicenr
         self.service_meta = None
         self.refresh_access = refresh_access
+        self.sync_mode = sync_mode
+        self.timeout = timeout
         # first check if we need to import the elg package
-        import_elg = False
         if access_token:
             self.refresh_access = False
-        if service is not None:
-            import_elg = True
-        if auth or success_code or auth_file:
-            import_elg = True
-        if import_elg:
-            try:
-                from elg import Authentication
-                from elg.utils import get_domain, get_metadatarecord
-            except Exception as ex:
-                raise Exception(
-                    "For this gatenlp must be installed with extra elg or extra all, e.g. gatenlp[elg]",
-                    ex,
-                )
-        if service is not None:
-            # update this to use the new method:
-            # https://gitlab.com/european-language-grid/platform/python-client/-/issues/9
-            if isinstance(service, tuple):
-                service_id, domain = service
+        if servicenr is not None:
+            if isinstance(servicenr, tuple):
+                service_id, domain = servicenr
             else:
-                service_id = service
+                service_id = servicenr
                 domain = get_domain("live")
-            self.service_meta = get_metadatarecord(service_id, domain)
-            # NOTE: there is also elg_execution_location for async requests!
-            self.url = self.service_meta["service_info"]["elg_execution_location_sync"]
+            self.service_meta = get_metadatarecord(service_id, domain, False, None, False)
+            if sync_mode:
+                self.url = self.service_meta["service_info"]["elg_execution_location_sync"]
+            else:
+                self.url = self.service_meta["service_info"]["elg_execution_location"]
         if success_code is not None:
             self.auth = Authentication.from_success_code(success_code, domain="live")
         if auth_file is not None:
@@ -144,32 +134,20 @@ class ElgTextAnnotator(Annotator):
         delay = time.time() - self._last_call_time
         if delay < self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
-        om = OffsetMapper(doc.text)
         request_json = json.dumps(
             {"type": "text", "content": doc.text, "mimeType": "text/plain"}
         )
-        hdrs = {"Content-Type": "application/json"}
+        hdrs = {"Content-Type": "application/json", "Accept": "application/json"}
         if self.access_token:
             hdrs["Authorization"] = f"Bearer {self.access_token}"
-        response = requests.post(self.url, data=request_json, headers=hdrs)
-        scode = response.status_code
-        if scode != 200:
-            raise Exception(
-                f"Something went wrong, received status code/text {scode} / {response.text}"
-            )
-        #print(f"Response encoding:", response.encoding)
+        if self.sync_mode:
+            response = self._call_sync(request_json, hdrs)
+        else:
+            response = self._call_async(request_json, hdrs)
+
         assert response.encoding.lower() == "utf-8"
-        #print(f"Response headers:", response.headers)
-        #print(f"Response status code:", response.status_code)
         assert response.status_code == 200
-        #print(f"Response text:", response.text)
         response_json = response.json()
-        # self.logger.info(f"Response JSON: {response_json}")
-        # TODO: check that we have got
-        # - a map
-        # - which has the "response" key
-        # - response value is a map which has "type"= "annotations" and
-        # - "annotations" is a map with keys being the annotation types and values arrays of annoations
         ents = response_json.get("response", {}).get("annotations", {})
         annset = doc.annset(self.outset_name)
         for ret_anntype, ret_anns in ents.items():
@@ -184,3 +162,53 @@ class ElgTextAnnotator(Annotator):
                 # start, end = om.convert_to_python([start, end])
                 annset.add(start, end, anntype, features=feats)
         return doc
+
+    def _call_sync(self, request_json, hdrs):
+        response = requests.post(self.url, data=request_json, headers=hdrs, timeout=self.timeout)
+        if response.status_code != 200:
+            raise Exception(
+                f"Something went wrong, received status code/text {response.status_code} / {response.text}"
+            )
+        return response
+
+    def _call_async(self, request_json, hdrs):
+        # see https://gitlab.com/european-language-grid/platform/python-client/-/blob/master/elg/service.py
+        response = requests.post(
+            self.url,
+            data=request_json,
+            headers=hdrs, timeout=self.timeout)
+        if response.status_code >= 400:
+            raise Exception(
+                f"Something went wrong, received status code/text {response.status_code} / {response.text}"
+            )
+        response = response.json()["response"]
+        assert response["type"] == "stored"
+        hdrs.pop("Content-Type")
+        uri = response["uri"]
+        response = requests.get(uri, headers=hdrs)
+        jresp = response.json()
+        waiting_time = time.time()
+        while response.ok and "progress" in response.json().keys():
+            percent = jresp["progress"]["percent"]
+            time.sleep(1)
+            response = requests.get(uri, headers=hdrs, timeout=self.timeout)
+            jresp = response.json()
+            if time.time() - waiting_time > (self.timeout if self.timeout is not None else float("inf")):
+                raise Exception("No async result returned within timeout")
+        return response
+
+
+def udptoken2tokens(udptoken_set, outset, token_type="Token", mwt_type="MWT"):
+    for utoken in udptoken_set:
+        words = utoken.features["words"]
+        if len(words) == 1:
+            outset.add(utoken.start, utoken.end, token_type, features=words[0])
+        else:
+            spans = Span.squeeze(utoken.start, utoken.end, len(words))
+            assert len(words) == len(spans)
+            annids = []
+            for word, span in zip(words, spans):
+                ann = outset.add(span.start, span.end, token_type, features=word)
+                annids.append(ann.id)
+            outset.add(utoken.start, utoken.end, mwt_type, features=dict(word_ids=annids))
+
