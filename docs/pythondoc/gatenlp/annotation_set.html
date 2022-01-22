@@ -618,11 +618,18 @@ class AnnotationSet:
             )
         self._remove_from_indices(annoriter)
 
-    def clear(self) -&gt; None:
+    def clear(self, reset_annids=False) -&gt; None:
         &#34;&#34;&#34;
         Removes all annotations from the set.
+
+        Args:
+            reset_annids: if True, also reset the next annotation id to 0, after this newly added annotations
+                will get annotation ids starting from 0. IMPORTANT: this must not be used for code to run in the
+                Java GATE Python plugin, as Java GATE handles annotation ids differently!
         &#34;&#34;&#34;
         self._annotations.clear()
+        if reset_annids:
+            self._next_annid = 0
         self._index_by_offset = None
         self._index_by_type = None
         if self.changelog is not None:
@@ -2292,11 +2299,18 @@ set has an owning document.</dd>
             )
         self._remove_from_indices(annoriter)
 
-    def clear(self) -&gt; None:
+    def clear(self, reset_annids=False) -&gt; None:
         &#34;&#34;&#34;
         Removes all annotations from the set.
+
+        Args:
+            reset_annids: if True, also reset the next annotation id to 0, after this newly added annotations
+                will get annotation ids starting from 0. IMPORTANT: this must not be used for code to run in the
+                Java GATE Python plugin, as Java GATE handles annotation ids differently!
         &#34;&#34;&#34;
         self._annotations.clear()
+        if reset_annids:
+            self._next_annid = 0
         self._index_by_offset = None
         self._index_by_type = None
         if self.changelog is not None:
@@ -4214,19 +4228,33 @@ to sort all annotations!</p></div>
 </details>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.clear"><code class="name flex">
-<span>def <span class="ident">clear</span></span>(<span>self) ‑> None</span>
+<span>def <span class="ident">clear</span></span>(<span>self, reset_annids=False) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Removes all annotations from the set.</p></div>
+<div class="desc"><p>Removes all annotations from the set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>reset_annids</code></strong></dt>
+<dd>if True, also reset the next annotation id to 0, after this newly added annotations
+will get annotation ids starting from 0. IMPORTANT: this must not be used for code to run in the
+Java GATE Python plugin, as Java GATE handles annotation ids differently!</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def clear(self) -&gt; None:
+<pre><code class="python">def clear(self, reset_annids=False) -&gt; None:
     &#34;&#34;&#34;
     Removes all annotations from the set.
+
+    Args:
+        reset_annids: if True, also reset the next annotation id to 0, after this newly added annotations
+            will get annotation ids starting from 0. IMPORTANT: this must not be used for code to run in the
+            Java GATE Python plugin, as Java GATE handles annotation ids differently!
     &#34;&#34;&#34;
     self._annotations.clear()
+    if reset_annids:
+        self._next_annid = 0
     self._index_by_offset = None
     self._index_by_type = None
     if self.changelog is not None:

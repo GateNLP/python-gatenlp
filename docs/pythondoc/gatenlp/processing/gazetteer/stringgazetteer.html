@@ -325,6 +325,7 @@ class StringGazetteer(GazetteerBase):
             for el in source:
                 if isinstance(el, str):
                     entry = el
+                    data = {}
                 else:
                     entry = el[0]
                     if len(el) &gt; 1:
@@ -1077,6 +1078,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             for el in source:
                 if isinstance(el, str):
                     entry = el
+                    data = {}
                 else:
                     entry = el[0]
                     if len(el) &gt; 1:
@@ -1697,6 +1699,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
         for el in source:
             if isinstance(el, str):
                 entry = el
+                data = {}
             else:
                 entry = el[0]
                 if len(el) &gt; 1:

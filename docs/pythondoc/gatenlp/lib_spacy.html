@@ -67,24 +67,26 @@ class AnnSpacy(Annotator):
         add_nounchunks=True,
         add_deps=True,
         ent_prefix=None,
+        **kwargs
     ):
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
         Args:
-            pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
-                pipeline)
-        outsetname: the annotation set name where to put the annotations
-        token_type: the annotation type for the token annotations
-        space_token_type: type of any space token annotations
-        sentence_type: the annotation type for the sentence annotations
-        nounchunk_type: annotation type for noun chunks
-        add_tokens: if token annotations should be added
-        add_entities: if true, add entity annotations
-        add_sentences: if sentence annotations should be added
-        add_nounchunks: if nounchunks should be added
-        add_deps: if dependencies should be added
-        ent_prefix: the prefix to add to all entity annotation types
+            pipeline: a pre-configure spacy pipeline to use
+            outsetname: the annotation set name where to put the annotations
+            token_type: the annotation type for the token annotations
+            space_token_type: type of any space token annotations
+            sentence_type: the annotation type for the sentence annotations
+            nounchunk_type: annotation type for noun chunks
+            add_tokens: if token annotations should be added
+            add_entities: if true, add entity annotations
+            add_sentences: if sentence annotations should be added
+            add_nounchunks: if nounchunks should be added
+            add_deps: if dependencies should be added
+            ent_prefix: the prefix to add to all entity annotation types
+            kwargs: if no pipeline is specified, pass these arguments to the spacy.load method,
+                use name= to specify the model name
         &#34;&#34;&#34;
         self.outsetname = outsetname
 
@@ -622,7 +624,7 @@ in the corresponding possition</dd>
 <dl>
 <dt id="gatenlp.lib_spacy.AnnSpacy"><code class="flex name class">
 <span>class <span class="ident">AnnSpacy</span></span>
-<span>(</span><span>pipeline=None, outsetname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_entities=True, add_sentences=True, add_nounchunks=True, add_deps=True, ent_prefix=None)</span>
+<span>(</span><span>pipeline=None, outsetname='', token_type='Token', space_token_type='SpaceToken', sentence_type='Sentence', nounchunk_type='NounChunk', add_tokens=True, add_entities=True, add_sentences=True, add_nounchunks=True, add_deps=True, ent_prefix=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An annotator that runs a Spacy pipeline to annotate a gatenlp document.</p>
@@ -630,20 +632,33 @@ in the corresponding possition</dd>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>pipeline</code></strong></dt>
-<dd>if this is specified, a pre-configured spacy pipeline (default: "en_core_web_sm"
-pipeline)</dd>
-</dl>
-<p>outsetname: the annotation set name where to put the annotations
-token_type: the annotation type for the token annotations
-space_token_type: type of any space token annotations
-sentence_type: the annotation type for the sentence annotations
-nounchunk_type: annotation type for noun chunks
-add_tokens: if token annotations should be added
-add_entities: if true, add entity annotations
-add_sentences: if sentence annotations should be added
-add_nounchunks: if nounchunks should be added
-add_deps: if dependencies should be added
-ent_prefix: the prefix to add to all entity annotation types</p></div>
+<dd>a pre-configure spacy pipeline to use</dd>
+<dt><strong><code>outsetname</code></strong></dt>
+<dd>the annotation set name where to put the annotations</dd>
+<dt><strong><code>token_type</code></strong></dt>
+<dd>the annotation type for the token annotations</dd>
+<dt><strong><code>space_token_type</code></strong></dt>
+<dd>type of any space token annotations</dd>
+<dt><strong><code>sentence_type</code></strong></dt>
+<dd>the annotation type for the sentence annotations</dd>
+<dt><strong><code>nounchunk_type</code></strong></dt>
+<dd>annotation type for noun chunks</dd>
+<dt><strong><code>add_tokens</code></strong></dt>
+<dd>if token annotations should be added</dd>
+<dt><strong><code>add_entities</code></strong></dt>
+<dd>if true, add entity annotations</dd>
+<dt><strong><code>add_sentences</code></strong></dt>
+<dd>if sentence annotations should be added</dd>
+<dt><strong><code>add_nounchunks</code></strong></dt>
+<dd>if nounchunks should be added</dd>
+<dt><strong><code>add_deps</code></strong></dt>
+<dd>if dependencies should be added</dd>
+<dt><strong><code>ent_prefix</code></strong></dt>
+<dd>the prefix to add to all entity annotation types</dd>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>if no pipeline is specified, pass these arguments to the spacy.load method,
+use name= to specify the model name</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -668,24 +683,26 @@ ent_prefix: the prefix to add to all entity annotation types</p></div>
         add_nounchunks=True,
         add_deps=True,
         ent_prefix=None,
+        **kwargs
     ):
         &#34;&#34;&#34;
         Create an annotator for running a spacy pipeline on documents.
 
         Args:
-            pipeline: if this is specified, a pre-configured spacy pipeline (default: &#34;en_core_web_sm&#34;
-                pipeline)
-        outsetname: the annotation set name where to put the annotations
-        token_type: the annotation type for the token annotations
-        space_token_type: type of any space token annotations
-        sentence_type: the annotation type for the sentence annotations
-        nounchunk_type: annotation type for noun chunks
-        add_tokens: if token annotations should be added
-        add_entities: if true, add entity annotations
-        add_sentences: if sentence annotations should be added
-        add_nounchunks: if nounchunks should be added
-        add_deps: if dependencies should be added
-        ent_prefix: the prefix to add to all entity annotation types
+            pipeline: a pre-configure spacy pipeline to use
+            outsetname: the annotation set name where to put the annotations
+            token_type: the annotation type for the token annotations
+            space_token_type: type of any space token annotations
+            sentence_type: the annotation type for the sentence annotations
+            nounchunk_type: annotation type for noun chunks
+            add_tokens: if token annotations should be added
+            add_entities: if true, add entity annotations
+            add_sentences: if sentence annotations should be added
+            add_nounchunks: if nounchunks should be added
+            add_deps: if dependencies should be added
+            ent_prefix: the prefix to add to all entity annotation types
+            kwargs: if no pipeline is specified, pass these arguments to the spacy.load method,
+                use name= to specify the model name
         &#34;&#34;&#34;
         self.outsetname = outsetname
 

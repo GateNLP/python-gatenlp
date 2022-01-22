@@ -76,6 +76,7 @@ class AnnStanza(Annotator):
                 internally re-batches those batches again, depending on the size of the documents in the sequence.
             kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+                use lang= to specify the default pipeline for a language.
         &#34;&#34;&#34;
         self.outsetname = outsetname
         self.token_type = token_type
@@ -651,7 +652,8 @@ with Stanza, this defines the number of documents per batch (default: 1000). Not
 internally re-batches those batches again, depending on the size of the documents in the sequence.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
 <dd>if no preconfigured pipeline is specified, pass these arguments to
-the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a></dd>
+the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/stanza/pipeline.html#pipeline">https://stanfordnlp.github.io/stanza/pipeline.html#pipeline</a>
+use lang= to specify the default pipeline for a language.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -692,6 +694,7 @@ the stanza.Pipeline() constructor see <a href="https://stanfordnlp.github.io/sta
                 internally re-batches those batches again, depending on the size of the documents in the sequence.
             kwargs: if no preconfigured pipeline is specified, pass these arguments to
                 the stanza.Pipeline() constructor see https://stanfordnlp.github.io/stanza/pipeline.html#pipeline
+                use lang= to specify the default pipeline for a language.
         &#34;&#34;&#34;
         self.outsetname = outsetname
         self.token_type = token_type
