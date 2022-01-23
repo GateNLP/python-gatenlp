@@ -6,7 +6,8 @@
 * fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead of a tuple.
 * Added parameters `row1_style` and `row2_style` to `Document.show`
 * Fixed issue 149: reset the annotation id after clearing the annotation set
-* ELG client: allow to use a pre-initialized authentification file
+* ELG annotator: allow to use a pre-initialized authentification file
+* Add IBM NLU annotator
 
 ## 1.0.6 (2021-11-19)
 

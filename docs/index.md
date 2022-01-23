@@ -55,6 +55,7 @@ for running on your own computer (NB-DL).
 * Connecting to annotation services on the web (clients): annotators which connect to a web/cloud service to annotate documents.
     * [GateCloud Client](client_gatecloud) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_gatecloud.ipynb) / [NB-DL](client_gatecloud.ipynb)
     * [ELG (European Language Grid) Client](client_elg) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_elg.ipynb) / [NB-DL](client_elg.ipynb)
+    * [IBM Natural Language Understanding Client](client_ibmnlu) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_ibmnlu.ipynb) / [NB-DL](client_ibmnlu.ipynb)
     * [TagMe Client](client_tagme) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_tagme.ipynb) / [NB-DL](client_tagme.ipynb)
     * [TextRazor Client](client_textrazor) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_textrazor.ipynb) / [NB-DL](client_textrazor.ipynb)
 * Modules related to NLP processing:
