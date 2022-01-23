@@ -37,7 +37,12 @@ version = versionfromfile("gatenlp/version.py")
 
 def get_install_extras_require():
     extras_require = {
-        "clients": ["requests", "elg"],
+        "clientibm": ["ibm-watson"],
+        "clientelg": ["requests", "elg"],
+        "clienttagme": ["requests"], 
+        "clienttextrazor": ["requests"],
+        "clientgatecloud": ["requests"], 
+        "clients": ["requests", "elg", "ibm-watson"],
         "formats": ["msgpack", "pyyaml>=5.2", "beautifulsoup4>=4.9.3", "requests", "conllu"],
         "java": ["py4j"],
         "stanza": ["stanza>=1.3.0"],

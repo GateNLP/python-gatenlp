@@ -6,6 +6,7 @@ from gatenlp.processing.client.gatecloud import GateCloudAnnotator
 from gatenlp.processing.client.tagme import TagMeAnnotator
 from gatenlp.processing.client.textrazor import TextRazorTextAnnotator
 from gatenlp.processing.client.elg import ElgTextAnnotator
+from gatenlp.processing.client.ibmnlu import IbmNluAnnotator
 
 
 # TODO:
