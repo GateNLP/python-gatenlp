@@ -67,8 +67,6 @@ def which2ibm_features(which):
     return parms
 
 
-x = KeywordsOptions(limit=3, sentiment=True, emotion=True)
-
 def get_nested(thedict, thekey, sep="_"):
     """Helper function to get a dot-separated nested key from a dictionary or return None if the key does not exist"""
     # Note: this throws an exception if something that is expected to be a nested dict is not.
