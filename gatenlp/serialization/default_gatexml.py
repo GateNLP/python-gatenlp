@@ -8,7 +8,7 @@ from gatenlp.document import Document
 from gatenlp.utils import init_logger
 from gatenlp.urlfileutils import is_url, get_str_from_url
 
-logger = init_logger("default_gatexml.py")
+logger = init_logger()
 
 
 class GateXmlLoader:

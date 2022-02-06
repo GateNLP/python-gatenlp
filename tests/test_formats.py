@@ -38,6 +38,7 @@ class TestFormatGateXml:
         doc = Document.load(
             source=os.path.join(tstpath, "testdoc1.xml"),
             fmt="gatexml",
+            show_warnings=False,
         )
         fs = doc.features
         # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)
