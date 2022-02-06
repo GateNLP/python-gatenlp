@@ -1,6 +1,6 @@
 # Versions and changes
 
-## Upcoming
+## 1.0.7 (2022-03-06)
 
 * added new parameter `reset_annids` `AnnotatationSet.clear` 
 * fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead of a tuple.
