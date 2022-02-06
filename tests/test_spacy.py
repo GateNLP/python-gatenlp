@@ -45,7 +45,10 @@ class TestSpacy01:
             from gatenlp.lib_spacy import spacy2gatenlp, apply_spacy
             nlp = spacy.load("en_core_web_sm")
         except ImportError:
-            logger.warning("Module spacy or model en_core_web_sm not installed, skipping spacy test")
+            logger.warning("Module spacy not installed, skipping spacy test")
+            return
+        except IOError:
+            logger.warning("Spacy model en_core_web_sm not available, skipping spacy test")
             return
         txt = "Barack Obama was born in Hawaii. He was elected president in 2008. "
         doc = Document(txt)
@@ -96,7 +99,10 @@ class TestSpacy01:
             import pkg_resources
             nlp = spacy.load("en_core_web_sm")
         except ImportError:
-            logger.warning("Module spacy or model en_core_web_sm not installed, skipping spacy test")
+            logger.warning("Module spacy not installed, skipping spacy test")
+            return
+        except IOError:
+            logger.warning("Spacy model en_core_web_sm not available, skipping spacy test")
             return
         spv = pkg_resources.parse_version(spacy.__version__)
         if spv < pkg_resources.parse_version("3.0"):
