@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GateDocument version="3">
+<!-- The document's features-->
+
+<GateDocumentFeatures>
+<Feature>
+  <Name className="java.lang.String">fSetString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="set"><string>x</string><string>y</string><string>z</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fSetInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="set"><int>1</int><int>2</int><int>3</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fDate1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="date">2022-02-06 16:14:21.707 UTC</value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fInt1</Name>
+  <Value className="java.lang.Integer">222</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><int>1</int><int>2</int><int>3</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fBoolean</Name>
+  <Value className="java.lang.Boolean">true</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="string-array"><string>a</string><string>b</string><string>c</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayLong2d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="long-array-array"><long-array><long>1</long><long>2</long></long-array><long-array><long>2</long><long>3</long></long-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayLong3d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="long-array-array-array"><long-array-array><long-array><long>1</long><long>2</long></long-array></long-array-array><long-array-array><long-array><long>22</long><long>3</long></long-array></long-array-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2b</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fFloat1</Name>
+  <Value className="java.math.BigDecimal">3.4</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2a</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">gate.SourceURL</Name>
+  <Value className="java.lang.String">created from String</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fFeatureMap1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="gate.util.SimpleFeatureMapImpl" serialization="custom"><gate.util.SimpleMapImpl><default><capacity>3</capacity><count>0</count><theKeys><null/><null/><null/></theKeys><theValues><null/><null/><null/></theValues></default></gate.util.SimpleMapImpl></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="int-array"><int>12</int><int>13</int><int>14</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fNested1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><list><int>1</int><int>2</int><int>3</int></list></entry><entry><string>key2</string><linked-hash-map><entry><int>1</int><int>12</int></entry><entry><int>2</int><boolean>true</boolean></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayMixed3d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="java.util.ArrayList-array-array-array"><java.util.ArrayList-array-array><java.util.ArrayList-array><list><int>1</int><int>2</int><int>3</int><int>4</int></list><list><string>a</string><string>s</string><string>d</string></list></java.util.ArrayList-array></java.util.ArrayList-array-array><java.util.ArrayList-array-array><java.util.ArrayList-array><list><big-decimal>2.2</big-decimal><big-decimal>2.2</big-decimal></list><list/></java.util.ArrayList-array></java.util.ArrayList-array-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fString1</Name>
+  <Value className="java.lang.String">Some string</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><string>asas</string><string>fdfdf</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fLong1</Name>
+  <Value className="java.lang.Long">123</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fMapStringInt</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><int>122</int></entry><entry><string>key2</string><int>-4</int></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+</GateDocumentFeatures>
+<!-- The document content area with serialized nodes -->
+
+<TextWithNodes><Node id="0"/>Th<Node id="2"/>is is the document text. It contains &lt; &amp; > and 💩 for testing.</TextWithNodes>
+<!-- The default annotation set -->
+
+<AnnotationSet>
+<Annotation Id="0" Type="TEST" StartNode="0" EndNode="2">
+<Feature>
+  <Name className="java.lang.String">fSetString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="set"><string>x</string><string>y</string><string>z</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fSetInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="set"><int>1</int><int>2</int><int>3</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fDate1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="date">2022-02-06 16:14:21.707 UTC</value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fInt1</Name>
+  <Value className="java.lang.Integer">222</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><int>1</int><int>2</int><int>3</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fBoolean</Name>
+  <Value className="java.lang.Boolean">true</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="string-array"><string>a</string><string>b</string><string>c</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayLong2d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="long-array-array"><long-array><long>1</long><long>2</long></long-array><long-array><long>2</long><long>3</long></long-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayLong3d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="long-array-array-array"><long-array-array><long-array><long>1</long><long>2</long></long-array></long-array-array><long-array-array><long-array><long>22</long><long>3</long></long-array></long-array-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2b</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fFloat1</Name>
+  <Value className="java.math.BigDecimal">3.4</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fComplex2a</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>feat1</string><linked-hash-map><entry><string>k1</string><string>somevalue</string></entry><entry><string>k2</string><list><int>1</int><int>2</int><int>3</int><int>4</int><int>5</int></list></entry><entry><string>k3</string><list reference="../../entry[2]/list"/></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">gate.SourceURL</Name>
+  <Value className="java.lang.String">created from String</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fFeatureMap1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="gate.util.SimpleFeatureMapImpl" serialization="custom"><gate.util.SimpleMapImpl><default><capacity>3</capacity><count>0</count><theKeys><null/><null/><null/></theKeys><theValues><null/><null/><null/></theValues></default></gate.util.SimpleMapImpl></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayInt1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="int-array"><int>12</int><int>13</int><int>14</int></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fNested1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><list><int>1</int><int>2</int><int>3</int></list></entry><entry><string>key2</string><linked-hash-map><entry><int>1</int><int>12</int></entry><entry><int>2</int><boolean>true</boolean></entry></linked-hash-map></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fArrayMixed3d</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="java.util.ArrayList-array-array-array"><java.util.ArrayList-array-array><java.util.ArrayList-array><list><int>1</int><int>2</int><int>3</int><int>4</int></list><list><string>a</string><string>s</string><string>d</string></list></java.util.ArrayList-array></java.util.ArrayList-array-array><java.util.ArrayList-array-array><java.util.ArrayList-array><list><big-decimal>2.2</big-decimal><big-decimal>2.2</big-decimal></list><list/></java.util.ArrayList-array></java.util.ArrayList-array-array></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fString1</Name>
+  <Value className="java.lang.String">Some string</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fListString1</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="list"><string>asas</string><string>fdfdf</string></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fLong1</Name>
+  <Value className="java.lang.Long">123</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">fMapStringInt</Name>
+  <Value className="gate.corpora.ObjectWrapper"><![CDATA[<?xml version='1.1'?><gate.corpora.ObjectWrapper><value class="linked-hash-map"><entry><string>key1</string><int>122</int></entry><entry><string>key2</string><int>-4</int></entry></value></gate.corpora.ObjectWrapper>]]></Value>
+</Feature>
+</Annotation>
+</AnnotationSet>
+
+</GateDocument>

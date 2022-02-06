@@ -30,13 +30,14 @@ class TestFormatGateXml:
 
         curpath = os.path.abspath(os.path.curdir)
         tstpath = os.path.join(curpath, "tests")
-        with pytest.raises(Exception) as ex:
-            Document.load(source=os.path.join(tstpath, "testdoc1.xml"), fmt="gatexml")
-        assert "Unsupported serialization type" in str(ex.value)
+        # NOTE: previously the ObjectWrapper type present in this file was not supported, but this
+        # is now implemented!!
+        #with pytest.raises(Exception) as ex:
+        #    Document.load(source=os.path.join(tstpath, "testdoc1.xml"), fmt="gatexml")
+        #assert "Unsupported serialization type" in str(ex.value)
         doc = Document.load(
             source=os.path.join(tstpath, "testdoc1.xml"),
             fmt="gatexml",
-            ignore_unknown_types=True,
         )
         fs = doc.features
         # print("\n!!!!!!!!!!!!!!!!!!!!!!!! FEATURES=", fs)

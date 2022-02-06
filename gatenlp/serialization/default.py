@@ -12,12 +12,6 @@ from gatenlp.serialization.default_gatexml import GateXmlLoader
 from gatenlp.serialization.default_htmlannviewer import HtmlAnnViewerSerializer
 from gatenlp.serialization.default_htmlloader import HtmlLoader
 
-# TODO: for ALL save options, allow to filter the annotations that get saved!
-# TODO: then use this show only limited set of annotations in the viewer
-# TODO: create Document.display(....) to show document in various ways in the current
-#   environment, e.g. Jupyter notebook, select anns, configure colour palette, size etc.
-
-
 # TODO: when loading from a URL, allow for deciding on the format based on the mime type!
 # So if we do not have the format, we should get the header for the file, check the mime type and see
 # if  we have a loder registered for that and then let the loader do the rest of the work. This may

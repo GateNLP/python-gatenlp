@@ -141,8 +141,7 @@ class TestSpacy01:
                     # )
                 doc.spans["Numbers"]=refSpans
                 return doc
-        
-        
+
         txt = "When 2 plus 2 makes 5 then  your system is doing something wrong!. " \
               "But in life 2 and 2 not always makes 4. "
         nlp.add_pipe('number_detector')

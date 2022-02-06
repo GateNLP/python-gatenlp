@@ -8,6 +8,7 @@
 * Fixed issue 149: reset the annotation id after clearing the annotation set
 * ELG annotator: allow to use a pre-initialized authentification file
 * Add IBM NLU annotator
+* Loading a GATE XML using `Document.load(path, fmt="gatexml")` now supports feature values of type Map, List, Set, Array, Date
 
 ## 1.0.6 (2021-11-19)
 
