@@ -5,7 +5,13 @@ from setup_defs import get_install_extras_require
 
 if __name__ == "__main__":
     with open("requirements-all.txt", "wt", encoding="utf8") as outfp:
-        rqs = get_install_extras_require()
-        rall = rqs["all"]
-        for req in rall:
-            print(req, file=outfp)
+        with open("requirements-github.txt", "wt", encoding="utf8") as outfp2:
+            rqs = get_install_extras_require()
+            rall = rqs["all"]
+            written = set()
+            for req in rall:
+                if req not in written:
+                    print(req, file=outfp)
+                    written.add(req)
+                    if not req.startswith("stanza"):
+                        print("req", file=outfp2)
