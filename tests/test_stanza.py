@@ -18,11 +18,10 @@ class TestStanza01:
             return
         modelfile = os.path.join(DEFAULT_MODEL_DIR, "en", "default.zip")
         if not os.path.exists(modelfile):
-            stanza.download("en")
-        nlp = stanza.Pipeline(use_gpu=False)
-        if stanza is None:
-            logger.warning("Stanza could not be imported, Stanza tests skipped!")
+            # stanza.download("en")
+            logger.warning("Stanza model not available, skipping stanza test")
             return
+        nlp = stanza.Pipeline(use_gpu=False)
         txt = "Barack Obama was born in Hawaii.  He was elected president in 2008."
         sdoc = nlp(txt)
         gdoc = stanza2gatenlp(sdoc)

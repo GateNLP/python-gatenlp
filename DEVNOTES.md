@@ -25,6 +25,7 @@ For now rather simple:
 
 * make sure everything is pulled and we are on branch main
 * make sure it works: run tests
+* run `make-requirements.py` and make sure the github action works
 * !! make sure the latest version of the htmlviewer javascript is released
   and the correct version number is used in the serializer and 
   * `python make-viewer.py` has been run to copy to the package directory
