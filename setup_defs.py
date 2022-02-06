@@ -73,12 +73,33 @@ def get_install_extras_require():
             "prospector[with_pyroma,with_vulture,with_mypy,with_bandid,with_frosted]",
             # TODO: have to figure out why we need this? Maybe because we added jupyterlab,notebook,voila
             "pytest-tornasync",
+            "flake8",
             "black[d]",  # for automatic code formatting
         ],
+        "github": [
+            "flake8",
+            "pytest",
+            "pytest-cov",
+            "pytest-pep8"
+        ]
     }
-    # Add automatically the 'all' and 'alldev' targets
-    add_all = [pck for lst in extras_require.values() for pck in lst if pck not in ["dev", "notebook"]]
-    add_alldev = [pck for lst in extras_require.values() for pck in lst]
+    added_all = set()
+    add_all = []
+    added_alldev = set()
+    add_alldev = []
+    for name, pcks in extras_require.items():
+        if name not in ["dev", "notebook", "github"]:
+            for pck in pcks:
+                if pck not in added_all:
+                    add_all.append(pck)
+                    added_all.add(pck)
+        elif name not in ["github"]:
+            for pck in pcks:
+                if pck not in added_alldev:
+                    add_alldev.append(pck)
+                    added_alldev.add(pck)
+    add_all.sort()
+    add_alldev.sort()
     extras_require.update({"all": add_all, "alldev": add_alldev})
     return extras_require
 

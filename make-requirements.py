@@ -14,4 +14,8 @@ if __name__ == "__main__":
                     print(req, file=outfp)
                     written.add(req)
                     if not req.startswith("stanza"):
-                        print("req", file=outfp2)
+                        print(req, file=outfp2)
+            for req in rqs["github"]:
+                if req not in written:
+                    print(req, file=outfp2)
+                    written.add(req)
