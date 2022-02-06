@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>gatenlp.serialization.default_gatexml API documentation</title>
+<meta name="description" content="Module that implements the various ways of how to save and load documents and change logs." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gatenlp.serialization.default_gatexml</code></h1>
+</header>
+<section id="section-intro">
+<p>Module that implements the various ways of how to save and load documents and change logs.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module that implements the various ways of how to save and load documents and change logs.
+&#34;&#34;&#34;
+import sys
+from decimal import Decimal
+import xml.etree.ElementTree as ET
+from gatenlp.document import Document
+from gatenlp.utils import init_logger
+from gatenlp.urlfileutils import is_url, get_str_from_url
+
+logger = init_logger(&#34;default_gatexml.py&#34;)
+
+
+class GateXmlLoader:
+    &#34;&#34;&#34;
+    Loader for JAVA GATE XML format. This supports document and annotation feature values for the following types:
+    String, int, float, booleean, and the following containers containing recursively any of the supported types:
+    Map, Array, List, Set (converted to list).
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def context2txt(context):
+        &#34;&#34;&#34;Generate text from context info&#34;&#34;&#34;
+        fname = context[&#34;fname&#34;]
+        node = context[&#34;node&#34;]
+        if node is None:
+            nodetxt = &#34;&#34;
+        else:
+            nodetxt = ET.tostring(node, encoding=&#39;unicode&#39;, method=&#34;text&#34;)
+        if context[&#34;ftype&#34;] == &#34;doc&#34;:
+            return f&#34;document feature {fname},\n    node={nodetxt}&#34;
+        else:
+            atype = context[&#34;atype&#34;]
+            aset = context[&#34;aset&#34;]
+            offset = context[&#34;offset&#34;]
+            return f&#34;annotation feature {fname} for ann type {atype} in set &#39;{aset}&#39; at offset {offset},\n    node={nodetxt}&#34;
+
+    @staticmethod
+    def warning(txt, options, context):
+        &#34;&#34;&#34;Emit a warning or stay silent&#34;&#34;&#34;
+        ctx = GateXmlLoader.context2txt(context)
+        if options[&#34;show_warnings&#34;]:
+            logger.warning(f&#34;{txt} for {ctx}&#34;)
+
+    @staticmethod
+    def error(txt, options, context):
+        &#34;&#34;&#34;Handle an error&#34;&#34;&#34;
+        if options[&#34;ignore_errors&#34;]:
+            GateXmlLoader.warning(txt, options, context)
+        else:
+            ctx = GateXmlLoader.context2txt(context)
+            raise Exception(f&#34;{txt} for {ctx}&#34;)
+
+    @staticmethod
+    def xstream2python(node, options, context):
+        &#34;&#34;&#34;
+        Convert a xstream node to a python object. The node should only have a single child.
+        This is either a single Value.className=gate.corpora.ObjectWrapper node with a single value child, or
+        a list of value nodes to initialize a container, or something not supported.
+        &#34;&#34;&#34;
+        # if options[&#34;debug&#34;]:
+        #     print(f&#34;DEBUG: Got element ({node.tag}):&#34;, ET.tostring(node))
+        if node.tag == &#34;gate.corpora.ObjectWrapper&#34;:
+            children = list(node)
+            if len(children) != 1:
+                GateXmlLoader.error(
+                    f&#34;ObjectWrapper node with not exactly one child for {node} but: {len(children)}: {children}&#34;,
+                    options, context)
+                return None
+            child = children[0]
+            if child.tag != &#34;value&#34;:
+                GateXmlLoader.error(f&#34;Child of Value tag is not value but {child.tag}&#34;, options, context)
+                return None
+            return GateXmlLoader.xstream2python(child, options, context)
+        elif node.tag == &#34;value&#34;:
+            valueclass = node.attrib[&#34;class&#34;]
+            ret = None
+            if valueclass == &#34;set&#34;:
+                GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif valueclass == &#34;list&#34; or valueclass.endswith(&#34;-array&#34;):
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif valueclass == &#34;date&#34;:
+                ret = node.text
+            elif valueclass == &#34;linked-hash-map&#34; or valueclass == &#34;hash-map&#34; or valueclass == &#34;map&#34;:
+                ret = {}
+                for el in node:
+                    items = list(el)
+                    if len(items) != 2:
+                        GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                            options, context)
+                        break
+                    else:
+                        key = GateXmlLoader.xstream2python(items[0], options, context)
+                        value = GateXmlLoader.xstream2python(items[1], options, context)
+                        ret[key] = value
+            else:
+                GateXmlLoader.error(f&#34;Unsupported xstreaqm type: {valueclass}&#34;, options, context)
+                ret = None
+        else:
+            # this is a node for nested values which are not ObjectWrapper, e.g. &lt;string&gt;
+            ret = None
+            if node.tag == &#34;string&#34;:
+                ret = node.text
+                if ret is None:
+                    ret = &#34;&#34;
+            elif node.tag == &#34;int&#34;:
+                ret = int(node.text)
+            elif node.tag == &#34;long&#34;:
+                ret = int(node.text)
+            elif node.tag == &#34;boolean&#34;:
+                ret = (node.text == &#34;true&#34;)
+            elif node.tag == &#34;set&#34;:
+                GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif node.tag == &#34;list&#34; or node.tag.endswith(&#34;-array&#34;):
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif node.tag == &#34;date&#34;:
+                ret = node.text
+            elif node.tag == &#34;big-decimal&#34;:
+                GateXmlLoader.warning(f&#34;Converting BigDecimal to float&#34;, options, context)
+                ret = float(Decimal(node.text))
+            elif node.tag == &#34;linked-hash-map&#34; or node.tag == &#34;hash-map&#34; or node.tag == &#34;map&#34;:
+                ret = {}
+                for el in node:
+                    items = list(el)
+                    if len(items) != 2:
+                        GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                            options, context)
+                        break
+                    else:
+                        key = GateXmlLoader.xstream2python(items[0], options, context)
+                        value = GateXmlLoader.xstream2python(items[1], options, context)
+                        ret[key] = value
+            else:
+                GateXmlLoader.error(f&#34;Unknown type, nested tag: {node.tag}&#34;, options, context)
+                ret = None
+        return ret
+
+    @staticmethod
+    def value4objectwrapper(xmlstr, options, context):
+        &#34;&#34;&#34;
+        Convert some xstream-converted Java values to Python values.
+
+        Args:
+            text: the xstream serialization of the value as encountered in the GATE XML
+            options: options dictionary to influence error/warning behavior
+            context: context information to add to warnings/error messages
+
+        Returns:
+            a python value. The value is None if the value could not get converted but the class is configured
+            to ignore unknown types.
+
+        Throws:
+            Exception if a value cannot be converted to Python and the lcass is configured to not ignore unknown types.
+        &#34;&#34;&#34;
+        tree = ET.fromstring(xmlstr)
+        return GateXmlLoader.xstream2python(tree, options, context)
+
+    @staticmethod
+    def load(clazz,
+             from_ext=None,
+             ignore_errors=True,
+             show_warnings=True,
+             debug=False):
+        &#34;&#34;&#34;
+
+        Args:
+            clazz:
+            from_ext: (Default value = None)
+            ignore_errors: (default: False) if True, ignore errors and try to load what we can for the document,
+                if False, throw and exception.
+            show_warnings: (default: True) If an error occurs but ignore_errors is True, or if some conversion
+                is carried out, show a warning.
+            debug: if True, output detailed information about unsupported elements in the input to stderr
+
+        Returns:
+            Loaded document
+        &#34;&#34;&#34;
+        options = dict(
+            ignore_errors=ignore_errors,
+            show_warnings=show_warnings,
+            debug=debug
+        )
+
+        isurl, extstr = is_url(from_ext)
+        if isurl:
+            xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+            root = ET.fromstring(xmlstring)
+        else:
+            tree = ET.parse(extstr)
+            root = tree.getroot()
+
+        # or: root = ET.fromstring(xmlstring)
+
+        # check we do have a GATE document
+
+        assert root.tag == &#34;GateDocument&#34;
+        assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+
+        def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
+            &#34;&#34;&#34;
+            Parse the node for a feature map.
+
+            Args:
+              feats: iterable of Feature nodes
+
+            Returns:
+                The features
+            &#34;&#34;&#34;
+            features = {}
+            context = dict(
+                ftype=ftype,
+                atype=atype,
+                aset=aset,
+                offset=offset,
+                fname=None,
+                node=None
+            )
+            for feat in list(feats):
+                name = None
+                value = None
+                for el in list(feat):
+                    context[&#34;node&#34;] = el
+                    context[&#34;fname&#34;] = name
+                    if el.tag == &#34;Name&#34;:
+                        if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
+                            name = el.text
+                        else:
+                            raise Exception(
+                                &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                            )
+                    elif el.tag == &#34;Value&#34;:
+                        cls_name = el.get(&#34;className&#34;)
+                        if cls_name == &#34;java.lang.String&#34;:
+                            value = el.text
+                        elif cls_name == &#34;java.lang.Integer&#34;:
+                            value = int(el.text)
+                        elif cls_name == &#34;java.lang.Long&#34;:
+                            value = int(el.text)
+                        elif cls_name == &#34;java.math.BigDecimal&#34;:
+                            value = float(el.text)
+                        elif cls_name == &#34;java.lang.Boolean&#34;:
+                            value = bool(el.text)
+                        elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                            value = GateXmlLoader.value4objectwrapper(el.text, options, context)
+                        else:
+                            GateXmlLoader.error(f&#34;Feature with unknown serialization type: {cls_name}&#34;,
+                                                options, context)
+                            value = None
+                if name is not None and value is not None:
+                    features[name] = value
+            return features
+
+        # get the document features
+        docfeatures = {}
+        feats = root.findall(&#34;./GateDocumentFeatures/Feature&#34;)
+
+        docfeatures = parsefeatures(feats, ftype=&#34;doc&#34;)
+
+        textwithnodes = root.findall(&#34;./TextWithNodes&#34;)
+        text = &#34;&#34;
+        node2offset = {}
+        curoff = 0
+        for item in textwithnodes:
+            if item.text:
+                text += item.text
+                curoff += len(item.text)
+            for node in item:
+                nodeid = node.get(&#34;id&#34;)
+                node2offset[nodeid] = curoff
+                if node.tail:
+                    text += node.tail
+                    curoff += len(node.tail)
+
+        annsets = root.findall(&#34;./AnnotationSet&#34;)
+
+        annotation_sets = {}  # map name - set
+        for annset in annsets:
+            if annset.get(&#34;Name&#34;):
+                setname = annset.get(&#34;Name&#34;)
+            else:
+                setname = &#34;&#34;
+            annots = annset.findall(&#34;./Annotation&#34;)
+            annotations = []
+            maxannid = 0
+            for ann in annots:
+                annid = int(ann.attrib[&#34;Id&#34;])
+                maxannid = max(maxannid, annid)
+                anntype = ann.attrib[&#34;Type&#34;]
+                startnode = ann.attrib[&#34;StartNode&#34;]
+                endnode = ann.attrib[&#34;EndNode&#34;]
+                startoff = node2offset[startnode]
+                endoff = node2offset[endnode]
+                feats = ann.findall(&#34;./Feature&#34;)
+                features = parsefeatures(feats, ftype=&#34;ann&#34;, atype=anntype, aset=setname, offset=startoff)
+                if len(features) == 0:
+                    features = None
+                annotation = {
+                    &#34;id&#34;: annid,
+                    &#34;type&#34;: anntype,
+                    &#34;start&#34;: startoff,
+                    &#34;end&#34;: endoff,
+                    &#34;features&#34;: features,
+                }
+                annotations.append(annotation)
+            annset = {
+                &#34;name&#34;: setname,
+                &#34;annotations&#34;: annotations,
+                &#34;next_annid&#34;: maxannid + 1,
+            }
+            annotation_sets[setname] = annset
+
+        docmap = {
+            &#34;text&#34;: text,
+            &#34;features&#34;: docfeatures,
+            &#34;offset_type&#34;: &#34;p&#34;,
+            &#34;annotation_sets&#34;: annotation_sets,
+        }
+
+        doc = Document.from_dict(docmap)
+        return doc</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader"><code class="flex name class">
+<span>class <span class="ident">GateXmlLoader</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loader for JAVA GATE XML format. This supports document and annotation feature values for the following types:
+String, int, float, booleean, and the following containers containing recursively any of the supported types:
+Map, Array, List, Set (converted to list).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GateXmlLoader:
+    &#34;&#34;&#34;
+    Loader for JAVA GATE XML format. This supports document and annotation feature values for the following types:
+    String, int, float, booleean, and the following containers containing recursively any of the supported types:
+    Map, Array, List, Set (converted to list).
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def context2txt(context):
+        &#34;&#34;&#34;Generate text from context info&#34;&#34;&#34;
+        fname = context[&#34;fname&#34;]
+        node = context[&#34;node&#34;]
+        if node is None:
+            nodetxt = &#34;&#34;
+        else:
+            nodetxt = ET.tostring(node, encoding=&#39;unicode&#39;, method=&#34;text&#34;)
+        if context[&#34;ftype&#34;] == &#34;doc&#34;:
+            return f&#34;document feature {fname},\n    node={nodetxt}&#34;
+        else:
+            atype = context[&#34;atype&#34;]
+            aset = context[&#34;aset&#34;]
+            offset = context[&#34;offset&#34;]
+            return f&#34;annotation feature {fname} for ann type {atype} in set &#39;{aset}&#39; at offset {offset},\n    node={nodetxt}&#34;
+
+    @staticmethod
+    def warning(txt, options, context):
+        &#34;&#34;&#34;Emit a warning or stay silent&#34;&#34;&#34;
+        ctx = GateXmlLoader.context2txt(context)
+        if options[&#34;show_warnings&#34;]:
+            logger.warning(f&#34;{txt} for {ctx}&#34;)
+
+    @staticmethod
+    def error(txt, options, context):
+        &#34;&#34;&#34;Handle an error&#34;&#34;&#34;
+        if options[&#34;ignore_errors&#34;]:
+            GateXmlLoader.warning(txt, options, context)
+        else:
+            ctx = GateXmlLoader.context2txt(context)
+            raise Exception(f&#34;{txt} for {ctx}&#34;)
+
+    @staticmethod
+    def xstream2python(node, options, context):
+        &#34;&#34;&#34;
+        Convert a xstream node to a python object. The node should only have a single child.
+        This is either a single Value.className=gate.corpora.ObjectWrapper node with a single value child, or
+        a list of value nodes to initialize a container, or something not supported.
+        &#34;&#34;&#34;
+        # if options[&#34;debug&#34;]:
+        #     print(f&#34;DEBUG: Got element ({node.tag}):&#34;, ET.tostring(node))
+        if node.tag == &#34;gate.corpora.ObjectWrapper&#34;:
+            children = list(node)
+            if len(children) != 1:
+                GateXmlLoader.error(
+                    f&#34;ObjectWrapper node with not exactly one child for {node} but: {len(children)}: {children}&#34;,
+                    options, context)
+                return None
+            child = children[0]
+            if child.tag != &#34;value&#34;:
+                GateXmlLoader.error(f&#34;Child of Value tag is not value but {child.tag}&#34;, options, context)
+                return None
+            return GateXmlLoader.xstream2python(child, options, context)
+        elif node.tag == &#34;value&#34;:
+            valueclass = node.attrib[&#34;class&#34;]
+            ret = None
+            if valueclass == &#34;set&#34;:
+                GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif valueclass == &#34;list&#34; or valueclass.endswith(&#34;-array&#34;):
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif valueclass == &#34;date&#34;:
+                ret = node.text
+            elif valueclass == &#34;linked-hash-map&#34; or valueclass == &#34;hash-map&#34; or valueclass == &#34;map&#34;:
+                ret = {}
+                for el in node:
+                    items = list(el)
+                    if len(items) != 2:
+                        GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                            options, context)
+                        break
+                    else:
+                        key = GateXmlLoader.xstream2python(items[0], options, context)
+                        value = GateXmlLoader.xstream2python(items[1], options, context)
+                        ret[key] = value
+            else:
+                GateXmlLoader.error(f&#34;Unsupported xstreaqm type: {valueclass}&#34;, options, context)
+                ret = None
+        else:
+            # this is a node for nested values which are not ObjectWrapper, e.g. &lt;string&gt;
+            ret = None
+            if node.tag == &#34;string&#34;:
+                ret = node.text
+                if ret is None:
+                    ret = &#34;&#34;
+            elif node.tag == &#34;int&#34;:
+                ret = int(node.text)
+            elif node.tag == &#34;long&#34;:
+                ret = int(node.text)
+            elif node.tag == &#34;boolean&#34;:
+                ret = (node.text == &#34;true&#34;)
+            elif node.tag == &#34;set&#34;:
+                GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif node.tag == &#34;list&#34; or node.tag.endswith(&#34;-array&#34;):
+                ret = []
+                for el in node:
+                    ret.append(GateXmlLoader.xstream2python(el, options, context))
+            elif node.tag == &#34;date&#34;:
+                ret = node.text
+            elif node.tag == &#34;big-decimal&#34;:
+                GateXmlLoader.warning(f&#34;Converting BigDecimal to float&#34;, options, context)
+                ret = float(Decimal(node.text))
+            elif node.tag == &#34;linked-hash-map&#34; or node.tag == &#34;hash-map&#34; or node.tag == &#34;map&#34;:
+                ret = {}
+                for el in node:
+                    items = list(el)
+                    if len(items) != 2:
+                        GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                            options, context)
+                        break
+                    else:
+                        key = GateXmlLoader.xstream2python(items[0], options, context)
+                        value = GateXmlLoader.xstream2python(items[1], options, context)
+                        ret[key] = value
+            else:
+                GateXmlLoader.error(f&#34;Unknown type, nested tag: {node.tag}&#34;, options, context)
+                ret = None
+        return ret
+
+    @staticmethod
+    def value4objectwrapper(xmlstr, options, context):
+        &#34;&#34;&#34;
+        Convert some xstream-converted Java values to Python values.
+
+        Args:
+            text: the xstream serialization of the value as encountered in the GATE XML
+            options: options dictionary to influence error/warning behavior
+            context: context information to add to warnings/error messages
+
+        Returns:
+            a python value. The value is None if the value could not get converted but the class is configured
+            to ignore unknown types.
+
+        Throws:
+            Exception if a value cannot be converted to Python and the lcass is configured to not ignore unknown types.
+        &#34;&#34;&#34;
+        tree = ET.fromstring(xmlstr)
+        return GateXmlLoader.xstream2python(tree, options, context)
+
+    @staticmethod
+    def load(clazz,
+             from_ext=None,
+             ignore_errors=True,
+             show_warnings=True,
+             debug=False):
+        &#34;&#34;&#34;
+
+        Args:
+            clazz:
+            from_ext: (Default value = None)
+            ignore_errors: (default: False) if True, ignore errors and try to load what we can for the document,
+                if False, throw and exception.
+            show_warnings: (default: True) If an error occurs but ignore_errors is True, or if some conversion
+                is carried out, show a warning.
+            debug: if True, output detailed information about unsupported elements in the input to stderr
+
+        Returns:
+            Loaded document
+        &#34;&#34;&#34;
+        options = dict(
+            ignore_errors=ignore_errors,
+            show_warnings=show_warnings,
+            debug=debug
+        )
+
+        isurl, extstr = is_url(from_ext)
+        if isurl:
+            xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+            root = ET.fromstring(xmlstring)
+        else:
+            tree = ET.parse(extstr)
+            root = tree.getroot()
+
+        # or: root = ET.fromstring(xmlstring)
+
+        # check we do have a GATE document
+
+        assert root.tag == &#34;GateDocument&#34;
+        assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+
+        def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
+            &#34;&#34;&#34;
+            Parse the node for a feature map.
+
+            Args:
+              feats: iterable of Feature nodes
+
+            Returns:
+                The features
+            &#34;&#34;&#34;
+            features = {}
+            context = dict(
+                ftype=ftype,
+                atype=atype,
+                aset=aset,
+                offset=offset,
+                fname=None,
+                node=None
+            )
+            for feat in list(feats):
+                name = None
+                value = None
+                for el in list(feat):
+                    context[&#34;node&#34;] = el
+                    context[&#34;fname&#34;] = name
+                    if el.tag == &#34;Name&#34;:
+                        if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
+                            name = el.text
+                        else:
+                            raise Exception(
+                                &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                            )
+                    elif el.tag == &#34;Value&#34;:
+                        cls_name = el.get(&#34;className&#34;)
+                        if cls_name == &#34;java.lang.String&#34;:
+                            value = el.text
+                        elif cls_name == &#34;java.lang.Integer&#34;:
+                            value = int(el.text)
+                        elif cls_name == &#34;java.lang.Long&#34;:
+                            value = int(el.text)
+                        elif cls_name == &#34;java.math.BigDecimal&#34;:
+                            value = float(el.text)
+                        elif cls_name == &#34;java.lang.Boolean&#34;:
+                            value = bool(el.text)
+                        elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                            value = GateXmlLoader.value4objectwrapper(el.text, options, context)
+                        else:
+                            GateXmlLoader.error(f&#34;Feature with unknown serialization type: {cls_name}&#34;,
+                                                options, context)
+                            value = None
+                if name is not None and value is not None:
+                    features[name] = value
+            return features
+
+        # get the document features
+        docfeatures = {}
+        feats = root.findall(&#34;./GateDocumentFeatures/Feature&#34;)
+
+        docfeatures = parsefeatures(feats, ftype=&#34;doc&#34;)
+
+        textwithnodes = root.findall(&#34;./TextWithNodes&#34;)
+        text = &#34;&#34;
+        node2offset = {}
+        curoff = 0
+        for item in textwithnodes:
+            if item.text:
+                text += item.text
+                curoff += len(item.text)
+            for node in item:
+                nodeid = node.get(&#34;id&#34;)
+                node2offset[nodeid] = curoff
+                if node.tail:
+                    text += node.tail
+                    curoff += len(node.tail)
+
+        annsets = root.findall(&#34;./AnnotationSet&#34;)
+
+        annotation_sets = {}  # map name - set
+        for annset in annsets:
+            if annset.get(&#34;Name&#34;):
+                setname = annset.get(&#34;Name&#34;)
+            else:
+                setname = &#34;&#34;
+            annots = annset.findall(&#34;./Annotation&#34;)
+            annotations = []
+            maxannid = 0
+            for ann in annots:
+                annid = int(ann.attrib[&#34;Id&#34;])
+                maxannid = max(maxannid, annid)
+                anntype = ann.attrib[&#34;Type&#34;]
+                startnode = ann.attrib[&#34;StartNode&#34;]
+                endnode = ann.attrib[&#34;EndNode&#34;]
+                startoff = node2offset[startnode]
+                endoff = node2offset[endnode]
+                feats = ann.findall(&#34;./Feature&#34;)
+                features = parsefeatures(feats, ftype=&#34;ann&#34;, atype=anntype, aset=setname, offset=startoff)
+                if len(features) == 0:
+                    features = None
+                annotation = {
+                    &#34;id&#34;: annid,
+                    &#34;type&#34;: anntype,
+                    &#34;start&#34;: startoff,
+                    &#34;end&#34;: endoff,
+                    &#34;features&#34;: features,
+                }
+                annotations.append(annotation)
+            annset = {
+                &#34;name&#34;: setname,
+                &#34;annotations&#34;: annotations,
+                &#34;next_annid&#34;: maxannid + 1,
+            }
+            annotation_sets[setname] = annset
+
+        docmap = {
+            &#34;text&#34;: text,
+            &#34;features&#34;: docfeatures,
+            &#34;offset_type&#34;: &#34;p&#34;,
+            &#34;annotation_sets&#34;: annotation_sets,
+        }
+
+        doc = Document.from_dict(docmap)
+        return doc</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.context2txt"><code class="name flex">
+<span>def <span class="ident">context2txt</span></span>(<span>context)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate text from context info</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def context2txt(context):
+    &#34;&#34;&#34;Generate text from context info&#34;&#34;&#34;
+    fname = context[&#34;fname&#34;]
+    node = context[&#34;node&#34;]
+    if node is None:
+        nodetxt = &#34;&#34;
+    else:
+        nodetxt = ET.tostring(node, encoding=&#39;unicode&#39;, method=&#34;text&#34;)
+    if context[&#34;ftype&#34;] == &#34;doc&#34;:
+        return f&#34;document feature {fname},\n    node={nodetxt}&#34;
+    else:
+        atype = context[&#34;atype&#34;]
+        aset = context[&#34;aset&#34;]
+        offset = context[&#34;offset&#34;]
+        return f&#34;annotation feature {fname} for ann type {atype} in set &#39;{aset}&#39; at offset {offset},\n    node={nodetxt}&#34;</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.error"><code class="name flex">
+<span>def <span class="ident">error</span></span>(<span>txt, options, context)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle an error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def error(txt, options, context):
+    &#34;&#34;&#34;Handle an error&#34;&#34;&#34;
+    if options[&#34;ignore_errors&#34;]:
+        GateXmlLoader.warning(txt, options, context)
+    else:
+        ctx = GateXmlLoader.context2txt(context)
+        raise Exception(f&#34;{txt} for {ctx}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>clazz, from_ext=None, ignore_errors=True, show_warnings=True, debug=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt>clazz:</dt>
+<dt><strong><code>from_ext</code></strong></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>ignore_errors</code></strong></dt>
+<dd>(default: False) if True, ignore errors and try to load what we can for the document,
+if False, throw and exception.</dd>
+<dt><strong><code>show_warnings</code></strong></dt>
+<dd>(default: True) If an error occurs but ignore_errors is True, or if some conversion
+is carried out, show a warning.</dd>
+<dt><strong><code>debug</code></strong></dt>
+<dd>if True, output detailed information about unsupported elements in the input to stderr</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Loaded document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load(clazz,
+         from_ext=None,
+         ignore_errors=True,
+         show_warnings=True,
+         debug=False):
+    &#34;&#34;&#34;
+
+    Args:
+        clazz:
+        from_ext: (Default value = None)
+        ignore_errors: (default: False) if True, ignore errors and try to load what we can for the document,
+            if False, throw and exception.
+        show_warnings: (default: True) If an error occurs but ignore_errors is True, or if some conversion
+            is carried out, show a warning.
+        debug: if True, output detailed information about unsupported elements in the input to stderr
+
+    Returns:
+        Loaded document
+    &#34;&#34;&#34;
+    options = dict(
+        ignore_errors=ignore_errors,
+        show_warnings=show_warnings,
+        debug=debug
+    )
+
+    isurl, extstr = is_url(from_ext)
+    if isurl:
+        xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+        root = ET.fromstring(xmlstring)
+    else:
+        tree = ET.parse(extstr)
+        root = tree.getroot()
+
+    # or: root = ET.fromstring(xmlstring)
+
+    # check we do have a GATE document
+
+    assert root.tag == &#34;GateDocument&#34;
+    assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+
+    def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
+        &#34;&#34;&#34;
+        Parse the node for a feature map.
+
+        Args:
+          feats: iterable of Feature nodes
+
+        Returns:
+            The features
+        &#34;&#34;&#34;
+        features = {}
+        context = dict(
+            ftype=ftype,
+            atype=atype,
+            aset=aset,
+            offset=offset,
+            fname=None,
+            node=None
+        )
+        for feat in list(feats):
+            name = None
+            value = None
+            for el in list(feat):
+                context[&#34;node&#34;] = el
+                context[&#34;fname&#34;] = name
+                if el.tag == &#34;Name&#34;:
+                    if el.get(&#34;className&#34;) == &#34;java.lang.String&#34;:
+                        name = el.text
+                    else:
+                        raise Exception(
+                            &#34;Odd Feature Name type: &#34; + el.get(&#34;className&#34;)
+                        )
+                elif el.tag == &#34;Value&#34;:
+                    cls_name = el.get(&#34;className&#34;)
+                    if cls_name == &#34;java.lang.String&#34;:
+                        value = el.text
+                    elif cls_name == &#34;java.lang.Integer&#34;:
+                        value = int(el.text)
+                    elif cls_name == &#34;java.lang.Long&#34;:
+                        value = int(el.text)
+                    elif cls_name == &#34;java.math.BigDecimal&#34;:
+                        value = float(el.text)
+                    elif cls_name == &#34;java.lang.Boolean&#34;:
+                        value = bool(el.text)
+                    elif cls_name == &#34;gate.corpora.ObjectWrapper&#34;:
+                        value = GateXmlLoader.value4objectwrapper(el.text, options, context)
+                    else:
+                        GateXmlLoader.error(f&#34;Feature with unknown serialization type: {cls_name}&#34;,
+                                            options, context)
+                        value = None
+            if name is not None and value is not None:
+                features[name] = value
+        return features
+
+    # get the document features
+    docfeatures = {}
+    feats = root.findall(&#34;./GateDocumentFeatures/Feature&#34;)
+
+    docfeatures = parsefeatures(feats, ftype=&#34;doc&#34;)
+
+    textwithnodes = root.findall(&#34;./TextWithNodes&#34;)
+    text = &#34;&#34;
+    node2offset = {}
+    curoff = 0
+    for item in textwithnodes:
+        if item.text:
+            text += item.text
+            curoff += len(item.text)
+        for node in item:
+            nodeid = node.get(&#34;id&#34;)
+            node2offset[nodeid] = curoff
+            if node.tail:
+                text += node.tail
+                curoff += len(node.tail)
+
+    annsets = root.findall(&#34;./AnnotationSet&#34;)
+
+    annotation_sets = {}  # map name - set
+    for annset in annsets:
+        if annset.get(&#34;Name&#34;):
+            setname = annset.get(&#34;Name&#34;)
+        else:
+            setname = &#34;&#34;
+        annots = annset.findall(&#34;./Annotation&#34;)
+        annotations = []
+        maxannid = 0
+        for ann in annots:
+            annid = int(ann.attrib[&#34;Id&#34;])
+            maxannid = max(maxannid, annid)
+            anntype = ann.attrib[&#34;Type&#34;]
+            startnode = ann.attrib[&#34;StartNode&#34;]
+            endnode = ann.attrib[&#34;EndNode&#34;]
+            startoff = node2offset[startnode]
+            endoff = node2offset[endnode]
+            feats = ann.findall(&#34;./Feature&#34;)
+            features = parsefeatures(feats, ftype=&#34;ann&#34;, atype=anntype, aset=setname, offset=startoff)
+            if len(features) == 0:
+                features = None
+            annotation = {
+                &#34;id&#34;: annid,
+                &#34;type&#34;: anntype,
+                &#34;start&#34;: startoff,
+                &#34;end&#34;: endoff,
+                &#34;features&#34;: features,
+            }
+            annotations.append(annotation)
+        annset = {
+            &#34;name&#34;: setname,
+            &#34;annotations&#34;: annotations,
+            &#34;next_annid&#34;: maxannid + 1,
+        }
+        annotation_sets[setname] = annset
+
+    docmap = {
+        &#34;text&#34;: text,
+        &#34;features&#34;: docfeatures,
+        &#34;offset_type&#34;: &#34;p&#34;,
+        &#34;annotation_sets&#34;: annotation_sets,
+    }
+
+    doc = Document.from_dict(docmap)
+    return doc</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.value4objectwrapper"><code class="name flex">
+<span>def <span class="ident">value4objectwrapper</span></span>(<span>xmlstr, options, context)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert some xstream-converted Java values to Python values.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>text</code></strong></dt>
+<dd>the xstream serialization of the value as encountered in the GATE XML</dd>
+<dt><strong><code>options</code></strong></dt>
+<dd>options dictionary to influence error/warning behavior</dd>
+<dt><strong><code>context</code></strong></dt>
+<dd>context information to add to warnings/error messages</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>a python value. The value is None if the value could not get converted but the class is configured
+to ignore unknown types.</p>
+<h2 id="throws">Throws</h2>
+<p>Exception if a value cannot be converted to Python and the lcass is configured to not ignore unknown types.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def value4objectwrapper(xmlstr, options, context):
+    &#34;&#34;&#34;
+    Convert some xstream-converted Java values to Python values.
+
+    Args:
+        text: the xstream serialization of the value as encountered in the GATE XML
+        options: options dictionary to influence error/warning behavior
+        context: context information to add to warnings/error messages
+
+    Returns:
+        a python value. The value is None if the value could not get converted but the class is configured
+        to ignore unknown types.
+
+    Throws:
+        Exception if a value cannot be converted to Python and the lcass is configured to not ignore unknown types.
+    &#34;&#34;&#34;
+    tree = ET.fromstring(xmlstr)
+    return GateXmlLoader.xstream2python(tree, options, context)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.warning"><code class="name flex">
+<span>def <span class="ident">warning</span></span>(<span>txt, options, context)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Emit a warning or stay silent</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def warning(txt, options, context):
+    &#34;&#34;&#34;Emit a warning or stay silent&#34;&#34;&#34;
+    ctx = GateXmlLoader.context2txt(context)
+    if options[&#34;show_warnings&#34;]:
+        logger.warning(f&#34;{txt} for {ctx}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_gatexml.GateXmlLoader.xstream2python"><code class="name flex">
+<span>def <span class="ident">xstream2python</span></span>(<span>node, options, context)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a xstream node to a python object. The node should only have a single child.
+This is either a single Value.className=gate.corpora.ObjectWrapper node with a single value child, or
+a list of value nodes to initialize a container, or something not supported.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def xstream2python(node, options, context):
+    &#34;&#34;&#34;
+    Convert a xstream node to a python object. The node should only have a single child.
+    This is either a single Value.className=gate.corpora.ObjectWrapper node with a single value child, or
+    a list of value nodes to initialize a container, or something not supported.
+    &#34;&#34;&#34;
+    # if options[&#34;debug&#34;]:
+    #     print(f&#34;DEBUG: Got element ({node.tag}):&#34;, ET.tostring(node))
+    if node.tag == &#34;gate.corpora.ObjectWrapper&#34;:
+        children = list(node)
+        if len(children) != 1:
+            GateXmlLoader.error(
+                f&#34;ObjectWrapper node with not exactly one child for {node} but: {len(children)}: {children}&#34;,
+                options, context)
+            return None
+        child = children[0]
+        if child.tag != &#34;value&#34;:
+            GateXmlLoader.error(f&#34;Child of Value tag is not value but {child.tag}&#34;, options, context)
+            return None
+        return GateXmlLoader.xstream2python(child, options, context)
+    elif node.tag == &#34;value&#34;:
+        valueclass = node.attrib[&#34;class&#34;]
+        ret = None
+        if valueclass == &#34;set&#34;:
+            GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+            ret = []
+            for el in node:
+                ret.append(GateXmlLoader.xstream2python(el, options, context))
+        elif valueclass == &#34;list&#34; or valueclass.endswith(&#34;-array&#34;):
+            ret = []
+            for el in node:
+                ret.append(GateXmlLoader.xstream2python(el, options, context))
+        elif valueclass == &#34;date&#34;:
+            ret = node.text
+        elif valueclass == &#34;linked-hash-map&#34; or valueclass == &#34;hash-map&#34; or valueclass == &#34;map&#34;:
+            ret = {}
+            for el in node:
+                items = list(el)
+                if len(items) != 2:
+                    GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                        options, context)
+                    break
+                else:
+                    key = GateXmlLoader.xstream2python(items[0], options, context)
+                    value = GateXmlLoader.xstream2python(items[1], options, context)
+                    ret[key] = value
+        else:
+            GateXmlLoader.error(f&#34;Unsupported xstreaqm type: {valueclass}&#34;, options, context)
+            ret = None
+    else:
+        # this is a node for nested values which are not ObjectWrapper, e.g. &lt;string&gt;
+        ret = None
+        if node.tag == &#34;string&#34;:
+            ret = node.text
+            if ret is None:
+                ret = &#34;&#34;
+        elif node.tag == &#34;int&#34;:
+            ret = int(node.text)
+        elif node.tag == &#34;long&#34;:
+            ret = int(node.text)
+        elif node.tag == &#34;boolean&#34;:
+            ret = (node.text == &#34;true&#34;)
+        elif node.tag == &#34;set&#34;:
+            GateXmlLoader.warning(f&#34;Converting set to list&#34;, options, context)
+            ret = []
+            for el in node:
+                ret.append(GateXmlLoader.xstream2python(el, options, context))
+        elif node.tag == &#34;list&#34; or node.tag.endswith(&#34;-array&#34;):
+            ret = []
+            for el in node:
+                ret.append(GateXmlLoader.xstream2python(el, options, context))
+        elif node.tag == &#34;date&#34;:
+            ret = node.text
+        elif node.tag == &#34;big-decimal&#34;:
+            GateXmlLoader.warning(f&#34;Converting BigDecimal to float&#34;, options, context)
+            ret = float(Decimal(node.text))
+        elif node.tag == &#34;linked-hash-map&#34; or node.tag == &#34;hash-map&#34; or node.tag == &#34;map&#34;:
+            ret = {}
+            for el in node:
+                items = list(el)
+                if len(items) != 2:
+                    GateXmlLoader.error(f&#34;Not exactly two children for map content, but {len(items)}&#34;,
+                                        options, context)
+                    break
+                else:
+                    key = GateXmlLoader.xstream2python(items[0], options, context)
+                    value = GateXmlLoader.xstream2python(items[1], options, context)
+                    ret[key] = value
+        else:
+            GateXmlLoader.error(f&#34;Unknown type, nested tag: {node.tag}&#34;, options, context)
+            ret = None
+    return ret</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gatenlp.serialization" href="index.html">gatenlp.serialization</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader" href="#gatenlp.serialization.default_gatexml.GateXmlLoader">GateXmlLoader</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.context2txt" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.context2txt">context2txt</a></code></li>
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.error" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.error">error</a></code></li>
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.load" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.load">load</a></code></li>
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.value4objectwrapper" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.value4objectwrapper">value4objectwrapper</a></code></li>
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.warning" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.warning">warning</a></code></li>
+<li><code><a title="gatenlp.serialization.default_gatexml.GateXmlLoader.xstream2python" href="#gatenlp.serialization.default_gatexml.GateXmlLoader.xstream2python">xstream2python</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

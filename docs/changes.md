@@ -6,8 +6,10 @@
 * fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead of a tuple.
 * Added parameters `row1_style` and `row2_style` to `Document.show`
 * Fixed issue 149: reset the annotation id after clearing the annotation set
-* ELG annotator: allow to use a pre-initialized authentification file
-* Add IBM NLU annotator
+* [ELG annotator](https://gatenlp.github.io/python-gatenlp/client_elg): allow to use a pre-initialized authentification file
+* ELG annotator: add utility function to convert UDPipe annotations: `udptoken2tokens`
+* Added [IBM NLU annotator](https://gatenlp.github.io/python-gatenlp/client_ibmnlu)
+* Added [Google NLP annotator](https://gatenlp.github.io/python-gatenlp/client_googlenlp)
 * Loading a GATE XML using `Document.load(path, fmt="gatexml")` now supports feature values of type Map, List, Set, Array, Date
 
 ## 1.0.6 (2021-11-19)
