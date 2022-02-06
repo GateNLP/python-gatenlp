@@ -37,6 +37,7 @@ version = versionfromfile("gatenlp/version.py")
 
 def get_install_extras_require():
     extras_require = {
+        "base": ["sortedcontainers>=2.0.0"],
         "clientibm": ["ibm-watson"],
         "clientelg": ["requests", "elg"],
         "clienttagme": ["requests"],

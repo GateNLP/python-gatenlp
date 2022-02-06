@@ -19,9 +19,7 @@ setup(
     setup_requires=[
         # deliberately not used, since it installs packages without pip,  use the "dev" extras instead
     ],
-    install_requires=[
-        "sortedcontainers>=2.0.0",
-    ],
+    install_requires=get_install_extras_require()["base"],
     extras_require=get_install_extras_require(),
     # NOTE: this is not actually used since it will not work with gatenlp version reporting
     # from the gateplugin-Python plugin (since _version.py is not/should not get committed, only distributed)

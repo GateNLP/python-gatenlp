@@ -10,6 +10,7 @@ py4j
 pyyaml>=5.2
 recordclass
 requests
+sortedcontainers>=2.0.0
 spacy>=2.2
 flake8
 pytest
