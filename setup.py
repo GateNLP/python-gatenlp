@@ -41,7 +41,10 @@ setup(
     # include_package_data=True,
     # data_files=[("share/gatenlp", [JARFILE_PATH])],
     test_suite="tests",
-    entry_points={"console_scripts": ["gatenlp-gate-worker=gatenlp.gateworker:run_gate_worker"]},
+    entry_points={"console_scripts": [
+        "gatenlp-gate-worker=gatenlp.gateworker:run_gate_worker",
+        "gatenlp-dir2dir=gatenlp.processing.runners:run_dir2dir"
+    ]},
     classifiers=[
         # "Development Status :: 6 - Mature",
         # "Development Status :: 5 - Production/Stable",

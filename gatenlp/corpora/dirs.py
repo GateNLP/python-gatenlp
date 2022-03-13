@@ -276,12 +276,14 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
 
         Args:
             dirpath: the directory path
-            ext: the file extension that must be matched by all files for the corpus
+            ext: the file extension that must be matched by all files for the corpus, "bdocjs" if empty or None
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
             sort: if True, sort by file paths, if a function sort by that function (default: False)
             sort_reverse: if sort is not False and this is True, sort in reverse order
         """
+        if not ext:
+            ext = "bdocjs"
         if not ext.startswith("."):
             ext = "." + ext
         self.dirpath = dirpath
