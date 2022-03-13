@@ -2,6 +2,7 @@
 Module for functions that help reading binary and textual data from either URLs or local files.
 """
 
+from typing import Optional, Union
 from io import TextIOWrapper
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -10,7 +11,7 @@ from urllib.request import urlopen
 import requests
 
 
-def is_url(ext):
+def is_url(ext: Union[str, Path, ParseResult, None]):
     """
     Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
@@ -19,7 +20,7 @@ def is_url(ext):
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-        a tuple (True, urlstring)  or (False,pathstring)
+        a tuple (True, urlstring)  or (False,pathstring), or None, None if ext is None
 
     """
     if ext is None:
@@ -71,7 +72,7 @@ def get_bytes_from_url(url):  # pragma: no cover
     return req.content
 
 
-def yield_lines_from(url_or_file, encoding="utf-8"):  # pragma: no cover
+def yield_lines_from(url_or_file: Union[str, Path, ParseResult], encoding: str = "utf-8"):  # pragma: no cover
     """
     Yields lines of text from either a file or an URL
 
@@ -94,7 +95,7 @@ def yield_lines_from(url_or_file, encoding="utf-8"):  # pragma: no cover
                 yield line
 
 
-def stream_from(url_or_file, encoding="utf-8"):  # pragma: no cover
+def stream_from(url_or_file: Union[str, Path, ParseResult], encoding: str = "utf-8"):  # pragma: no cover
     """
     Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
     in text mode with the given encoding.

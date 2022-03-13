@@ -4,7 +4,9 @@ as files in a directory.
 """
 
 import os
-from typing import Union, Callable
+from typing import Union, Callable, Iterable, Optional
+from pathlib import Path
+from urllib.parse import ParseResult
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
 from gatenlp.corpora.base import DocumentSource, DocumentDestination, Corpus
@@ -12,18 +14,25 @@ from gatenlp.corpora.base import MultiProcessingAble
 from gatenlp.corpora.base import EveryNthBase
 
 
-def matching_paths(dirpath, exts=None, recursive=True, relative=True):
+def matching_paths(
+        dirpath: str,
+        exts: Optional[Union[Iterable, str]] = None,
+        recursive: bool = True,
+        relative: bool = True):
     """
     Yields all relative file paths from dirpath which match the list of extensions
     and which do not start with a dot.
 
     Args:
         dirpath: the directory to traverse
-        exts: a list of allowed extensions (inluding the dot)
+        exts: a single extension of a list of allowed extensions (inluding the dot). If None,
+            all files in the directory not starting with a dot are included
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
         relative: if True (default), the paths are relative to the directory path
     """
+    if isinstance(exts, str):
+        exts = [exts]
     if recursive:
         for root, _, filenames in os.walk(dirpath):
             for fname in filenames:
@@ -119,13 +128,13 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
     """
     def __init__(
         self,
-        dirpath,
-        paths=None,
-        paths_from=None,
-        exts=None,
-        fmt=None,
-        recursive=True,
-        sort=False,
+        dirpath: str,
+        paths: Optional[Iterable[str]] = None,
+        paths_from: Union[str, Path, ParseResult] = None,
+        exts: Optional[Iterable[str]] = None,
+        fmt: Optional[str] = None,
+        recursive: bool = True,
+        sort: bool = False,
         nparts=1,
         partnr=0,
     ):
