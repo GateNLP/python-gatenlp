@@ -4,6 +4,7 @@ as files in a directory.
 """
 
 import os
+from typing import Union, Callable
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
 from gatenlp.corpora.base import DocumentSource, DocumentDestination, Corpus
@@ -181,7 +182,7 @@ class DirFilesDestination(DocumentDestination):
     from the document and the running number.
     """
 
-    def __init__(self, dirpath, path_from="idx", ext="bdocjs", fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = "idx", ext: str = "bdocjs", fmt=None):
         """
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -225,9 +226,9 @@ class DirFilesDestination(DocumentDestination):
             self.file_path_maker = maker_file_path_fromidx(digits, levels)
         elif path_from.startswith("feature"):
             _, fname = path_from.split(":")
-            self.file_path_maker = lambda doc: doc.features[fname]
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
         elif path_from == "name":
-            self.file_path_maker = lambda doc: doc.name
+            self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
             self.file_path_maker = path_from
         else:
