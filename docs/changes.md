@@ -1,5 +1,9 @@
 # Versions and changes
 
+## Upcoming version
+
+
+
 ## 1.0.7 (2022-03-06)
 
 * added new parameter `reset_annids` `AnnotatationSet.clear` 

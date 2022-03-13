@@ -134,9 +134,10 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         exts: Optional[Iterable[str]] = None,
         fmt: Optional[str] = None,
         recursive: bool = True,
-        sort: bool = False,
-        nparts=1,
-        partnr=0,
+        sort: Union[bool, Callable] = False,
+        sort_reverse: bool = False,
+        nparts: int = 1,
+        partnr: int = 0,
     ):
         """
         Create a DirFilesSource.
@@ -144,14 +145,17 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         Args:
             dirpath: the directory that contains the file to load as documents.
             paths:  if not None, must be an iterable of relate file paths to load from the directory
-            paths_from: if not None, must be a file or URL to load a list of file paths from
+            paths_from: if not None, must be a file or URL to load a list of relative file paths from
             exts: an iterable of allowed file extensions or file extension regexps
             fmt: the format to use for loading files. This is only useful if all files have the same format
                but the file extensions does not indicate the format.
             recursive: recursively include paths from all subdirectories as well
-            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is > 1.
-            nshards: only yield every nshards-th document (default 1: every document)
-            shardnr: start with that index, before yieldieng every nshards-th document (default 0: start at beginning)
+            sort: a boolean to indicate that paths should get processed in sort order, or a callable that
+                will be used to extract the sort key.
+                The paths get always sorted if partnr is > 1.
+            sort_reverse: if paths should get serted in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         """
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
@@ -166,7 +170,10 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
         if sort or nparts > 1:
-            self.paths.sort()
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         if nparts > 1:
             self.paths = [
                 p
@@ -180,7 +187,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         Yield the next document from the source.
         """
         for p in self.paths:
-            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            self.setrelpathfeature(doc, p)
 
 
 class DirFilesDestination(DocumentDestination):
@@ -191,7 +199,7 @@ class DirFilesDestination(DocumentDestination):
     from the document and the running number.
     """
 
-    def __init__(self, dirpath, path_from: Union[str, Callable] = "idx", ext: str = "bdocjs", fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = "relpath", ext: str = "bdocjs", fmt=None):
         """
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -199,6 +207,7 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
+               * "relpath" (default): use the relative path used when creating the document
                * "idx": just use the index/running number of the added document as the base name
                * "idx:5": use the index/running number with at least 5 digits in the name.
                * "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
@@ -236,6 +245,8 @@ class DirFilesDestination(DocumentDestination):
         elif path_from.startswith("feature"):
             _, fname = path_from.split(":")
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == "relpath":
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
         elif path_from == "name":
             self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
@@ -280,7 +291,16 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
     A corpus representing all files in a directory that match the given extension.
     """
 
-    def __init__(self, dirpath, ext="bdocjs", fmt=None, recursive=True, sort=False, sort_reverse=False):
+    def __init__(self,
+                 dirpath: str,
+                 ext: str = "bdocjs",
+                 fmt: Optional[str] = None,
+                 recursive: bool = True,
+                 sort: Union[bool, Callable] = False,
+                 sort_reverse: bool = False,
+                 nparts: int = 1,
+                 partnr: int = 0
+                 ):
         """
         Creates the DirCorpus.
 
@@ -291,6 +311,8 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
             recursive: if True (default) all matching files from all subdirectories are included
             sort: if True, sort by file paths, if a function sort by that function (default: False)
             sort_reverse: if sort is not False and this is True, sort in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         """
         if not ext:
             ext = "bdocjs"
@@ -304,11 +326,17 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
         if not os.path.isdir(dirpath):
             raise Exception(f"Not a directory: {dirpath}")
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
-        if sort:
+        if sort or nparts > 1:
             if callable(sort):
                 self.paths.sort(key=sort, reverse=sort_reverse)
             else:
                 self.paths.sort(reverse=sort_reverse)
+        if nparts > 1:
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - partnr) % nparts) == 0
+            ]
         self.size = len(self.paths)
 
     def __len__(self):

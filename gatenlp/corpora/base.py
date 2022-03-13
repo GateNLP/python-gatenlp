@@ -9,13 +9,14 @@ one document a time.
 
 DocumentDestination classes represent collections that can receive Documents one document a time.
 """
-
+import bisect
 import random
 from abc import ABC, abstractmethod
 from typing import Iterable as TypingIterable
 from typing import Iterator as TypingIterator
 from typing import Sized
 from typing import Union
+from itertools import accumulate, chain
 from contextlib import AbstractContextManager
 import numbers
 from gatenlp.document import Document
@@ -31,7 +32,7 @@ __pdoc__ = {
 class CorpusSourceBase:
     """
     Common base trait for Corpus and Source classes. So far just provides methods to
-    get nparts and partnr even for objects which are not sharded.
+    get nparts and partnr even for objects which do not support to be shared between multiple workers.
     """
     @property
     def nparts(self):
@@ -48,6 +49,25 @@ class CorpusSourceBase:
         This is 0 for all other corpus/source instances.
         """
         return 0
+
+    def relpathfeatname(self) -> str:
+        """
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        """
+        return "_relpath"
+
+    def setrelpathfeature(self, doc: Document, relpath: str):
+        """
+        Sets the special transient feature of the document to the given relative path.
+
+        Args:
+            doc: the document
+            relpath: the relative path the document was created from
+        """
+        if doc is not None:
+            doc.features[self.relpathfeatname()] = relpath
+
+
 
 
 class MultiProcessingAble:
@@ -227,6 +247,13 @@ class DocumentDestination(AbstractContextManager):
         self.close()
         return False   # do not suppress any exception
 
+    def relpathfeatname(self) -> str:
+        """
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        """
+        return "_relpath"
+
+
 
 class StringIdCorpus:
     """
@@ -295,7 +322,11 @@ class EveryNthSource(EveryNthBase, DocumentSource):
     documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
     documents 2,5,8,11,14 etc.
     """
-    def __init__(self, source: DocumentSource, nparts: int = 1, partnr: int = 0):
+    def __init__(self,
+                 source: DocumentSource,
+                 nparts: int = 1,
+                 partnr: int = 0):
+        assert isinstance(source, MultiProcessingAble)
         assert isinstance(source, DocumentSource)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -328,6 +359,7 @@ class EveryNthCorpus(EveryNthBase, Corpus):
     processes (the wrapped corpus must be MultiProcessingAble for that!).
     """
     def __init__(self, corpus: Corpus, nparts: int = 1, partnr: int = 0):
+        assert isinstance(corpus, MultiProcessingAble)
         assert isinstance(corpus, Corpus)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -422,6 +454,61 @@ class ShuffledCorpus(Corpus):
 
     def append(self, document: Document) -> int:
         raise Exception("Method append not supported for ShuffledCorpus")
+
+
+class ConcatCorpus(Corpus):
+    """
+    Wraps a list of corpora to make them appear as a single corpus
+    """
+    def __init__(self, corpora: TypingIterable[Corpus]):
+        """
+        Create a ConcatCorpus from the iterable of corpus instances.
+
+        Parameters:
+            corpora: an iterable of corpus instances
+        """
+        self.corpora = corpora
+        self.sizes = [len(c) for c in corpora]
+        self.idxs = accumulate(self.sizes)
+
+    def idx2ci(self, idx):
+        """
+        For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
+        of the entry within that corpus
+        """
+        # find the index of the corpus: in the list of accumulated sizes, it is the entry that is still less
+        # than the given index
+        cidx = bisect.bisect_left(self.idxs, idx)
+        if cidx == len(self.idxs):
+            raise Exception(f"Index {idx} out of range, total number of documents over all corpora is {self.idxs[-1]}")
+        if cidx == 0:
+            eidx = idx
+        else:
+            eidx = self[cidx-1] - idx
+        return cidx, eidx
+
+    def __getitem__(self, idx):
+        cidx, eidx = self.idx2ci(idx)
+        return self.corpora[cidx][eidx]
+
+    def __setitem__(self, idx, doc):
+        cidx, eidx = self.idx2ci(idx)
+        self.corpora[cidx][eidx] = doc
+
+
+class ConcatSource(DocumentSource):
+    """
+    Wraps a list of document source objects to make them appear as a single source.
+    """
+    def __init__(self, sources: TypingIterable[DocumentSource]):
+        """
+        Create a ConcatSource from an iterable of DocumentSource instances
+        """
+        self.sources = sources
+
+    def __iter__(self):
+        for doc in chain(*self.sources):
+            yield doc
 
 
 class CachedCorpus(Corpus):
