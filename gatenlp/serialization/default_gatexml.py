@@ -1,5 +1,5 @@
 """
-Module that implements the various ways of how to save and load documents and change logs.
+Module that implements the GATE XML format loader.
 """
 import sys
 from decimal import Decimal
@@ -328,5 +328,3 @@ class GateXmlLoader:
 
         doc = Document.from_dict(docmap)
         return doc
-
-
