@@ -35,6 +35,9 @@ as files in a directory.
 &#34;&#34;&#34;
 
 import os
+from typing import Union, Callable, Iterable, Optional
+from pathlib import Path
+from urllib.parse import ParseResult
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
 from gatenlp.corpora.base import DocumentSource, DocumentDestination, Corpus
@@ -42,18 +45,25 @@ from gatenlp.corpora.base import MultiProcessingAble
 from gatenlp.corpora.base import EveryNthBase
 
 
-def matching_paths(dirpath, exts=None, recursive=True, relative=True):
+def matching_paths(
+        dirpath: str,
+        exts: Optional[Union[Iterable, str]] = None,
+        recursive: bool = True,
+        relative: bool = True):
     &#34;&#34;&#34;
     Yields all relative file paths from dirpath which match the list of extensions
     and which do not start with a dot.
 
     Args:
         dirpath: the directory to traverse
-        exts: a list of allowed extensions (inluding the dot)
+        exts: a single extension of a list of allowed extensions (inluding the dot). If None,
+            all files in the directory not starting with a dot are included
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
         relative: if True (default), the paths are relative to the directory path
     &#34;&#34;&#34;
+    if isinstance(exts, str):
+        exts = [exts]
     if recursive:
         for root, _, filenames in os.walk(dirpath):
             for fname in filenames:
@@ -149,15 +159,16 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
     &#34;&#34;&#34;
     def __init__(
         self,
-        dirpath,
-        paths=None,
-        paths_from=None,
-        exts=None,
-        fmt=None,
-        recursive=True,
-        sort=False,
-        nparts=1,
-        partnr=0,
+        dirpath: str,
+        paths: Optional[Iterable[str]] = None,
+        paths_from: Union[str, Path, ParseResult] = None,
+        exts: Optional[Iterable[str]] = None,
+        fmt: Optional[str] = None,
+        recursive: bool = True,
+        sort: Union[bool, Callable] = False,
+        sort_reverse: bool = False,
+        nparts: int = 1,
+        partnr: int = 0,
     ):
         &#34;&#34;&#34;
         Create a DirFilesSource.
@@ -165,14 +176,17 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         Args:
             dirpath: the directory that contains the file to load as documents.
             paths:  if not None, must be an iterable of relate file paths to load from the directory
-            paths_from: if not None, must be a file or URL to load a list of file paths from
+            paths_from: if not None, must be a file or URL to load a list of relative file paths from
             exts: an iterable of allowed file extensions or file extension regexps
             fmt: the format to use for loading files. This is only useful if all files have the same format
                but the file extensions does not indicate the format.
             recursive: recursively include paths from all subdirectories as well
-            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.
-            nshards: only yield every nshards-th document (default 1: every document)
-            shardnr: start with that index, before yieldieng every nshards-th document (default 0: start at beginning)
+            sort: a boolean to indicate that paths should get processed in sort order, or a callable that
+                will be used to extract the sort key.
+                The paths get always sorted if partnr is &gt; 1.
+            sort_reverse: if paths should get serted in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
@@ -187,7 +201,10 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
         if sort or nparts &gt; 1:
-            self.paths.sort()
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         if nparts &gt; 1:
             self.paths = [
                 p
@@ -201,7 +218,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         Yield the next document from the source.
         &#34;&#34;&#34;
         for p in self.paths:
-            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            self.setrelpathfeature(doc, p)
 
 
 class DirFilesDestination(DocumentDestination):
@@ -212,7 +230,7 @@ class DirFilesDestination(DocumentDestination):
     from the document and the running number.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;relpath&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -220,6 +238,7 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
+               * &#34;relpath&#34; (default): use the relative path used when creating the document
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
                * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
@@ -256,9 +275,11 @@ class DirFilesDestination(DocumentDestination):
             self.file_path_maker = maker_file_path_fromidx(digits, levels)
         elif path_from.startswith(&#34;feature&#34;):
             _, fname = path_from.split(&#34;:&#34;)
-            self.file_path_maker = lambda doc: doc.features[fname]
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == &#34;relpath&#34;:
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
         elif path_from == &#34;name&#34;:
-            self.file_path_maker = lambda doc: doc.name
+            self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
             self.file_path_maker = path_from
         else:
@@ -301,18 +322,31 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True, sort=False, sort_reverse=False):
+    def __init__(self,
+                 dirpath: str,
+                 ext: str = &#34;bdocjs&#34;,
+                 fmt: Optional[str] = None,
+                 recursive: bool = True,
+                 sort: Union[bool, Callable] = False,
+                 sort_reverse: bool = False,
+                 nparts: int = 1,
+                 partnr: int = 0
+                 ):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
         Args:
             dirpath: the directory path
-            ext: the file extension that must be matched by all files for the corpus
+            ext: the file extension that must be matched by all files for the corpus, &#34;bdocjs&#34; if empty or None
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
             sort: if True, sort by file paths, if a function sort by that function (default: False)
             sort_reverse: if sort is not False and this is True, sort in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
+        if not ext:
+            ext = &#34;bdocjs&#34;
         if not ext.startswith(&#34;.&#34;):
             ext = &#34;.&#34; + ext
         self.dirpath = dirpath
@@ -323,11 +357,17 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
         if not os.path.isdir(dirpath):
             raise Exception(f&#34;Not a directory: {dirpath}&#34;)
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
-        if sort:
+        if sort or nparts &gt; 1:
             if callable(sort):
                 self.paths.sort(key=sort, reverse=sort_reverse)
             else:
                 self.paths.sort(reverse=sort_reverse)
+        if nparts &gt; 1:
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - partnr) % nparts) == 0
+            ]
         self.size = len(self.paths)
 
     def __len__(self):
@@ -511,7 +551,7 @@ and levels=3, the generated function will convert the index number 23 into 0/000
 </details>
 </dd>
 <dt id="gatenlp.corpora.dirs.matching_paths"><code class="name flex">
-<span>def <span class="ident">matching_paths</span></span>(<span>dirpath, exts=None, recursive=True, relative=True)</span>
+<span>def <span class="ident">matching_paths</span></span>(<span>dirpath: str, exts: Union[Iterable[+T_co], str, None] = None, recursive: bool = True, relative: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Yields all relative file paths from dirpath which match the list of extensions
@@ -521,7 +561,8 @@ and which do not start with a dot.</p>
 <dt><strong><code>dirpath</code></strong></dt>
 <dd>the directory to traverse</dd>
 <dt><strong><code>exts</code></strong></dt>
-<dd>a list of allowed extensions (inluding the dot)</dd>
+<dd>a single extension of a list of allowed extensions (inluding the dot). If None,
+all files in the directory not starting with a dot are included</dd>
 <dt><strong><code>recursive</code></strong></dt>
 <dd>if True (default) include all matching paths from all subdirectories as well, otherwise
 only paths from the top directory.</dd>
@@ -532,18 +573,25 @@ only paths from the top directory.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def matching_paths(dirpath, exts=None, recursive=True, relative=True):
+<pre><code class="python">def matching_paths(
+        dirpath: str,
+        exts: Optional[Union[Iterable, str]] = None,
+        recursive: bool = True,
+        relative: bool = True):
     &#34;&#34;&#34;
     Yields all relative file paths from dirpath which match the list of extensions
     and which do not start with a dot.
 
     Args:
         dirpath: the directory to traverse
-        exts: a list of allowed extensions (inluding the dot)
+        exts: a single extension of a list of allowed extensions (inluding the dot). If None,
+            all files in the directory not starting with a dot are included
         recursive: if True (default) include all matching paths from all subdirectories as well, otherwise
           only paths from the top directory.
         relative: if True (default), the paths are relative to the directory path
     &#34;&#34;&#34;
+    if isinstance(exts, str):
+        exts = [exts]
     if recursive:
         for root, _, filenames in os.walk(dirpath):
             for fname in filenames:
@@ -590,7 +638,7 @@ only paths from the top directory.</dd>
 <dl>
 <dt id="gatenlp.corpora.dirs.DirFilesCorpus"><code class="flex name class">
 <span>class <span class="ident">DirFilesCorpus</span></span>
-<span>(</span><span>dirpath, ext='bdocjs', fmt=None, recursive=True, sort=False, sort_reverse=False)</span>
+<span>(</span><span>dirpath: str, ext: str = 'bdocjs', fmt: Optional[str] = None, recursive: bool = True, sort: Union[bool, Callable] = False, sort_reverse: bool = False, nparts: int = 1, partnr: int = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A corpus representing all files in a directory that match the given extension.</p>
@@ -600,7 +648,7 @@ only paths from the top directory.</dd>
 <dt><strong><code>dirpath</code></strong></dt>
 <dd>the directory path</dd>
 <dt><strong><code>ext</code></strong></dt>
-<dd>the file extension that must be matched by all files for the corpus</dd>
+<dd>the file extension that must be matched by all files for the corpus, "bdocjs" if empty or None</dd>
 <dt><strong><code>fmt</code></strong></dt>
 <dd>the format to use, if None, will be determined from the extension</dd>
 <dt><strong><code>recursive</code></strong></dt>
@@ -609,6 +657,10 @@ only paths from the top directory.</dd>
 <dd>if True, sort by file paths, if a function sort by that function (default: False)</dd>
 <dt><strong><code>sort_reverse</code></strong></dt>
 <dd>if sort is not False and this is True, sort in reverse order</dd>
+<dt><strong><code>nparts</code></strong></dt>
+<dd>only yield every nparts-th document (default 1: every document)</dd>
+<dt><strong><code>partnr</code></strong></dt>
+<dd>start with that index, before yieldieng every nparts-th document (default 0: start at beginning)</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -619,18 +671,31 @@ only paths from the top directory.</dd>
     A corpus representing all files in a directory that match the given extension.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, ext=&#34;bdocjs&#34;, fmt=None, recursive=True, sort=False, sort_reverse=False):
+    def __init__(self,
+                 dirpath: str,
+                 ext: str = &#34;bdocjs&#34;,
+                 fmt: Optional[str] = None,
+                 recursive: bool = True,
+                 sort: Union[bool, Callable] = False,
+                 sort_reverse: bool = False,
+                 nparts: int = 1,
+                 partnr: int = 0
+                 ):
         &#34;&#34;&#34;
         Creates the DirCorpus.
 
         Args:
             dirpath: the directory path
-            ext: the file extension that must be matched by all files for the corpus
+            ext: the file extension that must be matched by all files for the corpus, &#34;bdocjs&#34; if empty or None
             fmt: the format to use, if None, will be determined from the extension
             recursive: if True (default) all matching files from all subdirectories are included
             sort: if True, sort by file paths, if a function sort by that function (default: False)
             sort_reverse: if sort is not False and this is True, sort in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
+        if not ext:
+            ext = &#34;bdocjs&#34;
         if not ext.startswith(&#34;.&#34;):
             ext = &#34;.&#34; + ext
         self.dirpath = dirpath
@@ -641,11 +706,17 @@ only paths from the top directory.</dd>
         if not os.path.isdir(dirpath):
             raise Exception(f&#34;Not a directory: {dirpath}&#34;)
         self.paths = list(matching_paths(dirpath, exts=[ext], recursive=recursive))
-        if sort:
+        if sort or nparts &gt; 1:
             if callable(sort):
                 self.paths.sort(key=sort, reverse=sort_reverse)
             else:
                 self.paths.sort(reverse=sort_reverse)
+        if nparts &gt; 1:
+            self.paths = [
+                p
+                for idx, p in enumerate(self.paths)
+                if ((idx - partnr) % nparts) == 0
+            ]
         self.size = len(self.paths)
 
     def __len__(self):
@@ -697,7 +768,9 @@ only paths from the top directory.</dd>
 <li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="base.html#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="base.html#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="base.html#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="base.html#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="base.html#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="base.html#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.store" href="base.html#gatenlp.corpora.base.Corpus.store">store</a></code></li>
 </ul>
 </li>
@@ -705,7 +778,7 @@ only paths from the top directory.</dd>
 </dd>
 <dt id="gatenlp.corpora.dirs.DirFilesDestination"><code class="flex name class">
 <span>class <span class="ident">DirFilesDestination</span></span>
-<span>(</span><span>dirpath, path_from='idx', ext='bdocjs', fmt=None)</span>
+<span>(</span><span>dirpath, path_from: Union[str, Callable] = 'relpath', ext: str = 'bdocjs', fmt=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A destination where each document is stored in a file in a directory or directory tree in some
@@ -720,6 +793,7 @@ from the document and the running number.</p>
 <dt><strong><code>path_from</code></strong></dt>
 <dd>one of options listed below. If a string is used as a path name, then the forward slash
 is always used as the directory path separator, on all systems!
+* "relpath" (default): use the relative path used when creating the document
 * "idx": just use the index/running number of the added document as the base name
 * "idx:5": use the index/running number with at least 5 digits in the name.
 * "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
@@ -750,7 +824,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
     from the document and the running number.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, path_from=&#34;idx&#34;, ext=&#34;bdocjs&#34;, fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;relpath&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -758,6 +832,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
+               * &#34;relpath&#34; (default): use the relative path used when creating the document
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
                * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
@@ -794,9 +869,11 @@ keyword arguments: doc (the document) and idx (the running index of the document
             self.file_path_maker = maker_file_path_fromidx(digits, levels)
         elif path_from.startswith(&#34;feature&#34;):
             _, fname = path_from.split(&#34;:&#34;)
-            self.file_path_maker = lambda doc: doc.features[fname]
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == &#34;relpath&#34;:
+            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
         elif path_from == &#34;name&#34;:
-            self.file_path_maker = lambda doc: doc.name
+            self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
             self.file_path_maker = path_from
         else:
@@ -886,13 +963,14 @@ keyword arguments: doc (the document) and idx (the running index of the document
 <li><code><b><a title="gatenlp.corpora.base.DocumentDestination" href="base.html#gatenlp.corpora.base.DocumentDestination">DocumentDestination</a></b></code>:
 <ul class="hlist">
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.close" href="base.html#gatenlp.corpora.base.DocumentDestination.close">close</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.relpathfeatname" href="base.html#gatenlp.corpora.base.DocumentDestination.relpathfeatname">relpathfeatname</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
 <dt id="gatenlp.corpora.dirs.DirFilesSource"><code class="flex name class">
 <span>class <span class="ident">DirFilesSource</span></span>
-<span>(</span><span>dirpath, paths=None, paths_from=None, exts=None, fmt=None, recursive=True, sort=False, nparts=1, partnr=0)</span>
+<span>(</span><span>dirpath: str, paths: Optional[Iterable[str]] = None, paths_from: Union[str, pathlib.Path, urllib.parse.ParseResult] = None, exts: Optional[Iterable[str]] = None, fmt: Optional[str] = None, recursive: bool = True, sort: Union[bool, Callable] = False, sort_reverse: bool = False, nparts: int = 1, partnr: int = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A document source which iterates over documents represented as files in a directory.</p>
@@ -904,7 +982,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
 <dt><strong><code>paths</code></strong></dt>
 <dd>if not None, must be an iterable of relate file paths to load from the directory</dd>
 <dt><strong><code>paths_from</code></strong></dt>
-<dd>if not None, must be a file or URL to load a list of file paths from</dd>
+<dd>if not None, must be a file or URL to load a list of relative file paths from</dd>
 <dt><strong><code>exts</code></strong></dt>
 <dd>an iterable of allowed file extensions or file extension regexps</dd>
 <dt><strong><code>fmt</code></strong></dt>
@@ -913,11 +991,15 @@ but the file extensions does not indicate the format.</dd>
 <dt><strong><code>recursive</code></strong></dt>
 <dd>recursively include paths from all subdirectories as well</dd>
 <dt><strong><code>sort</code></strong></dt>
-<dd>sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.</dd>
-<dt><strong><code>nshards</code></strong></dt>
-<dd>only yield every nshards-th document (default 1: every document)</dd>
-<dt><strong><code>shardnr</code></strong></dt>
-<dd>start with that index, before yieldieng every nshards-th document (default 0: start at beginning)</dd>
+<dd>a boolean to indicate that paths should get processed in sort order, or a callable that
+will be used to extract the sort key.
+The paths get always sorted if partnr is &gt; 1.</dd>
+<dt><strong><code>sort_reverse</code></strong></dt>
+<dd>if paths should get serted in reverse order</dd>
+<dt><strong><code>nparts</code></strong></dt>
+<dd>only yield every nparts-th document (default 1: every document)</dd>
+<dt><strong><code>partnr</code></strong></dt>
+<dd>start with that index, before yieldieng every nparts-th document (default 0: start at beginning)</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -929,15 +1011,16 @@ but the file extensions does not indicate the format.</dd>
     &#34;&#34;&#34;
     def __init__(
         self,
-        dirpath,
-        paths=None,
-        paths_from=None,
-        exts=None,
-        fmt=None,
-        recursive=True,
-        sort=False,
-        nparts=1,
-        partnr=0,
+        dirpath: str,
+        paths: Optional[Iterable[str]] = None,
+        paths_from: Union[str, Path, ParseResult] = None,
+        exts: Optional[Iterable[str]] = None,
+        fmt: Optional[str] = None,
+        recursive: bool = True,
+        sort: Union[bool, Callable] = False,
+        sort_reverse: bool = False,
+        nparts: int = 1,
+        partnr: int = 0,
     ):
         &#34;&#34;&#34;
         Create a DirFilesSource.
@@ -945,14 +1028,17 @@ but the file extensions does not indicate the format.</dd>
         Args:
             dirpath: the directory that contains the file to load as documents.
             paths:  if not None, must be an iterable of relate file paths to load from the directory
-            paths_from: if not None, must be a file or URL to load a list of file paths from
+            paths_from: if not None, must be a file or URL to load a list of relative file paths from
             exts: an iterable of allowed file extensions or file extension regexps
             fmt: the format to use for loading files. This is only useful if all files have the same format
                but the file extensions does not indicate the format.
             recursive: recursively include paths from all subdirectories as well
-            sort: sort paths so they get processed in sort order. The paths get always sorted if every_n is &gt; 1.
-            nshards: only yield every nshards-th document (default 1: every document)
-            shardnr: start with that index, before yieldieng every nshards-th document (default 0: start at beginning)
+            sort: a boolean to indicate that paths should get processed in sort order, or a callable that
+                will be used to extract the sort key.
+                The paths get always sorted if partnr is &gt; 1.
+            sort_reverse: if paths should get serted in reverse order
+            nparts: only yield every nparts-th document (default 1: every document)
+            partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
@@ -967,7 +1053,10 @@ but the file extensions does not indicate the format.</dd>
         else:
             self.paths = list(matching_paths(dirpath, exts=exts, recursive=recursive))
         if sort or nparts &gt; 1:
-            self.paths.sort()
+            if callable(sort):
+                self.paths.sort(key=sort, reverse=sort_reverse)
+            else:
+                self.paths.sort(reverse=sort_reverse)
         if nparts &gt; 1:
             self.paths = [
                 p
@@ -981,7 +1070,8 @@ but the file extensions does not indicate the format.</dd>
         Yield the next document from the source.
         &#34;&#34;&#34;
         for p in self.paths:
-            yield Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)</code></pre>
+            doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            self.setrelpathfeature(doc, p)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -999,6 +1089,8 @@ but the file extensions does not indicate the format.</dd>
 <ul class="hlist">
 <li><code><a title="gatenlp.corpora.base.DocumentSource.nparts" href="base.html#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.DocumentSource.partnr" href="base.html#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.relpathfeatname" href="base.html#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.setrelpathfeature" href="base.html#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1132,7 +1224,9 @@ the directory. If False, will ignore the action and leave whatever is at the ind
 <li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="base.html#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="base.html#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="base.html#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="base.html#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="base.html#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="base.html#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.store" href="base.html#gatenlp.corpora.base.Corpus.store">store</a></code></li>
 </ul>
 </li>

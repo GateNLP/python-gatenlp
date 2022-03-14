@@ -43,13 +43,14 @@ one document a time.
 
 DocumentDestination classes represent collections that can receive Documents one document a time.
 &#34;&#34;&#34;
-
+import bisect
 import random
 from abc import ABC, abstractmethod
 from typing import Iterable as TypingIterable
 from typing import Iterator as TypingIterator
 from typing import Sized
 from typing import Union
+from itertools import accumulate, chain
 from contextlib import AbstractContextManager
 import numbers
 from gatenlp.document import Document
@@ -65,7 +66,7 @@ __pdoc__ = {
 class CorpusSourceBase:
     &#34;&#34;&#34;
     Common base trait for Corpus and Source classes. So far just provides methods to
-    get nparts and partnr even for objects which are not sharded.
+    get nparts and partnr even for objects which do not support to be shared between multiple workers.
     &#34;&#34;&#34;
     @property
     def nparts(self):
@@ -82,6 +83,25 @@ class CorpusSourceBase:
         This is 0 for all other corpus/source instances.
         &#34;&#34;&#34;
         return 0
+
+    def relpathfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        &#34;&#34;&#34;
+        return &#34;_relpath&#34;
+
+    def setrelpathfeature(self, doc: Document, relpath: str):
+        &#34;&#34;&#34;
+        Sets the special transient feature of the document to the given relative path.
+
+        Args:
+            doc: the document
+            relpath: the relative path the document was created from
+        &#34;&#34;&#34;
+        if doc is not None:
+            doc.features[self.relpathfeatname()] = relpath
+
+
 
 
 class MultiProcessingAble:
@@ -261,6 +281,13 @@ class DocumentDestination(AbstractContextManager):
         self.close()
         return False   # do not suppress any exception
 
+    def relpathfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        &#34;&#34;&#34;
+        return &#34;_relpath&#34;
+
+
 
 class StringIdCorpus:
     &#34;&#34;&#34;
@@ -329,7 +356,11 @@ class EveryNthSource(EveryNthBase, DocumentSource):
     documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
     documents 2,5,8,11,14 etc.
     &#34;&#34;&#34;
-    def __init__(self, source: DocumentSource, nparts: int = 1, partnr: int = 0):
+    def __init__(self,
+                 source: DocumentSource,
+                 nparts: int = 1,
+                 partnr: int = 0):
+        assert isinstance(source, MultiProcessingAble)
         assert isinstance(source, DocumentSource)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -362,6 +393,7 @@ class EveryNthCorpus(EveryNthBase, Corpus):
     processes (the wrapped corpus must be MultiProcessingAble for that!).
     &#34;&#34;&#34;
     def __init__(self, corpus: Corpus, nparts: int = 1, partnr: int = 0):
+        assert isinstance(corpus, MultiProcessingAble)
         assert isinstance(corpus, Corpus)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -456,6 +488,61 @@ class ShuffledCorpus(Corpus):
 
     def append(self, document: Document) -&gt; int:
         raise Exception(&#34;Method append not supported for ShuffledCorpus&#34;)
+
+
+class ConcatCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a list of corpora to make them appear as a single corpus
+    &#34;&#34;&#34;
+    def __init__(self, corpora: TypingIterable[Corpus]):
+        &#34;&#34;&#34;
+        Create a ConcatCorpus from the iterable of corpus instances.
+
+        Parameters:
+            corpora: an iterable of corpus instances
+        &#34;&#34;&#34;
+        self.corpora = corpora
+        self.sizes = [len(c) for c in corpora]
+        self.idxs = accumulate(self.sizes)
+
+    def idx2ci(self, idx):
+        &#34;&#34;&#34;
+        For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
+        of the entry within that corpus
+        &#34;&#34;&#34;
+        # find the index of the corpus: in the list of accumulated sizes, it is the entry that is still less
+        # than the given index
+        cidx = bisect.bisect_left(self.idxs, idx)
+        if cidx == len(self.idxs):
+            raise Exception(f&#34;Index {idx} out of range, total number of documents over all corpora is {self.idxs[-1]}&#34;)
+        if cidx == 0:
+            eidx = idx
+        else:
+            eidx = self[cidx-1] - idx
+        return cidx, eidx
+
+    def __getitem__(self, idx):
+        cidx, eidx = self.idx2ci(idx)
+        return self.corpora[cidx][eidx]
+
+    def __setitem__(self, idx, doc):
+        cidx, eidx = self.idx2ci(idx)
+        self.corpora[cidx][eidx] = doc
+
+
+class ConcatSource(DocumentSource):
+    &#34;&#34;&#34;
+    Wraps a list of document source objects to make them appear as a single source.
+    &#34;&#34;&#34;
+    def __init__(self, sources: TypingIterable[DocumentSource]):
+        &#34;&#34;&#34;
+        Create a ConcatSource from an iterable of DocumentSource instances
+        &#34;&#34;&#34;
+        self.sources = sources
+
+    def __iter__(self):
+        for doc in chain(*self.sources):
+            yield doc
 
 
 class CachedCorpus(Corpus):
@@ -606,8 +693,164 @@ of processing efficiently.</dd>
 <li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.ConcatCorpus"><code class="flex name class">
+<span>class <span class="ident">ConcatCorpus</span></span>
+<span>(</span><span>corpora: Iterable[<a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a list of corpora to make them appear as a single corpus</p>
+<p>Create a ConcatCorpus from the iterable of corpus instances.</p>
+<h2 id="parameters">Parameters</h2>
+<p>corpora: an iterable of corpus instances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConcatCorpus(Corpus):
+    &#34;&#34;&#34;
+    Wraps a list of corpora to make them appear as a single corpus
+    &#34;&#34;&#34;
+    def __init__(self, corpora: TypingIterable[Corpus]):
+        &#34;&#34;&#34;
+        Create a ConcatCorpus from the iterable of corpus instances.
+
+        Parameters:
+            corpora: an iterable of corpus instances
+        &#34;&#34;&#34;
+        self.corpora = corpora
+        self.sizes = [len(c) for c in corpora]
+        self.idxs = accumulate(self.sizes)
+
+    def idx2ci(self, idx):
+        &#34;&#34;&#34;
+        For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
+        of the entry within that corpus
+        &#34;&#34;&#34;
+        # find the index of the corpus: in the list of accumulated sizes, it is the entry that is still less
+        # than the given index
+        cidx = bisect.bisect_left(self.idxs, idx)
+        if cidx == len(self.idxs):
+            raise Exception(f&#34;Index {idx} out of range, total number of documents over all corpora is {self.idxs[-1]}&#34;)
+        if cidx == 0:
+            eidx = idx
+        else:
+            eidx = self[cidx-1] - idx
+        return cidx, eidx
+
+    def __getitem__(self, idx):
+        cidx, eidx = self.idx2ci(idx)
+        return self.corpora[cidx][eidx]
+
+    def __setitem__(self, idx, doc):
+        cidx, eidx = self.idx2ci(idx)
+        self.corpora[cidx][eidx] = doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></li>
+<li>abc.ABC</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+<li>collections.abc.Sized</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.ConcatCorpus.idx2ci"><code class="name flex">
+<span>def <span class="ident">idx2ci</span></span>(<span>self, idx)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
+of the entry within that corpus</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def idx2ci(self, idx):
+    &#34;&#34;&#34;
+    For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
+    of the entry within that corpus
+    &#34;&#34;&#34;
+    # find the index of the corpus: in the list of accumulated sizes, it is the entry that is still less
+    # than the given index
+    cidx = bisect.bisect_left(self.idxs, idx)
+    if cidx == len(self.idxs):
+        raise Exception(f&#34;Index {idx} out of range, total number of documents over all corpora is {self.idxs[-1]}&#34;)
+    if cidx == 0:
+        eidx = idx
+    else:
+        eidx = self[cidx-1] - idx
+    return cidx, eidx</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__len__" href="#gatenlp.corpora.base.Corpus.__len__">__len__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.__setitem__" href="#gatenlp.corpora.base.Corpus.__setitem__">__setitem__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.append" href="#gatenlp.corpora.base.Corpus.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="gatenlp.corpora.base.ConcatSource"><code class="flex name class">
+<span>class <span class="ident">ConcatSource</span></span>
+<span>(</span><span>sources: Iterable[<a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps a list of document source objects to make them appear as a single source.</p>
+<p>Create a ConcatSource from an iterable of DocumentSource instances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConcatSource(DocumentSource):
+    &#34;&#34;&#34;
+    Wraps a list of document source objects to make them appear as a single source.
+    &#34;&#34;&#34;
+    def __init__(self, sources: TypingIterable[DocumentSource]):
+        &#34;&#34;&#34;
+        Create a ConcatSource from an iterable of DocumentSource instances
+        &#34;&#34;&#34;
+        self.sources = sources
+
+    def __iter__(self):
+        for doc in chain(*self.sources):
+            yield doc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></li>
+<li>abc.ABC</li>
+<li>collections.abc.Iterable</li>
+<li>typing.Generic</li>
+<li><a title="gatenlp.corpora.base.CorpusSourceBase" href="#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.DocumentSource.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 </ul>
@@ -752,6 +995,7 @@ not work with batching and the use of the <code>store</code> method to save docu
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="gatenlp.corpora.base.CachedCorpus" href="#gatenlp.corpora.base.CachedCorpus">CachedCorpus</a></li>
+<li><a title="gatenlp.corpora.base.ConcatCorpus" href="#gatenlp.corpora.base.ConcatCorpus">ConcatCorpus</a></li>
 <li><a title="gatenlp.corpora.base.EveryNthCorpus" href="#gatenlp.corpora.base.EveryNthCorpus">EveryNthCorpus</a></li>
 <li><a title="gatenlp.corpora.base.ShuffledCorpus" href="#gatenlp.corpora.base.ShuffledCorpus">ShuffledCorpus</a></li>
 <li><a title="gatenlp.corpora.dirs.DirFilesCorpus" href="dirs.html#gatenlp.corpora.dirs.DirFilesCorpus">DirFilesCorpus</a></li>
@@ -996,6 +1240,8 @@ subclasses where store(None) should be supported.</dd>
 <ul class="hlist">
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1005,7 +1251,7 @@ subclasses where store(None) should be supported.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Common base trait for Corpus and Source classes. So far just provides methods to
-get nparts and partnr even for objects which are not sharded.</p></div>
+get nparts and partnr even for objects which do not support to be shared between multiple workers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1013,7 +1259,7 @@ get nparts and partnr even for objects which are not sharded.</p></div>
 <pre><code class="python">class CorpusSourceBase:
     &#34;&#34;&#34;
     Common base trait for Corpus and Source classes. So far just provides methods to
-    get nparts and partnr even for objects which are not sharded.
+    get nparts and partnr even for objects which do not support to be shared between multiple workers.
     &#34;&#34;&#34;
     @property
     def nparts(self):
@@ -1029,7 +1275,24 @@ get nparts and partnr even for objects which are not sharded.</p></div>
         Return the part number for an EveryNth corpus or document source.
         This is 0 for all other corpus/source instances.
         &#34;&#34;&#34;
-        return 0</code></pre>
+        return 0
+
+    def relpathfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        &#34;&#34;&#34;
+        return &#34;_relpath&#34;
+
+    def setrelpathfeature(self, doc: Document, relpath: str):
+        &#34;&#34;&#34;
+        Sets the special transient feature of the document to the given relative path.
+
+        Args:
+            doc: the document
+            relpath: the relative path the document was created from
+        &#34;&#34;&#34;
+        if doc is not None:
+            doc.features[self.relpathfeatname()] = relpath</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -1070,6 +1333,53 @@ def partnr(self):
     This is 0 for all other corpus/source instances.
     &#34;&#34;&#34;
     return 0</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.base.CorpusSourceBase.relpathfeatname"><code class="name flex">
+<span>def <span class="ident">relpathfeatname</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the name of the transient feature to receive the relative path a document was loaded from.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def relpathfeatname(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the name of the transient feature to receive the relative path a document was loaded from.
+    &#34;&#34;&#34;
+    return &#34;_relpath&#34;</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature"><code class="name flex">
+<span>def <span class="ident">setrelpathfeature</span></span>(<span>self, doc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, relpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets the special transient feature of the document to the given relative path.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document</dd>
+<dt><strong><code>relpath</code></strong></dt>
+<dd>the relative path the document was created from</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setrelpathfeature(self, doc: Document, relpath: str):
+    &#34;&#34;&#34;
+    Sets the special transient feature of the document to the given relative path.
+
+    Args:
+        doc: the document
+        relpath: the relative path the document was created from
+    &#34;&#34;&#34;
+    if doc is not None:
+        doc.features[self.relpathfeatname()] = relpath</code></pre>
 </details>
 </dd>
 </dl>
@@ -1144,7 +1454,13 @@ destination automatically.</p></div>
         does not suppress any exception (always returns False)
         &#34;&#34;&#34;
         self.close()
-        return False   # do not suppress any exception</code></pre>
+        return False   # do not suppress any exception
+
+    def relpathfeatname(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the name of the transient feature to receive the relative path a document was loaded from.
+        &#34;&#34;&#34;
+        return &#34;_relpath&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1204,6 +1520,22 @@ close(), even when an exception is raised.</p></div>
     pass</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.corpora.base.DocumentDestination.relpathfeatname"><code class="name flex">
+<span>def <span class="ident">relpathfeatname</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the name of the transient feature to receive the relative path a document was loaded from.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def relpathfeatname(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the name of the transient feature to receive the relative path a document was loaded from.
+    &#34;&#34;&#34;
+    return &#34;_relpath&#34;</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 <dt id="gatenlp.corpora.base.DocumentSource"><code class="flex name class">
@@ -1232,6 +1564,7 @@ close(), even when an exception is raised.</p></div>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="gatenlp.corpora.base.ConcatSource" href="#gatenlp.corpora.base.ConcatSource">ConcatSource</a></li>
 <li><a title="gatenlp.corpora.base.EveryNthSource" href="#gatenlp.corpora.base.EveryNthSource">EveryNthSource</a></li>
 <li><a title="gatenlp.corpora.conll.ConllUFileSource" href="conll.html#gatenlp.corpora.conll.ConllUFileSource">ConllUFileSource</a></li>
 <li><a title="gatenlp.corpora.dirs.DirFilesSource" href="dirs.html#gatenlp.corpora.dirs.DirFilesSource">DirFilesSource</a></li>
@@ -1262,6 +1595,8 @@ close(), even when an exception is raised.</p></div>
 <ul class="hlist">
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1362,6 +1697,7 @@ processes (the wrapped corpus must be MultiProcessingAble for that!).</p></div>
     processes (the wrapped corpus must be MultiProcessingAble for that!).
     &#34;&#34;&#34;
     def __init__(self, corpus: Corpus, nparts: int = 1, partnr: int = 0):
+        assert isinstance(corpus, MultiProcessingAble)
         assert isinstance(corpus, Corpus)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -1417,7 +1753,9 @@ processes (the wrapped corpus must be MultiProcessingAble for that!).</p></div>
 <li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
 </ul>
 </li>
@@ -1448,7 +1786,11 @@ documents 2,5,8,11,14 etc.</p></div>
     documents 0,3,6,9,12 of the wrapped dataset, with nparts=3 and partnr=2, we get
     documents 2,5,8,11,14 etc.
     &#34;&#34;&#34;
-    def __init__(self, source: DocumentSource, nparts: int = 1, partnr: int = 0):
+    def __init__(self,
+                 source: DocumentSource,
+                 nparts: int = 1,
+                 partnr: int = 0):
+        assert isinstance(source, MultiProcessingAble)
         assert isinstance(source, DocumentSource)
         # this uses Integral so we can also support integral types from Numpy etc!
         if (not isinstance(nparts, numbers.Integral)) or (
@@ -1482,6 +1824,8 @@ documents 2,5,8,11,14 etc.</p></div>
 <ul class="hlist">
 <li><code><a title="gatenlp.corpora.base.DocumentSource.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.DocumentSource.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1646,7 +1990,9 @@ If seed is None, no shuffling is carried out.
 <li><code><a title="gatenlp.corpora.base.Corpus.idxfeatname" href="#gatenlp.corpora.base.Corpus.idxfeatname">idxfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.setidxfeature" href="#gatenlp.corpora.base.Corpus.setidxfeature">setidxfeature</a></code></li>
+<li><code><a title="gatenlp.corpora.base.Corpus.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 <li><code><a title="gatenlp.corpora.base.Corpus.store" href="#gatenlp.corpora.base.Corpus.store">store</a></code></li>
 </ul>
 </li>
@@ -1717,6 +2063,15 @@ If seed is None, no shuffling is carried out.
 <h4><code><a title="gatenlp.corpora.base.CachedCorpus" href="#gatenlp.corpora.base.CachedCorpus">CachedCorpus</a></code></h4>
 </li>
 <li>
+<h4><code><a title="gatenlp.corpora.base.ConcatCorpus" href="#gatenlp.corpora.base.ConcatCorpus">ConcatCorpus</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.base.ConcatCorpus.idx2ci" href="#gatenlp.corpora.base.ConcatCorpus.idx2ci">idx2ci</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.ConcatSource" href="#gatenlp.corpora.base.ConcatSource">ConcatSource</a></code></h4>
+</li>
+<li>
 <h4><code><a title="gatenlp.corpora.base.Corpus" href="#gatenlp.corpora.base.Corpus">Corpus</a></code></h4>
 <ul class="two-column">
 <li><code><a title="gatenlp.corpora.base.Corpus.__getitem__" href="#gatenlp.corpora.base.Corpus.__getitem__">__getitem__</a></code></li>
@@ -1733,6 +2088,8 @@ If seed is None, no shuffling is carried out.
 <ul class="">
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.nparts" href="#gatenlp.corpora.base.CorpusSourceBase.nparts">nparts</a></code></li>
 <li><code><a title="gatenlp.corpora.base.CorpusSourceBase.partnr" href="#gatenlp.corpora.base.CorpusSourceBase.partnr">partnr</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.relpathfeatname" href="#gatenlp.corpora.base.CorpusSourceBase.relpathfeatname">relpathfeatname</a></code></li>
+<li><code><a title="gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature" href="#gatenlp.corpora.base.CorpusSourceBase.setrelpathfeature">setrelpathfeature</a></code></li>
 </ul>
 </li>
 <li>
@@ -1743,6 +2100,7 @@ If seed is None, no shuffling is carried out.
 <ul class="">
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.append" href="#gatenlp.corpora.base.DocumentDestination.append">append</a></code></li>
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.close" href="#gatenlp.corpora.base.DocumentDestination.close">close</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.relpathfeatname" href="#gatenlp.corpora.base.DocumentDestination.relpathfeatname">relpathfeatname</a></code></li>
 </ul>
 </li>
 <li>

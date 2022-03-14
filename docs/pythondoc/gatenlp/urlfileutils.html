@@ -31,6 +31,7 @@
 Module for functions that help reading binary and textual data from either URLs or local files.
 &#34;&#34;&#34;
 
+from typing import Optional, Union
 from io import TextIOWrapper
 from pathlib import Path
 from urllib.parse import ParseResult
@@ -39,7 +40,7 @@ from urllib.request import urlopen
 import requests
 
 
-def is_url(ext):
+def is_url(ext: Union[str, Path, ParseResult, None]):
     &#34;&#34;&#34;
     Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
@@ -48,7 +49,7 @@ def is_url(ext):
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-        a tuple (True, urlstring)  or (False,pathstring)
+        a tuple (True, urlstring)  or (False,pathstring), or None, None if ext is None
 
     &#34;&#34;&#34;
     if ext is None:
@@ -100,7 +101,7 @@ def get_bytes_from_url(url):  # pragma: no cover
     return req.content
 
 
-def yield_lines_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+def yield_lines_from(url_or_file: Union[str, Path, ParseResult], encoding: str = &#34;utf-8&#34;):  # pragma: no cover
     &#34;&#34;&#34;
     Yields lines of text from either a file or an URL
 
@@ -123,7 +124,7 @@ def yield_lines_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
                 yield line
 
 
-def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+def stream_from(url_or_file: Union[str, Path, ParseResult], encoding: str = &#34;utf-8&#34;):  # pragma: no cover
     &#34;&#34;&#34;
     Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
     in text mode with the given encoding.
@@ -224,7 +225,7 @@ def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
 </details>
 </dd>
 <dt id="gatenlp.urlfileutils.is_url"><code class="name flex">
-<span>def <span class="ident">is_url</span></span>(<span>ext)</span>
+<span>def <span class="ident">is_url</span></span>(<span>ext: Union[str, pathlib.Path, urllib.parse.ParseResult, None])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
@@ -236,12 +237,12 @@ If ext is None, returns None, None.</p>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>a tuple (True, urlstring)
-or (False,pathstring)</p></div>
+or (False,pathstring), or None, None if ext is None</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_url(ext):
+<pre><code class="python">def is_url(ext: Union[str, Path, ParseResult, None]):
     &#34;&#34;&#34;
     Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
     If ext is None, returns None, None.
@@ -250,7 +251,7 @@ or (False,pathstring)</p></div>
       ext: something that represents an external resource: string, url parse, pathlib path object ...
 
     Returns:
-        a tuple (True, urlstring)  or (False,pathstring)
+        a tuple (True, urlstring)  or (False,pathstring), or None, None if ext is None
 
     &#34;&#34;&#34;
     if ext is None:
@@ -273,7 +274,7 @@ or (False,pathstring)</p></div>
 </details>
 </dd>
 <dt id="gatenlp.urlfileutils.stream_from"><code class="name flex">
-<span>def <span class="ident">stream_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
+<span>def <span class="ident">stream_from</span></span>(<span>url_or_file: Union[str, pathlib.Path, urllib.parse.ParseResult], encoding: str = 'utf-8')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
@@ -291,7 +292,7 @@ in text mode with the given encoding.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def stream_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+<pre><code class="python">def stream_from(url_or_file: Union[str, Path, ParseResult], encoding: str = &#34;utf-8&#34;):  # pragma: no cover
     &#34;&#34;&#34;
     Return an open stream from either the URL or the file, if encoding is None, in binary mode, otherwise
     in text mode with the given encoding.
@@ -321,7 +322,7 @@ in text mode with the given encoding.</p>
 </details>
 </dd>
 <dt id="gatenlp.urlfileutils.yield_lines_from"><code class="name flex">
-<span>def <span class="ident">yield_lines_from</span></span>(<span>url_or_file, encoding='utf-8')</span>
+<span>def <span class="ident">yield_lines_from</span></span>(<span>url_or_file: Union[str, pathlib.Path, urllib.parse.ParseResult], encoding: str = 'utf-8')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Yields lines of text from either a file or an URL</p>
@@ -338,7 +339,7 @@ or a pathlib path</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def yield_lines_from(url_or_file, encoding=&#34;utf-8&#34;):  # pragma: no cover
+<pre><code class="python">def yield_lines_from(url_or_file: Union[str, Path, ParseResult], encoding: str = &#34;utf-8&#34;):  # pragma: no cover
     &#34;&#34;&#34;
     Yields lines of text from either a file or an URL
 
