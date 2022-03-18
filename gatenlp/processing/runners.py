@@ -7,6 +7,22 @@ import os
 from typing import Callable
 from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination
 
+# Conventions used:
+# specify a module to load by each process
+# optionally specify a function to call which will return  the pipeline to run. Function
+#    should take args and workernr as argument. If not specified defaults to make_pipeline(args, workernr)
+# This module always runs worker number 0
+# other actors get started and passed the args (which contain nworkers) and workern
+# a finished actor returns its pipeline results, if any, which must be pickleable
+# this module runs the reduce method on all results
+#
+# error handling:
+# a pipeline may ignore errors, but if it raises an exception the actor terminates and returns an error
+#    HOW TO DO THAT?
+# if worker 0 terminates or any actor terminates, all other actors get terminated
+# if worker 0 receives an term signal everything gets terminated
+
+
 # Plan for multiprocessing: use a class which gets run in a ray actor and creates for each worker
 # a separate copy of the pipeline, then run all those pipelines in parallel in each worker.
 # the class is also responsible for creating their own source/dest or corpus instances to process
