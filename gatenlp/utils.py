@@ -128,7 +128,7 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         logging.config.fileConfig(fname=config)
     # get the root logger
     rl = logging.getLogger()
-    rl.setLevel(lvl)
+    # rl.setLevel(lvl)
     # NOTE: basicConfig does nothing if there is already a handler, so it only runs once, but we create the additional
     # handler for the file, if needed, only if the root logger has no handlers yet as well
     addhandlers = []
@@ -140,9 +140,10 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         hndlr = logging.FileHandler(file)
         hndlr.setFormatter(fmt)
         addhandlers.append(hndlr)
-    logging.basicConfig(level=lvl, handlers=addhandlers)
+    logging.basicConfig(level=lvl, handlers=addhandlers, force=True)
     # now get the handler for name
     logger = logging.getLogger(name)
+    logger.setLevel(lvl)
     return logger
 
 

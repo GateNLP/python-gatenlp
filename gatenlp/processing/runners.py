@@ -44,7 +44,8 @@ from gatenlp.utils import init_logger
 def do_nothing(*args, **kwargs):
     pass
 
-def get_pipeline_resultprocessor(self, args, nworkers=1, workernr=0):
+
+def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     if not os.path.exists(args.modulefile):
         raise Exception(f"Module file {args.modulefile} does not exist")
     spec = importlib.util.spec_from_file_location("gatenlp.tmprunner", args.modulefile)
@@ -56,7 +57,7 @@ def get_pipeline_resultprocessor(self, args, nworkers=1, workernr=0):
     if not isinstance(mod.make_pipeline, Callable):
         raise Exception(f"Module {args.modulefile} must contain a callable make_pipeline(args=None)")
 
-    pipeline = mod.make_pipeline(args=args, workernr=0)
+    pipeline = mod.make_pipeline(args=args, workernr=workernr, nworkers=nworkers)
     if not isinstance(pipeline, Pipeline):
         raise Exception("make_pipeline must return a gatenlp.processing.pipeline.Pipeline")
     if not hasattr(mod, "process_result"):
@@ -67,12 +68,14 @@ def get_pipeline_resultprocessor(self, args, nworkers=1, workernr=0):
 
 
 class BaseExecutor:
-    def __init__(self, args=None, workernr=0):
+    def __init__(self, args=None, workernr=0, nworkers=1):
         self.args = args
         self.workernr = workernr
+        self.nworkers = nworkers
         self.n_in = 0
         self.n_out = 0
         self.n_none = 0
+        self.logger = None
 
     def get_inout(self):
         """
@@ -95,13 +98,13 @@ class BaseExecutor:
                 args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
                 nparts=args.nworkers, partnr=self.workernr
             )
-            return src, dest
+            return [src, dest]
         else:
             corpus = DirFilesCorpus(
                 args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
                 nparts=args.nworkers, partnr=self.workernr
             )
-            return corpus
+            return [corpus]
 
     def run_pipe(self, pipeline, inout):
         if len(inout) == 2:   # src -> dest
@@ -116,6 +119,8 @@ class BaseExecutor:
                     self.n_none += 1
                 self.n_in = inout[0].n
                 self.n_out = inout[1].n
+                if self.n_in % self.args.log_every == 0:
+                    self.logger.info(f"Worker {self.workernr+1} of {self.nworkers}: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
         else:
             self.n_in = 0
             for ret in pipeline.pipe(inout[0]):
@@ -132,12 +137,14 @@ class BaseExecutor:
                 else:
                     self.n_none += 1
                 self.n_in += 1
+                if self.n_in % self.args.log_every == 0:
+                    self.logger.info(f"Worker {self.workernr+1} of {self.nworkers}: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
 
 
 class SerialExecutor(BaseExecutor):
 
     def __init__(self, args=None):
-        super().__init__(args, workernr=0)
+        super().__init__(args, workernr=0, nworkers=1)
         self.logger = init_logger(name="SerialExecutor")
 
     def run(self):
@@ -149,32 +156,42 @@ class SerialExecutor(BaseExecutor):
             interrupted = True
 
         signal.signal(signal.SIGINT, siginthandler)
+        self.logger.info("Signal handler installed")
 
-        pipeline, _ = get_pipeline_resultprocessor(args=self.args)
+        pipeline, _ = get_pipeline_resultprocessor(self.args)
+        self.logger.info(f"Got pipeline: {pipeline}")
+        inout = self.get_inout()
+        self.logger.info(f"Got In/Out: {inout}")
+        pipeline.start()
+        self.logger.info("pipeline start() completed")
+        self.logger.info("Running pipeline")
+        self.run_pipe(pipeline, inout)
+        ret = pipeline.finish()
+        self.logger.info(f"Pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+        self.logger.info("pipeline finish() completed")
+        return ret
+
+class RayExecutor(BaseExecutor):
+    def __init__(self, args=None, workernr=0, nworkers=1):
+        super().__init__(args, workernr=workernr, nworkers=nworkers)
+        self.logger = init_logger(name="RayExecutor")
+
+    def run(self):
+        self.logger.info(f"Ray worker {self.workernr+1}: starting")
+        pipeline, _ = get_pipeline_resultprocessor(self.args, nworkers=self.nworkers, workernr=self.workernr)
         inout = self.get_inout()
         pipeline.start()
         self.run_pipe(pipeline, inout)
         ret = pipeline.finish()
+        self.logger.info(f"Ray worker {self.workernr+1}: finished")
         return ret
 
 
 @ray.remote
-class RayExecutor:
-    def __init__(self, args=None, workernr=0):
-        super().__init__(args, workernr=workernr)
-        self.logger = init_logger(name="RayExecutor")
-
-    def run(self):
-        self.logger.info(f"Actor {self.workernr}: starting")
-        pipeline, _ = get_pipeline_resultprocessor(args=self.args, workernr=self.workernr)
-        inout = self.get_inout()
-        pipeline.start()
-        self.run_pipe(pipeline, inout)
-        ret = pipeline.finish()
-        self.logger.info(f"Actor {self.workernr}: finished")
-        return ret
-
-
+def ray_executor(args=None, workernr=0, nworkers=1):
+    executor = RayExecutor(args, workernr=workernr, nworkers=nworkers)
+    ret = executor.run()
+    return ret
 
 def run_dir2dir():
     argparser = argparse.ArgumentParser(
@@ -204,13 +221,19 @@ def run_dir2dir():
                            help="Number of workers to run (1)")
     argparser.add_argument("--redis", type=str, default=None,
                            help="If specified, connect to ray cluster with that redis address, otherwise start own local cluster")
+    argparser.add_argument("--log_every", default=1000, type=int,
+                           help="Log progress message every n read documents (1000)")
+    argparser.add_argument("--debug", action="store_true",
+                           help="Show DEBUG logging messages")
     args = argparser.parse_args()
 
-    logger = utils.init_logger(name="run_dir2dir")
+    logger = init_logger(name="run_dir2dir", debug=args.debug)
     if args.nworkers == 1:
+        logger.info("Running SerialExecutor")
         exec = SerialExecutor(args=args)
         exec.run()
     else:
+        logger.info("Running RayExecutor")
         assert args.nworkers > 1
         if args.redis is None:
             logger.info(f"Starting Ray, using {args.nworkers} actors")
@@ -222,12 +245,10 @@ def run_dir2dir():
         actors = []
         handles = []
         for k in range(args.nworkers):
-            actor = RayExecutor.remote(args, workernr=k)
+            actor = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
             actors.append(actor)
-            handle = actor.run.remote()
-            handles.append(handle)
-            logger.info(f"Started actor {k}: {actor}/{handle}")
-        remaining = handles
+            logger.info(f"Started actor {k}: {actor}")
+        remaining = actors
         while True:
             finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)
             if len(finished) > 0:
@@ -235,7 +256,7 @@ def run_dir2dir():
             if len(remaining) == 0:
                 logger.info("All actors finished, processing results")
                 break
-        pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1)
-        results_list = ray.get(handles)
+        pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
+        results_list = ray.get(actors)
         result = pipeline.reduce(results_list)
         resultprocessor(result=result)
