@@ -22,11 +22,13 @@ class BdocjsLinesFileSource(DocumentSource, MultiProcessingAble):
         Args:
             file: the file path (a string) or an open file handle.
         """
+        super().__init__()
         self.file = file
 
     def __iter__(self):
         with open(self.file, "rt", encoding="utf-8") as infp:
             for line in infp:
+                self._n += 1
                 yield Document.load_mem(line, fmt="json")
 
 
@@ -42,11 +44,11 @@ class BdocjsLinesFileDestination(DocumentDestination):
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
         """
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, "wt", encoding="utf-8")
         else:
             self.fh = file
-        self.n = 0
 
     def __enter__(self):
         return self
@@ -66,7 +68,7 @@ class BdocjsLinesFileDestination(DocumentDestination):
         assert isinstance(doc, Document)
         self.fh.write(doc.save_mem(fmt="json"))
         self.fh.write("\n")
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()
@@ -89,7 +91,7 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
             data_feature: the name of the data feature, default is "__data"
         """
         #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
-
+        super().__init__()
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields
@@ -111,6 +113,7 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
                     else:
                         tmp = data
                     doc.features[self.data_feature] = tmp
+                self._n += 1
                 yield doc
 
 
@@ -134,11 +137,11 @@ class JsonLinesFileDestination(DocumentDestination):
                Default is True: store all fields as is.
             data_feature: the name of the data feature, default is "__data"
         """
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, "wt", encoding="utf-8")
         else:
             self.fh = file
-        self.n = 0
         self.document_field = document_field
         self.document_bdocjs = document_bdocjs
         self.data_fields = data_fields
@@ -174,7 +177,7 @@ class JsonLinesFileDestination(DocumentDestination):
             data[self.document_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write("\n")
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()
@@ -210,22 +213,23 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 order of the values in the TSV file.
             data_feature: the name of the document feature where to store the data, default is "__data"
         """
+        super().__init__()
         assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.data_cols = data_cols
         self.source = source
-        self.n = 0
         self.hdr2col = {}
+        self.nlines = 0
         if data_cols and not hdr:
             raise Exception("Header must be present if data_cols should be used")
         self.data_feature = data_feature
 
     def __iter__(self):
         reader = yield_lines_from(self.source)
-        if self.hdr and self.n == 0:
-            self.n += 1
+        if self.hdr and self.nlines == 0:
+            self.nlines += 1
             self.hdr = next(reader).rstrip("\n\r").split("\t")
         if self.hdr:
             self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
@@ -263,5 +267,6 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 else:
                     data = fields
                 doc.features[self.data_feature] = data
-            self.n += 1
+            self.nlines += 1
+            self._n += 1
             yield doc

@@ -189,6 +189,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         for p in self.paths:
             doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
             self.setrelpathfeature(doc, p)
+            self._n += 1
+            yield doc
 
 
 class DirFilesDestination(DocumentDestination):
@@ -281,6 +283,7 @@ class DirFilesDestination(DocumentDestination):
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
         self.idx += 1
+        self._n += 1
 
     def close(self):
         pass

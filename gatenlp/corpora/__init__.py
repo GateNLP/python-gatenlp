@@ -10,7 +10,7 @@ one document a time.
 DocumentDestination subclasses represent collections that can receive Documents one document a time.
 """
 
-from gatenlp.corpora.base import Corpus, DocumentSource, DocumentDestination
+from gatenlp.corpora.base import Corpus, DocumentSource, DocumentDestination, NullDestination
 from gatenlp.corpora.base import MultiProcessingAble, DistributedProcessingAble
 from gatenlp.corpora.base import EveryNthCorpus, EveryNthSource, ShuffledCorpus, CachedCorpus
 from gatenlp.corpora.memory import ListCorpus, PandasDfSource

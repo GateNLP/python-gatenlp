@@ -13,7 +13,8 @@ class ConllUFileSource(DocumentSource):
     A document source represented as a ConllU file.
     """
     def __init__(self, source, from_string=False,
-                 group_by="sent", n=1,
+                 group_by="sent",
+                 group_by_n=1,
                  outset="",
                  token_type="Token",
                  mwt_type="MWT",
@@ -39,20 +40,21 @@ class ConllUFileSource(DocumentSource):
                 If the group_by identification "doc" or "par" is not accessible before the first sentence
                 of the input, an exception is thrown. Use a very large number to make sure that only a single
                 document is created.
-            n: the number of group_by elements to include in a document.
+            group_by_n: the number of group_by elements to include in a document.
             outset: the annotation set name for the annotations to add
             token_type: the type of the token annotations
             mwt_type: the type of multi-word annotations
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
         """
+        super().__init__()
         assert sentence_type is not None
         assert token_type is not None
         assert mwt_type is not None
         self.source = source
         self.from_string = from_string
         self.group_by = group_by
-        self.n = n
+        self.group_by_n = group_by_n
         self.outset = outset
         self.token_type = token_type
         self.mwt_type = mwt_type
@@ -145,10 +147,11 @@ class ConllUFileSource(DocumentSource):
                     raise Exception("Cannot group by par, no newpar id in the input")
                 prev_doc = meta.get("newdoc id", "")
                 prev_par = meta.get("newpar id", "")
-            elif self.group_by == "sent" and n_sents_group == self.n:
+            elif self.group_by == "sent" and n_sents_group == self.group_by_n:
                 doc.attach(annset, self.outset)
                 yield doc
                 self.n_documents += 1
+                self._n += 1
                 reset = True
             else:
                 docid = meta.get("newdoc id", "")
@@ -159,10 +162,11 @@ class ConllUFileSource(DocumentSource):
                     self.n_conllu_docs += 1
                     n_docs_group += 1
                     prev_doc = docid
-                    if self.group_by == "doc" and n_docs_group == self.n:
+                    if self.group_by == "doc" and n_docs_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += "\n\n"
@@ -174,10 +178,11 @@ class ConllUFileSource(DocumentSource):
                     self.n_conllu_pars += 1
                     n_pars_group += 1
                     prev_par = parid
-                    if not reset and self.group_by == "par" and n_pars_group == self.n:
+                    if not reset and self.group_by == "par" and n_pars_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += "\n"
@@ -313,4 +318,5 @@ class ConllUFileSource(DocumentSource):
                 self.n_conllu_pars += 1
             doc.attach(annset, self.outset)
             yield doc
+            self._n += 1
             self.n_documents += 1

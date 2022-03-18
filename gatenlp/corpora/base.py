@@ -204,8 +204,15 @@ class DocumentSource(ABC, TypingIterable, CorpusSourceBase):
     """
     A document source is an iterable of documents which will generate an unknown number of documents.
     """
+    def __init__(self):
+        self._n = 0
+
     def __iter__(self) -> TypingIterator[Document]:
         pass
+
+    @property
+    def n(self):
+        return self._n
 
 
 # NOTE: AbstractContextManager already inherits from ABC, so no need to list as base class here!
@@ -220,6 +227,9 @@ class DocumentDestination(AbstractContextManager):
     `with SomeDocumentDest(..) as dest: dest.append(doc)` which will take care of closing the
     destination automatically.
     """
+
+    def __init__(self):
+        self._n = 0
 
     @abstractmethod
     def append(self, doc: Document) -> None:
@@ -253,6 +263,8 @@ class DocumentDestination(AbstractContextManager):
         """
         return "_relpath"
 
+    def n(self):
+        return self._n
 
 
 class StringIdCorpus:
@@ -555,3 +567,11 @@ class CachedCorpus(Corpus):
 
     def __setitem__(self, index, value):
         self.cachecorpus[index] = value
+
+
+class NullDestination(DocumentDestination):
+    def __init__(self):
+        super().__init__()
+
+    def append(self, doc: Document):
+        self._n += 1
