@@ -61,7 +61,7 @@ def get_install_extras_require():
             "RISE",
             "ipywidgets",
         ],
-        "ray": ["ray"],
+        "ray": ["ray[default]"],
         "dev": [
             "pytest",
             "pytest-pep8",

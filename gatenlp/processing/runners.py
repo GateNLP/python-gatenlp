@@ -219,7 +219,7 @@ def run_dir2dir():
                            help="Module file that contains the make_pipeline(args=None, workernr=0) definition")
     argparser.add_argument("--nworkers", default=1, type=int,
                            help="Number of workers to run (1)")
-    argparser.add_argument("--redis", type=str, default=None,
+    argparser.add_argument("--ray_address", type=str, default=None,
                            help="If specified, connect to ray cluster with that redis address, otherwise start own local cluster")
     argparser.add_argument("--log_every", default=1000, type=int,
                            help="Log progress message every n read documents (1000)")
@@ -235,12 +235,12 @@ def run_dir2dir():
     else:
         logger.info("Running RayExecutor")
         assert args.nworkers > 1
-        if args.redis is None:
+        if args.ray_address is None:
             logger.info(f"Starting Ray, using {args.nworkers} actors")
             rayinfo = ray.init()
         else:
-            rayinfo = ray.init(redis_address=args.redis)
-            logger.info(f"Connected to Ray cluster at {args.redis} using {args.nworkers}")
+            rayinfo = ray.init(address=args.ray_address)
+            logger.info(f"Connected to Ray cluster at {args.ray_address} using {args.nworkers}")
         logger.info(f"Ray available: {rayinfo}")
         actors = []
         handles = []
