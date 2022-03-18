@@ -9,7 +9,6 @@ import signal
 from collections import Iterable
 import ray
 
-import utils
 from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination, NullDestination
 from gatenlp.processing.pipeline import Pipeline
 from gatenlp.utils import init_logger
