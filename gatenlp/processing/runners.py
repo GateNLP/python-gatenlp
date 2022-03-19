@@ -41,11 +41,28 @@ from gatenlp.utils import init_logger
 
 # !!! BY CONVENTION: if the module which defines make_pipeline also implements process_result(results=results, args=args)
 
-def do_nothing(*args, **kwargs):
+def _do_nothing(*args, **kwargs):
     pass
 
 
 def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
+    """
+    Get the instatiated pipeline and the process_result function from the module specified in
+    the argparse args as option --modulefile. The module must define a function make_pipeline
+    which takes keyword arguments args, nworkers, workernr and which returns an instance of
+    gatenlp.processing.pipeline.Pipeline. The module should define a function process_result
+    which takes keyword argument result and either outputs or stores the result of the pipeline.
+    If no function process_result is defined, any pipeline result is discarded.
+
+    Args:
+        args: argparse namespace
+        nworkers: total number of workers
+        workernr: the worker number (0-based)
+
+    Returns:
+        A list with the pipeline as the first and the process_result function as the second element.
+
+    """
     if not os.path.exists(args.modulefile):
         raise Exception(f"Module file {args.modulefile} does not exist")
     spec = importlib.util.spec_from_file_location("gatenlp.tmprunner", args.modulefile)
@@ -61,14 +78,25 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     if not isinstance(pipeline, Pipeline):
         raise Exception("make_pipeline must return a gatenlp.processing.pipeline.Pipeline")
     if not hasattr(mod, "process_result"):
-        result_processor = do_nothing
+        result_processor = _do_nothing
     else:
         result_processor = mod.process_result
     return pipeline, result_processor
 
 
-class BaseExecutor:
+class Dir2DirExecutor:
+    """
+    Executor class.
+    """
     def __init__(self, args=None, workernr=0, nworkers=1):
+        """
+        Initialize the executor.
+
+        Args:
+            args: argparse namespace
+            workernr: 0-based index of the worker
+            nworkers: total number of workers
+        """
         self.args = args
         self.workernr = workernr
         self.nworkers = nworkers
@@ -76,10 +104,11 @@ class BaseExecutor:
         self.n_out = 0
         self.n_none = 0
         self.logger = None
+        self.logger = init_logger(name="Dir2DirExecutor")
 
     def get_inout(self):
         """
-        Return either the corpus or a tuple (src, dest) to use for processing
+        Return a list with either the corpus or the source and destination to use for processing
         """
         args = self.args
         if not os.path.exists(args.dir) or not os.path.isdir(args.dir):
@@ -107,8 +136,30 @@ class BaseExecutor:
             return [corpus]
 
     def run_pipe(self, pipeline, inout):
+        """
+        Run the given pipeline on the given input/output configuration.
+
+        Args:
+            pipeline: processing pipeline
+            inout: list with input/output configuration
+
+        Returns:
+
+        """
+        interrupted = False
+
+        def siginthandler(sig, frame):
+            global interrupted
+            interrupted = True
+
+        signal.signal(signal.SIGINT, siginthandler)
+        logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
+
         if len(inout) == 2:   # src -> dest
             for ret in pipeline.pipe(inout[0]):
+                if interrupted:
+                    self.logger.warning(f"{logpref}interrupted by SIGINT")
+                    break
                 if ret is not None:
                     if isinstance(ret, Iterable):
                         for doc in ret:
@@ -120,14 +171,17 @@ class BaseExecutor:
                 self.n_in = inout[0].n
                 self.n_out = inout[1].n
                 if self.n_in % self.args.log_every == 0:
-                    self.logger.info(f"Worker {self.workernr+1} of {self.nworkers}: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+                    self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
         else:
             self.n_in = 0
             for ret in pipeline.pipe(inout[0]):
+                if interrupted:
+                    self.logger.warning(f"{logpref}interrupted by SIGINT")
+                    break
                 if ret is not None:
                     if isinstance(ret, list):
                         if len(ret) > 1:
-                            raise Exception(f"Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}")
+                            raise Exception(f"{logpref}Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}")
                         for doc in ret:
                             inout[0].store(doc)
                             self.n_out += 1
@@ -138,60 +192,36 @@ class BaseExecutor:
                     self.n_none += 1
                 self.n_in += 1
                 if self.n_in % self.args.log_every == 0:
-                    self.logger.info(f"Worker {self.workernr+1} of {self.nworkers}: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
-
-
-class SerialExecutor(BaseExecutor):
-
-    def __init__(self, args=None):
-        super().__init__(args, workernr=0, nworkers=1)
-        self.logger = init_logger(name="SerialExecutor")
+                    self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
 
     def run(self):
-        interrupted = False
+        """
+        Run processing with the pipeline.
 
-        def siginthandler(sig, frame):
-            global interrupted
-            self.logger.error("Got interrupted by signal SIGINT")
-            interrupted = True
-
-        signal.signal(signal.SIGINT, siginthandler)
-        self.logger.info("Signal handler installed")
-
+        Returns:
+            The result returned by the pipeline finish() method
+        """
+        logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
         pipeline, _ = get_pipeline_resultprocessor(self.args)
-        self.logger.info(f"Got pipeline: {pipeline}")
+        self.logger.info(f"{logpref}got pipeline {pipeline}")
         inout = self.get_inout()
-        self.logger.info(f"Got In/Out: {inout}")
+        self.logger.info(f"{logpref}got In/Out {inout}")
         pipeline.start()
-        self.logger.info("pipeline start() completed")
-        self.logger.info("Running pipeline")
+        self.logger.info(f"{logpref}pipeline start() completed")
+        self.logger.info(f"{logpref}running pipeline")
         self.run_pipe(pipeline, inout)
         ret = pipeline.finish()
-        self.logger.info(f"Pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
-        self.logger.info("pipeline finish() completed")
-        return ret
-
-class RayExecutor(BaseExecutor):
-    def __init__(self, args=None, workernr=0, nworkers=1):
-        super().__init__(args, workernr=workernr, nworkers=nworkers)
-        self.logger = init_logger(name="RayExecutor")
-
-    def run(self):
-        self.logger.info(f"Ray worker {self.workernr+1}: starting")
-        pipeline, _ = get_pipeline_resultprocessor(self.args, nworkers=self.nworkers, workernr=self.workernr)
-        inout = self.get_inout()
-        pipeline.start()
-        self.run_pipe(pipeline, inout)
-        ret = pipeline.finish()
-        self.logger.info(f"Ray worker {self.workernr+1}: finished")
+        self.logger.info(f"{logpref}pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+        self.logger.info(f"{logpref}pipeline finish() completed")
         return ret
 
 
 @ray.remote
 def ray_executor(args=None, workernr=0, nworkers=1):
-    executor = RayExecutor(args, workernr=workernr, nworkers=nworkers)
+    executor = Dir2DirExecutor(args, workernr=workernr, nworkers=nworkers)
     ret = executor.run()
     return ret
+
 
 def run_dir2dir():
     argparser = argparse.ArgumentParser(
