@@ -13,6 +13,12 @@ from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination,
 from gatenlp.processing.pipeline import Pipeline
 from gatenlp.utils import init_logger
 
+# TODO: refactor get_pipeline_resultprocessor into separate functions to get the module, to
+#    get the pipeline and to get the result processor from the module (passing the module)
+#    Then add a function to also update the argparser if there is a "get_args()" method in the module.
+# That way we can use arbitrary additional arguments to configure further processing
+# This will come in handy for gatenlp-run where we also make the source/dest/corpus configurable
+
 
 def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     """
