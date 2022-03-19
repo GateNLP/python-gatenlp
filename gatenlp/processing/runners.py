@@ -13,46 +13,11 @@ from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination,
 from gatenlp.processing.pipeline import Pipeline
 from gatenlp.utils import init_logger
 
-# Conventions used:
-# specify a module to load by each process
-# optionally specify a function to call which will return  the pipeline to run. Function
-#    should take args and workernr as argument. If not specified defaults to make_pipeline(args, workernr)
-# This module always runs worker number 0
-# other actors get started and passed the args (which contain nworkers) and workern
-# a finished actor returns its pipeline results, if any, which must be pickleable
-# this module runs the reduce method on all results
-#
-# error handling:
-# a pipeline may ignore errors, but if it raises an exception the actor terminates and returns an error
-#    HOW TO DO THAT?
-# if worker 0 terminates or any actor terminates, all other actors get terminated
-# if worker 0 receives an term signal everything gets terminated
-
-
-# Plan for multiprocessing: use a class which gets run in a ray actor and creates for each worker
-# a separate copy of the pipeline, then run all those pipelines in parallel in each worker.
-# the class is also responsible for creating their own source/dest or corpus instances to process
-# just the documents allocated to the worker
-# The make_pipeline code must properly handle nworkers and workernr
-
-
-# NOTE: make_pipeline must return a Pipeline which must have pipe() (which could be implemented as
-# iterating over __call__()). The Pipeline also must have start() finish() and reduce()
-
-# !!! BY CONVENTION: if the module which defines make_pipeline also implements process_result(results=results, args=args)
-
-def _do_nothing(*args, **kwargs):
-    pass
-
 
 def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     """
     Get the instatiated pipeline and the process_result function from the module specified in
-    the argparse args as option --modulefile. The module must define a function make_pipeline
-    which takes keyword arguments args, nworkers, workernr and which returns an instance of
-    gatenlp.processing.pipeline.Pipeline. The module should define a function process_result
-    which takes keyword argument result and either outputs or stores the result of the pipeline.
-    If no function process_result is defined, any pipeline result is discarded.
+    the argparse args as option --modulefile.
 
     Args:
         args: argparse namespace
@@ -69,18 +34,23 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
-    if not hasattr(mod, "make_pipeline"):
-        raise Exception(f"Module {args.modulefile} does not define function make_pipeline(args=None)")
-    if not isinstance(mod.make_pipeline, Callable):
-        raise Exception(f"Module {args.modulefile} must contain a callable make_pipeline(args=None)")
+    if not hasattr(mod, args.make_pipeline):
+        raise Exception(f"Module {args.modulefile} does not define function {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
+    pipeline_maker = getattr(mod, args.make_pipeline)
+    if not isinstance(pipeline_maker, Callable):
+        raise Exception(f"Module {args.modulefile} must contain a callable {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
 
-    pipeline = mod.make_pipeline(args=args, workernr=workernr, nworkers=nworkers)
+    pipeline = pipeline_maker(args=args, workernr=workernr, nworkers=nworkers)
     if not isinstance(pipeline, Pipeline):
         raise Exception("make_pipeline must return a gatenlp.processing.pipeline.Pipeline")
-    if not hasattr(mod, "process_result"):
-        result_processor = _do_nothing
-    else:
-        result_processor = mod.process_result
+    result_processor = None
+    if args.result_processor is not None:
+        if not hasattr(mod, args.result_processor):
+            raise Exception(f"Module does not define {args.result_processor}")
+        else:
+            result_processor = getattr(mod, args.result_processor)
+            if not isinstance(result_processor, Callable):
+                raise Exception(f"Result processor is not Callable")
     return pipeline, result_processor
 
 
@@ -105,6 +75,7 @@ class Dir2DirExecutor:
         self.n_none = 0
         self.logger = None
         self.logger = init_logger(name="Dir2DirExecutor")
+        self.result_processor = None
 
     def get_inout(self):
         """
@@ -202,7 +173,7 @@ class Dir2DirExecutor:
             The result returned by the pipeline finish() method
         """
         logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
-        pipeline, _ = get_pipeline_resultprocessor(self.args)
+        pipeline, self.result_processor = get_pipeline_resultprocessor(self.args)
         self.logger.info(f"{logpref}got pipeline {pipeline}")
         inout = self.get_inout()
         self.logger.info(f"{logpref}got In/Out {inout}")
@@ -253,6 +224,10 @@ def run_dir2dir():
                            help="If specified, connect to ray cluster with that redis address, otherwise start own local cluster")
     argparser.add_argument("--log_every", default=1000, type=int,
                            help="Log progress message every n read documents (1000)")
+    argparser.add_argument("--make_pipeline", type=str, default="make_pipeline",
+                           help="Name of the pipeline factory function (make_pipeline)")
+    argparser.add_argument("--process_result", type=str, default=None,
+                           help="Name of result processing function, if None, results are ignored (None)")
     argparser.add_argument("--debug", action="store_true",
                            help="Show DEBUG logging messages")
     args = argparser.parse_args()
@@ -260,8 +235,11 @@ def run_dir2dir():
     logger = init_logger(name="run_dir2dir", debug=args.debug)
     if args.nworkers == 1:
         logger.info("Running SerialExecutor")
-        exec = SerialExecutor(args=args)
-        exec.run()
+        exec = Dir2DirExecutor(args=args)
+        result = exec.run()
+        if args.process_results:
+            logger.info("Processing result")
+            exec.result_processor(result=result)
     else:
         logger.info("Running RayExecutor")
         assert args.nworkers > 1
@@ -273,12 +251,16 @@ def run_dir2dir():
             logger.info(f"Connected to Ray cluster at {args.ray_address} using {args.nworkers}")
         logger.info(f"Ray available: {rayinfo}")
         actors = []
-        handles = []
         for k in range(args.nworkers):
             actor = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
             actors.append(actor)
             logger.info(f"Started actor {k}: {actor}")
         remaining = actors
+        def siginthandler(sig, frame):
+            for actor in actors:
+                logger.warning(f"KILLING actor {actor}")
+                ray.kill(actor)
+        signal.signal(signal.SIGINT, siginthandler)
         while True:
             finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)
             if len(finished) > 0:
@@ -286,7 +268,13 @@ def run_dir2dir():
             if len(remaining) == 0:
                 logger.info("All actors finished, processing results")
                 break
-        pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
-        results_list = ray.get(actors)
-        result = pipeline.reduce(results_list)
-        resultprocessor(result=result)
+        if args.process_results:
+            logger.info(f"Retrieving and processing results")
+            logger.info(f"Creating pipeline for workernr -1")
+            pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
+            logger.info(f"Retrieve all results from the workers")
+            results_list = ray.get(actors)
+            logger.info("Combining worker results")
+            result = pipeline.reduce(results_list)
+            logger.info("Processing results")
+            resultprocessor(result=result)
