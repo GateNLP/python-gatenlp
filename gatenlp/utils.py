@@ -140,7 +140,10 @@ def init_logger(name=None, file=None, lvl=None, config=None, debug=False, args=N
         hndlr = logging.FileHandler(file)
         hndlr.setFormatter(fmt)
         addhandlers.append(hndlr)
-    logging.basicConfig(level=lvl, handlers=addhandlers, force=True)
+    logging.basicConfig(
+        level=lvl, handlers=addhandlers,
+        # force=True # not supported in Python 3.7
+    )
     # now get the handler for name
     logger = logging.getLogger(name)
     logger.setLevel(lvl)
