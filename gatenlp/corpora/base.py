@@ -263,6 +263,7 @@ class DocumentDestination(AbstractContextManager):
         """
         return "_relpath"
 
+    @property
     def n(self):
         return self._n
 

@@ -160,7 +160,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
             raise Exception("Parameters paths and paths_from cannot be both specified")
-        super().__init__(nparts=nparts, partnr=partnr)
+        super().__init__()
+        EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
         if paths is not None:
             self.paths = paths
         elif paths_from is not None:
@@ -226,6 +227,7 @@ class DirFilesDestination(DocumentDestination):
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         """
+        super().__init__()
         if not os.path.isdir(dirpath):
             raise Exception("Not a directory: ", dirpath)
         self.dirpath = dirpath

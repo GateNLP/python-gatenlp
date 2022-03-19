@@ -105,9 +105,8 @@ class Dir2DirExecutor:
             else:
                 if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
                     raise Exception(f"Output directory must exist: {args.outdir}")
-                dest = DirFilesSource(
-                    args.outdir, exts=args.outext, fmt=args.outfmt, recursive=args.recursive, sort=True,
-                    paths_from="relpath"
+                dest = DirFilesDestination(
+                    args.outdir, "relpath", fmt=args.fmt, ext=args.ext
                 )
             src = DirFilesSource(
                 args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
