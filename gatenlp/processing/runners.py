@@ -18,6 +18,11 @@ from gatenlp.utils import init_logger
 #    Then add a function to also update the argparser if there is a "get_args()" method in the module.
 # That way we can use arbitrary additional arguments to configure further processing
 # This will come in handy for gatenlp-run where we also make the source/dest/corpus configurable
+#
+# TODO: refactor so that all processing that requires Ray is done in a different module which is only imported
+#     when ray is actually used
+#
+# TODO: add native Python multiprocessing: use ray only if any of the ray-related options or "--ray"  is present
 
 
 def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
@@ -243,7 +248,7 @@ def run_dir2dir():
         logger.info("Running SerialExecutor")
         exec = Dir2DirExecutor(args=args)
         result = exec.run()
-        if args.process_results:
+        if args.process_result:
             logger.info("Processing result")
             exec.result_processor(result=result)
     else:
@@ -274,7 +279,7 @@ def run_dir2dir():
             if len(remaining) == 0:
                 logger.info("All actors finished, processing results")
                 break
-        if args.process_results:
+        if args.process_result:
             logger.info(f"Retrieving and processing results")
             logger.info(f"Creating pipeline for workernr -1")
             pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
