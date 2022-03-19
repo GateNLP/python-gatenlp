@@ -316,12 +316,19 @@ def run_dir2dir():
         results_list = ray.get(actors)
         pipeline_results = [r["result"] for r in results_list]
         have_error = False
+        total_in = 0
+        total_none = 0
+        total_out = 0
         for actor, ret in zip(actors, results_list):
             if ret["error"]:
                 logger.error(f"Actor {actor} ABORTED, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
                 have_error = True
             else:
                 logger.info(f"Actor {actor} finished, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
+            total_in += ret["n_in"]
+            total_none += ret["n_none"]
+            total_out += ret["n_out"]
+        logger.info(f"Total processed:  {total_in} read, {total_none} were None, {total_out} returned")
         if args.process_result:
             logger.info(f"Processing any results")
             logger.info(f"Creating pipeline for workernr -1")
