@@ -156,6 +156,8 @@ class Dir2DirExecutor:
                 self.n_out = inout[1].n
                 if self.n_out % self.args.log_every == 0:
                     self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+            self.n_in = inout[0].n
+            self.n_out = inout[1].n
         else:
             self.n_in = 0
             for ret in pipeline.pipe(inout[0]):
