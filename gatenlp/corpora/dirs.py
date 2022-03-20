@@ -210,7 +210,8 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * "relpath" (default): use the relative path used when creating the document
+               * "relpath" (default): use the relative path used when creating the document, but replace the
+                   replace the extension
                * "idx": just use the index/running number of the added document as the base name
                * "idx:5": use the index/running number with at least 5 digits in the name.
                * "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
@@ -250,7 +251,8 @@ class DirFilesDestination(DocumentDestination):
             _, fname = path_from.split(":")
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
         elif path_from == "relpath":
-            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
+            self.file_path_maker = \
+                lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
         elif path_from == "name":
             self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
