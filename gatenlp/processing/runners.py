@@ -154,7 +154,7 @@ class Dir2DirExecutor:
                     self.n_none += 1
                 self.n_in = inout[0].n
                 self.n_out = inout[1].n
-                if self.n_in % self.args.log_every == 0:
+                if self.n_out % self.args.log_every == 0:
                     self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
         else:
             self.n_in = 0
@@ -175,7 +175,7 @@ class Dir2DirExecutor:
                 else:
                     self.n_none += 1
                 self.n_in += 1
-                if self.n_in % self.args.log_every == 0:
+                if self.n_out % self.args.log_every == 0:
                     self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
 
     def run(self):
