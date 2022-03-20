@@ -340,6 +340,8 @@ def run_dir2dir():
             except Exception as ex:
                 logger.error(f"Result processor error", exc_info=ex)
                 have_error = True
+        logger.info("Shutting down Ray ...")
+        ray.shutdown()
         if have_error:
             logger.error(f"Processing ended with ERROR!!!")
         else:
