@@ -231,4 +231,5 @@ class PampacAnnotator(Annotator):
             cont = doc.anns(self.containing_anns_desc)
         else:
             cont = None
-        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
+        self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
+        return doc
