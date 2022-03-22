@@ -34,89 +34,244 @@ import argparse
 import importlib.util
 import os
 from typing import Callable
-from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination
+import signal
+from collections import Iterable
+import ray
 
-# Plan for multiprocessing: use a class which gets run in a ray actor and creates for each worker
-# a separate copy of the pipeline, then run all those pipelines in parallel in each worker.
-# the class is also responsible for creating their own source/dest or corpus instances to process
-# just the documents allocated to the worker
-# The make_pipeline code must properly handle nworkers and workernr
+from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination, NullDestination
+from gatenlp.processing.pipeline import Pipeline
+from gatenlp.utils import init_logger
 
-class SerialExecutor:
-    def __init__(self, args=None):
+# TODO: refactor get_pipeline_resultprocessor into separate functions to get the module, to
+#    get the pipeline and to get the result processor from the module (passing the module)
+#    Then add a function to also update the argparser if there is a &#34;get_args()&#34; method in the module.
+# That way we can use arbitrary additional arguments to configure further processing
+# This will come in handy for gatenlp-run where we also make the source/dest/corpus configurable
+#
+# TODO: refactor so that all processing that requires Ray is done in a different module which is only imported
+#     when ray is actually used
+#
+# TODO: add native Python multiprocessing: use ray only if any of the ray-related options or &#34;--ray&#34;  is present
+
+
+class LoggedException(Exception):
+    pass
+
+def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
+    &#34;&#34;&#34;
+    Get the instatiated pipeline and the process_result function from the module specified in
+    the argparse args as option --modulefile.
+
+    Args:
+        args: argparse namespace
+        nworkers: total number of workers
+        workernr: the worker number (0-based)
+
+    Returns:
+        A list with the pipeline as the first and the process_result function as the second element.
+
+    &#34;&#34;&#34;
+    if not os.path.exists(args.modulefile):
+        raise Exception(f&#34;Module file {args.modulefile} does not exist&#34;)
+    spec = importlib.util.spec_from_file_location(&#34;gatenlp.tmprunner&#34;, args.modulefile)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    if not hasattr(mod, args.make_pipeline):
+        raise Exception(f&#34;Module {args.modulefile} does not define function {args.make_pipeline}(args=None, nworkers=1, workernr=0)&#34;)
+    pipeline_maker = getattr(mod, args.make_pipeline)
+    if not isinstance(pipeline_maker, Callable):
+        raise Exception(f&#34;Module {args.modulefile} must contain a callable {args.make_pipeline}(args=None, nworkers=1, workernr=0)&#34;)
+
+    pipeline = pipeline_maker(args=args, workernr=workernr, nworkers=nworkers)
+    if not isinstance(pipeline, Pipeline):
+        raise Exception(&#34;make_pipeline must return a gatenlp.processing.pipeline.Pipeline&#34;)
+    result_processor = None
+    if args.process_result is not None:
+        if not hasattr(mod, args.result_processor):
+            raise Exception(f&#34;Module does not define {args.process_result}&#34;)
+        else:
+            process_result = getattr(mod, args.process_result)
+            if not isinstance(process_result, Callable):
+                raise Exception(f&#34;Result processor {args.process_result} is not Callable&#34;)
+    return pipeline, result_processor
+
+
+class Dir2DirExecutor:
+    &#34;&#34;&#34;
+    Executor class.
+    &#34;&#34;&#34;
+    def __init__(self, args=None, workernr=0, nworkers=1):
+        &#34;&#34;&#34;
+        Initialize the executor.
+
+        Args:
+            args: argparse namespace
+            workernr: 0-based index of the worker
+            nworkers: total number of workers
+        &#34;&#34;&#34;
         self.args = args
+        self.workernr = workernr
+        self.nworkers = nworkers
+        self.n_in = 0
+        self.n_out = 0
+        self.n_none = 0
+        self.logger = None
+        self.logger = init_logger(name=&#34;Dir2DirExecutor&#34;)
+        self.result_processor = None
+        self.error = False
 
-    def __call__(self):
+    def get_inout(self):
+        &#34;&#34;&#34;
+        Return a list with either the corpus or the source and destination to use for processing
+        &#34;&#34;&#34;
         args = self.args
         if not os.path.exists(args.dir) or not os.path.isdir(args.dir):
             raise Exception(f&#34;Does not exist or not a directory: {args.dir}&#34;)
-        if args.outdir:
-            if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
-                raise Exception(f&#34;Output directory must exist: {args.outdir}&#34;)
-            src = DirFilesSource(args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True)
-            dest = DirFilesSource(args.outdir, ext=args.outext, fmt=args.outfmt, recursive=args.recursive, sort=True)
-            corpus = None
+        if args.outdir or args.outnone:
+            if args.outnone:
+                dest =NullDestination()
+            else:
+                if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
+                    raise Exception(f&#34;Output directory must exist: {args.outdir}&#34;)
+                dest = DirFilesDestination(
+                    args.outdir, &#34;relpath&#34;, fmt=args.fmt, ext=args.ext
+                )
+            src = DirFilesSource(
+                args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+                nparts=args.nworkers, partnr=self.workernr
+            )
+            return [src, dest]
         else:
-            corpus = DirFilesCorpus(args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True)
-            src = None
-            dest = None
+            corpus = DirFilesCorpus(
+                args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+                nparts=args.nworkers, partnr=self.workernr
+            )
+            return [corpus]
 
-        if not os.path.exists(args.modulefile):
-            raise Exception(f&#34;Module file {args.modulefile} does not exist&#34;)
-        spec = importlib.util.spec_from_file_location(&#34;gatenlp.tmprunner&#34;, args.modulefile)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+    def run_pipe(self, pipeline, inout):
+        &#34;&#34;&#34;
+        Run the given pipeline on the given input/output configuration.
 
-        if not hasattr(mod, &#34;make_pipeline&#34;):
-            raise Exception(f&#34;Module {args.modulefile} does not define function make_pipeline(args=None)&#34;)
-        if not isinstance(mod.make_pipeline, Callable):
-            raise Exception(f&#34;Module {args.modulefile} must contain a callable make_pipeline(args=None)&#34;)
+        Args:
+            pipeline: processing pipeline
+            inout: list with input/output configuration
 
-        pipeline = mod.make_pipeline(args=args)
-        if not isinstance(pipeline, Callable):
-            raise Exception(&#34;make_pipeline must return a Callable&#34;)
+        Returns:
 
-        # for now just the simples possible way to do this
-        n_in = 0
-        n_error = 0
-        n_out = 0
-        if corpus is not None:
-            for doc in corpus:
-                try:
-                    doc = pipeline(doc)
-                    if doc is not None:
-                        corpus.store(doc)
-                        n_out += 1
-                except Exception as ex:
-                    print(f&#34;Got an exception for document idx={n_in}/name={doc.name}: {str(ex)}&#34;)
-                    n_error += 1
+        &#34;&#34;&#34;
+        flags = dict(interrupted = False)
+
+        def siginthandler(sig, frame):
+            flags[&#34;interrupted&#34;] = True
+
+        signal.signal(signal.SIGINT, siginthandler)
+        logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+
+        if len(inout) == 2:   # src -&gt; dest
+            for ret in pipeline.pipe(inout[0]):
+                if flags[&#34;interrupted&#34;]:
+                    self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                    break
+                if ret is not None:
+                    if isinstance(ret, Iterable):
+                        for doc in ret:
+                            inout[1].append(doc)
+                    else:
+                        inout[1].append(ret)
+                else:
+                    self.n_none += 1
+                self.n_in = inout[0].n
+                self.n_out = inout[1].n
+                if self.n_out % self.args.log_every == 0:
+                    self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+            self.n_in = inout[0].n
+            self.n_out = inout[1].n
         else:
-            for doc in src:
-                try:
-                    doc = pipeline(doc)
-                    if doc is not None:
-                        dest.append(doc)
-                        n_out += 1
-                except Exception as ex:
-                    print(f&#34;Got an exception for document idx={n_in}/name={doc.name}: {str(ex)}&#34;)
-                    n_error += 1
-        print(f&#34;Documents read:     {n_in}&#34;)
-        print(f&#34;Processing errors:  {n_error}&#34;)
-        print(f&#34;Documents written:  {n_out}&#34;)
+            self.n_in = 0
+            for ret in pipeline.pipe(inout[0]):
+                if flags[&#34;interrupted&#34;]:
+                    self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                    break
+                if ret is not None:
+                    if isinstance(ret, list):
+                        if len(ret) &gt; 1:
+                            raise Exception(f&#34;{logpref}Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}&#34;)
+                        for doc in ret:
+                            inout[0].store(doc)
+                            self.n_out += 1
+                    else:
+                        inout[0].store(ret)
+                        self.n_out += 1
+                else:
+                    self.n_none += 1
+                self.n_in += 1
+                if self.n_out % self.args.log_every == 0:
+                    self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+
+    def run(self):
+        &#34;&#34;&#34;
+        Run processing with the pipeline.
+
+        Returns:
+            The result returned by the pipeline finish() method
+        &#34;&#34;&#34;
+        logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+        pipeline, self.result_processor = get_pipeline_resultprocessor(self.args)
+        self.logger.info(f&#34;{logpref}got pipeline {pipeline}&#34;)
+        inout = self.get_inout()
+        self.logger.info(f&#34;{logpref}got In/Out {inout}&#34;)
+        have_error = False
+        try:
+            pipeline.start()
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline start aborted&#34;, exc_info=ex)
+            self.error = True
+            raise LoggedException()
+        self.logger.info(f&#34;{logpref}pipeline start() completed&#34;)
+        self.logger.info(f&#34;{logpref}running pipeline&#34;)
+        try:
+            self.run_pipe(pipeline, inout)
+            self.logger.info(
+                f&#34;{logpref}pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline running aborted, {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;,
+                              exc_info=ex)
+            # we continue to calculate any incomplete result, but remember that we had an error
+            self.error = True
+        try:
+            ret = pipeline.finish()
+            self.logger.info(f&#34;{logpref}pipeline finish() completed&#34;)
+            # only return the result value if we have a result processor defined!
+            if self.args.process_result:
+                return ret
+            else:
+                return
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline finish aborted&#34;, exc_info=ex)
+            self.error = True
+            raise LoggedException()
 
 
-class RayExecutor:
-    pass
-
+@ray.remote
+def ray_executor(args=None, workernr=0, nworkers=1):
+    executor = Dir2DirExecutor(args, workernr=workernr, nworkers=nworkers)
+    ret = executor.run()
+    return dict(result=ret, error=executor.error, n_in=executor.n_in, n_out=executor.n_out, n_none=executor.n_none)
 
 
 def run_dir2dir():
-    argparser = argparse.ArgumentParser(description=&#34;Run gatenlp pipeline on directory of documents&#34;)
+    argparser = argparse.ArgumentParser(
+        description=&#34;Run gatenlp pipeline on directory of documents&#34;,
+        epilog=&#34;The module should define make_pipeline(args=None, workernr=0) and result_processor(result=None)&#34;
+    )
     argparser.add_argument(&#34;dir&#34;, type=str,
                            help=&#34;Directory to process or input directory if --outdir is also specified&#34;
                            )
     argparser.add_argument(&#34;--outdir&#34;, type=str,
                            help=&#34;If specified, read from dir, store result in outdir&#34;)
+    argparser.add_argument(&#34;--outnone&#34;, action=&#34;store_true&#34;,
+                           help=&#34;If specified, --outdir is ignored, if present and the output of the pipeline is ignored&#34;)
     argparser.add_argument(&#34;--fmt&#34;, choices=[&#34;bdocjs&#34;],
                            help=&#34;Format of documents in dir (none: determine from file extension)&#34;)
     argparser.add_argument(&#34;--outfmt&#34;, choices=[&#34;bdocjs&#34;],
@@ -131,13 +286,97 @@ def run_dir2dir():
                            help=&#34;Module file that contains the make_pipeline(args=None, workernr=0) definition&#34;)
     argparser.add_argument(&#34;--nworkers&#34;, default=1, type=int,
                            help=&#34;Number of workers to run (1)&#34;)
+    argparser.add_argument(&#34;--ray_address&#34;, type=str, default=None,
+                           help=&#34;If specified, connect to ray cluster with that redis address, otherwise start own local cluster&#34;)
+    argparser.add_argument(&#34;--log_every&#34;, default=1000, type=int,
+                           help=&#34;Log progress message every n read documents (1000)&#34;)
+    argparser.add_argument(&#34;--make_pipeline&#34;, type=str, default=&#34;make_pipeline&#34;,
+                           help=&#34;Name of the pipeline factory function (make_pipeline)&#34;)
+    argparser.add_argument(&#34;--process_result&#34;, type=str, default=None,
+                           help=&#34;Name of result processing function, if None, results are ignored (None)&#34;)
+    argparser.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;,
+                           help=&#34;Show DEBUG logging messages&#34;)
     args = argparser.parse_args()
 
+    logger = init_logger(name=&#34;run_dir2dir&#34;, debug=args.debug)
     if args.nworkers == 1:
-        exec = SerialExecutor(args=args)
-        exec()
+        logger.info(&#34;Running SerialExecutor&#34;)
+        exec = Dir2DirExecutor(args=args)
+        try:
+            result = exec.run()
+            if args.process_result:
+                logger.info(&#34;Processing result&#34;)
+                exec.result_processor(result=result)
+            if exec.error:
+                logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+            else:
+                logger.info(f&#34;Processing ended normally&#34;)
+        except LoggedException:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+        except Exception as ex:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;, exc_info=ex)
     else:
-        exec = RayExecutor(args=args)</code></pre>
+        logger.info(&#34;Running RayExecutor&#34;)
+        assert args.nworkers &gt; 1
+        if args.ray_address is None:
+            logger.info(f&#34;Starting Ray, using {args.nworkers} actors&#34;)
+            rayinfo = ray.init()
+        else:
+            rayinfo = ray.init(address=args.ray_address)
+            logger.info(f&#34;Connected to Ray cluster at {args.ray_address} using {args.nworkers}&#34;)
+        logger.info(f&#34;Ray available: {rayinfo}&#34;)
+        actors = []
+        for k in range(args.nworkers):
+            actor = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
+            actors.append(actor)
+            logger.info(f&#34;Started actor {k}: {actor}&#34;)
+        remaining = actors
+        def siginthandler(sig, frame):
+            for actor in actors:
+                logger.warning(f&#34;KILLING actor {actor}&#34;)
+                ray.kill(actor)
+        signal.signal(signal.SIGINT, siginthandler)
+        while True:
+            finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)
+            if len(finished) &gt; 0:
+                logger.info(f&#34;Finished: {finished} ({len(finished)} so far, {len(remaining)} remaining)&#34;)
+            if len(remaining) == 0:
+                logger.info(&#34;All actors finished, processing results&#34;)
+                break
+        results_list = ray.get(actors)
+        pipeline_results = [r[&#34;result&#34;] for r in results_list]
+        have_error = False
+        total_in = 0
+        total_none = 0
+        total_out = 0
+        for actor, ret in zip(actors, results_list):
+            if ret[&#34;error&#34;]:
+                logger.error(f&#34;Actor {actor} ABORTED, {ret[&#39;n_in&#39;]} read, {ret[&#39;n_none&#39;]} were None, {ret[&#39;n_out&#39;]} returned&#34;)
+                have_error = True
+            else:
+                logger.info(f&#34;Actor {actor} finished, {ret[&#39;n_in&#39;]} read, {ret[&#39;n_none&#39;]} were None, {ret[&#39;n_out&#39;]} returned&#34;)
+            total_in += ret[&#34;n_in&#34;]
+            total_none += ret[&#34;n_none&#34;]
+            total_out += ret[&#34;n_out&#34;]
+        logger.info(f&#34;Total processed:  {total_in} read, {total_none} were None, {total_out} returned&#34;)
+        if args.process_result:
+            logger.info(f&#34;Processing any results&#34;)
+            logger.info(f&#34;Creating pipeline for workernr -1&#34;)
+            pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
+            logger.info(f&#34;Combining results&#34;)
+            result = pipeline.reduce(results_list)
+            logger.info(&#34;Processing results&#34;)
+            try:
+                resultprocessor(result=result)
+            except Exception as ex:
+                logger.error(f&#34;Result processor error&#34;, exc_info=ex)
+                have_error = True
+        logger.info(&#34;Shutting down Ray ...&#34;)
+        ray.shutdown()
+        if have_error:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+        else:
+            logger.info(&#34;Processing ended normally&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -147,6 +386,67 @@ def run_dir2dir():
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="gatenlp.processing.runners.get_pipeline_resultprocessor"><code class="name flex">
+<span>def <span class="ident">get_pipeline_resultprocessor</span></span>(<span>args, nworkers=1, workernr=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the instatiated pipeline and the process_result function from the module specified in
+the argparse args as option &ndash;modulefile.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>args</code></strong></dt>
+<dd>argparse namespace</dd>
+<dt><strong><code>nworkers</code></strong></dt>
+<dd>total number of workers</dd>
+<dt><strong><code>workernr</code></strong></dt>
+<dd>the worker number (0-based)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>A list with the pipeline as the first and the process_result function as the second element.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
+    &#34;&#34;&#34;
+    Get the instatiated pipeline and the process_result function from the module specified in
+    the argparse args as option --modulefile.
+
+    Args:
+        args: argparse namespace
+        nworkers: total number of workers
+        workernr: the worker number (0-based)
+
+    Returns:
+        A list with the pipeline as the first and the process_result function as the second element.
+
+    &#34;&#34;&#34;
+    if not os.path.exists(args.modulefile):
+        raise Exception(f&#34;Module file {args.modulefile} does not exist&#34;)
+    spec = importlib.util.spec_from_file_location(&#34;gatenlp.tmprunner&#34;, args.modulefile)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    if not hasattr(mod, args.make_pipeline):
+        raise Exception(f&#34;Module {args.modulefile} does not define function {args.make_pipeline}(args=None, nworkers=1, workernr=0)&#34;)
+    pipeline_maker = getattr(mod, args.make_pipeline)
+    if not isinstance(pipeline_maker, Callable):
+        raise Exception(f&#34;Module {args.modulefile} must contain a callable {args.make_pipeline}(args=None, nworkers=1, workernr=0)&#34;)
+
+    pipeline = pipeline_maker(args=args, workernr=workernr, nworkers=nworkers)
+    if not isinstance(pipeline, Pipeline):
+        raise Exception(&#34;make_pipeline must return a gatenlp.processing.pipeline.Pipeline&#34;)
+    result_processor = None
+    if args.process_result is not None:
+        if not hasattr(mod, args.result_processor):
+            raise Exception(f&#34;Module does not define {args.process_result}&#34;)
+        else:
+            process_result = getattr(mod, args.process_result)
+            if not isinstance(process_result, Callable):
+                raise Exception(f&#34;Result processor {args.process_result} is not Callable&#34;)
+    return pipeline, result_processor</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.processing.runners.run_dir2dir"><code class="name flex">
 <span>def <span class="ident">run_dir2dir</span></span>(<span>)</span>
 </code></dt>
@@ -157,12 +457,17 @@ def run_dir2dir():
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run_dir2dir():
-    argparser = argparse.ArgumentParser(description=&#34;Run gatenlp pipeline on directory of documents&#34;)
+    argparser = argparse.ArgumentParser(
+        description=&#34;Run gatenlp pipeline on directory of documents&#34;,
+        epilog=&#34;The module should define make_pipeline(args=None, workernr=0) and result_processor(result=None)&#34;
+    )
     argparser.add_argument(&#34;dir&#34;, type=str,
                            help=&#34;Directory to process or input directory if --outdir is also specified&#34;
                            )
     argparser.add_argument(&#34;--outdir&#34;, type=str,
                            help=&#34;If specified, read from dir, store result in outdir&#34;)
+    argparser.add_argument(&#34;--outnone&#34;, action=&#34;store_true&#34;,
+                           help=&#34;If specified, --outdir is ignored, if present and the output of the pipeline is ignored&#34;)
     argparser.add_argument(&#34;--fmt&#34;, choices=[&#34;bdocjs&#34;],
                            help=&#34;Format of documents in dir (none: determine from file extension)&#34;)
     argparser.add_argument(&#34;--outfmt&#34;, choices=[&#34;bdocjs&#34;],
@@ -177,13 +482,97 @@ def run_dir2dir():
                            help=&#34;Module file that contains the make_pipeline(args=None, workernr=0) definition&#34;)
     argparser.add_argument(&#34;--nworkers&#34;, default=1, type=int,
                            help=&#34;Number of workers to run (1)&#34;)
+    argparser.add_argument(&#34;--ray_address&#34;, type=str, default=None,
+                           help=&#34;If specified, connect to ray cluster with that redis address, otherwise start own local cluster&#34;)
+    argparser.add_argument(&#34;--log_every&#34;, default=1000, type=int,
+                           help=&#34;Log progress message every n read documents (1000)&#34;)
+    argparser.add_argument(&#34;--make_pipeline&#34;, type=str, default=&#34;make_pipeline&#34;,
+                           help=&#34;Name of the pipeline factory function (make_pipeline)&#34;)
+    argparser.add_argument(&#34;--process_result&#34;, type=str, default=None,
+                           help=&#34;Name of result processing function, if None, results are ignored (None)&#34;)
+    argparser.add_argument(&#34;--debug&#34;, action=&#34;store_true&#34;,
+                           help=&#34;Show DEBUG logging messages&#34;)
     args = argparser.parse_args()
 
+    logger = init_logger(name=&#34;run_dir2dir&#34;, debug=args.debug)
     if args.nworkers == 1:
-        exec = SerialExecutor(args=args)
-        exec()
+        logger.info(&#34;Running SerialExecutor&#34;)
+        exec = Dir2DirExecutor(args=args)
+        try:
+            result = exec.run()
+            if args.process_result:
+                logger.info(&#34;Processing result&#34;)
+                exec.result_processor(result=result)
+            if exec.error:
+                logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+            else:
+                logger.info(f&#34;Processing ended normally&#34;)
+        except LoggedException:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+        except Exception as ex:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;, exc_info=ex)
     else:
-        exec = RayExecutor(args=args)</code></pre>
+        logger.info(&#34;Running RayExecutor&#34;)
+        assert args.nworkers &gt; 1
+        if args.ray_address is None:
+            logger.info(f&#34;Starting Ray, using {args.nworkers} actors&#34;)
+            rayinfo = ray.init()
+        else:
+            rayinfo = ray.init(address=args.ray_address)
+            logger.info(f&#34;Connected to Ray cluster at {args.ray_address} using {args.nworkers}&#34;)
+        logger.info(f&#34;Ray available: {rayinfo}&#34;)
+        actors = []
+        for k in range(args.nworkers):
+            actor = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
+            actors.append(actor)
+            logger.info(f&#34;Started actor {k}: {actor}&#34;)
+        remaining = actors
+        def siginthandler(sig, frame):
+            for actor in actors:
+                logger.warning(f&#34;KILLING actor {actor}&#34;)
+                ray.kill(actor)
+        signal.signal(signal.SIGINT, siginthandler)
+        while True:
+            finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)
+            if len(finished) &gt; 0:
+                logger.info(f&#34;Finished: {finished} ({len(finished)} so far, {len(remaining)} remaining)&#34;)
+            if len(remaining) == 0:
+                logger.info(&#34;All actors finished, processing results&#34;)
+                break
+        results_list = ray.get(actors)
+        pipeline_results = [r[&#34;result&#34;] for r in results_list]
+        have_error = False
+        total_in = 0
+        total_none = 0
+        total_out = 0
+        for actor, ret in zip(actors, results_list):
+            if ret[&#34;error&#34;]:
+                logger.error(f&#34;Actor {actor} ABORTED, {ret[&#39;n_in&#39;]} read, {ret[&#39;n_none&#39;]} were None, {ret[&#39;n_out&#39;]} returned&#34;)
+                have_error = True
+            else:
+                logger.info(f&#34;Actor {actor} finished, {ret[&#39;n_in&#39;]} read, {ret[&#39;n_none&#39;]} were None, {ret[&#39;n_out&#39;]} returned&#34;)
+            total_in += ret[&#34;n_in&#34;]
+            total_none += ret[&#34;n_none&#34;]
+            total_out += ret[&#34;n_out&#34;]
+        logger.info(f&#34;Total processed:  {total_in} read, {total_none} were None, {total_out} returned&#34;)
+        if args.process_result:
+            logger.info(f&#34;Processing any results&#34;)
+            logger.info(f&#34;Creating pipeline for workernr -1&#34;)
+            pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
+            logger.info(f&#34;Combining results&#34;)
+            result = pipeline.reduce(results_list)
+            logger.info(&#34;Processing results&#34;)
+            try:
+                resultprocessor(result=result)
+            except Exception as ex:
+                logger.error(f&#34;Result processor error&#34;, exc_info=ex)
+                have_error = True
+        logger.info(&#34;Shutting down Ray ...&#34;)
+        ray.shutdown()
+        if have_error:
+            logger.error(f&#34;Processing ended with ERROR!!!&#34;)
+        else:
+            logger.info(&#34;Processing ended normally&#34;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -191,91 +580,374 @@ def run_dir2dir():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gatenlp.processing.runners.RayExecutor"><code class="flex name class">
-<span>class <span class="ident">RayExecutor</span></span>
+<dt id="gatenlp.processing.runners.Dir2DirExecutor"><code class="flex name class">
+<span>class <span class="ident">Dir2DirExecutor</span></span>
+<span>(</span><span>args=None, workernr=0, nworkers=1)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Executor class.</p>
+<p>Initialize the executor.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>args</code></strong></dt>
+<dd>argparse namespace</dd>
+<dt><strong><code>workernr</code></strong></dt>
+<dd>0-based index of the worker</dd>
+<dt><strong><code>nworkers</code></strong></dt>
+<dd>total number of workers</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class RayExecutor:
-    pass</code></pre>
-</details>
-</dd>
-<dt id="gatenlp.processing.runners.SerialExecutor"><code class="flex name class">
-<span>class <span class="ident">SerialExecutor</span></span>
-<span>(</span><span>args=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SerialExecutor:
-    def __init__(self, args=None):
-        self.args = args
+<pre><code class="python">class Dir2DirExecutor:
+    &#34;&#34;&#34;
+    Executor class.
+    &#34;&#34;&#34;
+    def __init__(self, args=None, workernr=0, nworkers=1):
+        &#34;&#34;&#34;
+        Initialize the executor.
 
-    def __call__(self):
+        Args:
+            args: argparse namespace
+            workernr: 0-based index of the worker
+            nworkers: total number of workers
+        &#34;&#34;&#34;
+        self.args = args
+        self.workernr = workernr
+        self.nworkers = nworkers
+        self.n_in = 0
+        self.n_out = 0
+        self.n_none = 0
+        self.logger = None
+        self.logger = init_logger(name=&#34;Dir2DirExecutor&#34;)
+        self.result_processor = None
+        self.error = False
+
+    def get_inout(self):
+        &#34;&#34;&#34;
+        Return a list with either the corpus or the source and destination to use for processing
+        &#34;&#34;&#34;
         args = self.args
         if not os.path.exists(args.dir) or not os.path.isdir(args.dir):
             raise Exception(f&#34;Does not exist or not a directory: {args.dir}&#34;)
-        if args.outdir:
+        if args.outdir or args.outnone:
+            if args.outnone:
+                dest =NullDestination()
+            else:
+                if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
+                    raise Exception(f&#34;Output directory must exist: {args.outdir}&#34;)
+                dest = DirFilesDestination(
+                    args.outdir, &#34;relpath&#34;, fmt=args.fmt, ext=args.ext
+                )
+            src = DirFilesSource(
+                args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+                nparts=args.nworkers, partnr=self.workernr
+            )
+            return [src, dest]
+        else:
+            corpus = DirFilesCorpus(
+                args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+                nparts=args.nworkers, partnr=self.workernr
+            )
+            return [corpus]
+
+    def run_pipe(self, pipeline, inout):
+        &#34;&#34;&#34;
+        Run the given pipeline on the given input/output configuration.
+
+        Args:
+            pipeline: processing pipeline
+            inout: list with input/output configuration
+
+        Returns:
+
+        &#34;&#34;&#34;
+        flags = dict(interrupted = False)
+
+        def siginthandler(sig, frame):
+            flags[&#34;interrupted&#34;] = True
+
+        signal.signal(signal.SIGINT, siginthandler)
+        logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+
+        if len(inout) == 2:   # src -&gt; dest
+            for ret in pipeline.pipe(inout[0]):
+                if flags[&#34;interrupted&#34;]:
+                    self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                    break
+                if ret is not None:
+                    if isinstance(ret, Iterable):
+                        for doc in ret:
+                            inout[1].append(doc)
+                    else:
+                        inout[1].append(ret)
+                else:
+                    self.n_none += 1
+                self.n_in = inout[0].n
+                self.n_out = inout[1].n
+                if self.n_out % self.args.log_every == 0:
+                    self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+            self.n_in = inout[0].n
+            self.n_out = inout[1].n
+        else:
+            self.n_in = 0
+            for ret in pipeline.pipe(inout[0]):
+                if flags[&#34;interrupted&#34;]:
+                    self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                    break
+                if ret is not None:
+                    if isinstance(ret, list):
+                        if len(ret) &gt; 1:
+                            raise Exception(f&#34;{logpref}Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}&#34;)
+                        for doc in ret:
+                            inout[0].store(doc)
+                            self.n_out += 1
+                    else:
+                        inout[0].store(ret)
+                        self.n_out += 1
+                else:
+                    self.n_none += 1
+                self.n_in += 1
+                if self.n_out % self.args.log_every == 0:
+                    self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+
+    def run(self):
+        &#34;&#34;&#34;
+        Run processing with the pipeline.
+
+        Returns:
+            The result returned by the pipeline finish() method
+        &#34;&#34;&#34;
+        logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+        pipeline, self.result_processor = get_pipeline_resultprocessor(self.args)
+        self.logger.info(f&#34;{logpref}got pipeline {pipeline}&#34;)
+        inout = self.get_inout()
+        self.logger.info(f&#34;{logpref}got In/Out {inout}&#34;)
+        have_error = False
+        try:
+            pipeline.start()
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline start aborted&#34;, exc_info=ex)
+            self.error = True
+            raise LoggedException()
+        self.logger.info(f&#34;{logpref}pipeline start() completed&#34;)
+        self.logger.info(f&#34;{logpref}running pipeline&#34;)
+        try:
+            self.run_pipe(pipeline, inout)
+            self.logger.info(
+                f&#34;{logpref}pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline running aborted, {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;,
+                              exc_info=ex)
+            # we continue to calculate any incomplete result, but remember that we had an error
+            self.error = True
+        try:
+            ret = pipeline.finish()
+            self.logger.info(f&#34;{logpref}pipeline finish() completed&#34;)
+            # only return the result value if we have a result processor defined!
+            if self.args.process_result:
+                return ret
+            else:
+                return
+        except Exception as ex:
+            self.logger.error(f&#34;Pipeline finish aborted&#34;, exc_info=ex)
+            self.error = True
+            raise LoggedException()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.processing.runners.Dir2DirExecutor.get_inout"><code class="name flex">
+<span>def <span class="ident">get_inout</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list with either the corpus or the source and destination to use for processing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_inout(self):
+    &#34;&#34;&#34;
+    Return a list with either the corpus or the source and destination to use for processing
+    &#34;&#34;&#34;
+    args = self.args
+    if not os.path.exists(args.dir) or not os.path.isdir(args.dir):
+        raise Exception(f&#34;Does not exist or not a directory: {args.dir}&#34;)
+    if args.outdir or args.outnone:
+        if args.outnone:
+            dest =NullDestination()
+        else:
             if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
                 raise Exception(f&#34;Output directory must exist: {args.outdir}&#34;)
-            src = DirFilesSource(args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True)
-            dest = DirFilesSource(args.outdir, ext=args.outext, fmt=args.outfmt, recursive=args.recursive, sort=True)
-            corpus = None
-        else:
-            corpus = DirFilesCorpus(args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True)
-            src = None
-            dest = None
-
-        if not os.path.exists(args.modulefile):
-            raise Exception(f&#34;Module file {args.modulefile} does not exist&#34;)
-        spec = importlib.util.spec_from_file_location(&#34;gatenlp.tmprunner&#34;, args.modulefile)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-
-        if not hasattr(mod, &#34;make_pipeline&#34;):
-            raise Exception(f&#34;Module {args.modulefile} does not define function make_pipeline(args=None)&#34;)
-        if not isinstance(mod.make_pipeline, Callable):
-            raise Exception(f&#34;Module {args.modulefile} must contain a callable make_pipeline(args=None)&#34;)
-
-        pipeline = mod.make_pipeline(args=args)
-        if not isinstance(pipeline, Callable):
-            raise Exception(&#34;make_pipeline must return a Callable&#34;)
-
-        # for now just the simples possible way to do this
-        n_in = 0
-        n_error = 0
-        n_out = 0
-        if corpus is not None:
-            for doc in corpus:
-                try:
-                    doc = pipeline(doc)
-                    if doc is not None:
-                        corpus.store(doc)
-                        n_out += 1
-                except Exception as ex:
-                    print(f&#34;Got an exception for document idx={n_in}/name={doc.name}: {str(ex)}&#34;)
-                    n_error += 1
-        else:
-            for doc in src:
-                try:
-                    doc = pipeline(doc)
-                    if doc is not None:
-                        dest.append(doc)
-                        n_out += 1
-                except Exception as ex:
-                    print(f&#34;Got an exception for document idx={n_in}/name={doc.name}: {str(ex)}&#34;)
-                    n_error += 1
-        print(f&#34;Documents read:     {n_in}&#34;)
-        print(f&#34;Processing errors:  {n_error}&#34;)
-        print(f&#34;Documents written:  {n_out}&#34;)</code></pre>
+            dest = DirFilesDestination(
+                args.outdir, &#34;relpath&#34;, fmt=args.fmt, ext=args.ext
+            )
+        src = DirFilesSource(
+            args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+            nparts=args.nworkers, partnr=self.workernr
+        )
+        return [src, dest]
+    else:
+        corpus = DirFilesCorpus(
+            args.dir, ext=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
+            nparts=args.nworkers, partnr=self.workernr
+        )
+        return [corpus]</code></pre>
 </details>
+</dd>
+<dt id="gatenlp.processing.runners.Dir2DirExecutor.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run processing with the pipeline.</p>
+<h2 id="returns">Returns</h2>
+<p>The result returned by the pipeline finish() method</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    &#34;&#34;&#34;
+    Run processing with the pipeline.
+
+    Returns:
+        The result returned by the pipeline finish() method
+    &#34;&#34;&#34;
+    logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+    pipeline, self.result_processor = get_pipeline_resultprocessor(self.args)
+    self.logger.info(f&#34;{logpref}got pipeline {pipeline}&#34;)
+    inout = self.get_inout()
+    self.logger.info(f&#34;{logpref}got In/Out {inout}&#34;)
+    have_error = False
+    try:
+        pipeline.start()
+    except Exception as ex:
+        self.logger.error(f&#34;Pipeline start aborted&#34;, exc_info=ex)
+        self.error = True
+        raise LoggedException()
+    self.logger.info(f&#34;{logpref}pipeline start() completed&#34;)
+    self.logger.info(f&#34;{logpref}running pipeline&#34;)
+    try:
+        self.run_pipe(pipeline, inout)
+        self.logger.info(
+            f&#34;{logpref}pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+    except Exception as ex:
+        self.logger.error(f&#34;Pipeline running aborted, {self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;,
+                          exc_info=ex)
+        # we continue to calculate any incomplete result, but remember that we had an error
+        self.error = True
+    try:
+        ret = pipeline.finish()
+        self.logger.info(f&#34;{logpref}pipeline finish() completed&#34;)
+        # only return the result value if we have a result processor defined!
+        if self.args.process_result:
+            return ret
+        else:
+            return
+    except Exception as ex:
+        self.logger.error(f&#34;Pipeline finish aborted&#34;, exc_info=ex)
+        self.error = True
+        raise LoggedException()</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.processing.runners.Dir2DirExecutor.run_pipe"><code class="name flex">
+<span>def <span class="ident">run_pipe</span></span>(<span>self, pipeline, inout)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the given pipeline on the given input/output configuration.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong></dt>
+<dd>processing pipeline</dd>
+<dt><strong><code>inout</code></strong></dt>
+<dd>list with input/output configuration</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_pipe(self, pipeline, inout):
+    &#34;&#34;&#34;
+    Run the given pipeline on the given input/output configuration.
+
+    Args:
+        pipeline: processing pipeline
+        inout: list with input/output configuration
+
+    Returns:
+
+    &#34;&#34;&#34;
+    flags = dict(interrupted = False)
+
+    def siginthandler(sig, frame):
+        flags[&#34;interrupted&#34;] = True
+
+    signal.signal(signal.SIGINT, siginthandler)
+    logpref = f&#34;Worker {self.workernr+1} of {self.nworkers}: &#34;
+
+    if len(inout) == 2:   # src -&gt; dest
+        for ret in pipeline.pipe(inout[0]):
+            if flags[&#34;interrupted&#34;]:
+                self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                break
+            if ret is not None:
+                if isinstance(ret, Iterable):
+                    for doc in ret:
+                        inout[1].append(doc)
+                else:
+                    inout[1].append(ret)
+            else:
+                self.n_none += 1
+            self.n_in = inout[0].n
+            self.n_out = inout[1].n
+            if self.n_out % self.args.log_every == 0:
+                self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)
+        self.n_in = inout[0].n
+        self.n_out = inout[1].n
+    else:
+        self.n_in = 0
+        for ret in pipeline.pipe(inout[0]):
+            if flags[&#34;interrupted&#34;]:
+                self.logger.warning(f&#34;{logpref}interrupted by SIGINT&#34;)
+                break
+            if ret is not None:
+                if isinstance(ret, list):
+                    if len(ret) &gt; 1:
+                        raise Exception(f&#34;{logpref}Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}&#34;)
+                    for doc in ret:
+                        inout[0].store(doc)
+                        self.n_out += 1
+                else:
+                    inout[0].store(ret)
+                    self.n_out += 1
+            else:
+                self.n_none += 1
+            self.n_in += 1
+            if self.n_out % self.args.log_every == 0:
+                self.logger.info(f&#34;{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gatenlp.processing.runners.LoggedException"><code class="flex name class">
+<span>class <span class="ident">LoggedException</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LoggedException(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -293,16 +965,22 @@ def run_dir2dir():
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="gatenlp.processing.runners.get_pipeline_resultprocessor" href="#gatenlp.processing.runners.get_pipeline_resultprocessor">get_pipeline_resultprocessor</a></code></li>
 <li><code><a title="gatenlp.processing.runners.run_dir2dir" href="#gatenlp.processing.runners.run_dir2dir">run_dir2dir</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="gatenlp.processing.runners.RayExecutor" href="#gatenlp.processing.runners.RayExecutor">RayExecutor</a></code></h4>
+<h4><code><a title="gatenlp.processing.runners.Dir2DirExecutor" href="#gatenlp.processing.runners.Dir2DirExecutor">Dir2DirExecutor</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.processing.runners.Dir2DirExecutor.get_inout" href="#gatenlp.processing.runners.Dir2DirExecutor.get_inout">get_inout</a></code></li>
+<li><code><a title="gatenlp.processing.runners.Dir2DirExecutor.run" href="#gatenlp.processing.runners.Dir2DirExecutor.run">run</a></code></li>
+<li><code><a title="gatenlp.processing.runners.Dir2DirExecutor.run_pipe" href="#gatenlp.processing.runners.Dir2DirExecutor.run_pipe">run_pipe</a></code></li>
+</ul>
 </li>
 <li>
-<h4><code><a title="gatenlp.processing.runners.SerialExecutor" href="#gatenlp.processing.runners.SerialExecutor">SerialExecutor</a></code></h4>
+<h4><code><a title="gatenlp.processing.runners.LoggedException" href="#gatenlp.processing.runners.LoggedException">LoggedException</a></code></h4>
 </li>
 </ul>
 </li>

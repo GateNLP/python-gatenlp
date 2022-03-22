@@ -191,7 +191,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
             raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
-        super().__init__(nparts=nparts, partnr=partnr)
+        super().__init__()
+        EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
         if paths is not None:
             self.paths = paths
         elif paths_from is not None:
@@ -217,9 +218,12 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         &#34;&#34;&#34;
         Yield the next document from the source.
         &#34;&#34;&#34;
+        self._n = 0
         for p in self.paths:
             doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
             self.setrelpathfeature(doc, p)
+            self._n += 1
+            yield doc
 
 
 class DirFilesDestination(DocumentDestination):
@@ -238,7 +242,8 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document
+               * &#34;relpath&#34; (default): use the relative path used when creating the document, but replace the
+                   replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
                * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
@@ -255,6 +260,7 @@ class DirFilesDestination(DocumentDestination):
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;
+        super().__init__()
         if not os.path.isdir(dirpath):
             raise Exception(&#34;Not a directory: &#34;, dirpath)
         self.dirpath = dirpath
@@ -277,7 +283,8 @@ class DirFilesDestination(DocumentDestination):
             _, fname = path_from.split(&#34;:&#34;)
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
         elif path_from == &#34;relpath&#34;:
-            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
+            self.file_path_maker = \
+                lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
         elif path_from == &#34;name&#34;:
             self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
@@ -312,6 +319,7 @@ class DirFilesDestination(DocumentDestination):
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
         self.idx += 1
+        self._n += 1
 
     def close(self):
         pass
@@ -793,7 +801,8 @@ from the document and the running number.</p>
 <dt><strong><code>path_from</code></strong></dt>
 <dd>one of options listed below. If a string is used as a path name, then the forward slash
 is always used as the directory path separator, on all systems!
-* "relpath" (default): use the relative path used when creating the document
+* "relpath" (default): use the relative path used when creating the document, but replace the
+replace the extension
 * "idx": just use the index/running number of the added document as the base name
 * "idx:5": use the index/running number with at least 5 digits in the name.
 * "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
@@ -832,7 +841,8 @@ keyword arguments: doc (the document) and idx (the running index of the document
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document
+               * &#34;relpath&#34; (default): use the relative path used when creating the document, but replace the
+                   replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
                * &#34;idx:10:2&#34;: use the index and organize a total of 10 digits into a hierarchical
@@ -849,6 +859,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;
+        super().__init__()
         if not os.path.isdir(dirpath):
             raise Exception(&#34;Not a directory: &#34;, dirpath)
         self.dirpath = dirpath
@@ -871,7 +882,8 @@ keyword arguments: doc (the document) and idx (the running index of the document
             _, fname = path_from.split(&#34;:&#34;)
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
         elif path_from == &#34;relpath&#34;:
-            self.file_path_maker = lambda doc=None, idx=None: doc.features[self.relpathfeatname()]
+            self.file_path_maker = \
+                lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
         elif path_from == &#34;name&#34;:
             self.file_path_maker = lambda doc=None, idx=None: doc.name
         elif callable(path_from):
@@ -906,6 +918,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
                 os.makedirs(dirs)
         Document.save(doc, path, fmt=self.fmt)
         self.idx += 1
+        self._n += 1
 
     def close(self):
         pass</code></pre>
@@ -954,7 +967,8 @@ keyword arguments: doc (the document) and idx (the running index of the document
         if not os.path.exists(os.path.normpath(dirs)):
             os.makedirs(dirs)
     Document.save(doc, path, fmt=self.fmt)
-    self.idx += 1</code></pre>
+    self.idx += 1
+    self._n += 1</code></pre>
 </details>
 </dd>
 </dl>
@@ -1043,7 +1057,8 @@ The paths get always sorted if partnr is &gt; 1.</dd>
         self.dirpath = dirpath
         if paths is not None and paths_from is not None:
             raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
-        super().__init__(nparts=nparts, partnr=partnr)
+        super().__init__()
+        EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
         if paths is not None:
             self.paths = paths
         elif paths_from is not None:
@@ -1069,9 +1084,12 @@ The paths get always sorted if partnr is &gt; 1.</dd>
         &#34;&#34;&#34;
         Yield the next document from the source.
         &#34;&#34;&#34;
+        self._n = 0
         for p in self.paths:
             doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
-            self.setrelpathfeature(doc, p)</code></pre>
+            self.setrelpathfeature(doc, p)
+            self._n += 1
+            yield doc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

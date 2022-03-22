@@ -2,6 +2,8 @@
 
 ## Upcoming version
 
+* Added the `EmojiAnnotator`
+
 
 
 ## 1.0.7 (2022-03-06)

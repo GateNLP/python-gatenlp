@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>gatenlp.corpora API documentation</title>
-<meta name="description" content="Module that defines base and implementation classes for representing document collections …" />
+<title>gatenlp.processing.emojis API documentation</title>
+<meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -19,67 +19,17 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>gatenlp.corpora</code></h1>
+<h1 class="title">Module <code>gatenlp.processing.emojis</code></h1>
 </header>
 <section id="section-intro">
-<p>Module that defines base and implementation classes for representing document collections.</p>
-<p>Corpus subclasses represent collections with a fixed number of documents, where each document can be
-accessed and stored by its index number, much like lists/arrays of documents.</p>
-<p>DocumentSource subclasses represent collections that can be iterated over, producing a sequence of Documents,
-one document a time.</p>
-<p>DocumentDestination subclasses represent collections that can receive Documents one document a time.</p>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">&#34;&#34;&#34;
-Module that defines base and implementation classes for representing document collections.
-
-Corpus subclasses represent collections with a fixed number of documents, where each document can be
-accessed and stored by its index number, much like lists/arrays of documents.
-
-DocumentSource subclasses represent collections that can be iterated over, producing a sequence of Documents,
-one document a time.
-
-DocumentDestination subclasses represent collections that can receive Documents one document a time.
-&#34;&#34;&#34;
-
-from gatenlp.corpora.base import Corpus, DocumentSource, DocumentDestination, NullDestination
-from gatenlp.corpora.base import MultiProcessingAble, DistributedProcessingAble
-from gatenlp.corpora.base import EveryNthCorpus, EveryNthSource, ShuffledCorpus, CachedCorpus
-from gatenlp.corpora.memory import ListCorpus, PandasDfSource
-from gatenlp.corpora.files import BdocjsLinesFileSource, BdocjsLinesFileDestination
-from gatenlp.corpora.files import JsonLinesFileSource, JsonLinesFileDestination
-from gatenlp.corpora.files import TsvFileSource
-from gatenlp.corpora.dirs import DirFilesCorpus, DirFilesSource, DirFilesDestination, NumberedDirFilesCorpus</code></pre>
-</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="gatenlp.corpora.base" href="base.html">gatenlp.corpora.base</a></code></dt>
+<dt><code class="name"><a title="gatenlp.processing.emojis.emojis" href="emojis.html">gatenlp.processing.emojis.emojis</a></code></dt>
 <dd>
-<div class="desc"><p>Module that defines base classes for representing document collections …</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.corpora.conll" href="conll.html">gatenlp.corpora.conll</a></code></dt>
-<dd>
-<div class="desc"><p>Module that provides document source/destination classes for importing and exporting documents
-from/to various conll formats.</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.corpora.dirs" href="dirs.html">gatenlp.corpora.dirs</a></code></dt>
-<dd>
-<div class="desc"><p>Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
-as files in a directory.</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.corpora.files" href="files.html">gatenlp.corpora.files</a></code></dt>
-<dd>
-<div class="desc"><p>Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
-as lines or parts in a file.</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.corpora.memory" href="memory.html">gatenlp.corpora.memory</a></code></dt>
-<dd>
-<div class="desc"><p>Module that defines Corpus and DocumentSource/DocumentDestination classes which access documents
-from in-memory objects.</p></div>
+<div class="desc"><p>Module that implements the EmojiAnnotator.
+Emoji information has been converted from <a href="https://github.com/eliasdabbas/advertools">https://github.com/eliasdabbas/advertools</a></p></div>
 </dd>
 </dl>
 </section>
@@ -98,16 +48,12 @@ from in-memory objects.</p></div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="gatenlp" href="../index.html">gatenlp</a></code></li>
+<li><code><a title="gatenlp.processing" href="../index.html">gatenlp.processing</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="gatenlp.corpora.base" href="base.html">gatenlp.corpora.base</a></code></li>
-<li><code><a title="gatenlp.corpora.conll" href="conll.html">gatenlp.corpora.conll</a></code></li>
-<li><code><a title="gatenlp.corpora.dirs" href="dirs.html">gatenlp.corpora.dirs</a></code></li>
-<li><code><a title="gatenlp.corpora.files" href="files.html">gatenlp.corpora.files</a></code></li>
-<li><code><a title="gatenlp.corpora.memory" href="memory.html">gatenlp.corpora.memory</a></code></li>
+<li><code><a title="gatenlp.processing.emojis.emojis" href="emojis.html">gatenlp.processing.emojis.emojis</a></code></li>
 </ul>
 </li>
 </ul>

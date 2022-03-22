@@ -53,11 +53,13 @@ class BdocjsLinesFileSource(DocumentSource, MultiProcessingAble):
         Args:
             file: the file path (a string) or an open file handle.
         &#34;&#34;&#34;
+        super().__init__()
         self.file = file
 
     def __iter__(self):
         with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
             for line in infp:
+                self._n += 1
                 yield Document.load_mem(line, fmt=&#34;json&#34;)
 
 
@@ -73,11 +75,11 @@ class BdocjsLinesFileDestination(DocumentDestination):
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
         &#34;&#34;&#34;
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.n = 0
 
     def __enter__(self):
         return self
@@ -97,7 +99,7 @@ class BdocjsLinesFileDestination(DocumentDestination):
         assert isinstance(doc, Document)
         self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
         self.fh.write(&#34;\n&#34;)
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()
@@ -120,7 +122,7 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
         #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
-
+        super().__init__()
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields
@@ -142,6 +144,7 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
                     else:
                         tmp = data
                     doc.features[self.data_feature] = tmp
+                self._n += 1
                 yield doc
 
 
@@ -165,11 +168,11 @@ class JsonLinesFileDestination(DocumentDestination):
                Default is True: store all fields as is.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.n = 0
         self.document_field = document_field
         self.document_bdocjs = document_bdocjs
         self.data_fields = data_fields
@@ -205,7 +208,7 @@ class JsonLinesFileDestination(DocumentDestination):
             data[self.document_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write(&#34;\n&#34;)
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()
@@ -241,22 +244,23 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 order of the values in the TSV file.
             data_feature: the name of the document feature where to store the data, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.data_cols = data_cols
         self.source = source
-        self.n = 0
         self.hdr2col = {}
+        self.nlines = 0
         if data_cols and not hdr:
             raise Exception(&#34;Header must be present if data_cols should be used&#34;)
         self.data_feature = data_feature
 
     def __iter__(self):
         reader = yield_lines_from(self.source)
-        if self.hdr and self.n == 0:
-            self.n += 1
+        if self.hdr and self.nlines == 0:
+            self.nlines += 1
             self.hdr = next(reader).rstrip(&#34;\n\r&#34;).split(&#34;\t&#34;)
         if self.hdr:
             self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
@@ -294,7 +298,8 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 else:
                     data = fields
                 doc.features[self.data_feature] = data
-            self.n += 1
+            self.nlines += 1
+            self._n += 1
             yield doc</code></pre>
 </details>
 </section>
@@ -335,11 +340,11 @@ Expected to be a string or an open file handle.</dd>
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
         &#34;&#34;&#34;
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.n = 0
 
     def __enter__(self):
         return self
@@ -359,7 +364,7 @@ Expected to be a string or an open file handle.</dd>
         assert isinstance(doc, Document)
         self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
         self.fh.write(&#34;\n&#34;)
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()</code></pre>
@@ -398,7 +403,7 @@ Expected to be a string or an open file handle.</dd>
     assert isinstance(doc, Document)
     self.fh.write(doc.save_mem(fmt=&#34;json&#34;))
     self.fh.write(&#34;\n&#34;)
-    self.n += 1</code></pre>
+    self._n += 1</code></pre>
 </details>
 </dd>
 </dl>
@@ -440,11 +445,13 @@ Expected to be a string or an open file handle.</dd>
         Args:
             file: the file path (a string) or an open file handle.
         &#34;&#34;&#34;
+        super().__init__()
         self.file = file
 
     def __iter__(self):
         with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
             for line in infp:
+                self._n += 1
                 yield Document.load_mem(line, fmt=&#34;json&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -516,11 +523,11 @@ Default is True: store all fields as is.</dd>
                Default is True: store all fields as is.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.n = 0
         self.document_field = document_field
         self.document_bdocjs = document_bdocjs
         self.data_fields = data_fields
@@ -556,7 +563,7 @@ Default is True: store all fields as is.</dd>
             data[self.document_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write(&#34;\n&#34;)
-        self.n += 1
+        self._n += 1
 
     def close(self):
         self.fh.close()</code></pre>
@@ -607,7 +614,7 @@ Default is True: store all fields as is.</dd>
         data[self.document_field] = doc.text
     self.fh.write(json.dumps(data))
     self.fh.write(&#34;\n&#34;)
-    self.n += 1</code></pre>
+    self._n += 1</code></pre>
 </details>
 </dd>
 </dl>
@@ -661,7 +668,7 @@ in the json and optionally stores all or a selection of remaining fields as docu
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
         #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
-
+        super().__init__()
         self.file = file
         self.text_field = text_field
         self.data_fields = data_fields
@@ -683,6 +690,7 @@ in the json and optionally stores all or a selection of remaining fields as docu
                     else:
                         tmp = data
                     doc.features[self.data_feature] = tmp
+                self._n += 1
                 yield doc</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -775,22 +783,23 @@ order of the values in the TSV file.</dd>
                 order of the values in the TSV file.
             data_feature: the name of the document feature where to store the data, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         assert text_col is not None
         self.hdr = hdr
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.data_cols = data_cols
         self.source = source
-        self.n = 0
         self.hdr2col = {}
+        self.nlines = 0
         if data_cols and not hdr:
             raise Exception(&#34;Header must be present if data_cols should be used&#34;)
         self.data_feature = data_feature
 
     def __iter__(self):
         reader = yield_lines_from(self.source)
-        if self.hdr and self.n == 0:
-            self.n += 1
+        if self.hdr and self.nlines == 0:
+            self.nlines += 1
             self.hdr = next(reader).rstrip(&#34;\n\r&#34;).split(&#34;\t&#34;)
         if self.hdr:
             self.hdr2col = {name: idx for idx, name in enumerate(self.hdr)}
@@ -828,7 +837,8 @@ order of the values in the TSV file.</dd>
                 else:
                     data = fields
                 doc.features[self.data_feature] = data
-            self.n += 1
+            self.nlines += 1
+            self._n += 1
             yield doc</code></pre>
 </details>
 <h3>Ancestors</h3>

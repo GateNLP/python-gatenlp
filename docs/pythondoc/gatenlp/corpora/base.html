@@ -238,8 +238,15 @@ class DocumentSource(ABC, TypingIterable, CorpusSourceBase):
     &#34;&#34;&#34;
     A document source is an iterable of documents which will generate an unknown number of documents.
     &#34;&#34;&#34;
+    def __init__(self):
+        self._n = 0
+
     def __iter__(self) -&gt; TypingIterator[Document]:
         pass
+
+    @property
+    def n(self):
+        return self._n
 
 
 # NOTE: AbstractContextManager already inherits from ABC, so no need to list as base class here!
@@ -254,6 +261,9 @@ class DocumentDestination(AbstractContextManager):
     `with SomeDocumentDest(..) as dest: dest.append(doc)` which will take care of closing the
     destination automatically.
     &#34;&#34;&#34;
+
+    def __init__(self):
+        self._n = 0
 
     @abstractmethod
     def append(self, doc: Document) -&gt; None:
@@ -287,6 +297,9 @@ class DocumentDestination(AbstractContextManager):
         &#34;&#34;&#34;
         return &#34;_relpath&#34;
 
+    @property
+    def n(self):
+        return self._n
 
 
 class StringIdCorpus:
@@ -588,7 +601,15 @@ class CachedCorpus(Corpus):
         return tmp
 
     def __setitem__(self, index, value):
-        self.cachecorpus[index] = value</code></pre>
+        self.cachecorpus[index] = value
+
+
+class NullDestination(DocumentDestination):
+    def __init__(self):
+        super().__init__()
+
+    def append(self, doc: Document):
+        self._n += 1</code></pre>
 </details>
 </section>
 <section>
@@ -1430,6 +1451,9 @@ destination automatically.</p></div>
     destination automatically.
     &#34;&#34;&#34;
 
+    def __init__(self):
+        self._n = 0
+
     @abstractmethod
     def append(self, doc: Document) -&gt; None:
         &#34;&#34;&#34;
@@ -1460,7 +1484,11 @@ destination automatically.</p></div>
         &#34;&#34;&#34;
         Return the name of the transient feature to receive the relative path a document was loaded from.
         &#34;&#34;&#34;
-        return &#34;_relpath&#34;</code></pre>
+        return &#34;_relpath&#34;
+
+    @property
+    def n(self):
+        return self._n</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1469,10 +1497,26 @@ destination automatically.</p></div>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="gatenlp.corpora.base.NullDestination" href="#gatenlp.corpora.base.NullDestination">NullDestination</a></li>
 <li><a title="gatenlp.corpora.dirs.DirFilesDestination" href="dirs.html#gatenlp.corpora.dirs.DirFilesDestination">DirFilesDestination</a></li>
 <li><a title="gatenlp.corpora.files.BdocjsLinesFileDestination" href="files.html#gatenlp.corpora.files.BdocjsLinesFileDestination">BdocjsLinesFileDestination</a></li>
 <li><a title="gatenlp.corpora.files.JsonLinesFileDestination" href="files.html#gatenlp.corpora.files.JsonLinesFileDestination">JsonLinesFileDestination</a></li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.corpora.base.DocumentDestination.n"><code class="name">var <span class="ident">n</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def n(self):
+    return self._n</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.corpora.base.DocumentDestination.append"><code class="name flex">
@@ -1540,7 +1584,6 @@ close(), even when an exception is raised.</p></div>
 </dd>
 <dt id="gatenlp.corpora.base.DocumentSource"><code class="flex name class">
 <span>class <span class="ident">DocumentSource</span></span>
-<span>(</span><span>*args, **kwds)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A document source is an iterable of documents which will generate an unknown number of documents.</p></div>
@@ -1552,8 +1595,15 @@ close(), even when an exception is raised.</p></div>
     &#34;&#34;&#34;
     A document source is an iterable of documents which will generate an unknown number of documents.
     &#34;&#34;&#34;
+    def __init__(self):
+        self._n = 0
+
     def __iter__(self) -&gt; TypingIterator[Document]:
-        pass</code></pre>
+        pass
+
+    @property
+    def n(self):
+        return self._n</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1573,6 +1623,21 @@ close(), even when an exception is raised.</p></div>
 <li><a title="gatenlp.corpora.files.TsvFileSource" href="files.html#gatenlp.corpora.files.TsvFileSource">TsvFileSource</a></li>
 <li><a title="gatenlp.corpora.memory.PandasDfSource" href="memory.html#gatenlp.corpora.memory.PandasDfSource">PandasDfSource</a></li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gatenlp.corpora.base.DocumentSource.n"><code class="name">var <span class="ident">n</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def n(self):
+    return self._n</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.corpora.base.DocumentSource.__iter__"><code class="name flex">
@@ -1858,6 +1923,44 @@ processes on the same node in parallel.</p></div>
 <li><a title="gatenlp.corpora.files.TsvFileSource" href="files.html#gatenlp.corpora.files.TsvFileSource">TsvFileSource</a></li>
 </ul>
 </dd>
+<dt id="gatenlp.corpora.base.NullDestination"><code class="flex name class">
+<span>class <span class="ident">NullDestination</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A document destination is something that accepts an a priori unknown number of documents via
+the append method.</p>
+<p>Document destinations all provide a <code>close()</code> method and must be closed after use.</p>
+<p>Document destinations can be used as context managers i.e. one can do
+<code>with SomeDocumentDest(..) as dest: dest.append(doc)</code> which will take care of closing the
+destination automatically.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NullDestination(DocumentDestination):
+    def __init__(self):
+        super().__init__()
+
+    def append(self, doc: Document):
+        self._n += 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gatenlp.corpora.base.DocumentDestination" href="#gatenlp.corpora.base.DocumentDestination">DocumentDestination</a></li>
+<li>contextlib.AbstractContextManager</li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="gatenlp.corpora.base.DocumentDestination" href="#gatenlp.corpora.base.DocumentDestination">DocumentDestination</a></b></code>:
+<ul class="hlist">
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.append" href="#gatenlp.corpora.base.DocumentDestination.append">append</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.close" href="#gatenlp.corpora.base.DocumentDestination.close">close</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.relpathfeatname" href="#gatenlp.corpora.base.DocumentDestination.relpathfeatname">relpathfeatname</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="gatenlp.corpora.base.ShuffledCorpus"><code class="flex name class">
 <span>class <span class="ident">ShuffledCorpus</span></span>
 <span>(</span><span>corpus, seed=None)</span>
@@ -2100,6 +2203,7 @@ If seed is None, no shuffling is carried out.
 <ul class="">
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.append" href="#gatenlp.corpora.base.DocumentDestination.append">append</a></code></li>
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.close" href="#gatenlp.corpora.base.DocumentDestination.close">close</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentDestination.n" href="#gatenlp.corpora.base.DocumentDestination.n">n</a></code></li>
 <li><code><a title="gatenlp.corpora.base.DocumentDestination.relpathfeatname" href="#gatenlp.corpora.base.DocumentDestination.relpathfeatname">relpathfeatname</a></code></li>
 </ul>
 </li>
@@ -2107,6 +2211,7 @@ If seed is None, no shuffling is carried out.
 <h4><code><a title="gatenlp.corpora.base.DocumentSource" href="#gatenlp.corpora.base.DocumentSource">DocumentSource</a></code></h4>
 <ul class="">
 <li><code><a title="gatenlp.corpora.base.DocumentSource.__iter__" href="#gatenlp.corpora.base.DocumentSource.__iter__">__iter__</a></code></li>
+<li><code><a title="gatenlp.corpora.base.DocumentSource.n" href="#gatenlp.corpora.base.DocumentSource.n">n</a></code></li>
 </ul>
 </li>
 <li>
@@ -2124,6 +2229,9 @@ If seed is None, no shuffling is carried out.
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.base.MultiProcessingAble" href="#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gatenlp.corpora.base.NullDestination" href="#gatenlp.corpora.base.NullDestination">NullDestination</a></code></h4>
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.base.ShuffledCorpus" href="#gatenlp.corpora.base.ShuffledCorpus">ShuffledCorpus</a></code></h4>

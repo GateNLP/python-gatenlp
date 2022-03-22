@@ -116,12 +116,12 @@ class PandasDfSource(DocumentSource):
             data_cols: if a list, store those cols in the data feature, if True, store all cols.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         assert text_col is not None
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.source = df
         self.reader = df.iterrows()
-        self.n = 0
         self.data_cols = data_cols
         self.data_feature = data_feature
         self.colnames = list(df.columns)
@@ -142,7 +142,7 @@ class PandasDfSource(DocumentSource):
                 else:
                     data = {fname: row[fname] for fname in self.colnames}
                 doc.features[self.data_feature] = data
-            self.n += 1
+            self._n += 1
             yield doc</code></pre>
 </details>
 </section>
@@ -338,12 +338,12 @@ feature value from (default: None)</dd>
             data_cols: if a list, store those cols in the data feature, if True, store all cols.
             data_feature: the name of the data feature, default is &#34;__data&#34;
         &#34;&#34;&#34;
+        super().__init__()
         assert text_col is not None
         self.text_col = text_col
         self.feature_cols = feature_cols
         self.source = df
         self.reader = df.iterrows()
-        self.n = 0
         self.data_cols = data_cols
         self.data_feature = data_feature
         self.colnames = list(df.columns)
@@ -364,7 +364,7 @@ feature value from (default: None)</dd>
                 else:
                     data = {fname: row[fname] for fname in self.colnames}
                 doc.features[self.data_feature] = data
-            self.n += 1
+            self._n += 1
             yield doc</code></pre>
 </details>
 <h3>Ancestors</h3>

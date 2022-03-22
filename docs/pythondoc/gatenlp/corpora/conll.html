@@ -44,7 +44,8 @@ class ConllUFileSource(DocumentSource):
     A document source represented as a ConllU file.
     &#34;&#34;&#34;
     def __init__(self, source, from_string=False,
-                 group_by=&#34;sent&#34;, n=1,
+                 group_by=&#34;sent&#34;,
+                 group_by_n=1,
                  outset=&#34;&#34;,
                  token_type=&#34;Token&#34;,
                  mwt_type=&#34;MWT&#34;,
@@ -70,20 +71,21 @@ class ConllUFileSource(DocumentSource):
                 If the group_by identification &#34;doc&#34; or &#34;par&#34; is not accessible before the first sentence
                 of the input, an exception is thrown. Use a very large number to make sure that only a single
                 document is created.
-            n: the number of group_by elements to include in a document.
+            group_by_n: the number of group_by elements to include in a document.
             outset: the annotation set name for the annotations to add
             token_type: the type of the token annotations
             mwt_type: the type of multi-word annotations
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
         &#34;&#34;&#34;
+        super().__init__()
         assert sentence_type is not None
         assert token_type is not None
         assert mwt_type is not None
         self.source = source
         self.from_string = from_string
         self.group_by = group_by
-        self.n = n
+        self.group_by_n = group_by_n
         self.outset = outset
         self.token_type = token_type
         self.mwt_type = mwt_type
@@ -176,10 +178,11 @@ class ConllUFileSource(DocumentSource):
                     raise Exception(&#34;Cannot group by par, no newpar id in the input&#34;)
                 prev_doc = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
                 prev_par = meta.get(&#34;newpar id&#34;, &#34;&#34;)
-            elif self.group_by == &#34;sent&#34; and n_sents_group == self.n:
+            elif self.group_by == &#34;sent&#34; and n_sents_group == self.group_by_n:
                 doc.attach(annset, self.outset)
                 yield doc
                 self.n_documents += 1
+                self._n += 1
                 reset = True
             else:
                 docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
@@ -190,10 +193,11 @@ class ConllUFileSource(DocumentSource):
                     self.n_conllu_docs += 1
                     n_docs_group += 1
                     prev_doc = docid
-                    if self.group_by == &#34;doc&#34; and n_docs_group == self.n:
+                    if self.group_by == &#34;doc&#34; and n_docs_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += &#34;\n\n&#34;
@@ -205,10 +209,11 @@ class ConllUFileSource(DocumentSource):
                     self.n_conllu_pars += 1
                     n_pars_group += 1
                     prev_par = parid
-                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.n:
+                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += &#34;\n&#34;
@@ -344,6 +349,7 @@ class ConllUFileSource(DocumentSource):
                 self.n_conllu_pars += 1
             doc.attach(annset, self.outset)
             yield doc
+            self._n += 1
             self.n_documents += 1</code></pre>
 </details>
 </section>
@@ -358,7 +364,7 @@ class ConllUFileSource(DocumentSource):
 <dl>
 <dt id="gatenlp.corpora.conll.ConllUFileSource"><code class="flex name class">
 <span>class <span class="ident">ConllUFileSource</span></span>
-<span>(</span><span>source, from_string=False, group_by='sent', n=1, outset='', token_type='Token', mwt_type='MWT', sentence_type='Sentence', add_feats=False, paragraph_type='Paragraph', document_type='Document')</span>
+<span>(</span><span>source, from_string=False, group_by='sent', group_by_n=1, outset='', token_type='Token', mwt_type='MWT', sentence_type='Sentence', add_feats=False, paragraph_type='Paragraph', document_type='Document')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A document source represented as a ConllU file.</p>
@@ -380,7 +386,7 @@ parameter n influences how gatenlp Document instances are created from the input
 If the group_by identification "doc" or "par" is not accessible before the first sentence
 of the input, an exception is thrown. Use a very large number to make sure that only a single
 document is created.</dd>
-<dt><strong><code>n</code></strong></dt>
+<dt><strong><code>group_by_n</code></strong></dt>
 <dd>the number of group_by elements to include in a document.</dd>
 <dt><strong><code>outset</code></strong></dt>
 <dd>the annotation set name for the annotations to add</dd>
@@ -402,7 +408,8 @@ document is created.</dd>
     A document source represented as a ConllU file.
     &#34;&#34;&#34;
     def __init__(self, source, from_string=False,
-                 group_by=&#34;sent&#34;, n=1,
+                 group_by=&#34;sent&#34;,
+                 group_by_n=1,
                  outset=&#34;&#34;,
                  token_type=&#34;Token&#34;,
                  mwt_type=&#34;MWT&#34;,
@@ -428,20 +435,21 @@ document is created.</dd>
                 If the group_by identification &#34;doc&#34; or &#34;par&#34; is not accessible before the first sentence
                 of the input, an exception is thrown. Use a very large number to make sure that only a single
                 document is created.
-            n: the number of group_by elements to include in a document.
+            group_by_n: the number of group_by elements to include in a document.
             outset: the annotation set name for the annotations to add
             token_type: the type of the token annotations
             mwt_type: the type of multi-word annotations
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
         &#34;&#34;&#34;
+        super().__init__()
         assert sentence_type is not None
         assert token_type is not None
         assert mwt_type is not None
         self.source = source
         self.from_string = from_string
         self.group_by = group_by
-        self.n = n
+        self.group_by_n = group_by_n
         self.outset = outset
         self.token_type = token_type
         self.mwt_type = mwt_type
@@ -534,10 +542,11 @@ document is created.</dd>
                     raise Exception(&#34;Cannot group by par, no newpar id in the input&#34;)
                 prev_doc = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
                 prev_par = meta.get(&#34;newpar id&#34;, &#34;&#34;)
-            elif self.group_by == &#34;sent&#34; and n_sents_group == self.n:
+            elif self.group_by == &#34;sent&#34; and n_sents_group == self.group_by_n:
                 doc.attach(annset, self.outset)
                 yield doc
                 self.n_documents += 1
+                self._n += 1
                 reset = True
             else:
                 docid = meta.get(&#34;newdoc id&#34;, &#34;&#34;)
@@ -548,10 +557,11 @@ document is created.</dd>
                     self.n_conllu_docs += 1
                     n_docs_group += 1
                     prev_doc = docid
-                    if self.group_by == &#34;doc&#34; and n_docs_group == self.n:
+                    if self.group_by == &#34;doc&#34; and n_docs_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += &#34;\n\n&#34;
@@ -563,10 +573,11 @@ document is created.</dd>
                     self.n_conllu_pars += 1
                     n_pars_group += 1
                     prev_par = parid
-                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.n:
+                    if not reset and self.group_by == &#34;par&#34; and n_pars_group == self.group_by_n:
                         doc.attach(annset, self.outset)
                         yield doc
                         self.n_documents += 1
+                        self._n += 1
                         reset = True
                     else:
                         doc._text += &#34;\n&#34;
@@ -702,6 +713,7 @@ document is created.</dd>
                 self.n_conllu_pars += 1
             doc.attach(annset, self.outset)
             yield doc
+            self._n += 1
             self.n_documents += 1</code></pre>
 </details>
 <h3>Ancestors</h3>

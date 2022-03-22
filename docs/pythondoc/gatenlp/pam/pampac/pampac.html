@@ -260,7 +260,8 @@ class PampacAnnotator(Annotator):
             cont = doc.anns(self.containing_anns_desc)
         else:
             cont = None
-        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)</code></pre>
+        self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
+        return doc</code></pre>
 </details>
 </section>
 <section>
@@ -660,7 +661,8 @@ and returned. Default: do not use containing annotations and run for the whole d
             cont = doc.anns(self.containing_anns_desc)
         else:
             cont = None
-        return self.pampac.run(doc, anns, outset=outset, containing_anns=cont)</code></pre>
+        self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
+        return doc</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
