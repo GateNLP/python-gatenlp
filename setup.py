@@ -36,6 +36,8 @@ setup(
             os.path.join(
                 "serialization", "_htmlviewer", "gatenlp-ann-viewer-merged.js"
             ),
+            os.path.join("processing", "emojis", "emoji2info.json"),
+            os.path.join("processing", "emojis", "emojiregex.txt"),
         ]
     },
     # include_package_data=True,

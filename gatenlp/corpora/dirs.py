@@ -187,6 +187,7 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         """
         Yield the next document from the source.
         """
+        self._n = 0
         for p in self.paths:
             doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
             self.setrelpathfeature(doc, p)
