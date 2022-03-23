@@ -292,23 +292,23 @@ def run_dir2dir():
         logger.info("Running RayExecutor")
         assert args.nworkers > 1
         if args.ray_address is None:
-            logger.info(f"Starting Ray, using {args.nworkers} actors")
+            logger.info(f"Starting Ray, using {args.nworkers} workers")
             rayinfo = ray.init()
         else:
             rayinfo = ray.init(address=args.ray_address)
             logger.info(f"Connected to Ray cluster at {args.ray_address} using {args.nworkers}")
         logger.info(f"Ray available: {rayinfo}")
-        actors = []
+        workers = []
         for k in range(args.nworkers):
-            actor = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
-            actors.append(actor)
-            logger.info(f"Started actor {k}: {actor}")
-        remaining = actors
+            worker = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
+            workers.append(worker)
+            logger.info(f"Started worker {k}: {worker}")
+        remaining = workers
 
         def siginthandler(sig, frame):
-            for actor in actors:
-                logger.warning(f"KILLING actor {actor}")
-                ray.cancel(actor)
+            for worker in workers:
+                logger.warning(f"KILLING worker {worker}")
+                ray.cancel(worker)
 
         signal.signal(signal.SIGINT, siginthandler)
         while True:
@@ -316,20 +316,20 @@ def run_dir2dir():
             if len(finished) > 0:
                 logger.info(f"Finished: {finished} ({len(finished)} so far, {len(remaining)} remaining)")
             if len(remaining) == 0:
-                logger.info("All actors finished, processing results")
+                logger.info("All workers finished, processing results")
                 break
-        results_list = ray.get(actors)
+        results_list = ray.get(workers)
         pipeline_results = [r["result"] for r in results_list]
         have_error = False
         total_in = 0
         total_none = 0
         total_out = 0
-        for actor, ret in zip(actors, results_list):
+        for worker, ret in zip(workers, results_list):
             if ret["error"]:
-                logger.error(f"Actor {actor} ABORTED, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
+                logger.error(f"Worker {worker} ABORTED, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
                 have_error = True
             else:
-                logger.info(f"Actor {actor} finished, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
+                logger.info(f"Worker {worker} finished, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
             total_in += ret["n_in"]
             total_none += ret["n_none"]
             total_out += ret["n_out"]
