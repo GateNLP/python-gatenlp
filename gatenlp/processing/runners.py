@@ -132,12 +132,14 @@ class Dir2DirExecutor:
 
         """
         flags = dict(interrupted = False)
+        logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
 
         def siginthandler(sig, frame):
+            self.error = True
             flags["interrupted"] = True
+            self.logger.warning(f"{logpref}received SIGINT signal")
 
         signal.signal(signal.SIGINT, siginthandler)
-        logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
 
         if len(inout) == 2:   # src -> dest
             for ret in pipeline.pipe(inout[0]):
@@ -306,7 +308,7 @@ def run_dir2dir():
         def siginthandler(sig, frame):
             for actor in actors:
                 logger.warning(f"KILLING actor {actor}")
-                ray.kill(actor)
+                ray.cancel(actor)
 
         signal.signal(signal.SIGINT, siginthandler)
         while True:
