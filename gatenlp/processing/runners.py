@@ -302,10 +302,12 @@ def run_dir2dir():
             actors.append(actor)
             logger.info(f"Started actor {k}: {actor}")
         remaining = actors
+
         def siginthandler(sig, frame):
             for actor in actors:
                 logger.warning(f"KILLING actor {actor}")
                 ray.kill(actor)
+
         signal.signal(signal.SIGINT, siginthandler)
         while True:
             finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)

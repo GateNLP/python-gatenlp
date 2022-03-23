@@ -3,7 +3,8 @@
 ## Upcoming version
 
 * Added the `EmojiAnnotator`
-
+* Added the command `gatenlp-dir2dir` for running a pipeline either in 
+  a single process or in several processes in parallel using [Ray](https://www.ray.io/)
 
 
 ## 1.0.7 (2022-03-06)
