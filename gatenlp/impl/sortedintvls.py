@@ -200,12 +200,17 @@ class SortedIntvls:
                 elif intvl[0] == start and intvl[1] >= start:
                     yield intvl
         else:
+            # check all intervals which start before then end of the given span: if they would
+            # start later, then the interval cannot overlap!
+            # This inclues intervals which both start and end before the given span, so
+            # we need to check that the end of the interval is at least after the
             for intvl in self._by_start.irange(maximum=(end - 1, sys.maxsize, sys.maxsize)):
                 if intvl[0] == intvl[1]:  # we need to check a zero length interval
                     if intvl[0] >= start:
                         yield intvl
                 else:
-                    if intvl[1] > start + 1:
+                    # if the interval starts
+                    if intvl[1] > start:
                         yield intvl
 
     def firsts(self):

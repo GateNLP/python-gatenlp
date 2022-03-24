@@ -230,9 +230,14 @@ def support_annotation_or_set(method):
         from gatenlp.annotation import Annotation
 
         annid = None
+        ann = None
         if len(args) == 1:
             obj = args[0]
-            if hasattr(obj, "start") and hasattr(obj, "end"):
+            if isinstance(obj, Annotation):
+                left, right = obj.start, obj.end
+                annid = obj.id
+                ann = obj
+            elif hasattr(obj, "start") and hasattr(obj, "end"):
                 left, right = obj.start, obj.end
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
@@ -242,13 +247,13 @@ def support_annotation_or_set(method):
                 raise Exception(
                     "Not an annotation or an annotation set or pair: {}".format(args[0])
                 )
-            if isinstance(obj, Annotation):
-                annid = obj.id
         else:
             assert len(args) == 2
             left, right = args
         # if the called method/function does have an annid keyword, pass it, otherwise omit
-        if "annid" in method.__code__.co_varnames:
+        if "ann" in method.__code__.co_varnames:
+            return method(self, left, right, ann=ann, **kwargs)
+        elif "annid" in method.__code__.co_varnames:
             return method(self, left, right, annid=annid, **kwargs)
         else:
             return method(self, left, right, **kwargs)

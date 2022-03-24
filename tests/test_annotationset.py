@@ -257,6 +257,15 @@ class TestAnnotationSetRels:
         set1.clear()
         assert len(set1) == 0
 
+    def test_overlapping1(self):
+        doc = Document("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        set1 = doc.annset("set1")
+        set2 = doc.annset("set2")
+        ann1 = set1.add(13, 17, "sometype")
+        ann2 = set2.add(16, 17, "sometype")
+        ret = set1.overlapping(ann2, include_self=True)
+        assert len(ret) == 1
+
     def test_annotationset_exps(self):
         """
         Unit test method (make linter happy)

@@ -1175,13 +1175,16 @@ class AnnotationSet:
         is True
 
         Args:
-          start: start offset of the span
-          end: end offset of the span
-          annid: the annotation id of the annotation representing the span.
-              (Default value = None)
-          include_self: if True and the annotation id for the span is given,
-              do not include that annotation in the result set.
-              (Default value = False)
+            start: start offset of the span
+            end: end offset of the span
+            annid: the annotation id that is passed to this function for checking if it is included in the result.
+                This is automatically passed via the support_annotation_or_set wrapper and does not need
+                to get specified explicitly. IMPORTANT: if you specify an annotation of a different set, make
+                sure that include_self=True, otherwise a matching annotation in this set, which has the id
+                of the annotation from the other set will not be included!!
+            include_self: if True and the annotation id for the span is given,
+                do not include that annotation in the result set.
+                (Default value = False)
 
         Returns:
             an immutable annotation set with the matching annotations
