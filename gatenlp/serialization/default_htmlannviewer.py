@@ -4,9 +4,10 @@ Module that implements the various ways of how to save and load documents and ch
 import os
 from random import choice
 from string import ascii_uppercase
+from IPython.display import display_html, Javascript
+from IPython.display import display as i_display
 from gatenlp.document import Document
 from gatenlp.gatenlpconfig import gatenlpconfig
-
 
 JS_JQUERY_URL = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
 JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.14/gatenlp-ann-viewer.js"
@@ -16,6 +17,59 @@ HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
 JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
 html_ann_viewer_serializer_js_loaded = False
+
+
+def init_javscript():
+    import IPython
+
+    IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
+
+
+def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
+                row1_style=None, row2_style=None):
+
+    i_display(Javascript(url=JS_JQUERY_URL))
+    i_display(Javascript(url=JS_GATENLP_URL))
+    html = doc.save_mem(
+        fmt="html-ann-viewer",
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annsets=annsets,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        display_html(html, raw=True)
+    else:
+        return html
+
+
+def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
+                   row1_style=None, row2_style=None):
+
+    if not gatenlpconfig.notebook_js_initialized:
+        init_javscript()
+        gatenlpconfig.notebook_js_initialized = True
+    html = doc.save_mem(
+        fmt="html-ann-viewer",
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annsets=annsets,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        display_html(html, raw=True)
+    else:
+        return html
 
 
 class HtmlAnnViewerSerializer:
@@ -40,12 +94,6 @@ class HtmlAnnViewerSerializer:
             js = infp.read()
             js = """<script type="text/javascript">""" + js + "</script>"
         return js
-
-    @staticmethod
-    def init_javscript():
-        import IPython
-
-        IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
     @staticmethod
     def save(
