@@ -4,8 +4,6 @@ Module that implements the various ways of how to save and load documents and ch
 import os
 from random import choice
 from string import ascii_uppercase
-from IPython.display import display_html, Javascript
-from IPython.display import display as i_display
 from gatenlp.document import Document
 from gatenlp.gatenlpconfig import gatenlpconfig
 
@@ -20,14 +18,21 @@ html_ann_viewer_serializer_js_loaded = False
 
 
 def init_javscript():
-    import IPython
+    """
+    Initialize the notebook/html javascript.
+    """
+    from IPython.display import display_html
 
-    IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
+    display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
 
 def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
-                row1_style=None, row2_style=None):
-
+               row1_style=None, row2_style=None):
+    """
+    Show htmldocumentviewe in a colab notebook.
+    """
+    from IPython.display import display_html, Javascript
+    from IPython.display import display as i_display
     i_display(Javascript(url=JS_JQUERY_URL))
     i_display(Javascript(url=JS_GATENLP_URL))
     html = doc.save_mem(
@@ -49,8 +54,11 @@ def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
 
 
 def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
-                   row1_style=None, row2_style=None):
-
+                  row1_style=None, row2_style=None):
+    """
+    Show htmldocumentviewer in a jupyter notebook.
+    """
+    from IPython.display import display_html
     if not gatenlpconfig.notebook_js_initialized:
         init_javscript()
         gatenlpconfig.notebook_js_initialized = True
@@ -73,7 +81,10 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
 
 
 class HtmlAnnViewerSerializer:
-    """ """
+    """
+    Serialization class for generating HTML/Javascript to view a document in an HTML page or in a Jupyter or
+    Colab notebook.
+    """
 
     @staticmethod
     def javascript():
@@ -97,7 +108,7 @@ class HtmlAnnViewerSerializer:
 
     @staticmethod
     def save(
-        clazz,
+        _clazz,
         inst,
         to_ext=None,
         to_mem=None,
@@ -115,7 +126,7 @@ class HtmlAnnViewerSerializer:
         """Convert a document to HTML for visualizing it.
 
         Args:
-            clazz: the class of the object to save
+            _clazz: the class of the object to save
             inst: the instance/object to save
             to_ext:  the destination where to save to unless to_mem is given
             to_mem: if true, ignores to_ext and returns the representation
@@ -173,7 +184,7 @@ class HtmlAnnViewerSerializer:
             if htmlid:
                 rndpref = str(htmlid)
             else:
-                rndpref = "".join(choice(ascii_uppercase) for i in range(10))
+                rndpref = "".join(choice(ascii_uppercase) for _i in range(10))
             html = html[idx1:idx2]
             html = f"""<div><style>#{rndpref}-wrapper {{ color: {txtcolor} !important; }}</style>
 <div id="{rndpref}-wrapper">
@@ -226,4 +237,3 @@ class HtmlAnnViewerSerializer:
         else:
             with open(to_ext, "wt", encoding="utf-8") as outfp:
                 outfp.write(html)
-

@@ -1,19 +1,8 @@
 """
-Module that implements the various ways of how to save and load documents and change logs.
+Module that implements the json serialization class.
 """
-import yaml
-from collections import defaultdict
-# import ruyaml as yaml
-try:
-    from yaml import CFullLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import FullLoader as Loader, Dumper
-yaml_loader = yaml.Loader
-yaml_dumper = yaml.Dumper
 from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
-import warnings
-import pickle
 
 
 # import orjson as usejson
