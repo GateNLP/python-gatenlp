@@ -21,7 +21,7 @@ def init_javscript():
     """
     Initialize the notebook/html javascript.
     """
-    from IPython.display import display_html
+    from IPython.display import display_html   # pylint: disable=C0415
 
     display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
@@ -31,8 +31,8 @@ def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
     """
     Show htmldocumentviewe in a colab notebook.
     """
-    from IPython.display import display_html, Javascript
-    from IPython.display import display as i_display
+    from IPython.display import display_html, Javascript   # pylint: disable=C0415
+    from IPython.display import display as i_display   # pylint: disable=C0415
     i_display(Javascript(url=JS_JQUERY_URL))
     i_display(Javascript(url=JS_GATENLP_URL))
     html = doc.save_mem(
@@ -49,6 +49,7 @@ def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
     )
     if display:
         display_html(html, raw=True)
+        return None
     else:
         return html
 
@@ -58,7 +59,7 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
     """
     Show htmldocumentviewer in a jupyter notebook.
     """
-    from IPython.display import display_html
+    from IPython.display import display_html   # pylint: disable=C0415
     if not gatenlpconfig.notebook_js_initialized:
         init_javscript()
         gatenlpconfig.notebook_js_initialized = True
@@ -76,6 +77,7 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
     )
     if display:
         display_html(html, raw=True)
+        return None
     else:
         return html
 
