@@ -24,7 +24,7 @@ class EmojiAnnotator(Annotator):
     """
     Annotator to find emojis in the document text.
     """
-    def __init__(self, outset_name="", ann_type="Emoji"):
+    def __init__(self, outset_name="", ann_type="Emoji", string_feature=None):
         """
         Initialize the Emoji annotator. For each emoji found, an annotation is created which
         contains the features codepoint, status, name, group, subgroup.
@@ -32,9 +32,12 @@ class EmojiAnnotator(Annotator):
         Args:
             outset_name: the name of the output annotation set
             ann_type: the annotation type for the annotations to create
+            string_feature: if None, the original matched string is not added as a feature, otherwise, the
+                name of the feature to use for adding.
         """
         self.outset_name = outset_name
         self.ann_type = ann_type
+        self.string_feature = string_feature
 
     def __call__(self, doc, **kwargs):
         txt = doc.text
@@ -44,12 +47,14 @@ class EmojiAnnotator(Annotator):
         for m in re.finditer(PAT_EMOJI, txt):
             infos = EMOJI2INFO.get(m.group())
             if infos is not None:
-                outset.add(m.start(), m.end(), self.ann_type, features=dict(
+                ann = outset.add(m.start(), m.end(), self.ann_type, features=dict(
                     codepoint=infos[0],
                     status=infos[1],
-                    # emoji=infos[2],
+                    emoji=infos[2],
                     name=infos[3],
                     group=infos[4],
                     subgroup=infos[5]
                 ))
+                if self.string_feature is not None:
+                    ann.features[self.string_feature] = doc[ann]
         return doc
