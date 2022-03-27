@@ -48,10 +48,10 @@ def annotate_substrings(doc,
     assert to_offset <= len(doc.text)
     last_end = from_offset
     for substring, features in zip(substrings, featureslist):
-        idx = doc.text(substring, last_end, to_offset)
+        idx = doc.text.find(substring, last_end, to_offset)
         if idx < 0:  # not found
             if raise_if_unmatched:
-                raise Exception(f"Umatched string {substring} in {doc.text} from {last_end} to {to_offset}")
+                raise Exception(f"Unmatched string '{substring}' in {doc.text} from {last_end} to {to_offset}")
         else:
             end = idx+len(substring)
             if idx > last_end and annotate_gaps:
