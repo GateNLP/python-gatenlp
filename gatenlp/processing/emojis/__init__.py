@@ -1,0 +1,1 @@
+from gatenlp.processing.emojis.emojis import EmojiAnnotator, EMOJI2INFO, PAT_EMOJI
