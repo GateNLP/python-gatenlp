@@ -5,9 +5,11 @@
 * Added the `EmojiAnnotator`
 * Added the command `gatenlp-dir2dir` for running a pipeline either in 
   a single process or in several processes in parallel using [Ray](https://www.ray.io/)
+* Added the `CorpusViewer` 
+* Added `ConcatCorpus` and `ConcatSource`
 
 
-## 1.0.7 (2022-03-06)
+## 1.0.7 (2022-02-06)
 
 * added new parameter `reset_annids` `AnnotatationSet.clear` 
 * fixed a bug in `StringGazetteer` when the gazetteer list contains a string only entry instead of a tuple.
