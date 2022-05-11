@@ -24,9 +24,30 @@ from gatenlp.utils import init_logger
 #
 # TODO: add native Python multiprocessing: use ray only if any of the ray-related options or "--ray"  is present
 
+GLOBALS = dict(mod=None)
 
 class LoggedException(Exception):
     pass
+
+def load_module(args):
+    if GLOBALS["mod"] is not None:
+        return GLOBALS["mod"]
+    if not os.path.exists(args.modulefile):
+        raise Exception(f"Module file {args.modulefile} does not exist")
+    spec = importlib.util.spec_from_file_location("gatenlp.tmprunner", args.modulefile)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    GLOBALS["mod"] = mod
+    return mod
+
+
+def get_add_args(args):
+    mod = load_module(args)
+    if hasattr(mod, "add_args"):
+        return getattr(mod, "add_args")
+    else:
+        return None
+
 
 def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     """
@@ -42,12 +63,7 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
         A list with the pipeline as the first and the process_result function as the second element.
 
     """
-    if not os.path.exists(args.modulefile):
-        raise Exception(f"Module file {args.modulefile} does not exist")
-    spec = importlib.util.spec_from_file_location("gatenlp.tmprunner", args.modulefile)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-
+    mod = load_module(args)
     if not hasattr(mod, args.make_pipeline):
         raise Exception(f"Module {args.modulefile} does not define function {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
     pipeline_maker = getattr(mod, args.make_pipeline)
@@ -233,10 +249,11 @@ def ray_executor(args=None, workernr=0, nworkers=1):
     return dict(result=ret, error=executor.error, n_in=executor.n_in, n_out=executor.n_out, n_none=executor.n_none)
 
 
-def run_dir2dir():
+def build_argparser():
     argparser = argparse.ArgumentParser(
         description="Run gatenlp pipeline on directory of documents",
-        epilog="The module should define make_pipeline(args=None, workernr=0) and result_processor(result=None)"
+        epilog="The module should define make_pipeline(args=None, workernr=0) and result_processor(result=None)" +
+               " and can optionally define add_args(argparser) to inject additional arguments into the argparser"
     )
     argparser.add_argument("dir", type=str,
                            help="Directory to process or input directory if --outdir is also specified"
@@ -269,7 +286,21 @@ def run_dir2dir():
                            help="Name of result processing function, if None, results are ignored (None)")
     argparser.add_argument("--debug", action="store_true",
                            help="Show DEBUG logging messages")
-    args = argparser.parse_args()
+    return argparser
+
+
+def run_dir2dir():
+    argparser = build_argparser()
+    args, extra = argparser.parse_known_args()
+    # if we detect extra args, try to find the add_args function in the module:
+    if len(extra) > 0:
+        add_args_fn = get_add_args(args)
+        if add_args_fn is None:
+            raise Exception(f"Unknown args, but no add_args function in module: {extra}")
+        # we got the add_args function, so do the whole parsing again
+        argparser = build_argparser()
+        add_args_fn(argparser)
+        args = argparser.parse_args()
 
     logger = init_logger(name="run_dir2dir", debug=args.debug)
     if args.nworkers == 1:
