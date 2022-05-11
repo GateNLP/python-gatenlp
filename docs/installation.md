@@ -89,8 +89,25 @@ To use the conda environment with jupyter notebook/lab create kernel:
   (or choose a different name in place of "gatenlp" for the kernel)
 * this kernel should then show up in the list of kernels within jupyter notebook or lab
 
+#### Installing directly from GitHub
 
+To install directly from the current GitHub main branch:
 
+```
+python -m pip install https://github.com/GateNLP/python-gatenlp.git
+```
+
+To also specify extras:
+
+```
+python -m pip install https://github.com/GateNLP/python-gatenlp.git#egg=gatenlp[stanza]
+```
+
+To install a specific branch, tag, commit:
+
+```
+python -m pip install https://github.com/GateNLP/python-gatenlp.git@1.0.7
+```
 
 #### Requirements for using the GATE slave:
 

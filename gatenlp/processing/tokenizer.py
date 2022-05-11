@@ -35,7 +35,9 @@ class NLTKTokenizer(Tokenizer):
     """
 
     def __init__(
-        self, nltk_tokenizer=None, nltk_sent_tokenizer=None, outset_name="", token_type="Token", space_token_type=None
+            self, nltk_tokenizer=None,
+            nltk_sent_tokenizer=None, outset_name="",
+            token_type="Token", space_token_type=None
     ):
         """
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
@@ -54,6 +56,7 @@ class NLTKTokenizer(Tokenizer):
                 not be used if it exists, the `tokenize` method will be used.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
+            space_token_type: annotation type of the gaps between tokens
         """
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):
@@ -98,7 +101,6 @@ class NLTKTokenizer(Tokenizer):
                     sents = self.sent_tokenizer.tokenize(doc.text)
             else:
                 sents = [doc.text]
-            print(f"DEBUG: sentences= {sents}")
             if self.is_function:
                 tks = [self.tokenizer(s) for s in sents]
             else:
