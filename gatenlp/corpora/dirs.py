@@ -354,7 +354,11 @@ class DirFilesCorpus(Corpus, MultiProcessingAble):
         assert isinstance(idx, int)
         path = self.paths[idx]
         abspath = os.path.join(self.dirpath, path)
-        doc = Document.load(abspath, fmt=self.fmt)
+        try:
+            doc = Document.load(abspath, fmt=self.fmt)
+        except Exception as ex:
+            print(f"Error loading document from {abspath} using format {self.fmt}")
+            raise ex
         doc.features[self.idxfeatname()] = idx
         # doc.features["__idx"] = idx
         # doc.features["__relpath"] = path

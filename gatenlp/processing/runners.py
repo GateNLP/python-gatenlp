@@ -293,14 +293,13 @@ def run_dir2dir():
     argparser = build_argparser()
     args, extra = argparser.parse_known_args()
     # if we detect extra args, try to find the add_args function in the module:
-    if len(extra) > 0:
-        add_args_fn = get_add_args(args)
-        if add_args_fn is None:
-            raise Exception(f"Unknown args, but no add_args function in module: {extra}")
-        # we got the add_args function, so do the whole parsing again
+    add_args_fn = get_add_args(args)
+    if add_args_fn is not None:
         argparser = build_argparser()
         add_args_fn(argparser)
         args = argparser.parse_args()
+    elif len(extra) > 0:
+        raise Exception(f"Unknown args, but no add_args function in module: {extra}")
 
     logger = init_logger(name="run_dir2dir", debug=args.debug)
     if args.nworkers == 1:
