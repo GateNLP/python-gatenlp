@@ -5,62 +5,10 @@ from collections import defaultdict
 from gatenlp.document import Document
 from gatenlp.utils import get_nested
 from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
-import warnings
-
-
-# import orjson as usejson
-# import json as usejson
-# import rapidjson as usejson
-# import ujson as usejson
-# import hyperjson as usejson
 import json
 
 JSON_WRITE = "wt"
 JSON_READ = "rt"
-
-# # for replacing json by orjson
-# class json:
-#     @staticmethod
-#     def load(fp):
-#         data = fp.read()
-#         return usejson.loads(data)
-#     @staticmethod
-#     def loads(data):
-#         return usejson.loads(data)
-#     @staticmethod
-#     def dump(obj, fp):
-#         buf = usejson.dumps(obj)
-#         fp.write(buf)
-#     @staticmethod
-#     def dumps(obj):
-#         return usejson.dumps(obj)
-
-# # for replacing json with one of the other implementations
-# class json:
-#     @staticmethod
-#     def load(fp):
-#         return usejson.load(fp)
-#     @staticmethod
-#     def loads(data):
-#         return usejson.loads(data)
-#     @staticmethod
-#     def dump(obj, fp):
-#         buf = usejson.dump(obj, fp)
-#     @staticmethod
-#     def dumps(obj):
-#         return usejson.dumps(obj)
-
-
-# TODO: for ALL save options, allow to filter the annotations that get saved!
-# TODO: then use this show only limited set of annotations in the viewer
-# TODO: create Document.display(....) to show document in various ways in the current
-#   environment, e.g. Jupyter notebook, select anns, configure colour palette, size etc.
-
-
-# TODO: when loading from a URL, allow for deciding on the format based on the mime type!
-# So if we do not have the format, we should get the header for the file, check the mime type and see
-# if  we have a loder registered for that and then let the loader do the rest of the work. This may
-# need loaders to be able to use an already open stream.
 
 TWITTER_DEFAULT_INCLUDE_FIELDS = [
     "id_str",

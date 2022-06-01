@@ -2,39 +2,12 @@
 Module that implements the various ways of how to save and load documents and change logs.
 """
 import io
-import os
-import sys
-import yaml
-from collections import defaultdict
-# import ruyaml as yaml
-try:
-    from yaml import CFullLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import FullLoader as Loader, Dumper
-yaml_loader = yaml.Loader
-yaml_dumper = yaml.Dumper
-from random import choice
-from string import ascii_uppercase
-from msgpack import pack, Unpacker
 from gatenlp.document import Document
 from gatenlp.annotation_set import AnnotationSet
 from gatenlp.annotation import Annotation
 from gatenlp.changelog import ChangeLog
 from gatenlp.features import Features
-from gatenlp.utils import get_nested
-from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
-from gzip import open as gopen, compress, decompress
-from bs4 import BeautifulSoup
-from gatenlp.gatenlpconfig import gatenlpconfig
-import bs4
-import warnings
-import pickle
-
-try:
-    from bs4 import GuessedAtParserWarning
-    warnings.filterwarnings("ignore", category=GuessedAtParserWarning)
-except ImportError as ex:
-    pass
+from gatenlp.urlfileutils import is_url, get_bytes_from_url
 
 
 MSGPACK_VERSION_HDR = "sm2"
@@ -55,6 +28,8 @@ class MsgPackSerializer:
         Returns:
 
         """
+        from msgpack import pack
+
         pack(MSGPACK_VERSION_HDR, stream)
         pack(doc.offset_type, stream)
         pack(doc.text, stream)
@@ -82,6 +57,8 @@ class MsgPackSerializer:
         Returns:
 
         """
+        from msgpack import Unpacker
+
         u = Unpacker(stream)
         version = u.unpack()
         if version != MSGPACK_VERSION_HDR:

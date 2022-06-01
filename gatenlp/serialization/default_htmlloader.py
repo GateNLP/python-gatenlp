@@ -4,8 +4,6 @@ Module that implements the default  HTML loader
 import yaml
 from gatenlp.document import Document
 from gatenlp.urlfileutils import is_url, get_str_from_url
-from bs4 import BeautifulSoup
-import bs4
 
 
 class HtmlLoader:
@@ -64,6 +62,9 @@ class HtmlLoader:
         # before and after a block element, a newline is added unless there is already one
         # NOTE: for now we use  multi_valued_attributes=None which prevents attributes of the
         # form "class='val1 val2'" to get converted into features with a list of values.
+        from bs4 import BeautifulSoup
+        import bs4
+
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:

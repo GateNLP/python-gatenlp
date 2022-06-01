@@ -1,17 +1,17 @@
 """
 Module that implements the various ways of how to save and load documents and change logs.
 """
-import yaml
-from collections import defaultdict
-# import ruyaml as yaml
-try:
-    from yaml import CFullLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import FullLoader as Loader, Dumper
-yaml_loader = yaml.Loader
-yaml_dumper = yaml.Dumper
 from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
+
+
+def delayed_imports():
+    import yaml
+    try:
+        from yaml import CFullLoader as Loader, CDumper as Dumper
+    except ImportError:
+        from yaml import FullLoader as Loader, Dumper
+    return yaml, yaml.Loader, yaml.Dumper
 
 
 class YamlSerializer:
@@ -42,6 +42,7 @@ class YamlSerializer:
             annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
             **kwargs:
         """
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
         d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
         if to_mem:
             if gzip:
@@ -87,6 +88,7 @@ class YamlSerializer:
         Returns:
 
         """
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:

@@ -5,12 +5,11 @@ import json
 import time
 import requests
 import logging
-from elg import Authentication
-from elg.utils import get_domain, get_metadatarecord
 
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 from gatenlp import Span
+
 
 class ElgTextAnnotator(Annotator):
     # NOTE: maybe we should eventually always use the elg package and the elg Service class!
@@ -87,6 +86,8 @@ class ElgTextAnnotator(Annotator):
             anntypes_map: a map for renaming the annotation type names from the service to the ones to use in
                the annotated document.
         """
+        from elg import Authentication
+        from elg.utils import get_domain, get_metadatarecord
         if [x is not None for x in [url, servicenr]].count(True) != 1:
             raise Exception("Exactly one of service or url must be specified")
         if [x is not None for x in [auth, success_code, access_token]].count(True) > 1:

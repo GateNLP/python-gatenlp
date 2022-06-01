@@ -3,14 +3,13 @@ Module that implements the json serialization class.
 """
 from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
-
+import json
 
 # import orjson as usejson
 # import json as usejson
 # import rapidjson as usejson
 # import ujson as usejson
 # import hyperjson as usejson
-import json
 
 JSON_WRITE = "wt"
 JSON_READ = "rt"
