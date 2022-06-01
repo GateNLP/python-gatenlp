@@ -82,3 +82,8 @@ Conventions:
   `pytest -s --log-cli-level DEBUG module`
 * normal testing is done without -s but with `log_cli_level=WARNING` to show important feedback from the 
   tests, e.g. when a test is skipped because of the local config
+
+
+Build a wheel: `pip wheel .[gazetteers]` or similar, store in docs/wheels for use by pyodide
+
+
