@@ -8,7 +8,7 @@ class TestClient01:
         """
         Unit test method (make linter happy)
         """
-        from gatenlp.processing.client import TagMeAnnotator
-        from gatenlp.processing.client import ElgTextAnnotator
-        from gatenlp.processing.client import GateCloudAnnotator
-        from gatenlp.processing.client import TextRazorTextAnnotator
+        from gatenlp.processing.client.tagme import TagMeAnnotator
+        from gatenlp.processing.client.elg import ElgTextAnnotator
+        from gatenlp.processing.client.gatecloud import GateCloudAnnotator
+        from gatenlp.processing.client.textrazor import TextRazorTextAnnotator
