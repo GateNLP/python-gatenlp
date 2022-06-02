@@ -5,19 +5,35 @@ Module for functions that help reading binary and textual data from either URLs 
 from typing import Optional, Union
 from io import TextIOWrapper
 from pathlib import Path
+import asyncio
 from urllib.parse import ParseResult
-from urllib.request import urlopen
-
-import requests
-
+from urllib.request import urlopen as urlopentmp
+urlopen = urlopentmp
+have_pyodide = False
+try:
+    import requests
+except Exception as ex:
+    # maybe importing requests failed because we are running in a browser using pyodide?
+    try:
+        import pyodide
+        urlopen = pyodide.open_url
+        have_pyodide = True
+    except:
+        # nope, re-raise the original exception
+        raise ex
 
 def is_url(ext: Union[str, Path, ParseResult, None]):
     """
     Returns a tuple (True, urlstring) if ext should be interpreted as a (HTTP(s)) URL, otherwise false, pathstring
-    If ext is None, returns None, None.
+    If ext is None, returns None, None. If ext is a string, it only gets interpreted as a URL if it starts with
+    http:// or https://, and if it starts with file:// the remaining path is used (the latter probably only works on
+    non-Windows systems). Otherwise the string is interpreted as a file path.
+    If ext is a ParseResult it is always interpreted as a URL, if it is a Path object it is always interpreted
+    as a path.
 
     Args:
-      ext: something that represents an external resource: string, url parse, pathlib path object ...
+        ext: something that represents an external resource: a string, a ParseResult i.e.
+            the result of urllib.parse.urlparse(..), a Path i.e. the result of  Path(somepathstring).
 
     Returns:
         a tuple (True, urlstring)  or (False,pathstring), or None, None if ext is None
@@ -42,8 +58,9 @@ def is_url(ext: Union[str, Path, ParseResult, None]):
         raise Exception(f"Odd type: {ext}")
 
 
-def get_str_from_url(url, encoding=None):  # pragma: no cover
-    """Read a string from the URL.
+def get_str_from_url(url: Union[str, ParseResult], encoding=None):  # pragma: no cover
+    """
+    Read a string from the URL.
 
     Args:
       url: some URL
@@ -52,10 +69,31 @@ def get_str_from_url(url, encoding=None):  # pragma: no cover
     Returns:
         the string
     """
-    req = requests.get(url)
+    if isinstance(url, ParseResult):
+        url = url.geturl()
+    if have_pyodide:
+        with urlopen(url) as infp:
+            text = infp.read()
+        return text
+    req = requests.get(url, allow_redirects=True)
     if encoding is not None:
         req.encoding = encoding
     return req.text
+
+
+async def get_bytes_from_url_pyodide(url):
+    """
+    Fetches bytes from the URL using GET.
+
+    Args:
+        url: url to use
+
+    Returns:
+        bytes
+    """
+    response = await pyodide.http.pyfetch(url, method="GET")
+    bytes = await response.bytes()
+    return bytes
 
 
 def get_bytes_from_url(url):  # pragma: no cover
@@ -68,7 +106,9 @@ def get_bytes_from_url(url):  # pragma: no cover
     Returns:
         the bytes
     """
-    req = requests.get(url)
+    if have_pyodide:
+        return asyncio.run(get_bytes_from_url_pyodide(url))
+    req = requests.get(url, allow_redirects=True)
     return req.content
 
 
