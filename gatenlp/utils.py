@@ -304,7 +304,10 @@ def in_notebook():
 
 
 def in_colab():
-    from IPython.core import getipython
+    try:
+        from IPython.core import getipython
+    except:
+        return False
     return 'google.colab' in str(getipython.get_ipython())
 
 
