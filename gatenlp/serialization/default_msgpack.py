@@ -86,6 +86,7 @@ class MsgPackSerializer:
                 afeatures = u.unpack()
                 ann = Annotation(astart, aend, atype, annid=aid, features=afeatures)
                 annset._annotations[aid] = ann
+            annset._annset.update(annset._annotations.values())
             setsdict[sname] = annset
         doc._annotation_sets = setsdict
         return doc

@@ -243,10 +243,18 @@ class TestAnnotationSetRels:
         dict1 = set1.to_dict()
         set2 = AnnotationSet.from_dict(dict1)
         assert set1.size == set2.size
+        # the annotation itself is checked by object!
+        # == is checked by object, .equal() is checked by content
         for ann in set1:
-            assert ann in set2
+            assert ann not in set2
+            assert ann.id in set2
+            assert set2.get(ann.id).equal(ann)
+            assert not set2.get(ann.id) == ann
         for ann in set2:
-            assert ann in set1
+            assert ann not in set1
+            assert ann.id in set1
+            assert set1.get(ann.id).equal(ann)
+            assert not set1.get(ann.id) == ann
 
         s1 = set1.within(ann1)
         assert len(s1) == 9
@@ -270,18 +278,44 @@ class TestAnnotationSetRels:
         """
         Unit test method (make linter happy)
         """
-        # import pytest
-        # with pytest.raises(Exception) as ex:
-        #     Annotation(3, 2, "X")
-        # assert str(ex.value).startswith("Cannot create annotation")
-        pass
+        import pytest
+        doc = Document("some doc")
+        annset = doc.annset()
+        with pytest.raises(Exception) as ex:
+            start = annset.start
+        assert str(ex.value)
 
     def test_annotationset_misc01(self):
         """
         Unit test method (make linter happy)
         """
-        # TODO: set1.add_ann(ann, annid=None)
-        pass
+        doc = Document("some doc")
+        # add two annotations to set A, with ids 0 and 1
+        a1 = doc.annset("A").add(0, 1, "A1")
+        a2 = doc.annset("A").add(0, 2, "A2")
+        # add two annotations to set B, also with ids 0 and 1
+        b1 = doc.annset("B").add(0, 1, "B1")
+        b2 = doc.annset("B").add(0, 2, "B2")
+        # get all annotations in set A within annotation A2: should be a1  (include_self is False by default)
+        tmpset = doc.annset("A").within(a2)
+        assert len(tmpset) == 1
+        assert a1 in tmpset
+        # same but with include_self is True
+        tmpset = doc.annset("A").within(a2, include_self=True)
+        assert len(tmpset) == 2
+        assert a1 in tmpset
+        assert a2 in tmpset
+        # same but use annotation b2: for this, we should always get both a1 and a2
+        tmpset = doc.annset("A").within(b2, include_self=False)
+        assert len(tmpset) == 2
+        assert a1 in tmpset
+        assert a2 in tmpset
+        tmpset = doc.annset("A").within(b2, include_self=True)
+        assert len(tmpset) == 2
+        assert a1 in tmpset
+        assert a2 in tmpset
+
+
 
 
 class TestAnnotationSetEdit:

@@ -214,9 +214,17 @@ def support_annotation_or_set(method):
     Decorator to allow a method that normally takes a start and end
     offset to take an annotation or annotation set, or any other object that has
     "start" and "end" attributes, or a pair of offsets instead.
+
     It also allows to take a single offset instead in which case the end offset will
     get passed on as None: this is to support those methods which can take a span or a single
     offset.
+
+    If a set is passed, the minimum start offset and the maximum end offset of all annotations in the
+    set are used.
+
+    If an annotation is passed, the annotation start and end offsets are used, and if the called method
+    has a keyword parameter "ann" the annotation itself is also passed on, otherwise, if the method
+    has a keyword parameter "annid" the annotation id is also passed on.
 
     Args:
       method: the method that gets converted by this decorator.

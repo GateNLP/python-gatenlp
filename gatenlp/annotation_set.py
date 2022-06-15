@@ -8,7 +8,7 @@ annotations which can arbitrarily overlap.
 from typing import Any, List, Union, Dict, Set, KeysView, Iterator, Generator
 # TODO: prior to Python 3.9 we need different Iterable definitions for typing and type checking
 from collections.abc import Iterable as abc_Iterable
-from typing import Iterable
+from typing import Iterable, Optional
 from collections import defaultdict
 import copy
 from gatenlp.span import Span
@@ -62,7 +62,8 @@ class AnnotationSet:
         self._index_by_type = None
         # internally we represent the annotations as a map from
         # annotation id (int) to Annotation
-        self._annotations = {}
+        self._annotations = {}    # map from annotation id to annotation
+        self._annset = set()      # set containing the annotations itself based on the default hash implementation
         self._is_immutable = False
         self._next_annid = 0
 
@@ -126,6 +127,7 @@ class AnnotationSet:
             annset._annotations = {
                 annid: self._annotations[annid] for annid in restrict_to
             }
+        annset._annset.update(annset._annotations.values())
         annset._next_annid = self._next_annid
         return annset
 
@@ -159,6 +161,7 @@ class AnnotationSet:
             if annid > nextid:
                 nextid = annid
         annset._next_annid = nextid + 1
+        annset._annset.update(annset._annotations.values())
         return annset
 
     @staticmethod
@@ -195,6 +198,7 @@ class AnnotationSet:
                 annset._annotations[ann.id] = ann
                 if ann.id >= annset._next_annid:
                     annset._next_annid = ann.id + 1
+        annset._annset.update(annset._annotations.values())
         return annset
 
     @property
@@ -268,8 +272,7 @@ class AnnotationSet:
         Remove an annotation from the indices.
 
         Args:
-          annotation: the annotation to remove.
-          annotation: Annotation:
+            annotation: the annotation to remove.
         """
         if self._index_by_offset is not None:
             self._index_by_offset.remove(
@@ -279,55 +282,54 @@ class AnnotationSet:
             self._index_by_type[annotation.type].remove(annotation.id)
 
     @staticmethod
-    def _intvs2idlist(intvs, ignore=None) -> List[int]:
+    def _intvs2idlist(intvs, ignore_id=None) -> List[int]:
         """
         Convert an iterable of interval tuples (start, end, id) to a list of ids
 
         Args:
           intvs: iterable of interval tuples
-          ignore: an optional annotation id that should not get included 
-              in the result (Default value = None)
+          ignore_id: (Default value = None) do not include this id
 
         Returns:
           list of ids
         """
-        if ignore is not None:
-            return [i[2] for i in intvs if i[2] != ignore]
+        if ignore_id is not None:
+            return [i[2] for i in intvs if i[2] != ignore_id]
         else:
             return [i[2] for i in intvs]
 
     @staticmethod
-    def _intvs2idset(intvs, ignore=None) -> Set[int]:
+    def _intvs2idset(intvs, ignore_id=None) -> Set[int]:
         """
         Convert an iterable of interval tuples (start, end, id) to a
         set of ids
 
         Args:
             intvs: iterable of interval tuples
-            ignore:  (Default value = None)
+            ignore_id:  (Default value = None) do not include this id
 
         Returns:
             set of ids
         """
         ret = set()
-        if ignore is not None:
+        if ignore_id is not None:
             for i in intvs:
-                if i[2] != ignore:
+                if i[2] != ignore_id:
                     ret.add(i[2])
         else:
             for i in intvs:
                 ret.add(i[2])
         return ret
 
-    def _restrict_intvs(self, intvs, ignore=None):
+    def _restrict_intvs(self, intvs, ignore_id=None):
         """
 
         Args:
           intvs:
-          ignore:  (Default value = None)
+          ignore_id:  (Default value = None) do not include this id
         """
         return self.detach(
-            restrict_to=AnnotationSet._intvs2idlist(intvs, ignore=ignore)
+            restrict_to=AnnotationSet._intvs2idlist(intvs, ignore_id=ignore_id)
         )
 
     def __len__(self) -> int:
@@ -351,7 +353,7 @@ class AnnotationSet:
         return self._owner_doc
 
     @support_annotation_or_set
-    def _check_offsets(self, start: int, end: int, annid=None) -> None:
+    def _check_offsets(self, start: int, end: int) -> None:
         """
         Checks the offsets for the given span/annotation against the document boundaries, if we know the owning
         document and if the owning document has text.
@@ -359,7 +361,6 @@ class AnnotationSet:
         Args:
           start: start offset
           end: end offset
-          annid:  (Default value = None)
         """
         if self._owner_doc is None:
             return
@@ -480,6 +481,7 @@ class AnnotationSet:
         if not self._annotations:
             self._annotations = {}
         self._annotations[annid] = ann
+        self._annset.add(ann)
         self._add_to_indices(ann)
         if self.changelog is not None:
             entry = {
@@ -565,7 +567,7 @@ class AnnotationSet:
                         annid
                     )
                 )
-            annoriter = self._annotations[annid]
+            ann = self._annotations[annid]
         elif isinstance(annoriter, Annotation):
             annid = annoriter.id
             if annid not in self._annotations:
@@ -574,18 +576,22 @@ class AnnotationSet:
                         annid
                     )
                 )
+            ann = annoriter
+        else:
+            raise Exception("Should never happen!")
         # NOTE: once the annotation has been removed from the set, it could
         # still be referenced
         # somewhere else and its features could get modified. In order to
         # prevent logging of such changes,
         # the owning set gets cleared for the annotation
-        annoriter._owner_set = None
+        ann._owner_set = None
         del self._annotations[annid]
+        self._annset.remove(ann)
         if self.changelog is not None:
             self.changelog.append(
                 {"command": "annotation:remove", "set": self.name, "id": annid}
             )
-        self._remove_from_indices(annoriter)
+        self._remove_from_indices(ann)
 
     def clear(self, reset_annids=False) -> None:
         """
@@ -597,6 +603,7 @@ class AnnotationSet:
                 Java GATE Python plugin, as Java GATE handles annotation ids differently!
         """
         self._annotations.clear()
+        self._annset.clear()
         if reset_annids:
             self._next_annid = 0
         self._index_by_offset = None
@@ -624,7 +631,9 @@ class AnnotationSet:
             ann._owner_set = None
             tmpdict[annid] = newann
         for annid, ann in tmpdict.items():
+            self._annset.remove(self._annotations[annid])
             self._annotations[annid] = ann
+            self._annset.add(ann)
 
     def __copy__(self):
         """
@@ -973,6 +982,7 @@ class AnnotationSet:
                 elif len(group) == 0:
                     raise Exception("We should never get a 0 size group here!")
                 else:
+                    i = 0
                     for i, ann in enumerate(group):
                         if ann.start >= curminoffset:
                             topann = ann
@@ -1044,7 +1054,7 @@ class AnnotationSet:
 
     @support_annotation_or_set
     def startingat(
-        self, start: int, _ignored: Any = None, annid=None, include_self=False
+        self, start: int, _end: Any = None, ann=None, include_self: bool = False
     ):
         """
         Gets all annotations starting at the given offset (empty if none) and
@@ -1056,10 +1066,8 @@ class AnnotationSet:
 
         Args:
             start: the offset where annotations should start
-            _ignored: dummy parameter to allow the use of annotations and
-                annotation sets
-            annid:  dummy parameter to allow the use of annotations and
-                annotation sets
+            _end: unused/ignored end offset
+            ann: any annotation that was specified instead of just the offset
             include_self:  should annotation passed be included in the result
 
         Returns:
@@ -1067,15 +1075,15 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_at(start)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
     def start_min_ge(
-        self, offset: int, _ignored: Any = None, annid=None, include_self=False
+        self, offset: int, _end: Any = None, ann: Optional["Annotation"] = None, include_self: bool = False
     ):
         """Gets all annotations starting at the first possible offset
         at or after the given offset and returns them in an immutable
@@ -1083,9 +1091,8 @@ class AnnotationSet:
 
         Args:
           offset: The offset
-          _ignored: dummy parameter to allow the use of annotations and
-              annotation sets
-          annid:  annotation id
+          _end: unused/ignored end offset
+          ann:  any Annotation that was passed
           include_self: should annotation passed be included in the result
 
         Returns:
@@ -1095,23 +1102,23 @@ class AnnotationSet:
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(offset)
         # now select only those first ones which all have the same offset
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
+            ignore_id = None
         retids = set()
         startoff = None
         for intv in intvs:
             if startoff is None:
                 startoff = intv[0]
-                if ignore is not None:
-                    if ignore != intv[2]:
+                if ignore_id is not None:
+                    if ignore_id != intv[2]:
                         retids.add(intv[2])
                 else:
                     retids.add(intv[2])
             elif startoff == intv[0]:
-                if ignore is not None:
-                    if ignore != intv[2]:
+                if ignore_id is not None:
+                    if ignore_id != intv[2]:
                         retids.add(intv[2])
                 else:
                     retids.add(intv[2])
@@ -1120,16 +1127,15 @@ class AnnotationSet:
         return self.detach(restrict_to=retids)
 
     @support_annotation_or_set
-    def start_ge(self, start: int, _ignored: Any = None, annid=None,
-                 include_self=False):
+    def start_ge(self, start: int, _end: Any = None, ann: Optional["Annotation"] = None,
+                 include_self: bool = False):
         """
         Return the annotations that start at or after the given start offset.
 
         Args:
             start: Start offset
-            _ignored: dummy parameter to allow the use of annotations and
-                annotation sets
-            annid:  annotation id
+            _end: unusued/ignored end offset
+            ann:  any Annotation passed
             include_self:  should annotation passed be included in the result
 
         Returns:
@@ -1138,23 +1144,22 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.starting_from(start)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
-    def start_lt(self, offset: int, _ignored: Any = None, _annid=None):
+    def start_lt(self, offset: int, _end: Any = None, ann: Any = None):
         """
         Returns the annotations that start before the given offset
         (or annotation). This also accepts an annotation or set.
 
         Args:
             offset: offset before which the annotations should start
-            _ignored: dummy parameter to allow the use of annotations and
-                annotation sets
-            _annid:  annotation id
+            _end: unused/ignored end offset
+            ann: unised/ignored Annotation passed (can never be included!)
 
         Returns:
           an immutable annotation set of the matching annotations
@@ -1165,7 +1170,7 @@ class AnnotationSet:
         return self._restrict_intvs(intvs)
 
     @support_annotation_or_set
-    def overlapping(self, start: int, end: int, annid=None, include_self=False):
+    def overlapping(self, start: int, end: int, ann: Optional["Annotation"] = None, include_self: bool = False):
         """
         Gets annotations overlapping with the given span. Instead of the
         start and end offsets,
@@ -1177,28 +1182,23 @@ class AnnotationSet:
         Args:
             start: start offset of the span
             end: end offset of the span
-            annid: the annotation id that is passed to this function for checking if it is included in the result.
-                This is automatically passed via the support_annotation_or_set wrapper and does not need
-                to get specified explicitly. IMPORTANT: if you specify an annotation of a different set, make
-                sure that include_self=True, otherwise a matching annotation in this set, which has the id
-                of the annotation from the other set will not be included!!
-            include_self: if True and the annotation id for the span is given,
+            ann: the annotation that is passed to this function for checking if it is included in the result.
+            include_self: if True and the annotation for the span is given,
                 do not include that annotation in the result set.
-                (Default value = False)
 
         Returns:
             an immutable annotation set with the matching annotations
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.overlapping(start, end)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
-    def covering(self, start: int, end: int, annid=None, include_self=False):
+    def covering(self, start: int, end: int, ann: Optional["Annotation"] = None, include_self: bool = False):
         """
         Gets the annotations which contain the given offset range
         (or annotation/annotation set), i.e. annotations such that the given
@@ -1209,25 +1209,23 @@ class AnnotationSet:
         Args:
             start: the start offset of the span
             end: the end offset of the span
-            annid: the annotation id of the annotation representing the span.
-                (Default value = None)
-            include_self: if True and the annotation id for the span is given,
-                do not include that
-                annotation in the result set. (Default value = False)
+            ann: the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation for the span is given,
+                do not include that annotation in the result set. (Default value = False)
 
         Returns:
           an immutable annotation set with the matching annotations, if any
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.covering(start, end)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
-    def within(self, start: int, end: int, annid=None, include_self=False):
+    def within(self, start: int, end: int, ann: Optional["Annotation"] = None, include_self: bool = False):
         """
         Gets annotations that fall completely within the given offset range,
         i.e. annotations such that the offset range is covering each of the
@@ -1238,11 +1236,9 @@ class AnnotationSet:
         Args:
             start: start offset of the range
             end: end offset of the range
-            annid: the annotation id of the annotation representing the span.
-                (Default value = None)
-            include_self: if True and the annotation id for the span is given,
-                do not include that
-                annotation in the result set. (Default value = False)
+            ann: the annotation representing the span. (Default value = None)
+            include_self: if True and the annotation for the span is given,
+                do not include that annotation in the result set. (Default value = False)
 
         Returns:
             an immutable annotation set with the matching annotations
@@ -1252,14 +1248,16 @@ class AnnotationSet:
         else:
             self._create_index_by_offset()
             intvs = self._index_by_offset.within(start, end)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            print("DEBUG: SETTING ID TO ", ann.id)
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            print("DEBUG: NOT SETTING ID")
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
-    def coextensive(self, start: int, end: int, annid=None, include_self=False):
+    def coextensive(self, start: int, end: int, ann: Optional["Annotation"] = None, include_self: bool = False):
         """
         Returns a detached annotation set with all annotations that start and
         end at the given offsets.
@@ -1269,9 +1267,8 @@ class AnnotationSet:
         Args:
           start: start offset of the span
           end: end offset of the span
-          annid: the annotation id of the annotation representing the span.
-              (Default value = None)
-          include_self: if True and the annotation id for the span is given,
+          ann: the annotation representing the span. (Default value = None)
+          include_self: if True and the annotation for the span is given,
               do not include that annotation in the result set.
 
         Returns:
@@ -1280,15 +1277,16 @@ class AnnotationSet:
         """
         self._create_index_by_offset()
         intvs = self._index_by_offset.at(start, end)
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
     def before(
-        self, start: int, end: int, annid=None, include_self=False, immediately=False
+            self, start: int, end: int, ann: Optional["Annotation"] = None,
+            include_self: bool = False, immediately: bool = False
     ):
         """
         Returns a detached annotation set with all annotations that end
@@ -1299,8 +1297,7 @@ class AnnotationSet:
         Args:
             start: start offset of the span
             end: end offset of the span
-            annid: the annotation id of the annotation representing the span.
-                (Default value = None)
+            ann: the annotation representing the span. (Default value = None)
             include_self: if True and the annotation id for the span is given,
                 do not include that annotation in the result set.
             immediately: if True, the end offset of the annotations return
@@ -1315,15 +1312,16 @@ class AnnotationSet:
         else:
             intvs = self._index_by_offset.ending_to(start)
         # we need to filter self if self is zero-length!
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @support_annotation_or_set
     def after(
-        self, start: int, end: int, annid=None, include_self=False, immediately=False
+            self, start: int, end: int, ann: Optional["Annotation"] = None,
+            include_self: bool = False, immediately: bool = False
     ):
         """
         Returns a detached annotation set with all annotations that start
@@ -1334,13 +1332,11 @@ class AnnotationSet:
         Args:
             start: start offset of the span
             end: end offset of the span
-            annid: the annotation id of the annotation representing the span.
-                (Default value = None)
+            ann: the annotation representing the span. (Default value = None)
             include_self: if True and the annotation id for the span is given,
                 do not include that annotation in the result set.
             immediately: if True, the start offset of the annotations
-                returned must coincide with the
-                end offset of the span (default=False)
+                returned must coincide with the end offset of the span (default=False)
 
         Returns:
             annotation set with all annotations that start after the given span
@@ -1351,11 +1347,11 @@ class AnnotationSet:
         else:
             intvs = self._index_by_offset.starting_from(end)
         # we need to filter self if self is zero-length!
-        if not include_self and annid is not None:
-            ignore = annid
+        if not include_self and ann is not None and ann in self:
+            ignore_id = ann.id
         else:
-            ignore = None
-        return self._restrict_intvs(intvs, ignore=ignore)
+            ignore_id = None
+        return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
     @property
     def span(self) -> Span:
@@ -1372,16 +1368,19 @@ class AnnotationSet:
 
     def __contains__(self, annorannid: Union[int, Annotation]) -> bool:
         """
-        Provides 'annotation in annotation_set' functionality
+        Provides 'annotation in annotation_set' functionality.
 
         Args:
-            :param annorannid: the annotation instance or annotation id to check
+            annorannid: the annotation instance or annotation id to check. If this is an id, it is checked if the
+                id appears in this AnnotationSet. If this is an annotation instance, then True is returned if the
+                Annotation does have an owning set and the owning set is this AnnotationSet and the annotation id
+                is present in this AnnotatioSet
 
         Returns:
             `True` if the annotation exists in the set, `False` otherwise
         """
         if isinstance(annorannid, Annotation):
-            return annorannid.id in self._annotations
+            return annorannid in self._annset
         return (
             annorannid in self._annotations
         )  # On the off chance someone passed an ID in directly
@@ -1444,6 +1443,7 @@ class AnnotationSet:
                 (int(a["id"]), Annotation.from_dict(a, owner_set=annset, **kwargs))
                 for a in dictrepr.get("annotations")
             )
+            annset._annset.update(annset._annotations.values())
         else:
             annset._annotations = {}
         return annset

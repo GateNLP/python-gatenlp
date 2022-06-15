@@ -2,6 +2,7 @@
 
 ## Upcoming version
 
+* removed dependency on the recordclass package and removed `gazetteer` extra (no specific dependencies needed for the gazetteer classes any more)
 * Added the `EmojiAnnotator`
 * Added the command `gatenlp-dir2dir` for running a pipeline either in 
   a single process or in several processes in parallel using [Ray](https://www.ray.io/)
