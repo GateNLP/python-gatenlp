@@ -7,7 +7,7 @@ from typing import Union, List, Set, Optional, Dict, Iterable, Any, Tuple
 from collections import namedtuple
 from gatenlp import Document
 from gatenlp.processing.gazetteer.stringgazetteer import StringGazetteer
-from gatenlp.processing.gazetteer.base import GazetteerBase, Match
+from gatenlp.processing.gazetteer.base import GazetteerBase, GazetteerMatch
 
 # rule body line:
 # one or more comma separated group numbers followed by a "=>" followed by feature assignments
@@ -519,7 +519,7 @@ class StringRegexAnnotator(GazetteerBase):
                 for act in acts:
                     feats = replace_group(act.features, groups)
                     for gnr in act.groupnumbers:
-                        toadd = Match(start=groups[gnr][0],
+                        toadd = GazetteerMatch(start=groups[gnr][0],
                                       end=groups[gnr][1],
                                       match=groups[gnr][2],
                                       features=feats,

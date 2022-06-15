@@ -5,9 +5,9 @@ gazetteer lists.
 """
 
 import os
-from typing import Union, Dict, Optional, Callable, List
+from typing import Union, Dict, Optional, Callable, List, Any
 from collections import defaultdict
-from recordclass import structclass
+from dataclasses import dataclass
 
 from gatenlp.document import Document, Annotation
 from gatenlp.utils import init_logger
@@ -18,19 +18,17 @@ from gatenlp.processing.gazetteer.base import GazetteerBase
 #   of annotations is only matched if there is a/several? separator annotation between each of those annotations.
 #   Could also require this only if there is a separator in the gazetteer sequence (e.g. indicated by a None element)
 
-
-# NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
-# class TokenGazetteerMatch, with __slots__=("start", "end", "match", "entrydata", "matcherdata")
-# and type declarations start: int, end: int, match: list, entrydata: object, matcherdata: object
-# HOWEVER, dataclasses require Python 3.7 and have their own issues.
-# Named tuples cannot be used because what we need has to be mutable.
-# So for now we use the structclass approach from package recordclass which is very compact and rather fast.
-# !! structclass by default does NOT support cyclic garbage collection which should be ok for us
-
-
-TokenGazetteerMatch = structclass(
-    "TokenGazetteerMatch", ("start", "end", "match", "data", "listidx")
-)
+# NOTE: slots=True is supported from 3.10 only
+@dataclass()
+class TokenGazetteerMatch:
+    """
+    Represent a token gazetteer match
+    """
+    start: int
+    end: int
+    match: list
+    data: Any
+    listidx: int
 
 
 class TokenGazetteerNode:

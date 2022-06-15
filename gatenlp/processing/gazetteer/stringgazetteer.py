@@ -3,11 +3,11 @@ This module provides the StringGazetter for matching strings against the text in
 """
 import os
 from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
-# note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import GazetteerBase, Match
+from gatenlp.processing.gazetteer.base import GazetteerBase, GazetteerMatch
 import re
+
 
 _NOVALUE = None
 PAT_SPACES = re.compile(r'\s+')
@@ -178,7 +178,8 @@ class StringGazetteer(GazetteerBase):
             self.map_chars_func = map_chars
         self.size = 0
         if source is not None:
-            self.append(source=source, source_fmt=source_fmt,
+            self.append(source=source,
+                        source_fmt=source_fmt,
                         source_encoding=source_encoding,
                         source_sep=source_sep,
                         list_features=list_features,
@@ -186,10 +187,12 @@ class StringGazetteer(GazetteerBase):
                         list_nr=list_nr,
                         ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, List[str]],
-            data: Optional[Dict] = None, listidx: Optional[int] = None,
+    def add(self,
+            entry: Union[str, List[str]],
+            data: Optional[Dict] = None,
+            listidx: Optional[int] = None,
             ws_clean: bool = True,
-            ):
+        ):
         """
         Add a gazetteer entry or several entries if "entry" is not a string but iterable and store its data.
 
@@ -404,7 +407,7 @@ class StringGazetteer(GazetteerBase):
             split_offsets: if not None, should be a list or set of offsets which are considered splits, i.e. something
                 across no matching is possible
         Returns:
-            A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+            A tuple where the first element is a list of GazetteerMatch objects and the second the length
             of the longest match, 0 if there is no match (list of match objects is empty).
         """
         # NOTE: this method does not check for any start condition (e.g. word start), the caller should do this!
@@ -484,7 +487,7 @@ class StringGazetteer(GazetteerBase):
             start, end, text, vals, idxs = matchdata
             assert len(vals) == len(idxs)
             if len(vals) == 0:
-                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+                matches.append(GazetteerMatch(start=start, end=end, match=text, features={}, type=self.ann_type))
             else:
                 for val, idx, in zip(vals, idxs):
                     features = {}
@@ -494,7 +497,7 @@ class StringGazetteer(GazetteerBase):
                         outtype = self.list_types[idx]
                     if val is not None:
                         features.update(val)
-                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
+                    matches.append(GazetteerMatch(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
