@@ -7,8 +7,7 @@ from io import TextIOWrapper
 from pathlib import Path
 import asyncio
 from urllib.parse import ParseResult
-from urllib.request import urlopen as urlopentmp
-urlopen = urlopentmp
+from urllib.request import urlopen
 have_pyodide = False
 try:
     import requests
@@ -16,7 +15,7 @@ except Exception as ex:
     # maybe importing requests failed because we are running in a browser using pyodide?
     try:
         import pyodide
-        urlopen = pyodide.open_url
+        from pyodide import open_url
         have_pyodide = True
     except:
         # nope, re-raise the original exception
@@ -72,7 +71,7 @@ def get_str_from_url(url: Union[str, ParseResult], encoding=None):  # pragma: no
     if isinstance(url, ParseResult):
         url = url.geturl()
     if have_pyodide:
-        with urlopen(url) as infp:
+        with open_url(url) as infp:
             text = infp.read()
         return text
     req = requests.get(url, allow_redirects=True)
