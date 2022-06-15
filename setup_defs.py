@@ -50,7 +50,7 @@ def get_install_extras_require():
         "stanza": ["stanza>=1.3.0"],
         "spacy": ["spacy>=2.2"],
         "nltk": ["nltk>=3.5"],
-        "gazetteers": ["matchtext", "recordclass"],
+        "gazetteers": ["matchtext"],
         # the following are not included in all but in alldev
         "notebook": [
             "ipython",
