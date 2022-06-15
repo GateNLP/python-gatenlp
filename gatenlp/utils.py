@@ -223,8 +223,7 @@ def support_annotation_or_set(method):
     set are used.
 
     If an annotation is passed, the annotation start and end offsets are used, and if the called method
-    has a keyword parameter "ann" the annotation itself is also passed on, otherwise, if the method
-    has a keyword parameter "annid" the annotation id is also passed on.
+    has a keyword parameter "ann" the annotation itself is also passed on.
 
     Args:
       method: the method that gets converted by this decorator.
@@ -243,7 +242,6 @@ def support_annotation_or_set(method):
             obj = args[0]
             if isinstance(obj, Annotation):
                 left, right = obj.start, obj.end
-                annid = obj.id
                 ann = obj
             elif hasattr(obj, "start") and hasattr(obj, "end"):
                 left, right = obj.start, obj.end
@@ -261,8 +259,6 @@ def support_annotation_or_set(method):
         # if the called method/function does have an annid keyword, pass it, otherwise omit
         if "ann" in method.__code__.co_varnames:
             return method(self, left, right, ann=ann, **kwargs)
-        elif "annid" in method.__code__.co_varnames:
-            return method(self, left, right, annid=annid, **kwargs)
         else:
             return method(self, left, right, **kwargs)
 
