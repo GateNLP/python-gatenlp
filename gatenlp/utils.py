@@ -288,6 +288,7 @@ def in_notebook():
         return _in_notebook[0]
     try:
         from IPython import get_ipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
 
         ip = get_ipython()
         if ip is None:
@@ -310,6 +311,7 @@ def in_notebook():
 def in_colab():
     try:
         from IPython.core import getipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
     except:
         return False
     return 'google.colab' in str(getipython.get_ipython())

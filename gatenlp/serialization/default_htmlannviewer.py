@@ -59,7 +59,6 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
     """
     Show htmldocumentviewer in a jupyter notebook.
     """
-    from IPython.display import display_html   # pylint: disable=C0415
     if not gatenlpconfig.notebook_js_initialized:
         init_javscript()
         gatenlpconfig.notebook_js_initialized = True
@@ -76,6 +75,7 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
         row2_style=row2_style,
     )
     if display:
+        from IPython.display import display_html  # pylint: disable=C0415
         display_html(html, raw=True)
         return None
     else:
