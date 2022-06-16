@@ -1,7 +1,6 @@
 """
 Module that implements the default  HTML loader
 """
-import yaml
 from gatenlp.document import Document
 from gatenlp.urlfileutils import is_url, get_str_from_url
 
