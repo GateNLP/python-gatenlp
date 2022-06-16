@@ -878,8 +878,11 @@ class Document:
         from gatenlp.serialization.default_htmlannviewer import show_colab, show_notebook
         if in_colab():
             return show_colab(self, display=False)
-        else:
+        elif in_notebook():
             return show_notebook(self, display=False)
+        else:
+            # things like starboard.gg may call _repr_html_ but still not satisfy either in colab or notebook
+            return self.__repr__()
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
