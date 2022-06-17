@@ -12,7 +12,7 @@ setup(
     author="Johann Petrak",
     author_email="johann.petrak@gmail.com",
     url="https://github.com/GateNLP/python-gatenlp",
-    keywords=["nlp", "text processing"],
+    keywords=["nlp", "text processing", "natural language processing"],
     description="GATE NLP implementation in Python.",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -21,10 +21,7 @@ setup(
     ],
     install_requires=get_install_extras_require()["base"],
     extras_require=get_install_extras_require(),
-    # NOTE: this is not actually used since it will not work with gatenlp version reporting
-    # from the gateplugin-Python plugin (since _version.py is not/should not get committed, only distributed)
-    # (this would also not work if we deploy after committing)
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     tests_require=["pytest", "pytest-cov"],
     platforms="any",
     license="Apache License 2.0",
@@ -51,10 +48,7 @@ setup(
         # "Development Status :: 6 - Mature",
         # "Development Status :: 5 - Production/Stable",
         "Development Status :: 4 - Beta",
-        # "Development Status :: 3 - Alpha",
-        # "Development Status :: 2 - Pre-Alpha",
-        # "Development Status :: 1 - Planning",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -64,6 +58,10 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
-        "License :: OSI Approved :: Apache Software License",
+        "Topic :: Software Development :: Libraries",
     ],
+    project_urls={
+        "Documentation": "https://gatenlp.readthedocs.io",
+        "Source": "https://github.com/GateNLP/python-gatenlp",
+    },
 )
