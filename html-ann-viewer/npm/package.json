@@ -1,11 +1,13 @@
 {
   "name": "gatenlp-ann-viewer",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "View gatenlp document annotations as HTML.",
   "main": "gatenlp-ann-viewer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": ["gatenlp-ann-viewer"],
+  "access": "public",
   "author": "Johann Petrak",
   "license": "BSD",
   "license": "ISC"
