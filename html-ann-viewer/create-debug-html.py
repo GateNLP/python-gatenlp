@@ -44,4 +44,5 @@ doc.annset("Set1").add(0,3,"Type1")
 doc.annset("Set1").add(4,7,"Type1")
 doc.annset("Set1").add(0,10,"Type2")
 palette = ["#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"]
-doc.save("debug-html3.html", fmt="html-ann-viewer", offline=True, presel=[("", "Type1"), ("Set1", ["Type2"])], palette=palette) 
+cols4types = {("Set1", "Type1"): "#FFFF00"}
+doc.save("debug-html3.html", fmt="html-ann-viewer", offline=True, presel=[("", "Type1"), ("Set1", ["Type2"])], palette=palette, cols4types=cols4types) 

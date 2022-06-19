@@ -9,7 +9,7 @@ from gatenlp.gatenlpconfig import gatenlpconfig
 import json as jsonlib
 
 JS_JQUERY_URL = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.16/gatenlp-ann-viewer.js"
+JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.17/gatenlp-ann-viewer.js"
 JS_JQUERY = f"<script src=\"{JS_JQUERY_URL}\"></script>"
 JS_GATENLP = f"<script src=\"{JS_GATENLP_URL}\"></script>"
 HTML_TEMPLATE_FILE_NAME = "gatenlp-ann-viewer.html"
@@ -18,6 +18,7 @@ JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 html_ann_viewer_serializer_js_loaded = False
 
 SEP = "║"
+
 
 def init_javscript():
     """
@@ -28,8 +29,18 @@ def init_javscript():
     display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
 
 
-def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
-               row1_style=None, row2_style=None):
+def show_colab(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        presel=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
     """
     Show htmldocumentviewe in a colab notebook.
     """
@@ -43,7 +54,10 @@ def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
         add_js=False,
         offline=True,
         htmlid=htmlid,
-        annsets=annsets,
+        annspec=annspec,
+        presel=presel,
+        palette=palette,
+        cols4types=cols4types,
         stretch_height=False,
         doc_style=doc_style,
         row1_style=row1_style,
@@ -56,8 +70,18 @@ def show_colab(doc, htmlid=None, display=False, annsets=None, doc_style=None,
         return html
 
 
-def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
-                  row1_style=None, row2_style=None):
+def show_notebook(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        presel=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
     """
     Show htmldocumentviewer in a jupyter notebook.
     """
@@ -70,7 +94,10 @@ def show_notebook(doc, htmlid=None, display=False, annsets=None, doc_style=None,
         add_js=False,
         offline=True,
         htmlid=htmlid,
-        annsets=annsets,
+        annspec=annspec,
+        presel=presel,
+        palette=palette,
+        cols4types=cols4types,
         stretch_height=False,
         doc_style=doc_style,
         row1_style=row1_style,
@@ -124,6 +151,7 @@ class HtmlAnnViewerSerializer:
             annspec=None,
             presel=None,
             palette=None,
+            cols4types=None,
             doc_style=None,
             row1_style=None,
             row2_style=None,
@@ -157,6 +185,9 @@ class HtmlAnnViewerSerializer:
                 as the annspec parameter.
             palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
                 of the default palette.
+            cols4types: if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+                setname and typename combinations, the colours from the palette (default or specified) will be
+                overrriden.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
                 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
             row1_style: the style to use for the first row of the document viewer which shows the document text and
@@ -227,6 +258,15 @@ class HtmlAnnViewerSerializer:
             html = html.replace("GATENLPID", rndpref)
         if palette is not None:
             parms["palette"] = palette
+        if cols4types:
+            newdict = {}
+            for k, v in cols4types.items():
+                if not isinstance(k, tuple) or not len(k) == 2 or not isinstance(v, str):
+                    raise Exception("cols4types: must be a dictionary mapping (setname,typename) to color string")
+                newdict[k[0]+SEP+k[1]] = v
+            parms["cols4types"] = newdict
+        else:
+            parms["cols4types"] = {}
         if offline:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:

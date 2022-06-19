@@ -11,6 +11,7 @@ var gatenlpDocRep = class {
 	    this.text = bdoc["text"];
 	    this.presel_list = parms["presel_list"]
 	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
 	    if ("palette" in parms) {
 	        this.palette = parms["palette"]
 	    }
@@ -158,6 +159,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -196,15 +205,6 @@ var gatenlpDocView = class {
         if (typeof this.docrep.palette !== 'undefined') {
             this.palettex = this.docrep.palette
         }
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -264,17 +264,20 @@ var gatenlpDocView = class {
             $(div4set).attr("style", "margin-bottom: 10px;");
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-                let setandtype = setname + this.docrep.sep + anntype;
-                console.log("CHECKING "+setandtype)
                 if (this.docrep.presel_set.has(setandtype)) {
-                    console.log("MATCH!")
                     inp.attr("checked", "")
                 }
                 $(lbl).append(inp);

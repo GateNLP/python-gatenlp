@@ -886,7 +886,17 @@ class Document:
 
     # TODO: maybe allow manual selection of how to show the document, e.g. also by
     # writing to a tmp file and browsing in a browser, or pprint etc.
-    def show(self, to=None, htmlid=None, annsets=None, doc_style=None, row1_style=None, row2_style=None):
+    def show(
+            self,
+            to=None,
+            htmlid=None,
+            annspec=None,
+            presel=None,
+            palette=None,
+            cols4types=None,
+            doc_style=None,
+            row1_style=None,
+            row2_style=None):
         """
         Show the document, possibly in a Jupyter notebook. This allows to assign a specific htmlid so
         the generated HTML can be directly styled afterwards.
@@ -899,7 +909,7 @@ class Document:
                 "colab". If "console" is specified or automatically chosen, the parameters "annsets", "doc_style",
                 "row1_style", and "row2_style" are irrelevant and ignored.
             htmlid: the HTML id prefix to use for classes and element ids.
-            annsets: if not None, a list of annotation set/type specifications.
+            annspec: if not None, a list of annotation set/type specifications.
                 Each element is either the name of a set to fully include, or a tuple with the name of the set as
                 the first element and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
@@ -911,11 +921,13 @@ class Document:
         # import within this method to avoid dependencies needed for this in the whole Document module
         from gatenlp.serialization.default_htmlannviewer import show_colab, show_notebook
         if to == "colab":
-            show_colab(self, htmlid=htmlid, display=True, annsets=annsets,
+            show_colab(self, htmlid=htmlid, display=True, annspec=annspec,
+                       presel=presel, palette=palette, cols4types=cols4types,
                        doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "jupyter":
-            show_notebook(self, htmlid=htmlid, display=True, annsets=annsets,
+            show_notebook(self, htmlid=htmlid, display=True, annspec=annspec,
+                          presel=presel, palette=palette, cols4types=cols4types,
                           doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "console":
@@ -924,11 +936,13 @@ class Document:
             raise Exception(f"Not a valid value for parameter to: {to}. Use one of console, jupyter, colab")
         if in_notebook():
             if in_colab():
-                show_colab(self, htmlid=htmlid, display=True, annsets=annsets,
+                show_colab(self, htmlid=htmlid, display=True, annspec=annspec,
+                           presel=presel, palette=palette, cols4types=cols4types,
                            doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
             else:
-                show_notebook(self, htmlid=htmlid, display=True, annsets=annsets,
+                show_notebook(self, htmlid=htmlid, display=True, annspec=annspec,
+                              presel=presel, palette=palette, cols4types=cols4types,
                               doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
         else:
