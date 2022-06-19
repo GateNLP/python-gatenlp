@@ -2,12 +2,16 @@
 
 ## Upcoming version
 
-* removed dependency on the recordclass package and removed `gazetteer` extra (no specific dependencies needed for the gazetteer classes any more)
+* Removed dependency on the recordclass package and removed `gazetteer` extra (no specific dependencies needed for the gazetteer classes any more)
 * Added the `EmojiAnnotator`
 * Added the command `gatenlp-dir2dir` for running a pipeline either in 
   a single process or in several processes in parallel using [Ray](https://www.ray.io/)
 * Added the `CorpusViewer` 
 * Added `ConcatCorpus` and `ConcatSource`
+* Renamed parameters for specifying lists of setnames and optional typenames to "annspec"
+* Added parameter "presel" to `Document.show` to preselect annotation types
+* Added parameter "palette" to `Document.show` to replace the default colour palette
+* Added parameter "cols4types" to `Document.show` to specify colours for specific setname / typename combinations
 
 
 ## 1.0.7 (2022-02-06)

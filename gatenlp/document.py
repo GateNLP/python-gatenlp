@@ -3,7 +3,7 @@ Module that implements the Document class for representing gatenlp documents wit
 features and annotation sets.
 """
 
-from typing import KeysView, Callable, Union, List
+from typing import Callable, Union, List
 import logging
 import importlib
 from typing import Iterable
@@ -891,7 +891,7 @@ class Document:
             to=None,
             htmlid=None,
             annspec=None,
-            presel=None,
+            preselect=None,
             palette=None,
             cols4types=None,
             doc_style=None,
@@ -912,6 +912,13 @@ class Document:
             annspec: if not None, a list of annotation set/type specifications.
                 Each element is either the name of a set to fully include, or a tuple with the name of the set as
                 the first element and with a single type name or a list of type names as the second element
+            preselect: if not None, the set and type names to pre-select (show). This should have the same format
+                as the annspec parameter.
+            palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
+                of the default palette.
+            cols4types: if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+                setname and typename combinations, the colours from the palette (default or specified) will be
+                overrriden.
             doc_style: if not None, use this as the style for the document text box
             row1_style: if not None, use this for the first row of the HTML viewer, which contains the document text
                 and annotation sets and types panes. Default is gatenlpconfig.doc_html_repr_row1style_nostretch
@@ -922,12 +929,12 @@ class Document:
         from gatenlp.serialization.default_htmlannviewer import show_colab, show_notebook
         if to == "colab":
             show_colab(self, htmlid=htmlid, display=True, annspec=annspec,
-                       presel=presel, palette=palette, cols4types=cols4types,
+                       preselect=preselect, palette=palette, cols4types=cols4types,
                        doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "jupyter":
             show_notebook(self, htmlid=htmlid, display=True, annspec=annspec,
-                          presel=presel, palette=palette, cols4types=cols4types,
+                          preselect=preselect, palette=palette, cols4types=cols4types,
                           doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
             return
         elif to == "console":
@@ -937,12 +944,12 @@ class Document:
         if in_notebook():
             if in_colab():
                 show_colab(self, htmlid=htmlid, display=True, annspec=annspec,
-                           presel=presel, palette=palette, cols4types=cols4types,
+                           preselect=preselect, palette=palette, cols4types=cols4types,
                            doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
             else:
                 show_notebook(self, htmlid=htmlid, display=True, annspec=annspec,
-                              presel=presel, palette=palette, cols4types=cols4types,
+                              preselect=preselect, palette=palette, cols4types=cols4types,
                               doc_style=doc_style, row1_style=row1_style, row2_style=row2_style)
                 return
         else:

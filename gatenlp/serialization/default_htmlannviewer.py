@@ -34,7 +34,7 @@ def show_colab(
         htmlid=None,
         display=False,
         annspec=None,
-        presel=None,
+        preselect=None,
         palette=None,
         cols4types=None,
         doc_style=None,
@@ -55,7 +55,7 @@ def show_colab(
         offline=True,
         htmlid=htmlid,
         annspec=annspec,
-        presel=presel,
+        preselect=preselect,
         palette=palette,
         cols4types=cols4types,
         stretch_height=False,
@@ -75,7 +75,7 @@ def show_notebook(
         htmlid=None,
         display=False,
         annspec=None,
-        presel=None,
+        preselect=None,
         palette=None,
         cols4types=None,
         doc_style=None,
@@ -95,7 +95,7 @@ def show_notebook(
         offline=True,
         htmlid=htmlid,
         annspec=annspec,
-        presel=presel,
+        preselect=preselect,
         palette=palette,
         cols4types=cols4types,
         stretch_height=False,
@@ -149,7 +149,7 @@ class HtmlAnnViewerSerializer:
             htmlid=None,
             stretch_height=False,
             annspec=None,
-            presel=None,
+            preselect=None,
             palette=None,
             cols4types=None,
             doc_style=None,
@@ -181,7 +181,7 @@ class HtmlAnnViewerSerializer:
             annspec: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
-            presel: if not None, the set and type names to pre-select (show). This should have the same format
+            preselect: if not None, the set and type names to pre-select (show). This should have the same format
                 as the annspec parameter.
             palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
                 of the default palette.
@@ -217,11 +217,11 @@ class HtmlAnnViewerSerializer:
         with open(htmlloc, "rt", encoding="utf-8") as infp:
             html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
-        if presel is not None:
+        if preselect is not None:
             # create a list of set/type lists and a set of set of setSEPtype for parms
             presel_set = set()
             presel_list = []
-            for el in presel:
+            for el in preselect:
                 if isinstance(el, str):
                     for anntype in doccopy.annset(el).type_names:
                         settype = el + SEP + anntype
