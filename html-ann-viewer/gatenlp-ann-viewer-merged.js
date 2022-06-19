@@ -3,12 +3,17 @@
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -188,6 +193,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
 
         function hex2rgba(hx) {
             return [
@@ -263,7 +271,12 @@ var gatenlpDocView = class {
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                let setandtype = setname + this.docrep.sep + anntype;
+                console.log("CHECKING "+setandtype)
+                if (this.docrep.presel_set.has(setandtype)) {
+                    console.log("MATCH!")
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -280,7 +293,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }

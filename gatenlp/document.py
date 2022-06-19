@@ -896,13 +896,12 @@ class Document:
         Args:
             to: if None, try to guess if this is called from within a notebook and if yes, which kind.
                 Otherwise, explicitly specify where to show the document to, one of "console", "jupyter",
-                "colab".
+                "colab". If "console" is specified or automatically chosen, the parameters "annsets", "doc_style",
+                "row1_style", and "row2_style" are irrelevant and ignored.
             htmlid: the HTML id prefix to use for classes and element ids.
             annsets: if not None, a list of annotation set/type specifications.
-                Each element is either
-                the name of a set to fully include, or a tuple with the name of the set as
-                the first element
-                and with a single type name or a list of type names as the second element
+                Each element is either the name of a set to fully include, or a tuple with the name of the set as
+                the first element and with a single type name or a list of type names as the second element
             doc_style: if not None, use this as the style for the document text box
             row1_style: if not None, use this for the first row of the HTML viewer, which contains the document text
                 and annotation sets and types panes. Default is gatenlpconfig.doc_html_repr_row1style_nostretch

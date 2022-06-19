@@ -101,7 +101,8 @@
     $$JAVASCRIPT$$
     <script type="text/javascript">
     let GATENLPID_data = $$JSONDATA$$ ; 
-    new gatenlpDocView(new gatenlpDocRep(GATENLPID_data), "GATENLPID-").init();
+    let GATENLPID_parms = $$JSONPARMS$$ ;
+    new gatenlpDocView(new gatenlpDocRep(GATENLPID_data, GATENLPID_parms), "GATENLPID-").init();
     </script>
   </div>
 <!--ENDDIV-->

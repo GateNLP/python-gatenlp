@@ -6,6 +6,7 @@ from random import choice
 from string import ascii_uppercase
 from gatenlp.document import Document
 from gatenlp.gatenlpconfig import gatenlpconfig
+import json as jsonlib
 
 JS_JQUERY_URL = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
 JS_GATENLP_URL = "https://unpkg.com/gatenlp-ann-viewer@1.0.15/gatenlp-ann-viewer.js"
@@ -16,6 +17,7 @@ JS_GATENLP_FILE_NAME = "gatenlp-ann-viewer-merged.js"
 
 html_ann_viewer_serializer_js_loaded = False
 
+SEP= "║"
 
 def init_javscript():
     """
@@ -110,20 +112,22 @@ class HtmlAnnViewerSerializer:
 
     @staticmethod
     def save(
-        _clazz,
-        inst,
-        to_ext=None,
-        to_mem=None,
-        notebook=False,
-        offline=False,
-        add_js=True,
-        htmlid=None,
-        stretch_height=False,
-        annsets=None,
-        doc_style=None,
-        row1_style=None,
-        row2_style=None,
-        **kwargs,
+            _clazz,
+            inst,
+            to_ext=None,
+            to_mem=None,
+            notebook=False,
+            offline=False,
+            add_js=True,
+            htmlid=None,
+            stretch_height=False,
+            annspec=None,
+            presel=None,
+            palette=None,
+            doc_style=None,
+            row1_style=None,
+            row2_style=None,
+            **kwargs,
     ):
         """Convert a document to HTML for visualizing it.
 
@@ -146,9 +150,13 @@ class HtmlAnnViewerSerializer:
                 If True, no max haight is set and instead the height is set to a percentage (default is
                 67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
                 complete style for the rows can be set directly via row1_style and row2_style.
-            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+            annspec: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
+            presel: if not None, the set and type names to pre-select (show). This should have the same format
+                as the annspec parameter.
+            palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
+                of the default palette.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
                 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
             row1_style: the style to use for the first row of the document viewer which shows the document text and
@@ -164,8 +172,8 @@ class HtmlAnnViewerSerializer:
         """
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
-        # TODO: why are we doing a deepcopy here?
-        doccopy = inst.deepcopy(annsets=annsets)
+        parms = dict(presel_set=[], presel_list=[])
+        doccopy = inst.deepcopy(annsets=annspec)
         doccopy.to_offset_type("j")
         json = doccopy.save_mem(fmt="json", **kwargs)
         htmlloc = os.path.join(
@@ -178,6 +186,29 @@ class HtmlAnnViewerSerializer:
         with open(htmlloc, "rt", encoding="utf-8") as infp:
             html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
+        if presel is not None:
+            # create a list of set/type lists and a set of set of setSEPtype for parms
+            presel_set = set()
+            presel_list = []
+            for el in presel:
+                if isinstance(el, str):
+                    for anntype in doccopy.annset(el).type_names:
+                        settype = el + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([el, anntype])
+                elif isinstance(el, (list, tuple)) and len(el) > 1:
+                    setname = el[0]
+                    anntypes = el[1]
+                    if isinstance(anntypes, str):
+                        anntypes = [anntypes]
+                    for anntype in anntypes:
+                        settype = setname + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([setname, anntype])
+            parms["presel_set"] = list(presel_set)
+            parms["presel_list"] = presel_list
         if notebook:
             str_start = "<!--STARTDIV-->"
             str_end = "<!--ENDDIV-->"
@@ -194,6 +225,8 @@ class HtmlAnnViewerSerializer:
 </div></div>"""
             # replace the prefix with a random one
             html = html.replace("GATENLPID", rndpref)
+        if palette is not None:
+            parms["palette"] = palette
         if offline:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
@@ -226,6 +259,7 @@ class HtmlAnnViewerSerializer:
             if row2_style is None:
                 row2_style = gatenlpconfig.doc_html_repr_row2style_nostretch
         html = html.replace("$$JAVASCRIPT$$", js, 1).replace("$$JSONDATA$$", json, 1)
+        html = html.replace("$$JSONPARMS$$", jsonlib.dumps(parms), 1)
         html = html.replace("$$ROW1STYLE$$", row1_style, 1).replace(
             "$$ROW2STYLE$$", row2_style, 1
         )
