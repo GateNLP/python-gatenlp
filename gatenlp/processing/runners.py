@@ -4,9 +4,8 @@ Module that implements runners which can be used from the command line to run pi
 import argparse
 import importlib.util
 import os
-from typing import Callable
 import signal
-from collections import Iterable
+from collections.abc import Iterable
 import ray
 
 from gatenlp.corpora import DirFilesCorpus, DirFilesSource, DirFilesDestination, NullDestination
@@ -26,10 +25,22 @@ from gatenlp.utils import init_logger
 
 GLOBALS = dict(mod=None)
 
+
 class LoggedException(Exception):
+    """Exception that gets logged and causes aborting the process"""
     pass
 
+
 def load_module(args):
+    """
+    Load a module according to the setting in the ArgumentParser namespace args.
+
+    Args:
+        args: an ArgumentParser  namespace which must contain the "modulefile" attribute.
+
+    Returns:
+        the module
+    """
     if GLOBALS["mod"] is not None:
         return GLOBALS["mod"]
     if not os.path.exists(args.modulefile):
@@ -42,6 +53,16 @@ def load_module(args):
 
 
 def get_add_args(args):
+    """
+    Return the "add_args" definition from the loaded module or None.
+
+    Args:
+        args: an ArgumentParser namespace that contains the "modulefile" attribute.
+
+    Returns:
+        the definition of "add_args" or None if the loaded module does not have it.
+
+    """
     mod = load_module(args)
     if hasattr(mod, "add_args"):
         return getattr(mod, "add_args")
@@ -55,7 +76,7 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     the argparse args as option --modulefile.
 
     Args:
-        args: argparse namespace
+        args: ArgumentParser namespace
         nworkers: total number of workers
         workernr: the worker number (0-based)
 
@@ -67,8 +88,9 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
     if not hasattr(mod, args.make_pipeline):
         raise Exception(f"Module {args.modulefile} does not define function {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
     pipeline_maker = getattr(mod, args.make_pipeline)
-    if not isinstance(pipeline_maker, Callable):
-        raise Exception(f"Module {args.modulefile} must contain a callable {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
+    # if not isinstance(pipeline_maker, Callable):  # NOTE: pylint chokes on this!
+    if not callable(pipeline_maker):
+            raise Exception(f"Module {args.modulefile} must contain a callable {args.make_pipeline}(args=None, nworkers=1, workernr=0)")
 
     pipeline = pipeline_maker(args=args, workernr=workernr, nworkers=nworkers)
     if not isinstance(pipeline, Pipeline):
@@ -79,7 +101,7 @@ def get_pipeline_resultprocessor(args, nworkers=1, workernr=0):
             raise Exception(f"Module does not define {args.process_result}")
         else:
             process_result = getattr(mod, args.process_result)
-            if not isinstance(process_result, Callable):
+            if not callable(process_result):
                 raise Exception(f"Result processor {args.process_result} is not Callable")
     return pipeline, result_processor
 
@@ -153,14 +175,14 @@ class Dir2DirExecutor:
         def siginthandler(sig, frame):
             self.error = True
             flags["interrupted"] = True
-            self.logger.warning(f"{logpref}received SIGINT signal")
+            self.logger.warning("%s received SIGINT signal", logpref)
 
         signal.signal(signal.SIGINT, siginthandler)
 
         if len(inout) == 2:   # src -> dest
             for ret in pipeline.pipe(inout[0]):
                 if flags["interrupted"]:
-                    self.logger.warning(f"{logpref}interrupted by SIGINT")
+                    self.logger.warning("%s interrupted by SIGINT", logpref)
                     break
                 if ret is not None:
                     if isinstance(ret, Iterable):
@@ -173,19 +195,21 @@ class Dir2DirExecutor:
                 self.n_in = inout[0].n
                 self.n_out = inout[1].n
                 if self.n_out % self.args.log_every == 0:
-                    self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+                    self.logger.info("%s %i read, %i were None, %i returned",
+                                     logpref, self.n_in, self.n_none, self.n_out)
             self.n_in = inout[0].n
             self.n_out = inout[1].n
         else:
             self.n_in = 0
             for ret in pipeline.pipe(inout[0]):
                 if flags["interrupted"]:
-                    self.logger.warning(f"{logpref}interrupted by SIGINT")
+                    self.logger.warning("%s interrupted by SIGINT", logpref)
                     break
                 if ret is not None:
                     if isinstance(ret, list):
                         if len(ret) > 1:
-                            raise Exception(f"{logpref}Pipeline {pipeline} returned {len(ret)} documents for corpus index {self.n_in}")
+                            raise Exception(f"%s Pipeline %s returned %i documents for corpus index %i",
+                                            logpref, pipeline, len(ret), self.n_in)
                         for doc in ret:
                             inout[0].store(doc)
                             self.n_out += 1
@@ -196,7 +220,8 @@ class Dir2DirExecutor:
                     self.n_none += 1
                 self.n_in += 1
                 if self.n_out % self.args.log_every == 0:
-                    self.logger.info(f"{logpref}{self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+                    self.logger.info("%s %i read, %i were None, %i returned",
+                                     logpref, self.n_in, self.n_none, self.n_out)
 
     def run(self):
         """
@@ -207,9 +232,9 @@ class Dir2DirExecutor:
         """
         logpref = f"Worker {self.workernr+1} of {self.nworkers}: "
         pipeline, self.result_processor = get_pipeline_resultprocessor(self.args)
-        self.logger.info(f"{logpref}got pipeline {pipeline}")
+        self.logger.info("%s got pipeline %s", logpref, pipeline)
         inout = self.get_inout()
-        self.logger.info(f"{logpref}got In/Out {inout}")
+        self.logger.info(f"%s got In/Out %s", logpref, inout)
         have_error = False
         try:
             pipeline.start()
@@ -217,27 +242,30 @@ class Dir2DirExecutor:
             self.logger.error(f"Pipeline start aborted", exc_info=ex)
             self.error = True
             raise LoggedException()
-        self.logger.info(f"{logpref}pipeline start() completed")
-        self.logger.info(f"{logpref}running pipeline")
+        self.logger.info("%s pipeline start() completed", logpref)
+        self.logger.info("%s running pipeline", logpref)
         try:
             self.run_pipe(pipeline, inout)
             self.logger.info(
-                f"{logpref}pipeline running completed: {self.n_in} read, {self.n_none} were None, {self.n_out} returned")
+                f"%s pipeline running completed: %s read, %s were None, %s returned",
+                logpref, self.n_in, self.n_none, self.n_out
+            )
         except Exception as ex:
-            self.logger.error(f"Pipeline running aborted, {self.n_in} read, {self.n_none} were None, {self.n_out} returned",
+            self.logger.error("%s pipeline running aborted, %s read, %s were None, %s returned",
+                              logpref, self.n_in, self.n_none, self.n_out,
                               exc_info=ex)
             # we continue to calculate any incomplete result, but remember that we had an error
             self.error = True
         try:
             ret = pipeline.finish()
-            self.logger.info(f"{logpref}pipeline finish() completed")
+            self.logger.info("%s pipeline finish() completed", logpref)
             # only return the result value if we have a result processor defined!
             if self.args.process_result:
                 return ret
             else:
                 return
         except Exception as ex:
-            self.logger.error(f"Pipeline finish aborted", exc_info=ex)
+            self.logger.error("%s pipeline finish aborted", logpref, exc_info=ex)
             self.error = True
             raise LoggedException()
 
@@ -304,13 +332,13 @@ def run_dir2dir():
     logger = init_logger(name="run_dir2dir", debug=args.debug)
     if args.nworkers == 1:
         logger.info("Running SerialExecutor")
-        exec = Dir2DirExecutor(args=args)
+        executor = Dir2DirExecutor(args=args)
         try:
-            result = exec.run()
+            result = executor.run()
             if args.process_result:
                 logger.info("Processing result")
-                exec.result_processor(result=result)
-            if exec.error:
+                executor.result_processor(result=result)
+            if executor.error:
                 logger.error(f"Processing ended with ERROR!!!")
             else:
                 logger.info(f"Processing ended normally")
@@ -322,29 +350,30 @@ def run_dir2dir():
         logger.info("Running RayExecutor")
         assert args.nworkers > 1
         if args.ray_address is None:
-            logger.info(f"Starting Ray, using {args.nworkers} workers")
+            logger.info("Starting Ray, using %s workers", args.nworkers)
             rayinfo = ray.init()
         else:
             rayinfo = ray.init(address=args.ray_address)
-            logger.info(f"Connected to Ray cluster at {args.ray_address} using {args.nworkers}")
-        logger.info(f"Ray available: {rayinfo}")
+            logger.info("Connected to Ray cluster at %s using %s", args.ray_address, args.nworkers)
+        logger.info("Ray available: %s", rayinfo)
         workers = []
         for k in range(args.nworkers):
             worker = ray_executor.remote(args, workernr=k, nworkers=args.nworkers)
             workers.append(worker)
-            logger.info(f"Started worker {k}: {worker}")
+            logger.info("Started worker %s: %s", k, worker)
         remaining = workers
 
         def siginthandler(sig, frame):
             for worker in workers:
-                logger.warning(f"KILLING worker {worker}")
+                logger.warning("KILLING worker %s", worker)
                 ray.cancel(worker)
 
         signal.signal(signal.SIGINT, siginthandler)
         while True:
             finished, remaining = ray.wait(remaining, num_returns=1, timeout=10.0)
             if len(finished) > 0:
-                logger.info(f"Finished: {finished} ({len(finished)} so far, {len(remaining)} remaining)")
+                logger.info("Finished: %s (%s so far, %s remaining)",
+                            finished, len(finished), len(remaining))
             if len(remaining) == 0:
                 logger.info("All workers finished, processing results")
                 break
@@ -356,29 +385,32 @@ def run_dir2dir():
         total_out = 0
         for worker, ret in zip(workers, results_list):
             if ret["error"]:
-                logger.error(f"Worker {worker} ABORTED, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
+                logger.error("Worker %s ABORTED, %s read, %s were None, %s returned",
+                             worker, ret["n_in"], ret["n_none"], ret["n_out"])
                 have_error = True
             else:
-                logger.info(f"Worker {worker} finished, {ret['n_in']} read, {ret['n_none']} were None, {ret['n_out']} returned")
+                logger.info("Worker %s finished, %s read, %s were None, %s returned",
+                            worker, ret["n_in"], ret["n_none"], ret["n_out"])
             total_in += ret["n_in"]
             total_none += ret["n_none"]
             total_out += ret["n_out"]
-        logger.info(f"Total processed:  {total_in} read, {total_none} were None, {total_out} returned")
+        logger.info("Total processed:  %s read, %s were None, %s returned",
+                    total_in, total_none, total_out)
         if args.process_result:
-            logger.info(f"Processing any results")
-            logger.info(f"Creating pipeline for workernr -1")
+            logger.info("Processing any results")
+            logger.info("Creating pipeline for workernr -1")
             pipeline, resultprocessor = get_pipeline_resultprocessor(args, workernr=-1, nworkers=1)
-            logger.info(f"Combining results")
+            logger.info("Combining results")
             result = pipeline.reduce(results_list)
             logger.info("Processing results")
             try:
                 resultprocessor(result=result)
             except Exception as ex:
-                logger.error(f"Result processor error", exc_info=ex)
+                logger.error("Result processor error", exc_info=ex)
                 have_error = True
         logger.info("Shutting down Ray ...")
         ray.shutdown()
         if have_error:
-            logger.error(f"Processing ended with ERROR!!!")
+            logger.error("Processing ended with ERROR!!!")
         else:
             logger.info("Processing ended normally")
