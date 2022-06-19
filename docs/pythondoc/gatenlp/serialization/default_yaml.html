@@ -30,17 +30,17 @@
 <pre><code class="python">&#34;&#34;&#34;
 Module that implements the various ways of how to save and load documents and change logs.
 &#34;&#34;&#34;
-import yaml
-from collections import defaultdict
-# import ruyaml as yaml
-try:
-    from yaml import CFullLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import FullLoader as Loader, Dumper
-yaml_loader = yaml.Loader
-yaml_dumper = yaml.Dumper
 from gatenlp.urlfileutils import is_url, get_str_from_url, get_bytes_from_url
 from gzip import open as gopen, compress, decompress
+
+
+def delayed_imports():
+    import yaml
+    try:
+        from yaml import CFullLoader as Loader, CDumper as Dumper
+    except ImportError:
+        from yaml import FullLoader as Loader, Dumper
+    return yaml, yaml.Loader, yaml.Dumper
 
 
 class YamlSerializer:
@@ -55,7 +55,7 @@ class YamlSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
-        annsets=None,
+        annspec=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
@@ -68,10 +68,11 @@ class YamlSerializer:
             offset_type: (Default value = None)
             offset_mapper: (Default value = None)
             gzip: (Default value = False)
-            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            annspec: which annotation sets and types to include, list of set names or (setanme, types) tuples
             **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annspec=annspec, **kwargs)
         if to_mem:
             if gzip:
                 compress(yaml.dump(d, Dumper=yaml_dumper).encode(&#34;UTF-8&#34;))
@@ -116,6 +117,7 @@ class YamlSerializer:
         Returns:
 
         &#34;&#34;&#34;
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
@@ -158,6 +160,27 @@ class YamlSerializer:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gatenlp.serialization.default_yaml.delayed_imports"><code class="name flex">
+<span>def <span class="ident">delayed_imports</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delayed_imports():
+    import yaml
+    try:
+        from yaml import CFullLoader as Loader, CDumper as Dumper
+    except ImportError:
+        from yaml import FullLoader as Loader, Dumper
+    return yaml, yaml.Loader, yaml.Dumper</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -183,7 +206,7 @@ class YamlSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
-        annsets=None,
+        annspec=None,
         **kwargs,
     ):
         &#34;&#34;&#34;
@@ -196,10 +219,11 @@ class YamlSerializer:
             offset_type: (Default value = None)
             offset_mapper: (Default value = None)
             gzip: (Default value = False)
-            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            annspec: which annotation sets and types to include, list of set names or (setanme, types) tuples
             **kwargs:
         &#34;&#34;&#34;
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annspec=annspec, **kwargs)
         if to_mem:
             if gzip:
                 compress(yaml.dump(d, Dumper=yaml_dumper).encode(&#34;UTF-8&#34;))
@@ -244,6 +268,7 @@ class YamlSerializer:
         Returns:
 
         &#34;&#34;&#34;
+        yaml, yaml_loader, yaml_dumper = delayed_imports()
         isurl, extstr = is_url(from_ext)
         if from_ext is not None:
             if isurl:
@@ -321,6 +346,7 @@ def load(
     Returns:
 
     &#34;&#34;&#34;
+    yaml, yaml_loader, yaml_dumper = delayed_imports()
     isurl, extstr = is_url(from_ext)
     if from_ext is not None:
         if isurl:
@@ -372,7 +398,7 @@ def load_gzip(clazz, **kwargs):
 </details>
 </dd>
 <dt id="gatenlp.serialization.default_yaml.YamlSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, annsets=None, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, offset_type=None, offset_mapper=None, gzip=False, annspec=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
@@ -389,8 +415,8 @@ def load_gzip(clazz, **kwargs):
 <dd>(Default value = None)</dd>
 <dt><strong><code>gzip</code></strong></dt>
 <dd>(Default value = False)</dd>
-<dt><strong><code>annsets</code></strong></dt>
-<dd>which annotation sets and types to include, list of set names or (setanmes, types) tuples</dd>
+<dt><strong><code>annspec</code></strong></dt>
+<dd>which annotation sets and types to include, list of set names or (setanme, types) tuples</dd>
 </dl>
 <p>**kwargs:</p></div>
 <details class="source">
@@ -406,7 +432,7 @@ def save(
     offset_type=None,
     offset_mapper=None,
     gzip=False,
-    annsets=None,
+    annspec=None,
     **kwargs,
 ):
     &#34;&#34;&#34;
@@ -419,10 +445,11 @@ def save(
         offset_type: (Default value = None)
         offset_mapper: (Default value = None)
         gzip: (Default value = False)
-        annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+        annspec: which annotation sets and types to include, list of set names or (setanme, types) tuples
         **kwargs:
     &#34;&#34;&#34;
-    d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
+    yaml, yaml_loader, yaml_dumper = delayed_imports()
+    d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annspec=annspec, **kwargs)
     if to_mem:
         if gzip:
             compress(yaml.dump(d, Dumper=yaml_dumper).encode(&#34;UTF-8&#34;))
@@ -479,6 +506,11 @@ def save_gzip(clazz, inst, **kwargs):
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="gatenlp.serialization" href="index.html">gatenlp.serialization</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gatenlp.serialization.default_yaml.delayed_imports" href="#gatenlp.serialization.default_yaml.delayed_imports">delayed_imports</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

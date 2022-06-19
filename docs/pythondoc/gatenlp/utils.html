@@ -243,9 +243,16 @@ def support_annotation_or_set(method):
     Decorator to allow a method that normally takes a start and end
     offset to take an annotation or annotation set, or any other object that has
     &#34;start&#34; and &#34;end&#34; attributes, or a pair of offsets instead.
+
     It also allows to take a single offset instead in which case the end offset will
     get passed on as None: this is to support those methods which can take a span or a single
     offset.
+
+    If a set is passed, the minimum start offset and the maximum end offset of all annotations in the
+    set are used.
+
+    If an annotation is passed, the annotation start and end offsets are used, and if the called method
+    has a keyword parameter &#34;ann&#34; the annotation itself is also passed on.
 
     Args:
       method: the method that gets converted by this decorator.
@@ -259,9 +266,13 @@ def support_annotation_or_set(method):
         from gatenlp.annotation import Annotation
 
         annid = None
+        ann = None
         if len(args) == 1:
             obj = args[0]
-            if hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
+            if isinstance(obj, Annotation):
+                left, right = obj.start, obj.end
+                ann = obj
+            elif hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
                 left, right = obj.start, obj.end
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
@@ -271,14 +282,12 @@ def support_annotation_or_set(method):
                 raise Exception(
                     &#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0])
                 )
-            if isinstance(obj, Annotation):
-                annid = obj.id
         else:
             assert len(args) == 2
             left, right = args
         # if the called method/function does have an annid keyword, pass it, otherwise omit
-        if &#34;annid&#34; in method.__code__.co_varnames:
-            return method(self, left, right, annid=annid, **kwargs)
+        if &#34;ann&#34; in method.__code__.co_varnames:
+            return method(self, left, right, ann=ann, **kwargs)
         else:
             return method(self, left, right, **kwargs)
 
@@ -308,6 +317,7 @@ def in_notebook():
         return _in_notebook[0]
     try:
         from IPython import get_ipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
 
         ip = get_ipython()
         if ip is None:
@@ -328,7 +338,11 @@ def in_notebook():
 
 
 def in_colab():
-    from IPython.core import getipython
+    try:
+        from IPython.core import getipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
+    except:
+        return False
     return &#39;google.colab&#39; in str(getipython.get_ipython())
 
 
@@ -540,7 +554,11 @@ an excpetion is raised unless silent is True</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def in_colab():
-    from IPython.core import getipython
+    try:
+        from IPython.core import getipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
+    except:
+        return False
     return &#39;google.colab&#39; in str(getipython.get_ipython())</code></pre>
 </details>
 </dd>
@@ -564,6 +582,7 @@ an excpetion is raised unless silent is True</dd>
         return _in_notebook[0]
     try:
         from IPython import get_ipython
+        from IPython.core import display  # we do not need this here, but if this fails we also return False
 
         ip = get_ipython()
         if ip is None:
@@ -858,10 +877,14 @@ start and end offsets of a substring in the text and item is the item for that s
 <dd>
 <div class="desc"><p>Decorator to allow a method that normally takes a start and end
 offset to take an annotation or annotation set, or any other object that has
-"start" and "end" attributes, or a pair of offsets instead.
-It also allows to take a single offset instead in which case the end offset will
+"start" and "end" attributes, or a pair of offsets instead.</p>
+<p>It also allows to take a single offset instead in which case the end offset will
 get passed on as None: this is to support those methods which can take a span or a single
 offset.</p>
+<p>If a set is passed, the minimum start offset and the maximum end offset of all annotations in the
+set are used.</p>
+<p>If an annotation is passed, the annotation start and end offsets are used, and if the called method
+has a keyword parameter "ann" the annotation itself is also passed on.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>method</code></strong></dt>
@@ -878,9 +901,16 @@ offset.</p>
     Decorator to allow a method that normally takes a start and end
     offset to take an annotation or annotation set, or any other object that has
     &#34;start&#34; and &#34;end&#34; attributes, or a pair of offsets instead.
+
     It also allows to take a single offset instead in which case the end offset will
     get passed on as None: this is to support those methods which can take a span or a single
     offset.
+
+    If a set is passed, the minimum start offset and the maximum end offset of all annotations in the
+    set are used.
+
+    If an annotation is passed, the annotation start and end offsets are used, and if the called method
+    has a keyword parameter &#34;ann&#34; the annotation itself is also passed on.
 
     Args:
       method: the method that gets converted by this decorator.
@@ -894,9 +924,13 @@ offset.</p>
         from gatenlp.annotation import Annotation
 
         annid = None
+        ann = None
         if len(args) == 1:
             obj = args[0]
-            if hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
+            if isinstance(obj, Annotation):
+                left, right = obj.start, obj.end
+                ann = obj
+            elif hasattr(obj, &#34;start&#34;) and hasattr(obj, &#34;end&#34;):
                 left, right = obj.start, obj.end
             elif isinstance(obj, (tuple, list)) and len(obj) == 2:
                 left, right = obj
@@ -906,14 +940,12 @@ offset.</p>
                 raise Exception(
                     &#34;Not an annotation or an annotation set or pair: {}&#34;.format(args[0])
                 )
-            if isinstance(obj, Annotation):
-                annid = obj.id
         else:
             assert len(args) == 2
             left, right = args
         # if the called method/function does have an annid keyword, pass it, otherwise omit
-        if &#34;annid&#34; in method.__code__.co_varnames:
-            return method(self, left, right, annid=annid, **kwargs)
+        if &#34;ann&#34; in method.__code__.co_varnames:
+            return method(self, left, right, ann=ann, **kwargs)
         else:
             return method(self, left, right, **kwargs)
 

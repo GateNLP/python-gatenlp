@@ -31,12 +31,15 @@
 Module that provides various Annotators which act as clients to REST annotation services.
 &#34;&#34;&#34;
 
-from gatenlp.processing.client.gatecloud import GateCloudAnnotator
-from gatenlp.processing.client.tagme import TagMeAnnotator
-from gatenlp.processing.client.textrazor import TextRazorTextAnnotator
-from gatenlp.processing.client.elg import ElgTextAnnotator
-from gatenlp.processing.client.ibmnlu import IbmNluAnnotator
-from gatenlp.processing.client.googlenlp import GoogleNlpAnnotator
+# We do not perform these convenience import here to allow installing dependencies
+# only for the client actually needed. The client needs to get installed from the
+# client specific module (e.g. gatenlp.processing.client.elg) directly
+# from gatenlp.processing.client.gatecloud import GateCloudAnnotator
+# from gatenlp.processing.client.tagme import TagMeAnnotator
+# from gatenlp.processing.client.textrazor import TextRazorTextAnnotator
+# from gatenlp.processing.client.elg import ElgTextAnnotator
+# from gatenlp.processing.client.ibmnlu import IbmNluAnnotator
+# from gatenlp.processing.client.googlenlp import GoogleNlpAnnotator
 
 
 # TODO:

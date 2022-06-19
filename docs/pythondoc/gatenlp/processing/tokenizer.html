@@ -63,7 +63,9 @@ class NLTKTokenizer(Tokenizer):
     &#34;&#34;&#34;
 
     def __init__(
-        self, nltk_tokenizer=None, nltk_sent_tokenizer=None, outset_name=&#34;&#34;, token_type=&#34;Token&#34;, space_token_type=None
+            self, nltk_tokenizer=None,
+            nltk_sent_tokenizer=None, outset_name=&#34;&#34;,
+            token_type=&#34;Token&#34;, space_token_type=None
     ):
         &#34;&#34;&#34;
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
@@ -82,6 +84,7 @@ class NLTKTokenizer(Tokenizer):
                 not be used if it exists, the `tokenize` method will be used.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
+            space_token_type: annotation type of the gaps between tokens
         &#34;&#34;&#34;
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):
@@ -126,7 +129,6 @@ class NLTKTokenizer(Tokenizer):
                     sents = self.sent_tokenizer.tokenize(doc.text)
             else:
                 sents = [doc.text]
-            print(f&#34;DEBUG: sentences= {sents}&#34;)
             if self.is_function:
                 tks = [self.tokenizer(s) for s in sents]
             else:
@@ -269,6 +271,8 @@ not be used if it exists, the <code>tokenize</code> method will be used.</dd>
 <dd>annotation set to put the Token annotations in</dd>
 <dt><strong><code>token_type</code></strong></dt>
 <dd>annotation type of the Token annotations</dd>
+<dt><strong><code>space_token_type</code></strong></dt>
+<dd>annotation type of the gaps between tokens</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -280,7 +284,9 @@ not be used if it exists, the <code>tokenize</code> method will be used.</dd>
     &#34;&#34;&#34;
 
     def __init__(
-        self, nltk_tokenizer=None, nltk_sent_tokenizer=None, outset_name=&#34;&#34;, token_type=&#34;Token&#34;, space_token_type=None
+            self, nltk_tokenizer=None,
+            nltk_sent_tokenizer=None, outset_name=&#34;&#34;,
+            token_type=&#34;Token&#34;, space_token_type=None
     ):
         &#34;&#34;&#34;
         Creates the tokenizer. NOTE: this tokenizer does NOT create space tokens by default
@@ -299,6 +305,7 @@ not be used if it exists, the <code>tokenize</code> method will be used.</dd>
                 not be used if it exists, the `tokenize` method will be used.
             outset_name: annotation set to put the Token annotations in
             token_type: annotation type of the Token annotations
+            space_token_type: annotation type of the gaps between tokens
         &#34;&#34;&#34;
         assert nltk_tokenizer is not None
         if inspect.isclass(nltk_tokenizer):
@@ -343,7 +350,6 @@ not be used if it exists, the <code>tokenize</code> method will be used.</dd>
                     sents = self.sent_tokenizer.tokenize(doc.text)
             else:
                 sents = [doc.text]
-            print(f&#34;DEBUG: sentences= {sents}&#34;)
             if self.is_function:
                 tks = [self.tokenizer(s) for s in sents]
             else:

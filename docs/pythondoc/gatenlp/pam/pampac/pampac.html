@@ -229,14 +229,14 @@ class PampacAnnotator(Annotator):
     &#34;&#34;&#34;
     def __init__(self,
                  pampac,
-                 ann_desc,
+                 annspec,
                  outset_name=None,
                  containing_anns_desc=None):
         &#34;&#34;&#34;
 
         Args:
             pampac: a Pampac instance
-            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+            annspec: annotation specification for annotations to use as input. This can be a annotation set name,
                 or a list of either annotation set names or tuples, where the first element is an annotation set
                 name and the second element is either a type name or a list of type names. E.g. `[(&#34;&#34;, &#34;Token&#34;)]`
                 to get all annotations with type Token from the default set or or `[(&#34;&#34;, [&#34;PER&#34;, &#34;ORG&#34;]), &#34;Key&#34;]`
@@ -249,13 +249,13 @@ class PampacAnnotator(Annotator):
                 and returned. Default: do not use containing annotations and run for the whole document.
         &#34;&#34;&#34;
         self.pampac = pampac
-        self.ann_desc = ann_desc
+        self.annsepc = annspec
         self.outset_name = outset_name
         self.containing_anns_desc = containing_anns_desc
 
     def __call__(self, doc, **kwargs):
         outset = doc.annset(self.outset_name)
-        anns = doc.anns(self.ann_desc)
+        anns = doc.anns(self.annspec)
         if self.containing_anns_desc is not None:
             cont = doc.anns(self.containing_anns_desc)
         else:
@@ -597,7 +597,7 @@ in that span are processed (default: None, use the whole document)</dd>
 </dd>
 <dt id="gatenlp.pam.pampac.pampac.PampacAnnotator"><code class="flex name class">
 <span>class <span class="ident">PampacAnnotator</span></span>
-<span>(</span><span>pampac, ann_desc, outset_name=None, containing_anns_desc=None)</span>
+<span>(</span><span>pampac, annspec, outset_name=None, containing_anns_desc=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class for running a Pampac ruleset.</p>
@@ -605,7 +605,7 @@ in that span are processed (default: None, use the whole document)</dd>
 <dl>
 <dt><strong><code>pampac</code></strong></dt>
 <dd>a Pampac instance</dd>
-<dt><strong><code>ann_desc</code></strong></dt>
+<dt><strong><code>annspec</code></strong></dt>
 <dd>annotation specification for annotations to use as input. This can be a annotation set name,
 or a list of either annotation set names or tuples, where the first element is an annotation set
 name and the second element is either a type name or a list of type names. E.g. <code>[("", "Token")]</code>
@@ -630,14 +630,14 @@ and returned. Default: do not use containing annotations and run for the whole d
     &#34;&#34;&#34;
     def __init__(self,
                  pampac,
-                 ann_desc,
+                 annspec,
                  outset_name=None,
                  containing_anns_desc=None):
         &#34;&#34;&#34;
 
         Args:
             pampac: a Pampac instance
-            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+            annspec: annotation specification for annotations to use as input. This can be a annotation set name,
                 or a list of either annotation set names or tuples, where the first element is an annotation set
                 name and the second element is either a type name or a list of type names. E.g. `[(&#34;&#34;, &#34;Token&#34;)]`
                 to get all annotations with type Token from the default set or or `[(&#34;&#34;, [&#34;PER&#34;, &#34;ORG&#34;]), &#34;Key&#34;]`
@@ -650,13 +650,13 @@ and returned. Default: do not use containing annotations and run for the whole d
                 and returned. Default: do not use containing annotations and run for the whole document.
         &#34;&#34;&#34;
         self.pampac = pampac
-        self.ann_desc = ann_desc
+        self.annsepc = annspec
         self.outset_name = outset_name
         self.containing_anns_desc = containing_anns_desc
 
     def __call__(self, doc, **kwargs):
         outset = doc.annset(self.outset_name)
-        anns = doc.anns(self.ann_desc)
+        anns = doc.anns(self.annspec)
         if self.containing_anns_desc is not None:
             cont = doc.anns(self.containing_anns_desc)
         else:

@@ -31,25 +31,29 @@
 Base class for all gazetteer annotators
 &#34;&#34;&#34;
 from typing import Union, List, Set
-from recordclass import structclass
+from dataclasses import dataclass
 from gatenlp import Document
 from gatenlp.processing.annotator import Annotator
 
 
 class GazetteerBase(Annotator):
+    &#34;&#34;&#34;
+    Gazetteer base class.
+    &#34;&#34;&#34;
     def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)
 
-Match = structclass(
-    # A description of a match.
-    # Fields:
-    # start: the offset or index (in case matching a token list) where the match starts
-    # end: the offset or index one past where the match ends
-    # match: the matched string
-    # features: the features as merged from the match rule/entry and the list features
-    # type : the type as specified in the rule
-    &#34;Match&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;features&#34;, &#34;type&#34;)
-)</code></pre>
+# NOTE: slots=True is supported from 3.10 only
+@dataclass()
+class GazetteerMatch:
+    &#34;&#34;&#34;
+    A description of a match.
+    &#34;&#34;&#34;
+    start: int
+    end: int
+    match: str
+    features: dict
+    type: str</code></pre>
 </details>
 </section>
 <section>
@@ -65,13 +69,15 @@ Match = structclass(
 <span>class <span class="ident">GazetteerBase</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Gazetteer base class.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class GazetteerBase(Annotator):
+    &#34;&#34;&#34;
+    Gazetteer base class.
+    &#34;&#34;&#34;
     def __call__(self, doc: Document, **kwargs) -&gt; Union[Document, List[Document], None]:
         raise RuntimeError(&#34;Not implemented in Gazetteer base class&#34;)</code></pre>
 </details>
@@ -99,38 +105,47 @@ inheritance.</p></div>
 </li>
 </ul>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match"><code class="flex name class">
-<span>class <span class="ident">Match</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch"><code class="flex name class">
+<span>class <span class="ident">GazetteerMatch</span></span>
+<span>(</span><span>start: int, end: int, match: str, features: dict, type: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="matchstart-end-match-features-type">Match(start, end, match, features, type)</h2>
-<p>Create class Match instance</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>recordclass.datatype.dataobject</li>
-</ul>
-<h3>Instance variables</h3>
+<div class="desc"><p>A description of a match.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GazetteerMatch:
+    &#34;&#34;&#34;
+    A description of a match.
+    &#34;&#34;&#34;
+    start: int
+    end: int
+    match: str
+    features: dict
+    type: str</code></pre>
+</details>
+<h3>Class variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.base.Match.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch.end"><code class="name">var <span class="ident">end</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match.features"><code class="name">var <span class="ident">features</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch.features"><code class="name">var <span class="ident">features</span> : dict</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match.match"><code class="name">var <span class="ident">match</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch.match"><code class="name">var <span class="ident">match</span> : str</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch.start"><code class="name">var <span class="ident">start</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.base.Match.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.base.GazetteerMatch.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -154,13 +169,13 @@ inheritance.</p></div>
 <h4><code><a title="gatenlp.processing.gazetteer.base.GazetteerBase" href="#gatenlp.processing.gazetteer.base.GazetteerBase">GazetteerBase</a></code></h4>
 </li>
 <li>
-<h4><code><a title="gatenlp.processing.gazetteer.base.Match" href="#gatenlp.processing.gazetteer.base.Match">Match</a></code></h4>
+<h4><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch" href="#gatenlp.processing.gazetteer.base.GazetteerMatch">GazetteerMatch</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.end" href="#gatenlp.processing.gazetteer.base.Match.end">end</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.features" href="#gatenlp.processing.gazetteer.base.Match.features">features</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.match" href="#gatenlp.processing.gazetteer.base.Match.match">match</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.start" href="#gatenlp.processing.gazetteer.base.Match.start">start</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer.base.Match.type" href="#gatenlp.processing.gazetteer.base.Match.type">type</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch.end" href="#gatenlp.processing.gazetteer.base.GazetteerMatch.end">end</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch.features" href="#gatenlp.processing.gazetteer.base.GazetteerMatch.features">features</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch.match" href="#gatenlp.processing.gazetteer.base.GazetteerMatch.match">match</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch.start" href="#gatenlp.processing.gazetteer.base.GazetteerMatch.start">start</a></code></li>
+<li><code><a title="gatenlp.processing.gazetteer.base.GazetteerMatch.type" href="#gatenlp.processing.gazetteer.base.GazetteerMatch.type">type</a></code></li>
 </ul>
 </li>
 </ul>

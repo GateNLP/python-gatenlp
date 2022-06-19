@@ -32,11 +32,11 @@ This module provides the StringGazetter for matching strings against the text in
 &#34;&#34;&#34;
 import os
 from typing import Union, Any, Tuple, List, Dict, Set, Optional, Callable
-# note: recordclass is in extra basic, so for this need to install at least gatenlp[basic]
 from gatenlp.utils import init_logger
 from gatenlp import Document
-from gatenlp.processing.gazetteer.base import GazetteerBase, Match
+from gatenlp.processing.gazetteer.base import GazetteerBase, GazetteerMatch
 import re
+
 
 _NOVALUE = None
 PAT_SPACES = re.compile(r&#39;\s+&#39;)
@@ -207,7 +207,8 @@ class StringGazetteer(GazetteerBase):
             self.map_chars_func = map_chars
         self.size = 0
         if source is not None:
-            self.append(source=source, source_fmt=source_fmt,
+            self.append(source=source,
+                        source_fmt=source_fmt,
                         source_encoding=source_encoding,
                         source_sep=source_sep,
                         list_features=list_features,
@@ -215,10 +216,12 @@ class StringGazetteer(GazetteerBase):
                         list_nr=list_nr,
                         ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, List[str]],
-            data: Optional[Dict] = None, listidx: Optional[int] = None,
+    def add(self,
+            entry: Union[str, List[str]],
+            data: Optional[Dict] = None,
+            listidx: Optional[int] = None,
             ws_clean: bool = True,
-            ):
+        ):
         &#34;&#34;&#34;
         Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
 
@@ -433,7 +436,7 @@ class StringGazetteer(GazetteerBase):
             split_offsets: if not None, should be a list or set of offsets which are considered splits, i.e. something
                 across no matching is possible
         Returns:
-            A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+            A tuple where the first element is a list of GazetteerMatch objects and the second the length
             of the longest match, 0 if there is no match (list of match objects is empty).
         &#34;&#34;&#34;
         # NOTE: this method does not check for any start condition (e.g. word start), the caller should do this!
@@ -513,7 +516,7 @@ class StringGazetteer(GazetteerBase):
             start, end, text, vals, idxs = matchdata
             assert len(vals) == len(idxs)
             if len(vals) == 0:
-                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+                matches.append(GazetteerMatch(start=start, end=end, match=text, features={}, type=self.ann_type))
             else:
                 for val, idx, in zip(vals, idxs):
                     features = {}
@@ -523,7 +526,7 @@ class StringGazetteer(GazetteerBase):
                         outtype = self.list_types[idx]
                     if val is not None:
                         features.update(val)
-                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
+                    matches.append(GazetteerMatch(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
@@ -780,8 +783,7 @@ class StringGazetteer(GazetteerBase):
 <span>(</span><span>annset_name: str = '', outset_name: str = '', ann_type: str = 'Lookup', longest_only: bool = False, skip_longest: bool = False, start_type: Optional[str] = None, end_type: Optional[str] = None, ws_chars: Union[None, str, Callable] = None, ws_type: Optional[str] = None, split_chars: Union[None, str, Callable] = None, split_type: Optional[str] = None, map_chars: Union[None, str, Callable] = None, source: Any = None, source_fmt: str = 'gate-def', source_encoding: str = 'utf-8', source_sep: str = '\t', list_features: Optional[Dict[~KT, ~VT]] = None, list_type: Optional[str] = None, list_nr: Optional[int] = None, ws_clean: bool = True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+<div class="desc"><p>Gazetteer base class.</p>
 <p>Create a String Gazetteer annotor.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -960,7 +962,8 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             self.map_chars_func = map_chars
         self.size = 0
         if source is not None:
-            self.append(source=source, source_fmt=source_fmt,
+            self.append(source=source,
+                        source_fmt=source_fmt,
                         source_encoding=source_encoding,
                         source_sep=source_sep,
                         list_features=list_features,
@@ -968,10 +971,12 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                         list_nr=list_nr,
                         ws_clean=ws_clean)
 
-    def add(self, entry: Union[str, List[str]],
-            data: Optional[Dict] = None, listidx: Optional[int] = None,
+    def add(self,
+            entry: Union[str, List[str]],
+            data: Optional[Dict] = None,
+            listidx: Optional[int] = None,
             ws_clean: bool = True,
-            ):
+        ):
         &#34;&#34;&#34;
         Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
 
@@ -1186,7 +1191,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             split_offsets: if not None, should be a list or set of offsets which are considered splits, i.e. something
                 across no matching is possible
         Returns:
-            A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+            A tuple where the first element is a list of GazetteerMatch objects and the second the length
             of the longest match, 0 if there is no match (list of match objects is empty).
         &#34;&#34;&#34;
         # NOTE: this method does not check for any start condition (e.g. word start), the caller should do this!
@@ -1266,7 +1271,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
             start, end, text, vals, idxs = matchdata
             assert len(vals) == len(idxs)
             if len(vals) == 0:
-                matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+                matches.append(GazetteerMatch(start=start, end=end, match=text, features={}, type=self.ann_type))
             else:
                 for val, idx, in zip(vals, idxs):
                     features = {}
@@ -1276,7 +1281,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
                         outtype = self.list_types[idx]
                     if val is not None:
                         features.update(val)
-                    matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
+                    matches.append(GazetteerMatch(start=start, end=end, match=text, features=features, type=outtype))
         return matches, longest_len
 
     def find(self,
@@ -1551,10 +1556,12 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add(self, entry: Union[str, List[str]],
-        data: Optional[Dict] = None, listidx: Optional[int] = None,
+<pre><code class="python">def add(self,
+        entry: Union[str, List[str]],
+        data: Optional[Dict] = None,
+        listidx: Optional[int] = None,
         ws_clean: bool = True,
-        ):
+    ):
     &#34;&#34;&#34;
     Add a gazetteer entry or several entries if &#34;entry&#34; is not a string but iterable and store its data.
 
@@ -2056,7 +2063,7 @@ whitespace will get mapped to an actual space character for matching the gazette
 across no matching is possible</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+<p>A tuple where the first element is a list of GazetteerMatch objects and the second the length
 of the longest match, 0 if there is no match (list of match objects is empty).</p></div>
 <details class="source">
 <summary>
@@ -2089,7 +2096,7 @@ of the longest match, 0 if there is no match (list of match objects is empty).</
         split_offsets: if not None, should be a list or set of offsets which are considered splits, i.e. something
             across no matching is possible
     Returns:
-        A tuple where the first element is a list of StringGazetteerMatch objects and the second the length
+        A tuple where the first element is a list of GazetteerMatch objects and the second the length
         of the longest match, 0 if there is no match (list of match objects is empty).
     &#34;&#34;&#34;
     # NOTE: this method does not check for any start condition (e.g. word start), the caller should do this!
@@ -2169,7 +2176,7 @@ of the longest match, 0 if there is no match (list of match objects is empty).</
         start, end, text, vals, idxs = matchdata
         assert len(vals) == len(idxs)
         if len(vals) == 0:
-            matches.append(Match(start=start, end=end, match=text, features={}, type=self.ann_type))
+            matches.append(GazetteerMatch(start=start, end=end, match=text, features={}, type=self.ann_type))
         else:
             for val, idx, in zip(vals, idxs):
                 features = {}
@@ -2179,7 +2186,7 @@ of the longest match, 0 if there is no match (list of match objects is empty).</
                     outtype = self.list_types[idx]
                 if val is not None:
                     features.update(val)
-                matches.append(Match(start=start, end=end, match=text, features=features, type=outtype))
+                matches.append(GazetteerMatch(start=start, end=end, match=text, features=features, type=outtype))
     return matches, longest_len</code></pre>
 </details>
 </dd>

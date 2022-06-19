@@ -35,10 +35,10 @@ from random import choice
 from string import ascii_uppercase
 from gatenlp.document import Document
 from gatenlp.gatenlpconfig import gatenlpconfig
-
+import json as jsonlib
 
 JS_JQUERY_URL = &#34;https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js&#34;
-JS_GATENLP_URL = &#34;https://unpkg.com/gatenlp-ann-viewer@1.0.14/gatenlp-ann-viewer.js&#34;
+JS_GATENLP_URL = &#34;https://unpkg.com/gatenlp-ann-viewer@1.0.17/gatenlp-ann-viewer.js&#34;
 JS_JQUERY = f&#34;&lt;script src=\&#34;{JS_JQUERY_URL}\&#34;&gt;&lt;/script&gt;&#34;
 JS_GATENLP = f&#34;&lt;script src=\&#34;{JS_GATENLP_URL}\&#34;&gt;&lt;/script&gt;&#34;
 HTML_TEMPLATE_FILE_NAME = &#34;gatenlp-ann-viewer.html&#34;
@@ -46,9 +46,105 @@ JS_GATENLP_FILE_NAME = &#34;gatenlp-ann-viewer-merged.js&#34;
 
 html_ann_viewer_serializer_js_loaded = False
 
+SEP = &#34;║&#34;
+
+
+def init_javscript():
+    &#34;&#34;&#34;
+    Initialize the notebook/html javascript.
+    &#34;&#34;&#34;
+    from IPython.display import display_html   # pylint: disable=C0415
+
+    display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
+
+
+def show_colab(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        preselect=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
+    &#34;&#34;&#34;
+    Show htmldocumentviewe in a colab notebook.
+    &#34;&#34;&#34;
+    from IPython.display import display_html, Javascript   # pylint: disable=C0415
+    from IPython.display import display as i_display   # pylint: disable=C0415
+    i_display(Javascript(url=JS_JQUERY_URL))
+    i_display(Javascript(url=JS_GATENLP_URL))
+    html = doc.save_mem(
+        fmt=&#34;html-ann-viewer&#34;,
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annspec=annspec,
+        preselect=preselect,
+        palette=palette,
+        cols4types=cols4types,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        display_html(html, raw=True)
+        return None
+    else:
+        return html
+
+
+def show_notebook(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        preselect=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
+    &#34;&#34;&#34;
+    Show htmldocumentviewer in a jupyter notebook.
+    &#34;&#34;&#34;
+    if not gatenlpconfig.notebook_js_initialized:
+        init_javscript()
+        gatenlpconfig.notebook_js_initialized = True
+    html = doc.save_mem(
+        fmt=&#34;html-ann-viewer&#34;,
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annspec=annspec,
+        preselect=preselect,
+        palette=palette,
+        cols4types=cols4types,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        from IPython.display import display_html  # pylint: disable=C0415
+        display_html(html, raw=True)
+        return None
+    else:
+        return html
+
 
 class HtmlAnnViewerSerializer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Serialization class for generating HTML/Javascript to view a document in an HTML page or in a Jupyter or
+    Colab notebook.
+    &#34;&#34;&#34;
 
     @staticmethod
     def javascript():
@@ -71,32 +167,29 @@ class HtmlAnnViewerSerializer:
         return js
 
     @staticmethod
-    def init_javscript():
-        import IPython
-
-        IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
-
-    @staticmethod
     def save(
-        clazz,
-        inst,
-        to_ext=None,
-        to_mem=None,
-        notebook=False,
-        offline=False,
-        add_js=True,
-        htmlid=None,
-        stretch_height=False,
-        annsets=None,
-        doc_style=None,
-        row1_style=None,
-        row2_style=None,
-        **kwargs,
+            _clazz,
+            inst,
+            to_ext=None,
+            to_mem=None,
+            notebook=False,
+            offline=False,
+            add_js=True,
+            htmlid=None,
+            stretch_height=False,
+            annspec=None,
+            preselect=None,
+            palette=None,
+            cols4types=None,
+            doc_style=None,
+            row1_style=None,
+            row2_style=None,
+            **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
-            clazz: the class of the object to save
+            _clazz: the class of the object to save
             inst: the instance/object to save
             to_ext:  the destination where to save to unless to_mem is given
             to_mem: if true, ignores to_ext and returns the representation
@@ -114,9 +207,16 @@ class HtmlAnnViewerSerializer:
                 If True, no max haight is set and instead the height is set to a percentage (default is
                 67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
                 complete style for the rows can be set directly via row1_style and row2_style.
-            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+            annspec: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
+            preselect: if not None, the set and type names to pre-select (show). This should have the same format
+                as the annspec parameter.
+            palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
+                of the default palette.
+            cols4types: if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+                setname and typename combinations, the colours from the palette (default or specified) will be
+                overrriden.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
                 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
             row1_style: the style to use for the first row of the document viewer which shows the document text and
@@ -132,8 +232,8 @@ class HtmlAnnViewerSerializer:
         &#34;&#34;&#34;
         if not isinstance(inst, Document):
             raise Exception(&#34;Not a document!&#34;)
-        # TODO: why are we doing a deepcopy here?
-        doccopy = inst.deepcopy(annsets=annsets)
+        parms = dict(presel_set=[], presel_list=[])
+        doccopy = inst.deepcopy(annspec=annspec)
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
@@ -146,6 +246,29 @@ class HtmlAnnViewerSerializer:
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
             html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
+        if preselect is not None:
+            # create a list of set/type lists and a set of set of setSEPtype for parms
+            presel_set = set()
+            presel_list = []
+            for el in preselect:
+                if isinstance(el, str):
+                    for anntype in doccopy.annset(el).type_names:
+                        settype = el + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([el, anntype])
+                elif isinstance(el, (list, tuple)) and len(el) &gt; 1:
+                    setname = el[0]
+                    anntypes = el[1]
+                    if isinstance(anntypes, str):
+                        anntypes = [anntypes]
+                    for anntype in anntypes:
+                        settype = setname + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([setname, anntype])
+            parms[&#34;presel_set&#34;] = list(presel_set)
+            parms[&#34;presel_list&#34;] = presel_list
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
             str_end = &#34;&lt;!--ENDDIV--&gt;&#34;
@@ -154,7 +277,7 @@ class HtmlAnnViewerSerializer:
             if htmlid:
                 rndpref = str(htmlid)
             else:
-                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for i in range(10))
+                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for _i in range(10))
             html = html[idx1:idx2]
             html = f&#34;&#34;&#34;&lt;div&gt;&lt;style&gt;#{rndpref}-wrapper {{ color: {txtcolor} !important; }}&lt;/style&gt;
 &lt;div id=&#34;{rndpref}-wrapper&#34;&gt;
@@ -162,6 +285,17 @@ class HtmlAnnViewerSerializer:
 &lt;/div&gt;&lt;/div&gt;&#34;&#34;&#34;
             # replace the prefix with a random one
             html = html.replace(&#34;GATENLPID&#34;, rndpref)
+        if palette is not None:
+            parms[&#34;palette&#34;] = palette
+        if cols4types:
+            newdict = {}
+            for k, v in cols4types.items():
+                if not isinstance(k, tuple) or not len(k) == 2 or not isinstance(v, str):
+                    raise Exception(&#34;cols4types: must be a dictionary mapping (setname,typename) to color string&#34;)
+                newdict[k[0]+SEP+k[1]] = v
+            parms[&#34;cols4types&#34;] = newdict
+        else:
+            parms[&#34;cols4types&#34;] = {}
         if offline:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
@@ -194,6 +328,7 @@ class HtmlAnnViewerSerializer:
             if row2_style is None:
                 row2_style = gatenlpconfig.doc_html_repr_row2style_nostretch
         html = html.replace(&#34;$$JAVASCRIPT$$&#34;, js, 1).replace(&#34;$$JSONDATA$$&#34;, json, 1)
+        html = html.replace(&#34;$$JSONPARMS$$&#34;, jsonlib.dumps(parms), 1)
         html = html.replace(&#34;$$ROW1STYLE$$&#34;, row1_style, 1).replace(
             &#34;$$ROW2STYLE$$&#34;, row2_style, 1
         )
@@ -214,6 +349,127 @@ class HtmlAnnViewerSerializer:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gatenlp.serialization.default_htmlannviewer.init_javscript"><code class="name flex">
+<span>def <span class="ident">init_javscript</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initialize the notebook/html javascript.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_javscript():
+    &#34;&#34;&#34;
+    Initialize the notebook/html javascript.
+    &#34;&#34;&#34;
+    from IPython.display import display_html   # pylint: disable=C0415
+
+    display_html(HtmlAnnViewerSerializer.javascript(), raw=True)</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_htmlannviewer.show_colab"><code class="name flex">
+<span>def <span class="ident">show_colab</span></span>(<span>doc, htmlid=None, display=False, annspec=None, preselect=None, palette=None, cols4types=None, doc_style=None, row1_style=None, row2_style=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show htmldocumentviewe in a colab notebook.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_colab(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        preselect=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
+    &#34;&#34;&#34;
+    Show htmldocumentviewe in a colab notebook.
+    &#34;&#34;&#34;
+    from IPython.display import display_html, Javascript   # pylint: disable=C0415
+    from IPython.display import display as i_display   # pylint: disable=C0415
+    i_display(Javascript(url=JS_JQUERY_URL))
+    i_display(Javascript(url=JS_GATENLP_URL))
+    html = doc.save_mem(
+        fmt=&#34;html-ann-viewer&#34;,
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annspec=annspec,
+        preselect=preselect,
+        palette=palette,
+        cols4types=cols4types,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        display_html(html, raw=True)
+        return None
+    else:
+        return html</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.serialization.default_htmlannviewer.show_notebook"><code class="name flex">
+<span>def <span class="ident">show_notebook</span></span>(<span>doc, htmlid=None, display=False, annspec=None, preselect=None, palette=None, cols4types=None, doc_style=None, row1_style=None, row2_style=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show htmldocumentviewer in a jupyter notebook.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_notebook(
+        doc,
+        htmlid=None,
+        display=False,
+        annspec=None,
+        preselect=None,
+        palette=None,
+        cols4types=None,
+        doc_style=None,
+        row1_style=None,
+        row2_style=None
+):
+    &#34;&#34;&#34;
+    Show htmldocumentviewer in a jupyter notebook.
+    &#34;&#34;&#34;
+    if not gatenlpconfig.notebook_js_initialized:
+        init_javscript()
+        gatenlpconfig.notebook_js_initialized = True
+    html = doc.save_mem(
+        fmt=&#34;html-ann-viewer&#34;,
+        notebook=True,
+        add_js=False,
+        offline=True,
+        htmlid=htmlid,
+        annspec=annspec,
+        preselect=preselect,
+        palette=palette,
+        cols4types=cols4types,
+        stretch_height=False,
+        doc_style=doc_style,
+        row1_style=row1_style,
+        row2_style=row2_style,
+    )
+    if display:
+        from IPython.display import display_html  # pylint: disable=C0415
+        display_html(html, raw=True)
+        return None
+    else:
+        return html</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -222,13 +478,17 @@ class HtmlAnnViewerSerializer:
 <span>class <span class="ident">HtmlAnnViewerSerializer</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Serialization class for generating HTML/Javascript to view a document in an HTML page or in a Jupyter or
+Colab notebook.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class HtmlAnnViewerSerializer:
-    &#34;&#34;&#34; &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    Serialization class for generating HTML/Javascript to view a document in an HTML page or in a Jupyter or
+    Colab notebook.
+    &#34;&#34;&#34;
 
     @staticmethod
     def javascript():
@@ -251,32 +511,29 @@ class HtmlAnnViewerSerializer:
         return js
 
     @staticmethod
-    def init_javscript():
-        import IPython
-
-        IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)
-
-    @staticmethod
     def save(
-        clazz,
-        inst,
-        to_ext=None,
-        to_mem=None,
-        notebook=False,
-        offline=False,
-        add_js=True,
-        htmlid=None,
-        stretch_height=False,
-        annsets=None,
-        doc_style=None,
-        row1_style=None,
-        row2_style=None,
-        **kwargs,
+            _clazz,
+            inst,
+            to_ext=None,
+            to_mem=None,
+            notebook=False,
+            offline=False,
+            add_js=True,
+            htmlid=None,
+            stretch_height=False,
+            annspec=None,
+            preselect=None,
+            palette=None,
+            cols4types=None,
+            doc_style=None,
+            row1_style=None,
+            row2_style=None,
+            **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
-            clazz: the class of the object to save
+            _clazz: the class of the object to save
             inst: the instance/object to save
             to_ext:  the destination where to save to unless to_mem is given
             to_mem: if true, ignores to_ext and returns the representation
@@ -294,9 +551,16 @@ class HtmlAnnViewerSerializer:
                 If True, no max haight is set and instead the height is set to a percentage (default is
                 67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
                 complete style for the rows can be set directly via row1_style and row2_style.
-            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+            annspec: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
+            preselect: if not None, the set and type names to pre-select (show). This should have the same format
+                as the annspec parameter.
+            palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
+                of the default palette.
+            cols4types: if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+                setname and typename combinations, the colours from the palette (default or specified) will be
+                overrriden.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
                 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
             row1_style: the style to use for the first row of the document viewer which shows the document text and
@@ -312,8 +576,8 @@ class HtmlAnnViewerSerializer:
         &#34;&#34;&#34;
         if not isinstance(inst, Document):
             raise Exception(&#34;Not a document!&#34;)
-        # TODO: why are we doing a deepcopy here?
-        doccopy = inst.deepcopy(annsets=annsets)
+        parms = dict(presel_set=[], presel_list=[])
+        doccopy = inst.deepcopy(annspec=annspec)
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
@@ -326,6 +590,29 @@ class HtmlAnnViewerSerializer:
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
             html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
+        if preselect is not None:
+            # create a list of set/type lists and a set of set of setSEPtype for parms
+            presel_set = set()
+            presel_list = []
+            for el in preselect:
+                if isinstance(el, str):
+                    for anntype in doccopy.annset(el).type_names:
+                        settype = el + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([el, anntype])
+                elif isinstance(el, (list, tuple)) and len(el) &gt; 1:
+                    setname = el[0]
+                    anntypes = el[1]
+                    if isinstance(anntypes, str):
+                        anntypes = [anntypes]
+                    for anntype in anntypes:
+                        settype = setname + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([setname, anntype])
+            parms[&#34;presel_set&#34;] = list(presel_set)
+            parms[&#34;presel_list&#34;] = presel_list
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
             str_end = &#34;&lt;!--ENDDIV--&gt;&#34;
@@ -334,7 +621,7 @@ class HtmlAnnViewerSerializer:
             if htmlid:
                 rndpref = str(htmlid)
             else:
-                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for i in range(10))
+                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for _i in range(10))
             html = html[idx1:idx2]
             html = f&#34;&#34;&#34;&lt;div&gt;&lt;style&gt;#{rndpref}-wrapper {{ color: {txtcolor} !important; }}&lt;/style&gt;
 &lt;div id=&#34;{rndpref}-wrapper&#34;&gt;
@@ -342,6 +629,17 @@ class HtmlAnnViewerSerializer:
 &lt;/div&gt;&lt;/div&gt;&#34;&#34;&#34;
             # replace the prefix with a random one
             html = html.replace(&#34;GATENLPID&#34;, rndpref)
+        if palette is not None:
+            parms[&#34;palette&#34;] = palette
+        if cols4types:
+            newdict = {}
+            for k, v in cols4types.items():
+                if not isinstance(k, tuple) or not len(k) == 2 or not isinstance(v, str):
+                    raise Exception(&#34;cols4types: must be a dictionary mapping (setname,typename) to color string&#34;)
+                newdict[k[0]+SEP+k[1]] = v
+            parms[&#34;cols4types&#34;] = newdict
+        else:
+            parms[&#34;cols4types&#34;] = {}
         if offline:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
@@ -374,6 +672,7 @@ class HtmlAnnViewerSerializer:
             if row2_style is None:
                 row2_style = gatenlpconfig.doc_html_repr_row2style_nostretch
         html = html.replace(&#34;$$JAVASCRIPT$$&#34;, js, 1).replace(&#34;$$JSONDATA$$&#34;, json, 1)
+        html = html.replace(&#34;$$JSONPARMS$$&#34;, jsonlib.dumps(parms), 1)
         html = html.replace(&#34;$$ROW1STYLE$$&#34;, row1_style, 1).replace(
             &#34;$$ROW2STYLE$$&#34;, row2_style, 1
         )
@@ -390,22 +689,6 @@ class HtmlAnnViewerSerializer:
 </details>
 <h3>Static methods</h3>
 <dl>
-<dt id="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.init_javscript"><code class="name flex">
-<span>def <span class="ident">init_javscript</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def init_javscript():
-    import IPython
-
-    IPython.display.display_html(HtmlAnnViewerSerializer.javascript(), raw=True)</code></pre>
-</details>
-</dd>
 <dt id="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.javascript"><code class="name flex">
 <span>def <span class="ident">javascript</span></span>(<span>)</span>
 </code></dt>
@@ -438,13 +721,13 @@ def javascript():
 </details>
 </dd>
 <dt id="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, annsets=None, doc_style=None, row1_style=None, row2_style=None, **kwargs)</span>
+<span>def <span class="ident">save</span></span>(<span>_clazz, inst, to_ext=None, to_mem=None, notebook=False, offline=False, add_js=True, htmlid=None, stretch_height=False, annspec=None, preselect=None, palette=None, cols4types=None, doc_style=None, row1_style=None, row2_style=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a document to HTML for visualizing it.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>clazz</code></strong></dt>
+<dt><strong><code>_clazz</code></strong></dt>
 <dd>the class of the object to save</dd>
 <dt><strong><code>inst</code></strong></dt>
 <dd>the instance/object to save</dd>
@@ -471,10 +754,20 @@ min and max height (default min is 10em for row1 and 7em for row2, max is the do
 If True, no max haight is set and instead the height is set to a percentage (default is
 67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
 complete style for the rows can be set directly via row1_style and row2_style.</dd>
-<dt><strong><code>annsets</code></strong></dt>
+<dt><strong><code>annspec</code></strong></dt>
 <dd>if None, include all annotation sets and types, otherwise this should be a list of either
 set names, or tuples, where the first entry is a set name and the second entry is either a type
 name or list of type names to include.</dd>
+<dt><strong><code>preselect</code></strong></dt>
+<dd>if not None, the set and type names to pre-select (show). This should have the same format
+as the annspec parameter.</dd>
+<dt><strong><code>palette</code></strong></dt>
+<dd>if not None a list of colour codes (strings) usable in Javascript which will be used instead
+of the default palette.</dd>
+<dt><strong><code>cols4types</code></strong></dt>
+<dd>if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+setname and typename combinations, the colours from the palette (default or specified) will be
+overrriden.</dd>
 <dt><strong><code>doc_style</code></strong></dt>
 <dd>if not None, any additional styling for the document text box, if None, use whatever
 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.</dd>
@@ -496,25 +789,28 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
 </summary>
 <pre><code class="python">    @staticmethod
     def save(
-        clazz,
-        inst,
-        to_ext=None,
-        to_mem=None,
-        notebook=False,
-        offline=False,
-        add_js=True,
-        htmlid=None,
-        stretch_height=False,
-        annsets=None,
-        doc_style=None,
-        row1_style=None,
-        row2_style=None,
-        **kwargs,
+            _clazz,
+            inst,
+            to_ext=None,
+            to_mem=None,
+            notebook=False,
+            offline=False,
+            add_js=True,
+            htmlid=None,
+            stretch_height=False,
+            annspec=None,
+            preselect=None,
+            palette=None,
+            cols4types=None,
+            doc_style=None,
+            row1_style=None,
+            row2_style=None,
+            **kwargs,
     ):
         &#34;&#34;&#34;Convert a document to HTML for visualizing it.
 
         Args:
-            clazz: the class of the object to save
+            _clazz: the class of the object to save
             inst: the instance/object to save
             to_ext:  the destination where to save to unless to_mem is given
             to_mem: if true, ignores to_ext and returns the representation
@@ -532,9 +828,16 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
                 If True, no max haight is set and instead the height is set to a percentage (default is
                 67vh for row 1 and 30vh for row 2). The values used can be changed via gateconfig or the
                 complete style for the rows can be set directly via row1_style and row2_style.
-            annsets: if None, include all annotation sets and types, otherwise this should be a list of either
+            annspec: if None, include all annotation sets and types, otherwise this should be a list of either
                 set names, or tuples, where the first entry is a set name and the second entry is either a type
                 name or list of type names to include.
+            preselect: if not None, the set and type names to pre-select (show). This should have the same format
+                as the annspec parameter.
+            palette: if not None a list of colour codes (strings) usable in Javascript which will be used instead
+                of the default palette.
+            cols4types: if not None a dictionary mapping tuples (setname, typename) to a color. For the given
+                setname and typename combinations, the colours from the palette (default or specified) will be
+                overrriden.
             doc_style: if not None, any additional styling for the document text box, if None, use whatever
                 is defined as gatenlpconfig.doc_html_repr_doc_style or do not use.
             row1_style: the style to use for the first row of the document viewer which shows the document text and
@@ -550,8 +853,8 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
         &#34;&#34;&#34;
         if not isinstance(inst, Document):
             raise Exception(&#34;Not a document!&#34;)
-        # TODO: why are we doing a deepcopy here?
-        doccopy = inst.deepcopy(annsets=annsets)
+        parms = dict(presel_set=[], presel_list=[])
+        doccopy = inst.deepcopy(annspec=annspec)
         doccopy.to_offset_type(&#34;j&#34;)
         json = doccopy.save_mem(fmt=&#34;json&#34;, **kwargs)
         htmlloc = os.path.join(
@@ -564,6 +867,29 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
         with open(htmlloc, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
             html = infp.read()
         txtcolor = gatenlpconfig.doc_html_repr_txtcolor
+        if preselect is not None:
+            # create a list of set/type lists and a set of set of setSEPtype for parms
+            presel_set = set()
+            presel_list = []
+            for el in preselect:
+                if isinstance(el, str):
+                    for anntype in doccopy.annset(el).type_names:
+                        settype = el + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([el, anntype])
+                elif isinstance(el, (list, tuple)) and len(el) &gt; 1:
+                    setname = el[0]
+                    anntypes = el[1]
+                    if isinstance(anntypes, str):
+                        anntypes = [anntypes]
+                    for anntype in anntypes:
+                        settype = setname + SEP + anntype
+                        if settype not in presel_set:
+                            presel_set.add(settype)
+                            presel_list.append([setname, anntype])
+            parms[&#34;presel_set&#34;] = list(presel_set)
+            parms[&#34;presel_list&#34;] = presel_list
         if notebook:
             str_start = &#34;&lt;!--STARTDIV--&gt;&#34;
             str_end = &#34;&lt;!--ENDDIV--&gt;&#34;
@@ -572,7 +898,7 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
             if htmlid:
                 rndpref = str(htmlid)
             else:
-                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for i in range(10))
+                rndpref = &#34;&#34;.join(choice(ascii_uppercase) for _i in range(10))
             html = html[idx1:idx2]
             html = f&#34;&#34;&#34;&lt;div&gt;&lt;style&gt;#{rndpref}-wrapper {{ color: {txtcolor} !important; }}&lt;/style&gt;
 &lt;div id=&#34;{rndpref}-wrapper&#34;&gt;
@@ -580,6 +906,17 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
 &lt;/div&gt;&lt;/div&gt;&#34;&#34;&#34;
             # replace the prefix with a random one
             html = html.replace(&#34;GATENLPID&#34;, rndpref)
+        if palette is not None:
+            parms[&#34;palette&#34;] = palette
+        if cols4types:
+            newdict = {}
+            for k, v in cols4types.items():
+                if not isinstance(k, tuple) or not len(k) == 2 or not isinstance(v, str):
+                    raise Exception(&#34;cols4types: must be a dictionary mapping (setname,typename) to color string&#34;)
+                newdict[k[0]+SEP+k[1]] = v
+            parms[&#34;cols4types&#34;] = newdict
+        else:
+            parms[&#34;cols4types&#34;] = {}
         if offline:
             # global html_ann_viewer_serializer_js_loaded
             # if not html_ann_viewer_serializer_js_loaded:
@@ -612,6 +949,7 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
             if row2_style is None:
                 row2_style = gatenlpconfig.doc_html_repr_row2style_nostretch
         html = html.replace(&#34;$$JAVASCRIPT$$&#34;, js, 1).replace(&#34;$$JSONDATA$$&#34;, json, 1)
+        html = html.replace(&#34;$$JSONPARMS$$&#34;, jsonlib.dumps(parms), 1)
         html = html.replace(&#34;$$ROW1STYLE$$&#34;, row1_style, 1).replace(
             &#34;$$ROW2STYLE$$&#34;, row2_style, 1
         )
@@ -643,12 +981,18 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
 <li><code><a title="gatenlp.serialization" href="index.html">gatenlp.serialization</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gatenlp.serialization.default_htmlannviewer.init_javscript" href="#gatenlp.serialization.default_htmlannviewer.init_javscript">init_javscript</a></code></li>
+<li><code><a title="gatenlp.serialization.default_htmlannviewer.show_colab" href="#gatenlp.serialization.default_htmlannviewer.show_colab">show_colab</a></code></li>
+<li><code><a title="gatenlp.serialization.default_htmlannviewer.show_notebook" href="#gatenlp.serialization.default_htmlannviewer.show_notebook">show_notebook</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
 <h4><code><a title="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer" href="#gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer">HtmlAnnViewerSerializer</a></code></h4>
 <ul class="">
-<li><code><a title="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.init_javscript" href="#gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.init_javscript">init_javscript</a></code></li>
 <li><code><a title="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.javascript" href="#gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.javascript">javascript</a></code></li>
 <li><code><a title="gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.save" href="#gatenlp.serialization.default_htmlannviewer.HtmlAnnViewerSerializer.save">save</a></code></li>
 </ul>

@@ -37,9 +37,9 @@ gazetteer lists.
 &#34;&#34;&#34;
 
 import os
-from typing import Union, Dict, Optional, Callable, List
+from typing import Union, Dict, Optional, Callable, List, Any
 from collections import defaultdict
-from recordclass import structclass
+from dataclasses import dataclass
 
 from gatenlp.document import Document, Annotation
 from gatenlp.utils import init_logger
@@ -50,19 +50,17 @@ from gatenlp.processing.gazetteer.base import GazetteerBase
 #   of annotations is only matched if there is a/several? separator annotation between each of those annotations.
 #   Could also require this only if there is a separator in the gazetteer sequence (e.g. indicated by a None element)
 
-
-# NOTE! this was origiannl a @dataclass(unsafe_hash=True, order=True)
-# class TokenGazetteerMatch, with __slots__=(&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;entrydata&#34;, &#34;matcherdata&#34;)
-# and type declarations start: int, end: int, match: list, entrydata: object, matcherdata: object
-# HOWEVER, dataclasses require Python 3.7 and have their own issues.
-# Named tuples cannot be used because what we need has to be mutable.
-# So for now we use the structclass approach from package recordclass which is very compact and rather fast.
-# !! structclass by default does NOT support cyclic garbage collection which should be ok for us
-
-
-TokenGazetteerMatch = structclass(
-    &#34;TokenGazetteerMatch&#34;, (&#34;start&#34;, &#34;end&#34;, &#34;match&#34;, &#34;data&#34;, &#34;listidx&#34;)
-)
+# NOTE: slots=True is supported from 3.10 only
+@dataclass()
+class TokenGazetteerMatch:
+    &#34;&#34;&#34;
+    Represent a token gazetteer match
+    &#34;&#34;&#34;
+    start: int
+    end: int
+    match: list
+    data: Any
+    listidx: int
 
 
 class TokenGazetteerNode:
@@ -790,8 +788,7 @@ class TokenGazetteer(GazetteerBase):
 <span>(</span><span>source: Union[List[~T], str, None] = None, source_fmt: str = 'gate-def', source_sep='\t', source_encoding='UTF-8', source_tokenizer: Union[None, <a title="gatenlp.processing.annotator.Annotator" href="../annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a>, Callable] = None, longest_only: bool = False, skip_longest: bool = False, outset_name: str = '', ann_type: str = 'Lookup', annset_name: str = '', token_type: str = 'Token', feature=None, split_type: Optional[str] = None, within_type: Optional[str] = None, mapfunc: Optional[Callable] = None, ignorefunc: Optional[Callable] = None, getterfunc: Optional[Callable] = None, list_features: Optional[Dict[~KT, ~VT]] = None, list_type: Optional[str] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+<div class="desc"><p>Gazetteer base class.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>source</code></strong></dt>
@@ -2158,36 +2155,45 @@ and the second element is the length of the longest match, 0 if no match.</p></d
 </dd>
 <dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch"><code class="flex name class">
 <span>class <span class="ident">TokenGazetteerMatch</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>start: int, end: int, match: list, data: Any, listidx: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="tokengazetteermatchstart-end-match-data-listidx">TokenGazetteerMatch(start, end, match, data, listidx)</h2>
-<p>Create class TokenGazetteerMatch instance</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>recordclass.datatype.dataobject</li>
-</ul>
-<h3>Instance variables</h3>
+<div class="desc"><p>Represent a token gazetteer match</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TokenGazetteerMatch:
+    &#34;&#34;&#34;
+    Represent a token gazetteer match
+    &#34;&#34;&#34;
+    start: int
+    end: int
+    match: list
+    data: Any
+    listidx: int</code></pre>
+</details>
+<h3>Class variables</h3>
 <dl>
-<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.data"><code class="name">var <span class="ident">data</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.end"><code class="name">var <span class="ident">end</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.end"><code class="name">var <span class="ident">end</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.listidx"><code class="name">var <span class="ident">listidx</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.listidx"><code class="name">var <span class="ident">listidx</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.match"><code class="name">var <span class="ident">match</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.match"><code class="name">var <span class="ident">match</span> : list</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
-<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteerMatch.start"><code class="name">var <span class="ident">start</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>

@@ -40,7 +40,31 @@ from gatenlp.processing.annotator import Annotator
 import stanza
 from stanza.models.common.doc import Document as StanzaDocument
 
-
+# NOTES
+# Install stanza models:
+#    stanza.download(&#39;de&#39;)
+#    stanza.download(&#39;de&#39;, package=&#34;gsd&#34;)
+#    stanza.download(&#39;de&#39;, processors={&#39;ner&#39;: &#39;CoNLL03&#39;})
+# Create pipeline:
+#    nlp = stanza.Pipeline(&#39;en&#39;, package = &#39;partut&#39;) 
+#    nlp = stanza.Pipeline(&#39;it&#39;, processors=&#39;tokenize,mwt&#39;, package=&#39;twittiro&#39;)
+#    nlp = stanza.Pipeline(&#39;de&#39;, processors={ &#39;tokenize&#39;: &#39;gsd&#39;, 
+#          &#39;pos&#39;: &#39;hdt&#39;, &#39;ner&#39;: &#39;conll03&#39;, &#39;lemma&#39;: &#39;default&#39; })
+# Create own
+# from stanza.pipeline.processor import Processor, 
+#      register_processor, register_processor_variant
+# @register_processor(&#34;myprocessor&#34;)
+# class LowercaseProcessor(Processor):
+#     _requires = set([&#39;tokenize&#39;])
+#     _provides = set([&#39;myprocessor&#39;])
+#     def __init__(self, config, pipeline, use_gpu):
+#         pass
+#     def _set_up_model(self, *args):
+#         pass
+#     def process(self, doc):
+#        # process doc
+#        return doc 
+# etc
 class AnnStanza(Annotator):
     &#34;&#34;&#34; &#34;&#34;&#34;
 
