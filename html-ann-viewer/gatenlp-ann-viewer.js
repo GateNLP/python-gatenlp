@@ -270,9 +270,7 @@ var gatenlpDocView = class {
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
                 let setandtype = setname + this.docrep.sep + anntype;
-                console.log("CHECKING "+setandtype)
                 if (this.docrep.presel_set.has(setandtype)) {
-                    console.log("MATCH!")
                     inp.attr("checked", "")
                 }
                 $(lbl).append(inp);
