@@ -200,14 +200,14 @@ class PampacAnnotator(Annotator):
     """
     def __init__(self,
                  pampac,
-                 ann_desc,
+                 annspec,
                  outset_name=None,
                  containing_anns_desc=None):
         """
 
         Args:
             pampac: a Pampac instance
-            ann_desc: annotation specification for annotations to use as input. This can be a annotation set name,
+            annspec: annotation specification for annotations to use as input. This can be a annotation set name,
                 or a list of either annotation set names or tuples, where the first element is an annotation set
                 name and the second element is either a type name or a list of type names. E.g. `[("", "Token")]`
                 to get all annotations with type Token from the default set or or `[("", ["PER", "ORG"]), "Key"]`
@@ -220,13 +220,13 @@ class PampacAnnotator(Annotator):
                 and returned. Default: do not use containing annotations and run for the whole document.
         """
         self.pampac = pampac
-        self.ann_desc = ann_desc
+        self.annsepc = annspec
         self.outset_name = outset_name
         self.containing_anns_desc = containing_anns_desc
 
     def __call__(self, doc, **kwargs):
         outset = doc.annset(self.outset_name)
-        anns = doc.anns(self.ann_desc)
+        anns = doc.anns(self.annspec)
         if self.containing_anns_desc is not None:
             cont = doc.anns(self.containing_anns_desc)
         else:

@@ -74,7 +74,7 @@ class JsonSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
-        annsets=None,
+        annspec=None,
         **kwargs,
     ):
         """
@@ -87,10 +87,10 @@ class JsonSerializer:
           offset_type: the offset type to use for saving, if None (default) use "p" (Python)
           offset_mapper: the offset mapper to use, only needed if the type needs to get converted
           gzip: if True, the JSON gets gzip compressed
-          annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+          annspec: which annotation sets and types to include, list of set names or (setanme, types) tuples
           **kwargs:
         """
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annspec=annspec, **kwargs)
         if to_mem:
             if gzip:
                 compress(json.dumps(d).encode("UTF-8"))

@@ -30,8 +30,8 @@ TWITTER_DEFAULT_INCLUDE_FIELDS = [
 class TweetV1Serializer:
 
     @staticmethod
-    def doc2twitterv1dict(doc, annsets=None, prefix_sep=None):
-        d = doc.to_dict(annsets=annsets)
+    def doc2twitterv1dict(doc, annspec=None, prefix_sep=None):
+        d = doc.to_dict(annspec=annspec)
         ret = {"full_text": doc.text}
         ents = defaultdict(list)
         for setname, annset in d.get("annotation_sets", {}).items():
@@ -54,7 +54,7 @@ class TweetV1Serializer:
         inst,
         to_ext=None,
         to_mem=None,
-        annsets=None,
+        annspec=None,
         prefix_sep=None,
         **kwargs,
     ):
@@ -67,13 +67,13 @@ class TweetV1Serializer:
             to_mem: if True, return a String serialization
             offset_type: the offset type to use for saving, if None (default) use "p" (Python)
             offset_mapper: the offset mapper to use, only needed if the type needs to get converted
-            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            annspec: which annotation sets and types to include, list of set names or (setanmes, types) tuples
             prefix_types: if not None, prefix all types with the name of the annotation set the annotation comes from
                 and use the given string as the separator (can be the empty string for no seaparator).
                 For annotations from the default set the type stays unchanged.
           **kwargs:
         """
-        d = TweetV1Serializer.doc2twitterv1dict(inst, annsets=annsets, prefix_sep=prefix_sep)
+        d = TweetV1Serializer.doc2twitterv1dict(inst, annspec=annspec, prefix_sep=prefix_sep)
         if to_mem:
             return json.dumps(d)
         else:

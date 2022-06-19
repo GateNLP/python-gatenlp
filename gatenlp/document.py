@@ -538,7 +538,7 @@ class Document:
             self.text, self._features, asets
         )
 
-    def to_dict(self, offset_type=None, annsets=None, **kwargs):
+    def to_dict(self, offset_type=None, annspec=None, **kwargs):
         """Convert this instance to a dictionary that can be used to re-create the instance with
         from_dict.
         NOTE: if there is an active changelog, it is not included in the output as this
@@ -546,7 +546,7 @@ class Document:
 
         Args:
           offset_type: convert to the given offset type on the fly (Default value = None)
-          annsets: if not None, a list of annotation set/type specifications: each element
+          annspec if not None, a list of annotation set/type specifications: each element
               is either a string, the name of the annotation set to include, or a tuple where the
               first element is the annotation set name and the second element is either a
               type name or a list of type names. The same annotation set name should not be used
@@ -571,9 +571,9 @@ class Document:
             offset_type = self.offset_type
 
         # create the annotation sets map
-        if annsets is not None:
+        if annspec is not None:
             annsets_dict = {}
-            for spec in annsets:
+            for spec in annspec:
                 if isinstance(spec, str):
                     tmpset = self._annotation_sets.get(spec)
                     if tmpset is not None:
@@ -637,7 +637,7 @@ class Document:
         fmt=None,
         offset_type=None,
         mod="gatenlp.serialization.default",
-        annsets=None,
+        annspec=None,
         **kwargs,
     ):
         """Save the document to the destination file.
@@ -649,12 +649,12 @@ class Document:
                 (Default value = None)
             mod: module where the document saver is implemented.
                 (Default value = "gatenlp.serialization.default")
-            annsets: if not None, a list of annotation set names or tuples of set name and a
+            annspec: if not None, a list of annotation set names or tuples of set name and a
                 list of annotation types to include in the serialized document.
             kwargs: additional parameters for the document saver.
         """
-        if annsets is not None:
-            kwargs["annsets"] = annsets
+        if annspec is not None:
+            kwargs["annspec"] = annspec
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
             saver = m.get_document_saver(destination, fmt)
@@ -773,13 +773,13 @@ class Document:
         doc._features = self._features.copy()
         return doc
 
-    def copy(self, annsets=None):
+    def copy(self, annspec=None):
         """
-        Creates a shallow copy except the changelog which is set to None. If annsets is specified,
+        Creates a shallow copy except the changelog which is set to None. If annspec is specified,
         creates a shallow copy but also limits the annotations to the one specified.
 
         Args:
-          annsets: if not None, a list of annotation set/type specifications: each element
+          annspec: if not None, a list of annotation set/type specifications: each element
               is either a string, the name of the annotation set to include, or a tuple where the
               first element is the annotation set name and the second element is either a
               type name or a list of type names. The same annotation set name should not be used
@@ -788,13 +788,13 @@ class Document:
         Returns:
             shallow copy of the document, optionally with some annotations removed
         """
-        if annsets is None:
+        if annspec is None:
             return self.__copy__()
         doc = Document(self._text)
         doc.offset_type = self.offset_type
         doc._features = self._features.copy()
         doc._annotation_sets = dict()
-        for spec in annsets:
+        for spec in annspec:
             if isinstance(spec, str):
                 tmpset = self._annotation_sets.get(spec)
                 if tmpset is not None:
@@ -813,14 +813,14 @@ class Document:
                     doc._annotation_sets[setname] = annset
         return doc
 
-    def deepcopy(self, annsets=None, memo=None):
+    def deepcopy(self, annspec=None, memo=None):
         """
         Creates a deep copy, except the changelog which is set to None. If annset is not None, the
         annotations in the copy are restricted to the given set.
 
         Args:
             memo: the memoization dictionary to use.
-            annsets: which annsets and types to include
+            annspec: which annotation sets and types to include
 
         Returns:
             a deep copy of the document.
@@ -832,11 +832,11 @@ class Document:
         doc = Document(self._text, features=fts)
         doc._changelog = None
         doc.offset_type = self.offset_type
-        if annsets is None:
+        if annspec is None:
             doc._annotation_sets = lib_copy.deepcopy(self._annotation_sets, memo)
         else:
             doc._annotation_sets = dict()
-            for spec in annsets:
+            for spec in annspec:
                 if isinstance(spec, str):
                     tmpset = self._annotation_sets.get(spec)
                     if tmpset is not None:
@@ -884,8 +884,6 @@ class Document:
             # things like starboard.gg may call _repr_html_ but still not satisfy either in colab or notebook
             return self.__repr__()
 
-    # TODO: maybe allow manual selection of how to show the document, e.g. also by
-    # writing to a tmp file and browsing in a browser, or pprint etc.
     def show(
             self,
             to=None,
@@ -906,7 +904,7 @@ class Document:
         Args:
             to: if None, try to guess if this is called from within a notebook and if yes, which kind.
                 Otherwise, explicitly specify where to show the document to, one of "console", "jupyter",
-                "colab". If "console" is specified or automatically chosen, the parameters "annsets", "doc_style",
+                "colab". If "console" is specified or automatically chosen, the parameters "annspec", "doc_style",
                 "row1_style", and "row2_style" are irrelevant and ignored.
             htmlid: the HTML id prefix to use for classes and element ids.
             annspec: if not None, a list of annotation set/type specifications.

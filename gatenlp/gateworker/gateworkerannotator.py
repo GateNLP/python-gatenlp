@@ -20,8 +20,8 @@ class GateWorkerAnnotator(Annotator):   # pragma: no cover
             self,
             pipeline,
             gateworker,
-            annsets_send=None,
-            annsets_receive=None,
+            annspec_send=None,
+            annspec_receive=None,
             replace_anns=False,
             update_document=False,
     ):
@@ -51,11 +51,11 @@ class GateWorkerAnnotator(Annotator):   # pragma: no cover
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
             gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
-            annsets_send: a list of either annotation set names, or tuples where the first element
+            annspec_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
                 If an empty list is specified, no annotations are sent at all.
-            annsets_receive: this only works if update_document is True: same format as annsets_send to specify
+            annspec_receive: this only works if update_document is True: same format as annspec_send to specify
                 which annotation sets/types are
                 sent back to Python after the document has been processed on the Java side.
             replace_anns: this is only relevant if update_document is True: if True and an annotation is received
@@ -69,8 +69,8 @@ class GateWorkerAnnotator(Annotator):   # pragma: no cover
                 received from Java GATE.
         """
         self.pipeline = pipeline
-        self.annsets_send = annsets_send
-        self.annsets_receive = annsets_receive
+        self.annspec_send = annspec_send
+        self.annspec_receive = annspec_receive
         self.replace_anns = replace_anns
         self.update_document = update_document
         self.gateworker = gateworker
@@ -110,15 +110,15 @@ class GateWorkerAnnotator(Annotator):   # pragma: no cover
         Returns:
             the processed gatenlp document
         """
-        if self.annsets_send is not None:
+        if self.annspec_send is not None:
             # create shallow copy, we only need it for reading!
-            tmpdoc = doc.copy(annsets=self.annsets_send)
+            tmpdoc = doc.copy(annspec=self.annspec_send)
         else:
             tmpdoc = doc
         gdoc = self.gateworker.pdoc2gdoc(tmpdoc)
         self.gateworker.worker.run4Document(self.controller, gdoc)
         if self.update_document:
-            self.gateworker.gdocanns2pdoc(gdoc, doc, annsets=self.annsets_receive, replace=self.replace_anns)
+            self.gateworker.gdocanns2pdoc(gdoc, doc, annspec=self.annspec_receive, replace=self.replace_anns)
         else:
             doc = self.gateworker.gdoc2pdoc(gdoc)
         self.gateworker.del_resource(gdoc)

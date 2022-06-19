@@ -26,7 +26,7 @@ class YamlSerializer:
         offset_type=None,
         offset_mapper=None,
         gzip=False,
-        annsets=None,
+        annspec=None,
         **kwargs,
     ):
         """
@@ -39,11 +39,11 @@ class YamlSerializer:
             offset_type: (Default value = None)
             offset_mapper: (Default value = None)
             gzip: (Default value = False)
-            annsets: which annotation sets and types to include, list of set names or (setanmes, types) tuples
+            annspec: which annotation sets and types to include, list of set names or (setanme, types) tuples
             **kwargs:
         """
         yaml, yaml_loader, yaml_dumper = delayed_imports()
-        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annsets=annsets, **kwargs)
+        d = inst.to_dict(offset_type=offset_type, offset_mapper=offset_mapper, annspec=annspec, **kwargs)
         if to_mem:
             if gzip:
                 compress(yaml.dump(d, Dumper=yaml_dumper).encode("UTF-8"))

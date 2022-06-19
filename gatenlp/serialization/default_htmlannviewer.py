@@ -204,7 +204,7 @@ class HtmlAnnViewerSerializer:
         if not isinstance(inst, Document):
             raise Exception("Not a document!")
         parms = dict(presel_set=[], presel_list=[])
-        doccopy = inst.deepcopy(annsets=annspec)
+        doccopy = inst.deepcopy(annspec=annspec)
         doccopy.to_offset_type("j")
         json = doccopy.save_mem(fmt="json", **kwargs)
         htmlloc = os.path.join(

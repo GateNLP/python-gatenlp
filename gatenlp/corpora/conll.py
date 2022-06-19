@@ -2,7 +2,6 @@
 Module that provides document source/destination classes for importing and exporting documents
 from/to various conll formats.
 """
-from conllu import parse, parse_incr
 from gatenlp.urlfileutils import stream_from
 from gatenlp import Document, AnnotationSet, Span
 from gatenlp.corpora import DocumentSource
@@ -47,6 +46,7 @@ class ConllUFileSource(DocumentSource):
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
         """
+        from conllu import parse, parse_incr
         super().__init__()
         assert sentence_type is not None
         assert token_type is not None
@@ -81,6 +81,7 @@ class ConllUFileSource(DocumentSource):
         """
         Create and return the tokenlist generator
         """
+        from conllu import parse, parse_incr
         if self.from_string:
             return ConllUFileSource.gen4list(parse(self.source))
         else:

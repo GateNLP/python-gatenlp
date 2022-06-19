@@ -509,22 +509,22 @@ class GateWorker:   # pragma: no cover
         bjs = self.worker.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt="bdocjs")
 
-    def pdoc2gdoc(self, pdoc, annsets=None):
+    def pdoc2gdoc(self, pdoc, annspec=None):
         """
         Convert the Python gatenlp document to a GATE document and return a handle to it.
 
         Args:
             pdoc: python gatenlp Document
-            annsets: a list of either set names, or tuples where the first element is a set name and the
+            annspec: a list of either set names, or tuples where the first element is a set name and the
                 second element is either a type name or a list of type names.
 
         Returns:
             handle to GATE document
         """
-        jsondata = pdoc.save_mem(fmt="bdocjs", annsets=annsets)
+        jsondata = pdoc.save_mem(fmt="bdocjs", annspec=annspec)
         return self.worker.getDocument4BdocJson(jsondata)
 
-    def gdocanns2pdoc(self, gdoc, pdoc, annsets=None, replace=False):
+    def gdocanns2pdoc(self, gdoc, pdoc, annspec=None, replace=False):
         """
         Retrieve the annotations from the GATE document and add them to the python gatenlp document.
         This modifies the pdoc in place and returns it.
@@ -532,7 +532,7 @@ class GateWorker:   # pragma: no cover
         Args:
             gdoc: a handle to a Java GATE document
             pdoc: Python gatenlp document
-            annsets: if not None, an annotation specification: a list of set names or tuples where the first
+            annspec: if not None, an annotation specification: a list of set names or tuples where the first
                 element is a set name and the second element is either a type name or a list of type names
             replace: if True, replaces all annotations with the same set and annotation id, otherwise adds
                 annotaitons with potentially a new annotation id.
@@ -540,12 +540,12 @@ class GateWorker:   # pragma: no cover
         Returns:
             the modified pdoc
         """
-        # to make it easier on the Java side to interpret the annsets specification, convert it so that
+        # to make it easier on the Java side to interpret the annotation specification, convert it so that
         # all elements are a list where first element is always the set name and all remaining elements
         # are tyepe names. If there is one remaining element which is null, include all types for that set.
-        newannsets = self.pannsets2gannsets(annsets)
+        newannspec = self.pannspec2gannspec(annspec)
         # now retrieve the BDOC JSON representation of the annotations
-        thejson = self.jsonAnnsets4Doc(gdoc, newannsets)
+        thejson = self.jsonAnnsets4Doc(gdoc, newannspec)
         dictrep = json.loads(thejson)
         for name, adict in dictrep.items():
             annset = AnnotationSet.from_dict(adict, owner_doc=None)
@@ -957,26 +957,26 @@ class GateWorker:   # pragma: no cover
         """
         self.worker.saveDocumentToFile(gdoc, filename, mimetype)
 
-    def pannsets2gannsets(self, annsets=None):
+    def pannspec2gannspec(self, annspec=None):
         """
         Convert from our convention to specifiy annotation sets and types to a Java list.
         This is necessary because py4j does not by default convert lists properly and also
-        because our Java representation of the annsets specification has a different structure.
+        because our Java representation of the annspec specification has a different structure.
         The list returned from this is already a Java list!
 
         Args:
-            annsets: annsets specification to convert
+            annspec: annotation specification to convert
 
         Returns:
-            java representation of the annsets specification (or None)
+            java representation of the annotation specification (or None)
         """
-        if annsets is None:
+        if annspec is None:
             return None
-        # annsets is a python collection and cannot be passed directly to Java
+        # annspec is a python collection and cannot be passed directly to Java
         # see https://www.py4j.org/advanced_topics.html#collections-conversion
         from py4j.java_collections import ListConverter
-        newannsets = []
-        for spec in annsets:
+        newannspec = []
+        for spec in annspec:
             if isinstance(spec, str):
                 plist = [spec, None]
             else:
@@ -988,31 +988,31 @@ class GateWorker:   # pragma: no cover
                     plist = [setname]
                     plist.extend(types)
             jlist = ListConverter().convert(plist, self.gateway._gateway_client)
-            newannsets.append(jlist)
-        jnewannsets = ListConverter().convert(newannsets, self.gateway._gateway_client)
-        return jnewannsets
+            newannspec.append(jlist)
+        jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
+        return jnewannspec
 
-    def jsonAnnsets4Doc(self, gdoc, jannsets=None):
+    def jsonAnnsets4Doc(self, gdoc, jannspec=None):
         """
         Return the JSON representation of the annotation sets in the GATE document, optionally
-        filtered by the given annsets specification.
+        filtered by the given annotation specification.
 
-        The annsets specification should have the format as expected on the Java side: a list
+        The jannspec specification should have the format as expected on the Java side: a list
         of lists of string. Each inner list has the set name to include as the first element
         and either null as the second element to include all types, or the types to include
         as the 2nd and subsequent elements.
 
-        The method pannsets2gannsets(annsets) can be used to convert from our standard annset
-        specification to the Java annsets specification.
+        The method pannspec2gannspec(annspec) can be used to convert from our standard annotation
+        specification to the Java annotation specification.
 
         Args:
             gdoc: handle to Java GATE document
-            jannsets: the annotation specification list as a Java list
+            jannspec: the annotation specification list as a Java list
 
         Returns:
 
         """
-        return self.worker.jsonAnnsets4Doc(gdoc, jannsets)
+        return self.worker.jsonAnnsets4Doc(gdoc, jannspec)
 
     def showGui(self):
         """

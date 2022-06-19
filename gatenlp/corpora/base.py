@@ -68,8 +68,6 @@ class CorpusSourceBase:
             doc.features[self.relpathfeatname()] = relpath
 
 
-
-
 class MultiProcessingAble:
     """
     A document source/destination/corpus class where duplicate instances can be used by several
