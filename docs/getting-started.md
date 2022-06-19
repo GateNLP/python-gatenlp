@@ -58,7 +58,7 @@ from gatenlp.processing.tokenizer import NLTKTokenizer
 from nltk.tokenize import TreebankWordTokenizer
 
 nltk_tok = TreebankWordTokenizer()
-ann_tok = NLTKTokenizer(nltk_tokenizer=nltk_tok, out_set="NLTK")
+ann_tok = NLTKTokenizer(nltk_tokenizer=nltk_tok, outset_name="NLTK")
 doc1 = ann_tok(doc1)
 ```
 
@@ -69,12 +69,12 @@ Get all the annotation for the NLTK tokens which are in annotation set "NLTK":
 ```python
 # get the annotation set with the name "NLTK" and print the number of annotations
 set_nltk = doc1.annset("NLTK")
-print(len(set_nltk))
+print("NLTK set length:", len(set_nltk))
 
 # get only annotations of annotation type "Token" from the set and print the number of annotations
 # since there are no other annotations in the original set, the number should be the same
 set_tokens = set_nltk.with_type("Token")
-print(len(set_tokens))
+print("Number of Token annotations: ", len(set_tokens))
 
 # print all the annotations in order
 for ann in set_tokens:
@@ -82,8 +82,8 @@ for ann in set_tokens:
 
 ```
 
-    8
-    8
+    NLTK set length: 8
+    Number of Token annotations:  8
     Annotation(0,4,Token,features=Features({}),id=0)
     Annotation(5,7,Token,features=Features({}),id=1)
     Annotation(8,11,Token,features=Features({}),id=2)
@@ -149,13 +149,19 @@ doc1
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+    constructor(bdoc, parms) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
+	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
+	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -299,6 +305,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -334,15 +348,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -388,6 +396,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -399,17 +408,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -426,7 +442,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -464,7 +480,7 @@ var gatenlpDocView = class {
                 // trick for zero length annotations: show them as length one annotations for now
                 var endoff = ann.end
                 if (ann.start == ann.end) endoff = endoff+1
-                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
+                for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
                     if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
@@ -482,12 +498,12 @@ var gatenlpDocView = class {
                 }
             }
         }
-        console.log("initial anns4Offset:")
-        console.log(this.anns4offset)
+        //console.log("initial anns4Offset:")
+        //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
             if (last == undefined && cur == undefined) {
                 // console.log("Offset "+i+" both undefined")
@@ -513,7 +529,8 @@ var gatenlpDocView = class {
             } 
             last = cur
         }
-        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+	let beyond = this.docrep.text.length
+	this.anns4offset[beyond] = { "anns": new Set(), "offset": beyond}
 
         // console.log("compressed anns4Offset:")
         // console.log(this.anns4offset)
@@ -529,21 +546,22 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
             last = { "anns": new Set(), "offset": 0 };
         }
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
-                console.log("Got text: "+txt) 
+                txt = txt.replace(/\n/g, "\u2002\n");
+                // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
@@ -559,26 +577,6 @@ var gatenlpDocView = class {
                 last = info;
             }
         }
-        let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
-        let span = undefined;
-        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
-        if (last["anns"].length != 0) {
-            let col = this.color4types(last.anns);
-            let sty = this.style4color(col);
-            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
-            span = $('<span>').attr("style", sty)
-            let object = this;
-            let anns = last.anns;
-            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
-            span.on("click", annhandler);
-            // console.log("Adding styled text for "+col+" : "+txt)
-        } else {
-            // console.log("Adding non-styled text "+txt)
-            span = $('<span>');
-        }
-        span.append($.parseHTML(this.htmlEntities(txt)));
-        spans.push(span);
-        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
@@ -589,37 +587,31 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
 </script>
 
 
 
 
 
-<div><style>#XOJKUGCHGZ-wrapper { color: black !important; }</style>
-<div id="XOJKUGCHGZ-wrapper">
+<div><style>#ICDECPOVSS-wrapper { color: black !important; }</style>
+<div id="ICDECPOVSS-wrapper">
 
 <div>
 <style>
-#XOJKUGCHGZ-content {
+#ICDECPOVSS-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.XOJKUGCHGZ-row {
+.ICDECPOVSS-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.XOJKUGCHGZ-col {
+.ICDECPOVSS-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -629,23 +621,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.XOJKUGCHGZ-hdr {
+.ICDECPOVSS-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.XOJKUGCHGZ-label {
+.ICDECPOVSS-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.XOJKUGCHGZ-input {
+.ICDECPOVSS-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#XOJKUGCHGZ-popup {
+#ICDECPOVSS-popup {
     display: none;
     color: black;
     position: absolute;
@@ -660,45 +652,44 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.XOJKUGCHGZ-selection {
+.ICDECPOVSS-selection {
     margin-bottom: 5px;
 }
 
-.XOJKUGCHGZ-featuretable {
+.ICDECPOVSS-featuretable {
     margin-top: 10px;
 }
 
-.XOJKUGCHGZ-fname {
+.ICDECPOVSS-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.XOJKUGCHGZ-fvalue {
+.ICDECPOVSS-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="XOJKUGCHGZ-content">
-        <div id="XOJKUGCHGZ-popup" style="display: none;">
+  <div id="ICDECPOVSS-content">
+        <div id="ICDECPOVSS-popup" style="display: none;">
         </div>
-        <div class="XOJKUGCHGZ-row" id="XOJKUGCHGZ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="XOJKUGCHGZ-text-wrapper" class="XOJKUGCHGZ-col" style="width:70%;">
-                <div class="XOJKUGCHGZ-hdr" id="XOJKUGCHGZ-dochdr"></div>
-                <div id="XOJKUGCHGZ-text">
+        <div class="ICDECPOVSS-row" id="ICDECPOVSS-row1" style="$$HEIGHT1$$ min-height:5em;">
+            <div id="ICDECPOVSS-text-wrapper" class="ICDECPOVSS-col" style="width:70%;">
+                <div class="ICDECPOVSS-hdr" id="ICDECPOVSS-dochdr"></div>
+                <div id="ICDECPOVSS-text" style="$$DOCTEXTSTYLE$$">
                 </div>
             </div>
-            <div id="XOJKUGCHGZ-chooser" class="XOJKUGCHGZ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ICDECPOVSS-chooser" class="ICDECPOVSS-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="XOJKUGCHGZ-row" id="XOJKUGCHGZ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="XOJKUGCHGZ-details" class="XOJKUGCHGZ-col" style="width:100%; border-top-width: 0px;">
+        <div class="ICDECPOVSS-row" id="ICDECPOVSS-row2" style="$$HEIGHT2$$ min-height: 3em;">
+            <div id="ICDECPOVSS-details" class="ICDECPOVSS-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="XOJKUGCHGZ-data">
-    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("XOJKUGCHGZ-");
+    let ICDECPOVSS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""} ; 
+    let ICDECPOVSS_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(ICDECPOVSS_data, ICDECPOVSS_parms), "ICDECPOVSS-").init();
     </script>
   </div>
 
@@ -706,7 +697,6 @@ function gatenlp_run(prefix) {
 
 
 
-
-```python
-
-```
+By checking an annotation type, the corresponding annotations are marked in the document text.
+Clicking on a marked annotation shows the annotation features instead of the document features in the bottom pane. To show the document features again, click the "Document:" header above the document text.
+If a location is clicked where more than one overlapping annotation is marked, a popup window is shown from which the annotation has to be selected for which to show the features. 

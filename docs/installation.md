@@ -12,12 +12,15 @@ Alternately,
 
 
 Then create an environment for working with gatenlp. This example
-creates an environment with the name `gatenlp` and activates it:
+creates an environment with the name `gatenlp`, python 3.8 and activates it:
 
 ```
 conda create -n gatenlp python==3.8
 conda activate gatenlp
 ```
+
+Note that the `gatenlp` package is compatible with several of the most recent Python 
+versions: the most recent version is compatible with: [![Python compatibility](https://img.shields.io/pypi/pyversions/gatenlp.svg)](https://pypi.python.org/pypi/gatenlp/)
 
 The gatenlp has a number of optional dependencies which are only needed if
 some special features of gatenlp are used.
@@ -53,11 +56,12 @@ then run the gatenlp installation again.
 
 The following specific dependencies included in 'all' can be chosen separately:
 * `formats`: to support the various serialization formats
-* `java`: to support the Gate slave 
+* `java`: to support the Gate worker
 * `stanza`: to support the Stanza bridge
 * `spacy`: to support the Spacy bridge
 * `nltk`: to support the nltk tokenizer and nltk bridge
-* `gazetteers`: to support gazetteers
+* `clients`: to support using gatenlp as a client for ELG services, Google NLP, IBM Watson, TextRazor, GATE Cloud
+* `ray`: to run multiprocessing pipelines using Ray
 
 The following dependencies are not included in 'all' but in 'alldev' or can be chosen separately:
 * `notebook`: needed to use `gatenlp` with notebooks, convert notebooks, show notebooks as slides 
