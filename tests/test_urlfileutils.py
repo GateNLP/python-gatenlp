@@ -17,7 +17,7 @@ class TestUrlFileUtils01:
 
         isu, ext = is_url(pathlib.Path("http://somewhere.org/x"))
         assert not isu
-        assert ext == "http:/somewhere.org/x"
+        assert ext == "http:/somewhere.org/x" or ext == "http:\\somewhere.org\\x"  # depending on non / Windows
 
         isu, ext = is_url("file:///somewhere.org/x")
         assert not isu
