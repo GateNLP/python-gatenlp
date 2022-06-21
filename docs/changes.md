@@ -13,6 +13,7 @@
 * Added parameter "presel" to `Document.show` to preselect annotation types
 * Added parameter "palette" to `Document.show` to replace the default colour palette
 * Added parameter "cols4types" to `Document.show` to specify colours for specific setname / typename combinations
+* Add support for installing and using core functionality under pyodide and jupyter-lite
 
 
 ## 1.0.7 (2022-02-06)
