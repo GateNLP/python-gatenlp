@@ -3,6 +3,9 @@
 Module for interacting with a Java GATE process.
 """
 
+import py4j
+from py4j.java_gateway import JavaGateway
+from typing import Optional
 import sys
 import subprocess
 import os
@@ -219,7 +222,7 @@ def start_gate_worker(
 # pylint: disable=C0103
 
 
-class GateWorker:   # pragma: no cover
+class GateWorker:
     """
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
@@ -366,16 +369,33 @@ class GateWorker:   # pragma: no cover
             gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
 
+    def __repr__(self):
+        return f"Gateworker(port={self.port},host={self.host},gate_home={self.gatehome})"
+
     @property
-    def jvm(self):
+    def jvm(self) -> py4j.java_gateway.JVMView:
+        """
+        Returns the JVM instance which allows to interact with Java.
+
+        Returns:
+            The JVMView instance
+
+        """
         return self.gateway.jvm
 
     @property
-    def worker(self):
+    def worker(self) -> py4j.java_gateway.JavaObject:
+        """
+        A JavaObject which provides the methods on the Java side.
+
+        Returns:
+            The worker JavaObject
+
+        """
         return self.gateway.entry_point
 
     @property
-    def gate_version(self):
+    def gate_version(self) -> str:
         """
         Return the GATE version of the connected GATE process.
         """
@@ -389,23 +409,38 @@ class GateWorker:   # pragma: no cover
         return self.jvm.gate.Main.build
 
     @property
-    def worker_version(self):
+    def worker_version(self) -> str:
+        """
+        Return the Gate Worker version of the connected GATE process.
+        """
         return self.worker.pluginVersion()
 
     @property
-    def worker_build(self):
+    def worker_build(self) -> str:
+        """
+        Return the build id of the Worker of the connected GATE proces..
+        """
         return self.worker.pluginBuild()
 
     @property
-    def gatehome(self):
+    def gatehome(self) -> str:
+        """
+        Return the GATE home path of the connected GATE process as a string.
+        """
         return self._gatehome
 
     @property
-    def port(self):
+    def port(self) -> int:
+        """
+        Return the port of the connected GATE process as an int.
+        """
         return self._port
 
     @property
-    def host(self):
+    def host(self) -> str:
+        """
+        Return the host name or address of the connected GATE process as a str.
+        """
         return self._host
 
     @property
@@ -413,11 +448,37 @@ class GateWorker:   # pragma: no cover
         return self._platform
 
     @property
-    def gateprocess(self):
+    def gateprocess(self) -> subprocess.Popen:
+        """
+        Get the process.
+
+        Returns:
+            A subprocess.Popen object.
+            See https://docs.python.org/3/library/subprocess.html#popen-objects for methods
+            that can be used on this object.
+
+        """
         return self._gateprocess
 
     @property
-    def gateway(self):
+    def getpid(self) -> Optional[int]:
+        """
+        Get the process id (or None if no process).
+
+        Returns:
+            Process ID (int)
+
+        """
+        proc = self.gateprocess
+        if proc:
+            return proc.pid
+
+    @property
+    def gateway(self) -> py4j.java_gateway.JavaGateway:
+        """
+        Return the py4j JavaGateway instance. This object provides the method
+        help(jvm.some.object) for getting help about known Java objects.
+        """
         return self._gateway
 
     # @staticmethod

@@ -6,6 +6,22 @@
 * within the env: `python -m ipykernel install --user --name envname --display-name "Python (envname)`
 * To list which are already there: `jupyter kernelspec list`
 
+
+## Prepare tests
+
+In order to run the all tests some preparation steps are needed:
+
+* to run the Stanza tests: install model:
+  * `import stanza`
+  * `stanza.download("en")`
+* to run the Spacy tests: install model:
+  * `import spacy.cli`
+  * `spacy.cli.download("en_core_web_sm")`
+* to run the GateWorker tests:
+  * Java and Java GATE must be installed
+  * Environment variable GATE_HOME must point to the GATE installation directory
+
+
 ## Version numbers
 
 * certain versions of gatenlp map to versions of the GATE plugin Python, e.g. 1.0.2 to 3.0.2
@@ -83,6 +99,20 @@ Conventions:
 * normal testing is done without -s but with `log_cli_level=WARNING` to show important feedback from the 
   tests, e.g. when a test is skipped because of the local config
 
+## Coverage
+
+For all tests:
+
+* either `pytest --cov=gatenlp ...` (using pytest-cov plugin)
+* or `coverage run --branch --source=gatenlp -m pytest`
+* either followed by `coverage report` and/or `coverage html -i`
+
+Just a module, e.g. gateworker:
+
+* `coverage run --branch --source=gatenlp/gateworker -m pytest tests/test_gateworker.py && coverage report && coverage html -i`
+
+
+## Other stuff
 
 Build a wheel: `pip wheel .[gazetteers]` or similar, store in docs/wheels for use by pyodide
 

@@ -14,7 +14,7 @@ from gatenlp.utils import init_logger
 logger = init_logger("gateworker-annotator")
 
 
-class GateWorkerAnnotator(Annotator):   # pragma: no cover
+class GateWorkerAnnotator(Annotator):
     # TODO: parameter to influence how exceptions are handled
     def __init__(
             self,
