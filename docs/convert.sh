@@ -2,6 +2,8 @@
 
 toconvert=$( cat <<EOF
 getting-started
+annotations
+annotationsets
 EOF
 )
 
