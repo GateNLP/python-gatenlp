@@ -6,11 +6,18 @@ The `ElgAnnotator` is an annotator that onne of the  [ELG](https://live.european
 
 
 ```python
+import os
 from gatenlp import Document
 # It is called "ElgTextAnnotator" because ELG also provides services to analyze audio and other kinds of data.
-from gatenlp.processing.client import ElgTextAnnotator
+from gatenlp.processing.client.elg import ElgTextAnnotator
 from elg import Authentication
+import elg
+
+print("ELG version:", elg.__version__)
 ```
+
+    ELG version: 0.4.22
+
 
 Lets try annotating a document with the UDPipe English: Morphosyntactic Analysis service 
 (https://live.european-language-grid.eu/catalogue/tool-service/423). 
@@ -40,10 +47,17 @@ Each service returns its own set of annotations and features. The ElgTextAnnotat
 
 
 ```python
-# auth = Authentication.init(scope="offline_access")
-# auth.to_json("tokens.json")
-# print(f"The tokens will expire: {auth.refresh_expires_time}")
+if not os.path.exists("tokens.json"):
+    auth = Authentication.init(scope="offline_access")
+    auth.to_json("tokens.json")
+    print(f"The tokens will expire: {auth.refresh_expires_time}")
+else:
+    auth = elg.authentication.Authentication.from_json("tokens.json")
+    print("Expires:", auth.expires_time)
 ```
+
+    Expires: time.struct_time(tm_year=2022, tm_mon=6, tm_mday=28, tm_hour=1, tm_min=10, tm_sec=29, tm_wday=1, tm_yday=179, tm_isdst=0)
+
 
 
 ```python
@@ -63,12 +77,18 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -213,6 +233,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -248,15 +276,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -302,6 +324,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -313,17 +336,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -340,7 +370,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -491,25 +521,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#IZXEQFTNOK-wrapper { color: black !important; }</style>
-<div id="IZXEQFTNOK-wrapper">
+<div><style>#VVDDGTKZAS-wrapper { color: black !important; }</style>
+<div id="VVDDGTKZAS-wrapper">
 
 <div>
 <style>
-#IZXEQFTNOK-content {
+#VVDDGTKZAS-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.IZXEQFTNOK-row {
+.VVDDGTKZAS-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.IZXEQFTNOK-col {
+.VVDDGTKZAS-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -519,23 +549,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.IZXEQFTNOK-hdr {
+.VVDDGTKZAS-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.IZXEQFTNOK-label {
+.VVDDGTKZAS-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.IZXEQFTNOK-input {
+.VVDDGTKZAS-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#IZXEQFTNOK-popup {
+#VVDDGTKZAS-popup {
     display: none;
     color: black;
     position: absolute;
@@ -550,43 +580,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.IZXEQFTNOK-selection {
+.VVDDGTKZAS-selection {
     margin-bottom: 5px;
 }
 
-.IZXEQFTNOK-featuretable {
+.VVDDGTKZAS-featuretable {
     margin-top: 10px;
 }
 
-.IZXEQFTNOK-fname {
+.VVDDGTKZAS-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.IZXEQFTNOK-fvalue {
+.VVDDGTKZAS-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="IZXEQFTNOK-content">
-        <div id="IZXEQFTNOK-popup" style="display: none;">
+  <div id="VVDDGTKZAS-content">
+        <div id="VVDDGTKZAS-popup" style="display: none;">
         </div>
-        <div class="IZXEQFTNOK-row" id="IZXEQFTNOK-row1" style="min-height:5em;max-height:20em;">
-            <div id="IZXEQFTNOK-text-wrapper" class="IZXEQFTNOK-col" style="width:70%;">
-                <div class="IZXEQFTNOK-hdr" id="IZXEQFTNOK-dochdr"></div>
-                <div id="IZXEQFTNOK-text" style="">
+        <div class="VVDDGTKZAS-row" id="VVDDGTKZAS-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="VVDDGTKZAS-text-wrapper" class="VVDDGTKZAS-col" style="width:70%;">
+                <div class="VVDDGTKZAS-hdr" id="VVDDGTKZAS-dochdr"></div>
+                <div id="VVDDGTKZAS-text" style="">
                 </div>
             </div>
-            <div id="IZXEQFTNOK-chooser" class="IZXEQFTNOK-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="VVDDGTKZAS-chooser" class="VVDDGTKZAS-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="IZXEQFTNOK-row" id="IZXEQFTNOK-row2" style="min-height:3em;max-height:14em;">
-            <div id="IZXEQFTNOK-details" class="IZXEQFTNOK-col" style="width:100%;border-top-width:0px;">
+        <div class="VVDDGTKZAS-row" id="VVDDGTKZAS-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="VVDDGTKZAS-details" class="VVDDGTKZAS-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let IZXEQFTNOK_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "nsubj"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "feats": "Mood=Ind|Tense=Past|VerbForm=Fin", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obj"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 7, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 7, "deprel": "compound"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "feats": "Degree=Pos", "head": 9, "deprel": "amod"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl:tmod"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 3, "deprel": "punct"}]}}], "next_annid": 12}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(IZXEQFTNOK_data), "IZXEQFTNOK-").init();
+    let VVDDGTKZAS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "nsubj"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "feats": "Mood=Ind|Tense=Past|VerbForm=Fin", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obj"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 7, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 7, "deprel": "compound"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "feats": "Degree=Pos", "head": 9, "deprel": "amod"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl:tmod"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 3, "deprel": "punct"}]}}], "next_annid": 12}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let VVDDGTKZAS_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(VVDDGTKZAS_data, VVDDGTKZAS_parms), "VVDDGTKZAS-").init();
     </script>
   </div>
 
@@ -608,25 +639,25 @@ doc
 
 
 
-<div><style>#LBEISROVSN-wrapper { color: black !important; }</style>
-<div id="LBEISROVSN-wrapper">
+<div><style>#HXUMCMQZCR-wrapper { color: black !important; }</style>
+<div id="HXUMCMQZCR-wrapper">
 
 <div>
 <style>
-#LBEISROVSN-content {
+#HXUMCMQZCR-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.LBEISROVSN-row {
+.HXUMCMQZCR-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.LBEISROVSN-col {
+.HXUMCMQZCR-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -636,23 +667,23 @@ doc
     overflow-y: auto;
 }
 
-.LBEISROVSN-hdr {
+.HXUMCMQZCR-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.LBEISROVSN-label {
+.HXUMCMQZCR-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.LBEISROVSN-input {
+.HXUMCMQZCR-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#LBEISROVSN-popup {
+#HXUMCMQZCR-popup {
     display: none;
     color: black;
     position: absolute;
@@ -667,46 +698,56 @@ doc
     overflow: auto;
 }
 
-.LBEISROVSN-selection {
+.HXUMCMQZCR-selection {
     margin-bottom: 5px;
 }
 
-.LBEISROVSN-featuretable {
+.HXUMCMQZCR-featuretable {
     margin-top: 10px;
 }
 
-.LBEISROVSN-fname {
+.HXUMCMQZCR-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.LBEISROVSN-fvalue {
+.HXUMCMQZCR-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="LBEISROVSN-content">
-        <div id="LBEISROVSN-popup" style="display: none;">
+  <div id="HXUMCMQZCR-content">
+        <div id="HXUMCMQZCR-popup" style="display: none;">
         </div>
-        <div class="LBEISROVSN-row" id="LBEISROVSN-row1" style="min-height:5em;max-height:20em;">
-            <div id="LBEISROVSN-text-wrapper" class="LBEISROVSN-col" style="width:70%;">
-                <div class="LBEISROVSN-hdr" id="LBEISROVSN-dochdr"></div>
-                <div id="LBEISROVSN-text" style="">
+        <div class="HXUMCMQZCR-row" id="HXUMCMQZCR-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="HXUMCMQZCR-text-wrapper" class="HXUMCMQZCR-col" style="width:70%;">
+                <div class="HXUMCMQZCR-hdr" id="HXUMCMQZCR-dochdr"></div>
+                <div id="HXUMCMQZCR-text" style="">
                 </div>
             </div>
-            <div id="LBEISROVSN-chooser" class="LBEISROVSN-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="HXUMCMQZCR-chooser" class="HXUMCMQZCR-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="LBEISROVSN-row" id="LBEISROVSN-row2" style="min-height:3em;max-height:14em;">
-            <div id="LBEISROVSN-details" class="LBEISROVSN-col" style="width:100%;border-top-width:0px;">
+        <div class="HXUMCMQZCR-row" id="HXUMCMQZCR-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="HXUMCMQZCR-details" class="HXUMCMQZCR-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let LBEISROVSN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "nsubj"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "feats": "Mood=Ind|Tense=Past|VerbForm=Fin", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obj"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 7, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 7, "deprel": "compound"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "feats": "Degree=Pos", "head": 9, "deprel": "amod"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl:tmod"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 3, "deprel": "punct"}]}}, {"type": "Token", "start": 0, "end": 6, "id": 12, "features": {"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "nsubj", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 13, "features": {"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "head": 12, "deprel": "flat", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 20, "id": 14, "features": {"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "head": 1, "deprel": "root", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 21, "end": 30, "id": 15, "features": {"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obj", "Number": "Sing"}}, {"type": "Token", "start": 31, "end": 33, "id": 16, "features": {"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 18, "deprel": "case"}}, {"type": "Token", "start": 34, "end": 37, "id": 17, "features": {"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "head": 18, "deprel": "compound", "Number": "Sing"}}, {"type": "Token", "start": 38, "end": 42, "id": 18, "features": {"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obl", "Number": "Sing"}}, {"type": "Token", "start": 43, "end": 47, "id": 19, "features": {"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "head": 20, "deprel": "amod", "Degree": "Pos"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obl:tmod", "Number": "Sing"}}, {"type": "Token", "start": 51, "end": 52, "id": 21, "features": {"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 14, "deprel": "punct"}}], "next_annid": 22}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(LBEISROVSN_data), "LBEISROVSN-").init();
+    let HXUMCMQZCR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Paragraph", "start": 0, "end": 52, "id": 0, "features": {}}, {"type": "Sentence", "start": 0, "end": 52, "id": 1, "features": {}}, {"type": "UDPToken", "start": 0, "end": 6, "id": 2, "features": {"words": [{"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "nsubj"}]}}, {"type": "UDPToken", "start": 7, "end": 12, "id": 3, "features": {"words": [{"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 1, "deprel": "flat"}]}}, {"type": "UDPToken", "start": 13, "end": 20, "id": 4, "features": {"words": [{"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "feats": "Mood=Ind|Tense=Past|VerbForm=Fin", "head": 0, "deprel": "root"}]}}, {"type": "UDPToken", "start": 21, "end": 30, "id": 5, "features": {"words": [{"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obj"}]}}, {"type": "UDPToken", "start": 31, "end": 33, "id": 6, "features": {"words": [{"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 7, "deprel": "case"}]}}, {"type": "UDPToken", "start": 34, "end": 37, "id": 7, "features": {"words": [{"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 7, "deprel": "compound"}]}}, {"type": "UDPToken", "start": 38, "end": 42, "id": 8, "features": {"words": [{"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl"}]}}, {"type": "UDPToken", "start": 43, "end": 47, "id": 9, "features": {"words": [{"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "feats": "Degree=Pos", "head": 9, "deprel": "amod"}]}}, {"type": "UDPToken", "start": 48, "end": 51, "id": 10, "features": {"words": [{"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "feats": "Number=Sing", "head": 3, "deprel": "obl:tmod"}]}}, {"type": "UDPToken", "start": 51, "end": 52, "id": 11, "features": {"words": [{"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 3, "deprel": "punct"}]}}, {"type": "Token", "start": 0, "end": 6, "id": 12, "features": {"form": "Barack", "lemma": "Barack", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "nsubj", "Number": "Sing"}}, {"type": "Token", "start": 7, "end": 12, "id": 13, "features": {"form": "Obama", "lemma": "Obama", "upos": "PROPN", "xpos": "NNP", "head": 12, "deprel": "flat", "Number": "Sing"}}, {"type": "Token", "start": 13, "end": 20, "id": 14, "features": {"form": "visited", "lemma": "visit", "upos": "VERB", "xpos": "VBD", "head": 1, "deprel": "root", "Mood": "Ind", "Tense": "Past", "VerbForm": "Fin"}}, {"type": "Token", "start": 21, "end": 30, "id": 15, "features": {"form": "Microsoft", "lemma": "Microsoft", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obj", "Number": "Sing"}}, {"type": "Token", "start": 31, "end": 33, "id": 16, "features": {"form": "in", "lemma": "in", "upos": "ADP", "xpos": "IN", "head": 18, "deprel": "case"}}, {"type": "Token", "start": 34, "end": 37, "id": 17, "features": {"form": "New", "lemma": "New", "upos": "PROPN", "xpos": "NNP", "head": 18, "deprel": "compound", "Number": "Sing"}}, {"type": "Token", "start": 38, "end": 42, "id": 18, "features": {"form": "York", "lemma": "York", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obl", "Number": "Sing"}}, {"type": "Token", "start": 43, "end": 47, "id": 19, "features": {"form": "last", "lemma": "last", "upos": "ADJ", "xpos": "JJ", "head": 20, "deprel": "amod", "Degree": "Pos"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"form": "May", "lemma": "May", "upos": "PROPN", "xpos": "NNP", "head": 14, "deprel": "obl:tmod", "Number": "Sing"}}, {"type": "Token", "start": 51, "end": 52, "id": 21, "features": {"form": ".", "lemma": ".", "upos": "PUNCT", "xpos": ".", "head": 14, "deprel": "punct"}}], "next_annid": 22}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let HXUMCMQZCR_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(HXUMCMQZCR_data, HXUMCMQZCR_parms), "HXUMCMQZCR-").init();
     </script>
   </div>
 
 </div></div>
 
+
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 

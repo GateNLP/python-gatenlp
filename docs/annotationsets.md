@@ -261,7 +261,7 @@ print(annset.span)
 ```
 
     0 27
-    (0, 27)
+    Span(0,27)
 
 
 
@@ -326,4 +326,15 @@ print("Types:", annset.type_names)
 ```
 
     Types: dict_keys(['Token', 'Document', 'Vowel', 'X', 'SomeOtherNew', 'SomeNew'])
+
+
+### Notebook last updated
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 

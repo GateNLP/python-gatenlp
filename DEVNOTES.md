@@ -27,7 +27,8 @@ In order to run the all tests some preparation steps are needed:
 * certain versions of gatenlp map to versions of the GATE plugin Python, e.g. 1.0.2 to 3.0.2
 * gatenlp may receive more releases, the in between releases would be 1.0.2.1 etc 
 * to better distinguish versions which are not released but part of a snapshot Python plugin release, use local
-  development version numbers e.g. 1.0.5-dev3 which could eventually get released as 1.0.5
+  development version numbers e.g. 1.0.5.dev3 which could eventually get released as 1.0.5
+* There may also be alpha, beta or release candidate releases e.g. 1.0.5a1, 1.0.5b2, 1.0.5rc1 (see PEP 440)
 * since development version numbers do not refer to a single state but a range of commits, the commit should 
   still be specified whenever referring to a development version (`git rev-parse --short HEAD`)
 * whenever a development version gets incremented, a tag of the form v1.0.5-dev3 is added just before the 

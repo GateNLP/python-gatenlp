@@ -400,6 +400,9 @@ class GateWorker:
         self._gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
+        # do not wait until the gateway is used by the user to detect a problem, instead, retrieve the GATE
+        # version here to check basic functionality
+        _ = self.gate_version
 
     def __repr__(self):
         return f"Gateworker(port={self.port},host={self.host},gate_home={self.gatehome})"

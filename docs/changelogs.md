@@ -92,13 +92,19 @@ display(doc2)
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+    constructor(bdoc, parms) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
+	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
+	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -242,6 +248,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -277,15 +291,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -331,6 +339,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -342,17 +351,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -369,7 +385,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -407,7 +423,7 @@ var gatenlpDocView = class {
                 // trick for zero length annotations: show them as length one annotations for now
                 var endoff = ann.end
                 if (ann.start == ann.end) endoff = endoff+1
-                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
+                for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
                     if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
@@ -425,12 +441,12 @@ var gatenlpDocView = class {
                 }
             }
         }
-        console.log("initial anns4Offset:")
-        console.log(this.anns4offset)
+        //console.log("initial anns4Offset:")
+        //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
             if (last == undefined && cur == undefined) {
                 // console.log("Offset "+i+" both undefined")
@@ -456,7 +472,8 @@ var gatenlpDocView = class {
             } 
             last = cur
         }
-        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+	let beyond = this.docrep.text.length
+	this.anns4offset[beyond] = { "anns": new Set(), "offset": beyond}
 
         // console.log("compressed anns4Offset:")
         // console.log(this.anns4offset)
@@ -472,21 +489,22 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
             last = { "anns": new Set(), "offset": 0 };
         }
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
-                console.log("Got text: "+txt) 
+                txt = txt.replace(/\n/g, "\u2002\n");
+                // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
@@ -502,26 +520,6 @@ var gatenlpDocView = class {
                 last = info;
             }
         }
-        let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
-        let span = undefined;
-        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
-        if (last["anns"].length != 0) {
-            let col = this.color4types(last.anns);
-            let sty = this.style4color(col);
-            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
-            span = $('<span>').attr("style", sty)
-            let object = this;
-            let anns = last.anns;
-            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
-            span.on("click", annhandler);
-            // console.log("Adding styled text for "+col+" : "+txt)
-        } else {
-            // console.log("Adding non-styled text "+txt)
-            span = $('<span>');
-        }
-        span.append($.parseHTML(this.htmlEntities(txt)));
-        spans.push(span);
-        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
@@ -532,35 +530,29 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
 </script>
 
 
 
-<div><style>#SOYZVLKZWF-wrapper { color: black !important; }</style>
-<div id="SOYZVLKZWF-wrapper">
+<div><style>#RVFCFZOFSN-wrapper { color: black !important; }</style>
+<div id="RVFCFZOFSN-wrapper">
 
 <div>
 <style>
-#SOYZVLKZWF-content {
+#RVFCFZOFSN-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.SOYZVLKZWF-row {
+.RVFCFZOFSN-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.SOYZVLKZWF-col {
+.RVFCFZOFSN-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -570,23 +562,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.SOYZVLKZWF-hdr {
+.RVFCFZOFSN-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.SOYZVLKZWF-label {
+.RVFCFZOFSN-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.SOYZVLKZWF-input {
+.RVFCFZOFSN-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#SOYZVLKZWF-popup {
+#RVFCFZOFSN-popup {
     display: none;
     color: black;
     position: absolute;
@@ -601,45 +593,44 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.SOYZVLKZWF-selection {
+.RVFCFZOFSN-selection {
     margin-bottom: 5px;
 }
 
-.SOYZVLKZWF-featuretable {
+.RVFCFZOFSN-featuretable {
     margin-top: 10px;
 }
 
-.SOYZVLKZWF-fname {
+.RVFCFZOFSN-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.SOYZVLKZWF-fvalue {
+.RVFCFZOFSN-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="SOYZVLKZWF-content">
-        <div id="SOYZVLKZWF-popup" style="display: none;">
+  <div id="RVFCFZOFSN-content">
+        <div id="RVFCFZOFSN-popup" style="display: none;">
         </div>
-        <div class="SOYZVLKZWF-row" id="SOYZVLKZWF-row1" style="max-height: 20em; min-height:5em;">
-            <div id="SOYZVLKZWF-text-wrapper" class="SOYZVLKZWF-col" style="width:70%;">
-                <div class="SOYZVLKZWF-hdr" id="SOYZVLKZWF-dochdr"></div>
-                <div id="SOYZVLKZWF-text">
+        <div class="RVFCFZOFSN-row" id="RVFCFZOFSN-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="RVFCFZOFSN-text-wrapper" class="RVFCFZOFSN-col" style="width:70%;">
+                <div class="RVFCFZOFSN-hdr" id="RVFCFZOFSN-dochdr"></div>
+                <div id="RVFCFZOFSN-text" style="">
                 </div>
             </div>
-            <div id="SOYZVLKZWF-chooser" class="SOYZVLKZWF-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="RVFCFZOFSN-chooser" class="RVFCFZOFSN-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="SOYZVLKZWF-row" id="SOYZVLKZWF-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="SOYZVLKZWF-details" class="SOYZVLKZWF-col" style="width:100%; border-top-width: 0px;">
+        <div class="RVFCFZOFSN-row" id="RVFCFZOFSN-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="RVFCFZOFSN-details" class="RVFCFZOFSN-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="SOYZVLKZWF-data">
-    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 3}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("SOYZVLKZWF-");
+    let RVFCFZOFSN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 3}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
+    let RVFCFZOFSN_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(RVFCFZOFSN_data, RVFCFZOFSN_parms), "RVFCFZOFSN-").init();
     </script>
   </div>
 
@@ -650,25 +641,25 @@ function gatenlp_run(prefix) {
 
 
 
-<div><style>#NQCMTNZWYF-wrapper { color: black !important; }</style>
-<div id="NQCMTNZWYF-wrapper">
+<div><style>#XDFHYFYRYH-wrapper { color: black !important; }</style>
+<div id="XDFHYFYRYH-wrapper">
 
 <div>
 <style>
-#NQCMTNZWYF-content {
+#XDFHYFYRYH-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.NQCMTNZWYF-row {
+.XDFHYFYRYH-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.NQCMTNZWYF-col {
+.XDFHYFYRYH-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -678,23 +669,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.NQCMTNZWYF-hdr {
+.XDFHYFYRYH-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.NQCMTNZWYF-label {
+.XDFHYFYRYH-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.NQCMTNZWYF-input {
+.XDFHYFYRYH-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#NQCMTNZWYF-popup {
+#XDFHYFYRYH-popup {
     display: none;
     color: black;
     position: absolute;
@@ -709,45 +700,44 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.NQCMTNZWYF-selection {
+.XDFHYFYRYH-selection {
     margin-bottom: 5px;
 }
 
-.NQCMTNZWYF-featuretable {
+.XDFHYFYRYH-featuretable {
     margin-top: 10px;
 }
 
-.NQCMTNZWYF-fname {
+.XDFHYFYRYH-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.NQCMTNZWYF-fvalue {
+.XDFHYFYRYH-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="NQCMTNZWYF-content">
-        <div id="NQCMTNZWYF-popup" style="display: none;">
+  <div id="XDFHYFYRYH-content">
+        <div id="XDFHYFYRYH-popup" style="display: none;">
         </div>
-        <div class="NQCMTNZWYF-row" id="NQCMTNZWYF-row1" style="max-height: 20em; min-height:5em;">
-            <div id="NQCMTNZWYF-text-wrapper" class="NQCMTNZWYF-col" style="width:70%;">
-                <div class="NQCMTNZWYF-hdr" id="NQCMTNZWYF-dochdr"></div>
-                <div id="NQCMTNZWYF-text">
+        <div class="XDFHYFYRYH-row" id="XDFHYFYRYH-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="XDFHYFYRYH-text-wrapper" class="XDFHYFYRYH-col" style="width:70%;">
+                <div class="XDFHYFYRYH-hdr" id="XDFHYFYRYH-dochdr"></div>
+                <div id="XDFHYFYRYH-text" style="">
                 </div>
             </div>
-            <div id="NQCMTNZWYF-chooser" class="NQCMTNZWYF-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="XDFHYFYRYH-chooser" class="XDFHYFYRYH-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="NQCMTNZWYF-row" id="NQCMTNZWYF-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="NQCMTNZWYF-details" class="NQCMTNZWYF-col" style="width:100%; border-top-width: 0px;">
+        <div class="XDFHYFYRYH-row" id="XDFHYFYRYH-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="XDFHYFYRYH-details" class="XDFHYFYRYH-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="NQCMTNZWYF-data">
-    {"annotation_sets": {}, "text": "This is some text", "features": {}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("NQCMTNZWYF-");
+    let XDFHYFYRYH_data = {"annotation_sets": {}, "text": "This is some text", "features": {}, "offset_type": "j", "name": ""} ; 
+    let XDFHYFYRYH_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(XDFHYFYRYH_data, XDFHYFYRYH_parms), "XDFHYFYRYH-").init();
     </script>
   </div>
 
@@ -763,25 +753,25 @@ display(doc2)
 ```
 
 
-<div><style>#EUEEXXCJJX-wrapper { color: black !important; }</style>
-<div id="EUEEXXCJJX-wrapper">
+<div><style>#RPGQCDIJNL-wrapper { color: black !important; }</style>
+<div id="RPGQCDIJNL-wrapper">
 
 <div>
 <style>
-#EUEEXXCJJX-content {
+#RPGQCDIJNL-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.EUEEXXCJJX-row {
+.RPGQCDIJNL-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.EUEEXXCJJX-col {
+.RPGQCDIJNL-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -791,23 +781,23 @@ display(doc2)
     overflow-y: auto;
 }
 
-.EUEEXXCJJX-hdr {
+.RPGQCDIJNL-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.EUEEXXCJJX-label {
+.RPGQCDIJNL-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.EUEEXXCJJX-input {
+.RPGQCDIJNL-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#EUEEXXCJJX-popup {
+#RPGQCDIJNL-popup {
     display: none;
     color: black;
     position: absolute;
@@ -822,45 +812,44 @@ display(doc2)
     overflow: auto;
 }
 
-.EUEEXXCJJX-selection {
+.RPGQCDIJNL-selection {
     margin-bottom: 5px;
 }
 
-.EUEEXXCJJX-featuretable {
+.RPGQCDIJNL-featuretable {
     margin-top: 10px;
 }
 
-.EUEEXXCJJX-fname {
+.RPGQCDIJNL-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.EUEEXXCJJX-fvalue {
+.RPGQCDIJNL-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="EUEEXXCJJX-content">
-        <div id="EUEEXXCJJX-popup" style="display: none;">
+  <div id="RPGQCDIJNL-content">
+        <div id="RPGQCDIJNL-popup" style="display: none;">
         </div>
-        <div class="EUEEXXCJJX-row" id="EUEEXXCJJX-row1" style="max-height: 20em; min-height:5em;">
-            <div id="EUEEXXCJJX-text-wrapper" class="EUEEXXCJJX-col" style="width:70%;">
-                <div class="EUEEXXCJJX-hdr" id="EUEEXXCJJX-dochdr"></div>
-                <div id="EUEEXXCJJX-text">
+        <div class="RPGQCDIJNL-row" id="RPGQCDIJNL-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="RPGQCDIJNL-text-wrapper" class="RPGQCDIJNL-col" style="width:70%;">
+                <div class="RPGQCDIJNL-hdr" id="RPGQCDIJNL-dochdr"></div>
+                <div id="RPGQCDIJNL-text" style="">
                 </div>
             </div>
-            <div id="EUEEXXCJJX-chooser" class="EUEEXXCJJX-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="RPGQCDIJNL-chooser" class="RPGQCDIJNL-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="EUEEXXCJJX-row" id="EUEEXXCJJX-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="EUEEXXCJJX-details" class="EUEEXXCJJX-col" style="width:100%; border-top-width: 0px;">
+        <div class="RPGQCDIJNL-row" id="RPGQCDIJNL-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="RPGQCDIJNL-details" class="RPGQCDIJNL-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="EUEEXXCJJX-data">
-    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 0}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("EUEEXXCJJX-");
+    let RPGQCDIJNL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 0}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
+    let RPGQCDIJNL_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(RPGQCDIJNL_data, RPGQCDIJNL_parms), "RPGQCDIJNL-").init();
     </script>
   </div>
 
@@ -869,5 +858,9 @@ display(doc2)
 
 
 ```python
-
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
+
+    NB last updated with gatenlp version 1.0.8.dev3
+

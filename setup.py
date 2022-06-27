@@ -42,7 +42,8 @@ setup(
     test_suite="tests",
     entry_points={"console_scripts": [
         "gatenlp-gate-worker=gatenlp.gateworker:run_gate_worker",
-        "gatenlp-dir2dir=gatenlp.processing.runners:run_dir2dir"
+        "gatenlp-dir2dir=gatenlp.processing.runners:run_dir2dir",
+        "gate_interaction=gatenlp.gate_interaction:main",
     ]},
     classifiers=[
         # "Development Status :: 6 - Mature",

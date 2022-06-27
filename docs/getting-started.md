@@ -593,25 +593,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#ICDECPOVSS-wrapper { color: black !important; }</style>
-<div id="ICDECPOVSS-wrapper">
+<div><style>#SGHFHBTBGX-wrapper { color: black !important; }</style>
+<div id="SGHFHBTBGX-wrapper">
 
 <div>
 <style>
-#ICDECPOVSS-content {
+#SGHFHBTBGX-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.ICDECPOVSS-row {
+.SGHFHBTBGX-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.ICDECPOVSS-col {
+.SGHFHBTBGX-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -621,23 +621,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.ICDECPOVSS-hdr {
+.SGHFHBTBGX-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.ICDECPOVSS-label {
+.SGHFHBTBGX-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.ICDECPOVSS-input {
+.SGHFHBTBGX-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#ICDECPOVSS-popup {
+#SGHFHBTBGX-popup {
     display: none;
     color: black;
     position: absolute;
@@ -652,44 +652,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.ICDECPOVSS-selection {
+.SGHFHBTBGX-selection {
     margin-bottom: 5px;
 }
 
-.ICDECPOVSS-featuretable {
+.SGHFHBTBGX-featuretable {
     margin-top: 10px;
 }
 
-.ICDECPOVSS-fname {
+.SGHFHBTBGX-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.ICDECPOVSS-fvalue {
+.SGHFHBTBGX-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="ICDECPOVSS-content">
-        <div id="ICDECPOVSS-popup" style="display: none;">
+  <div id="SGHFHBTBGX-content">
+        <div id="SGHFHBTBGX-popup" style="display: none;">
         </div>
-        <div class="ICDECPOVSS-row" id="ICDECPOVSS-row1" style="$$HEIGHT1$$ min-height:5em;">
-            <div id="ICDECPOVSS-text-wrapper" class="ICDECPOVSS-col" style="width:70%;">
-                <div class="ICDECPOVSS-hdr" id="ICDECPOVSS-dochdr"></div>
-                <div id="ICDECPOVSS-text" style="$$DOCTEXTSTYLE$$">
+        <div class="SGHFHBTBGX-row" id="SGHFHBTBGX-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="SGHFHBTBGX-text-wrapper" class="SGHFHBTBGX-col" style="width:70%;">
+                <div class="SGHFHBTBGX-hdr" id="SGHFHBTBGX-dochdr"></div>
+                <div id="SGHFHBTBGX-text" style="">
                 </div>
             </div>
-            <div id="ICDECPOVSS-chooser" class="ICDECPOVSS-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="SGHFHBTBGX-chooser" class="SGHFHBTBGX-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="ICDECPOVSS-row" id="ICDECPOVSS-row2" style="$$HEIGHT2$$ min-height: 3em;">
-            <div id="ICDECPOVSS-details" class="ICDECPOVSS-col" style="width:100%; border-top-width: 0px;">
+        <div class="SGHFHBTBGX-row" id="SGHFHBTBGX-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="SGHFHBTBGX-details" class="SGHFHBTBGX-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let ICDECPOVSS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""} ; 
-    let ICDECPOVSS_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(ICDECPOVSS_data, ICDECPOVSS_parms), "ICDECPOVSS-").init();
+    let SGHFHBTBGX_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""} ; 
+    let SGHFHBTBGX_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(SGHFHBTBGX_data, SGHFHBTBGX_parms), "SGHFHBTBGX-").init();
     </script>
   </div>
 
@@ -700,3 +700,21 @@ var gatenlpDocView = class {
 By checking an annotation type, the corresponding annotations are marked in the document text.
 Clicking on a marked annotation shows the annotation features instead of the document features in the bottom pane. To show the document features again, click the "Document:" header above the document text.
 If a location is clicked where more than one overlapping annotation is marked, a popup window is shown from which the annotation has to be selected for which to show the features. 
+
+
+```python
+# cleanup the document file we created
+import os
+os.remove("testdoc.bdocjs")
+```
+
+### Notebook last updated
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
+

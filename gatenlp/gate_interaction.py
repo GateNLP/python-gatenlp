@@ -473,7 +473,7 @@ def interact(args=None, annotator=None):
         raise Exception("Not a valid mode: {}".format(args.mode))
 
 
-if __name__ == "__main__":
+def main():
     # we run this from the command line so we need to also first load the PR code from the python file
     arguments = get_arguments(from_main=True)
     loggr = init_logger(__name__)
@@ -483,3 +483,7 @@ if __name__ == "__main__":
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
     interact(args=arguments)
+
+
+if __name__ == "__main__":
+    main()

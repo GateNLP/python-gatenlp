@@ -41,13 +41,11 @@ for running on your own computer (NB-DL).
 * The Document class and classes related to components of a document:
     * [Annotation](annotations) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotations.ipynb) / [NB-DL](annotations.ipynb)
     * [AnnotationSet](annotationsets) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/annotationsets.ipynb)) / [NB-DL](annotationsets.ipynb)
-    * [Document](documents) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [NB-DL](documents.ipynb)
+    * [Documents](documents) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/documents.ipynb)) / [NB-DL](documents.ipynb)
 * The Changelog class for recording changes to a document
     * [ChangeLogs](changelogs) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/changelogs.ipynb)) / [NB-DL](changelogs.ipynb)
 * A [comparison with the Java GATE API](diffs2gate)
-* The module for running python code from the GATE Python plugin
-    * [GateInteraction](gateinteraction)
-* The module for running Java GATE code from python
+* The module for running Java GATE code from Python
     * [GateWorker](gateworker) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gateworker.ipynb)) / [NB-DL](gateworker.ipynb)
 * Modules for interaction with other NLP packages and converting their documents
     * [`lib_spacy`](lib_spacy) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/lib_spacy.ipynb) / [NB-DL](lib_spacy.ipynb) for interacting with [Spacy](spacy.io/)

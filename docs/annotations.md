@@ -123,13 +123,19 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(jsonstring) {
-            this.sep = "║"
-            this.sname2types = new Map();
-            this.snameid2ann = new Map();
-            this.snametype2ids = new Map();
-            let bdoc = JSON.parse(jsonstring);
-            this.text = bdoc["text"];
+    constructor(bdoc, parms) {
+        this.sep = "║"
+        this.sname2types = new Map();
+        this.snameid2ann = new Map();
+        this.snametype2ids = new Map();
+	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
+	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
                 this.text = "[No proper GATENLP document to show]";
@@ -273,6 +279,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -308,15 +322,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -362,6 +370,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -373,17 +382,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -400,7 +416,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -438,7 +454,7 @@ var gatenlpDocView = class {
                 // trick for zero length annotations: show them as length one annotations for now
                 var endoff = ann.end
                 if (ann.start == ann.end) endoff = endoff+1
-                for (let i = ann.start; i <= endoff; i++) { // iterate until one beyond the end of the ann
+                for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
                     if (have == undefined) {                    
                       have = { "offset": i, "anns": new Set()}
@@ -456,12 +472,12 @@ var gatenlpDocView = class {
                 }
             }
         }
-        console.log("initial anns4Offset:")
-        console.log(this.anns4offset)
+        //console.log("initial anns4Offset:")
+        //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
         // compress the list to only contain anything but undefined where it changes 
         let last = this.anns4offset[0]
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
             if (last == undefined && cur == undefined) {
                 // console.log("Offset "+i+" both undefined")
@@ -487,7 +503,8 @@ var gatenlpDocView = class {
             } 
             last = cur
         }
-        // for debugging: deep copy the anns4offset data structure so we can later show in the debugger
+	let beyond = this.docrep.text.length
+	this.anns4offset[beyond] = { "anns": new Set(), "offset": beyond}
 
         // console.log("compressed anns4Offset:")
         // console.log(this.anns4offset)
@@ -503,21 +520,22 @@ var gatenlpDocView = class {
         // * get the annotation setname/types 
         // * from the list of setname/types, determine a colour and store it
         // * generate the span from last to here 
-        // after the end, generate the last span
+        // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
         if (last == undefined) {
             last = { "anns": new Set(), "offset": 0 };
         }
-        for (let i = 1; i < this.anns4offset.length; i++) {
+        for (let i = 1; i < this.anns4offset.length+1; i++) {
             let info = this.anns4offset[i];
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
-                console.log("Got text: "+txt) 
+                txt = txt.replace(/\n/g, "\u2002\n");
+                // console.log("Got text: "+txt) 
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col);
+                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
@@ -533,26 +551,6 @@ var gatenlpDocView = class {
                 last = info;
             }
         }
-        let txt = this.docrep.text.substring(last["offset"], this.docrep.text.length);
-        let span = undefined;
-        // TODO: if we are already at the end, nothing needs to be done (prevent empty span from being added)
-        if (last["anns"].length != 0) {
-            let col = this.color4types(last.anns);
-            let sty = this.style4color(col);
-            // span = $('<span>').attr("style", sty).attr("data-anns", last.anns.join(","));
-            span = $('<span>').attr("style", sty)
-            let object = this;
-            let anns = last.anns;
-            let annhandler = function(ev) { docview_annsel(object, ev, anns) }
-            span.on("click", annhandler);
-            // console.log("Adding styled text for "+col+" : "+txt)
-        } else {
-            // console.log("Adding non-styled text "+txt)
-            span = $('<span>');
-        }
-        span.append($.parseHTML(this.htmlEntities(txt)));
-        spans.push(span);
-        // TODO: end
         // Replace the content
         let divcontent = $(this.id_text);
         $(divcontent).empty();
@@ -563,37 +561,31 @@ var gatenlpDocView = class {
         return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("\n", '<br>');
     }
 };
-// console.log("Classes defined, defining gatenlp_run");
-function gatenlp_run(prefix) {
-    bdocjson = document.getElementById(prefix+"data").innerHTML;
-    new gatenlpDocView(new gatenlpDocRep(bdocjson), prefix).init();
-}
-// console.log("Function defined");
 </script>
 
 
 
 
 
-<div><style>#QAAKPJICDI-wrapper { color: black !important; }</style>
-<div id="QAAKPJICDI-wrapper">
+<div><style>#TLHQIFOAYT-wrapper { color: black !important; }</style>
+<div id="TLHQIFOAYT-wrapper">
 
 <div>
 <style>
-#QAAKPJICDI-content {
+#TLHQIFOAYT-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.QAAKPJICDI-row {
+.TLHQIFOAYT-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.QAAKPJICDI-col {
+.TLHQIFOAYT-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -603,23 +595,23 @@ function gatenlp_run(prefix) {
     overflow-y: auto;
 }
 
-.QAAKPJICDI-hdr {
+.TLHQIFOAYT-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.QAAKPJICDI-label {
+.TLHQIFOAYT-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.QAAKPJICDI-input {
+.TLHQIFOAYT-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#QAAKPJICDI-popup {
+#TLHQIFOAYT-popup {
     display: none;
     color: black;
     position: absolute;
@@ -634,45 +626,44 @@ function gatenlp_run(prefix) {
     overflow: auto;
 }
 
-.QAAKPJICDI-selection {
+.TLHQIFOAYT-selection {
     margin-bottom: 5px;
 }
 
-.QAAKPJICDI-featuretable {
+.TLHQIFOAYT-featuretable {
     margin-top: 10px;
 }
 
-.QAAKPJICDI-fname {
+.TLHQIFOAYT-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.QAAKPJICDI-fvalue {
+.TLHQIFOAYT-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="QAAKPJICDI-content">
-        <div id="QAAKPJICDI-popup" style="display: none;">
+  <div id="TLHQIFOAYT-content">
+        <div id="TLHQIFOAYT-popup" style="display: none;">
         </div>
-        <div class="QAAKPJICDI-row" id="QAAKPJICDI-row1" style="max-height: 20em; min-height:5em;">
-            <div id="QAAKPJICDI-text-wrapper" class="QAAKPJICDI-col" style="width:70%;">
-                <div class="QAAKPJICDI-hdr" id="QAAKPJICDI-dochdr"></div>
-                <div id="QAAKPJICDI-text">
+        <div class="TLHQIFOAYT-row" id="TLHQIFOAYT-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="TLHQIFOAYT-text-wrapper" class="TLHQIFOAYT-col" style="width:70%;">
+                <div class="TLHQIFOAYT-hdr" id="TLHQIFOAYT-dochdr"></div>
+                <div id="TLHQIFOAYT-text" style="">
                 </div>
             </div>
-            <div id="QAAKPJICDI-chooser" class="QAAKPJICDI-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="TLHQIFOAYT-chooser" class="TLHQIFOAYT-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="QAAKPJICDI-row" id="QAAKPJICDI-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="QAAKPJICDI-details" class="QAAKPJICDI-col" style="width:100%; border-top-width: 0px;">
+        <div class="TLHQIFOAYT-row" id="TLHQIFOAYT-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="TLHQIFOAYT-details" class="TLHQIFOAYT-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
-    <script type="application/json" id="QAAKPJICDI-data">
-    {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""}
-    </script>
     <script type="text/javascript">
-        gatenlp_run("QAAKPJICDI-");
+    let TLHQIFOAYT_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""} ; 
+    let TLHQIFOAYT_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(TLHQIFOAYT_data, TLHQIFOAYT_parms), "TLHQIFOAYT-").init();
     </script>
   </div>
 
@@ -724,7 +715,13 @@ print(ann2)
     Annotation(0,3,Type,features=Features({}),id=6)
 
 
+### Notebook last updated
+
 
 ```python
-
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
+
+    NB last updated with gatenlp version 1.0.8.dev3
+
