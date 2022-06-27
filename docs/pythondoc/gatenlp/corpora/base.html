@@ -48,7 +48,7 @@ import random
 from abc import ABC, abstractmethod
 from typing import Iterable as TypingIterable
 from typing import Iterator as TypingIterator
-from typing import Sized
+from typing import Sized, Tuple
 from typing import Union
 from itertools import accumulate, chain
 from contextlib import AbstractContextManager
@@ -512,11 +512,11 @@ class ConcatCorpus(Corpus):
         Parameters:
             corpora: an iterable of corpus instances
         &#34;&#34;&#34;
-        self.corpora = corpora
+        self.corpora = list(corpora)
         self.sizes = [len(c) for c in corpora]
-        self.idxs = accumulate(self.sizes)
+        self.idxs = list(accumulate(self.sizes))
 
-    def idx2ci(self, idx):
+    def idx2ci(self, idx: int) -&gt; Tuple[int, int]:
         &#34;&#34;&#34;
         For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
         of the entry within that corpus
@@ -529,7 +529,7 @@ class ConcatCorpus(Corpus):
         if cidx == 0:
             eidx = idx
         else:
-            eidx = self[cidx-1] - idx
+            eidx = self.idxs[cidx-1] - idx
         return cidx, eidx
 
     def __getitem__(self, idx):
@@ -744,11 +744,11 @@ of processing efficiently.</dd>
         Parameters:
             corpora: an iterable of corpus instances
         &#34;&#34;&#34;
-        self.corpora = corpora
+        self.corpora = list(corpora)
         self.sizes = [len(c) for c in corpora]
-        self.idxs = accumulate(self.sizes)
+        self.idxs = list(accumulate(self.sizes))
 
-    def idx2ci(self, idx):
+    def idx2ci(self, idx: int) -&gt; Tuple[int, int]:
         &#34;&#34;&#34;
         For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
         of the entry within that corpus
@@ -761,7 +761,7 @@ of processing efficiently.</dd>
         if cidx == 0:
             eidx = idx
         else:
-            eidx = self[cidx-1] - idx
+            eidx = self.idxs[cidx-1] - idx
         return cidx, eidx
 
     def __getitem__(self, idx):
@@ -783,7 +783,7 @@ of processing efficiently.</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.corpora.base.ConcatCorpus.idx2ci"><code class="name flex">
-<span>def <span class="ident">idx2ci</span></span>(<span>self, idx)</span>
+<span>def <span class="ident">idx2ci</span></span>(<span>self, idx: int) ‑> Tuple[int, int]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
@@ -792,7 +792,7 @@ of the entry within that corpus</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def idx2ci(self, idx):
+<pre><code class="python">def idx2ci(self, idx: int) -&gt; Tuple[int, int]:
     &#34;&#34;&#34;
     For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
     of the entry within that corpus
@@ -805,7 +805,7 @@ of the entry within that corpus</p></div>
     if cidx == 0:
         eidx = idx
     else:
-        eidx = self[cidx-1] - idx
+        eidx = self.idxs[cidx-1] - idx
     return cidx, eidx</code></pre>
 </details>
 </dd>

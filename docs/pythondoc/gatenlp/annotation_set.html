@@ -1280,10 +1280,8 @@ class AnnotationSet:
             self._create_index_by_offset()
             intvs = self._index_by_offset.within(start, end)
         if not include_self and ann is not None and ann in self:
-            print(&#34;DEBUG: SETTING ID TO &#34;, ann.id)
             ignore_id = ann.id
         else:
-            print(&#34;DEBUG: NOT SETTING ID&#34;)
             ignore_id = None
         return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
@@ -2964,10 +2962,8 @@ set has an owning document.</dd>
             self._create_index_by_offset()
             intvs = self._index_by_offset.within(start, end)
         if not include_self and ann is not None and ann in self:
-            print(&#34;DEBUG: SETTING ID TO &#34;, ann.id)
             ignore_id = ann.id
         else:
-            print(&#34;DEBUG: NOT SETTING ID&#34;)
             ignore_id = None
         return self._restrict_intvs(intvs, ignore_id=ignore_id)
 
@@ -5587,10 +5583,8 @@ def within(self, start: int, end: int, ann: Optional[&#34;Annotation&#34;] = Non
         self._create_index_by_offset()
         intvs = self._index_by_offset.within(start, end)
     if not include_self and ann is not None and ann in self:
-        print(&#34;DEBUG: SETTING ID TO &#34;, ann.id)
         ignore_id = ann.id
     else:
-        print(&#34;DEBUG: NOT SETTING ID&#34;)
         ignore_id = None
     return self._restrict_intvs(intvs, ignore_id=ignore_id)</code></pre>
 </details>

@@ -336,7 +336,7 @@ class HtmlAnnViewerSerializer:
             doc_style = gatenlpconfig.doc_html_repr_doc_style
         if doc_style is None:
             doc_style = &#34;&#34;
-        html = html.replace(&#34;$$TEXTSTYLE$$&#34;, doc_style, 1)
+        html = html.replace(&#34;$$DOCTEXTSTYLE$$&#34;, doc_style, 1)
         if to_mem:
             return html
         else:
@@ -680,7 +680,7 @@ Colab notebook.</p></div>
             doc_style = gatenlpconfig.doc_html_repr_doc_style
         if doc_style is None:
             doc_style = &#34;&#34;
-        html = html.replace(&#34;$$TEXTSTYLE$$&#34;, doc_style, 1)
+        html = html.replace(&#34;$$DOCTEXTSTYLE$$&#34;, doc_style, 1)
         if to_mem:
             return html
         else:
@@ -957,7 +957,7 @@ gatenlpconfig.doc_html_repr_row2style_nostretch depending on the stretch_height 
             doc_style = gatenlpconfig.doc_html_repr_doc_style
         if doc_style is None:
             doc_style = &#34;&#34;
-        html = html.replace(&#34;$$TEXTSTYLE$$&#34;, doc_style, 1)
+        html = html.replace(&#34;$$DOCTEXTSTYLE$$&#34;, doc_style, 1)
         if to_mem:
             return html
         else:

@@ -2,6 +2,7 @@
 """
 Module for interacting with a Java GATE process.
 """
+import socket
 
 import py4j
 from py4j.java_gateway import JavaGateway
@@ -116,7 +117,7 @@ def gate_classpath(gatehome: str, platform: Optional[str] = None) -> str:  # pra
 def start_gate_worker(
         port: int = 25333,
         host: str = "127.0.0.1",
-        auth_token: Optional[str]=None,
+        auth_token: Optional[str] = None,
         use_auth_token: bool = True,
         java: str = "java",
         platform: Optional[str] = None,
@@ -224,6 +225,19 @@ def start_gate_worker(
 # pylint: disable=C0103
 
 
+def check_port_used(host: str, port: int) -> bool:
+    """
+    Check if the given port on the given host is in use.
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn = sock.connect_ex((host, port))
+    used = False
+    if conn == 0:
+        used = True
+    sock.close()
+    return used
+
+
 class GateWorker:
     """
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
@@ -233,6 +247,7 @@ class GateWorker:
     def __init__(
             self,
             port: int = 25333,
+            retry_ports: int = 10,
             start: bool = True,
             java: str = "java",
             host: str = "127.0.0.1",
@@ -274,6 +289,10 @@ class GateWorker:
             ```
 
         port: port to use
+        retry_ports: if start=True and the specified port is in use, try this many
+            additional ports before giving up (default: 10) Note: this uses a simple implementation which checks
+            in advance if the port is in use; this strategy may fail in cases where a port that was found to be
+            free is getting used in the short time between the check and the actual use by the gate worker.
         start: if True, try to start our own GATE process, otherwise expect an already started
             process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
@@ -322,6 +341,17 @@ class GateWorker:
         if start:
             # make sure we find the jar we need
             # logger.info("DEBUG: file location: {}".format(__file__))
+            used = True
+            if retry_ports:
+                for i in range(retry_ports):
+                    port = self.port + i
+                    used = check_port_used(self.host, port)
+                    if not used:
+                        self._port = port
+                        break
+                    logger.info(f"Port {port} is already in use")
+                if used:
+                    raise Exception(f"Port(s) in use: {self.port} to {port}")
             jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception("Could not find jar, {} does not exist".format(jarloc))
@@ -1021,7 +1051,8 @@ class GateWorker:
         """
         self.worker.saveDocumentToFile(gdoc, filename, mimetype)
 
-    def pannspec2gannspec(self, annspec: Union[str, List[Union[str, Tuple]]]=None) -> py4j.java_gateway.JavaObject:
+    def pannspec2gannspec(self,
+                          annspec: Union[str, List[Union[str, Tuple]]]=None) -> Optional[py4j.java_gateway.JavaObject]:
         """
         Convert from our convention to specifiy annotation sets and types to a Java list.
         This is necessary because py4j does not by default convert lists properly and also
@@ -1058,7 +1089,9 @@ class GateWorker:
         jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
         return jnewannspec
 
-    def jsonAnnsets4Doc(self, gdoc: py4j.java_gateway.JavaObject, jannspec: Optional[str] = None) -> str:
+    def jsonAnnsets4Doc(self,
+                        gdoc: py4j.java_gateway.JavaObject,
+                        jannspec: py4j.java_gateway.JavaObject) -> str:
         """
         Return the JSON representation of the annotation sets in the GATE document, optionally
         filtered by the given annotation specification.

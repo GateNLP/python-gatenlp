@@ -31,7 +31,11 @@
 &#34;&#34;&#34;
 Module for interacting with a Java GATE process.
 &#34;&#34;&#34;
+import socket
 
+import py4j
+from py4j.java_gateway import JavaGateway
+from typing import Optional, List, Tuple, Union
 import sys
 import subprocess
 import os
@@ -58,20 +62,19 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-__pdoc__ = {&#34;GateWorkerAnnotator.__call__&#34;: True}
 
-
-def jar_loc():
+def jar_loc() -&gt; str:
+    &#34;&#34;&#34;Return the path to the gate worker jar as a string.&#34;&#34;&#34;
     return str(pathlib.Path(__file__).parent.parent.
                joinpath(&#34;_jars&#34;).joinpath(f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;))
 
 
-def classpath_sep(platform=None):  # pragma: no cover
+def classpath_sep(platform: Optional[str] = None) -&gt; str:  # pragma: no cover
     &#34;&#34;&#34;
     Get the system-specific classpath separator character.
 
     Args:
-      platform:  (Default value = None) win/windows for Windows, anything else for non-windows
+      platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-windows
         If not specified, tries to determine automatically (which may fail)
 
     Returns:
@@ -91,14 +94,14 @@ def classpath_sep(platform=None):  # pragma: no cover
         return &#34;:&#34;
 
 
-def gate_classpath(gatehome, platform=None):  # pragma: no cover
+def gate_classpath(gatehome: str, platform: Optional[str] = None) -&gt; str:  # pragma: no cover
     &#34;&#34;&#34;
     Return the GATE classpath components as a string, with the path seperator characters appropriate
     for the operating system.
 
     Args:
-      gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
-      platform:  (Default value = None) win/windows for Windows, anything else for non-Windows.
+      gatehome: path where GATE is installed, either as a cloned git repo or a downloaded installation dir.
+      platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-Windows.
 
     Returns:
       GATE classpath
@@ -141,38 +144,40 @@ def gate_classpath(gatehome, platform=None):  # pragma: no cover
 
 
 def start_gate_worker(
-        port=25333,
-        host=&#34;127.0.0.1&#34;,
-        auth_token=None,
-        use_auth_token=True,
-        java=&#34;java&#34;,
-        platform=None,
-        gatehome=None,
-        log_actions=False,
-        keep=False,
-        debug=False,
+        port: int = 25333,
+        host: str = &#34;127.0.0.1&#34;,
+        auth_token: Optional[str] = None,
+        use_auth_token: bool = True,
+        java: str = &#34;java&#34;,
+        platform: Optional[str] = None,
+        gatehome: Optional[str] = None,
+        log_actions: bool = False,
+        keep: bool = False,
+        debug: bool = False,
 ):   # pragma: no cover
     &#34;&#34;&#34;
     Run the gate worker program. This starts the Java program included with gatenlp to
     run GATE and execute the gate worker within GATE so that Python can connect to it.
 
+    This methods waits for the subprocess to end.
+
     Args:
-      port:  (Default value = 25333) Port number to use
-      host:  (Default value = &#34;127.0.0.1&#34;) Host address to bind to
-      auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
-      use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
-         This allows anyone who can connect to the host address to connect and use the gate worker process.
-      java:  (Default value = &#34;java&#34;) Java command (if on the binary path) or full path to the binary
-         to use for running the gate worker program.
-      platform:  (Default value = None) &#34;win&#34;/&#34;windows&#34; for Windows, anything else for non-Windows.
-         If None, tries to determine automatically.
-      gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
-         variable &#34;GATE_HOME&#34; is used.
-      log_actions:  (Default value = False) If True, the GATE Worker process will log everything it is
-         ordered to do.
-      keep:  (Default value = False) passed on to the gate worker process and tells the process if it should
-         report to the using Pythong process that it can be closed or not.
-      debug: (Default valuye = False) Show debug messages.
+        port:  (Default value = 25333) Port number to use
+        host:  (Default value = &#34;127.0.0.1&#34;) Host address to bind to
+        auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
+        use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
+           This allows anyone who can connect to the host address to connect and use the gate worker process.
+        java:  (Default value = &#34;java&#34;) Java command (if on the binary path) or full path to the binary
+           to use for running the gate worker program.
+        platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-Windows.
+           If None, tries to determine automatically.
+        gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
+           variable &#34;GATE_HOME&#34; is used.
+        log_actions:  (Default value = False) If True, the GATE Worker process will log everything it is
+           ordered to do.
+        keep:  (Default value = False) passed on to the gate worker process and tells the process if it should
+           report to the using Python process that it can be closed or not.
+        debug: (Default valuye = False) Show debug messages.
     &#34;&#34;&#34;
     logger = init_logger(__name__)
     if debug:
@@ -218,6 +223,7 @@ def start_gate_worker(
     subproc = subprocess.Popen(
         cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
     )
+    logger.info(f&#34;Running as process with PID {subproc.pid}&#34;)
 
     def shutdown():
         &#34;&#34;&#34;
@@ -248,7 +254,20 @@ def start_gate_worker(
 # pylint: disable=C0103
 
 
-class GateWorker:   # pragma: no cover
+def check_port_used(host: str, port: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Check if the given port on the given host is in use.
+    &#34;&#34;&#34;
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn = sock.connect_ex((host, port))
+    used = False
+    if conn == 0:
+        used = True
+    sock.close()
+    return used
+
+
+class GateWorker:
     &#34;&#34;&#34;
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
@@ -256,17 +275,18 @@ class GateWorker:   # pragma: no cover
 
     def __init__(
             self,
-            port=25333,
-            start=True,
-            java=&#34;java&#34;,
-            host=&#34;127.0.0.1&#34;,
-            gatehome=None,
-            platform=None,
-            auth_token=None,
-            use_auth_token=True,
-            log_actions=False,
-            keep=False,
-            debug=False,
+            port: int = 25333,
+            retry_ports: int = 10,
+            start: bool = True,
+            java: str = &#34;java&#34;,
+            host: str = &#34;127.0.0.1&#34;,
+            gatehome: Optional[str] = None,
+            platform: Optional[str] = None,
+            auth_token: Optional[str] = None,
+            use_auth_token: bool = True,
+            log_actions: bool = False,
+            keep: bool = False,
+            debug: bool = False,
             ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
@@ -298,6 +318,10 @@ class GateWorker:   # pragma: no cover
             ```
 
         port: port to use
+        retry_ports: if start=True and the specified port is in use, try this many
+            additional ports before giving up (default: 10) Note: this uses a simple implementation which checks
+            in advance if the port is in use; this strategy may fail in cases where a port that was found to be
+            free is getting used in the short time between the check and the actual use by the gate worker.
         start: if True, try to start our own GATE process, otherwise expect an already started
             process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
@@ -346,6 +370,17 @@ class GateWorker:   # pragma: no cover
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
+            used = True
+            if retry_ports:
+                for i in range(retry_ports):
+                    port = self.port + i
+                    used = check_port_used(self.host, port)
+                    if not used:
+                        self._port = port
+                        break
+                    logger.info(f&#34;Port {port} is already in use&#34;)
+                if used:
+                    raise Exception(f&#34;Port(s) in use: {self.port} to {port}&#34;)
             jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
@@ -395,58 +430,116 @@ class GateWorker:   # pragma: no cover
             gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
 
+    def __repr__(self):
+        return f&#34;Gateworker(port={self.port},host={self.host},gate_home={self.gatehome})&#34;
+
     @property
-    def jvm(self):
+    def jvm(self) -&gt; py4j.java_gateway.JVMView:
+        &#34;&#34;&#34;
+        Returns the JVM instance which allows to interact with Java.
+
+        Returns:
+            The JVMView instance
+
+        &#34;&#34;&#34;
         return self.gateway.jvm
 
     @property
-    def worker(self):
+    def worker(self) -&gt; py4j.java_gateway.JavaObject:
+        &#34;&#34;&#34;
+        A JavaObject which provides the methods on the Java side.
+
+        Returns:
+            The worker JavaObject
+
+        &#34;&#34;&#34;
         return self.gateway.entry_point
 
     @property
-    def gate_version(self):
+    def gate_version(self) -&gt; str:
         &#34;&#34;&#34;
         Return the GATE version of the connected GATE process.
         &#34;&#34;&#34;
         return self.jvm.gate.Main.version
 
     @property
-    def gate_build(self):
+    def gate_build(self) -&gt; str:
         &#34;&#34;&#34;
         Return the GATE build id of the connected GATE process.
         &#34;&#34;&#34;
         return self.jvm.gate.Main.build
 
     @property
-    def worker_version(self):
+    def worker_version(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the Gate Worker version of the connected GATE process.
+        &#34;&#34;&#34;
         return self.worker.pluginVersion()
 
     @property
-    def worker_build(self):
+    def worker_build(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the build id of the Worker of the connected GATE proces..
+        &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
     @property
-    def gatehome(self):
+    def gatehome(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the GATE home path of the connected GATE process as a string.
+        &#34;&#34;&#34;
         return self._gatehome
 
     @property
-    def port(self):
+    def port(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return the port of the connected GATE process as an int.
+        &#34;&#34;&#34;
         return self._port
 
     @property
-    def host(self):
+    def host(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the host name or address of the connected GATE process as a str.
+        &#34;&#34;&#34;
         return self._host
 
     @property
-    def platform(self):
+    def platform(self) -&gt; Optional[str]:
         return self._platform
 
     @property
-    def gateprocess(self):
+    def gateprocess(self) -&gt; subprocess.Popen:
+        &#34;&#34;&#34;
+        Get the process.
+
+        Returns:
+            A subprocess.Popen object.
+            See https://docs.python.org/3/library/subprocess.html#popen-objects for methods
+            that can be used on this object.
+
+        &#34;&#34;&#34;
         return self._gateprocess
 
     @property
-    def gateway(self):
+    def getpid(self) -&gt; Optional[int]:
+        &#34;&#34;&#34;
+        Get the process id (or None if no process).
+
+        Returns:
+            Process ID (int)
+
+        &#34;&#34;&#34;
+        proc = self.gateprocess
+        if proc:
+            return proc.pid
+
+    @property
+    def gateway(self) -&gt; py4j.java_gateway.JavaGateway:
+        &#34;&#34;&#34;
+        Return the py4j JavaGateway instance. This object provides the method
+        help(jvm.some.object) for getting help about known Java objects.
+        &#34;&#34;&#34;
         return self._gateway
 
     # @staticmethod
@@ -486,7 +579,7 @@ class GateWorker:   # pragma: no cover
     def __exit__(self, _exptype, _value, _traceback):
         self.close()
 
-    def log_actions(self, onoff):
+    def log_actions(self, onoff: bool):
         &#34;&#34;&#34;
         Switch logging actions at the worker on or off.
 
@@ -495,7 +588,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.logActions(onoff)
 
-    def load_gdoc(self, path, mimetype=None):
+    def load_gdoc(self, path: str, mimetype: Optional[str] = None) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Let GATE load a document from the given path and return a handle to it.
 
@@ -510,7 +603,7 @@ class GateWorker:   # pragma: no cover
             mimetype = &#34;&#34;
         return self.worker.loadDocumentFromFile(path, mimetype)
 
-    def save_gdoc(self, gdoc, path, mimetype=None):
+    def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
         &#34;&#34;&#34;
         Save GATE document to the given path.
 
@@ -525,7 +618,7 @@ class GateWorker:   # pragma: no cover
             mimetype = &#34;&#34;
         self.worker.saveDocumentToFile(gdoc, path, mimetype)
 
-    def gdoc2pdoc(self, gdoc):
+    def gdoc2pdoc(self, gdoc: py4j.java_gateway.JavaObject) -&gt; Document:
         &#34;&#34;&#34;
         Convert the GATE document to a python document and return it.
 
@@ -538,7 +631,7 @@ class GateWorker:   # pragma: no cover
         bjs = self.worker.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt=&#34;bdocjs&#34;)
 
-    def pdoc2gdoc(self, pdoc, annspec=None):
+    def pdoc2gdoc(self, pdoc: Document, annspec: Optional[List[Tuple]] = None) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Convert the Python gatenlp document to a GATE document and return a handle to it.
 
@@ -553,7 +646,8 @@ class GateWorker:   # pragma: no cover
         jsondata = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annspec=annspec)
         return self.worker.getDocument4BdocJson(jsondata)
 
-    def gdocanns2pdoc(self, gdoc, pdoc, annspec=None, replace=False):
+    def gdocanns2pdoc(self, gdoc: py4j.java_gateway.JavaObject, pdoc: Document,
+                      annspec: Optional[List[Tuple]] = None, replace: bool = False) -&gt; Document:
         &#34;&#34;&#34;
         Retrieve the annotations from the GATE document and add them to the python gatenlp document.
         This modifies the pdoc in place and returns it.
@@ -594,7 +688,7 @@ class GateWorker:   # pragma: no cover
                     targetset.add_ann(ann)
         return pdoc
 
-    def load_pdoc(self, path, mimetype=None):
+    def load_pdoc(self, path: str, mimetype: Optional[str] = None) -&gt; Document:
         &#34;&#34;&#34;
         Load a document from the given path, using GATE and convert and return as gatenlp Python document.
 
@@ -608,7 +702,7 @@ class GateWorker:   # pragma: no cover
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
-    def del_resource(self, resource):
+    def del_resource(self, resource: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         DEPRECATED: please use deleteResource(resource) instead!
 
@@ -632,7 +726,7 @@ class GateWorker:   # pragma: no cover
     # These could get called directly via gs.worker.METHODNAME calls but are implemented here
     # to provide easier discovery and better documentation on the Python side
     # Since these are really local mirrors of Java methods, they follow Java naming conventions
-    def createDocument(self, content):
+    def createDocument(self, content: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Create a Java GATE document from the content string and return a handle to it.
 
@@ -644,7 +738,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.createDocument(content)
 
-    def deleteResource(self, resource):
+    def deleteResource(self, resource: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
         This is particularly important to do when processing a large number of documents for each document
@@ -657,7 +751,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.deleteResource(resource)
 
-    def findMavenPlugin(self, group, artifact):
+    def findMavenPlugin(self, group: str, artifact: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
 
@@ -670,7 +764,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.findMavenPlugin(group, artifact)
 
-    def getBdocJson(self, gdoc):
+    def getBdocJson(self, gdoc: py4j.java_gateway.JavaObject) -&gt; str:
         &#34;&#34;&#34;
         Return the Bdoc JSON serialization of a Java GATE document as string.
 
@@ -682,7 +776,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getBdocJson(gdoc)
 
-    def getCorpus4Name(self, name):
+    def getCorpus4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE corpus with the given name or None if none found.
 
@@ -694,7 +788,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getCorpus4Name(name)
 
-    def getCorpusNames(self):
+    def getCorpusNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of all Java GATE corpus names known.
 
@@ -703,7 +797,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getCorpusNames()
 
-    def getDocument4BdocJson(self, bdocjson):
+    def getDocument4BdocJson(self, bdocjson: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Returns a handle to a Java GATE document created from the Bdoc JSON string.
 
@@ -715,7 +809,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getDocument4BdocJson(bdocjson)
 
-    def getDocument4Name(self, name):
+    def getDocument4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE document that has the given name or None if none found.
 
@@ -727,7 +821,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getDocument4Name(name)
 
-    def getDocumentNames(self):
+    def getDocumentNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of known Java GATE document names.
 
@@ -736,7 +830,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getDocumentNames()
 
-    def getPipeline4Name(self, name):
+    def getPipeline4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE pipeline/controller that has the given name or
         None if none found.
@@ -749,7 +843,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getPipeline4Name(name)
 
-    def getPipelineNames(self):
+    def getPipelineNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of all know Java GATE pipeline names.
 
@@ -758,7 +852,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getPipelineNames()
 
-    def getPr4Name(self, name):
+    def getPr4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE processing resource that has the given name
         or None if none found.
@@ -771,7 +865,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getPr4Name(name)
 
-    def getPrNames(self):
+    def getPrNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of known Java GATE  processing resource names.
 
@@ -780,7 +874,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getPrNames()
 
-    def getResources4Name(self, name):
+    def getResources4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a (possibly empty) list of all Java GATE resources with the given name.
 
@@ -792,7 +886,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getResources4Name(name)
 
-    def getResources4NameClass(self, name, clazz):
+    def getResources4NameClass(self, name: str, clazz: str) -&gt; List[py4j.java_gateway.JavaObject]:
         &#34;&#34;&#34;
         Return a (possibly empty) list of all Java GATE resources with the given name and class name.
 
@@ -805,7 +899,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.getResources4Name(name, clazz)
 
-    def loadDocumentFromFile(self, filename):
+    def loadDocumentFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a Java GATE document from the given file name and return a handle to it.
 
@@ -817,7 +911,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.loadDocumentFromFile(filename)
 
-    def loadDocumentFromFile4Mime(self, filename, mimetype):
+    def loadDocumentFromFile4Mime(self, filename: str, mimetype: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a Java GATE document from the given file name, using the given mime type
         and return a handle to it.
@@ -831,7 +925,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.loadDocumentFromFile(filename, mimetype)
 
-    def loadMavenPlugin(self, group, artifact, version):
+    def loadMavenPlugin(self, group: str, artifact: str, version: str):
         &#34;&#34;&#34;
         Load the given Maven plugin into Java GATE.
 
@@ -842,7 +936,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.loadMavenPlugin(group, artifact, version)
 
-    def loadPipelineFromFile(self, filename):
+    def loadPipelineFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
 
@@ -854,7 +948,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromFile(filename)
 
-    def loadPipelineFromUri(self, uri):
+    def loadPipelineFromUri(self, uri: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
 
@@ -866,7 +960,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromUri(uri)
 
-    def loadPipelineFromPlugin(self, group, artifact, path):
+    def loadPipelineFromPlugin(self, group: str, artifact: str, path: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
         a CorpusController handle to it.
@@ -881,7 +975,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromPlugin(group, artifact, path)
 
-    def logActions(self, flag):
+    def logActions(self, flag: bool):
         &#34;&#34;&#34;
         Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
 
@@ -890,7 +984,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.logActions(flag)
 
-    def newCorpus(self):
+    def newCorpus(self) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Create and return a handle to a new Java GATE corpus.
 
@@ -899,7 +993,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.newCorpus()
 
-    def pluginBuild(self):
+    def pluginBuild(self) -&gt; str:
         &#34;&#34;&#34;
         Return the short commit id of the Python plugin on the Java GATE side.
 
@@ -908,7 +1002,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
-    def pluginVersion(self):
+    def pluginVersion(self) -&gt; str:
         &#34;&#34;&#34;
         Return the version string of the Python plugin on the Java GATE side.
 
@@ -917,7 +1011,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         return self.worker.pluginVersion()
 
-    def print2err(self, message):
+    def print2err(self, message: str):
         &#34;&#34;&#34;
         Output the given message to System.err on the Java GATE side.
 
@@ -926,7 +1020,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.print2err(message)
 
-    def print2out(self, message):
+    def print2out(self, message: str):
         &#34;&#34;&#34;
         Output the given message to System.out on the Java GATE side.
 
@@ -935,7 +1029,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.print2out(message)
 
-    def run4Corpus(self, pipeline, corpus):
+    def run4Corpus(self, pipeline: py4j.java_gateway.JavaObject, corpus: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the given Java GATE pipeline on the given Java GATE corpus.
 
@@ -945,7 +1039,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.run4Corpus(pipeline, corpus)
 
-    def run4Document(self, pipeline, gdoc):
+    def run4Document(self, pipeline: py4j.java_gateway.JavaObject, gdoc: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the given Java GATE pipeline on the given Java GATE document.
 
@@ -955,7 +1049,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.run4Document(pipeline, gdoc)
 
-    def runExcecutionFinished(self, pipeline):
+    def runExcecutionFinished(self, pipeline: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the execution finished method for the given Java GATE pipeline.
 
@@ -964,7 +1058,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.runExecutionFinished(pipeline)
 
-    def runExcecutionStarted(self, pipeline):
+    def runExcecutionStarted(self, pipeline: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the execution started method for the given Java GATE pipeline.
 
@@ -973,7 +1067,7 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.runExecutionStarted(pipeline)
 
-    def saveDocumentToFile(self, gdoc, filename, mimetype):
+    def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
         &#34;&#34;&#34;
         Save the Java GATE document to the given file, using the given mime type.
         At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -986,7 +1080,8 @@ class GateWorker:   # pragma: no cover
         &#34;&#34;&#34;
         self.worker.saveDocumentToFile(gdoc, filename, mimetype)
 
-    def pannspec2gannspec(self, annspec=None):
+    def pannspec2gannspec(self,
+                          annspec: Union[str, List[Union[str, Tuple]]]=None) -&gt; Optional[py4j.java_gateway.JavaObject]:
         &#34;&#34;&#34;
         Convert from our convention to specifiy annotation sets and types to a Java list.
         This is necessary because py4j does not by default convert lists properly and also
@@ -1004,6 +1099,8 @@ class GateWorker:   # pragma: no cover
         # annspec is a python collection and cannot be passed directly to Java
         # see https://www.py4j.org/advanced_topics.html#collections-conversion
         from py4j.java_collections import ListConverter
+        if isinstance(annspec, str):
+            annspec = [annspec]
         newannspec = []
         for spec in annspec:
             if isinstance(spec, str):
@@ -1021,7 +1118,9 @@ class GateWorker:   # pragma: no cover
         jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
         return jnewannspec
 
-    def jsonAnnsets4Doc(self, gdoc, jannspec=None):
+    def jsonAnnsets4Doc(self,
+                        gdoc: py4j.java_gateway.JavaObject,
+                        jannspec: py4j.java_gateway.JavaObject) -&gt; str:
         &#34;&#34;&#34;
         Return the JSON representation of the annotation sets in the GATE document, optionally
         filtered by the given annotation specification.
@@ -1039,7 +1138,7 @@ class GateWorker:   # pragma: no cover
             jannspec: the annotation specification list as a Java list
 
         Returns:
-
+            JSON string
         &#34;&#34;&#34;
         return self.worker.jsonAnnsets4Doc(gdoc, jannspec)
 
@@ -1094,6 +1193,7 @@ def run_gate_worker():   # pragma: no cover
     args = argparser.parse_args()
     if args.download:
         raise Exception(&#34;--download not implemented yet &#34;)
+    #subprocess =
     start_gate_worker(
         port=args.port,
         host=args.host,
@@ -1105,6 +1205,7 @@ def run_gate_worker():   # pragma: no cover
         keep=args.keep,
         debug=args.debug,
     )
+    #logger.info(f&#34;Running with PID {subprocess.pid}&#34;)
 
 
 if __name__ == &#34;__main__&#34;:   # pragma: no cover
@@ -1118,15 +1219,37 @@ if __name__ == &#34;__main__&#34;:   # pragma: no cover
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="gatenlp.gateworker.gateworker.check_port_used"><code class="name flex">
+<span>def <span class="ident">check_port_used</span></span>(<span>host: str, port: int) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the given port on the given host is in use.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_port_used(host: str, port: int) -&gt; bool:
+    &#34;&#34;&#34;
+    Check if the given port on the given host is in use.
+    &#34;&#34;&#34;
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn = sock.connect_ex((host, port))
+    used = False
+    if conn == 0:
+        used = True
+    sock.close()
+    return used</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.gateworker.gateworker.classpath_sep"><code class="name flex">
-<span>def <span class="ident">classpath_sep</span></span>(<span>platform=None)</span>
+<span>def <span class="ident">classpath_sep</span></span>(<span>platform: Optional[str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the system-specific classpath separator character.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>platform</code></strong></dt>
-<dd>(Default value = None) win/windows for Windows, anything else for non-windows
+<dd>(Default value = None) "win" or "windows" for Windows, anything else for non-windows
 If not specified, tries to determine automatically (which may fail)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -1135,12 +1258,12 @@ If not specified, tries to determine automatically (which may fail)</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def classpath_sep(platform=None):  # pragma: no cover
+<pre><code class="python">def classpath_sep(platform: Optional[str] = None) -&gt; str:  # pragma: no cover
     &#34;&#34;&#34;
     Get the system-specific classpath separator character.
 
     Args:
-      platform:  (Default value = None) win/windows for Windows, anything else for non-windows
+      platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-windows
         If not specified, tries to determine automatically (which may fail)
 
     Returns:
@@ -1161,7 +1284,7 @@ If not specified, tries to determine automatically (which may fail)</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.gate_classpath"><code class="name flex">
-<span>def <span class="ident">gate_classpath</span></span>(<span>gatehome, platform=None)</span>
+<span>def <span class="ident">gate_classpath</span></span>(<span>gatehome: str, platform: Optional[str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the GATE classpath components as a string, with the path seperator characters appropriate
@@ -1169,9 +1292,9 @@ for the operating system.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>gatehome</code></strong></dt>
-<dd>where GATE is installed, either as a cloned git repo or a downloaded installation dir.</dd>
+<dd>path where GATE is installed, either as a cloned git repo or a downloaded installation dir.</dd>
 <dt><strong><code>platform</code></strong></dt>
-<dd>(Default value = None) win/windows for Windows, anything else for non-Windows.</dd>
+<dd>(Default value = None) "win" or "windows" for Windows, anything else for non-Windows.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>GATE classpath</p>
@@ -1181,14 +1304,14 @@ for the operating system.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gate_classpath(gatehome, platform=None):  # pragma: no cover
+<pre><code class="python">def gate_classpath(gatehome: str, platform: Optional[str] = None) -&gt; str:  # pragma: no cover
     &#34;&#34;&#34;
     Return the GATE classpath components as a string, with the path seperator characters appropriate
     for the operating system.
 
     Args:
-      gatehome: where GATE is installed, either as a cloned git repo or a downloaded installation dir.
-      platform:  (Default value = None) win/windows for Windows, anything else for non-Windows.
+      gatehome: path where GATE is installed, either as a cloned git repo or a downloaded installation dir.
+      platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-Windows.
 
     Returns:
       GATE classpath
@@ -1231,15 +1354,16 @@ for the operating system.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.jar_loc"><code class="name flex">
-<span>def <span class="ident">jar_loc</span></span>(<span>)</span>
+<span>def <span class="ident">jar_loc</span></span>(<span>) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the path to the gate worker jar as a string.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def jar_loc():
+<pre><code class="python">def jar_loc() -&gt; str:
+    &#34;&#34;&#34;Return the path to the gate worker jar as a string.&#34;&#34;&#34;
     return str(pathlib.Path(__file__).parent.parent.
                joinpath(&#34;_jars&#34;).joinpath(f&#34;gatetools-gatenlpworker-{JARVERSION}.jar&#34;))</code></pre>
 </details>
@@ -1298,6 +1422,7 @@ Use option <code>--help</code> to get help about command line arguments.</p></di
     args = argparser.parse_args()
     if args.download:
         raise Exception(&#34;--download not implemented yet &#34;)
+    #subprocess =
     start_gate_worker(
         port=args.port,
         host=args.host,
@@ -1312,11 +1437,12 @@ Use option <code>--help</code> to get help about command line arguments.</p></di
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.start_gate_worker"><code class="name flex">
-<span>def <span class="ident">start_gate_worker</span></span>(<span>port=25333, host='127.0.0.1', auth_token=None, use_auth_token=True, java='java', platform=None, gatehome=None, log_actions=False, keep=False, debug=False)</span>
+<span>def <span class="ident">start_gate_worker</span></span>(<span>port: int = 25333, host: str = '127.0.0.1', auth_token: Optional[str] = None, use_auth_token: bool = True, java: str = 'java', platform: Optional[str] = None, gatehome: Optional[str] = None, log_actions: bool = False, keep: bool = False, debug: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the gate worker program. This starts the Java program included with gatenlp to
 run GATE and execute the gate worker within GATE so that Python can connect to it.</p>
+<p>This methods waits for the subprocess to end.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>port</code></strong></dt>
@@ -1333,7 +1459,7 @@ This allows anyone who can connect to the host address to connect and use the ga
 <dd>(Default value = "java") Java command (if on the binary path) or full path to the binary
 to use for running the gate worker program.</dd>
 <dt><strong><code>platform</code></strong></dt>
-<dd>(Default value = None) "win"/"windows" for Windows, anything else for non-Windows.
+<dd>(Default value = None) "win" or "windows" for Windows, anything else for non-Windows.
 If None, tries to determine automatically.</dd>
 <dt><strong><code>gatehome</code></strong></dt>
 <dd>(Default value = None) The path to where GATE is installed. If None, the environment
@@ -1343,7 +1469,7 @@ variable "GATE_HOME" is used.</dd>
 ordered to do.</dd>
 <dt><strong><code>keep</code></strong></dt>
 <dd>(Default value = False) passed on to the gate worker process and tells the process if it should
-report to the using Pythong process that it can be closed or not.</dd>
+report to the using Python process that it can be closed or not.</dd>
 <dt><strong><code>debug</code></strong></dt>
 <dd>(Default valuye = False) Show debug messages.</dd>
 </dl></div>
@@ -1352,38 +1478,40 @@ report to the using Pythong process that it can be closed or not.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def start_gate_worker(
-        port=25333,
-        host=&#34;127.0.0.1&#34;,
-        auth_token=None,
-        use_auth_token=True,
-        java=&#34;java&#34;,
-        platform=None,
-        gatehome=None,
-        log_actions=False,
-        keep=False,
-        debug=False,
+        port: int = 25333,
+        host: str = &#34;127.0.0.1&#34;,
+        auth_token: Optional[str] = None,
+        use_auth_token: bool = True,
+        java: str = &#34;java&#34;,
+        platform: Optional[str] = None,
+        gatehome: Optional[str] = None,
+        log_actions: bool = False,
+        keep: bool = False,
+        debug: bool = False,
 ):   # pragma: no cover
     &#34;&#34;&#34;
     Run the gate worker program. This starts the Java program included with gatenlp to
     run GATE and execute the gate worker within GATE so that Python can connect to it.
 
+    This methods waits for the subprocess to end.
+
     Args:
-      port:  (Default value = 25333) Port number to use
-      host:  (Default value = &#34;127.0.0.1&#34;) Host address to bind to
-      auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
-      use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
-         This allows anyone who can connect to the host address to connect and use the gate worker process.
-      java:  (Default value = &#34;java&#34;) Java command (if on the binary path) or full path to the binary
-         to use for running the gate worker program.
-      platform:  (Default value = None) &#34;win&#34;/&#34;windows&#34; for Windows, anything else for non-Windows.
-         If None, tries to determine automatically.
-      gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
-         variable &#34;GATE_HOME&#34; is used.
-      log_actions:  (Default value = False) If True, the GATE Worker process will log everything it is
-         ordered to do.
-      keep:  (Default value = False) passed on to the gate worker process and tells the process if it should
-         report to the using Pythong process that it can be closed or not.
-      debug: (Default valuye = False) Show debug messages.
+        port:  (Default value = 25333) Port number to use
+        host:  (Default value = &#34;127.0.0.1&#34;) Host address to bind to
+        auth_token:  (Default value = None)  Authorization token to use. If None, creates a random token.
+        use_auth_token:  (Default value = True) If False, do not aue an authorization token at all.
+           This allows anyone who can connect to the host address to connect and use the gate worker process.
+        java:  (Default value = &#34;java&#34;) Java command (if on the binary path) or full path to the binary
+           to use for running the gate worker program.
+        platform:  (Default value = None) &#34;win&#34; or &#34;windows&#34; for Windows, anything else for non-Windows.
+           If None, tries to determine automatically.
+        gatehome:  (Default value = None) The path to where GATE is installed. If None, the environment
+           variable &#34;GATE_HOME&#34; is used.
+        log_actions:  (Default value = False) If True, the GATE Worker process will log everything it is
+           ordered to do.
+        keep:  (Default value = False) passed on to the gate worker process and tells the process if it should
+           report to the using Python process that it can be closed or not.
+        debug: (Default valuye = False) Show debug messages.
     &#34;&#34;&#34;
     logger = init_logger(__name__)
     if debug:
@@ -1429,6 +1557,7 @@ report to the using Pythong process that it can be closed or not.</dd>
     subproc = subprocess.Popen(
         cmdandparms, stderr=subprocess.PIPE, bufsize=0, encoding=&#34;utf-8&#34;
     )
+    logger.info(f&#34;Running as process with PID {subproc.pid}&#34;)
 
     def shutdown():
         &#34;&#34;&#34;
@@ -1464,7 +1593,7 @@ report to the using Pythong process that it can be closed or not.</dd>
 <dl>
 <dt id="gatenlp.gateworker.gateworker.GateWorker"><code class="flex name class">
 <span>class <span class="ident">GateWorker</span></span>
-<span>(</span><span>port=25333, start=True, java='java', host='127.0.0.1', gatehome=None, platform=None, auth_token=None, use_auth_token=True, log_actions=False, keep=False, debug=False)</span>
+<span>(</span><span>port: int = 25333, retry_ports: int = 10, start: bool = True, java: str = 'java', host: str = '127.0.0.1', gatehome: Optional[str] = None, platform: Optional[str] = None, auth_token: Optional[str] = None, use_auth_token: bool = True, log_actions: bool = False, keep: bool = False, debug: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
@@ -1497,6 +1626,10 @@ gw.deleteResource(doc)
 # process the document pdoc ...
 </code></pre>
 <p>port: port to use
+retry_ports: if start=True and the specified port is in use, try this many
+additional ports before giving up (default: 10) Note: this uses a simple implementation which checks
+in advance if the port is in use; this strategy may fail in cases where a port that was found to be
+free is getting used in the short time between the check and the actual use by the gate worker.
 start: if True, try to start our own GATE process, otherwise expect an already started
 process at the host/port address
 java: path to the java binary to run or the java command to use from the PATH (for start=True)
@@ -1517,7 +1650,7 @@ debug: show debug messages (default: False)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GateWorker:   # pragma: no cover
+<pre><code class="python">class GateWorker:
     &#34;&#34;&#34;
     Gate worker for remotely running arbitrary GATE and other JAVA operations in a separate
     Java GATE process.
@@ -1525,17 +1658,18 @@ debug: show debug messages (default: False)</p></div>
 
     def __init__(
             self,
-            port=25333,
-            start=True,
-            java=&#34;java&#34;,
-            host=&#34;127.0.0.1&#34;,
-            gatehome=None,
-            platform=None,
-            auth_token=None,
-            use_auth_token=True,
-            log_actions=False,
-            keep=False,
-            debug=False,
+            port: int = 25333,
+            retry_ports: int = 10,
+            start: bool = True,
+            java: str = &#34;java&#34;,
+            host: str = &#34;127.0.0.1&#34;,
+            gatehome: Optional[str] = None,
+            platform: Optional[str] = None,
+            auth_token: Optional[str] = None,
+            use_auth_token: bool = True,
+            log_actions: bool = False,
+            keep: bool = False,
+            debug: bool = False,
             ):
         &#34;&#34;&#34;
         Create an instance of the GateWorker and either start our own Java GATE process for it to use
@@ -1567,6 +1701,10 @@ debug: show debug messages (default: False)</p></div>
             ```
 
         port: port to use
+        retry_ports: if start=True and the specified port is in use, try this many
+            additional ports before giving up (default: 10) Note: this uses a simple implementation which checks
+            in advance if the port is in use; this strategy may fail in cases where a port that was found to be
+            free is getting used in the short time between the check and the actual use by the gate worker.
         start: if True, try to start our own GATE process, otherwise expect an already started
             process at the host/port address
         java: path to the java binary to run or the java command to use from the PATH (for start=True)
@@ -1615,6 +1753,17 @@ debug: show debug messages (default: False)</p></div>
         if start:
             # make sure we find the jar we need
             # logger.info(&#34;DEBUG: file location: {}&#34;.format(__file__))
+            used = True
+            if retry_ports:
+                for i in range(retry_ports):
+                    port = self.port + i
+                    used = check_port_used(self.host, port)
+                    if not used:
+                        self._port = port
+                        break
+                    logger.info(f&#34;Port {port} is already in use&#34;)
+                if used:
+                    raise Exception(f&#34;Port(s) in use: {self.port} to {port}&#34;)
             jarloc = jar_loc()
             if not os.path.exists(jarloc):
                 raise Exception(&#34;Could not find jar, {} does not exist&#34;.format(jarloc))
@@ -1664,58 +1813,116 @@ debug: show debug messages (default: False)</p></div>
             gateway_parameters=GatewayParameters(port=port, auth_token=self._auth_token)
         )
 
+    def __repr__(self):
+        return f&#34;Gateworker(port={self.port},host={self.host},gate_home={self.gatehome})&#34;
+
     @property
-    def jvm(self):
+    def jvm(self) -&gt; py4j.java_gateway.JVMView:
+        &#34;&#34;&#34;
+        Returns the JVM instance which allows to interact with Java.
+
+        Returns:
+            The JVMView instance
+
+        &#34;&#34;&#34;
         return self.gateway.jvm
 
     @property
-    def worker(self):
+    def worker(self) -&gt; py4j.java_gateway.JavaObject:
+        &#34;&#34;&#34;
+        A JavaObject which provides the methods on the Java side.
+
+        Returns:
+            The worker JavaObject
+
+        &#34;&#34;&#34;
         return self.gateway.entry_point
 
     @property
-    def gate_version(self):
+    def gate_version(self) -&gt; str:
         &#34;&#34;&#34;
         Return the GATE version of the connected GATE process.
         &#34;&#34;&#34;
         return self.jvm.gate.Main.version
 
     @property
-    def gate_build(self):
+    def gate_build(self) -&gt; str:
         &#34;&#34;&#34;
         Return the GATE build id of the connected GATE process.
         &#34;&#34;&#34;
         return self.jvm.gate.Main.build
 
     @property
-    def worker_version(self):
+    def worker_version(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the Gate Worker version of the connected GATE process.
+        &#34;&#34;&#34;
         return self.worker.pluginVersion()
 
     @property
-    def worker_build(self):
+    def worker_build(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the build id of the Worker of the connected GATE proces..
+        &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
     @property
-    def gatehome(self):
+    def gatehome(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the GATE home path of the connected GATE process as a string.
+        &#34;&#34;&#34;
         return self._gatehome
 
     @property
-    def port(self):
+    def port(self) -&gt; int:
+        &#34;&#34;&#34;
+        Return the port of the connected GATE process as an int.
+        &#34;&#34;&#34;
         return self._port
 
     @property
-    def host(self):
+    def host(self) -&gt; str:
+        &#34;&#34;&#34;
+        Return the host name or address of the connected GATE process as a str.
+        &#34;&#34;&#34;
         return self._host
 
     @property
-    def platform(self):
+    def platform(self) -&gt; Optional[str]:
         return self._platform
 
     @property
-    def gateprocess(self):
+    def gateprocess(self) -&gt; subprocess.Popen:
+        &#34;&#34;&#34;
+        Get the process.
+
+        Returns:
+            A subprocess.Popen object.
+            See https://docs.python.org/3/library/subprocess.html#popen-objects for methods
+            that can be used on this object.
+
+        &#34;&#34;&#34;
         return self._gateprocess
 
     @property
-    def gateway(self):
+    def getpid(self) -&gt; Optional[int]:
+        &#34;&#34;&#34;
+        Get the process id (or None if no process).
+
+        Returns:
+            Process ID (int)
+
+        &#34;&#34;&#34;
+        proc = self.gateprocess
+        if proc:
+            return proc.pid
+
+    @property
+    def gateway(self) -&gt; py4j.java_gateway.JavaGateway:
+        &#34;&#34;&#34;
+        Return the py4j JavaGateway instance. This object provides the method
+        help(jvm.some.object) for getting help about known Java objects.
+        &#34;&#34;&#34;
         return self._gateway
 
     # @staticmethod
@@ -1755,7 +1962,7 @@ debug: show debug messages (default: False)</p></div>
     def __exit__(self, _exptype, _value, _traceback):
         self.close()
 
-    def log_actions(self, onoff):
+    def log_actions(self, onoff: bool):
         &#34;&#34;&#34;
         Switch logging actions at the worker on or off.
 
@@ -1764,7 +1971,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.logActions(onoff)
 
-    def load_gdoc(self, path, mimetype=None):
+    def load_gdoc(self, path: str, mimetype: Optional[str] = None) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Let GATE load a document from the given path and return a handle to it.
 
@@ -1779,7 +1986,7 @@ debug: show debug messages (default: False)</p></div>
             mimetype = &#34;&#34;
         return self.worker.loadDocumentFromFile(path, mimetype)
 
-    def save_gdoc(self, gdoc, path, mimetype=None):
+    def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
         &#34;&#34;&#34;
         Save GATE document to the given path.
 
@@ -1794,7 +2001,7 @@ debug: show debug messages (default: False)</p></div>
             mimetype = &#34;&#34;
         self.worker.saveDocumentToFile(gdoc, path, mimetype)
 
-    def gdoc2pdoc(self, gdoc):
+    def gdoc2pdoc(self, gdoc: py4j.java_gateway.JavaObject) -&gt; Document:
         &#34;&#34;&#34;
         Convert the GATE document to a python document and return it.
 
@@ -1807,7 +2014,7 @@ debug: show debug messages (default: False)</p></div>
         bjs = self.worker.getBdocJson(gdoc)
         return Document.load_mem(bjs, fmt=&#34;bdocjs&#34;)
 
-    def pdoc2gdoc(self, pdoc, annspec=None):
+    def pdoc2gdoc(self, pdoc: Document, annspec: Optional[List[Tuple]] = None) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Convert the Python gatenlp document to a GATE document and return a handle to it.
 
@@ -1822,7 +2029,8 @@ debug: show debug messages (default: False)</p></div>
         jsondata = pdoc.save_mem(fmt=&#34;bdocjs&#34;, annspec=annspec)
         return self.worker.getDocument4BdocJson(jsondata)
 
-    def gdocanns2pdoc(self, gdoc, pdoc, annspec=None, replace=False):
+    def gdocanns2pdoc(self, gdoc: py4j.java_gateway.JavaObject, pdoc: Document,
+                      annspec: Optional[List[Tuple]] = None, replace: bool = False) -&gt; Document:
         &#34;&#34;&#34;
         Retrieve the annotations from the GATE document and add them to the python gatenlp document.
         This modifies the pdoc in place and returns it.
@@ -1863,7 +2071,7 @@ debug: show debug messages (default: False)</p></div>
                     targetset.add_ann(ann)
         return pdoc
 
-    def load_pdoc(self, path, mimetype=None):
+    def load_pdoc(self, path: str, mimetype: Optional[str] = None) -&gt; Document:
         &#34;&#34;&#34;
         Load a document from the given path, using GATE and convert and return as gatenlp Python document.
 
@@ -1877,7 +2085,7 @@ debug: show debug messages (default: False)</p></div>
         gdoc = self.load_gdoc(path, mimetype)
         return self.gdoc2pdoc(gdoc)
 
-    def del_resource(self, resource):
+    def del_resource(self, resource: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         DEPRECATED: please use deleteResource(resource) instead!
 
@@ -1901,7 +2109,7 @@ debug: show debug messages (default: False)</p></div>
     # These could get called directly via gs.worker.METHODNAME calls but are implemented here
     # to provide easier discovery and better documentation on the Python side
     # Since these are really local mirrors of Java methods, they follow Java naming conventions
-    def createDocument(self, content):
+    def createDocument(self, content: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Create a Java GATE document from the content string and return a handle to it.
 
@@ -1913,7 +2121,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.createDocument(content)
 
-    def deleteResource(self, resource):
+    def deleteResource(self, resource: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
         This is particularly important to do when processing a large number of documents for each document
@@ -1926,7 +2134,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.deleteResource(resource)
 
-    def findMavenPlugin(self, group, artifact):
+    def findMavenPlugin(self, group: str, artifact: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
 
@@ -1939,7 +2147,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.findMavenPlugin(group, artifact)
 
-    def getBdocJson(self, gdoc):
+    def getBdocJson(self, gdoc: py4j.java_gateway.JavaObject) -&gt; str:
         &#34;&#34;&#34;
         Return the Bdoc JSON serialization of a Java GATE document as string.
 
@@ -1951,7 +2159,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getBdocJson(gdoc)
 
-    def getCorpus4Name(self, name):
+    def getCorpus4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE corpus with the given name or None if none found.
 
@@ -1963,7 +2171,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getCorpus4Name(name)
 
-    def getCorpusNames(self):
+    def getCorpusNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of all Java GATE corpus names known.
 
@@ -1972,7 +2180,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getCorpusNames()
 
-    def getDocument4BdocJson(self, bdocjson):
+    def getDocument4BdocJson(self, bdocjson: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Returns a handle to a Java GATE document created from the Bdoc JSON string.
 
@@ -1984,7 +2192,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getDocument4BdocJson(bdocjson)
 
-    def getDocument4Name(self, name):
+    def getDocument4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE document that has the given name or None if none found.
 
@@ -1996,7 +2204,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getDocument4Name(name)
 
-    def getDocumentNames(self):
+    def getDocumentNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of known Java GATE document names.
 
@@ -2005,7 +2213,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getDocumentNames()
 
-    def getPipeline4Name(self, name):
+    def getPipeline4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE pipeline/controller that has the given name or
         None if none found.
@@ -2018,7 +2226,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getPipeline4Name(name)
 
-    def getPipelineNames(self):
+    def getPipelineNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of all know Java GATE pipeline names.
 
@@ -2027,7 +2235,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getPipelineNames()
 
-    def getPr4Name(self, name):
+    def getPr4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a handle to the first Java GATE processing resource that has the given name
         or None if none found.
@@ -2040,7 +2248,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getPr4Name(name)
 
-    def getPrNames(self):
+    def getPrNames(self) -&gt; List[str]:
         &#34;&#34;&#34;
         Return a list of known Java GATE  processing resource names.
 
@@ -2049,7 +2257,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getPrNames()
 
-    def getResources4Name(self, name):
+    def getResources4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Return a (possibly empty) list of all Java GATE resources with the given name.
 
@@ -2061,7 +2269,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getResources4Name(name)
 
-    def getResources4NameClass(self, name, clazz):
+    def getResources4NameClass(self, name: str, clazz: str) -&gt; List[py4j.java_gateway.JavaObject]:
         &#34;&#34;&#34;
         Return a (possibly empty) list of all Java GATE resources with the given name and class name.
 
@@ -2074,7 +2282,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.getResources4Name(name, clazz)
 
-    def loadDocumentFromFile(self, filename):
+    def loadDocumentFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a Java GATE document from the given file name and return a handle to it.
 
@@ -2086,7 +2294,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadDocumentFromFile(filename)
 
-    def loadDocumentFromFile4Mime(self, filename, mimetype):
+    def loadDocumentFromFile4Mime(self, filename: str, mimetype: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a Java GATE document from the given file name, using the given mime type
         and return a handle to it.
@@ -2100,7 +2308,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadDocumentFromFile(filename, mimetype)
 
-    def loadMavenPlugin(self, group, artifact, version):
+    def loadMavenPlugin(self, group: str, artifact: str, version: str):
         &#34;&#34;&#34;
         Load the given Maven plugin into Java GATE.
 
@@ -2111,7 +2319,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.loadMavenPlugin(group, artifact, version)
 
-    def loadPipelineFromFile(self, filename):
+    def loadPipelineFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
 
@@ -2123,7 +2331,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromFile(filename)
 
-    def loadPipelineFromUri(self, uri):
+    def loadPipelineFromUri(self, uri: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
 
@@ -2135,7 +2343,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromUri(uri)
 
-    def loadPipelineFromPlugin(self, group, artifact, path):
+    def loadPipelineFromPlugin(self, group: str, artifact: str, path: str) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
         a CorpusController handle to it.
@@ -2150,7 +2358,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.loadPipelineFromPlugin(group, artifact, path)
 
-    def logActions(self, flag):
+    def logActions(self, flag: bool):
         &#34;&#34;&#34;
         Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
 
@@ -2159,7 +2367,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.logActions(flag)
 
-    def newCorpus(self):
+    def newCorpus(self) -&gt; py4j.java_gateway.JavaObject:
         &#34;&#34;&#34;
         Create and return a handle to a new Java GATE corpus.
 
@@ -2168,7 +2376,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.newCorpus()
 
-    def pluginBuild(self):
+    def pluginBuild(self) -&gt; str:
         &#34;&#34;&#34;
         Return the short commit id of the Python plugin on the Java GATE side.
 
@@ -2177,7 +2385,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.pluginBuild()
 
-    def pluginVersion(self):
+    def pluginVersion(self) -&gt; str:
         &#34;&#34;&#34;
         Return the version string of the Python plugin on the Java GATE side.
 
@@ -2186,7 +2394,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         return self.worker.pluginVersion()
 
-    def print2err(self, message):
+    def print2err(self, message: str):
         &#34;&#34;&#34;
         Output the given message to System.err on the Java GATE side.
 
@@ -2195,7 +2403,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.print2err(message)
 
-    def print2out(self, message):
+    def print2out(self, message: str):
         &#34;&#34;&#34;
         Output the given message to System.out on the Java GATE side.
 
@@ -2204,7 +2412,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.print2out(message)
 
-    def run4Corpus(self, pipeline, corpus):
+    def run4Corpus(self, pipeline: py4j.java_gateway.JavaObject, corpus: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the given Java GATE pipeline on the given Java GATE corpus.
 
@@ -2214,7 +2422,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.run4Corpus(pipeline, corpus)
 
-    def run4Document(self, pipeline, gdoc):
+    def run4Document(self, pipeline: py4j.java_gateway.JavaObject, gdoc: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the given Java GATE pipeline on the given Java GATE document.
 
@@ -2224,7 +2432,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.run4Document(pipeline, gdoc)
 
-    def runExcecutionFinished(self, pipeline):
+    def runExcecutionFinished(self, pipeline: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the execution finished method for the given Java GATE pipeline.
 
@@ -2233,7 +2441,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.runExecutionFinished(pipeline)
 
-    def runExcecutionStarted(self, pipeline):
+    def runExcecutionStarted(self, pipeline: py4j.java_gateway.JavaObject):
         &#34;&#34;&#34;
         Run the execution started method for the given Java GATE pipeline.
 
@@ -2242,7 +2450,7 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.runExecutionStarted(pipeline)
 
-    def saveDocumentToFile(self, gdoc, filename, mimetype):
+    def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
         &#34;&#34;&#34;
         Save the Java GATE document to the given file, using the given mime type.
         At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -2255,7 +2463,8 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.saveDocumentToFile(gdoc, filename, mimetype)
 
-    def pannspec2gannspec(self, annspec=None):
+    def pannspec2gannspec(self,
+                          annspec: Union[str, List[Union[str, Tuple]]]=None) -&gt; Optional[py4j.java_gateway.JavaObject]:
         &#34;&#34;&#34;
         Convert from our convention to specifiy annotation sets and types to a Java list.
         This is necessary because py4j does not by default convert lists properly and also
@@ -2273,6 +2482,8 @@ debug: show debug messages (default: False)</p></div>
         # annspec is a python collection and cannot be passed directly to Java
         # see https://www.py4j.org/advanced_topics.html#collections-conversion
         from py4j.java_collections import ListConverter
+        if isinstance(annspec, str):
+            annspec = [annspec]
         newannspec = []
         for spec in annspec:
             if isinstance(spec, str):
@@ -2290,7 +2501,9 @@ debug: show debug messages (default: False)</p></div>
         jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
         return jnewannspec
 
-    def jsonAnnsets4Doc(self, gdoc, jannspec=None):
+    def jsonAnnsets4Doc(self,
+                        gdoc: py4j.java_gateway.JavaObject,
+                        jannspec: py4j.java_gateway.JavaObject) -&gt; str:
         &#34;&#34;&#34;
         Return the JSON representation of the annotation sets in the GATE document, optionally
         filtered by the given annotation specification.
@@ -2308,7 +2521,7 @@ debug: show debug messages (default: False)</p></div>
             jannspec: the annotation specification list as a Java list
 
         Returns:
-
+            JSON string
         &#34;&#34;&#34;
         return self.worker.jsonAnnsets4Doc(gdoc, jannspec)
 
@@ -2321,7 +2534,7 @@ debug: show debug messages (default: False)</p></div>
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_build"><code class="name">var <span class="ident">gate_build</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_build"><code class="name">var <span class="ident">gate_build</span> : str</code></dt>
 <dd>
 <div class="desc"><p>Return the GATE build id of the connected GATE process.</p></div>
 <details class="source">
@@ -2329,14 +2542,14 @@ debug: show debug messages (default: False)</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gate_build(self):
+def gate_build(self) -&gt; str:
     &#34;&#34;&#34;
     Return the GATE build id of the connected GATE process.
     &#34;&#34;&#34;
     return self.jvm.gate.Main.build</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_version"><code class="name">var <span class="ident">gate_version</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gate_version"><code class="name">var <span class="ident">gate_version</span> : str</code></dt>
 <dd>
 <div class="desc"><p>Return the GATE version of the connected GATE process.</p></div>
 <details class="source">
@@ -2344,74 +2557,130 @@ def gate_build(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gate_version(self):
+def gate_version(self) -&gt; str:
     &#34;&#34;&#34;
     Return the GATE version of the connected GATE process.
     &#34;&#34;&#34;
     return self.jvm.gate.Main.version</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.gatehome"><code class="name">var <span class="ident">gatehome</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gatehome"><code class="name">var <span class="ident">gatehome</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the GATE home path of the connected GATE process as a string.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gatehome(self):
+def gatehome(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the GATE home path of the connected GATE process as a string.
+    &#34;&#34;&#34;
     return self._gatehome</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.gateprocess"><code class="name">var <span class="ident">gateprocess</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gateprocess"><code class="name">var <span class="ident">gateprocess</span> : subprocess.Popen</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get the process.</p>
+<h2 id="returns">Returns</h2>
+<p>A subprocess.Popen object.
+See <a href="https://docs.python.org/3/library/subprocess.html#popen-objects">https://docs.python.org/3/library/subprocess.html#popen-objects</a> for methods
+that can be used on this object.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gateprocess(self):
+def gateprocess(self) -&gt; subprocess.Popen:
+    &#34;&#34;&#34;
+    Get the process.
+
+    Returns:
+        A subprocess.Popen object.
+        See https://docs.python.org/3/library/subprocess.html#popen-objects for methods
+        that can be used on this object.
+
+    &#34;&#34;&#34;
     return self._gateprocess</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.gateway"><code class="name">var <span class="ident">gateway</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.gateway"><code class="name">var <span class="ident">gateway</span> : py4j.java_gateway.JavaGateway</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the py4j JavaGateway instance. This object provides the method
+help(jvm.some.object) for getting help about known Java objects.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gateway(self):
+def gateway(self) -&gt; py4j.java_gateway.JavaGateway:
+    &#34;&#34;&#34;
+    Return the py4j JavaGateway instance. This object provides the method
+    help(jvm.some.object) for getting help about known Java objects.
+    &#34;&#34;&#34;
     return self._gateway</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.host"><code class="name">var <span class="ident">host</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.getpid"><code class="name">var <span class="ident">getpid</span> : Optional[int]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get the process id (or None if no process).</p>
+<h2 id="returns">Returns</h2>
+<p>Process ID (int)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def host(self):
+def getpid(self) -&gt; Optional[int]:
+    &#34;&#34;&#34;
+    Get the process id (or None if no process).
+
+    Returns:
+        Process ID (int)
+
+    &#34;&#34;&#34;
+    proc = self.gateprocess
+    if proc:
+        return proc.pid</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.host"><code class="name">var <span class="ident">host</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Return the host name or address of the connected GATE process as a str.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def host(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the host name or address of the connected GATE process as a str.
+    &#34;&#34;&#34;
     return self._host</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.jvm"><code class="name">var <span class="ident">jvm</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.jvm"><code class="name">var <span class="ident">jvm</span> : py4j.java_gateway.JVMView</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the JVM instance which allows to interact with Java.</p>
+<h2 id="returns">Returns</h2>
+<p>The JVMView instance</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def jvm(self):
+def jvm(self) -&gt; py4j.java_gateway.JVMView:
+    &#34;&#34;&#34;
+    Returns the JVM instance which allows to interact with Java.
+
+    Returns:
+        The JVMView instance
+
+    &#34;&#34;&#34;
     return self.gateway.jvm</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.platform"><code class="name">var <span class="ident">platform</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.platform"><code class="name">var <span class="ident">platform</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -2419,55 +2688,73 @@ def jvm(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def platform(self):
+def platform(self) -&gt; Optional[str]:
     return self._platform</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.port"><code class="name">var <span class="ident">port</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.port"><code class="name">var <span class="ident">port</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the port of the connected GATE process as an int.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def port(self):
+def port(self) -&gt; int:
+    &#34;&#34;&#34;
+    Return the port of the connected GATE process as an int.
+    &#34;&#34;&#34;
     return self._port</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.worker"><code class="name">var <span class="ident">worker</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker"><code class="name">var <span class="ident">worker</span> : py4j.java_gateway.JavaObject</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A JavaObject which provides the methods on the Java side.</p>
+<h2 id="returns">Returns</h2>
+<p>The worker JavaObject</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def worker(self):
+def worker(self) -&gt; py4j.java_gateway.JavaObject:
+    &#34;&#34;&#34;
+    A JavaObject which provides the methods on the Java side.
+
+    Returns:
+        The worker JavaObject
+
+    &#34;&#34;&#34;
     return self.gateway.entry_point</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_build"><code class="name">var <span class="ident">worker_build</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_build"><code class="name">var <span class="ident">worker_build</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the build id of the Worker of the connected GATE proces..</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def worker_build(self):
+def worker_build(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the build id of the Worker of the connected GATE proces..
+    &#34;&#34;&#34;
     return self.worker.pluginBuild()</code></pre>
 </details>
 </dd>
-<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_version"><code class="name">var <span class="ident">worker_version</span></code></dt>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.worker_version"><code class="name">var <span class="ident">worker_version</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the Gate Worker version of the connected GATE process.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def worker_version(self):
+def worker_version(self) -&gt; str:
+    &#34;&#34;&#34;
+    Return the Gate Worker version of the connected GATE process.
+    &#34;&#34;&#34;
     return self.worker.pluginVersion()</code></pre>
 </details>
 </dd>
@@ -2501,7 +2788,7 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.createDocument"><code class="name flex">
-<span>def <span class="ident">createDocument</span></span>(<span>self, content)</span>
+<span>def <span class="ident">createDocument</span></span>(<span>self, content: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a Java GATE document from the content string and return a handle to it.</p>
@@ -2516,7 +2803,7 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def createDocument(self, content):
+<pre><code class="python">def createDocument(self, content: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Create a Java GATE document from the content string and return a handle to it.
 
@@ -2530,7 +2817,7 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.del_resource"><code class="name flex">
-<span>def <span class="ident">del_resource</span></span>(<span>self, resource)</span>
+<span>def <span class="ident">del_resource</span></span>(<span>self, resource: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>DEPRECATED: please use deleteResource(resource) instead!</p>
@@ -2544,7 +2831,7 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def del_resource(self, resource):
+<pre><code class="python">def del_resource(self, resource: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     DEPRECATED: please use deleteResource(resource) instead!
 
@@ -2557,7 +2844,7 @@ Note: if it was started by us, it was started via the workerrunner.</p></div>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.deleteResource"><code class="name flex">
-<span>def <span class="ident">deleteResource</span></span>(<span>self, resource)</span>
+<span>def <span class="ident">deleteResource</span></span>(<span>self, resource: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
@@ -2574,7 +2861,7 @@ GATE document does not delete/unload the document!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def deleteResource(self, resource):
+<pre><code class="python">def deleteResource(self, resource: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     Delete/unload a Java GATE resource (Document, Corpus, ProcessingResource etc) from GATE.
     This is particularly important to do when processing a large number of documents for each document
@@ -2589,7 +2876,7 @@ GATE document does not delete/unload the document!</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.findMavenPlugin"><code class="name flex">
-<span>def <span class="ident">findMavenPlugin</span></span>(<span>self, group, artifact)</span>
+<span>def <span class="ident">findMavenPlugin</span></span>(<span>self, group: str, artifact: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.</p>
@@ -2606,7 +2893,7 @@ GATE document does not delete/unload the document!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def findMavenPlugin(self, group, artifact):
+<pre><code class="python">def findMavenPlugin(self, group: str, artifact: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Find a Java GATE Maven plugin and return a handle to it, or None if nothing found.
 
@@ -2621,7 +2908,7 @@ GATE document does not delete/unload the document!</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.gdoc2pdoc"><code class="name flex">
-<span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc)</span>
+<span>def <span class="ident">gdoc2pdoc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject) ‑> <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert the GATE document to a python document and return it.</p>
@@ -2636,7 +2923,7 @@ GATE document does not delete/unload the document!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gdoc2pdoc(self, gdoc):
+<pre><code class="python">def gdoc2pdoc(self, gdoc: py4j.java_gateway.JavaObject) -&gt; Document:
     &#34;&#34;&#34;
     Convert the GATE document to a python document and return it.
 
@@ -2651,7 +2938,7 @@ GATE document does not delete/unload the document!</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.gdocanns2pdoc"><code class="name flex">
-<span>def <span class="ident">gdocanns2pdoc</span></span>(<span>self, gdoc, pdoc, annspec=None, replace=False)</span>
+<span>def <span class="ident">gdocanns2pdoc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, pdoc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, annspec: Optional[List[Tuple[]]] = None, replace: bool = False) ‑> <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Retrieve the annotations from the GATE document and add them to the python gatenlp document.
@@ -2675,7 +2962,8 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gdocanns2pdoc(self, gdoc, pdoc, annspec=None, replace=False):
+<pre><code class="python">def gdocanns2pdoc(self, gdoc: py4j.java_gateway.JavaObject, pdoc: Document,
+                  annspec: Optional[List[Tuple]] = None, replace: bool = False) -&gt; Document:
     &#34;&#34;&#34;
     Retrieve the annotations from the GATE document and add them to the python gatenlp document.
     This modifies the pdoc in place and returns it.
@@ -2718,7 +3006,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getBdocJson"><code class="name flex">
-<span>def <span class="ident">getBdocJson</span></span>(<span>self, gdoc)</span>
+<span>def <span class="ident">getBdocJson</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the Bdoc JSON serialization of a Java GATE document as string.</p>
@@ -2733,7 +3021,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getBdocJson(self, gdoc):
+<pre><code class="python">def getBdocJson(self, gdoc: py4j.java_gateway.JavaObject) -&gt; str:
     &#34;&#34;&#34;
     Return the Bdoc JSON serialization of a Java GATE document as string.
 
@@ -2747,7 +3035,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getCorpus4Name"><code class="name flex">
-<span>def <span class="ident">getCorpus4Name</span></span>(<span>self, name)</span>
+<span>def <span class="ident">getCorpus4Name</span></span>(<span>self, name: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a handle to the first Java GATE corpus with the given name or None if none found.</p>
@@ -2762,7 +3050,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getCorpus4Name(self, name):
+<pre><code class="python">def getCorpus4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Return a handle to the first Java GATE corpus with the given name or None if none found.
 
@@ -2776,7 +3064,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getCorpusNames"><code class="name flex">
-<span>def <span class="ident">getCorpusNames</span></span>(<span>self)</span>
+<span>def <span class="ident">getCorpusNames</span></span>(<span>self) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a list of all Java GATE corpus names known.</p>
@@ -2786,7 +3074,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getCorpusNames(self):
+<pre><code class="python">def getCorpusNames(self) -&gt; List[str]:
     &#34;&#34;&#34;
     Return a list of all Java GATE corpus names known.
 
@@ -2797,7 +3085,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getDocument4BdocJson"><code class="name flex">
-<span>def <span class="ident">getDocument4BdocJson</span></span>(<span>self, bdocjson)</span>
+<span>def <span class="ident">getDocument4BdocJson</span></span>(<span>self, bdocjson: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a handle to a Java GATE document created from the Bdoc JSON string.</p>
@@ -2812,7 +3100,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getDocument4BdocJson(self, bdocjson):
+<pre><code class="python">def getDocument4BdocJson(self, bdocjson: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Returns a handle to a Java GATE document created from the Bdoc JSON string.
 
@@ -2826,7 +3114,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getDocument4Name"><code class="name flex">
-<span>def <span class="ident">getDocument4Name</span></span>(<span>self, name)</span>
+<span>def <span class="ident">getDocument4Name</span></span>(<span>self, name: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a handle to the first Java GATE document that has the given name or None if none found.</p>
@@ -2841,7 +3129,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getDocument4Name(self, name):
+<pre><code class="python">def getDocument4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Return a handle to the first Java GATE document that has the given name or None if none found.
 
@@ -2855,7 +3143,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getDocumentNames"><code class="name flex">
-<span>def <span class="ident">getDocumentNames</span></span>(<span>self)</span>
+<span>def <span class="ident">getDocumentNames</span></span>(<span>self) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a list of known Java GATE document names.</p>
@@ -2865,7 +3153,7 @@ annotaitons with potentially a new annotation id.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getDocumentNames(self):
+<pre><code class="python">def getDocumentNames(self) -&gt; List[str]:
     &#34;&#34;&#34;
     Return a list of known Java GATE document names.
 
@@ -2876,7 +3164,7 @@ annotaitons with potentially a new annotation id.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getPipeline4Name"><code class="name flex">
-<span>def <span class="ident">getPipeline4Name</span></span>(<span>self, name)</span>
+<span>def <span class="ident">getPipeline4Name</span></span>(<span>self, name: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a handle to the first Java GATE pipeline/controller that has the given name or
@@ -2892,7 +3180,7 @@ None if none found.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getPipeline4Name(self, name):
+<pre><code class="python">def getPipeline4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Return a handle to the first Java GATE pipeline/controller that has the given name or
     None if none found.
@@ -2907,7 +3195,7 @@ None if none found.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getPipelineNames"><code class="name flex">
-<span>def <span class="ident">getPipelineNames</span></span>(<span>self)</span>
+<span>def <span class="ident">getPipelineNames</span></span>(<span>self) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a list of all know Java GATE pipeline names.</p>
@@ -2917,7 +3205,7 @@ None if none found.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getPipelineNames(self):
+<pre><code class="python">def getPipelineNames(self) -&gt; List[str]:
     &#34;&#34;&#34;
     Return a list of all know Java GATE pipeline names.
 
@@ -2928,7 +3216,7 @@ None if none found.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getPr4Name"><code class="name flex">
-<span>def <span class="ident">getPr4Name</span></span>(<span>self, name)</span>
+<span>def <span class="ident">getPr4Name</span></span>(<span>self, name: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a handle to the first Java GATE processing resource that has the given name
@@ -2944,7 +3232,7 @@ or None if none found.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getPr4Name(self, name):
+<pre><code class="python">def getPr4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Return a handle to the first Java GATE processing resource that has the given name
     or None if none found.
@@ -2959,7 +3247,7 @@ or None if none found.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getPrNames"><code class="name flex">
-<span>def <span class="ident">getPrNames</span></span>(<span>self)</span>
+<span>def <span class="ident">getPrNames</span></span>(<span>self) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a list of known Java GATE
@@ -2970,7 +3258,7 @@ processing resource names.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getPrNames(self):
+<pre><code class="python">def getPrNames(self) -&gt; List[str]:
     &#34;&#34;&#34;
     Return a list of known Java GATE  processing resource names.
 
@@ -2981,7 +3269,7 @@ processing resource names.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getResources4Name"><code class="name flex">
-<span>def <span class="ident">getResources4Name</span></span>(<span>self, name)</span>
+<span>def <span class="ident">getResources4Name</span></span>(<span>self, name: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a (possibly empty) list of all Java GATE resources with the given name.</p>
@@ -2996,7 +3284,7 @@ processing resource names.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getResources4Name(self, name):
+<pre><code class="python">def getResources4Name(self, name: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Return a (possibly empty) list of all Java GATE resources with the given name.
 
@@ -3010,7 +3298,7 @@ processing resource names.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass"><code class="name flex">
-<span>def <span class="ident">getResources4NameClass</span></span>(<span>self, name, clazz)</span>
+<span>def <span class="ident">getResources4NameClass</span></span>(<span>self, name: str, clazz: str) ‑> List[py4j.java_gateway.JavaObject]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return a (possibly empty) list of all Java GATE resources with the given name and class name.</p>
@@ -3027,7 +3315,7 @@ processing resource names.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getResources4NameClass(self, name, clazz):
+<pre><code class="python">def getResources4NameClass(self, name: str, clazz: str) -&gt; List[py4j.java_gateway.JavaObject]:
     &#34;&#34;&#34;
     Return a (possibly empty) list of all Java GATE resources with the given name and class name.
 
@@ -3042,7 +3330,7 @@ processing resource names.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc"><code class="name flex">
-<span>def <span class="ident">jsonAnnsets4Doc</span></span>(<span>self, gdoc, jannspec=None)</span>
+<span>def <span class="ident">jsonAnnsets4Doc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, jannspec: py4j.java_gateway.JavaObject) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the JSON representation of the annotation sets in the GATE document, optionally
@@ -3060,12 +3348,15 @@ specification to the Java annotation specification.</p>
 <dt><strong><code>jannspec</code></strong></dt>
 <dd>the annotation specification list as a Java list</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>JSON string</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def jsonAnnsets4Doc(self, gdoc, jannspec=None):
+<pre><code class="python">def jsonAnnsets4Doc(self,
+                    gdoc: py4j.java_gateway.JavaObject,
+                    jannspec: py4j.java_gateway.JavaObject) -&gt; str:
     &#34;&#34;&#34;
     Return the JSON representation of the annotation sets in the GATE document, optionally
     filtered by the given annotation specification.
@@ -3083,13 +3374,13 @@ specification to the Java annotation specification.</p>
         jannspec: the annotation specification list as a Java list
 
     Returns:
-
+        JSON string
     &#34;&#34;&#34;
     return self.worker.jsonAnnsets4Doc(gdoc, jannspec)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile"><code class="name flex">
-<span>def <span class="ident">loadDocumentFromFile</span></span>(<span>self, filename)</span>
+<span>def <span class="ident">loadDocumentFromFile</span></span>(<span>self, filename: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a Java GATE document from the given file name and return a handle to it.</p>
@@ -3104,7 +3395,7 @@ specification to the Java annotation specification.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadDocumentFromFile(self, filename):
+<pre><code class="python">def loadDocumentFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Load a Java GATE document from the given file name and return a handle to it.
 
@@ -3118,7 +3409,7 @@ specification to the Java annotation specification.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadDocumentFromFile4Mime"><code class="name flex">
-<span>def <span class="ident">loadDocumentFromFile4Mime</span></span>(<span>self, filename, mimetype)</span>
+<span>def <span class="ident">loadDocumentFromFile4Mime</span></span>(<span>self, filename: str, mimetype: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a Java GATE document from the given file name, using the given mime type
@@ -3136,7 +3427,7 @@ and return a handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadDocumentFromFile4Mime(self, filename, mimetype):
+<pre><code class="python">def loadDocumentFromFile4Mime(self, filename: str, mimetype: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Load a Java GATE document from the given file name, using the given mime type
     and return a handle to it.
@@ -3152,7 +3443,7 @@ and return a handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadMavenPlugin"><code class="name flex">
-<span>def <span class="ident">loadMavenPlugin</span></span>(<span>self, group, artifact, version)</span>
+<span>def <span class="ident">loadMavenPlugin</span></span>(<span>self, group: str, artifact: str, version: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load the given Maven plugin into Java GATE.</p>
@@ -3169,7 +3460,7 @@ and return a handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadMavenPlugin(self, group, artifact, version):
+<pre><code class="python">def loadMavenPlugin(self, group: str, artifact: str, version: str):
     &#34;&#34;&#34;
     Load the given Maven plugin into Java GATE.
 
@@ -3182,7 +3473,7 @@ and return a handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromFile"><code class="name flex">
-<span>def <span class="ident">loadPipelineFromFile</span></span>(<span>self, filename)</span>
+<span>def <span class="ident">loadPipelineFromFile</span></span>(<span>self, filename: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.</p>
@@ -3197,7 +3488,7 @@ and return a handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadPipelineFromFile(self, filename):
+<pre><code class="python">def loadPipelineFromFile(self, filename: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Load a pipeline/controller from the given file into Java GATE and return a CorpusController handle to it.
 
@@ -3211,7 +3502,7 @@ and return a handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromPlugin"><code class="name flex">
-<span>def <span class="ident">loadPipelineFromPlugin</span></span>(<span>self, group, artifact, path)</span>
+<span>def <span class="ident">loadPipelineFromPlugin</span></span>(<span>self, group: str, artifact: str, path: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
@@ -3231,7 +3522,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadPipelineFromPlugin(self, group, artifact, path):
+<pre><code class="python">def loadPipelineFromPlugin(self, group: str, artifact: str, path: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Load a prepared pipeline from the given loaded GATE Mave plugin into Java GATE and return
     a CorpusController handle to it.
@@ -3248,7 +3539,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.loadPipelineFromUri"><code class="name flex">
-<span>def <span class="ident">loadPipelineFromUri</span></span>(<span>self, uri)</span>
+<span>def <span class="ident">loadPipelineFromUri</span></span>(<span>self, uri: str) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.</p>
@@ -3263,7 +3554,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loadPipelineFromUri(self, uri):
+<pre><code class="python">def loadPipelineFromUri(self, uri: str) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Load a pipeline/controller from the given uri into Java GATE and return a CorpusController handle to it.
 
@@ -3277,7 +3568,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.load_gdoc"><code class="name flex">
-<span>def <span class="ident">load_gdoc</span></span>(<span>self, path, mimetype=None)</span>
+<span>def <span class="ident">load_gdoc</span></span>(<span>self, path: str, mimetype: Optional[str] = None) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Let GATE load a document from the given path and return a handle to it.</p>
@@ -3294,7 +3585,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_gdoc(self, path, mimetype=None):
+<pre><code class="python">def load_gdoc(self, path: str, mimetype: Optional[str] = None) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Let GATE load a document from the given path and return a handle to it.
 
@@ -3311,7 +3602,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.load_pdoc"><code class="name flex">
-<span>def <span class="ident">load_pdoc</span></span>(<span>self, path, mimetype=None)</span>
+<span>def <span class="ident">load_pdoc</span></span>(<span>self, path: str, mimetype: Optional[str] = None) ‑> <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a document from the given path, using GATE and convert and return as gatenlp Python document.</p>
@@ -3328,7 +3619,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_pdoc(self, path, mimetype=None):
+<pre><code class="python">def load_pdoc(self, path: str, mimetype: Optional[str] = None) -&gt; Document:
     &#34;&#34;&#34;
     Load a document from the given path, using GATE and convert and return as gatenlp Python document.
 
@@ -3344,7 +3635,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.logActions"><code class="name flex">
-<span>def <span class="ident">logActions</span></span>(<span>self, flag)</span>
+<span>def <span class="ident">logActions</span></span>(<span>self, flag: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.</p>
@@ -3357,7 +3648,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def logActions(self, flag):
+<pre><code class="python">def logActions(self, flag: bool):
     &#34;&#34;&#34;
     Enable/disable logging of actions carried out on the Java GATE side to the Java GATE logger.
 
@@ -3368,7 +3659,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.log_actions"><code class="name flex">
-<span>def <span class="ident">log_actions</span></span>(<span>self, onoff)</span>
+<span>def <span class="ident">log_actions</span></span>(<span>self, onoff: bool)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Switch logging actions at the worker on or off.</p>
@@ -3381,7 +3672,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def log_actions(self, onoff):
+<pre><code class="python">def log_actions(self, onoff: bool):
     &#34;&#34;&#34;
     Switch logging actions at the worker on or off.
 
@@ -3392,7 +3683,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.newCorpus"><code class="name flex">
-<span>def <span class="ident">newCorpus</span></span>(<span>self)</span>
+<span>def <span class="ident">newCorpus</span></span>(<span>self) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create and return a handle to a new Java GATE corpus.</p>
@@ -3402,7 +3693,7 @@ a CorpusController handle to it.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def newCorpus(self):
+<pre><code class="python">def newCorpus(self) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Create and return a handle to a new Java GATE corpus.
 
@@ -3413,7 +3704,7 @@ a CorpusController handle to it.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.pannspec2gannspec"><code class="name flex">
-<span>def <span class="ident">pannspec2gannspec</span></span>(<span>self, annspec=None)</span>
+<span>def <span class="ident">pannspec2gannspec</span></span>(<span>self, annspec: Union[str, List[Union[str, Tuple[]]]] = None) ‑> Optional[py4j.java_gateway.JavaObject]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert from our convention to specifiy annotation sets and types to a Java list.
@@ -3431,7 +3722,8 @@ The list returned from this is already a Java list!</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pannspec2gannspec(self, annspec=None):
+<pre><code class="python">def pannspec2gannspec(self,
+                      annspec: Union[str, List[Union[str, Tuple]]]=None) -&gt; Optional[py4j.java_gateway.JavaObject]:
     &#34;&#34;&#34;
     Convert from our convention to specifiy annotation sets and types to a Java list.
     This is necessary because py4j does not by default convert lists properly and also
@@ -3449,6 +3741,8 @@ The list returned from this is already a Java list!</p>
     # annspec is a python collection and cannot be passed directly to Java
     # see https://www.py4j.org/advanced_topics.html#collections-conversion
     from py4j.java_collections import ListConverter
+    if isinstance(annspec, str):
+        annspec = [annspec]
     newannspec = []
     for spec in annspec:
         if isinstance(spec, str):
@@ -3468,7 +3762,7 @@ The list returned from this is already a Java list!</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc"><code class="name flex">
-<span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc, annspec=None)</span>
+<span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, annspec: Optional[List[Tuple[]]] = None) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert the Python gatenlp document to a GATE document and return a handle to it.</p>
@@ -3486,7 +3780,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pdoc2gdoc(self, pdoc, annspec=None):
+<pre><code class="python">def pdoc2gdoc(self, pdoc: Document, annspec: Optional[List[Tuple]] = None) -&gt; py4j.java_gateway.JavaObject:
     &#34;&#34;&#34;
     Convert the Python gatenlp document to a GATE document and return a handle to it.
 
@@ -3503,7 +3797,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.pluginBuild"><code class="name flex">
-<span>def <span class="ident">pluginBuild</span></span>(<span>self)</span>
+<span>def <span class="ident">pluginBuild</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the short commit id of the Python plugin on the Java GATE side.</p>
@@ -3513,7 +3807,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pluginBuild(self):
+<pre><code class="python">def pluginBuild(self) -&gt; str:
     &#34;&#34;&#34;
     Return the short commit id of the Python plugin on the Java GATE side.
 
@@ -3524,7 +3818,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.pluginVersion"><code class="name flex">
-<span>def <span class="ident">pluginVersion</span></span>(<span>self)</span>
+<span>def <span class="ident">pluginVersion</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Return the version string of the Python plugin on the Java GATE side.</p>
@@ -3534,7 +3828,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pluginVersion(self):
+<pre><code class="python">def pluginVersion(self) -&gt; str:
     &#34;&#34;&#34;
     Return the version string of the Python plugin on the Java GATE side.
 
@@ -3545,7 +3839,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.print2err"><code class="name flex">
-<span>def <span class="ident">print2err</span></span>(<span>self, message)</span>
+<span>def <span class="ident">print2err</span></span>(<span>self, message: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Output the given message to System.err on the Java GATE side.</p>
@@ -3558,7 +3852,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def print2err(self, message):
+<pre><code class="python">def print2err(self, message: str):
     &#34;&#34;&#34;
     Output the given message to System.err on the Java GATE side.
 
@@ -3569,7 +3863,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.print2out"><code class="name flex">
-<span>def <span class="ident">print2out</span></span>(<span>self, message)</span>
+<span>def <span class="ident">print2out</span></span>(<span>self, message: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Output the given message to System.out on the Java GATE side.</p>
@@ -3582,7 +3876,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def print2out(self, message):
+<pre><code class="python">def print2out(self, message: str):
     &#34;&#34;&#34;
     Output the given message to System.out on the Java GATE side.
 
@@ -3593,7 +3887,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.run4Corpus"><code class="name flex">
-<span>def <span class="ident">run4Corpus</span></span>(<span>self, pipeline, corpus)</span>
+<span>def <span class="ident">run4Corpus</span></span>(<span>self, pipeline: py4j.java_gateway.JavaObject, corpus: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the given Java GATE pipeline on the given Java GATE corpus.</p>
@@ -3608,7 +3902,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run4Corpus(self, pipeline, corpus):
+<pre><code class="python">def run4Corpus(self, pipeline: py4j.java_gateway.JavaObject, corpus: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     Run the given Java GATE pipeline on the given Java GATE corpus.
 
@@ -3620,7 +3914,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.run4Document"><code class="name flex">
-<span>def <span class="ident">run4Document</span></span>(<span>self, pipeline, gdoc)</span>
+<span>def <span class="ident">run4Document</span></span>(<span>self, pipeline: py4j.java_gateway.JavaObject, gdoc: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the given Java GATE pipeline on the given Java GATE document.</p>
@@ -3635,7 +3929,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run4Document(self, pipeline, gdoc):
+<pre><code class="python">def run4Document(self, pipeline: py4j.java_gateway.JavaObject, gdoc: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     Run the given Java GATE pipeline on the given Java GATE document.
 
@@ -3647,7 +3941,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.runExcecutionFinished"><code class="name flex">
-<span>def <span class="ident">runExcecutionFinished</span></span>(<span>self, pipeline)</span>
+<span>def <span class="ident">runExcecutionFinished</span></span>(<span>self, pipeline: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the execution finished method for the given Java GATE pipeline.</p>
@@ -3660,7 +3954,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def runExcecutionFinished(self, pipeline):
+<pre><code class="python">def runExcecutionFinished(self, pipeline: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     Run the execution finished method for the given Java GATE pipeline.
 
@@ -3671,7 +3965,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.runExcecutionStarted"><code class="name flex">
-<span>def <span class="ident">runExcecutionStarted</span></span>(<span>self, pipeline)</span>
+<span>def <span class="ident">runExcecutionStarted</span></span>(<span>self, pipeline: py4j.java_gateway.JavaObject)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run the execution started method for the given Java GATE pipeline.</p>
@@ -3684,7 +3978,7 @@ second element is either a type name or a list of type names.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def runExcecutionStarted(self, pipeline):
+<pre><code class="python">def runExcecutionStarted(self, pipeline: py4j.java_gateway.JavaObject):
     &#34;&#34;&#34;
     Run the execution started method for the given Java GATE pipeline.
 
@@ -3695,7 +3989,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.saveDocumentToFile"><code class="name flex">
-<span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc, filename, mimetype)</span>
+<span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save the Java GATE document to the given file, using the given mime type.
@@ -3715,7 +4009,7 @@ FormatBdoc plugins.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def saveDocumentToFile(self, gdoc, filename, mimetype):
+<pre><code class="python">def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
     &#34;&#34;&#34;
     Save the Java GATE document to the given file, using the given mime type.
     At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -3730,7 +4024,7 @@ FormatBdoc plugins.</p>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.save_gdoc"><code class="name flex">
-<span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc, path, mimetype=None)</span>
+<span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save GATE document to the given path.</p>
@@ -3749,7 +4043,7 @@ Format_Bdoc plugin. (Default value = None)</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_gdoc(self, gdoc, path, mimetype=None):
+<pre><code class="python">def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
     &#34;&#34;&#34;
     Save GATE document to the given path.
 
@@ -3821,7 +4115,8 @@ when closing down the GATE worker.</p></div>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="gatenlp.gateworker.gateworker.check_port_used" href="#gatenlp.gateworker.gateworker.check_port_used">check_port_used</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.classpath_sep" href="#gatenlp.gateworker.gateworker.classpath_sep">classpath_sep</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.gate_classpath" href="#gatenlp.gateworker.gateworker.gate_classpath">gate_classpath</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.jar_loc" href="#gatenlp.gateworker.gateworker.jar_loc">jar_loc</a></code></li>
@@ -3858,6 +4153,7 @@ when closing down the GATE worker.</p></div>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getPrNames" href="#gatenlp.gateworker.gateworker.GateWorker.getPrNames">getPrNames</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getResources4Name" href="#gatenlp.gateworker.gateworker.GateWorker.getResources4Name">getResources4Name</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass" href="#gatenlp.gateworker.gateworker.GateWorker.getResources4NameClass">getResources4NameClass</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.getpid" href="#gatenlp.gateworker.gateworker.GateWorker.getpid">getpid</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.host" href="#gatenlp.gateworker.gateworker.GateWorker.host">host</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc" href="#gatenlp.gateworker.gateworker.GateWorker.jsonAnnsets4Doc">jsonAnnsets4Doc</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.jvm" href="#gatenlp.gateworker.gateworker.GateWorker.jvm">jvm</a></code></li>

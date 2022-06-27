@@ -42,8 +42,10 @@ from gatenlp.utils import init_logger
 
 logger = init_logger(&#34;gateworker-annotator&#34;)
 
+__pdoc__ = {&#34;GateWorkerAnnotator.__call__&#34;: True}
 
-class GateWorkerAnnotator(Annotator):   # pragma: no cover
+
+class GateWorkerAnnotator(Annotator):
     # TODO: parameter to influence how exceptions are handled
     def __init__(
             self,
@@ -79,7 +81,7 @@ class GateWorkerAnnotator(Annotator):   # pragma: no cover
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            gateworker: the GateWorker instance to use
             annspec_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
@@ -190,7 +192,7 @@ for idx, doc in enumerate(mycorpus):
 <dt><strong><code>pipeline</code></strong></dt>
 <dd>the path to a Java GATE pipeline to load into the GATE worker</dd>
 <dt><strong><code>gateworker</code></strong></dt>
-<dd>the gate home directory to use, if not set, uses environment variable GATE_HOME</dd>
+<dd>the GateWorker instance to use</dd>
 <dt><strong><code>annspec_send</code></strong></dt>
 <dd>a list of either annotation set names, or tuples where the first element
 is the name of an annotation set and the second element is either the name of a type
@@ -216,7 +218,7 @@ received from Java GATE.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GateWorkerAnnotator(Annotator):   # pragma: no cover
+<pre><code class="python">class GateWorkerAnnotator(Annotator):
     # TODO: parameter to influence how exceptions are handled
     def __init__(
             self,
@@ -252,7 +254,7 @@ received from Java GATE.</dd>
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            gateworker: the GateWorker instance to use
             annspec_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
@@ -333,6 +335,57 @@ received from Java GATE.</dd>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.__call__"><code class="name flex">
+<span>def <span class="ident">__call__</span></span>(<span>self, doc, **_kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the GATE controller on the given document.</p>
+<p>This runs the GATE pipeline (controller) on the given document by first sending the document
+to the GATE process and coverting it to a GATE document there, running the pipeline on it,
+and sending the document back and converting back to a new gatenlp Document.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>the document to process</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>ignored so far</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>the processed gatenlp document</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __call__(self, doc, **_kwargs):
+    &#34;&#34;&#34;
+    Run the GATE controller on the given document.
+
+    This runs the GATE pipeline (controller) on the given document by first sending the document
+    to the GATE process and coverting it to a GATE document there, running the pipeline on it,
+    and sending the document back and converting back to a new gatenlp Document.
+
+    Args:
+        doc: the document to process
+        **kwargs: ignored so far
+
+    Returns:
+        the processed gatenlp document
+    &#34;&#34;&#34;
+    if self.annspec_send is not None:
+        # create shallow copy, we only need it for reading!
+        tmpdoc = doc.copy(annspec=self.annspec_send)
+    else:
+        tmpdoc = doc
+    gdoc = self.gateworker.pdoc2gdoc(tmpdoc)
+    self.gateworker.worker.run4Document(self.controller, gdoc)
+    if self.update_document:
+        self.gateworker.gdocanns2pdoc(gdoc, doc, annspec=self.annspec_receive, replace=self.replace_anns)
+    else:
+        doc = self.gateworker.gdoc2pdoc(gdoc)
+    self.gateworker.del_resource(gdoc)
+    return doc</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish"><code class="name flex">
 <span>def <span class="ident">finish</span></span>(<span>self)</span>
 </code></dt>
@@ -370,7 +423,6 @@ received from Java GATE.</dd>
 <ul class="hlist">
 <li><code><b><a title="gatenlp.processing.annotator.Annotator" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator">Annotator</a></b></code>:
 <ul class="hlist">
-<li><code><a title="gatenlp.processing.annotator.Annotator.__call__" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.pipe" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.pipe">pipe</a></code></li>
 <li><code><a title="gatenlp.processing.annotator.Annotator.reduce" href="../processing/annotator.html#gatenlp.processing.annotator.Annotator.reduce">reduce</a></code></li>
 </ul>
@@ -396,6 +448,7 @@ received from Java GATE.</dd>
 <li>
 <h4><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator">GateWorkerAnnotator</a></code></h4>
 <ul class="">
+<li><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.__call__" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.__call__">__call__</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.finish">finish</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.start" href="#gatenlp.gateworker.gateworkerannotator.GateWorkerAnnotator.start">start</a></code></li>
 </ul>

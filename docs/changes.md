@@ -3,6 +3,7 @@
 ## Upcoming version
 
 * Removed dependency on the recordclass package and removed `gazetteer` extra (no specific dependencies needed for the gazetteer classes any more)
+* The GateWorker by default now automatically tries additional ports when the default or specified port is in use when starting.
 * Added the `EmojiAnnotator` 
 * Added the command `gatenlp-dir2dir` for running a pipeline either in 
   a single process or in several processes in parallel using [Ray](https://www.ray.io/)

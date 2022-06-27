@@ -1,4 +1,5 @@
 .idea*
+/docs/.obsidian
 
 /html-ann-viewer/debug*
 /tmpdebug
