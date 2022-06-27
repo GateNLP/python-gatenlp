@@ -1249,10 +1249,8 @@ class AnnotationSet:
             self._create_index_by_offset()
             intvs = self._index_by_offset.within(start, end)
         if not include_self and ann is not None and ann in self:
-            print("DEBUG: SETTING ID TO ", ann.id)
             ignore_id = ann.id
         else:
-            print("DEBUG: NOT SETTING ID")
             ignore_id = None
         return self._restrict_intvs(intvs, ignore_id=ignore_id)
 

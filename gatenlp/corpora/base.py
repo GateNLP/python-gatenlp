@@ -14,7 +14,7 @@ import random
 from abc import ABC, abstractmethod
 from typing import Iterable as TypingIterable
 from typing import Iterator as TypingIterator
-from typing import Sized
+from typing import Sized, Tuple
 from typing import Union
 from itertools import accumulate, chain
 from contextlib import AbstractContextManager
@@ -478,11 +478,11 @@ class ConcatCorpus(Corpus):
         Parameters:
             corpora: an iterable of corpus instances
         """
-        self.corpora = corpora
+        self.corpora = list(corpora)
         self.sizes = [len(c) for c in corpora]
-        self.idxs = accumulate(self.sizes)
+        self.idxs = list(accumulate(self.sizes))
 
-    def idx2ci(self, idx):
+    def idx2ci(self, idx: int) -> Tuple[int, int]:
         """
         For a given index idx, return a tuple with the index of the corpus in the corpus list and the index
         of the entry within that corpus
@@ -495,7 +495,7 @@ class ConcatCorpus(Corpus):
         if cidx == 0:
             eidx = idx
         else:
-            eidx = self[cidx-1] - idx
+            eidx = self.idxs[cidx-1] - idx
         return cidx, eidx
 
     def __getitem__(self, idx):

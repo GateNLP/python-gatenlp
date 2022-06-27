@@ -243,7 +243,7 @@ class DirFilesDestination(DocumentDestination):
                 levels = 1
             else:
                 parms = rest.split(":")
-                parms.append(1)
+                parms.append("1")
                 digits, levels = parms[1:3]
                 digits = int(digits)
                 levels = int(levels)

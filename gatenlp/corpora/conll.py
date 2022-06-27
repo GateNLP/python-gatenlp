@@ -46,7 +46,7 @@ class ConllUFileSource(DocumentSource):
             sentence_type: annotation type for the sentence, must be specified
             add_feats: if True add document features that give details about what the document contains
         """
-        from conllu import parse, parse_incr
+        # from conllu import parse, parse_incr
         super().__init__()
         assert sentence_type is not None
         assert token_type is not None

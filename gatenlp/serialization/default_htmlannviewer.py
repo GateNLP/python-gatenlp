@@ -307,7 +307,7 @@ class HtmlAnnViewerSerializer:
             doc_style = gatenlpconfig.doc_html_repr_doc_style
         if doc_style is None:
             doc_style = ""
-        html = html.replace("$$TEXTSTYLE$$", doc_style, 1)
+        html = html.replace("$$DOCTEXTSTYLE$$", doc_style, 1)
         if to_mem:
             return html
         else:

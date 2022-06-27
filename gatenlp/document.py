@@ -465,14 +465,14 @@ class Document:
         if self._changelog:
             self._changelog.append({"command": "annotations:remove", "set": name})
 
-    def anns(self, ann_spec):
+    def anns(self, annspec):
         """
         Return a detached annotation set with all annotations which match the annotation specification.
         Annotation ids are preserved if possible, but if annotations from different sets have duplicate
         ids, new ids are assigned instead.
 
         Args:
-            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+            annspec: either a single string which is interpreted as an annotation set name, or a list where
                 each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
                 first element of the tuple must be the annotation set name and the second element either a type
                 name or a list of type names.
@@ -480,15 +480,15 @@ class Document:
         Returns:
             a detached, immutable set with all the annotations matching the annotation specification
         """
-        return AnnotationSet.create_from(self.yield_anns(ann_spec))
+        return AnnotationSet.create_from(self.yield_anns(annspec))
 
-    def yield_anns(self, ann_spec):
+    def yield_anns(self, annspec):
         """
         Yield all annotations which match the annotation specification.
         The order of the annotations is unespecified.
 
         Args:
-            annset_spec: either a single string which is interpreted as an annotation set name, or a list where
+            annspec: either a single string which is interpreted as an annotation set name, or a list where
                 each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
                 first element of the tuple must be the annotation set name and the second element either a type
                 name or a list of type names.
@@ -496,13 +496,13 @@ class Document:
         Yields:
             all the annotations matching the annotation specification
         """
-        if isinstance(ann_spec, str):
-            tmpset = self._annotation_sets.get(ann_spec)
+        if isinstance(annspec, str):
+            tmpset = self._annotation_sets.get(annspec)
             if tmpset is not None:
                 for ann in tmpset._annotations.values():
                     yield ann
             return
-        for spec in ann_spec:
+        for spec in annspec:
             if isinstance(spec, str):
                 tmpset = self._annotation_sets.get(spec)
                 if tmpset is not None:

@@ -13,6 +13,8 @@ from gatenlp.utils import init_logger
 
 logger = init_logger("gateworker-annotator")
 
+__pdoc__ = {"GateWorkerAnnotator.__call__": True}
+
 
 class GateWorkerAnnotator(Annotator):
     # TODO: parameter to influence how exceptions are handled
@@ -50,7 +52,7 @@ class GateWorkerAnnotator(Annotator):
 
         Args:
             pipeline: the path to a Java GATE pipeline to load into the GATE worker
-            gateworker: the gate home directory to use, if not set, uses environment variable GATE_HOME
+            gateworker: the GateWorker instance to use
             annspec_send: a list of either annotation set names, or tuples where the first element
                 is the name of an annotation set and the second element is either the name of a type
                 or a list of type names. If not None, only the sets/types specified are sent to Java GATE.
