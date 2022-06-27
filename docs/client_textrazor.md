@@ -7,7 +7,7 @@ The `TextRazorAnnotator` is an annotator that uses the  [TextRazor](https://www.
 ```python
 import os
 from gatenlp import Document
-from gatenlp.processing.client import TextRazorTextAnnotator
+from gatenlp.processing.client.textrazor import TextRazorTextAnnotator
 ```
 
 
@@ -30,12 +30,18 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -180,6 +186,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -215,15 +229,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -269,6 +277,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -280,17 +289,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -307,7 +323,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -458,25 +474,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#VGTWYMFUJZ-wrapper { color: black !important; }</style>
-<div id="VGTWYMFUJZ-wrapper">
+<div><style>#QWKUPTRMUF-wrapper { color: black !important; }</style>
+<div id="QWKUPTRMUF-wrapper">
 
 <div>
 <style>
-#VGTWYMFUJZ-content {
+#QWKUPTRMUF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.VGTWYMFUJZ-row {
+.QWKUPTRMUF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.VGTWYMFUJZ-col {
+.QWKUPTRMUF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -486,23 +502,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.VGTWYMFUJZ-hdr {
+.QWKUPTRMUF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.VGTWYMFUJZ-label {
+.QWKUPTRMUF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.VGTWYMFUJZ-input {
+.QWKUPTRMUF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#VGTWYMFUJZ-popup {
+#QWKUPTRMUF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -517,46 +533,56 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.VGTWYMFUJZ-selection {
+.QWKUPTRMUF-selection {
     margin-bottom: 5px;
 }
 
-.VGTWYMFUJZ-featuretable {
+.QWKUPTRMUF-featuretable {
     margin-top: 10px;
 }
 
-.VGTWYMFUJZ-fname {
+.QWKUPTRMUF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.VGTWYMFUJZ-fvalue {
+.QWKUPTRMUF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="VGTWYMFUJZ-content">
-        <div id="VGTWYMFUJZ-popup" style="display: none;">
+  <div id="QWKUPTRMUF-content">
+        <div id="QWKUPTRMUF-popup" style="display: none;">
         </div>
-        <div class="VGTWYMFUJZ-row" id="VGTWYMFUJZ-row1" style="min-height:5em;max-height:20em;">
-            <div id="VGTWYMFUJZ-text-wrapper" class="VGTWYMFUJZ-col" style="width:70%;">
-                <div class="VGTWYMFUJZ-hdr" id="VGTWYMFUJZ-dochdr"></div>
-                <div id="VGTWYMFUJZ-text" style="">
+        <div class="QWKUPTRMUF-row" id="QWKUPTRMUF-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="QWKUPTRMUF-text-wrapper" class="QWKUPTRMUF-col" style="width:70%;">
+                <div class="QWKUPTRMUF-hdr" id="QWKUPTRMUF-dochdr"></div>
+                <div id="QWKUPTRMUF-text" style="">
                 </div>
             </div>
-            <div id="VGTWYMFUJZ-chooser" class="VGTWYMFUJZ-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="QWKUPTRMUF-chooser" class="QWKUPTRMUF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="VGTWYMFUJZ-row" id="VGTWYMFUJZ-row2" style="min-height:3em;max-height:14em;">
-            <div id="VGTWYMFUJZ-details" class="VGTWYMFUJZ-col" style="width:100%;border-top-width:0px;">
+        <div class="QWKUPTRMUF-row" id="QWKUPTRMUF-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="QWKUPTRMUF-details" class="QWKUPTRMUF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let VGTWYMFUJZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"partOfSpeech": "NNP", "lemma": "barack", "stem": "barack"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"partOfSpeech": "NNP", "lemma": "obama", "stem": "obama"}}, {"type": "Token", "start": 13, "end": 20, "id": 2, "features": {"partOfSpeech": "VBD", "lemma": "visit", "stem": "visit"}}, {"type": "Token", "start": 21, "end": 30, "id": 3, "features": {"partOfSpeech": "NNP", "lemma": "microsoft", "stem": "microsoft"}}, {"type": "Token", "start": 31, "end": 33, "id": 4, "features": {"partOfSpeech": "IN", "lemma": "in", "stem": "in"}}, {"type": "Token", "start": 34, "end": 37, "id": 5, "features": {"partOfSpeech": "NNP", "lemma": "new", "stem": "new"}}, {"type": "Token", "start": 38, "end": 42, "id": 6, "features": {"partOfSpeech": "NNP", "lemma": "york", "stem": "york"}}, {"type": "Token", "start": 43, "end": 47, "id": 7, "features": {"partOfSpeech": "JJ", "lemma": "late", "stem": "last"}}, {"type": "Token", "start": 48, "end": 51, "id": 8, "features": {"partOfSpeech": "NNP", "lemma": "may", "stem": "may"}}, {"type": "Token", "start": 51, "end": 52, "id": 9, "features": {"partOfSpeech": ".", "lemma": ".", "stem": "."}}, {"type": "Sentence", "start": 0, "end": 52, "id": 10, "features": {}}, {"type": "Entity", "start": 0, "end": 12, "id": 11, "features": {"wikiLink": "http://en.wikipedia.org/wiki/Barack_Obama", "entityEnglishId": "Barack Obama", "wikidataId": "Q76", "relevanceScore": 0.0263, "confidenceScore": 7.243, "type": ["Agent", "Person", "Politician", "OfficeHolder", "President"], "freebaseId": "/m/02mjmr", "entityId": "Barack Obama", "freebaseTypes": ["/people/measured_person", "/organization/organization_founder", "/business/board_member", "/biology/animal_owner", "/government/u_s_congressperson", "/business/employer", "/government/political_appointer", "/internet/social_network_user", "/music/composer", "/visual_art/art_subject", "/award/award_winner", "/organization/organization_member", "/event/public_speaker", "/internet/blogger", "/music/group_member", "/architecture/building_occupant", "/influence/influence_node", "/people/family_member", "/film/person_or_entity_appearing_in_film", "/award/ranked_item", "/book/book_subject", "/medicine/diagnostic_test", "/people/appointer", "/music/artist", "/royalty/chivalric_order_officer", "/symbols/name_source", "/celebrities/celebrity", "/fictional_universe/fictional_character", "/government/us_president", "/music/featured_artist", "/government/polled_entity", "/media_common/quotation_subject", "/award/award_nominee", "/tv/tv_personality", "/fictional_universe/person_in_fiction", "/film/film_subject", "/government/politician", "/education/honorary_degree_recipient", "/tv/tv_program_guest", "/book/author", "/book/poem_character", "/broadcast/producer", "/people/person"]}}, {"type": "Entity", "start": 21, "end": 30, "id": 12, "features": {"wikiLink": "http://en.wikipedia.org/wiki/Microsoft", "entityEnglishId": "Microsoft", "wikidataId": "Q2283", "relevanceScore": 0, "confidenceScore": 2.739, "type": ["Agent", "Organisation", "Company"], "freebaseId": "/m/09cg8v", "entityId": "Microsoft", "freebaseTypes": ["/organization/organization", "/business/business_operation", "/business/customer", "/award/award_nominee", "/organization/organization_sector", "/conferences/conference_sponsor", "/award/award_winner", "/internet/website_owner", "/business/employer", "/projects/project_participant", "/cvg/cvg_publisher", "/media_common/quotation_subject", "/business/sponsor", "/business/consumer_company", "/computer/programming_language_designer", "/venture_capital/venture_investor", "/computer/operating_system_developer", "/computer/processor_manufacturer", "/computer/software_developer", "/book/book_subject", "/law/litigant", "/internet/top_level_domain_sponsor", "/computer/computer_manufacturer_brand", "/award/award_presenting_organization", "/cvg/cvg_developer", "/venture_capital/venture_funded_company", "/organization/organization_partnership", "/book/author", "/organization/organization", "/law/inventor", "/computer/programming_language_developer", "/business/issuer", "/business/business_operation", "/award/ranked_item", "/business/employer", "/organization/organization", "/business/employer", "/business/business_operation", "/organization/organization"]}}, {"type": "Entity", "start": 43, "end": 51, "id": 13, "features": {"wikiLink": "", "entityEnglishId": "", "relevanceScore": 0, "confidenceScore": 0.5, "type": ["Time"], "entityId": "2021-05-01T00:00:00.000+00:00"}}, {"type": "Entity", "start": 34, "end": 42, "id": 14, "features": {"wikiLink": "http://en.wikipedia.org/wiki/New_York_City", "entityEnglishId": "New York City", "wikidataId": "Q60", "relevanceScore": 0.04792, "confidenceScore": 2.905, "type": ["Place", "PopulatedPlace", "Settlement", "City"], "freebaseId": "/m/02_286", "entityId": "New York City", "freebaseTypes": ["/olympics/olympic_bidding_city", "/book/book_subject", "/tv/tv_location", "/law/court_jurisdiction_area", "/location/dated_location", "/periodicals/newspaper_circulation_area", "/film/film_screening_venue", "/location/statistical_region", "/government/governmental_jurisdiction", "/film/film_subject", "/visual_art/art_subject", "/award/award_winner", "/symbols/namesake", "/location/hud_county_place", "/rail/railway_terminus", "/travel/travel_destination", "/government/political_district", "/location/hud_foreclosure_area", "/sports/sports_team_location", "/media_common/quotation_subject", "/wine/wine_region", "/business/business_location", "/film/film_location", "/location/citytown", "/business/employer", "/fictional_universe/fictional_setting", "/location/place_with_neighborhoods", "/location/location", "/organization/organization_scope", "/religion/religious_leadership_jurisdiction", "/location/administrative_division", "/exhibitions/exhibition_subject"]}}], "next_annid": 15}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(VGTWYMFUJZ_data), "VGTWYMFUJZ-").init();
+    let QWKUPTRMUF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 6, "id": 0, "features": {"partOfSpeech": "NNP", "lemma": "barack", "stem": "barack"}}, {"type": "Token", "start": 7, "end": 12, "id": 1, "features": {"partOfSpeech": "NNP", "lemma": "obama", "stem": "obama"}}, {"type": "Token", "start": 13, "end": 20, "id": 2, "features": {"partOfSpeech": "VBD", "lemma": "visit", "stem": "visit"}}, {"type": "Token", "start": 21, "end": 30, "id": 3, "features": {"partOfSpeech": "NNP", "lemma": "microsoft", "stem": "microsoft"}}, {"type": "Token", "start": 31, "end": 33, "id": 4, "features": {"partOfSpeech": "IN", "lemma": "in", "stem": "in"}}, {"type": "Token", "start": 34, "end": 37, "id": 5, "features": {"partOfSpeech": "NNP", "lemma": "new", "stem": "new"}}, {"type": "Token", "start": 38, "end": 42, "id": 6, "features": {"partOfSpeech": "NNP", "lemma": "york", "stem": "york"}}, {"type": "Token", "start": 43, "end": 47, "id": 7, "features": {"partOfSpeech": "JJ", "lemma": "late", "stem": "last"}}, {"type": "Token", "start": 48, "end": 51, "id": 8, "features": {"partOfSpeech": "NNP", "lemma": "may", "stem": "may"}}, {"type": "Token", "start": 51, "end": 52, "id": 9, "features": {"partOfSpeech": ".", "lemma": ".", "stem": "."}}, {"type": "Sentence", "start": 0, "end": 52, "id": 10, "features": {}}, {"type": "Entity", "start": 43, "end": 51, "id": 11, "features": {"wikiLink": "", "entityEnglishId": "", "relevanceScore": 0, "confidenceScore": 0.5, "type": ["Time"], "entityId": "2022-05-01T00:00:00.000+00:00"}}, {"type": "Entity", "start": 21, "end": 30, "id": 12, "features": {"wikiLink": "http://en.wikipedia.org/wiki/Microsoft", "entityEnglishId": "Microsoft", "wikidataId": "Q2283", "relevanceScore": 0, "confidenceScore": 2.739, "type": ["Agent", "Organisation", "Company"], "freebaseId": "/m/09cg8v", "entityId": "Microsoft", "freebaseTypes": ["/organization/organization", "/business/business_operation", "/business/customer", "/award/award_nominee", "/organization/organization_sector", "/conferences/conference_sponsor", "/award/award_winner", "/internet/website_owner", "/business/employer", "/projects/project_participant", "/cvg/cvg_publisher", "/media_common/quotation_subject", "/business/sponsor", "/business/consumer_company", "/computer/programming_language_designer", "/venture_capital/venture_investor", "/computer/operating_system_developer", "/computer/processor_manufacturer", "/computer/software_developer", "/book/book_subject", "/law/litigant", "/internet/top_level_domain_sponsor", "/computer/computer_manufacturer_brand", "/award/award_presenting_organization", "/cvg/cvg_developer", "/venture_capital/venture_funded_company", "/organization/organization_partnership", "/book/author", "/organization/organization", "/law/inventor", "/computer/programming_language_developer", "/business/issuer", "/business/business_operation", "/award/ranked_item", "/business/employer", "/organization/organization", "/business/employer", "/business/business_operation", "/organization/organization"]}}, {"type": "Entity", "start": 34, "end": 42, "id": 13, "features": {"wikiLink": "http://en.wikipedia.org/wiki/New_York_City", "entityEnglishId": "New York City", "wikidataId": "Q60", "relevanceScore": 0.04792, "confidenceScore": 2.905, "type": ["Place", "PopulatedPlace", "Settlement", "City"], "freebaseId": "/m/02_286", "entityId": "New York City", "freebaseTypes": ["/olympics/olympic_bidding_city", "/book/book_subject", "/tv/tv_location", "/law/court_jurisdiction_area", "/location/dated_location", "/periodicals/newspaper_circulation_area", "/film/film_screening_venue", "/location/statistical_region", "/government/governmental_jurisdiction", "/film/film_subject", "/visual_art/art_subject", "/award/award_winner", "/symbols/namesake", "/location/hud_county_place", "/rail/railway_terminus", "/travel/travel_destination", "/government/political_district", "/location/hud_foreclosure_area", "/sports/sports_team_location", "/media_common/quotation_subject", "/wine/wine_region", "/business/business_location", "/film/film_location", "/location/citytown", "/business/employer", "/fictional_universe/fictional_setting", "/location/place_with_neighborhoods", "/location/location", "/organization/organization_scope", "/religion/religious_leadership_jurisdiction", "/location/administrative_division", "/exhibitions/exhibition_subject"]}}, {"type": "Entity", "start": 0, "end": 12, "id": 14, "features": {"wikiLink": "http://en.wikipedia.org/wiki/Barack_Obama", "entityEnglishId": "Barack Obama", "wikidataId": "Q76", "relevanceScore": 0.0263, "confidenceScore": 7.243, "type": ["Agent", "Person", "Politician", "OfficeHolder", "President"], "freebaseId": "/m/02mjmr", "entityId": "Barack Obama", "freebaseTypes": ["/people/measured_person", "/organization/organization_founder", "/business/board_member", "/biology/animal_owner", "/government/u_s_congressperson", "/business/employer", "/government/political_appointer", "/internet/social_network_user", "/music/composer", "/visual_art/art_subject", "/award/award_winner", "/organization/organization_member", "/event/public_speaker", "/internet/blogger", "/music/group_member", "/architecture/building_occupant", "/influence/influence_node", "/people/family_member", "/film/person_or_entity_appearing_in_film", "/award/ranked_item", "/book/book_subject", "/medicine/diagnostic_test", "/people/appointer", "/music/artist", "/royalty/chivalric_order_officer", "/symbols/name_source", "/celebrities/celebrity", "/fictional_universe/fictional_character", "/government/us_president", "/music/featured_artist", "/government/polled_entity", "/media_common/quotation_subject", "/award/award_nominee", "/tv/tv_personality", "/fictional_universe/person_in_fiction", "/film/film_subject", "/government/politician", "/education/honorary_degree_recipient", "/tv/tv_program_guest", "/book/author", "/book/poem_character", "/broadcast/producer", "/people/person"]}}], "next_annid": 15}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let QWKUPTRMUF_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(QWKUPTRMUF_data, QWKUPTRMUF_parms), "QWKUPTRMUF-").init();
     </script>
   </div>
 
 </div></div>
 
+
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 

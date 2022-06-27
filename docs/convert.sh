@@ -15,6 +15,8 @@ lib_spacy
 lib_stanza
 client_gatecloud
 client_ibmnlu
+client_tagme
+client_textrazor
 EOF
 )
 

@@ -7,7 +7,7 @@ The `TagMeAnnotator` is an annotator that uses the  [TagMe](https://sobigdata.d4
 ```python
 import os
 from gatenlp import Document
-from gatenlp.processing.client import TagMeAnnotator
+from gatenlp.processing.client.tagme import TagMeAnnotator
 ```
 
 
@@ -33,12 +33,18 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -183,6 +189,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -218,15 +232,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -272,6 +280,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -283,17 +292,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -310,7 +326,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -461,25 +477,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#AGGZCGHMGU-wrapper { color: black !important; }</style>
-<div id="AGGZCGHMGU-wrapper">
+<div><style>#VFHFZDAENJ-wrapper { color: black !important; }</style>
+<div id="VFHFZDAENJ-wrapper">
 
 <div>
 <style>
-#AGGZCGHMGU-content {
+#VFHFZDAENJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.AGGZCGHMGU-row {
+.VFHFZDAENJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.AGGZCGHMGU-col {
+.VFHFZDAENJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -489,23 +505,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.AGGZCGHMGU-hdr {
+.VFHFZDAENJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.AGGZCGHMGU-label {
+.VFHFZDAENJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.AGGZCGHMGU-input {
+.VFHFZDAENJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#AGGZCGHMGU-popup {
+#VFHFZDAENJ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -520,43 +536,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.AGGZCGHMGU-selection {
+.VFHFZDAENJ-selection {
     margin-bottom: 5px;
 }
 
-.AGGZCGHMGU-featuretable {
+.VFHFZDAENJ-featuretable {
     margin-top: 10px;
 }
 
-.AGGZCGHMGU-fname {
+.VFHFZDAENJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.AGGZCGHMGU-fvalue {
+.VFHFZDAENJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="AGGZCGHMGU-content">
-        <div id="AGGZCGHMGU-popup" style="display: none;">
+  <div id="VFHFZDAENJ-content">
+        <div id="VFHFZDAENJ-popup" style="display: none;">
         </div>
-        <div class="AGGZCGHMGU-row" id="AGGZCGHMGU-row1" style="min-height:5em;max-height:20em;">
-            <div id="AGGZCGHMGU-text-wrapper" class="AGGZCGHMGU-col" style="width:70%;">
-                <div class="AGGZCGHMGU-hdr" id="AGGZCGHMGU-dochdr"></div>
-                <div id="AGGZCGHMGU-text" style="">
+        <div class="VFHFZDAENJ-row" id="VFHFZDAENJ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="VFHFZDAENJ-text-wrapper" class="VFHFZDAENJ-col" style="width:70%;">
+                <div class="VFHFZDAENJ-hdr" id="VFHFZDAENJ-dochdr"></div>
+                <div id="VFHFZDAENJ-text" style="">
                 </div>
             </div>
-            <div id="AGGZCGHMGU-chooser" class="AGGZCGHMGU-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="VFHFZDAENJ-chooser" class="VFHFZDAENJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="AGGZCGHMGU-row" id="AGGZCGHMGU-row2" style="min-height:3em;max-height:14em;">
-            <div id="AGGZCGHMGU-details" class="AGGZCGHMGU-col" style="width:100%;border-top-width:0px;">
+        <div class="VFHFZDAENJ-row" id="VFHFZDAENJ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="VFHFZDAENJ-details" class="VFHFZDAENJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let AGGZCGHMGU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Mention", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack Obama", "id": 534366, "rho": 0.654568076133728, "link_probability": 1}}, {"type": "Mention", "start": 21, "end": 30, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Microsoft", "id": 19001, "rho": 0.2755201458930969, "link_probability": 0.41679081320762634}}, {"type": "Mention", "start": 34, "end": 42, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/New York (magazine)", "id": 714699, "rho": 0.1706334352493286, "link_probability": 0.17089588940143585}}, {"type": "Mention", "start": 43, "end": 47, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/The Last (album)", "id": 22580896, "rho": 0.026011696085333824, "link_probability": 0.002006721217185259}}, {"type": "Mention", "start": 48, "end": 51, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/Mitchell May", "id": 7995762, "rho": 0.03706134483218193, "link_probability": 0.0010793464025482535}}], "next_annid": 5}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(AGGZCGHMGU_data), "AGGZCGHMGU-").init();
+    let VFHFZDAENJ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Mention", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack Obama", "id": 534366, "rho": 0.654568076133728, "link_probability": 1}}, {"type": "Mention", "start": 21, "end": 30, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Microsoft", "id": 19001, "rho": 0.2755201458930969, "link_probability": 0.41679081320762634}}, {"type": "Mention", "start": 34, "end": 42, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/New York (magazine)", "id": 714699, "rho": 0.1706334352493286, "link_probability": 0.17089588940143585}}, {"type": "Mention", "start": 43, "end": 47, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/The Last (album)", "id": 22580896, "rho": 0.026011696085333824, "link_probability": 0.002006721217185259}}, {"type": "Mention", "start": 48, "end": 51, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/Mitchell May", "id": 7995762, "rho": 0.03706134483218193, "link_probability": 0.0010793464025482535}}], "next_annid": 5}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let VFHFZDAENJ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(VFHFZDAENJ_data, VFHFZDAENJ_parms), "VFHFZDAENJ-").init();
     </script>
   </div>
 
@@ -566,5 +583,9 @@ var gatenlpDocView = class {
 
 
 ```python
-
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
+
+    NB last updated with gatenlp version 1.0.8.dev3
+
