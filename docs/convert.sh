@@ -14,6 +14,7 @@ changelogs
 lib_spacy
 lib_stanza
 client_gatecloud
+client_ibmnlu
 EOF
 )
 

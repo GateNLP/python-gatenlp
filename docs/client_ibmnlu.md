@@ -8,7 +8,7 @@ The `IbmNluAnnotator` is an annotator that uses the [IBM NLU](https://cloud.ibm.
 ```python
 import os
 from gatenlp import Document
-from gatenlp.processing.client import IbmNluAnnotator
+from gatenlp.processing.client.ibmnlu import IbmNluAnnotator
 from ibm_watson.natural_language_understanding_v1 import Features
 ```
 
@@ -52,12 +52,18 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -202,6 +208,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -237,15 +251,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -291,6 +299,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -302,17 +311,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -329,7 +345,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -480,25 +496,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#OLJZJVBKPI-wrapper { color: black !important; }</style>
-<div id="OLJZJVBKPI-wrapper">
+<div><style>#MBKYQBAVYF-wrapper { color: black !important; }</style>
+<div id="MBKYQBAVYF-wrapper">
 
 <div>
 <style>
-#OLJZJVBKPI-content {
+#MBKYQBAVYF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.OLJZJVBKPI-row {
+.MBKYQBAVYF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.OLJZJVBKPI-col {
+.MBKYQBAVYF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -508,23 +524,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.OLJZJVBKPI-hdr {
+.MBKYQBAVYF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.OLJZJVBKPI-label {
+.MBKYQBAVYF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.OLJZJVBKPI-input {
+.MBKYQBAVYF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#OLJZJVBKPI-popup {
+#MBKYQBAVYF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -539,43 +555,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.OLJZJVBKPI-selection {
+.MBKYQBAVYF-selection {
     margin-bottom: 5px;
 }
 
-.OLJZJVBKPI-featuretable {
+.MBKYQBAVYF-featuretable {
     margin-top: 10px;
 }
 
-.OLJZJVBKPI-fname {
+.MBKYQBAVYF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.OLJZJVBKPI-fvalue {
+.MBKYQBAVYF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="OLJZJVBKPI-content">
-        <div id="OLJZJVBKPI-popup" style="display: none;">
+  <div id="MBKYQBAVYF-content">
+        <div id="MBKYQBAVYF-popup" style="display: none;">
         </div>
-        <div class="OLJZJVBKPI-row" id="OLJZJVBKPI-row1" style="min-height:5em;max-height:20em;">
-            <div id="OLJZJVBKPI-text-wrapper" class="OLJZJVBKPI-col" style="width:70%;">
-                <div class="OLJZJVBKPI-hdr" id="OLJZJVBKPI-dochdr"></div>
-                <div id="OLJZJVBKPI-text" style="">
+        <div class="MBKYQBAVYF-row" id="MBKYQBAVYF-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="MBKYQBAVYF-text-wrapper" class="MBKYQBAVYF-col" style="width:70%;">
+                <div class="MBKYQBAVYF-hdr" id="MBKYQBAVYF-dochdr"></div>
+                <div id="MBKYQBAVYF-text" style="">
                 </div>
             </div>
-            <div id="OLJZJVBKPI-chooser" class="OLJZJVBKPI-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="MBKYQBAVYF-chooser" class="MBKYQBAVYF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="OLJZJVBKPI-row" id="OLJZJVBKPI-row2" style="min-height:3em;max-height:14em;">
-            <div id="OLJZJVBKPI-details" class="OLJZJVBKPI-col" style="width:100%;border-top-width:0px;">
+        <div class="MBKYQBAVYF-row" id="MBKYQBAVYF-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="MBKYQBAVYF-details" class="MBKYQBAVYF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let OLJZJVBKPI_data = {"annotation_sets": {}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(OLJZJVBKPI_data), "OLJZJVBKPI-").init();
+    let MBKYQBAVYF_data = {"annotation_sets": {}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    let MBKYQBAVYF_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(MBKYQBAVYF_data, MBKYQBAVYF_parms), "MBKYQBAVYF-").init();
     </script>
   </div>
 
@@ -599,25 +616,25 @@ doc
 
 
 
-<div><style>#IPKORXXGFO-wrapper { color: black !important; }</style>
-<div id="IPKORXXGFO-wrapper">
+<div><style>#IFKJORMXAD-wrapper { color: black !important; }</style>
+<div id="IFKJORMXAD-wrapper">
 
 <div>
 <style>
-#IPKORXXGFO-content {
+#IFKJORMXAD-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.IPKORXXGFO-row {
+.IFKJORMXAD-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.IPKORXXGFO-col {
+.IFKJORMXAD-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -627,23 +644,23 @@ doc
     overflow-y: auto;
 }
 
-.IPKORXXGFO-hdr {
+.IFKJORMXAD-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.IPKORXXGFO-label {
+.IFKJORMXAD-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.IPKORXXGFO-input {
+.IFKJORMXAD-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#IPKORXXGFO-popup {
+#IFKJORMXAD-popup {
     display: none;
     color: black;
     position: absolute;
@@ -658,46 +675,56 @@ doc
     overflow: auto;
 }
 
-.IPKORXXGFO-selection {
+.IFKJORMXAD-selection {
     margin-bottom: 5px;
 }
 
-.IPKORXXGFO-featuretable {
+.IFKJORMXAD-featuretable {
     margin-top: 10px;
 }
 
-.IPKORXXGFO-fname {
+.IFKJORMXAD-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.IPKORXXGFO-fvalue {
+.IFKJORMXAD-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="IPKORXXGFO-content">
-        <div id="IPKORXXGFO-popup" style="display: none;">
+  <div id="IFKJORMXAD-content">
+        <div id="IFKJORMXAD-popup" style="display: none;">
         </div>
-        <div class="IPKORXXGFO-row" id="IPKORXXGFO-row1" style="min-height:5em;max-height:20em;">
-            <div id="IPKORXXGFO-text-wrapper" class="IPKORXXGFO-col" style="width:70%;">
-                <div class="IPKORXXGFO-hdr" id="IPKORXXGFO-dochdr"></div>
-                <div id="IPKORXXGFO-text" style="">
+        <div class="IFKJORMXAD-row" id="IFKJORMXAD-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="IFKJORMXAD-text-wrapper" class="IFKJORMXAD-col" style="width:70%;">
+                <div class="IFKJORMXAD-hdr" id="IFKJORMXAD-dochdr"></div>
+                <div id="IFKJORMXAD-text" style="">
                 </div>
             </div>
-            <div id="IPKORXXGFO-chooser" class="IPKORXXGFO-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="IFKJORMXAD-chooser" class="IFKJORMXAD-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="IPKORXXGFO-row" id="IPKORXXGFO-row2" style="min-height:3em;max-height:14em;">
-            <div id="IPKORXXGFO-details" class="IPKORXXGFO-col" style="width:100%;border-top-width:0px;">
+        <div class="IFKJORMXAD-row" id="IFKJORMXAD-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="IFKJORMXAD-details" class="IFKJORMXAD-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let IPKORXXGFO_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Person", "start": 67, "end": 79, "id": 0, "features": {"relevance": 0.953718, "confidence": 0.996363, "sentiment.score": 0.687838, "sentiment.label": "positive", "disambiguation.subtype": ["Politician", "President", "Appointer", "AwardWinner", "Celebrity", "PoliticalAppointer", "U.S.Congressperson", "USPresident", "TVActor"], "disambiguation.name": "Barack_Obama", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama", "mention_confidence": 0.941287}}, {"type": "Person", "start": 259, "end": 271, "id": 1, "features": {"relevance": 0.953718, "confidence": 0.996363, "sentiment.score": 0.687838, "sentiment.label": "positive", "disambiguation.subtype": ["Politician", "President", "Appointer", "AwardWinner", "Celebrity", "PoliticalAppointer", "U.S.Congressperson", "USPresident", "TVActor"], "disambiguation.name": "Barack_Obama", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama", "mention_confidence": 0.938058}}, {"type": "Organization", "start": 110, "end": 113, "id": 2, "features": {"relevance": 0.614637, "confidence": 0.96438, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["SoftwareLicense", "Company", "OperatingSystemDeveloper", "ProcessorManufacturer", "SoftwareDeveloper", "CompanyFounder", "ProgrammingLanguageDesigner", "ProgrammingLanguageDeveloper"], "disambiguation.name": "IBM", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/IBM", "mention_confidence": 0.96438}}, {"type": "Organization", "start": 99, "end": 108, "id": 3, "features": {"relevance": 0.535478, "confidence": 0.98195, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["Company", "OperatingSystemDeveloper", "ProcessorManufacturer", "SoftwareDeveloper", "VentureFundedCompany", "VideoGameDeveloper", "VideoGamePublisher", "ProgrammingLanguageDesigner"], "disambiguation.name": "Microsoft", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Microsoft", "mention_confidence": 0.98195}}, {"type": "JobTitle", "start": 57, "end": 66, "id": 4, "features": {"relevance": 0.519222, "confidence": 0.159372, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.159372}}, {"type": "Location", "start": 156, "end": 167, "id": 5, "features": {"relevance": 0.487779, "confidence": 0.801647, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.801647}}, {"type": "Organization", "start": 115, "end": 121, "id": 6, "features": {"relevance": 0.476312, "confidence": 0.968928, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["AcademicInstitution", "AwardPresentingOrganization", "Company", "OperatingSystemDeveloper", "ProgrammingLanguageDeveloper", "SoftwareDeveloper", "VentureFundedCompany"], "disambiguation.name": "Google", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Google", "mention_confidence": 0.968928}}, {"type": "Person", "start": 298, "end": 313, "id": 7, "features": {"relevance": 0.437546, "confidence": 0.985557, "sentiment.score": 0.687838, "sentiment.label": "positive", "mention_confidence": 0.985557}}, {"type": "Location", "start": 172, "end": 180, "id": 8, "features": {"relevance": 0.394773, "confidence": 0.84088, "sentiment.score": -0.661963, "sentiment.label": "negative", "mention_confidence": 0.84088}}, {"type": "Location", "start": 54, "end": 56, "id": 9, "features": {"relevance": 0.372554, "confidence": 0.721172, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["Region", "AdministrativeDivision", "Country", "GovernmentalJurisdiction", "FilmEditor"], "disambiguation.name": "United_States", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/United_States", "mention_confidence": 0.721172}}, {"type": "Person", "start": 415, "end": 429, "id": 10, "features": {"relevance": 0.186621, "confidence": 0.991949, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["MusicalArtist", "TVProducer", "TVActor"], "disambiguation.name": "Harald_Schmidt", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Harald_Schmidt", "mention_confidence": 0.991949}}, {"type": "Person", "start": 399, "end": 409, "id": 11, "features": {"relevance": 0.153435, "confidence": 0.992622, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.992622}}, {"type": "Token", "start": 1, "end": 5, "id": 12, "features": {"part_of_speech": "PRON", "lemma": "this"}}, {"type": "Token", "start": 6, "end": 8, "id": 13, "features": {"part_of_speech": "AUX", "lemma": "be"}}, {"type": "Token", "start": 9, "end": 13, "id": 14, "features": {"part_of_speech": "ADV", "lemma": "just"}}, {"type": "Token", "start": 14, "end": 18, "id": 15, "features": {"part_of_speech": "DET"}}, {"type": "Token", "start": 19, "end": 26, "id": 16, "features": {"part_of_speech": "NOUN", "lemma": "example"}}, {"type": "Token", "start": 27, "end": 31, "id": 17, "features": {"part_of_speech": "NOUN", "lemma": "text"}}, {"type": "Token", "start": 31, "end": 32, "id": 18, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 33, "end": 35, "id": 19, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 36, "end": 44, "id": 20, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 45, "end": 48, "id": 21, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 49, "end": 53, "id": 22, "features": {"part_of_speech": "NOUN", "lemma": "name"}}, {"type": "Token", "start": 54, "end": 56, "id": 23, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 57, "end": 66, "id": 24, "features": {"part_of_speech": "PROPN", "lemma": "President"}}, {"type": "Token", "start": 67, "end": 73, "id": 25, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 74, "end": 79, "id": 26, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 80, "end": 83, "id": 27, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 84, "end": 87, "id": 28, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 89, "end": 98, "id": 29, "features": {"part_of_speech": "NOUN", "lemma": "company"}}, {"type": "Token", "start": 99, "end": 108, "id": 30, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 108, "end": 109, "id": 31, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 110, "end": 113, "id": 32, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 113, "end": 114, "id": 33, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 115, "end": 121, "id": 34, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 122, "end": 124, "id": 35, "features": {"part_of_speech": "ADV", "lemma": "as"}}, {"type": "Token", "start": 125, "end": 129, "id": 36, "features": {"part_of_speech": "ADV", "lemma": "well"}}, {"type": "Token", "start": 130, "end": 132, "id": 37, "features": {"part_of_speech": "ADP", "lemma": "as"}}, {"type": "Token", "start": 133, "end": 134, "id": 38, "features": {"part_of_speech": "DET", "lemma": "a"}}, {"type": "Token", "start": 135, "end": 138, "id": 39, "features": {"part_of_speech": "ADJ", "lemma": "few"}}, {"type": "Token", "start": 139, "end": 144, "id": 40, "features": {"part_of_speech": "NOUN", "lemma": "place"}}, {"type": "Token", "start": 145, "end": 150, "id": 41, "features": {"part_of_speech": "NOUN", "lemma": "name"}}, {"type": "Token", "start": 151, "end": 155, "id": 42, "features": {"part_of_speech": "ADP", "lemma": "like"}}, {"type": "Token", "start": 156, "end": 159, "id": 43, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 160, "end": 167, "id": 44, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 168, "end": 171, "id": 45, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 172, "end": 175, "id": 46, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 176, "end": 180, "id": 47, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 180, "end": 181, "id": 48, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 182, "end": 184, "id": 49, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 185, "end": 188, "id": 50, "features": {"part_of_speech": "VERB", "lemma": "have"}}, {"type": "Token", "start": 189, "end": 196, "id": 51, "features": {"part_of_speech": "ADJ", "lemma": "strange"}}, {"type": "Token", "start": 197, "end": 207, "id": 52, "features": {"part_of_speech": "NOUN", "lemma": "character"}}, {"type": "Token", "start": 208, "end": 212, "id": 53, "features": {"part_of_speech": "ADP", "lemma": "like"}}, {"type": "Token", "start": 213, "end": 215, "id": 54, "features": {"part_of_speech": "SYM", "lemma": "\ud83d\udca9"}}, {"type": "Token", "start": 216, "end": 219, "id": 55, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 220, "end": 226, "id": 56, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 227, "end": 231, "id": 57, "features": {"part_of_speech": "INTJ"}}, {"type": "Token", "start": 232, "end": 234, "id": 58, "features": {"part_of_speech": "SYM", "lemma": "\ud83d\ude0a"}}, {"type": "Token", "start": 235, "end": 238, "id": 59, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 239, "end": 241, "id": 60, "features": {"part_of_speech": "SYM", "lemma": "\ud83d\ude02"}}, {"type": "Token", "start": 241, "end": 242, "id": 61, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 243, "end": 247, "id": 62, "features": {"part_of_speech": "ADV", "lemma": "here"}}, {"type": "Token", "start": 248, "end": 250, "id": 63, "features": {"part_of_speech": "PRON", "lemma": "we"}}, {"type": "Token", "start": 251, "end": 258, "id": 64, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 259, "end": 265, "id": 65, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 266, "end": 271, "id": 66, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 272, "end": 277, "id": 67, "features": {"part_of_speech": "ADV", "lemma": "again"}}, {"type": "Token", "start": 278, "end": 281, "id": 68, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 282, "end": 286, "id": 69, "features": {"part_of_speech": "ADV", "lemma": "here"}}, {"type": "Token", "start": 287, "end": 289, "id": 70, "features": {"part_of_speech": "PRON", "lemma": "we"}}, {"type": "Token", "start": 290, "end": 297, "id": 71, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 298, "end": 305, "id": 72, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 306, "end": 313, "id": 73, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 313, "end": 314, "id": 74, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 315, "end": 317, "id": 75, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 318, "end": 326, "id": 76, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 327, "end": 338, "id": 77, "features": {"part_of_speech": "NOUN", "lemma": "mathematics"}}, {"type": "Token", "start": 339, "end": 342, "id": 78, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 343, "end": 350, "id": 79, "features": {"part_of_speech": "NOUN", "lemma": "economy"}}, {"type": "Token", "start": 351, "end": 354, "id": 80, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 355, "end": 358, "id": 81, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 359, "end": 364, "id": 82, "features": {"part_of_speech": "NOUN", "lemma": "term"}}, {"type": "Token", "start": 365, "end": 370, "id": 83, "features": {"part_of_speech": "VERB", "lemma": "cloud"}}, {"type": "Token", "start": 371, "end": 380, "id": 84, "features": {"part_of_speech": "VERB", "lemma": "compute"}}, {"type": "Token", "start": 381, "end": 384, "id": 85, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 385, "end": 389, "id": 86, "features": {"part_of_speech": "NOUN", "lemma": "gene"}}, {"type": "Token", "start": 390, "end": 397, "id": 87, "features": {"part_of_speech": "NOUN", "lemma": "therapy"}}, {"type": "Token", "start": 397, "end": 398, "id": 88, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 399, "end": 403, "id": 89, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 404, "end": 409, "id": 90, "features": {"part_of_speech": "PROPN", "lemma": "Smith"}}, {"type": "Token", "start": 410, "end": 414, "id": 91, "features": {"part_of_speech": "VERB", "lemma": "beat"}}, {"type": "Token", "start": 415, "end": 421, "id": 92, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 422, "end": 429, "id": 93, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 430, "end": 432, "id": 94, "features": {"part_of_speech": "ADP", "lemma": "at"}}, {"type": "Token", "start": 433, "end": 436, "id": 95, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 437, "end": 443, "id": 96, "features": {"part_of_speech": "NOUN", "lemma": "tennis"}}, {"type": "Token", "start": 444, "end": 454, "id": 97, "features": {"part_of_speech": "NOUN", "lemma": "tournament"}}, {"type": "Token", "start": 454, "end": 455, "id": 98, "features": {"part_of_speech": "PUNCT"}}, {"type": "Sentence", "start": 1, "end": 32, "id": 99, "features": {}}, {"type": "Sentence", "start": 33, "end": 87, "id": 100, "features": {}}, {"type": "Sentence", "start": 89, "end": 181, "id": 101, "features": {}}, {"type": "Sentence", "start": 182, "end": 242, "id": 102, "features": {}}, {"type": "Sentence", "start": 243, "end": 314, "id": 103, "features": {}}, {"type": "Sentence", "start": 315, "end": 398, "id": 104, "features": {}}, {"type": "Sentence", "start": 399, "end": 455, "id": 105, "features": {}}], "next_annid": 106}}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {"language": "en", "concepts": [{"text": "United States", "relevance": 0.976817, "dbpedia_resource": "http://dbpedia.org/resource/United_States"}, {"text": "Democratic Party", "relevance": 0.959594, "dbpedia_resource": "http://dbpedia.org/resource/Democratic_Party_(United_States)"}, {"text": "Barack Obama", "relevance": 0.933323, "dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama"}, {"text": "Illinois", "relevance": 0.857441, "dbpedia_resource": "http://dbpedia.org/resource/Illinois"}, {"text": "President of the United States", "relevance": 0.76641, "dbpedia_resource": "http://dbpedia.org/resource/President_of_the_United_States"}], "categories": [{"score": 0.596264, "label": "/technology and computing/operating systems"}, {"score": 0.551064, "label": "/education"}, {"score": 0.548622, "label": "/technology and computing/hardware/computer"}], "emotion_sadness": 0.194023, "emotion_joy": 0.51001, "emotion_fear": 0.112598, "emotion_disgust": 0.114611, "emotion_anger": 0.080093, "keywords": [{"text": "name US President Barack Obama", "sentiment": {"score": 0, "label": "neutral"}, "relevance": 0.941639, "emotion": {"sadness": 0.146467, "joy": 0.164207, "fear": 0.110582, "disgust": 0.236324, "anger": 0.078165}, "count": 1}, {"text": "companies Microsoft", "sentiment": {"score": 0, "label": "neutral"}, "relevance": 0.862773, "emotion": {"sadness": 0.065859, "joy": 0.146347, "fear": 0.016332, "disgust": 0.02865, "anger": 0.040931}, "count": 1}, {"text": "Barack Obama", "sentiment": {"score": 0.687838, "label": "positive"}, "relevance": 0.797316, "emotion": {"sadness": 0.155613, "joy": 0.209508, "fear": 0.123446, "disgust": 0.240364, "anger": 0.069041}, "count": 1}], "sentiment_score": 0.473743, "sentiment_label": "positive"}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(IPKORXXGFO_data), "IPKORXXGFO-").init();
+    let IFKJORMXAD_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Person", "start": 67, "end": 79, "id": 0, "features": {"relevance": 0.953718, "confidence": 0.996363, "sentiment.score": 0.687838, "sentiment.label": "positive", "disambiguation.subtype": ["Politician", "President", "Appointer", "AwardWinner", "Celebrity", "PoliticalAppointer", "U.S.Congressperson", "USPresident", "TVActor"], "disambiguation.name": "Barack_Obama", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama", "mention_confidence": 0.941287}}, {"type": "Person", "start": 259, "end": 271, "id": 1, "features": {"relevance": 0.953718, "confidence": 0.996363, "sentiment.score": 0.687838, "sentiment.label": "positive", "disambiguation.subtype": ["Politician", "President", "Appointer", "AwardWinner", "Celebrity", "PoliticalAppointer", "U.S.Congressperson", "USPresident", "TVActor"], "disambiguation.name": "Barack_Obama", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama", "mention_confidence": 0.938058}}, {"type": "Organization", "start": 110, "end": 113, "id": 2, "features": {"relevance": 0.614637, "confidence": 0.96438, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["SoftwareLicense", "Company", "OperatingSystemDeveloper", "ProcessorManufacturer", "SoftwareDeveloper", "CompanyFounder", "ProgrammingLanguageDesigner", "ProgrammingLanguageDeveloper"], "disambiguation.name": "IBM", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/IBM", "mention_confidence": 0.96438}}, {"type": "Organization", "start": 99, "end": 108, "id": 3, "features": {"relevance": 0.535478, "confidence": 0.98195, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["Company", "OperatingSystemDeveloper", "ProcessorManufacturer", "SoftwareDeveloper", "VentureFundedCompany", "VideoGameDeveloper", "VideoGamePublisher", "ProgrammingLanguageDesigner"], "disambiguation.name": "Microsoft", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Microsoft", "mention_confidence": 0.98195}}, {"type": "JobTitle", "start": 57, "end": 66, "id": 4, "features": {"relevance": 0.519222, "confidence": 0.159372, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.159372}}, {"type": "Location", "start": 156, "end": 167, "id": 5, "features": {"relevance": 0.487779, "confidence": 0.801647, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.801647}}, {"type": "Organization", "start": 115, "end": 121, "id": 6, "features": {"relevance": 0.476312, "confidence": 0.968928, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["AcademicInstitution", "AwardPresentingOrganization", "Company", "OperatingSystemDeveloper", "ProgrammingLanguageDeveloper", "SoftwareDeveloper", "VentureFundedCompany"], "disambiguation.name": "Google", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Google", "mention_confidence": 0.968928}}, {"type": "Person", "start": 298, "end": 313, "id": 7, "features": {"relevance": 0.437546, "confidence": 0.985557, "sentiment.score": 0.687838, "sentiment.label": "positive", "mention_confidence": 0.985557}}, {"type": "Location", "start": 172, "end": 180, "id": 8, "features": {"relevance": 0.394773, "confidence": 0.84088, "sentiment.score": -0.661963, "sentiment.label": "negative", "mention_confidence": 0.84088}}, {"type": "Location", "start": 54, "end": 56, "id": 9, "features": {"relevance": 0.372554, "confidence": 0.721172, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["Region", "AdministrativeDivision", "Country", "GovernmentalJurisdiction", "FilmEditor"], "disambiguation.name": "United_States", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/United_States", "mention_confidence": 0.721172}}, {"type": "Person", "start": 415, "end": 429, "id": 10, "features": {"relevance": 0.186621, "confidence": 0.991949, "sentiment.score": 0, "sentiment.label": "neutral", "disambiguation.subtype": ["MusicalArtist", "TVProducer", "TVActor"], "disambiguation.name": "Harald_Schmidt", "disambiguation.dbpedia_resource": "http://dbpedia.org/resource/Harald_Schmidt", "mention_confidence": 0.991949}}, {"type": "Person", "start": 399, "end": 409, "id": 11, "features": {"relevance": 0.153435, "confidence": 0.992622, "sentiment.score": 0, "sentiment.label": "neutral", "mention_confidence": 0.992622}}, {"type": "Token", "start": 1, "end": 5, "id": 12, "features": {"part_of_speech": "PRON", "lemma": "this"}}, {"type": "Token", "start": 6, "end": 8, "id": 13, "features": {"part_of_speech": "AUX", "lemma": "be"}}, {"type": "Token", "start": 9, "end": 13, "id": 14, "features": {"part_of_speech": "ADV", "lemma": "just"}}, {"type": "Token", "start": 14, "end": 18, "id": 15, "features": {"part_of_speech": "DET"}}, {"type": "Token", "start": 19, "end": 26, "id": 16, "features": {"part_of_speech": "NOUN", "lemma": "example"}}, {"type": "Token", "start": 27, "end": 31, "id": 17, "features": {"part_of_speech": "NOUN", "lemma": "text"}}, {"type": "Token", "start": 31, "end": 32, "id": 18, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 33, "end": 35, "id": 19, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 36, "end": 44, "id": 20, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 45, "end": 48, "id": 21, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 49, "end": 53, "id": 22, "features": {"part_of_speech": "NOUN", "lemma": "name"}}, {"type": "Token", "start": 54, "end": 56, "id": 23, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 57, "end": 66, "id": 24, "features": {"part_of_speech": "PROPN", "lemma": "President"}}, {"type": "Token", "start": 67, "end": 73, "id": 25, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 74, "end": 79, "id": 26, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 80, "end": 83, "id": 27, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 84, "end": 87, "id": 28, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 89, "end": 98, "id": 29, "features": {"part_of_speech": "NOUN", "lemma": "company"}}, {"type": "Token", "start": 99, "end": 108, "id": 30, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 108, "end": 109, "id": 31, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 110, "end": 113, "id": 32, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 113, "end": 114, "id": 33, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 115, "end": 121, "id": 34, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 122, "end": 124, "id": 35, "features": {"part_of_speech": "ADV", "lemma": "as"}}, {"type": "Token", "start": 125, "end": 129, "id": 36, "features": {"part_of_speech": "ADV", "lemma": "well"}}, {"type": "Token", "start": 130, "end": 132, "id": 37, "features": {"part_of_speech": "ADP", "lemma": "as"}}, {"type": "Token", "start": 133, "end": 134, "id": 38, "features": {"part_of_speech": "DET", "lemma": "a"}}, {"type": "Token", "start": 135, "end": 138, "id": 39, "features": {"part_of_speech": "ADJ", "lemma": "few"}}, {"type": "Token", "start": 139, "end": 144, "id": 40, "features": {"part_of_speech": "NOUN", "lemma": "place"}}, {"type": "Token", "start": 145, "end": 150, "id": 41, "features": {"part_of_speech": "NOUN", "lemma": "name"}}, {"type": "Token", "start": 151, "end": 155, "id": 42, "features": {"part_of_speech": "ADP", "lemma": "like"}}, {"type": "Token", "start": 156, "end": 159, "id": 43, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 160, "end": 167, "id": 44, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 168, "end": 171, "id": 45, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 172, "end": 175, "id": 46, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 176, "end": 180, "id": 47, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 180, "end": 181, "id": 48, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 182, "end": 184, "id": 49, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 185, "end": 188, "id": 50, "features": {"part_of_speech": "VERB", "lemma": "have"}}, {"type": "Token", "start": 189, "end": 196, "id": 51, "features": {"part_of_speech": "ADJ", "lemma": "strange"}}, {"type": "Token", "start": 197, "end": 207, "id": 52, "features": {"part_of_speech": "NOUN", "lemma": "character"}}, {"type": "Token", "start": 208, "end": 212, "id": 53, "features": {"part_of_speech": "ADP", "lemma": "like"}}, {"type": "Token", "start": 213, "end": 215, "id": 54, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 216, "end": 219, "id": 55, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 220, "end": 226, "id": 56, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 227, "end": 231, "id": 57, "features": {"part_of_speech": "INTJ"}}, {"type": "Token", "start": 232, "end": 234, "id": 58, "features": {"part_of_speech": "SYM", "lemma": "\ud83d\ude0a"}}, {"type": "Token", "start": 235, "end": 238, "id": 59, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 239, "end": 241, "id": 60, "features": {"part_of_speech": "SYM", "lemma": "\ud83d\ude02"}}, {"type": "Token", "start": 241, "end": 242, "id": 61, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 243, "end": 247, "id": 62, "features": {"part_of_speech": "ADV", "lemma": "here"}}, {"type": "Token", "start": 248, "end": 250, "id": 63, "features": {"part_of_speech": "PRON", "lemma": "we"}}, {"type": "Token", "start": 251, "end": 258, "id": 64, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 259, "end": 265, "id": 65, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 266, "end": 271, "id": 66, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 272, "end": 277, "id": 67, "features": {"part_of_speech": "ADV", "lemma": "again"}}, {"type": "Token", "start": 278, "end": 281, "id": 68, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 282, "end": 286, "id": 69, "features": {"part_of_speech": "ADV", "lemma": "here"}}, {"type": "Token", "start": 287, "end": 289, "id": 70, "features": {"part_of_speech": "PRON", "lemma": "we"}}, {"type": "Token", "start": 290, "end": 297, "id": 71, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 298, "end": 305, "id": 72, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 306, "end": 313, "id": 73, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 313, "end": 314, "id": 74, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 315, "end": 317, "id": 75, "features": {"part_of_speech": "PRON", "lemma": "it"}}, {"type": "Token", "start": 318, "end": 326, "id": 76, "features": {"part_of_speech": "VERB", "lemma": "mention"}}, {"type": "Token", "start": 327, "end": 338, "id": 77, "features": {"part_of_speech": "NOUN", "lemma": "mathematics"}}, {"type": "Token", "start": 339, "end": 342, "id": 78, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 343, "end": 350, "id": 79, "features": {"part_of_speech": "NOUN", "lemma": "economy"}}, {"type": "Token", "start": 351, "end": 354, "id": 80, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 355, "end": 358, "id": 81, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 359, "end": 364, "id": 82, "features": {"part_of_speech": "NOUN", "lemma": "term"}}, {"type": "Token", "start": 365, "end": 370, "id": 83, "features": {"part_of_speech": "VERB", "lemma": "cloud"}}, {"type": "Token", "start": 371, "end": 380, "id": 84, "features": {"part_of_speech": "NOUN"}}, {"type": "Token", "start": 381, "end": 384, "id": 85, "features": {"part_of_speech": "CCONJ", "lemma": "and"}}, {"type": "Token", "start": 385, "end": 389, "id": 86, "features": {"part_of_speech": "NOUN", "lemma": "gene"}}, {"type": "Token", "start": 390, "end": 397, "id": 87, "features": {"part_of_speech": "NOUN", "lemma": "therapy"}}, {"type": "Token", "start": 397, "end": 398, "id": 88, "features": {"part_of_speech": "PUNCT"}}, {"type": "Token", "start": 399, "end": 403, "id": 89, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 404, "end": 409, "id": 90, "features": {"part_of_speech": "PROPN", "lemma": "Smith"}}, {"type": "Token", "start": 410, "end": 414, "id": 91, "features": {"part_of_speech": "VERB", "lemma": "beat"}}, {"type": "Token", "start": 415, "end": 421, "id": 92, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 422, "end": 429, "id": 93, "features": {"part_of_speech": "PROPN"}}, {"type": "Token", "start": 430, "end": 432, "id": 94, "features": {"part_of_speech": "ADP", "lemma": "at"}}, {"type": "Token", "start": 433, "end": 436, "id": 95, "features": {"part_of_speech": "DET", "lemma": "the"}}, {"type": "Token", "start": 437, "end": 443, "id": 96, "features": {"part_of_speech": "NOUN", "lemma": "tennis"}}, {"type": "Token", "start": 444, "end": 454, "id": 97, "features": {"part_of_speech": "NOUN", "lemma": "tournament"}}, {"type": "Token", "start": 454, "end": 455, "id": 98, "features": {"part_of_speech": "PUNCT"}}, {"type": "Sentence", "start": 1, "end": 32, "id": 99, "features": {}}, {"type": "Sentence", "start": 33, "end": 87, "id": 100, "features": {}}, {"type": "Sentence", "start": 89, "end": 181, "id": 101, "features": {}}, {"type": "Sentence", "start": 182, "end": 242, "id": 102, "features": {}}, {"type": "Sentence", "start": 243, "end": 314, "id": 103, "features": {}}, {"type": "Sentence", "start": 315, "end": 398, "id": 104, "features": {}}, {"type": "Sentence", "start": 399, "end": 455, "id": 105, "features": {}}], "next_annid": 106}}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {"language": "en", "concepts": [{"text": "United States", "relevance": 0.976817, "dbpedia_resource": "http://dbpedia.org/resource/United_States"}, {"text": "Democratic Party", "relevance": 0.959594, "dbpedia_resource": "http://dbpedia.org/resource/Democratic_Party_(United_States)"}, {"text": "Barack Obama", "relevance": 0.933323, "dbpedia_resource": "http://dbpedia.org/resource/Barack_Obama"}, {"text": "Illinois", "relevance": 0.857441, "dbpedia_resource": "http://dbpedia.org/resource/Illinois"}, {"text": "President of the United States", "relevance": 0.76641, "dbpedia_resource": "http://dbpedia.org/resource/President_of_the_United_States"}], "categories": [{"score": 0.596264, "label": "/technology and computing/operating systems"}, {"score": 0.551064, "label": "/education"}, {"score": 0.548622, "label": "/technology and computing/hardware/computer"}], "emotion_sadness": 0.324131, "emotion_joy": 0.228687, "emotion_fear": 0.094807, "emotion_disgust": 0.036244, "emotion_anger": 0.125266, "keywords": [{"text": "name US President Barack Obama", "sentiment": {"score": 0, "label": "neutral"}, "relevance": 0.942034, "emotion": {"sadness": 0.592199, "joy": 0.065456, "fear": 0.141402, "disgust": 0.052114, "anger": 0.036939}, "count": 1}, {"text": "companies Microsoft", "sentiment": {"score": 0, "label": "neutral"}, "relevance": 0.865687, "emotion": {"sadness": 0.222435, "joy": 0.130661, "fear": 0.02117, "disgust": 0.020751, "anger": 0.058984}, "count": 1}, {"text": "Barack Obama", "sentiment": {"score": 0.687838, "label": "positive"}, "relevance": 0.793139, "emotion": {"sadness": 0.32999, "joy": 0.361327, "fear": 0.132559, "disgust": 0.045218, "anger": 0.026233}, "count": 1}], "sentiment_score": 0.473743, "sentiment_label": "positive"}, "offset_type": "j", "name": ""} ; 
+    let IFKJORMXAD_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(IFKJORMXAD_data, IFKJORMXAD_parms), "IFKJORMXAD-").init();
     </script>
   </div>
 
 </div></div>
 
+
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 
