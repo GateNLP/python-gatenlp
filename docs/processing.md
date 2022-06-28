@@ -83,5 +83,9 @@ The result of processing a corpus returned by the executor is whatever is return
 
 
 ```python
-
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
+
+    NB last updated with gatenlp version 1.0.8.dev3
+

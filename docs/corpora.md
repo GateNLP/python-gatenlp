@@ -511,25 +511,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#KAOQNJVZZA-wrapper { color: black !important; }</style>
-<div id="KAOQNJVZZA-wrapper">
+<div><style>#MZRJHHBFWL-wrapper { color: black !important; }</style>
+<div id="MZRJHHBFWL-wrapper">
 
 <div>
 <style>
-#KAOQNJVZZA-content {
+#MZRJHHBFWL-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.KAOQNJVZZA-row {
+.MZRJHHBFWL-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.KAOQNJVZZA-col {
+.MZRJHHBFWL-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -539,23 +539,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.KAOQNJVZZA-hdr {
+.MZRJHHBFWL-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.KAOQNJVZZA-label {
+.MZRJHHBFWL-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.KAOQNJVZZA-input {
+.MZRJHHBFWL-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#KAOQNJVZZA-popup {
+#MZRJHHBFWL-popup {
     display: none;
     color: black;
     position: absolute;
@@ -570,44 +570,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.KAOQNJVZZA-selection {
+.MZRJHHBFWL-selection {
     margin-bottom: 5px;
 }
 
-.KAOQNJVZZA-featuretable {
+.MZRJHHBFWL-featuretable {
     margin-top: 10px;
 }
 
-.KAOQNJVZZA-fname {
+.MZRJHHBFWL-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.KAOQNJVZZA-fvalue {
+.MZRJHHBFWL-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="KAOQNJVZZA-content">
-        <div id="KAOQNJVZZA-popup" style="display: none;">
+  <div id="MZRJHHBFWL-content">
+        <div id="MZRJHHBFWL-popup" style="display: none;">
         </div>
-        <div class="KAOQNJVZZA-row" id="KAOQNJVZZA-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="KAOQNJVZZA-text-wrapper" class="KAOQNJVZZA-col" style="width:70%;">
-                <div class="KAOQNJVZZA-hdr" id="KAOQNJVZZA-dochdr"></div>
-                <div id="KAOQNJVZZA-text" style="">
+        <div class="MZRJHHBFWL-row" id="MZRJHHBFWL-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="MZRJHHBFWL-text-wrapper" class="MZRJHHBFWL-col" style="width:70%;">
+                <div class="MZRJHHBFWL-hdr" id="MZRJHHBFWL-dochdr"></div>
+                <div id="MZRJHHBFWL-text" style="">
                 </div>
             </div>
-            <div id="KAOQNJVZZA-chooser" class="KAOQNJVZZA-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MZRJHHBFWL-chooser" class="MZRJHHBFWL-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="KAOQNJVZZA-row" id="KAOQNJVZZA-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="KAOQNJVZZA-details" class="KAOQNJVZZA-col" style="width:100%; border-top-width: 0px;">
+        <div class="MZRJHHBFWL-row" id="MZRJHHBFWL-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="MZRJHHBFWL-details" class="MZRJHHBFWL-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let KAOQNJVZZA_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
-    let KAOQNJVZZA_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(KAOQNJVZZA_data, KAOQNJVZZA_parms), "KAOQNJVZZA-").init();
+    let MZRJHHBFWL_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let MZRJHHBFWL_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(MZRJHHBFWL_data, MZRJHHBFWL_parms), "MZRJHHBFWL-").init();
     </script>
   </div>
 
@@ -796,12 +796,12 @@ for doc in src2:
 
     length is: 5
     Original documents:
-    Document(And another document.,features=Features({'__idx_140482475100432': 0}),anns=[])
+    Document(And another document.,features=Features({'__idx_140326513765136': 0}),anns=[])
     Document(Another text.
-    This one has two lines,features=Features({'__idx_140482475100432': 1}),anns=[])
-    Document(This is the first text.,features=Features({'__idx_140482475100432': 2}),anns=[])
-    Document(some other document,features=Features({'__idx_140482475100432': 3}),anns=[])
-    Document(Another new document,features=Features({'__idx_140482475100432': 4}),anns=[])
+    This one has two lines,features=Features({'__idx_140326513765136': 1}),anns=[])
+    Document(This is the first text.,features=Features({'__idx_140326513765136': 2}),anns=[])
+    Document(some other document,features=Features({'__idx_140326513765136': 3}),anns=[])
+    Document(Another new document,features=Features({'__idx_140326513765136': 4}),anns=[])
     Updated documents:
     Document(And another document.,features=Features({'docidx': 0, '_relpath': '3.bdocjs'}),anns=['':1])
     Document(Another text.
@@ -830,25 +830,25 @@ viewer.show()
 
 
 
-<div><style>#YKPHCJFTCW-wrapper { color: black !important; }</style>
-<div id="YKPHCJFTCW-wrapper">
+<div><style>#MJYCGPLODR-wrapper { color: black !important; }</style>
+<div id="MJYCGPLODR-wrapper">
 
 <div>
 <style>
-#YKPHCJFTCW-content {
+#MJYCGPLODR-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.YKPHCJFTCW-row {
+.MJYCGPLODR-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.YKPHCJFTCW-col {
+.MJYCGPLODR-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -858,23 +858,23 @@ viewer.show()
     overflow-y: auto;
 }
 
-.YKPHCJFTCW-hdr {
+.MJYCGPLODR-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.YKPHCJFTCW-label {
+.MJYCGPLODR-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.YKPHCJFTCW-input {
+.MJYCGPLODR-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#YKPHCJFTCW-popup {
+#MJYCGPLODR-popup {
     display: none;
     color: black;
     position: absolute;
@@ -889,44 +889,44 @@ viewer.show()
     overflow: auto;
 }
 
-.YKPHCJFTCW-selection {
+.MJYCGPLODR-selection {
     margin-bottom: 5px;
 }
 
-.YKPHCJFTCW-featuretable {
+.MJYCGPLODR-featuretable {
     margin-top: 10px;
 }
 
-.YKPHCJFTCW-fname {
+.MJYCGPLODR-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.YKPHCJFTCW-fvalue {
+.MJYCGPLODR-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="YKPHCJFTCW-content">
-        <div id="YKPHCJFTCW-popup" style="display: none;">
+  <div id="MJYCGPLODR-content">
+        <div id="MJYCGPLODR-popup" style="display: none;">
         </div>
-        <div class="YKPHCJFTCW-row" id="YKPHCJFTCW-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="YKPHCJFTCW-text-wrapper" class="YKPHCJFTCW-col" style="width:70%;">
-                <div class="YKPHCJFTCW-hdr" id="YKPHCJFTCW-dochdr"></div>
-                <div id="YKPHCJFTCW-text" style="">
+        <div class="MJYCGPLODR-row" id="MJYCGPLODR-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="MJYCGPLODR-text-wrapper" class="MJYCGPLODR-col" style="width:70%;">
+                <div class="MJYCGPLODR-hdr" id="MJYCGPLODR-dochdr"></div>
+                <div id="MJYCGPLODR-text" style="">
                 </div>
             </div>
-            <div id="YKPHCJFTCW-chooser" class="YKPHCJFTCW-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MJYCGPLODR-chooser" class="MJYCGPLODR-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="YKPHCJFTCW-row" id="YKPHCJFTCW-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="YKPHCJFTCW-details" class="YKPHCJFTCW-col" style="width:100%; border-top-width: 0px;">
+        <div class="MJYCGPLODR-row" id="MJYCGPLODR-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="MJYCGPLODR-details" class="MJYCGPLODR-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let YKPHCJFTCW_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
-    let YKPHCJFTCW_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(YKPHCJFTCW_data, YKPHCJFTCW_parms), "YKPHCJFTCW-").init();
+    let MJYCGPLODR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
+    let MJYCGPLODR_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(MJYCGPLODR_data, MJYCGPLODR_parms), "MJYCGPLODR-").init();
     </script>
   </div>
 
@@ -963,21 +963,22 @@ with open(jsonlfile, "wt") as outfp:
 ```python
 # Read the JSONL and convert the text to a document, and store all other fields as document features
 docs = []   # save documents in there for later
-with JsonLinesFileSource(jsonlfile, text_field="text", data_fields=True, data_feature=None) as src:
+with JsonLinesFileSource(jsonlfile, text_field="text", feature_fields=["f1"], data_fields=["f2"]) as src:
     for doc in src:
         print(doc)
         docs.append(doc)
 ```
 
-    Document(this is some text,features=Features({'f1': 12, 'f2': 'some string'}),anns=[])
-    Document(another text,features=Features({'f1': 3, 'f2': 'also a string'}),anns=[])
+    Document(this is some text,features=Features({'f1': 12, '__data': {'f2': 'some string'}}),anns=[])
+    Document(another text,features=Features({'f1': 3, '__data': {'f2': 'also a string'}}),anns=[])
 
 
 
 ```python
 # similarly, a sequence of documents can be written to a JSON lines file by saving the text into 
 # some field and (selected) document features to other fields
-with JsonLinesFileDestination(jsonlfile, text_field="text", data_fields=True, data_feature=None) as dest:
+with JsonLinesFileDestination(
+    jsonlfile, text_field="text", feature_fields=["f1"], data_fields=["f2"], data_feature=None) as dest:
     for doc in docs:
         dest.append(doc)
         

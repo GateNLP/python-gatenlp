@@ -3,6 +3,7 @@ Module that defines Corpus and DocumentSource/DocumentDestination classes which 
 as lines or parts in a file.
 """
 
+from typing import Optional, Union, List, Dict, IO
 import json
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
@@ -83,19 +84,55 @@ class BdocjsLinesFileDestination(DocumentDestination):
         self.fh.close()
 
 
+def _update_dict_from_dict_4spec(todict, fromdict, spec, exclude_key=None, exclude4underscore=False):
+    """
+    Helper function for updating the todoct dict-like object from the fromdict dict-like object, according to
+    spec, where spec is either None/False (do not update anything), True (include all but the exclude_key and
+    keys starting with an underscore if exclude4underscore is True), a list of keys to update (if they are
+    present in the from dict), or a dictionary, mapping which name in the fromdict to update as which key in
+    the todict.
+
+    Returns:
+         nothing, the todict dictionary is updated in place
+    """
+    if not spec:
+        return
+    if spec is True:
+        spec = {}
+        for k in fromdict.keys():
+            if k != exclude_key:
+                if exclude4underscore and k.startswith("_"):
+                    continue
+                spec[k] = k
+    elif isinstance(spec, list):
+        specnew = {}
+        for k in spec:
+            if k != exclude_key:
+                if exclude4underscore and k.startswith("_"):
+                    continue
+                specnew[k] = k
+        spec = specnew
+    elif not isinstance(spec, dict):
+        raise Exception(f"Must specify None, boolean, a list of names or a map of names to names, not {spec}")
+    for kfrom, kto in spec.items():
+        if kfrom in fromdict:
+            todict[kto] = fromdict[kfrom]
+
+
 class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
     """
     A document source which reads one json serialization per line, creates a document from one field
     in the json and optionally stores all or a selection of remaining fields as document features or
-     into a single document feature "__data".
+    into a single document feature "__data".
     """
 
     def __init__(
             self,
-            file,
-            text_field="text",
-            data_fields=None,
-            data_feature="__data"):
+            file: str,
+            text_field: str = "text",
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_feature: Optional[str] = "__data" ):
         """
         Create a JsonLinesFileSource.
 
@@ -103,41 +140,40 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
             file: the file path (a string) or an open file handle.
             text_field: the field name where to get the document text from. If a json object does not contain
                 this field, the empty string is used instead.
-            data_fields: if a list of names, store these fields in the "__data" feature. if True, store all fields.
-                If a list is specified and a JSON object does not contain such a field, None is used instead.
-            data_feature:  if this is None, the data fields are stored as features, otherwise, the data fields are
-                all stored in a feature with this name as entries in a dict. Default is to use a feature with
-                the name "__data".
+            feature_fields: if not None and not False: either a list of field names which will get stored as
+                features with the same name, or a dictionary mapping json fields to feature names, or True to
+                indiciate that all fields (except the one containing the document text and fields where the field
+                name starts with an underscore) get stored as features.
+            data_fields: if not None and not False: either a list of field names which will get stored in the data
+                feature as fields with the same name, or a dictionary mapping json fields to new names, or True to
+                indiciate that all fields (except the one containing the document text) get stored in the data feature.
+                The data feature should be a transient feature (the name starts with two underscores), the
+                name for that feature is specified through the data_feature parameter
+            data_feature:  the name of the data feature if used (if None, "__data" is used)
         """
-        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
         super().__init__()
         self.file = file
         self.text_field = text_field
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = "__data"
         self.data_feature = data_feature
-        self.fh = open(self.file, "rt", encoding="utf-8")
+        self.fh: IO = open(self.file, "rt", encoding="utf-8")
 
     def __iter__(self):
         for line in self.fh:
             data = json.loads(line)
             text = data.get(self.text_field, "")
             doc = Document(text)
+            _update_dict_from_dict_4spec(
+                doc.features, data, self.feature_fields,
+                exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
             if self.data_fields:
-                if isinstance(self.data_fields, list):
-                    tmp = {}
-                    for fname in self.data_fields:
-                        tmp[fname] = data.get(fname)
-                else:
-                    tmp = data
-                if self.data_feature is not None:
-                    doc.features[self.data_feature] = {}
-                    for k, v in tmp.items():
-                        if k != self.text_field:
-                            doc.features[self.data_feature][k] = tmp[k]
-                else:
-                    for k, v in tmp.items():
-                        if k != self.text_field:
-                            doc.features[k] = tmp[k]
+                doc.features[self.data_feature] = {}
+                _update_dict_from_dict_4spec(
+                    doc.features[self.data_feature], data, self.data_fields,
+                    exclude_key=self.text_field, exclude4underscore=False)
             self._n += 1
             yield doc
 
@@ -151,7 +187,6 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
         self.fh.close()
 
 
-
 class JsonLinesFileDestination(DocumentDestination):
     """
     Writes one line of JSON per document to the a single output file. This will either write the document json
@@ -161,10 +196,11 @@ class JsonLinesFileDestination(DocumentDestination):
 
     def __init__(
             self,
-            file,
-            text_field="text",
-            document_bdocjs=False,
-            data_fields=True,
+            file: Union[str, IO],
+            text_field: str = "text",
+            document_bdocjs: bool = False,
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
             data_feature="__data"):
         """
 
@@ -174,13 +210,14 @@ class JsonLinesFileDestination(DocumentDestination):
             text_field: the name of the json field that will contain the document either just the text or
                the bdocjs representation if document_bdocjs is True.
             document_bdocjs: if True store the bdocjs serialization into the document_field instead of just the text
-            data_fields: if a list, store these fields in the json, if False,
-                do not store any field, if True (default) store all fields. The fields are taken from the document
-                feature specified as data_feature, or if that is None, directly from the document features.
-                If the fields are taken from document features and data_fields is True, only features with names that
-                do nut start with an underscore are added.
-            data_feature: the name of the data feature, default is "__data". If this is None, fields are saved
-                directly from the document features instead.
+            feature_fields: if not None and not False: either a list of features names which will get stored as
+                fields with the same name, or a dictionary mapping feature names to field names, or True to
+                indiciate that all features (except the one containing the document text and features where the field
+                name starts with an underscore) get stored as fields.
+            data_fields: if not None and not False: either a list of feature names from the data feature which will get
+                stored as fields with the same name, or a dictionary mapping feature to field names, or True to
+                indiciate that all features (except the one containing the document text) get stored as fields.
+            data_feature:  the name of the data feature if used (if None, "__data" is used)
         """
         super().__init__()
         if isinstance(file, str):
@@ -189,7 +226,10 @@ class JsonLinesFileDestination(DocumentDestination):
             self.fh = file
         self.text_field = text_field
         self.document_bdocjs = document_bdocjs
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = "__data"
         self.data_feature = data_feature
 
     def __enter__(self):
@@ -209,20 +249,15 @@ class JsonLinesFileDestination(DocumentDestination):
             return
         assert isinstance(doc, Document)
         data = {}
-        if self.data_feature is None:
-            src = doc.features
-        else:
-            src = doc.features[self.data_feature]
-        if self.data_fields:
-            if isinstance(self.data_fields, list):
-                for fname in self.data_fields:
-                    if fname != self.text_field:
-                        data[fname] = src[fname]
-            else:
-                for fname in src.keys():
-                    if fname != self.text_field:
-                        if self.data_feature or (self.data_feature is None and not fname.startswith("_")):
-                            data[fname] = src[fname]
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features,
+            self.feature_fields,
+            exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features.get(self.data_feature, {}), self.data_fields,
+            exclude_key=self.text_field, exclude4underscore=False)
         # assign the document field last so it overwrites anything that comes from the data feature!
         if self.document_bdocjs:
             data[self.text_field] = doc.save_mem(fmt="json")

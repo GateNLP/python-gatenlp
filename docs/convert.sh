@@ -19,6 +19,11 @@ client_tagme
 client_textrazor
 client_googlenlp
 corpora
+processing
+tokenizers
+gazetteers
+stringregex
+pampac
 EOF
 )
 

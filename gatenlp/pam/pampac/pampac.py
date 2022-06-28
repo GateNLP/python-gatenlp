@@ -220,7 +220,7 @@ class PampacAnnotator(Annotator):
                 and returned. Default: do not use containing annotations and run for the whole document.
         """
         self.pampac = pampac
-        self.annsepc = annspec
+        self.annspec = annspec
         self.outset_name = outset_name
         self.containing_anns_desc = containing_anns_desc
 

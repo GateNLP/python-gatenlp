@@ -67,15 +67,16 @@ for running on your own computer (NB-DL).
     * [TagMe Client](client_tagme) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_tagme.ipynb) / [NB-DL](client_tagme.ipynb)
     * [TextRazor Client](client_textrazor) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_textrazor.ipynb) / [NB-DL](client_textrazor.ipynb)
 * Modules related to NLP processing:
-    * [Corpora](corpora) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [NB-DL](corpora.ipynb)
+    * [Corpora and Document Sources / Destinations](corpora) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [NB-DL](corpora.ipynb)
     * [Processing](processing) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [NB-DL](processing.ipynb)
     * [Tokenizers](tokenizers) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/tokenizers.ipynb) / [NB-DL](tokenizers.ipynb)
     * Matching strings and token sequences:
-      * [Gazetteers](gazetteers) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [NB-DL](gazetteers.ipynb)
+      * [Token/String Gazetteers](gazetteers) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/gazetteers.ipynb) / [NB-DL](gazetteers.ipynb)
       * [Regular Expressions Annotator](stringregex) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/stringregex.ipynb) / [NB-DL](stringregex.ipynb)
     * Complex Annotation Patterns for matching text and annotation sequences: 
       * [PAMPAC](pampac) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [NB-DL](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)
+* [Viewers and object representation(visualization)] / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/visualization.ipynb) / [NB-DL](visualization.ipynb)
 * [Miscellaneous Recipes and Examples](recipes)
 
 ## Course Materials
