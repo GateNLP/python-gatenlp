@@ -195,6 +195,7 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             yield doc
 
 
+
 class DirFilesDestination(DocumentDestination):
     """
     A destination where each document is stored in a file in a directory or directory tree in some

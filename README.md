@@ -24,6 +24,18 @@ Python package for:
 * Allow to use Python processing from Java GATE via the GATE Python plugin
 * Provide abstractions for building complex processing pipelines
 
+Python GateNLP is a natural language processing (NLP) and text processing framework implemented in Python. 
+
+It provides very flexible representations of documents, stand-off annotations with arbitrary types and features, grouped into arbitrary annotations sets,
+spans, corpora, annotators, pipelines and more. Documents, annotations and corpora can be easily and interactively visualized in notebooks. 
+It provides the ability to use existing NLP tools for annotating documents out of the box: Spacy, Stanza as well as online services like 
+Gate Cloud, ELG, Google NLP, IBM Watson and others. The result of these tools get represented as GateNLP annotations making it easy to 
+write code that works with all of these tools in the same way or compares or combines the results of these tools. 
+
+In addition, GateNLP provides its own annotator tools: string-based and token based gazetteers, regular-expression-based annotators, and a very powerful
+and flexible rule-based annotator (PAMPAC) which allows to match complex pattern of annotations and text. 
+
+
 ## Documentation and feedback
 
 * Documentation:
@@ -61,6 +73,7 @@ a Java GATE process in two different ways:
 * The Java GATE Python plugin can invoke a python process to annotate GATE documents
   with python code
 * the python code can remote-control a Jave GATE instance
+
 
 ## Versions and Roadmap
 

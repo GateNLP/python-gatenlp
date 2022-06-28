@@ -17,6 +17,8 @@ client_gatecloud
 client_ibmnlu
 client_tagme
 client_textrazor
+client_googlenlp
+corpora
 EOF
 )
 

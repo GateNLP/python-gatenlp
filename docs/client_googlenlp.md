@@ -9,7 +9,7 @@ The `GoogleNlpAnnotator` is an annotator that uses the [Google Natural Language 
 import os
 import json
 from gatenlp import Document, Span
-from gatenlp.processing.client import GoogleNlpAnnotator
+from gatenlp.processing.client.googlenlp import GoogleNlpAnnotator
 ```
 
 The IBM NLU service can return various kinds of information about a text, these are called "features" in the context of the Google service. The `GoogleNlpAnnotator` allows to configure the features to return by specifying a comma-separated list of feature names for the `which_features` parameter. 
@@ -44,12 +44,18 @@ doc
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -194,6 +200,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -229,15 +243,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -283,6 +291,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -294,17 +303,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -321,7 +337,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -472,25 +488,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#OKHTVITBME-wrapper { color: black !important; }</style>
-<div id="OKHTVITBME-wrapper">
+<div><style>#CMNYEEIVRD-wrapper { color: black !important; }</style>
+<div id="CMNYEEIVRD-wrapper">
 
 <div>
 <style>
-#OKHTVITBME-content {
+#CMNYEEIVRD-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.OKHTVITBME-row {
+.CMNYEEIVRD-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.OKHTVITBME-col {
+.CMNYEEIVRD-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -500,23 +516,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.OKHTVITBME-hdr {
+.CMNYEEIVRD-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.OKHTVITBME-label {
+.CMNYEEIVRD-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.OKHTVITBME-input {
+.CMNYEEIVRD-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#OKHTVITBME-popup {
+#CMNYEEIVRD-popup {
     display: none;
     color: black;
     position: absolute;
@@ -531,43 +547,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.OKHTVITBME-selection {
+.CMNYEEIVRD-selection {
     margin-bottom: 5px;
 }
 
-.OKHTVITBME-featuretable {
+.CMNYEEIVRD-featuretable {
     margin-top: 10px;
 }
 
-.OKHTVITBME-fname {
+.CMNYEEIVRD-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.OKHTVITBME-fvalue {
+.CMNYEEIVRD-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="OKHTVITBME-content">
-        <div id="OKHTVITBME-popup" style="display: none;">
+  <div id="CMNYEEIVRD-content">
+        <div id="CMNYEEIVRD-popup" style="display: none;">
         </div>
-        <div class="OKHTVITBME-row" id="OKHTVITBME-row1" style="min-height:5em;max-height:20em;">
-            <div id="OKHTVITBME-text-wrapper" class="OKHTVITBME-col" style="width:70%;">
-                <div class="OKHTVITBME-hdr" id="OKHTVITBME-dochdr"></div>
-                <div id="OKHTVITBME-text" style="">
+        <div class="CMNYEEIVRD-row" id="CMNYEEIVRD-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="CMNYEEIVRD-text-wrapper" class="CMNYEEIVRD-col" style="width:70%;">
+                <div class="CMNYEEIVRD-hdr" id="CMNYEEIVRD-dochdr"></div>
+                <div id="CMNYEEIVRD-text" style="">
                 </div>
             </div>
-            <div id="OKHTVITBME-chooser" class="OKHTVITBME-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="CMNYEEIVRD-chooser" class="CMNYEEIVRD-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="OKHTVITBME-row" id="OKHTVITBME-row2" style="min-height:3em;max-height:14em;">
-            <div id="OKHTVITBME-details" class="OKHTVITBME-col" style="width:100%;border-top-width:0px;">
+        <div class="CMNYEEIVRD-row" id="CMNYEEIVRD-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="CMNYEEIVRD-details" class="CMNYEEIVRD-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let OKHTVITBME_data = {"annotation_sets": {}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(OKHTVITBME_data), "OKHTVITBME-").init();
+    let CMNYEEIVRD_data = {"annotation_sets": {}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    let CMNYEEIVRD_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(CMNYEEIVRD_data, CMNYEEIVRD_parms), "CMNYEEIVRD-").init();
     </script>
   </div>
 
@@ -589,25 +606,25 @@ doc
 
 
 
-<div><style>#KVBKPNOVOB-wrapper { color: black !important; }</style>
-<div id="KVBKPNOVOB-wrapper">
+<div><style>#XCFXIQVAED-wrapper { color: black !important; }</style>
+<div id="XCFXIQVAED-wrapper">
 
 <div>
 <style>
-#KVBKPNOVOB-content {
+#XCFXIQVAED-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.KVBKPNOVOB-row {
+.XCFXIQVAED-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.KVBKPNOVOB-col {
+.XCFXIQVAED-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -617,23 +634,23 @@ doc
     overflow-y: auto;
 }
 
-.KVBKPNOVOB-hdr {
+.XCFXIQVAED-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.KVBKPNOVOB-label {
+.XCFXIQVAED-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.KVBKPNOVOB-input {
+.XCFXIQVAED-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#KVBKPNOVOB-popup {
+#XCFXIQVAED-popup {
     display: none;
     color: black;
     position: absolute;
@@ -648,46 +665,56 @@ doc
     overflow: auto;
 }
 
-.KVBKPNOVOB-selection {
+.XCFXIQVAED-selection {
     margin-bottom: 5px;
 }
 
-.KVBKPNOVOB-featuretable {
+.XCFXIQVAED-featuretable {
     margin-top: 10px;
 }
 
-.KVBKPNOVOB-fname {
+.XCFXIQVAED-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.KVBKPNOVOB-fvalue {
+.XCFXIQVAED-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="KVBKPNOVOB-content">
-        <div id="KVBKPNOVOB-popup" style="display: none;">
+  <div id="XCFXIQVAED-content">
+        <div id="XCFXIQVAED-popup" style="display: none;">
         </div>
-        <div class="KVBKPNOVOB-row" id="KVBKPNOVOB-row1" style="min-height:5em;max-height:20em;">
-            <div id="KVBKPNOVOB-text-wrapper" class="KVBKPNOVOB-col" style="width:70%;">
-                <div class="KVBKPNOVOB-hdr" id="KVBKPNOVOB-dochdr"></div>
-                <div id="KVBKPNOVOB-text" style="">
+        <div class="XCFXIQVAED-row" id="XCFXIQVAED-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="XCFXIQVAED-text-wrapper" class="XCFXIQVAED-col" style="width:70%;">
+                <div class="XCFXIQVAED-hdr" id="XCFXIQVAED-dochdr"></div>
+                <div id="XCFXIQVAED-text" style="">
                 </div>
             </div>
-            <div id="KVBKPNOVOB-chooser" class="KVBKPNOVOB-col" style="width:30%;border-left-width:0px;"></div>
+            <div id="XCFXIQVAED-chooser" class="XCFXIQVAED-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="KVBKPNOVOB-row" id="KVBKPNOVOB-row2" style="min-height:3em;max-height:14em;">
-            <div id="KVBKPNOVOB-details" class="KVBKPNOVOB-col" style="width:100%;border-top-width:0px;">
+        <div class="XCFXIQVAED-row" id="XCFXIQVAED-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="XCFXIQVAED-details" class="XCFXIQVAED-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let KVBKPNOVOB_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Sentence", "start": 1, "end": 32, "id": 0, "features": {"sentiment_magnitude": 0.5, "sentiment_score": -0.5}}, {"type": "Sentence", "start": 33, "end": 181, "id": 1, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 182, "end": 242, "id": 2, "features": {"sentiment_magnitude": 0.20000000298023224, "sentiment_score": -0.20000000298023224}}, {"type": "Sentence", "start": 243, "end": 314, "id": 3, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 315, "end": 398, "id": 4, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 399, "end": 455, "id": 5, "features": {"sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "Token", "start": 1, "end": 5, "id": 6, "features": {"pos": "DET", "number": "SINGULAR", "head": 1, "deprel": "NSUBJ", "lemma": "This"}}, {"type": "Token", "start": 6, "end": 8, "id": 7, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 1, "deprel": "ROOT", "lemma": "be"}}, {"type": "Token", "start": 9, "end": 13, "id": 8, "features": {"pos": "ADV", "head": 5, "deprel": "ADVMOD", "lemma": "just"}}, {"type": "Token", "start": 14, "end": 18, "id": 9, "features": {"pos": "DET", "head": 5, "deprel": "DET", "lemma": "some"}}, {"type": "Token", "start": 19, "end": 26, "id": 10, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 5, "deprel": "NN", "lemma": "example"}}, {"type": "Token", "start": 27, "end": 31, "id": 11, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 1, "deprel": "ATTR", "lemma": "text"}}, {"type": "Token", "start": 31, "end": 32, "id": 12, "features": {"pos": "PUNCT", "head": 1, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 33, "end": 35, "id": 13, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 8, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 36, "end": 44, "id": 14, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 8, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 45, "end": 48, "id": 15, "features": {"pos": "DET", "head": 10, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 49, "end": 53, "id": 16, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 8, "deprel": "DOBJ", "lemma": "name"}}, {"type": "Token", "start": 54, "end": 56, "id": 17, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 12, "deprel": "NN", "lemma": "US"}}, {"type": "Token", "start": 57, "end": 66, "id": 18, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 14, "deprel": "TITLE", "lemma": "President"}}, {"type": "Token", "start": 67, "end": 73, "id": 19, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 14, "deprel": "NN", "lemma": "Barack"}}, {"type": "Token", "start": 74, "end": 79, "id": 20, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 10, "deprel": "APPOS", "lemma": "Obama"}}, {"type": "Token", "start": 80, "end": 83, "id": 21, "features": {"pos": "CONJ", "head": 14, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 84, "end": 87, "id": 22, "features": {"pos": "DET", "head": 17, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 89, "end": 98, "id": 23, "features": {"pos": "NOUN", "number": "PLURAL", "head": 14, "deprel": "CONJ", "lemma": "company"}}, {"type": "Token", "start": 99, "end": 108, "id": 24, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 17, "deprel": "APPOS", "lemma": "Microsoft"}}, {"type": "Token", "start": 108, "end": 109, "id": 25, "features": {"pos": "PUNCT", "head": 18, "deprel": "P", "lemma": ","}}, {"type": "Token", "start": 110, "end": 113, "id": 26, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 18, "deprel": "CONJ", "lemma": "IBM"}}, {"type": "Token", "start": 113, "end": 114, "id": 27, "features": {"pos": "PUNCT", "head": 18, "deprel": "P", "lemma": ","}}, {"type": "Token", "start": 115, "end": 121, "id": 28, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 18, "deprel": "CONJ", "lemma": "Google"}}, {"type": "Token", "start": 122, "end": 124, "id": 29, "features": {"pos": "ADV", "head": 24, "deprel": "ADVMOD", "lemma": "as"}}, {"type": "Token", "start": 125, "end": 129, "id": 30, "features": {"pos": "ADV", "head": 18, "deprel": "CC", "lemma": "well"}}, {"type": "Token", "start": 130, "end": 132, "id": 31, "features": {"pos": "ADP", "head": 24, "deprel": "MWE", "lemma": "as"}}, {"type": "Token", "start": 133, "end": 134, "id": 32, "features": {"pos": "DET", "head": 29, "deprel": "DET", "lemma": "a"}}, {"type": "Token", "start": 135, "end": 138, "id": 33, "features": {"pos": "ADJ", "head": 29, "deprel": "AMOD", "lemma": "few"}}, {"type": "Token", "start": 139, "end": 144, "id": 34, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 29, "deprel": "NN", "lemma": "place"}}, {"type": "Token", "start": 145, "end": 150, "id": 35, "features": {"pos": "NOUN", "number": "PLURAL", "head": 18, "deprel": "CONJ", "lemma": "name"}}, {"type": "Token", "start": 151, "end": 155, "id": 36, "features": {"pos": "ADP", "head": 29, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 156, "end": 159, "id": 37, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 32, "deprel": "NN", "lemma": "Los"}}, {"type": "Token", "start": 160, "end": 167, "id": 38, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 30, "deprel": "POBJ", "lemma": "Angeles"}}, {"type": "Token", "start": 168, "end": 171, "id": 39, "features": {"pos": "CONJ", "head": 32, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 172, "end": 175, "id": 40, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 35, "deprel": "NN", "lemma": "New"}}, {"type": "Token", "start": 176, "end": 180, "id": 41, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 32, "deprel": "CONJ", "lemma": "York"}}, {"type": "Token", "start": 180, "end": 181, "id": 42, "features": {"pos": "PUNCT", "head": 8, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 182, "end": 184, "id": 43, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 38, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 185, "end": 188, "id": 44, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 38, "deprel": "ROOT", "lemma": "have"}}, {"type": "Token", "start": 189, "end": 196, "id": 45, "features": {"pos": "ADJ", "head": 40, "deprel": "AMOD", "lemma": "strange"}}, {"type": "Token", "start": 197, "end": 207, "id": 46, "features": {"pos": "NOUN", "number": "PLURAL", "head": 38, "deprel": "DOBJ", "lemma": "character"}}, {"type": "Token", "start": 208, "end": 212, "id": 47, "features": {"pos": "ADP", "head": 40, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 213, "end": 215, "id": 48, "features": {"pos": "NUM", "head": 41, "deprel": "POBJ", "lemma": "\ud83d\udca9"}}, {"type": "Token", "start": 216, "end": 219, "id": 49, "features": {"pos": "CONJ", "head": 42, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 220, "end": 226, "id": 50, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 42, "deprel": "CONJ", "lemma": "emoji"}}, {"type": "Token", "start": 227, "end": 231, "id": 51, "features": {"pos": "ADP", "head": 44, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 232, "end": 234, "id": 52, "features": {"pos": "NUM", "head": 45, "deprel": "POBJ", "lemma": "\ud83d\ude0a"}}, {"type": "Token", "start": 235, "end": 238, "id": 53, "features": {"pos": "CONJ", "head": 46, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 239, "end": 241, "id": 54, "features": {"pos": "NUM", "head": 46, "deprel": "CONJ", "lemma": "\ud83d\ude02"}}, {"type": "Token", "start": 241, "end": 242, "id": 55, "features": {"pos": "PUNCT", "head": 38, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 243, "end": 247, "id": 56, "features": {"pos": "ADV", "number": "SINGULAR", "person": "THIRD", "head": 52, "deprel": "ADVMOD", "lemma": "Here"}}, {"type": "Token", "start": 248, "end": 250, "id": 57, "features": {"pos": "PRON", "number": "PLURAL", "person": "FIRST", "case": "NOMINATIVE", "head": 52, "deprel": "NSUBJ", "lemma": "we"}}, {"type": "Token", "start": 251, "end": 258, "id": 58, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PRESENT", "head": 52, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 259, "end": 265, "id": 59, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 54, "deprel": "NN", "lemma": "Barack"}}, {"type": "Token", "start": 266, "end": 271, "id": 60, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 52, "deprel": "DOBJ", "lemma": "Obama"}}, {"type": "Token", "start": 272, "end": 277, "id": 61, "features": {"pos": "ADV", "head": 52, "deprel": "ADVMOD", "lemma": "again"}}, {"type": "Token", "start": 278, "end": 281, "id": 62, "features": {"pos": "CONJ", "head": 52, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 282, "end": 286, "id": 63, "features": {"pos": "ADV", "number": "SINGULAR", "person": "THIRD", "head": 59, "deprel": "ADVMOD", "lemma": "here"}}, {"type": "Token", "start": 287, "end": 289, "id": 64, "features": {"pos": "PRON", "number": "PLURAL", "person": "FIRST", "case": "NOMINATIVE", "head": 59, "deprel": "NSUBJ", "lemma": "we"}}, {"type": "Token", "start": 290, "end": 297, "id": 65, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PRESENT", "head": 52, "deprel": "CONJ", "lemma": "mention"}}, {"type": "Token", "start": 298, "end": 305, "id": 66, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 61, "deprel": "NN", "lemma": "Charlie"}}, {"type": "Token", "start": 306, "end": 313, "id": 67, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 59, "deprel": "NSUBJ", "lemma": "Chaplin"}}, {"type": "Token", "start": 313, "end": 314, "id": 68, "features": {"pos": "PUNCT", "head": 52, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 315, "end": 317, "id": 69, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 64, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 318, "end": 326, "id": 70, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 64, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 327, "end": 338, "id": 71, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 64, "deprel": "DOBJ", "lemma": "mathematics"}}, {"type": "Token", "start": 339, "end": 342, "id": 72, "features": {"pos": "CONJ", "head": 65, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 343, "end": 350, "id": 73, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 65, "deprel": "CONJ", "lemma": "economy"}}, {"type": "Token", "start": 351, "end": 354, "id": 74, "features": {"pos": "CONJ", "head": 65, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 355, "end": 358, "id": 75, "features": {"pos": "DET", "head": 75, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 359, "end": 364, "id": 76, "features": {"pos": "NOUN", "number": "PLURAL", "head": 71, "deprel": "NN", "lemma": "term"}}, {"type": "Token", "start": 365, "end": 370, "id": 77, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 75, "deprel": "NN", "lemma": "cloud"}}, {"type": "Token", "start": 371, "end": 380, "id": 78, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 75, "deprel": "NN", "lemma": "computing"}}, {"type": "Token", "start": 381, "end": 384, "id": 79, "features": {"pos": "CONJ", "head": 72, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 385, "end": 389, "id": 80, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 72, "deprel": "CONJ", "lemma": "gene"}}, {"type": "Token", "start": 390, "end": 397, "id": 81, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 65, "deprel": "CONJ", "lemma": "therapy"}}, {"type": "Token", "start": 397, "end": 398, "id": 82, "features": {"pos": "PUNCT", "head": 64, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 399, "end": 403, "id": 83, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 78, "deprel": "NN", "lemma": "John"}}, {"type": "Token", "start": 404, "end": 409, "id": 84, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 79, "deprel": "NSUBJ", "lemma": "Smith"}}, {"type": "Token", "start": 410, "end": 414, "id": 85, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PAST", "head": 79, "deprel": "ROOT", "lemma": "beat"}}, {"type": "Token", "start": 415, "end": 421, "id": 86, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 81, "deprel": "NN", "lemma": "Harald"}}, {"type": "Token", "start": 422, "end": 429, "id": 87, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 79, "deprel": "DOBJ", "lemma": "Schmidt"}}, {"type": "Token", "start": 430, "end": 432, "id": 88, "features": {"pos": "ADP", "head": 79, "deprel": "PREP", "lemma": "at"}}, {"type": "Token", "start": 433, "end": 436, "id": 89, "features": {"pos": "DET", "head": 85, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 437, "end": 443, "id": 90, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 85, "deprel": "NN", "lemma": "tennis"}}, {"type": "Token", "start": 444, "end": 454, "id": 91, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 82, "deprel": "POBJ", "lemma": "tournament"}}, {"type": "Token", "start": 454, "end": 455, "id": 92, "features": {"pos": "PUNCT", "head": 79, "deprel": "P", "lemma": "."}}, {"type": "OTHER", "start": 19, "end": 31, "id": 93, "features": {"type": "OTHER", "salience": 0.5180041790008545, "name": "example text", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 67, "end": 79, "id": 94, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 57, "end": 66, "id": 95, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 259, "end": 271, "id": 96, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "PROPER", "sentiment_magnitude": 0.30000001192092896, "sentiment_score": 0.30000001192092896}}, {"type": "OTHER", "start": 49, "end": 53, "id": 97, "features": {"type": "OTHER", "salience": 0.08451000601053238, "name": "name", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "ORGANIZATION", "start": 89, "end": 98, "id": 98, "features": {"type": "ORGANIZATION", "salience": 0.07212014496326447, "name": "Microsoft", "mid": "/m/04sv4", "wikipedia_url": "https://en.wikipedia.org/wiki/Microsoft", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "ORGANIZATION", "start": 99, "end": 108, "id": 99, "features": {"type": "ORGANIZATION", "salience": 0.07212014496326447, "name": "Microsoft", "mid": "/m/04sv4", "wikipedia_url": "https://en.wikipedia.org/wiki/Microsoft", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 197, "end": 207, "id": 100, "features": {"type": "PERSON", "salience": 0.02215736173093319, "name": "characters", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 139, "end": 150, "id": 101, "features": {"type": "OTHER", "salience": 0.02199687622487545, "name": "place names", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 220, "end": 226, "id": 102, "features": {"type": "OTHER", "salience": 0.017877254635095596, "name": "emojis", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "ORGANIZATION", "start": 110, "end": 113, "id": 103, "features": {"type": "ORGANIZATION", "salience": 0.016953714191913605, "name": "IBM", "wikipedia_url": "https://en.wikipedia.org/wiki/IBM", "mid": "/m/03sc8", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "LOCATION", "start": 54, "end": 56, "id": 104, "features": {"type": "LOCATION", "salience": 0.016953714191913605, "name": "US", "mid": "/m/09c7w0", "wikipedia_url": "https://en.wikipedia.org/wiki/United_States", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 359, "end": 380, "id": 105, "features": {"type": "OTHER", "salience": 0.015251295641064644, "name": "terms cloud computing", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 385, "end": 397, "id": 106, "features": {"type": "OTHER", "salience": 0.013402333483099937, "name": "gene therapy", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 343, "end": 350, "id": 107, "features": {"type": "OTHER", "salience": 0.013402333483099937, "name": "economy", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "LOCATION", "start": 172, "end": 180, "id": 108, "features": {"type": "LOCATION", "salience": 0.011593351140618324, "name": "New York", "mid": "/m/02_286", "wikipedia_url": "https://en.wikipedia.org/wiki/New_York_City", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 213, "end": 215, "id": 109, "features": {"type": "PERSON", "salience": 0.011535814963281155, "name": "\ud83d\udca9", "mtype": "PROPER", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "ORGANIZATION", "start": 115, "end": 121, "id": 110, "features": {"type": "ORGANIZATION", "salience": 0.011451964266598225, "name": "Google", "wikipedia_url": "https://en.wikipedia.org/wiki/Google", "mid": "/m/045c7b", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "LOCATION", "start": 156, "end": 167, "id": 111, "features": {"type": "LOCATION", "salience": 0.011451964266598225, "name": "Los Angeles", "mid": "/m/030qb3t", "wikipedia_url": "https://en.wikipedia.org/wiki/Los_Angeles", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 232, "end": 234, "id": 112, "features": {"type": "PERSON", "salience": 0.010586180724203587, "name": "\ud83d\ude0a", "mtype": "PROPER", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 399, "end": 409, "id": 113, "features": {"type": "PERSON", "salience": 0.009993533603847027, "name": "John Smith", "mtype": "PROPER", "sentiment_magnitude": 0.4000000059604645, "sentiment_score": 0.4000000059604645}}, {"type": "EVENT", "start": 437, "end": 454, "id": 114, "features": {"type": "EVENT", "salience": 0.009368153288960457, "name": "tennis tournament", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 327, "end": 338, "id": 115, "features": {"type": "OTHER", "salience": 0.005886400118470192, "name": "mathematics", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 415, "end": 429, "id": 116, "features": {"type": "PERSON", "salience": 0.003692450001835823, "name": "Harald Schmidt", "mid": "/m/015tyq", "wikipedia_url": "https://en.wikipedia.org/wiki/Harald_Schmidt", "mtype": "PROPER", "sentiment_magnitude": 0.4000000059604645, "sentiment_score": 0.4000000059604645}}, {"type": "PERSON", "start": 298, "end": 313, "id": 117, "features": {"type": "PERSON", "salience": 0.003489513648673892, "name": "Charlie Chaplin", "wikipedia_url": "https://en.wikipedia.org/wiki/Charlie_Chaplin", "mid": "/m/01lc5", "mtype": "PROPER", "sentiment_magnitude": 0.30000001192092896, "sentiment_score": 0.30000001192092896}}], "next_annid": 118}}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {"language": "en", "document_sentiment_magnitude": 1.2000000476837158, "document_sentiment_score": -0.10000000149011612}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(KVBKPNOVOB_data), "KVBKPNOVOB-").init();
+    let XCFXIQVAED_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Sentence", "start": 1, "end": 32, "id": 0, "features": {"sentiment_magnitude": 0.5, "sentiment_score": -0.5}}, {"type": "Sentence", "start": 33, "end": 181, "id": 1, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 182, "end": 242, "id": 2, "features": {"sentiment_magnitude": 0.20000000298023224, "sentiment_score": -0.20000000298023224}}, {"type": "Sentence", "start": 243, "end": 314, "id": 3, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 315, "end": 398, "id": 4, "features": {"sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "Sentence", "start": 399, "end": 455, "id": 5, "features": {"sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "Token", "start": 1, "end": 5, "id": 6, "features": {"pos": "DET", "number": "SINGULAR", "head": 1, "deprel": "NSUBJ", "lemma": "This"}}, {"type": "Token", "start": 6, "end": 8, "id": 7, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 1, "deprel": "ROOT", "lemma": "be"}}, {"type": "Token", "start": 9, "end": 13, "id": 8, "features": {"pos": "ADV", "head": 5, "deprel": "ADVMOD", "lemma": "just"}}, {"type": "Token", "start": 14, "end": 18, "id": 9, "features": {"pos": "DET", "head": 5, "deprel": "DET", "lemma": "some"}}, {"type": "Token", "start": 19, "end": 26, "id": 10, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 5, "deprel": "NN", "lemma": "example"}}, {"type": "Token", "start": 27, "end": 31, "id": 11, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 1, "deprel": "ATTR", "lemma": "text"}}, {"type": "Token", "start": 31, "end": 32, "id": 12, "features": {"pos": "PUNCT", "head": 1, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 33, "end": 35, "id": 13, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 8, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 36, "end": 44, "id": 14, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 8, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 45, "end": 48, "id": 15, "features": {"pos": "DET", "head": 10, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 49, "end": 53, "id": 16, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 8, "deprel": "DOBJ", "lemma": "name"}}, {"type": "Token", "start": 54, "end": 56, "id": 17, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 12, "deprel": "NN", "lemma": "US"}}, {"type": "Token", "start": 57, "end": 66, "id": 18, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 14, "deprel": "TITLE", "lemma": "President"}}, {"type": "Token", "start": 67, "end": 73, "id": 19, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 14, "deprel": "NN", "lemma": "Barack"}}, {"type": "Token", "start": 74, "end": 79, "id": 20, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 10, "deprel": "APPOS", "lemma": "Obama"}}, {"type": "Token", "start": 80, "end": 83, "id": 21, "features": {"pos": "CONJ", "head": 14, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 84, "end": 87, "id": 22, "features": {"pos": "DET", "head": 17, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 89, "end": 98, "id": 23, "features": {"pos": "NOUN", "number": "PLURAL", "head": 14, "deprel": "CONJ", "lemma": "company"}}, {"type": "Token", "start": 99, "end": 108, "id": 24, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 17, "deprel": "APPOS", "lemma": "Microsoft"}}, {"type": "Token", "start": 108, "end": 109, "id": 25, "features": {"pos": "PUNCT", "head": 18, "deprel": "P", "lemma": ","}}, {"type": "Token", "start": 110, "end": 113, "id": 26, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 18, "deprel": "CONJ", "lemma": "IBM"}}, {"type": "Token", "start": 113, "end": 114, "id": 27, "features": {"pos": "PUNCT", "head": 18, "deprel": "P", "lemma": ","}}, {"type": "Token", "start": 115, "end": 121, "id": 28, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 18, "deprel": "CONJ", "lemma": "Google"}}, {"type": "Token", "start": 122, "end": 124, "id": 29, "features": {"pos": "ADV", "head": 24, "deprel": "ADVMOD", "lemma": "as"}}, {"type": "Token", "start": 125, "end": 129, "id": 30, "features": {"pos": "ADV", "head": 18, "deprel": "CC", "lemma": "well"}}, {"type": "Token", "start": 130, "end": 132, "id": 31, "features": {"pos": "ADP", "head": 24, "deprel": "MWE", "lemma": "as"}}, {"type": "Token", "start": 133, "end": 134, "id": 32, "features": {"pos": "DET", "head": 29, "deprel": "DET", "lemma": "a"}}, {"type": "Token", "start": 135, "end": 138, "id": 33, "features": {"pos": "ADJ", "head": 29, "deprel": "AMOD", "lemma": "few"}}, {"type": "Token", "start": 139, "end": 144, "id": 34, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 29, "deprel": "NN", "lemma": "place"}}, {"type": "Token", "start": 145, "end": 150, "id": 35, "features": {"pos": "NOUN", "number": "PLURAL", "head": 18, "deprel": "CONJ", "lemma": "name"}}, {"type": "Token", "start": 151, "end": 155, "id": 36, "features": {"pos": "ADP", "head": 29, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 156, "end": 159, "id": 37, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 32, "deprel": "NN", "lemma": "Los"}}, {"type": "Token", "start": 160, "end": 167, "id": 38, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 30, "deprel": "POBJ", "lemma": "Angeles"}}, {"type": "Token", "start": 168, "end": 171, "id": 39, "features": {"pos": "CONJ", "head": 32, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 172, "end": 175, "id": 40, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 35, "deprel": "NN", "lemma": "New"}}, {"type": "Token", "start": 176, "end": 180, "id": 41, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 32, "deprel": "CONJ", "lemma": "York"}}, {"type": "Token", "start": 180, "end": 181, "id": 42, "features": {"pos": "PUNCT", "head": 8, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 182, "end": 184, "id": 43, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 38, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 185, "end": 188, "id": 44, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 38, "deprel": "ROOT", "lemma": "have"}}, {"type": "Token", "start": 189, "end": 196, "id": 45, "features": {"pos": "ADJ", "head": 40, "deprel": "AMOD", "lemma": "strange"}}, {"type": "Token", "start": 197, "end": 207, "id": 46, "features": {"pos": "NOUN", "number": "PLURAL", "head": 38, "deprel": "DOBJ", "lemma": "character"}}, {"type": "Token", "start": 208, "end": 212, "id": 47, "features": {"pos": "ADP", "head": 40, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 213, "end": 215, "id": 48, "features": {"pos": "NUM", "head": 41, "deprel": "POBJ", "lemma": "\ud83d\udca9"}}, {"type": "Token", "start": 216, "end": 219, "id": 49, "features": {"pos": "CONJ", "head": 42, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 220, "end": 226, "id": 50, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 42, "deprel": "CONJ", "lemma": "emoji"}}, {"type": "Token", "start": 227, "end": 231, "id": 51, "features": {"pos": "ADP", "head": 44, "deprel": "PREP", "lemma": "like"}}, {"type": "Token", "start": 232, "end": 234, "id": 52, "features": {"pos": "NUM", "head": 45, "deprel": "POBJ", "lemma": "\ud83d\ude0a"}}, {"type": "Token", "start": 235, "end": 238, "id": 53, "features": {"pos": "CONJ", "head": 46, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 239, "end": 241, "id": 54, "features": {"pos": "NUM", "head": 46, "deprel": "CONJ", "lemma": "\ud83d\ude02"}}, {"type": "Token", "start": 241, "end": 242, "id": 55, "features": {"pos": "PUNCT", "head": 38, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 243, "end": 247, "id": 56, "features": {"pos": "ADV", "number": "SINGULAR", "person": "THIRD", "head": 52, "deprel": "ADVMOD", "lemma": "Here"}}, {"type": "Token", "start": 248, "end": 250, "id": 57, "features": {"pos": "PRON", "number": "PLURAL", "person": "FIRST", "case": "NOMINATIVE", "head": 52, "deprel": "NSUBJ", "lemma": "we"}}, {"type": "Token", "start": 251, "end": 258, "id": 58, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PRESENT", "head": 52, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 259, "end": 265, "id": 59, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 54, "deprel": "NN", "lemma": "Barack"}}, {"type": "Token", "start": 266, "end": 271, "id": 60, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 52, "deprel": "DOBJ", "lemma": "Obama"}}, {"type": "Token", "start": 272, "end": 277, "id": 61, "features": {"pos": "ADV", "head": 52, "deprel": "ADVMOD", "lemma": "again"}}, {"type": "Token", "start": 278, "end": 281, "id": 62, "features": {"pos": "CONJ", "head": 52, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 282, "end": 286, "id": 63, "features": {"pos": "ADV", "number": "SINGULAR", "person": "THIRD", "head": 59, "deprel": "ADVMOD", "lemma": "here"}}, {"type": "Token", "start": 287, "end": 289, "id": 64, "features": {"pos": "PRON", "number": "PLURAL", "person": "FIRST", "case": "NOMINATIVE", "head": 59, "deprel": "NSUBJ", "lemma": "we"}}, {"type": "Token", "start": 290, "end": 297, "id": 65, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PRESENT", "head": 52, "deprel": "CONJ", "lemma": "mention"}}, {"type": "Token", "start": 298, "end": 305, "id": 66, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 61, "deprel": "NN", "lemma": "Charlie"}}, {"type": "Token", "start": 306, "end": 313, "id": 67, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 59, "deprel": "NSUBJ", "lemma": "Chaplin"}}, {"type": "Token", "start": 313, "end": 314, "id": 68, "features": {"pos": "PUNCT", "head": 52, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 315, "end": 317, "id": 69, "features": {"pos": "PRON", "number": "SINGULAR", "person": "THIRD", "gender": "NEUTER", "case": "NOMINATIVE", "head": 64, "deprel": "NSUBJ", "lemma": "It"}}, {"type": "Token", "start": 318, "end": 326, "id": 70, "features": {"pos": "VERB", "number": "SINGULAR", "mood": "INDICATIVE", "person": "THIRD", "tense": "PRESENT", "head": 64, "deprel": "ROOT", "lemma": "mention"}}, {"type": "Token", "start": 327, "end": 338, "id": 71, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 64, "deprel": "DOBJ", "lemma": "mathematics"}}, {"type": "Token", "start": 339, "end": 342, "id": 72, "features": {"pos": "CONJ", "head": 65, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 343, "end": 350, "id": 73, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 65, "deprel": "CONJ", "lemma": "economy"}}, {"type": "Token", "start": 351, "end": 354, "id": 74, "features": {"pos": "CONJ", "head": 65, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 355, "end": 358, "id": 75, "features": {"pos": "DET", "head": 75, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 359, "end": 364, "id": 76, "features": {"pos": "NOUN", "number": "PLURAL", "head": 71, "deprel": "NN", "lemma": "term"}}, {"type": "Token", "start": 365, "end": 370, "id": 77, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 75, "deprel": "NN", "lemma": "cloud"}}, {"type": "Token", "start": 371, "end": 380, "id": 78, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 75, "deprel": "NN", "lemma": "computing"}}, {"type": "Token", "start": 381, "end": 384, "id": 79, "features": {"pos": "CONJ", "head": 72, "deprel": "CC", "lemma": "and"}}, {"type": "Token", "start": 385, "end": 389, "id": 80, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 72, "deprel": "CONJ", "lemma": "gene"}}, {"type": "Token", "start": 390, "end": 397, "id": 81, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 65, "deprel": "CONJ", "lemma": "therapy"}}, {"type": "Token", "start": 397, "end": 398, "id": 82, "features": {"pos": "PUNCT", "head": 64, "deprel": "P", "lemma": "."}}, {"type": "Token", "start": 399, "end": 403, "id": 83, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 78, "deprel": "NN", "lemma": "John"}}, {"type": "Token", "start": 404, "end": 409, "id": 84, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 79, "deprel": "NSUBJ", "lemma": "Smith"}}, {"type": "Token", "start": 410, "end": 414, "id": 85, "features": {"pos": "VERB", "mood": "INDICATIVE", "tense": "PAST", "head": 79, "deprel": "ROOT", "lemma": "beat"}}, {"type": "Token", "start": 415, "end": 421, "id": 86, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 81, "deprel": "NN", "lemma": "Harald"}}, {"type": "Token", "start": 422, "end": 429, "id": 87, "features": {"pos": "NOUN", "number": "SINGULAR", "proper": "PROPER", "head": 79, "deprel": "DOBJ", "lemma": "Schmidt"}}, {"type": "Token", "start": 430, "end": 432, "id": 88, "features": {"pos": "ADP", "head": 79, "deprel": "PREP", "lemma": "at"}}, {"type": "Token", "start": 433, "end": 436, "id": 89, "features": {"pos": "DET", "head": 85, "deprel": "DET", "lemma": "the"}}, {"type": "Token", "start": 437, "end": 443, "id": 90, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 85, "deprel": "NN", "lemma": "tennis"}}, {"type": "Token", "start": 444, "end": 454, "id": 91, "features": {"pos": "NOUN", "number": "SINGULAR", "head": 82, "deprel": "POBJ", "lemma": "tournament"}}, {"type": "Token", "start": 454, "end": 455, "id": 92, "features": {"pos": "PUNCT", "head": 79, "deprel": "P", "lemma": "."}}, {"type": "OTHER", "start": 19, "end": 31, "id": 93, "features": {"type": "OTHER", "salience": 0.5180041790008545, "name": "example text", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 67, "end": 79, "id": 94, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 57, "end": 66, "id": 95, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 259, "end": 271, "id": 96, "features": {"type": "PERSON", "salience": 0.09832148253917694, "name": "Barack Obama", "mid": "/m/02mjmr", "wikipedia_url": "https://en.wikipedia.org/wiki/Barack_Obama", "mtype": "PROPER", "sentiment_magnitude": 0.30000001192092896, "sentiment_score": 0.30000001192092896}}, {"type": "OTHER", "start": 49, "end": 53, "id": 97, "features": {"type": "OTHER", "salience": 0.08451000601053238, "name": "name", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "ORGANIZATION", "start": 89, "end": 98, "id": 98, "features": {"type": "ORGANIZATION", "salience": 0.07212014496326447, "name": "Microsoft", "wikipedia_url": "https://en.wikipedia.org/wiki/Microsoft", "mid": "/m/04sv4", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "ORGANIZATION", "start": 99, "end": 108, "id": 99, "features": {"type": "ORGANIZATION", "salience": 0.07212014496326447, "name": "Microsoft", "wikipedia_url": "https://en.wikipedia.org/wiki/Microsoft", "mid": "/m/04sv4", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 197, "end": 207, "id": 100, "features": {"type": "PERSON", "salience": 0.02215736173093319, "name": "characters", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 139, "end": 150, "id": 101, "features": {"type": "OTHER", "salience": 0.02199687622487545, "name": "place names", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 220, "end": 226, "id": 102, "features": {"type": "OTHER", "salience": 0.017877254635095596, "name": "emojis", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "ORGANIZATION", "start": 110, "end": 113, "id": 103, "features": {"type": "ORGANIZATION", "salience": 0.016953714191913605, "name": "IBM", "wikipedia_url": "https://en.wikipedia.org/wiki/IBM", "mid": "/m/03sc8", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "LOCATION", "start": 54, "end": 56, "id": 104, "features": {"type": "LOCATION", "salience": 0.016953714191913605, "name": "US", "wikipedia_url": "https://en.wikipedia.org/wiki/United_States", "mid": "/m/09c7w0", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 359, "end": 380, "id": 105, "features": {"type": "OTHER", "salience": 0.015251295641064644, "name": "terms cloud computing", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 385, "end": 397, "id": 106, "features": {"type": "OTHER", "salience": 0.013402333483099937, "name": "gene therapy", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "OTHER", "start": 343, "end": 350, "id": 107, "features": {"type": "OTHER", "salience": 0.013402333483099937, "name": "economy", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "LOCATION", "start": 172, "end": 180, "id": 108, "features": {"type": "LOCATION", "salience": 0.011593351140618324, "name": "New York", "mid": "/m/02_286", "wikipedia_url": "https://en.wikipedia.org/wiki/New_York_City", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 213, "end": 215, "id": 109, "features": {"type": "PERSON", "salience": 0.011535814963281155, "name": "\ud83d\udca9", "mtype": "PROPER", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "ORGANIZATION", "start": 115, "end": 121, "id": 110, "features": {"type": "ORGANIZATION", "salience": 0.011451964266598225, "name": "Google", "mid": "/m/045c7b", "wikipedia_url": "https://en.wikipedia.org/wiki/Google", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "LOCATION", "start": 156, "end": 167, "id": 111, "features": {"type": "LOCATION", "salience": 0.011451964266598225, "name": "Los Angeles", "mid": "/m/030qb3t", "wikipedia_url": "https://en.wikipedia.org/wiki/Los_Angeles", "mtype": "PROPER", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "PERSON", "start": 232, "end": 234, "id": 112, "features": {"type": "PERSON", "salience": 0.010586180724203587, "name": "\ud83d\ude0a", "mtype": "PROPER", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 399, "end": 409, "id": 113, "features": {"type": "PERSON", "salience": 0.009993533603847027, "name": "John Smith", "mtype": "PROPER", "sentiment_magnitude": 0.4000000059604645, "sentiment_score": 0.4000000059604645}}, {"type": "EVENT", "start": 437, "end": 454, "id": 114, "features": {"type": "EVENT", "salience": 0.009368153288960457, "name": "tennis tournament", "mtype": "COMMON", "sentiment_magnitude": 0.10000000149011612, "sentiment_score": 0.10000000149011612}}, {"type": "OTHER", "start": 327, "end": 338, "id": 115, "features": {"type": "OTHER", "salience": 0.005886400118470192, "name": "mathematics", "mtype": "COMMON", "sentiment_magnitude": 0.0, "sentiment_score": 0.0}}, {"type": "PERSON", "start": 415, "end": 429, "id": 116, "features": {"type": "PERSON", "salience": 0.003692450001835823, "name": "Harald Schmidt", "wikipedia_url": "https://en.wikipedia.org/wiki/Harald_Schmidt", "mid": "/m/015tyq", "mtype": "PROPER", "sentiment_magnitude": 0.4000000059604645, "sentiment_score": 0.4000000059604645}}, {"type": "PERSON", "start": 298, "end": 313, "id": 117, "features": {"type": "PERSON", "salience": 0.003489513648673892, "name": "Charlie Chaplin", "wikipedia_url": "https://en.wikipedia.org/wiki/Charlie_Chaplin", "mid": "/m/01lc5", "mtype": "PROPER", "sentiment_magnitude": 0.30000001192092896, "sentiment_score": 0.30000001192092896}}], "next_annid": 118}}, "text": "\nThis is just some example text. It mentions the name US President Barack Obama and the \ncompanies Microsoft, IBM, Google as well as a few place names like Los Angeles and New York.\nIt has strange characters like \ud83d\udca9 and emojis like \ud83d\ude0a and \ud83d\ude02.\nHere we mention Barack Obama again and here we mention Charlie Chaplin.\nIt mentions mathematics and economy and the terms cloud computing and gene therapy.\nJohn Smith beat Harald Schmidt at the tennis tournament.\n", "features": {"language": "en", "document_sentiment_magnitude": 1.2000000476837158, "document_sentiment_score": -0.10000000149011612}, "offset_type": "j", "name": ""} ; 
+    let XCFXIQVAED_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(XCFXIQVAED_data, XCFXIQVAED_parms), "XCFXIQVAED-").init();
     </script>
   </div>
 
 </div></div>
 
+
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 

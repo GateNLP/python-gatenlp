@@ -24,12 +24,21 @@ class BdocjsLinesFileSource(DocumentSource, MultiProcessingAble):
         """
         super().__init__()
         self.file = file
+        self.fh = open(self.file, "rt", encoding="utf-8")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()
 
     def __iter__(self):
-        with open(self.file, "rt", encoding="utf-8") as infp:
-            for line in infp:
-                self._n += 1
-                yield Document.load_mem(line, fmt="json")
+        for line in self.fh:
+            self._n += 1
+            yield Document.load_mem(line, fmt="json")
 
 
 class BdocjsLinesFileDestination(DocumentDestination):
@@ -77,18 +86,28 @@ class BdocjsLinesFileDestination(DocumentDestination):
 class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
     """
     A document source which reads one json serialization per line, creates a document from one field
-    in the json and optionally stores all or a selection of remaining fields as document feature "__data".
+    in the json and optionally stores all or a selection of remaining fields as document features or
+     into a single document feature "__data".
     """
 
-    def __init__(self, file, text_field="text", data_fields=None, data_feature="__data"):
+    def __init__(
+            self,
+            file,
+            text_field="text",
+            data_fields=None,
+            data_feature="__data"):
         """
         Create a JsonLinesFileSource.
 
         Args:
             file: the file path (a string) or an open file handle.
-            text_field: the field name where to get the document text from.
+            text_field: the field name where to get the document text from. If a json object does not contain
+                this field, the empty string is used instead.
             data_fields: if a list of names, store these fields in the "__data" feature. if True, store all fields.
-            data_feature: the name of the data feature, default is "__data"
+                If a list is specified and a JSON object does not contain such a field, None is used instead.
+            data_feature:  if this is None, the data fields are stored as features, otherwise, the data fields are
+                all stored in a feature with this name as entries in a dict. Default is to use a feature with
+                the name "__data".
         """
         #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
         super().__init__()
@@ -96,25 +115,41 @@ class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
         self.text_field = text_field
         self.data_fields = data_fields
         self.data_feature = data_feature
+        self.fh = open(self.file, "rt", encoding="utf-8")
 
     def __iter__(self):
-        with open(self.file, "rt", encoding="utf-8") as infp:
-            for line in infp:
-                data = json.loads(line)
-                # TODO: what if the field does not exist? should we use get(text_field, "") instead?
-                text = data[self.text_field]
-                doc = Document(text)
-                if self.data_fields:
-                    if isinstance(self.data_fields, list):
-                        tmp = {}
-                        for fname in self.data_fields:
-                            # TODO: what if the field does not exist?
-                            tmp[fname] = data[fname]
-                    else:
-                        tmp = data
-                    doc.features[self.data_feature] = tmp
-                self._n += 1
-                yield doc
+        for line in self.fh:
+            data = json.loads(line)
+            text = data.get(self.text_field, "")
+            doc = Document(text)
+            if self.data_fields:
+                if isinstance(self.data_fields, list):
+                    tmp = {}
+                    for fname in self.data_fields:
+                        tmp[fname] = data.get(fname)
+                else:
+                    tmp = data
+                if self.data_feature is not None:
+                    doc.features[self.data_feature] = {}
+                    for k, v in tmp.items():
+                        if k != self.text_field:
+                            doc.features[self.data_feature][k] = tmp[k]
+                else:
+                    for k, v in tmp.items():
+                        if k != self.text_field:
+                            doc.features[k] = tmp[k]
+            self._n += 1
+            yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()
+
 
 
 class JsonLinesFileDestination(DocumentDestination):
@@ -124,25 +159,35 @@ class JsonLinesFileDestination(DocumentDestination):
     fields from the "__data" document feature.
     """
 
-    def __init__(self, file, document_field="text", document_bdocjs=False, data_fields=True, data_feature="__data"):
+    def __init__(
+            self,
+            file,
+            text_field="text",
+            document_bdocjs=False,
+            data_fields=True,
+            data_feature="__data"):
         """
 
         Args:
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
-            document_field: the name of the json field that will contain the document either just the text or
+            text_field: the name of the json field that will contain the document either just the text or
                the bdocjs representation if document_bdocjs is True.
             document_bdocjs: if True store the bdocjs serialization into the document_field instead of just the text
-            data_fields: if a list, only store these fields in the json, if False, do not store any additional fields.
-               Default is True: store all fields as is.
-            data_feature: the name of the data feature, default is "__data"
+            data_fields: if a list, store these fields in the json, if False,
+                do not store any field, if True (default) store all fields. The fields are taken from the document
+                feature specified as data_feature, or if that is None, directly from the document features.
+                If the fields are taken from document features and data_fields is True, only features with names that
+                do nut start with an underscore are added.
+            data_feature: the name of the data feature, default is "__data". If this is None, fields are saved
+                directly from the document features instead.
         """
         super().__init__()
         if isinstance(file, str):
             self.fh = open(file, "wt", encoding="utf-8")
         else:
             self.fh = file
-        self.document_field = document_field
+        self.text_field = text_field
         self.document_bdocjs = document_bdocjs
         self.data_fields = data_fields
         self.data_feature = data_feature
@@ -164,17 +209,25 @@ class JsonLinesFileDestination(DocumentDestination):
             return
         assert isinstance(doc, Document)
         data = {}
+        if self.data_feature is None:
+            src = doc.features
+        else:
+            src = doc.features[self.data_feature]
         if self.data_fields:
             if isinstance(self.data_fields, list):
                 for fname in self.data_fields:
-                    data[fname] = doc.features[self.data_feature][fname]
+                    if fname != self.text_field:
+                        data[fname] = src[fname]
             else:
-                data.update(doc.features[self.data_feature])
+                for fname in src.keys():
+                    if fname != self.text_field:
+                        if self.data_feature or (self.data_feature is None and not fname.startswith("_")):
+                            data[fname] = src[fname]
         # assign the document field last so it overwrites anything that comes from the data feature!
         if self.document_bdocjs:
-            data[self.document_field] = doc.save_mem(fmt="json")
+            data[self.text_field] = doc.save_mem(fmt="json")
         else:
-            data[self.document_field] = doc.text
+            data[self.text_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write("\n")
         self._n += 1
@@ -189,7 +242,7 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     """
-
+    # TODO: better implementation where we make explicit use of the context manager and iterator
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None, data_cols=None, data_feature="__data"):
         """
         Creates the TsvFileSource.
@@ -270,3 +323,13 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
             self.nlines += 1
             self._n += 1
             yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        pass
+
+    def close(self):
+        pass
+

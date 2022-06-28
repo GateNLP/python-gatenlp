@@ -212,6 +212,16 @@ class DocumentSource(ABC, TypingIterable, CorpusSourceBase):
     def n(self):
         return self._n
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        pass
+
+    def close(self):
+        pass
+
+
 
 # NOTE: AbstractContextManager already inherits from ABC, so no need to list as base class here!
 class DocumentDestination(AbstractContextManager):
