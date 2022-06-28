@@ -504,7 +504,7 @@ def interact(args=None, annotator=None):
         raise Exception(&#34;Not a valid mode: {}&#34;.format(args.mode))
 
 
-if __name__ == &#34;__main__&#34;:
+def main():
     # we run this from the command line so we need to also first load the PR code from the python file
     arguments = get_arguments(from_main=True)
     loggr = init_logger(__name__)
@@ -513,7 +513,11 @@ if __name__ == &#34;__main__&#34;:
     spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, arguments.pythonfile)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
-    interact(args=arguments)</code></pre>
+    interact(args=arguments)
+
+
+if __name__ == &#34;__main__&#34;:
+    main()</code></pre>
 </details>
 </section>
 <section>
@@ -779,6 +783,27 @@ processing resource to the system.</p>
         raise Exception(&#34;Not a valid mode: {}&#34;.format(args.mode))</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.gate_interaction.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main():
+    # we run this from the command line so we need to also first load the PR code from the python file
+    arguments = get_arguments(from_main=True)
+    loggr = init_logger(__name__)
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(&#34;gateapp&#34;, arguments.pythonfile)
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
+    interact(args=arguments)</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -909,6 +934,7 @@ log debug messages.</p></div>
 <ul class="">
 <li><code><a title="gatenlp.gate_interaction.get_arguments" href="#gatenlp.gate_interaction.get_arguments">get_arguments</a></code></li>
 <li><code><a title="gatenlp.gate_interaction.interact" href="#gatenlp.gate_interaction.interact">interact</a></code></li>
+<li><code><a title="gatenlp.gate_interaction.main" href="#gatenlp.gate_interaction.main">main</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

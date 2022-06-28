@@ -34,6 +34,7 @@ Module that defines Corpus and DocumentSource/DocumentDestination classes which 
 as lines or parts in a file.
 &#34;&#34;&#34;
 
+from typing import Optional, Union, List, Dict, IO
 import json
 from gatenlp.urlfileutils import yield_lines_from
 from gatenlp.document import Document
@@ -55,12 +56,21 @@ class BdocjsLinesFileSource(DocumentSource, MultiProcessingAble):
         &#34;&#34;&#34;
         super().__init__()
         self.file = file
+        self.fh = open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()
 
     def __iter__(self):
-        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            for line in infp:
-                self._n += 1
-                yield Document.load_mem(line, fmt=&#34;json&#34;)
+        for line in self.fh:
+            self._n += 1
+            yield Document.load_mem(line, fmt=&#34;json&#34;)
 
 
 class BdocjsLinesFileDestination(DocumentDestination):
@@ -105,47 +115,107 @@ class BdocjsLinesFileDestination(DocumentDestination):
         self.fh.close()
 
 
+def _update_dict_from_dict_4spec(todict, fromdict, spec, exclude_key=None, exclude4underscore=False):
+    &#34;&#34;&#34;
+    Helper function for updating the todoct dict-like object from the fromdict dict-like object, according to
+    spec, where spec is either None/False (do not update anything), True (include all but the exclude_key and
+    keys starting with an underscore if exclude4underscore is True), a list of keys to update (if they are
+    present in the from dict), or a dictionary, mapping which name in the fromdict to update as which key in
+    the todict.
+
+    Returns:
+         nothing, the todict dictionary is updated in place
+    &#34;&#34;&#34;
+    if not spec:
+        return
+    if spec is True:
+        spec = {}
+        for k in fromdict.keys():
+            if k != exclude_key:
+                if exclude4underscore and k.startswith(&#34;_&#34;):
+                    continue
+                spec[k] = k
+    elif isinstance(spec, list):
+        specnew = {}
+        for k in spec:
+            if k != exclude_key:
+                if exclude4underscore and k.startswith(&#34;_&#34;):
+                    continue
+                specnew[k] = k
+        spec = specnew
+    elif not isinstance(spec, dict):
+        raise Exception(f&#34;Must specify None, boolean, a list of names or a map of names to names, not {spec}&#34;)
+    for kfrom, kto in spec.items():
+        if kfrom in fromdict:
+            todict[kto] = fromdict[kfrom]
+
+
 class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
     &#34;&#34;&#34;
     A document source which reads one json serialization per line, creates a document from one field
-    in the json and optionally stores all or a selection of remaining fields as document feature &#34;__data&#34;.
+    in the json and optionally stores all or a selection of remaining fields as document features or
+    into a single document feature &#34;__data&#34;.
     &#34;&#34;&#34;
 
-    def __init__(self, file, text_field=&#34;text&#34;, data_fields=None, data_feature=&#34;__data&#34;):
+    def __init__(
+            self,
+            file: str,
+            text_field: str = &#34;text&#34;,
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_feature: Optional[str] = &#34;__data&#34; ):
         &#34;&#34;&#34;
         Create a JsonLinesFileSource.
 
         Args:
             file: the file path (a string) or an open file handle.
-            text_field: the field name where to get the document text from.
-            data_fields: if a list of names, store these fields in the &#34;__data&#34; feature. if True, store all fields.
-            data_feature: the name of the data feature, default is &#34;__data&#34;
+            text_field: the field name where to get the document text from. If a json object does not contain
+                this field, the empty string is used instead.
+            feature_fields: if not None and not False: either a list of field names which will get stored as
+                features with the same name, or a dictionary mapping json fields to feature names, or True to
+                indiciate that all fields (except the one containing the document text and fields where the field
+                name starts with an underscore) get stored as features.
+            data_fields: if not None and not False: either a list of field names which will get stored in the data
+                feature as fields with the same name, or a dictionary mapping json fields to new names, or True to
+                indiciate that all fields (except the one containing the document text) get stored in the data feature.
+                The data feature should be a transient feature (the name starts with two underscores), the
+                name for that feature is specified through the data_feature parameter
+            data_feature:  the name of the data feature if used (if None, &#34;__data&#34; is used)
         &#34;&#34;&#34;
-        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
         super().__init__()
         self.file = file
         self.text_field = text_field
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = &#34;__data&#34;
         self.data_feature = data_feature
+        self.fh: IO = open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;)
 
     def __iter__(self):
-        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            for line in infp:
-                data = json.loads(line)
-                # TODO: what if the field does not exist? should we use get(text_field, &#34;&#34;) instead?
-                text = data[self.text_field]
-                doc = Document(text)
-                if self.data_fields:
-                    if isinstance(self.data_fields, list):
-                        tmp = {}
-                        for fname in self.data_fields:
-                            # TODO: what if the field does not exist?
-                            tmp[fname] = data[fname]
-                    else:
-                        tmp = data
-                    doc.features[self.data_feature] = tmp
-                self._n += 1
-                yield doc
+        for line in self.fh:
+            data = json.loads(line)
+            text = data.get(self.text_field, &#34;&#34;)
+            doc = Document(text)
+            _update_dict_from_dict_4spec(
+                doc.features, data, self.feature_fields,
+                exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+            if self.data_fields:
+                doc.features[self.data_feature] = {}
+                _update_dict_from_dict_4spec(
+                    doc.features[self.data_feature], data, self.data_fields,
+                    exclude_key=self.text_field, exclude4underscore=False)
+            self._n += 1
+            yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()
 
 
 class JsonLinesFileDestination(DocumentDestination):
@@ -155,27 +225,42 @@ class JsonLinesFileDestination(DocumentDestination):
     fields from the &#34;__data&#34; document feature.
     &#34;&#34;&#34;
 
-    def __init__(self, file, document_field=&#34;text&#34;, document_bdocjs=False, data_fields=True, data_feature=&#34;__data&#34;):
+    def __init__(
+            self,
+            file: Union[str, IO],
+            text_field: str = &#34;text&#34;,
+            document_bdocjs: bool = False,
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_feature=&#34;__data&#34;):
         &#34;&#34;&#34;
 
         Args:
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
-            document_field: the name of the json field that will contain the document either just the text or
+            text_field: the name of the json field that will contain the document either just the text or
                the bdocjs representation if document_bdocjs is True.
             document_bdocjs: if True store the bdocjs serialization into the document_field instead of just the text
-            data_fields: if a list, only store these fields in the json, if False, do not store any additional fields.
-               Default is True: store all fields as is.
-            data_feature: the name of the data feature, default is &#34;__data&#34;
+            feature_fields: if not None and not False: either a list of features names which will get stored as
+                fields with the same name, or a dictionary mapping feature names to field names, or True to
+                indiciate that all features (except the one containing the document text and features where the field
+                name starts with an underscore) get stored as fields.
+            data_fields: if not None and not False: either a list of feature names from the data feature which will get
+                stored as fields with the same name, or a dictionary mapping feature to field names, or True to
+                indiciate that all features (except the one containing the document text) get stored as fields.
+            data_feature:  the name of the data feature if used (if None, &#34;__data&#34; is used)
         &#34;&#34;&#34;
         super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.document_field = document_field
+        self.text_field = text_field
         self.document_bdocjs = document_bdocjs
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = &#34;__data&#34;
         self.data_feature = data_feature
 
     def __enter__(self):
@@ -195,17 +280,20 @@ class JsonLinesFileDestination(DocumentDestination):
             return
         assert isinstance(doc, Document)
         data = {}
-        if self.data_fields:
-            if isinstance(self.data_fields, list):
-                for fname in self.data_fields:
-                    data[fname] = doc.features[self.data_feature][fname]
-            else:
-                data.update(doc.features[self.data_feature])
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features,
+            self.feature_fields,
+            exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features.get(self.data_feature, {}), self.data_fields,
+            exclude_key=self.text_field, exclude4underscore=False)
         # assign the document field last so it overwrites anything that comes from the data feature!
         if self.document_bdocjs:
-            data[self.document_field] = doc.save_mem(fmt=&#34;json&#34;)
+            data[self.text_field] = doc.save_mem(fmt=&#34;json&#34;)
         else:
-            data[self.document_field] = doc.text
+            data[self.text_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write(&#34;\n&#34;)
         self._n += 1
@@ -220,7 +308,7 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     &#34;&#34;&#34;
-
+    # TODO: better implementation where we make explicit use of the context manager and iterator
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None, data_cols=None, data_feature=&#34;__data&#34;):
         &#34;&#34;&#34;
         Creates the TsvFileSource.
@@ -300,7 +388,16 @@ class TsvFileSource(DocumentSource, MultiProcessingAble):
                 doc.features[self.data_feature] = data
             self.nlines += 1
             self._n += 1
-            yield doc</code></pre>
+            yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        pass
+
+    def close(self):
+        pass</code></pre>
 </details>
 </section>
 <section>
@@ -447,12 +544,21 @@ Expected to be a string or an open file handle.</dd>
         &#34;&#34;&#34;
         super().__init__()
         self.file = file
+        self.fh = open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()
 
     def __iter__(self):
-        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            for line in infp:
-                self._n += 1
-                yield Document.load_mem(line, fmt=&#34;json&#34;)</code></pre>
+        for line in self.fh:
+            self._n += 1
+            yield Document.load_mem(line, fmt=&#34;json&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -463,6 +569,22 @@ Expected to be a string or an open file handle.</dd>
 <li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
 <li><a title="gatenlp.corpora.base.MultiProcessingAble" href="base.html#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.files.BdocjsLinesFileSource.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.fh.close()</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="base.html#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
@@ -477,7 +599,7 @@ Expected to be a string or an open file handle.</dd>
 </dd>
 <dt id="gatenlp.corpora.files.JsonLinesFileDestination"><code class="flex name class">
 <span>class <span class="ident">JsonLinesFileDestination</span></span>
-<span>(</span><span>file, document_field='text', document_bdocjs=False, data_fields=True, data_feature='__data')</span>
+<span>(</span><span>file: Union[str, IO], text_field: str = 'text', document_bdocjs: bool = False, feature_fields: Union[bool, List[str], Dict[str, str], None] = None, data_fields: Union[bool, List[str], Dict[str, str], None] = None, data_feature='__data')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Writes one line of JSON per document to the a single output file. This will either write the document json
@@ -488,16 +610,22 @@ fields from the "__data" document feature.</p>
 <dt><strong><code>file</code></strong></dt>
 <dd>the file to write to. If it exists, it gets overwritten without warning.
 Expected to be a string or an open file handle.</dd>
-<dt><strong><code>document_field</code></strong></dt>
+<dt><strong><code>text_field</code></strong></dt>
 <dd>the name of the json field that will contain the document either just the text or
 the bdocjs representation if document_bdocjs is True.</dd>
 <dt><strong><code>document_bdocjs</code></strong></dt>
 <dd>if True store the bdocjs serialization into the document_field instead of just the text</dd>
+<dt><strong><code>feature_fields</code></strong></dt>
+<dd>if not None and not False: either a list of features names which will get stored as
+fields with the same name, or a dictionary mapping feature names to field names, or True to
+indiciate that all features (except the one containing the document text and features where the field
+name starts with an underscore) get stored as fields.</dd>
 <dt><strong><code>data_fields</code></strong></dt>
-<dd>if a list, only store these fields in the json, if False, do not store any additional fields.
-Default is True: store all fields as is.</dd>
+<dd>if not None and not False: either a list of feature names from the data feature which will get
+stored as fields with the same name, or a dictionary mapping feature to field names, or True to
+indiciate that all features (except the one containing the document text) get stored as fields.</dd>
 <dt><strong><code>data_feature</code></strong></dt>
-<dd>the name of the data feature, default is "__data"</dd>
+<dd>the name of the data feature if used (if None, "__data" is used)</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -510,27 +638,42 @@ Default is True: store all fields as is.</dd>
     fields from the &#34;__data&#34; document feature.
     &#34;&#34;&#34;
 
-    def __init__(self, file, document_field=&#34;text&#34;, document_bdocjs=False, data_fields=True, data_feature=&#34;__data&#34;):
+    def __init__(
+            self,
+            file: Union[str, IO],
+            text_field: str = &#34;text&#34;,
+            document_bdocjs: bool = False,
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_feature=&#34;__data&#34;):
         &#34;&#34;&#34;
 
         Args:
             file: the file to write to. If it exists, it gets overwritten without warning.
                Expected to be a string or an open file handle.
-            document_field: the name of the json field that will contain the document either just the text or
+            text_field: the name of the json field that will contain the document either just the text or
                the bdocjs representation if document_bdocjs is True.
             document_bdocjs: if True store the bdocjs serialization into the document_field instead of just the text
-            data_fields: if a list, only store these fields in the json, if False, do not store any additional fields.
-               Default is True: store all fields as is.
-            data_feature: the name of the data feature, default is &#34;__data&#34;
+            feature_fields: if not None and not False: either a list of features names which will get stored as
+                fields with the same name, or a dictionary mapping feature names to field names, or True to
+                indiciate that all features (except the one containing the document text and features where the field
+                name starts with an underscore) get stored as fields.
+            data_fields: if not None and not False: either a list of feature names from the data feature which will get
+                stored as fields with the same name, or a dictionary mapping feature to field names, or True to
+                indiciate that all features (except the one containing the document text) get stored as fields.
+            data_feature:  the name of the data feature if used (if None, &#34;__data&#34; is used)
         &#34;&#34;&#34;
         super().__init__()
         if isinstance(file, str):
             self.fh = open(file, &#34;wt&#34;, encoding=&#34;utf-8&#34;)
         else:
             self.fh = file
-        self.document_field = document_field
+        self.text_field = text_field
         self.document_bdocjs = document_bdocjs
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = &#34;__data&#34;
         self.data_feature = data_feature
 
     def __enter__(self):
@@ -550,17 +693,20 @@ Default is True: store all fields as is.</dd>
             return
         assert isinstance(doc, Document)
         data = {}
-        if self.data_fields:
-            if isinstance(self.data_fields, list):
-                for fname in self.data_fields:
-                    data[fname] = doc.features[self.data_feature][fname]
-            else:
-                data.update(doc.features[self.data_feature])
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features,
+            self.feature_fields,
+            exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+        _update_dict_from_dict_4spec(
+            data,
+            doc.features.get(self.data_feature, {}), self.data_fields,
+            exclude_key=self.text_field, exclude4underscore=False)
         # assign the document field last so it overwrites anything that comes from the data feature!
         if self.document_bdocjs:
-            data[self.document_field] = doc.save_mem(fmt=&#34;json&#34;)
+            data[self.text_field] = doc.save_mem(fmt=&#34;json&#34;)
         else:
-            data[self.document_field] = doc.text
+            data[self.text_field] = doc.text
         self.fh.write(json.dumps(data))
         self.fh.write(&#34;\n&#34;)
         self._n += 1
@@ -601,17 +747,20 @@ Default is True: store all fields as is.</dd>
         return
     assert isinstance(doc, Document)
     data = {}
-    if self.data_fields:
-        if isinstance(self.data_fields, list):
-            for fname in self.data_fields:
-                data[fname] = doc.features[self.data_feature][fname]
-        else:
-            data.update(doc.features[self.data_feature])
+    _update_dict_from_dict_4spec(
+        data,
+        doc.features,
+        self.feature_fields,
+        exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+    _update_dict_from_dict_4spec(
+        data,
+        doc.features.get(self.data_feature, {}), self.data_fields,
+        exclude_key=self.text_field, exclude4underscore=False)
     # assign the document field last so it overwrites anything that comes from the data feature!
     if self.document_bdocjs:
-        data[self.document_field] = doc.save_mem(fmt=&#34;json&#34;)
+        data[self.text_field] = doc.save_mem(fmt=&#34;json&#34;)
     else:
-        data[self.document_field] = doc.text
+        data[self.text_field] = doc.text
     self.fh.write(json.dumps(data))
     self.fh.write(&#34;\n&#34;)
     self._n += 1</code></pre>
@@ -630,22 +779,33 @@ Default is True: store all fields as is.</dd>
 </dd>
 <dt id="gatenlp.corpora.files.JsonLinesFileSource"><code class="flex name class">
 <span>class <span class="ident">JsonLinesFileSource</span></span>
-<span>(</span><span>file, text_field='text', data_fields=None, data_feature='__data')</span>
+<span>(</span><span>file: str, text_field: str = 'text', feature_fields: Union[bool, List[str], Dict[str, str], None] = None, data_fields: Union[bool, List[str], Dict[str, str], None] = None, data_feature: Optional[str] = '__data')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A document source which reads one json serialization per line, creates a document from one field
-in the json and optionally stores all or a selection of remaining fields as document feature "__data".</p>
+in the json and optionally stores all or a selection of remaining fields as document features or
+into a single document feature "__data".</p>
 <p>Create a JsonLinesFileSource.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>file</code></strong></dt>
 <dd>the file path (a string) or an open file handle.</dd>
 <dt><strong><code>text_field</code></strong></dt>
-<dd>the field name where to get the document text from.</dd>
+<dd>the field name where to get the document text from. If a json object does not contain
+this field, the empty string is used instead.</dd>
+<dt><strong><code>feature_fields</code></strong></dt>
+<dd>if not None and not False: either a list of field names which will get stored as
+features with the same name, or a dictionary mapping json fields to feature names, or True to
+indiciate that all fields (except the one containing the document text and fields where the field
+name starts with an underscore) get stored as features.</dd>
 <dt><strong><code>data_fields</code></strong></dt>
-<dd>if a list of names, store these fields in the "__data" feature. if True, store all fields.</dd>
+<dd>if not None and not False: either a list of field names which will get stored in the data
+feature as fields with the same name, or a dictionary mapping json fields to new names, or True to
+indiciate that all fields (except the one containing the document text) get stored in the data feature.
+The data feature should be a transient feature (the name starts with two underscores), the
+name for that feature is specified through the data_feature parameter</dd>
 <dt><strong><code>data_feature</code></strong></dt>
-<dd>the name of the data feature, default is "__data"</dd>
+<dd>the name of the data feature if used (if None, "__data" is used)</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -654,44 +814,69 @@ in the json and optionally stores all or a selection of remaining fields as docu
 <pre><code class="python">class JsonLinesFileSource(DocumentSource, MultiProcessingAble):
     &#34;&#34;&#34;
     A document source which reads one json serialization per line, creates a document from one field
-    in the json and optionally stores all or a selection of remaining fields as document feature &#34;__data&#34;.
+    in the json and optionally stores all or a selection of remaining fields as document features or
+    into a single document feature &#34;__data&#34;.
     &#34;&#34;&#34;
 
-    def __init__(self, file, text_field=&#34;text&#34;, data_fields=None, data_feature=&#34;__data&#34;):
+    def __init__(
+            self,
+            file: str,
+            text_field: str = &#34;text&#34;,
+            feature_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_fields: Optional[Union[bool, List[str], Dict[str, str]]] = None,
+            data_feature: Optional[str] = &#34;__data&#34; ):
         &#34;&#34;&#34;
         Create a JsonLinesFileSource.
 
         Args:
             file: the file path (a string) or an open file handle.
-            text_field: the field name where to get the document text from.
-            data_fields: if a list of names, store these fields in the &#34;__data&#34; feature. if True, store all fields.
-            data_feature: the name of the data feature, default is &#34;__data&#34;
+            text_field: the field name where to get the document text from. If a json object does not contain
+                this field, the empty string is used instead.
+            feature_fields: if not None and not False: either a list of field names which will get stored as
+                features with the same name, or a dictionary mapping json fields to feature names, or True to
+                indiciate that all fields (except the one containing the document text and fields where the field
+                name starts with an underscore) get stored as features.
+            data_fields: if not None and not False: either a list of field names which will get stored in the data
+                feature as fields with the same name, or a dictionary mapping json fields to new names, or True to
+                indiciate that all fields (except the one containing the document text) get stored in the data feature.
+                The data feature should be a transient feature (the name starts with two underscores), the
+                name for that feature is specified through the data_feature parameter
+            data_feature:  the name of the data feature if used (if None, &#34;__data&#34; is used)
         &#34;&#34;&#34;
-        #   feature_fields: NOT YET IMPLEMENTED -- a mapping from original json fields to document features
         super().__init__()
         self.file = file
         self.text_field = text_field
+        self.feature_fields = feature_fields
         self.data_fields = data_fields
+        if data_feature is None:
+            data_feature = &#34;__data&#34;
         self.data_feature = data_feature
+        self.fh: IO = open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;)
 
     def __iter__(self):
-        with open(self.file, &#34;rt&#34;, encoding=&#34;utf-8&#34;) as infp:
-            for line in infp:
-                data = json.loads(line)
-                # TODO: what if the field does not exist? should we use get(text_field, &#34;&#34;) instead?
-                text = data[self.text_field]
-                doc = Document(text)
-                if self.data_fields:
-                    if isinstance(self.data_fields, list):
-                        tmp = {}
-                        for fname in self.data_fields:
-                            # TODO: what if the field does not exist?
-                            tmp[fname] = data[fname]
-                    else:
-                        tmp = data
-                    doc.features[self.data_feature] = tmp
-                self._n += 1
-                yield doc</code></pre>
+        for line in self.fh:
+            data = json.loads(line)
+            text = data.get(self.text_field, &#34;&#34;)
+            doc = Document(text)
+            _update_dict_from_dict_4spec(
+                doc.features, data, self.feature_fields,
+                exclude_key=self.text_field, exclude4underscore=self.feature_fields is True)
+            if self.data_fields:
+                doc.features[self.data_feature] = {}
+                _update_dict_from_dict_4spec(
+                    doc.features[self.data_feature], data, self.data_fields,
+                    exclude_key=self.text_field, exclude4underscore=False)
+            self._n += 1
+            yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        self.fh.close()
+
+    def close(self):
+        self.fh.close()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -702,6 +887,22 @@ in the json and optionally stores all or a selection of remaining fields as docu
 <li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
 <li><a title="gatenlp.corpora.base.MultiProcessingAble" href="base.html#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.files.JsonLinesFileSource.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.fh.close()</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="base.html#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
@@ -759,7 +960,7 @@ order of the values in the TSV file.</dd>
     values per row. Each document in sequence is created from the text in one of the columns and
     document features can be set from arbitrary columns as well.
     &#34;&#34;&#34;
-
+    # TODO: better implementation where we make explicit use of the context manager and iterator
     def __init__(self, source, hdr=True, text_col=None, feature_cols=None, data_cols=None, data_feature=&#34;__data&#34;):
         &#34;&#34;&#34;
         Creates the TsvFileSource.
@@ -839,7 +1040,16 @@ order of the values in the TSV file.</dd>
                 doc.features[self.data_feature] = data
             self.nlines += 1
             self._n += 1
-            yield doc</code></pre>
+            yield doc
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, extype, value, traceback):
+        pass
+
+    def close(self):
+        pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -850,6 +1060,22 @@ order of the values in the TSV file.</dd>
 <li><a title="gatenlp.corpora.base.CorpusSourceBase" href="base.html#gatenlp.corpora.base.CorpusSourceBase">CorpusSourceBase</a></li>
 <li><a title="gatenlp.corpora.base.MultiProcessingAble" href="base.html#gatenlp.corpora.base.MultiProcessingAble">MultiProcessingAble</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="gatenlp.corpora.files.TsvFileSource.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    pass</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="gatenlp.corpora.base.DocumentSource" href="base.html#gatenlp.corpora.base.DocumentSource">DocumentSource</a></b></code>:
@@ -886,6 +1112,9 @@ order of the values in the TSV file.</dd>
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.files.BdocjsLinesFileSource" href="#gatenlp.corpora.files.BdocjsLinesFileSource">BdocjsLinesFileSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.files.BdocjsLinesFileSource.close" href="#gatenlp.corpora.files.BdocjsLinesFileSource.close">close</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.files.JsonLinesFileDestination" href="#gatenlp.corpora.files.JsonLinesFileDestination">JsonLinesFileDestination</a></code></h4>
@@ -895,9 +1124,15 @@ order of the values in the TSV file.</dd>
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.files.JsonLinesFileSource" href="#gatenlp.corpora.files.JsonLinesFileSource">JsonLinesFileSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.files.JsonLinesFileSource.close" href="#gatenlp.corpora.files.JsonLinesFileSource.close">close</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="gatenlp.corpora.files.TsvFileSource" href="#gatenlp.corpora.files.TsvFileSource">TsvFileSource</a></code></h4>
+<ul class="">
+<li><code><a title="gatenlp.corpora.files.TsvFileSource.close" href="#gatenlp.corpora.files.TsvFileSource.close">close</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
