@@ -77,6 +77,7 @@ for running on your own computer (NB-DL).
       * [PAMPAC](pampac) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [NB-DL](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)
 * [Viewers and object representation](visualization) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/visualization.ipynb) / [NB-DL](visualization.ipynb)
+* [Overview of supported formats for loading and saving documents](formats)
 * [Miscellaneous Recipes and Examples](recipes)
 
 ## Course Materials
