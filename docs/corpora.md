@@ -511,25 +511,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#JEVVUISRYE-wrapper { color: black !important; }</style>
-<div id="JEVVUISRYE-wrapper">
+<div><style>#KAOQNJVZZA-wrapper { color: black !important; }</style>
+<div id="KAOQNJVZZA-wrapper">
 
 <div>
 <style>
-#JEVVUISRYE-content {
+#KAOQNJVZZA-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.JEVVUISRYE-row {
+.KAOQNJVZZA-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.JEVVUISRYE-col {
+.KAOQNJVZZA-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -539,23 +539,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.JEVVUISRYE-hdr {
+.KAOQNJVZZA-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.JEVVUISRYE-label {
+.KAOQNJVZZA-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.JEVVUISRYE-input {
+.KAOQNJVZZA-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#JEVVUISRYE-popup {
+#KAOQNJVZZA-popup {
     display: none;
     color: black;
     position: absolute;
@@ -570,44 +570,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.JEVVUISRYE-selection {
+.KAOQNJVZZA-selection {
     margin-bottom: 5px;
 }
 
-.JEVVUISRYE-featuretable {
+.KAOQNJVZZA-featuretable {
     margin-top: 10px;
 }
 
-.JEVVUISRYE-fname {
+.KAOQNJVZZA-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.JEVVUISRYE-fvalue {
+.KAOQNJVZZA-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="JEVVUISRYE-content">
-        <div id="JEVVUISRYE-popup" style="display: none;">
+  <div id="KAOQNJVZZA-content">
+        <div id="KAOQNJVZZA-popup" style="display: none;">
         </div>
-        <div class="JEVVUISRYE-row" id="JEVVUISRYE-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="JEVVUISRYE-text-wrapper" class="JEVVUISRYE-col" style="width:70%;">
-                <div class="JEVVUISRYE-hdr" id="JEVVUISRYE-dochdr"></div>
-                <div id="JEVVUISRYE-text" style="">
+        <div class="KAOQNJVZZA-row" id="KAOQNJVZZA-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="KAOQNJVZZA-text-wrapper" class="KAOQNJVZZA-col" style="width:70%;">
+                <div class="KAOQNJVZZA-hdr" id="KAOQNJVZZA-dochdr"></div>
+                <div id="KAOQNJVZZA-text" style="">
                 </div>
             </div>
-            <div id="JEVVUISRYE-chooser" class="JEVVUISRYE-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="KAOQNJVZZA-chooser" class="KAOQNJVZZA-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="JEVVUISRYE-row" id="JEVVUISRYE-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="JEVVUISRYE-details" class="JEVVUISRYE-col" style="width:100%; border-top-width: 0px;">
+        <div class="KAOQNJVZZA-row" id="KAOQNJVZZA-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="KAOQNJVZZA-details" class="KAOQNJVZZA-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let JEVVUISRYE_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
-    let JEVVUISRYE_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(JEVVUISRYE_data, JEVVUISRYE_parms), "JEVVUISRYE-").init();
+    let KAOQNJVZZA_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let KAOQNJVZZA_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(KAOQNJVZZA_data, KAOQNJVZZA_parms), "KAOQNJVZZA-").init();
     </script>
   </div>
 
@@ -796,12 +796,12 @@ for doc in src2:
 
     length is: 5
     Original documents:
-    Document(And another document.,features=Features({'__idx_139742942918480': 0}),anns=[])
+    Document(And another document.,features=Features({'__idx_140482475100432': 0}),anns=[])
     Document(Another text.
-    This one has two lines,features=Features({'__idx_139742942918480': 1}),anns=[])
-    Document(This is the first text.,features=Features({'__idx_139742942918480': 2}),anns=[])
-    Document(some other document,features=Features({'__idx_139742942918480': 3}),anns=[])
-    Document(Another new document,features=Features({'__idx_139742942918480': 4}),anns=[])
+    This one has two lines,features=Features({'__idx_140482475100432': 1}),anns=[])
+    Document(This is the first text.,features=Features({'__idx_140482475100432': 2}),anns=[])
+    Document(some other document,features=Features({'__idx_140482475100432': 3}),anns=[])
+    Document(Another new document,features=Features({'__idx_140482475100432': 4}),anns=[])
     Updated documents:
     Document(And another document.,features=Features({'docidx': 0, '_relpath': '3.bdocjs'}),anns=['':1])
     Document(Another text.
@@ -814,6 +814,8 @@ for doc in src2:
 ## Viewing and browsing a Corpus
 
 Corpus instances can be viewed in a notebook using the CorpusViewer class. Note that other than the document viewer, the corpus viewer needds a notebook connected to jupyter since the widgets of the viewer interact with the python kernel to fetch documents from the corpus.
+
+Note: the widgets used for the CorpusViewer do not get converted properly from the notebook to Markdown and may not be visible below. To also show what the viewer looks like we also include a screenshot of the viewer interface below.
 
 
 ```python
@@ -828,25 +830,25 @@ viewer.show()
 
 
 
-<div><style>#MOPVKUMEEU-wrapper { color: black !important; }</style>
-<div id="MOPVKUMEEU-wrapper">
+<div><style>#YKPHCJFTCW-wrapper { color: black !important; }</style>
+<div id="YKPHCJFTCW-wrapper">
 
 <div>
 <style>
-#MOPVKUMEEU-content {
+#YKPHCJFTCW-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MOPVKUMEEU-row {
+.YKPHCJFTCW-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MOPVKUMEEU-col {
+.YKPHCJFTCW-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -856,23 +858,23 @@ viewer.show()
     overflow-y: auto;
 }
 
-.MOPVKUMEEU-hdr {
+.YKPHCJFTCW-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MOPVKUMEEU-label {
+.YKPHCJFTCW-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MOPVKUMEEU-input {
+.YKPHCJFTCW-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MOPVKUMEEU-popup {
+#YKPHCJFTCW-popup {
     display: none;
     color: black;
     position: absolute;
@@ -887,49 +889,53 @@ viewer.show()
     overflow: auto;
 }
 
-.MOPVKUMEEU-selection {
+.YKPHCJFTCW-selection {
     margin-bottom: 5px;
 }
 
-.MOPVKUMEEU-featuretable {
+.YKPHCJFTCW-featuretable {
     margin-top: 10px;
 }
 
-.MOPVKUMEEU-fname {
+.YKPHCJFTCW-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MOPVKUMEEU-fvalue {
+.YKPHCJFTCW-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MOPVKUMEEU-content">
-        <div id="MOPVKUMEEU-popup" style="display: none;">
+  <div id="YKPHCJFTCW-content">
+        <div id="YKPHCJFTCW-popup" style="display: none;">
         </div>
-        <div class="MOPVKUMEEU-row" id="MOPVKUMEEU-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="MOPVKUMEEU-text-wrapper" class="MOPVKUMEEU-col" style="width:70%;">
-                <div class="MOPVKUMEEU-hdr" id="MOPVKUMEEU-dochdr"></div>
-                <div id="MOPVKUMEEU-text" style="">
+        <div class="YKPHCJFTCW-row" id="YKPHCJFTCW-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="YKPHCJFTCW-text-wrapper" class="YKPHCJFTCW-col" style="width:70%;">
+                <div class="YKPHCJFTCW-hdr" id="YKPHCJFTCW-dochdr"></div>
+                <div id="YKPHCJFTCW-text" style="">
                 </div>
             </div>
-            <div id="MOPVKUMEEU-chooser" class="MOPVKUMEEU-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="YKPHCJFTCW-chooser" class="YKPHCJFTCW-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MOPVKUMEEU-row" id="MOPVKUMEEU-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="MOPVKUMEEU-details" class="MOPVKUMEEU-col" style="width:100%; border-top-width: 0px;">
+        <div class="YKPHCJFTCW-row" id="YKPHCJFTCW-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="YKPHCJFTCW-details" class="YKPHCJFTCW-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let MOPVKUMEEU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
-    let MOPVKUMEEU_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(MOPVKUMEEU_data, MOPVKUMEEU_parms), "MOPVKUMEEU-").init();
+    let YKPHCJFTCW_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
+    let YKPHCJFTCW_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(YKPHCJFTCW_data, YKPHCJFTCW_parms), "YKPHCJFTCW-").init();
     </script>
   </div>
 
 </div></div>
 
+
+### CorpusViewer Screenshot
+
+![CorpusViewer Screenshot](corpusviewer01.png)
 
 ## JsonLinesFileSource and JsonLinesFileDestination
 
