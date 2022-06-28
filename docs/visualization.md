@@ -1,8 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>visualization</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script><script>
 (function() {
   function addWidgetsRenderer() {
@@ -15705,4 +15700,3 @@ var element = document.getElementById('1b556478-e694-4235-a519-f8af2352af15');
 </script>
 
 
-</html>
