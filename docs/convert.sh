@@ -24,6 +24,7 @@ tokenizers
 gazetteers
 stringregex
 pampac
+visualization
 EOF
 )
 

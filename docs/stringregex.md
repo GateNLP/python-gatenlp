@@ -45,12 +45,18 @@ doc1
 // class to convert the standard JSON representation of a gatenlp
 // document into something we need here and methods to access the data.
 var gatenlpDocRep = class {
-    constructor(bdoc) {
+    constructor(bdoc, parms) {
         this.sep = "║"
         this.sname2types = new Map();
         this.snameid2ann = new Map();
         this.snametype2ids = new Map();
 	    this.text = bdoc["text"];
+	    this.presel_list = parms["presel_list"]
+	    this.presel_set = new Set(parms["presel_set"])
+	    this.cols4types = parms["cols4types"]
+	    if ("palette" in parms) {
+	        this.palette = parms["palette"]
+	    }
 	    const regex = / +$/;
             this.features = bdoc["features"];
             if (this.text == null) {
@@ -195,6 +201,14 @@ function docview_showDocFeatures(obj, features) {
         docview_showFeatures(obj, features);
     }
 
+function hex2rgba(hx) {
+    return [
+        parseInt(hx.substring(1, 3), 16),
+        parseInt(hx.substring(3, 5), 16),
+        parseInt(hx.substring(5, 7), 16),
+        1.0
+    ];
+};
 
 
 // class to build the HTML for viewing the converted document
@@ -230,15 +244,9 @@ var gatenlpDocView = class {
             "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5",
             "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
         ]
-
-        function hex2rgba(hx) {
-            return [
-                parseInt(hx.substring(1, 3), 16),
-                parseInt(hx.substring(3, 5), 16),
-                parseInt(hx.substring(5, 7), 16),
-                1.0
-            ];
-        };
+        if (typeof this.docrep.palette !== 'undefined') {
+            this.palettex = this.docrep.palette
+        }
         this.palette = this.palettex.map(hex2rgba)
         this.type2colour = new Map();
     }
@@ -284,6 +292,7 @@ var gatenlpDocView = class {
         let divchooser = $(this.id_chooser);
         $(divchooser).empty();
         let formchooser = $("<form>");
+        let colidx = 0
         for (let setname of this.docrep.setnames()) {
             let setname2show = setname;
             // TODO: add number of annotations in the set in parentheses
@@ -295,17 +304,24 @@ var gatenlpDocView = class {
             let div4set = document.createElement("div")
             // $(div4set).attr("id", setname);
             $(div4set).attr("style", "margin-bottom: 10px;");
-            let colidx = 0
             for (let anntype of this.docrep.types4setname(setname)) {
                 //console.log("Addingsss type " + anntype)
-                let col = this.palette[colidx];
+                let setandtype = setname + this.docrep.sep + anntype;
+                let col = undefined
+                if (setandtype in this.docrep.cols4types) {
+                    col = hex2rgba(this.docrep.cols4types[setandtype])
+                } else {
+                    col = this.palette[colidx];
+                }
                 this.type2colour.set(setname + this.sep + anntype, col);
                 colidx = (colidx + 1) % this.palette.length;
                 let lbl = $("<label>").attr({ "style": this.style4color(col), "class": this.class_label });
                 let object = this
                 let annhandler = function(ev) { docview_annchosen(object, ev, setname, anntype) }
                 let inp = $('<input type="checkbox">').attr({ "type": "checkbox", "class": this.class_input, "data-anntype": anntype, "data-setname": setname}).on("click", annhandler)
-
+                if (this.docrep.presel_set.has(setandtype)) {
+                    inp.attr("checked", "")
+                }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
                 // append the number of annotations in this set 
@@ -322,7 +338,7 @@ var gatenlpDocView = class {
         let feats = this.docrep["features"];
         docview_showDocFeatures(obj, feats);
         $(this.id_dochdr).text("Document:").on("click", function(ev) { docview_showDocFeatures(obj, feats) });
-
+        this.chosen = this.docrep.presel_list
         this.buildAnns4Offset()
         this.buildContent()
     }
@@ -473,25 +489,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#ZKQTKZBVWN-wrapper { color: black !important; }</style>
-<div id="ZKQTKZBVWN-wrapper">
+<div><style>#TARJTOZTTR-wrapper { color: black !important; }</style>
+<div id="TARJTOZTTR-wrapper">
 
 <div>
 <style>
-#ZKQTKZBVWN-content {
+#TARJTOZTTR-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.ZKQTKZBVWN-row {
+.TARJTOZTTR-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.ZKQTKZBVWN-col {
+.TARJTOZTTR-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -501,23 +517,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.ZKQTKZBVWN-hdr {
+.TARJTOZTTR-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.ZKQTKZBVWN-label {
+.TARJTOZTTR-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.ZKQTKZBVWN-input {
+.TARJTOZTTR-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#ZKQTKZBVWN-popup {
+#TARJTOZTTR-popup {
     display: none;
     color: black;
     position: absolute;
@@ -532,43 +548,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.ZKQTKZBVWN-selection {
+.TARJTOZTTR-selection {
     margin-bottom: 5px;
 }
 
-.ZKQTKZBVWN-featuretable {
+.TARJTOZTTR-featuretable {
     margin-top: 10px;
 }
 
-.ZKQTKZBVWN-fname {
+.TARJTOZTTR-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.ZKQTKZBVWN-fvalue {
+.TARJTOZTTR-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="ZKQTKZBVWN-content">
-        <div id="ZKQTKZBVWN-popup" style="display: none;">
+  <div id="TARJTOZTTR-content">
+        <div id="TARJTOZTTR-popup" style="display: none;">
         </div>
-        <div class="ZKQTKZBVWN-row" id="ZKQTKZBVWN-row1" style="max-height: 20em; min-height:5em;">
-            <div id="ZKQTKZBVWN-text-wrapper" class="ZKQTKZBVWN-col" style="width:70%;">
-                <div class="ZKQTKZBVWN-hdr" id="ZKQTKZBVWN-dochdr"></div>
-                <div id="ZKQTKZBVWN-text" style="">
+        <div class="TARJTOZTTR-row" id="TARJTOZTTR-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="TARJTOZTTR-text-wrapper" class="TARJTOZTTR-col" style="width:70%;">
+                <div class="TARJTOZTTR-hdr" id="TARJTOZTTR-dochdr"></div>
+                <div id="TARJTOZTTR-text" style="">
                 </div>
             </div>
-            <div id="ZKQTKZBVWN-chooser" class="ZKQTKZBVWN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="TARJTOZTTR-chooser" class="TARJTOZTTR-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="ZKQTKZBVWN-row" id="ZKQTKZBVWN-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="ZKQTKZBVWN-details" class="ZKQTKZBVWN-col" style="width:100%; border-top-width: 0px;">
+        <div class="TARJTOZTTR-row" id="TARJTOZTTR-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="TARJTOZTTR-details" class="TARJTOZTTR-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let ZKQTKZBVWN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(ZKQTKZBVWN_data), "ZKQTKZBVWN-").init();
+    let TARJTOZTTR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    let TARJTOZTTR_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(TARJTOZTTR_data, TARJTOZTTR_parms), "TARJTOZTTR-").init();
     </script>
   </div>
 
@@ -636,25 +653,25 @@ doc2
 
 
 
-<div><style>#YIZSRCACRL-wrapper { color: black !important; }</style>
-<div id="YIZSRCACRL-wrapper">
+<div><style>#GOOOPXISWC-wrapper { color: black !important; }</style>
+<div id="GOOOPXISWC-wrapper">
 
 <div>
 <style>
-#YIZSRCACRL-content {
+#GOOOPXISWC-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.YIZSRCACRL-row {
+.GOOOPXISWC-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.YIZSRCACRL-col {
+.GOOOPXISWC-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -664,23 +681,23 @@ doc2
     overflow-y: auto;
 }
 
-.YIZSRCACRL-hdr {
+.GOOOPXISWC-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.YIZSRCACRL-label {
+.GOOOPXISWC-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.YIZSRCACRL-input {
+.GOOOPXISWC-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#YIZSRCACRL-popup {
+#GOOOPXISWC-popup {
     display: none;
     color: black;
     position: absolute;
@@ -695,43 +712,44 @@ doc2
     overflow: auto;
 }
 
-.YIZSRCACRL-selection {
+.GOOOPXISWC-selection {
     margin-bottom: 5px;
 }
 
-.YIZSRCACRL-featuretable {
+.GOOOPXISWC-featuretable {
     margin-top: 10px;
 }
 
-.YIZSRCACRL-fname {
+.GOOOPXISWC-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.YIZSRCACRL-fvalue {
+.GOOOPXISWC-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="YIZSRCACRL-content">
-        <div id="YIZSRCACRL-popup" style="display: none;">
+  <div id="GOOOPXISWC-content">
+        <div id="GOOOPXISWC-popup" style="display: none;">
         </div>
-        <div class="YIZSRCACRL-row" id="YIZSRCACRL-row1" style="max-height: 20em; min-height:5em;">
-            <div id="YIZSRCACRL-text-wrapper" class="YIZSRCACRL-col" style="width:70%;">
-                <div class="YIZSRCACRL-hdr" id="YIZSRCACRL-dochdr"></div>
-                <div id="YIZSRCACRL-text" style="">
+        <div class="GOOOPXISWC-row" id="GOOOPXISWC-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="GOOOPXISWC-text-wrapper" class="GOOOPXISWC-col" style="width:70%;">
+                <div class="GOOOPXISWC-hdr" id="GOOOPXISWC-dochdr"></div>
+                <div id="GOOOPXISWC-text" style="">
                 </div>
             </div>
-            <div id="YIZSRCACRL-chooser" class="YIZSRCACRL-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="GOOOPXISWC-chooser" class="GOOOPXISWC-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="YIZSRCACRL-row" id="YIZSRCACRL-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="YIZSRCACRL-details" class="YIZSRCACRL-col" style="width:100%; border-top-width: 0px;">
+        <div class="GOOOPXISWC-row" id="GOOOPXISWC-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="GOOOPXISWC-details" class="GOOOPXISWC-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let YIZSRCACRL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(YIZSRCACRL_data), "YIZSRCACRL-").init();
+    let GOOOPXISWC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    let GOOOPXISWC_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(GOOOPXISWC_data, GOOOPXISWC_parms), "GOOOPXISWC-").init();
     </script>
   </div>
 
@@ -766,25 +784,25 @@ doc3
 
 
 
-<div><style>#MSUFSHMGSL-wrapper { color: black !important; }</style>
-<div id="MSUFSHMGSL-wrapper">
+<div><style>#MTRSXWEOHF-wrapper { color: black !important; }</style>
+<div id="MTRSXWEOHF-wrapper">
 
 <div>
 <style>
-#MSUFSHMGSL-content {
+#MTRSXWEOHF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MSUFSHMGSL-row {
+.MTRSXWEOHF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MSUFSHMGSL-col {
+.MTRSXWEOHF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -794,23 +812,23 @@ doc3
     overflow-y: auto;
 }
 
-.MSUFSHMGSL-hdr {
+.MTRSXWEOHF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MSUFSHMGSL-label {
+.MTRSXWEOHF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MSUFSHMGSL-input {
+.MTRSXWEOHF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MSUFSHMGSL-popup {
+#MTRSXWEOHF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -825,43 +843,44 @@ doc3
     overflow: auto;
 }
 
-.MSUFSHMGSL-selection {
+.MTRSXWEOHF-selection {
     margin-bottom: 5px;
 }
 
-.MSUFSHMGSL-featuretable {
+.MTRSXWEOHF-featuretable {
     margin-top: 10px;
 }
 
-.MSUFSHMGSL-fname {
+.MTRSXWEOHF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MSUFSHMGSL-fvalue {
+.MTRSXWEOHF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MSUFSHMGSL-content">
-        <div id="MSUFSHMGSL-popup" style="display: none;">
+  <div id="MTRSXWEOHF-content">
+        <div id="MTRSXWEOHF-popup" style="display: none;">
         </div>
-        <div class="MSUFSHMGSL-row" id="MSUFSHMGSL-row1" style="max-height: 20em; min-height:5em;">
-            <div id="MSUFSHMGSL-text-wrapper" class="MSUFSHMGSL-col" style="width:70%;">
-                <div class="MSUFSHMGSL-hdr" id="MSUFSHMGSL-dochdr"></div>
-                <div id="MSUFSHMGSL-text" style="">
+        <div class="MTRSXWEOHF-row" id="MTRSXWEOHF-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="MTRSXWEOHF-text-wrapper" class="MTRSXWEOHF-col" style="width:70%;">
+                <div class="MTRSXWEOHF-hdr" id="MTRSXWEOHF-dochdr"></div>
+                <div id="MTRSXWEOHF-text" style="">
                 </div>
             </div>
-            <div id="MSUFSHMGSL-chooser" class="MSUFSHMGSL-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="MTRSXWEOHF-chooser" class="MTRSXWEOHF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MSUFSHMGSL-row" id="MSUFSHMGSL-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="MSUFSHMGSL-details" class="MSUFSHMGSL-col" style="width:100%; border-top-width: 0px;">
+        <div class="MTRSXWEOHF-row" id="MTRSXWEOHF-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="MTRSXWEOHF-details" class="MTRSXWEOHF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let MSUFSHMGSL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {"type": "iso", "year": "1999", "month": "12", "day": "31"}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {"year": "1999", "month": "12", "day": "31"}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(MSUFSHMGSL_data), "MSUFSHMGSL-").init();
+    let MTRSXWEOHF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Year", "start": 38, "end": 42, "id": 1, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Month", "start": 43, "end": 45, "id": 2, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Day", "start": 46, "end": 48, "id": 3, "features": {"year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 4, "features": {"type": "iso", "year": "1999", "month": "12", "day": "31"}}, {"type": "Year", "start": 64, "end": 68, "id": 5, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Month", "start": 69, "end": 71, "id": 6, "features": {"year": "1999", "month": "12", "day": "31"}}, {"type": "Day", "start": 72, "end": 74, "id": 7, "features": {"year": "1999", "month": "12", "day": "31"}}], "next_annid": 8}}, "text": "A document that contains a date here: 2013-01-12 and also here: 1999-12-31", "features": {}, "offset_type": "j", "name": ""} ; 
+    let MTRSXWEOHF_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(MTRSXWEOHF_data, MTRSXWEOHF_parms), "MTRSXWEOHF-").init();
     </script>
   </div>
 
@@ -897,25 +916,25 @@ doc4
 
 
 
-<div><style>#SLJSIXYSNC-wrapper { color: black !important; }</style>
-<div id="SLJSIXYSNC-wrapper">
+<div><style>#PSOFYOIHXP-wrapper { color: black !important; }</style>
+<div id="PSOFYOIHXP-wrapper">
 
 <div>
 <style>
-#SLJSIXYSNC-content {
+#PSOFYOIHXP-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.SLJSIXYSNC-row {
+.PSOFYOIHXP-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.SLJSIXYSNC-col {
+.PSOFYOIHXP-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -925,23 +944,23 @@ doc4
     overflow-y: auto;
 }
 
-.SLJSIXYSNC-hdr {
+.PSOFYOIHXP-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.SLJSIXYSNC-label {
+.PSOFYOIHXP-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.SLJSIXYSNC-input {
+.PSOFYOIHXP-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#SLJSIXYSNC-popup {
+#PSOFYOIHXP-popup {
     display: none;
     color: black;
     position: absolute;
@@ -956,43 +975,44 @@ doc4
     overflow: auto;
 }
 
-.SLJSIXYSNC-selection {
+.PSOFYOIHXP-selection {
     margin-bottom: 5px;
 }
 
-.SLJSIXYSNC-featuretable {
+.PSOFYOIHXP-featuretable {
     margin-top: 10px;
 }
 
-.SLJSIXYSNC-fname {
+.PSOFYOIHXP-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.SLJSIXYSNC-fvalue {
+.PSOFYOIHXP-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="SLJSIXYSNC-content">
-        <div id="SLJSIXYSNC-popup" style="display: none;">
+  <div id="PSOFYOIHXP-content">
+        <div id="PSOFYOIHXP-popup" style="display: none;">
         </div>
-        <div class="SLJSIXYSNC-row" id="SLJSIXYSNC-row1" style="max-height: 20em; min-height:5em;">
-            <div id="SLJSIXYSNC-text-wrapper" class="SLJSIXYSNC-col" style="width:70%;">
-                <div class="SLJSIXYSNC-hdr" id="SLJSIXYSNC-dochdr"></div>
-                <div id="SLJSIXYSNC-text" style="">
+        <div class="PSOFYOIHXP-row" id="PSOFYOIHXP-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="PSOFYOIHXP-text-wrapper" class="PSOFYOIHXP-col" style="width:70%;">
+                <div class="PSOFYOIHXP-hdr" id="PSOFYOIHXP-dochdr"></div>
+                <div id="PSOFYOIHXP-text" style="">
                 </div>
             </div>
-            <div id="SLJSIXYSNC-chooser" class="SLJSIXYSNC-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="PSOFYOIHXP-chooser" class="PSOFYOIHXP-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="SLJSIXYSNC-row" id="SLJSIXYSNC-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="SLJSIXYSNC-details" class="SLJSIXYSNC-col" style="width:100%; border-top-width: 0px;">
+        <div class="PSOFYOIHXP-row" id="PSOFYOIHXP-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="PSOFYOIHXP-details" class="PSOFYOIHXP-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let SLJSIXYSNC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {"type": "traditional", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(SLJSIXYSNC_data), "SLJSIXYSNC-").init();
+    let PSOFYOIHXP_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 48, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 64, "end": 74, "id": 1, "features": {"type": "traditional", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 2013-01-12 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let PSOFYOIHXP_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(PSOFYOIHXP_data, PSOFYOIHXP_parms), "PSOFYOIHXP-").init();
     </script>
   </div>
 
@@ -1028,25 +1048,25 @@ doc5
 
 
 
-<div><style>#YRCRTKNNBR-wrapper { color: black !important; }</style>
-<div id="YRCRTKNNBR-wrapper">
+<div><style>#HWKZZCXMUZ-wrapper { color: black !important; }</style>
+<div id="HWKZZCXMUZ-wrapper">
 
 <div>
 <style>
-#YRCRTKNNBR-content {
+#HWKZZCXMUZ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.YRCRTKNNBR-row {
+.HWKZZCXMUZ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.YRCRTKNNBR-col {
+.HWKZZCXMUZ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1056,23 +1076,23 @@ doc5
     overflow-y: auto;
 }
 
-.YRCRTKNNBR-hdr {
+.HWKZZCXMUZ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.YRCRTKNNBR-label {
+.HWKZZCXMUZ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.YRCRTKNNBR-input {
+.HWKZZCXMUZ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#YRCRTKNNBR-popup {
+#HWKZZCXMUZ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1087,43 +1107,44 @@ doc5
     overflow: auto;
 }
 
-.YRCRTKNNBR-selection {
+.HWKZZCXMUZ-selection {
     margin-bottom: 5px;
 }
 
-.YRCRTKNNBR-featuretable {
+.HWKZZCXMUZ-featuretable {
     margin-top: 10px;
 }
 
-.YRCRTKNNBR-fname {
+.HWKZZCXMUZ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.YRCRTKNNBR-fvalue {
+.HWKZZCXMUZ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="YRCRTKNNBR-content">
-        <div id="YRCRTKNNBR-popup" style="display: none;">
+  <div id="HWKZZCXMUZ-content">
+        <div id="HWKZZCXMUZ-popup" style="display: none;">
         </div>
-        <div class="YRCRTKNNBR-row" id="YRCRTKNNBR-row1" style="max-height: 20em; min-height:5em;">
-            <div id="YRCRTKNNBR-text-wrapper" class="YRCRTKNNBR-col" style="width:70%;">
-                <div class="YRCRTKNNBR-hdr" id="YRCRTKNNBR-dochdr"></div>
-                <div id="YRCRTKNNBR-text" style="">
+        <div class="HWKZZCXMUZ-row" id="HWKZZCXMUZ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="HWKZZCXMUZ-text-wrapper" class="HWKZZCXMUZ-col" style="width:70%;">
+                <div class="HWKZZCXMUZ-hdr" id="HWKZZCXMUZ-dochdr"></div>
+                <div id="HWKZZCXMUZ-text" style="">
                 </div>
             </div>
-            <div id="YRCRTKNNBR-chooser" class="YRCRTKNNBR-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="HWKZZCXMUZ-chooser" class="HWKZZCXMUZ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="YRCRTKNNBR-row" id="YRCRTKNNBR-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="YRCRTKNNBR-details" class="YRCRTKNNBR-col" style="width:100%; border-top-width: 0px;">
+        <div class="HWKZZCXMUZ-row" id="HWKZZCXMUZ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="HWKZZCXMUZ-details" class="HWKZZCXMUZ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let YRCRTKNNBR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}, {"type": "Date", "start": 62, "end": 72, "id": 2, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 3}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(YRCRTKNNBR_data), "YRCRTKNNBR-").init();
+    let HWKZZCXMUZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}, {"type": "Date", "start": 62, "end": 72, "id": 2, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 3}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let HWKZZCXMUZ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(HWKZZCXMUZ_data, HWKZZCXMUZ_parms), "HWKZZCXMUZ-").init();
     </script>
   </div>
 
@@ -1146,25 +1167,25 @@ doc5a
 
 
 
-<div><style>#NCTSGITTRH-wrapper { color: black !important; }</style>
-<div id="NCTSGITTRH-wrapper">
+<div><style>#PLPZSXGEMZ-wrapper { color: black !important; }</style>
+<div id="PLPZSXGEMZ-wrapper">
 
 <div>
 <style>
-#NCTSGITTRH-content {
+#PLPZSXGEMZ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.NCTSGITTRH-row {
+.PLPZSXGEMZ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.NCTSGITTRH-col {
+.PLPZSXGEMZ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1174,23 +1195,23 @@ doc5a
     overflow-y: auto;
 }
 
-.NCTSGITTRH-hdr {
+.PLPZSXGEMZ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.NCTSGITTRH-label {
+.PLPZSXGEMZ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.NCTSGITTRH-input {
+.PLPZSXGEMZ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#NCTSGITTRH-popup {
+#PLPZSXGEMZ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1205,43 +1226,44 @@ doc5a
     overflow: auto;
 }
 
-.NCTSGITTRH-selection {
+.PLPZSXGEMZ-selection {
     margin-bottom: 5px;
 }
 
-.NCTSGITTRH-featuretable {
+.PLPZSXGEMZ-featuretable {
     margin-top: 10px;
 }
 
-.NCTSGITTRH-fname {
+.PLPZSXGEMZ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.NCTSGITTRH-fvalue {
+.PLPZSXGEMZ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="NCTSGITTRH-content">
-        <div id="NCTSGITTRH-popup" style="display: none;">
+  <div id="PLPZSXGEMZ-content">
+        <div id="PLPZSXGEMZ-popup" style="display: none;">
         </div>
-        <div class="NCTSGITTRH-row" id="NCTSGITTRH-row1" style="max-height: 20em; min-height:5em;">
-            <div id="NCTSGITTRH-text-wrapper" class="NCTSGITTRH-col" style="width:70%;">
-                <div class="NCTSGITTRH-hdr" id="NCTSGITTRH-dochdr"></div>
-                <div id="NCTSGITTRH-text" style="">
+        <div class="PLPZSXGEMZ-row" id="PLPZSXGEMZ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="PLPZSXGEMZ-text-wrapper" class="PLPZSXGEMZ-col" style="width:70%;">
+                <div class="PLPZSXGEMZ-hdr" id="PLPZSXGEMZ-dochdr"></div>
+                <div id="PLPZSXGEMZ-text" style="">
                 </div>
             </div>
-            <div id="NCTSGITTRH-chooser" class="NCTSGITTRH-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="PLPZSXGEMZ-chooser" class="PLPZSXGEMZ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="NCTSGITTRH-row" id="NCTSGITTRH-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="NCTSGITTRH-details" class="NCTSGITTRH-col" style="width:100%; border-top-width: 0px;">
+        <div class="PLPZSXGEMZ-row" id="PLPZSXGEMZ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="PLPZSXGEMZ-details" class="PLPZSXGEMZ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let NCTSGITTRH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 72, "id": 1, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(NCTSGITTRH_data), "NCTSGITTRH-").init();
+    let PLPZSXGEMZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 72, "id": 1, "features": {"type": "traditional-long", "year": "1991", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let PLPZSXGEMZ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(PLPZSXGEMZ_data, PLPZSXGEMZ_parms), "PLPZSXGEMZ-").init();
     </script>
   </div>
 
@@ -1270,25 +1292,25 @@ doc5b
 
 
 
-<div><style>#DJQMNIPWML-wrapper { color: black !important; }</style>
-<div id="DJQMNIPWML-wrapper">
+<div><style>#ZTPISCTVNM-wrapper { color: black !important; }</style>
+<div id="ZTPISCTVNM-wrapper">
 
 <div>
 <style>
-#DJQMNIPWML-content {
+#ZTPISCTVNM-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.DJQMNIPWML-row {
+.ZTPISCTVNM-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.DJQMNIPWML-col {
+.ZTPISCTVNM-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1298,23 +1320,23 @@ doc5b
     overflow-y: auto;
 }
 
-.DJQMNIPWML-hdr {
+.ZTPISCTVNM-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.DJQMNIPWML-label {
+.ZTPISCTVNM-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.DJQMNIPWML-input {
+.ZTPISCTVNM-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#DJQMNIPWML-popup {
+#ZTPISCTVNM-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1329,43 +1351,44 @@ doc5b
     overflow: auto;
 }
 
-.DJQMNIPWML-selection {
+.ZTPISCTVNM-selection {
     margin-bottom: 5px;
 }
 
-.DJQMNIPWML-featuretable {
+.ZTPISCTVNM-featuretable {
     margin-top: 10px;
 }
 
-.DJQMNIPWML-fname {
+.ZTPISCTVNM-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.DJQMNIPWML-fvalue {
+.ZTPISCTVNM-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="DJQMNIPWML-content">
-        <div id="DJQMNIPWML-popup" style="display: none;">
+  <div id="ZTPISCTVNM-content">
+        <div id="ZTPISCTVNM-popup" style="display: none;">
         </div>
-        <div class="DJQMNIPWML-row" id="DJQMNIPWML-row1" style="max-height: 20em; min-height:5em;">
-            <div id="DJQMNIPWML-text-wrapper" class="DJQMNIPWML-col" style="width:70%;">
-                <div class="DJQMNIPWML-hdr" id="DJQMNIPWML-dochdr"></div>
-                <div id="DJQMNIPWML-text" style="">
+        <div class="ZTPISCTVNM-row" id="ZTPISCTVNM-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="ZTPISCTVNM-text-wrapper" class="ZTPISCTVNM-col" style="width:70%;">
+                <div class="ZTPISCTVNM-hdr" id="ZTPISCTVNM-dochdr"></div>
+                <div id="ZTPISCTVNM-text" style="">
                 </div>
             </div>
-            <div id="DJQMNIPWML-chooser" class="DJQMNIPWML-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ZTPISCTVNM-chooser" class="ZTPISCTVNM-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="DJQMNIPWML-row" id="DJQMNIPWML-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="DJQMNIPWML-details" class="DJQMNIPWML-col" style="width:100%; border-top-width: 0px;">
+        <div class="ZTPISCTVNM-row" id="ZTPISCTVNM-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="ZTPISCTVNM-details" class="ZTPISCTVNM-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let DJQMNIPWML_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(DJQMNIPWML_data), "DJQMNIPWML-").init();
+    let ZTPISCTVNM_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 38, "end": 46, "id": 0, "features": {"type": "traditional-short", "year": "98", "month": "04", "day": "12"}}, {"type": "Date", "start": 62, "end": 70, "id": 1, "features": {"type": "traditional-short", "year": "19", "month": "02", "day": "14"}}], "next_annid": 2}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let ZTPISCTVNM_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(ZTPISCTVNM_data, ZTPISCTVNM_parms), "ZTPISCTVNM-").init();
     </script>
   </div>
 
@@ -1399,25 +1422,25 @@ doc6a
 
 
 
-<div><style>#SQHXDVGKIS-wrapper { color: black !important; }</style>
-<div id="SQHXDVGKIS-wrapper">
+<div><style>#SJFMVSOWSU-wrapper { color: black !important; }</style>
+<div id="SJFMVSOWSU-wrapper">
 
 <div>
 <style>
-#SQHXDVGKIS-content {
+#SJFMVSOWSU-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.SQHXDVGKIS-row {
+.SJFMVSOWSU-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.SQHXDVGKIS-col {
+.SJFMVSOWSU-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1427,23 +1450,23 @@ doc6a
     overflow-y: auto;
 }
 
-.SQHXDVGKIS-hdr {
+.SJFMVSOWSU-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.SQHXDVGKIS-label {
+.SJFMVSOWSU-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.SQHXDVGKIS-input {
+.SJFMVSOWSU-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#SQHXDVGKIS-popup {
+#SJFMVSOWSU-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1458,43 +1481,44 @@ doc6a
     overflow: auto;
 }
 
-.SQHXDVGKIS-selection {
+.SJFMVSOWSU-selection {
     margin-bottom: 5px;
 }
 
-.SQHXDVGKIS-featuretable {
+.SJFMVSOWSU-featuretable {
     margin-top: 10px;
 }
 
-.SQHXDVGKIS-fname {
+.SJFMVSOWSU-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.SQHXDVGKIS-fvalue {
+.SJFMVSOWSU-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="SQHXDVGKIS-content">
-        <div id="SQHXDVGKIS-popup" style="display: none;">
+  <div id="SJFMVSOWSU-content">
+        <div id="SJFMVSOWSU-popup" style="display: none;">
         </div>
-        <div class="SQHXDVGKIS-row" id="SQHXDVGKIS-row1" style="max-height: 20em; min-height:5em;">
-            <div id="SQHXDVGKIS-text-wrapper" class="SQHXDVGKIS-col" style="width:70%;">
-                <div class="SQHXDVGKIS-hdr" id="SQHXDVGKIS-dochdr"></div>
-                <div id="SQHXDVGKIS-text" style="">
+        <div class="SJFMVSOWSU-row" id="SJFMVSOWSU-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="SJFMVSOWSU-text-wrapper" class="SJFMVSOWSU-col" style="width:70%;">
+                <div class="SJFMVSOWSU-hdr" id="SJFMVSOWSU-dochdr"></div>
+                <div id="SJFMVSOWSU-text" style="">
                 </div>
             </div>
-            <div id="SQHXDVGKIS-chooser" class="SQHXDVGKIS-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="SJFMVSOWSU-chooser" class="SJFMVSOWSU-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="SQHXDVGKIS-row" id="SQHXDVGKIS-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="SQHXDVGKIS-details" class="SQHXDVGKIS-col" style="width:100%; border-top-width: 0px;">
+        <div class="SJFMVSOWSU-row" id="SJFMVSOWSU-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="SJFMVSOWSU-details" class="SJFMVSOWSU-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let SQHXDVGKIS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 3, "end": 10, "id": 1, "features": {}}, {"type": "Match", "start": 4, "end": 10, "id": 2, "features": {}}, {"type": "Match", "start": 5, "end": 10, "id": 3, "features": {}}, {"type": "Match", "start": 6, "end": 10, "id": 4, "features": {}}, {"type": "Match", "start": 7, "end": 10, "id": 5, "features": {}}, {"type": "Match", "start": 8, "end": 10, "id": 6, "features": {}}, {"type": "Match", "start": 9, "end": 10, "id": 7, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 8, "features": {}}, {"type": "Match", "start": 12, "end": 15, "id": 9, "features": {}}, {"type": "Match", "start": 13, "end": 15, "id": 10, "features": {}}, {"type": "Match", "start": 14, "end": 15, "id": 11, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 12, "features": {}}, {"type": "Match", "start": 17, "end": 24, "id": 13, "features": {}}, {"type": "Match", "start": 18, "end": 24, "id": 14, "features": {}}, {"type": "Match", "start": 19, "end": 24, "id": 15, "features": {}}, {"type": "Match", "start": 20, "end": 24, "id": 16, "features": {}}, {"type": "Match", "start": 21, "end": 24, "id": 17, "features": {}}, {"type": "Match", "start": 22, "end": 24, "id": 18, "features": {}}, {"type": "Match", "start": 23, "end": 24, "id": 19, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 20, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 21, "features": {}}, {"type": "Match", "start": 28, "end": 31, "id": 22, "features": {}}, {"type": "Match", "start": 29, "end": 31, "id": 23, "features": {}}, {"type": "Match", "start": 30, "end": 31, "id": 24, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 25, "features": {}}, {"type": "Match", "start": 33, "end": 36, "id": 26, "features": {}}, {"type": "Match", "start": 34, "end": 36, "id": 27, "features": {}}, {"type": "Match", "start": 35, "end": 36, "id": 28, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 29, "features": {}}, {"type": "Match", "start": 48, "end": 50, "id": 30, "features": {}}, {"type": "Match", "start": 49, "end": 50, "id": 31, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 32, "features": {}}, {"type": "Match", "start": 52, "end": 55, "id": 33, "features": {}}, {"type": "Match", "start": 53, "end": 55, "id": 34, "features": {}}, {"type": "Match", "start": 54, "end": 55, "id": 35, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 36, "features": {}}, {"type": "Match", "start": 57, "end": 60, "id": 37, "features": {}}, {"type": "Match", "start": 58, "end": 60, "id": 38, "features": {}}, {"type": "Match", "start": 59, "end": 60, "id": 39, "features": {}}], "next_annid": 40}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(SQHXDVGKIS_data), "SQHXDVGKIS-").init();
+    let SJFMVSOWSU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 3, "end": 10, "id": 1, "features": {}}, {"type": "Match", "start": 4, "end": 10, "id": 2, "features": {}}, {"type": "Match", "start": 5, "end": 10, "id": 3, "features": {}}, {"type": "Match", "start": 6, "end": 10, "id": 4, "features": {}}, {"type": "Match", "start": 7, "end": 10, "id": 5, "features": {}}, {"type": "Match", "start": 8, "end": 10, "id": 6, "features": {}}, {"type": "Match", "start": 9, "end": 10, "id": 7, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 8, "features": {}}, {"type": "Match", "start": 12, "end": 15, "id": 9, "features": {}}, {"type": "Match", "start": 13, "end": 15, "id": 10, "features": {}}, {"type": "Match", "start": 14, "end": 15, "id": 11, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 12, "features": {}}, {"type": "Match", "start": 17, "end": 24, "id": 13, "features": {}}, {"type": "Match", "start": 18, "end": 24, "id": 14, "features": {}}, {"type": "Match", "start": 19, "end": 24, "id": 15, "features": {}}, {"type": "Match", "start": 20, "end": 24, "id": 16, "features": {}}, {"type": "Match", "start": 21, "end": 24, "id": 17, "features": {}}, {"type": "Match", "start": 22, "end": 24, "id": 18, "features": {}}, {"type": "Match", "start": 23, "end": 24, "id": 19, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 20, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 21, "features": {}}, {"type": "Match", "start": 28, "end": 31, "id": 22, "features": {}}, {"type": "Match", "start": 29, "end": 31, "id": 23, "features": {}}, {"type": "Match", "start": 30, "end": 31, "id": 24, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 25, "features": {}}, {"type": "Match", "start": 33, "end": 36, "id": 26, "features": {}}, {"type": "Match", "start": 34, "end": 36, "id": 27, "features": {}}, {"type": "Match", "start": 35, "end": 36, "id": 28, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 29, "features": {}}, {"type": "Match", "start": 48, "end": 50, "id": 30, "features": {}}, {"type": "Match", "start": 49, "end": 50, "id": 31, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 32, "features": {}}, {"type": "Match", "start": 52, "end": 55, "id": 33, "features": {}}, {"type": "Match", "start": 53, "end": 55, "id": 34, "features": {}}, {"type": "Match", "start": 54, "end": 55, "id": 35, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 36, "features": {}}, {"type": "Match", "start": 57, "end": 60, "id": 37, "features": {}}, {"type": "Match", "start": 58, "end": 60, "id": 38, "features": {}}, {"type": "Match", "start": 59, "end": 60, "id": 39, "features": {}}], "next_annid": 40}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let SJFMVSOWSU_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(SJFMVSOWSU_data, SJFMVSOWSU_parms), "SJFMVSOWSU-").init();
     </script>
   </div>
 
@@ -1526,25 +1550,25 @@ doc6b
 
 
 
-<div><style>#FADZPXCVUF-wrapper { color: black !important; }</style>
-<div id="FADZPXCVUF-wrapper">
+<div><style>#ZMOTEMTBYF-wrapper { color: black !important; }</style>
+<div id="ZMOTEMTBYF-wrapper">
 
 <div>
 <style>
-#FADZPXCVUF-content {
+#ZMOTEMTBYF-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.FADZPXCVUF-row {
+.ZMOTEMTBYF-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.FADZPXCVUF-col {
+.ZMOTEMTBYF-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1554,23 +1578,23 @@ doc6b
     overflow-y: auto;
 }
 
-.FADZPXCVUF-hdr {
+.ZMOTEMTBYF-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.FADZPXCVUF-label {
+.ZMOTEMTBYF-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.FADZPXCVUF-input {
+.ZMOTEMTBYF-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#FADZPXCVUF-popup {
+#ZMOTEMTBYF-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1585,43 +1609,44 @@ doc6b
     overflow: auto;
 }
 
-.FADZPXCVUF-selection {
+.ZMOTEMTBYF-selection {
     margin-bottom: 5px;
 }
 
-.FADZPXCVUF-featuretable {
+.ZMOTEMTBYF-featuretable {
     margin-top: 10px;
 }
 
-.FADZPXCVUF-fname {
+.ZMOTEMTBYF-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.FADZPXCVUF-fvalue {
+.ZMOTEMTBYF-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="FADZPXCVUF-content">
-        <div id="FADZPXCVUF-popup" style="display: none;">
+  <div id="ZMOTEMTBYF-content">
+        <div id="ZMOTEMTBYF-popup" style="display: none;">
         </div>
-        <div class="FADZPXCVUF-row" id="FADZPXCVUF-row1" style="max-height: 20em; min-height:5em;">
-            <div id="FADZPXCVUF-text-wrapper" class="FADZPXCVUF-col" style="width:70%;">
-                <div class="FADZPXCVUF-hdr" id="FADZPXCVUF-dochdr"></div>
-                <div id="FADZPXCVUF-text" style="">
+        <div class="ZMOTEMTBYF-row" id="ZMOTEMTBYF-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="ZMOTEMTBYF-text-wrapper" class="ZMOTEMTBYF-col" style="width:70%;">
+                <div class="ZMOTEMTBYF-hdr" id="ZMOTEMTBYF-dochdr"></div>
+                <div id="ZMOTEMTBYF-text" style="">
                 </div>
             </div>
-            <div id="FADZPXCVUF-chooser" class="FADZPXCVUF-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ZMOTEMTBYF-chooser" class="ZMOTEMTBYF-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="FADZPXCVUF-row" id="FADZPXCVUF-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="FADZPXCVUF-details" class="FADZPXCVUF-col" style="width:100%; border-top-width: 0px;">
+        <div class="ZMOTEMTBYF-row" id="ZMOTEMTBYF-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="ZMOTEMTBYF-details" class="ZMOTEMTBYF-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let FADZPXCVUF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 1, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 2, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 3, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 4, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 5, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 6, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 7, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 8, "features": {}}], "next_annid": 9}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(FADZPXCVUF_data), "FADZPXCVUF-").init();
+    let ZMOTEMTBYF_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Match", "start": 2, "end": 10, "id": 0, "features": {}}, {"type": "Match", "start": 11, "end": 15, "id": 1, "features": {}}, {"type": "Match", "start": 16, "end": 24, "id": 2, "features": {}}, {"type": "Match", "start": 25, "end": 26, "id": 3, "features": {}}, {"type": "Match", "start": 27, "end": 31, "id": 4, "features": {}}, {"type": "Match", "start": 32, "end": 36, "id": 5, "features": {}}, {"type": "Match", "start": 47, "end": 50, "id": 6, "features": {}}, {"type": "Match", "start": 51, "end": 55, "id": 7, "features": {}}, {"type": "Match", "start": 56, "end": 60, "id": 8, "features": {}}], "next_annid": 9}}, "text": "A document that contains a date here: 12/04/98 and also here: 14/02/1991", "features": {}, "offset_type": "j", "name": ""} ; 
+    let ZMOTEMTBYF_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(ZMOTEMTBYF_data, ZMOTEMTBYF_parms), "ZMOTEMTBYF-").init();
     </script>
   </div>
 
@@ -1669,25 +1694,25 @@ doc7
 
 
 
-<div><style>#EFZUVFHRSH-wrapper { color: black !important; }</style>
-<div id="EFZUVFHRSH-wrapper">
+<div><style>#URZGWMOGAT-wrapper { color: black !important; }</style>
+<div id="URZGWMOGAT-wrapper">
 
 <div>
 <style>
-#EFZUVFHRSH-content {
+#URZGWMOGAT-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.EFZUVFHRSH-row {
+.URZGWMOGAT-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.EFZUVFHRSH-col {
+.URZGWMOGAT-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1697,23 +1722,23 @@ doc7
     overflow-y: auto;
 }
 
-.EFZUVFHRSH-hdr {
+.URZGWMOGAT-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.EFZUVFHRSH-label {
+.URZGWMOGAT-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.EFZUVFHRSH-input {
+.URZGWMOGAT-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#EFZUVFHRSH-popup {
+#URZGWMOGAT-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1728,43 +1753,44 @@ doc7
     overflow: auto;
 }
 
-.EFZUVFHRSH-selection {
+.URZGWMOGAT-selection {
     margin-bottom: 5px;
 }
 
-.EFZUVFHRSH-featuretable {
+.URZGWMOGAT-featuretable {
     margin-top: 10px;
 }
 
-.EFZUVFHRSH-fname {
+.URZGWMOGAT-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.EFZUVFHRSH-fvalue {
+.URZGWMOGAT-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="EFZUVFHRSH-content">
-        <div id="EFZUVFHRSH-popup" style="display: none;">
+  <div id="URZGWMOGAT-content">
+        <div id="URZGWMOGAT-popup" style="display: none;">
         </div>
-        <div class="EFZUVFHRSH-row" id="EFZUVFHRSH-row1" style="max-height: 20em; min-height:5em;">
-            <div id="EFZUVFHRSH-text-wrapper" class="EFZUVFHRSH-col" style="width:70%;">
-                <div class="EFZUVFHRSH-hdr" id="EFZUVFHRSH-dochdr"></div>
-                <div id="EFZUVFHRSH-text" style="">
+        <div class="URZGWMOGAT-row" id="URZGWMOGAT-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="URZGWMOGAT-text-wrapper" class="URZGWMOGAT-col" style="width:70%;">
+                <div class="URZGWMOGAT-hdr" id="URZGWMOGAT-dochdr"></div>
+                <div id="URZGWMOGAT-text" style="">
                 </div>
             </div>
-            <div id="EFZUVFHRSH-chooser" class="EFZUVFHRSH-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="URZGWMOGAT-chooser" class="URZGWMOGAT-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="EFZUVFHRSH-row" id="EFZUVFHRSH-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="EFZUVFHRSH-details" class="EFZUVFHRSH-col" style="width:100%; border-top-width: 0px;">
+        <div class="URZGWMOGAT-row" id="URZGWMOGAT-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="URZGWMOGAT-details" class="URZGWMOGAT-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let EFZUVFHRSH_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 39, "end": 49, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 65, "end": 75, "id": 1, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Date", "start": 165, "end": 175, "id": 2, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Date", "start": 223, "end": 233, "id": 3, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 4}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(EFZUVFHRSH_data), "EFZUVFHRSH-").init();
+    let URZGWMOGAT_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Date", "start": 39, "end": 49, "id": 0, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Date", "start": 65, "end": 75, "id": 1, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Date", "start": 165, "end": 175, "id": 2, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Date", "start": 223, "end": 233, "id": 3, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 4}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    let URZGWMOGAT_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(URZGWMOGAT_data, URZGWMOGAT_parms), "URZGWMOGAT-").init();
     </script>
   </div>
 
@@ -1824,25 +1850,25 @@ doc8
 
 
 
-<div><style>#IQIMKEUVLZ-wrapper { color: black !important; }</style>
-<div id="IQIMKEUVLZ-wrapper">
+<div><style>#ACSQYTGHED-wrapper { color: black !important; }</style>
+<div id="ACSQYTGHED-wrapper">
 
 <div>
 <style>
-#IQIMKEUVLZ-content {
+#ACSQYTGHED-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.IQIMKEUVLZ-row {
+.ACSQYTGHED-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.IQIMKEUVLZ-col {
+.ACSQYTGHED-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -1852,23 +1878,23 @@ doc8
     overflow-y: auto;
 }
 
-.IQIMKEUVLZ-hdr {
+.ACSQYTGHED-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.IQIMKEUVLZ-label {
+.ACSQYTGHED-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.IQIMKEUVLZ-input {
+.ACSQYTGHED-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#IQIMKEUVLZ-popup {
+#ACSQYTGHED-popup {
     display: none;
     color: black;
     position: absolute;
@@ -1883,43 +1909,44 @@ doc8
     overflow: auto;
 }
 
-.IQIMKEUVLZ-selection {
+.ACSQYTGHED-selection {
     margin-bottom: 5px;
 }
 
-.IQIMKEUVLZ-featuretable {
+.ACSQYTGHED-featuretable {
     margin-top: 10px;
 }
 
-.IQIMKEUVLZ-fname {
+.ACSQYTGHED-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.IQIMKEUVLZ-fvalue {
+.ACSQYTGHED-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="IQIMKEUVLZ-content">
-        <div id="IQIMKEUVLZ-popup" style="display: none;">
+  <div id="ACSQYTGHED-content">
+        <div id="ACSQYTGHED-popup" style="display: none;">
         </div>
-        <div class="IQIMKEUVLZ-row" id="IQIMKEUVLZ-row1" style="max-height: 20em; min-height:5em;">
-            <div id="IQIMKEUVLZ-text-wrapper" class="IQIMKEUVLZ-col" style="width:70%;">
-                <div class="IQIMKEUVLZ-hdr" id="IQIMKEUVLZ-dochdr"></div>
-                <div id="IQIMKEUVLZ-text" style="">
+        <div class="ACSQYTGHED-row" id="ACSQYTGHED-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="ACSQYTGHED-text-wrapper" class="ACSQYTGHED-col" style="width:70%;">
+                <div class="ACSQYTGHED-hdr" id="ACSQYTGHED-dochdr"></div>
+                <div id="ACSQYTGHED-text" style="">
                 </div>
             </div>
-            <div id="IQIMKEUVLZ-chooser" class="IQIMKEUVLZ-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ACSQYTGHED-chooser" class="ACSQYTGHED-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="IQIMKEUVLZ-row" id="IQIMKEUVLZ-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="IQIMKEUVLZ-details" class="IQIMKEUVLZ-col" style="width:100%; border-top-width: 0px;">
+        <div class="ACSQYTGHED-row" id="ACSQYTGHED-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="ACSQYTGHED-details" class="ACSQYTGHED-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let IQIMKEUVLZ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Lookup", "start": 26, "end": 32, "id": 0, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 28, "end": 32, "id": 1, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 39, "end": 49, "id": 2, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Lookup", "start": 50, "end": 53, "id": 3, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 54, "end": 58, "id": 4, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 65, "end": 75, "id": 5, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Lookup", "start": 118, "end": 121, "id": 6, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 165, "end": 175, "id": 7, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Lookup", "start": 176, "end": 179, "id": 8, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 180, "end": 184, "id": 9, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 223, "end": 233, "id": 10, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 11}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(IQIMKEUVLZ_data), "IQIMKEUVLZ-").init();
+    let ACSQYTGHED_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Lookup", "start": 26, "end": 32, "id": 0, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 28, "end": 32, "id": 1, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 39, "end": 49, "id": 2, "features": {"type": "iso", "year": "2013", "month": "01", "day": "12"}}, {"type": "Lookup", "start": 50, "end": 53, "id": 3, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 54, "end": 58, "id": 4, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 65, "end": 75, "id": 5, "features": {"type": "traditional", "year": "02", "month": "02", "day": "14"}}, {"type": "Lookup", "start": 118, "end": 121, "id": 6, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 165, "end": 175, "id": 7, "features": {"type": "traditional", "year": "12", "month": "12", "day": "13"}}, {"type": "Lookup", "start": 176, "end": 179, "id": 8, "features": {"somefeature": "some value"}}, {"type": "Lookup", "start": 180, "end": 184, "id": 9, "features": {"somefeature": "some value"}}, {"type": "Date", "start": 223, "end": 233, "id": 10, "features": {"type": "traditional", "year": "02", "month": "02", "day": "31"}}], "next_annid": 11}}, "text": "\nA document that contains a date here: 2013-01-12 and also here: 14/02/1991. This should not \nget matched: 1833-12-21 and nor should this 45/03/2012 but this should 13/12/2012 and also\nthis, despite not being a valid data: 31/02/2000\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    let ACSQYTGHED_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(ACSQYTGHED_data, ACSQYTGHED_parms), "ACSQYTGHED-").init();
     </script>
   </div>
 
@@ -1944,17 +1971,17 @@ for m in annt8.find_all(doc8.text):
     print(m)
 ```
 
-    Match(start=26, end=32, match='a date', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=28, end=32, match='date', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=39, end=49, match='2013-01-12', features={'type': 'iso', 'year': '2013', 'month': '01', 'day': '12'}, type='Date')
-    Match(start=50, end=53, match='and', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=54, end=58, match='also', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=65, end=75, match='14/02/1991', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '14'}, type='Date')
-    Match(start=118, end=121, match='and', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=165, end=175, match='13/12/2012', features={'type': 'traditional', 'year': '12', 'month': '12', 'day': '13'}, type='Date')
-    Match(start=176, end=179, match='and', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=180, end=184, match='also', features={'somefeature': 'some value'}, type='Lookup')
-    Match(start=223, end=233, match='31/02/2000', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '31'}, type='Date')
+    GazetteerMatch(start=26, end=32, match='a date', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=28, end=32, match='date', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=39, end=49, match='2013-01-12', features={'type': 'iso', 'year': '2013', 'month': '01', 'day': '12'}, type='Date')
+    GazetteerMatch(start=50, end=53, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=54, end=58, match='also', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=65, end=75, match='14/02/1991', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '14'}, type='Date')
+    GazetteerMatch(start=118, end=121, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=165, end=175, match='13/12/2012', features={'type': 'traditional', 'year': '12', 'month': '12', 'day': '13'}, type='Date')
+    GazetteerMatch(start=176, end=179, match='and', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=180, end=184, match='also', features={'somefeature': 'some value'}, type='Lookup')
+    GazetteerMatch(start=223, end=233, match='31/02/2000', features={'type': 'traditional', 'year': '02', 'month': '02', 'day': '31'}, type='Date')
 
 
 ## Example use: GATE  default tokenizer
@@ -2047,25 +2074,25 @@ doc
 
 
 
-<div><style>#CTFSGMGCWR-wrapper { color: black !important; }</style>
-<div id="CTFSGMGCWR-wrapper">
+<div><style>#VHLSCDBABS-wrapper { color: black !important; }</style>
+<div id="VHLSCDBABS-wrapper">
 
 <div>
 <style>
-#CTFSGMGCWR-content {
+#VHLSCDBABS-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.CTFSGMGCWR-row {
+.VHLSCDBABS-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.CTFSGMGCWR-col {
+.VHLSCDBABS-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -2075,23 +2102,23 @@ doc
     overflow-y: auto;
 }
 
-.CTFSGMGCWR-hdr {
+.VHLSCDBABS-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.CTFSGMGCWR-label {
+.VHLSCDBABS-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.CTFSGMGCWR-input {
+.VHLSCDBABS-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#CTFSGMGCWR-popup {
+#VHLSCDBABS-popup {
     display: none;
     color: black;
     position: absolute;
@@ -2106,46 +2133,58 @@ doc
     overflow: auto;
 }
 
-.CTFSGMGCWR-selection {
+.VHLSCDBABS-selection {
     margin-bottom: 5px;
 }
 
-.CTFSGMGCWR-featuretable {
+.VHLSCDBABS-featuretable {
     margin-top: 10px;
 }
 
-.CTFSGMGCWR-fname {
+.VHLSCDBABS-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.CTFSGMGCWR-fvalue {
+.VHLSCDBABS-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="CTFSGMGCWR-content">
-        <div id="CTFSGMGCWR-popup" style="display: none;">
+  <div id="VHLSCDBABS-content">
+        <div id="VHLSCDBABS-popup" style="display: none;">
         </div>
-        <div class="CTFSGMGCWR-row" id="CTFSGMGCWR-row1" style="max-height: 20em; min-height:5em;">
-            <div id="CTFSGMGCWR-text-wrapper" class="CTFSGMGCWR-col" style="width:70%;">
-                <div class="CTFSGMGCWR-hdr" id="CTFSGMGCWR-dochdr"></div>
-                <div id="CTFSGMGCWR-text" style="">
+        <div class="VHLSCDBABS-row" id="VHLSCDBABS-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="VHLSCDBABS-text-wrapper" class="VHLSCDBABS-col" style="width:70%;">
+                <div class="VHLSCDBABS-hdr" id="VHLSCDBABS-dochdr"></div>
+                <div id="VHLSCDBABS-text" style="">
                 </div>
             </div>
-            <div id="CTFSGMGCWR-chooser" class="CTFSGMGCWR-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="VHLSCDBABS-chooser" class="VHLSCDBABS-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="CTFSGMGCWR-row" id="CTFSGMGCWR-row2" style="max-height: 14em; min-height: 3em;">
-            <div id="CTFSGMGCWR-details" class="CTFSGMGCWR-col" style="width:100%; border-top-width: 0px;">
+        <div class="VHLSCDBABS-row" id="VHLSCDBABS-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="VHLSCDBABS-details" class="VHLSCDBABS-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let CTFSGMGCWR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SpaceToken", "start": 0, "end": 1, "id": 0, "features": {"kind": "control"}}, {"type": "Token", "start": 1, "end": 5, "id": 1, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 5, "end": 6, "id": 2, "features": {"kind": "space"}}, {"type": "Token", "start": 6, "end": 8, "id": 3, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 8, "end": 9, "id": 4, "features": {"kind": "space"}}, {"type": "Token", "start": 9, "end": 10, "id": 5, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 10, "end": 11, "id": 6, "features": {"kind": "space"}}, {"type": "Token", "start": 11, "end": 16, "id": 7, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 16, "end": 17, "id": 8, "features": {"kind": "space"}}, {"type": "Token", "start": 17, "end": 25, "id": 9, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 25, "end": 26, "id": 10, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 11, "features": {"kind": "space"}}, {"type": "Token", "start": 27, "end": 30, "id": 12, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 30, "end": 31, "id": 13, "features": {"kind": "space"}}, {"type": "Token", "start": 31, "end": 40, "id": 14, "features": {"orth": "mixedCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 40, "end": 41, "id": 15, "features": {"kind": "space"}}, {"type": "Token", "start": 41, "end": 44, "id": 16, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 17, "features": {"kind": "space"}}, {"type": "Token", "start": 45, "end": 53, "id": 18, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 53, "end": 54, "id": 19, "features": {"kind": "space"}}, {"type": "Token", "start": 54, "end": 57, "id": 20, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 57, "end": 58, "id": 21, "features": {"kind": "space"}}, {"type": "Token", "start": 58, "end": 62, "id": 22, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 62, "end": 63, "id": 23, "features": {"kind": "space"}}, {"type": "Token", "start": 63, "end": 66, "id": 24, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 66, "end": 67, "id": 25, "features": {"kind": "space"}}, {"type": "Token", "start": 67, "end": 78, "id": 26, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 78, "end": 79, "id": 27, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 79, "end": 80, "id": 28, "features": {"kind": "space"}}, {"type": "SpaceToken", "start": 80, "end": 81, "id": 29, "features": {"kind": "control"}}, {"type": "Token", "start": 81, "end": 85, "id": 30, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 85, "end": 86, "id": 31, "features": {"kind": "space"}}, {"type": "Token", "start": 86, "end": 95, "id": 32, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 33, "features": {"kind": "space"}}, {"type": "Token", "start": 96, "end": 101, "id": 34, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 101, "end": 102, "id": 35, "features": {"kind": "space"}}, {"type": "Token", "start": 102, "end": 103, "id": 36, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 103, "end": 104, "id": 37, "features": {"kind": "space"}}, {"type": "Token", "start": 104, "end": 107, "id": 38, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 107, "end": 108, "id": 39, "features": {"kind": "space"}}, {"type": "Token", "start": 108, "end": 112, "id": 40, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 112, "end": 113, "id": 41, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 113, "end": 114, "id": 42, "features": {"kind": "space"}}, {"type": "Token", "start": 114, "end": 117, "id": 43, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 117, "end": 118, "id": 44, "features": {"kind": "space"}}, {"type": "Token", "start": 118, "end": 125, "id": 45, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 125, "end": 126, "id": 46, "features": {"kind": "space"}}, {"type": "Token", "start": 126, "end": 134, "id": 47, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 134, "end": 135, "id": 48, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 135, "end": 136, "id": 49, "features": {"kind": "space"}}, {"type": "Token", "start": 136, "end": 137, "id": 50, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 137, "end": 138, "id": 51, "features": {"kind": "space"}}, {"type": "Token", "start": 138, "end": 143, "id": 52, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 143, "end": 144, "id": 53, "features": {"kind": "space"}}, {"type": "Token", "start": 144, "end": 145, "id": 54, "features": {"kind": "number"}}, {"type": "Token", "start": 145, "end": 146, "id": 55, "features": {"kind": "punctuation"}}, {"type": "Token", "start": 146, "end": 150, "id": 56, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 150, "end": 151, "id": 57, "features": {"kind": "space"}}, {"type": "Token", "start": 151, "end": 154, "id": 58, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 154, "end": 155, "id": 59, "features": {"kind": "space"}}, {"type": "Token", "start": 155, "end": 156, "id": 60, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 156, "end": 157, "id": 61, "features": {"kind": "space"}}, {"type": "Token", "start": 157, "end": 161, "id": 62, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 161, "end": 162, "id": 63, "features": {"kind": "space"}}, {"type": "Token", "start": 162, "end": 165, "id": 64, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "Token", "start": 165, "end": 169, "id": 65, "features": {"kind": "number"}}, {"type": "Token", "start": 169, "end": 170, "id": 66, "features": {"kind": "punctuation", "subkind": "dashpunct"}}, {"type": "Token", "start": 170, "end": 171, "id": 67, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 171, "end": 172, "id": 68, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 172, "end": 173, "id": 69, "features": {"kind": "control"}}], "next_annid": 70}}, "text": "\nThis is a short document. Has miXedCaps and ALLUPPER and 1234 and hyphen-word. \nAlso something after a new line. And another sentence. A float 3.4123 and a code XZ-2323-a.\n", "features": {}, "offset_type": "j", "name": ""} ; 
-    new gatenlpDocView(new gatenlpDocRep(CTFSGMGCWR_data), "CTFSGMGCWR-").init();
+    let VHLSCDBABS_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SpaceToken", "start": 0, "end": 1, "id": 0, "features": {"kind": "control"}}, {"type": "Token", "start": 1, "end": 5, "id": 1, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 5, "end": 6, "id": 2, "features": {"kind": "space"}}, {"type": "Token", "start": 6, "end": 8, "id": 3, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 8, "end": 9, "id": 4, "features": {"kind": "space"}}, {"type": "Token", "start": 9, "end": 10, "id": 5, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 10, "end": 11, "id": 6, "features": {"kind": "space"}}, {"type": "Token", "start": 11, "end": 16, "id": 7, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 16, "end": 17, "id": 8, "features": {"kind": "space"}}, {"type": "Token", "start": 17, "end": 25, "id": 9, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 25, "end": 26, "id": 10, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 11, "features": {"kind": "space"}}, {"type": "Token", "start": 27, "end": 30, "id": 12, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 30, "end": 31, "id": 13, "features": {"kind": "space"}}, {"type": "Token", "start": 31, "end": 40, "id": 14, "features": {"orth": "mixedCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 40, "end": 41, "id": 15, "features": {"kind": "space"}}, {"type": "Token", "start": 41, "end": 44, "id": 16, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 17, "features": {"kind": "space"}}, {"type": "Token", "start": 45, "end": 53, "id": 18, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "SpaceToken", "start": 53, "end": 54, "id": 19, "features": {"kind": "space"}}, {"type": "Token", "start": 54, "end": 57, "id": 20, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 57, "end": 58, "id": 21, "features": {"kind": "space"}}, {"type": "Token", "start": 58, "end": 62, "id": 22, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 62, "end": 63, "id": 23, "features": {"kind": "space"}}, {"type": "Token", "start": 63, "end": 66, "id": 24, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 66, "end": 67, "id": 25, "features": {"kind": "space"}}, {"type": "Token", "start": 67, "end": 78, "id": 26, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 78, "end": 79, "id": 27, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 79, "end": 80, "id": 28, "features": {"kind": "space"}}, {"type": "SpaceToken", "start": 80, "end": 81, "id": 29, "features": {"kind": "control"}}, {"type": "Token", "start": 81, "end": 85, "id": 30, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 85, "end": 86, "id": 31, "features": {"kind": "space"}}, {"type": "Token", "start": 86, "end": 95, "id": 32, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 33, "features": {"kind": "space"}}, {"type": "Token", "start": 96, "end": 101, "id": 34, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 101, "end": 102, "id": 35, "features": {"kind": "space"}}, {"type": "Token", "start": 102, "end": 103, "id": 36, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 103, "end": 104, "id": 37, "features": {"kind": "space"}}, {"type": "Token", "start": 104, "end": 107, "id": 38, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 107, "end": 108, "id": 39, "features": {"kind": "space"}}, {"type": "Token", "start": 108, "end": 112, "id": 40, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 112, "end": 113, "id": 41, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 113, "end": 114, "id": 42, "features": {"kind": "space"}}, {"type": "Token", "start": 114, "end": 117, "id": 43, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 117, "end": 118, "id": 44, "features": {"kind": "space"}}, {"type": "Token", "start": 118, "end": 125, "id": 45, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 125, "end": 126, "id": 46, "features": {"kind": "space"}}, {"type": "Token", "start": 126, "end": 134, "id": 47, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 134, "end": 135, "id": 48, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 135, "end": 136, "id": 49, "features": {"kind": "space"}}, {"type": "Token", "start": 136, "end": 137, "id": 50, "features": {"orth": "upperInitial", "kind": "word"}}, {"type": "SpaceToken", "start": 137, "end": 138, "id": 51, "features": {"kind": "space"}}, {"type": "Token", "start": 138, "end": 143, "id": 52, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 143, "end": 144, "id": 53, "features": {"kind": "space"}}, {"type": "Token", "start": 144, "end": 145, "id": 54, "features": {"kind": "number"}}, {"type": "Token", "start": 145, "end": 146, "id": 55, "features": {"kind": "punctuation"}}, {"type": "Token", "start": 146, "end": 150, "id": 56, "features": {"kind": "number"}}, {"type": "SpaceToken", "start": 150, "end": 151, "id": 57, "features": {"kind": "space"}}, {"type": "Token", "start": 151, "end": 154, "id": 58, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 154, "end": 155, "id": 59, "features": {"kind": "space"}}, {"type": "Token", "start": 155, "end": 156, "id": 60, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 156, "end": 157, "id": 61, "features": {"kind": "space"}}, {"type": "Token", "start": 157, "end": 161, "id": 62, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "SpaceToken", "start": 161, "end": 162, "id": 63, "features": {"kind": "space"}}, {"type": "Token", "start": 162, "end": 165, "id": 64, "features": {"orth": "allCaps", "kind": "word"}}, {"type": "Token", "start": 165, "end": 169, "id": 65, "features": {"kind": "number"}}, {"type": "Token", "start": 169, "end": 170, "id": 66, "features": {"kind": "punctuation", "subkind": "dashpunct"}}, {"type": "Token", "start": 170, "end": 171, "id": 67, "features": {"orth": "lowercase", "kind": "word"}}, {"type": "Token", "start": 171, "end": 172, "id": 68, "features": {"kind": "punctuation"}}, {"type": "SpaceToken", "start": 172, "end": 173, "id": 69, "features": {"kind": "control"}}], "next_annid": 70}}, "text": "\nThis is a short document. Has miXedCaps and ALLUPPER and 1234 and hyphen-word. \nAlso something after a new line. And another sentence. A float 3.4123 and a code XZ-2323-a.\n", "features": {}, "offset_type": "j", "name": ""} ; 
+    let VHLSCDBABS_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(VHLSCDBABS_data, VHLSCDBABS_parms), "VHLSCDBABS-").init();
     </script>
   </div>
 
 </div></div>
 
+
+
+### Notebook last updated
+
+
+```python
+import gatenlp
+print("NB last updated with gatenlp version", gatenlp.__version__)
+```
+
+    NB last updated with gatenlp version 1.0.8.dev3
 

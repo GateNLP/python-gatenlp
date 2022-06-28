@@ -81,6 +81,8 @@ Annotators as classes always must implement the `__call__` special method so tha
 
 The result of processing a corpus returned by the executor is whatever is returned by the finish method for a single process execution or what is returned by the reduce method for multiprocessing. (NOTE: multiprocessing executors are not implemented yet!)
 
+### Notebook last updated
+
 
 ```python
 import gatenlp

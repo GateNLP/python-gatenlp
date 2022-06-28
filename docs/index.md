@@ -76,7 +76,7 @@ for running on your own computer (NB-DL).
     * Complex Annotation Patterns for matching text and annotation sequences: 
       * [PAMPAC](pampac) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/pampac.ipynb) / [NB-DL](pampac.ipynb)
       * [PAMPAC Reference](pampac-reference)
-* [Viewers and object representation(visualization)] / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/visualization.ipynb) / [NB-DL](visualization.ipynb)
+* [Viewers and object representation](visualization) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/visualization.ipynb) / [NB-DL](visualization.ipynb)
 * [Miscellaneous Recipes and Examples](recipes)
 
 ## Course Materials

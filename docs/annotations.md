@@ -567,25 +567,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#TLHQIFOAYT-wrapper { color: black !important; }</style>
-<div id="TLHQIFOAYT-wrapper">
+<div><style>#YHCYJAFHWY-wrapper { color: black !important; }</style>
+<div id="YHCYJAFHWY-wrapper">
 
 <div>
 <style>
-#TLHQIFOAYT-content {
+#YHCYJAFHWY-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.TLHQIFOAYT-row {
+.YHCYJAFHWY-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.TLHQIFOAYT-col {
+.YHCYJAFHWY-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -595,23 +595,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.TLHQIFOAYT-hdr {
+.YHCYJAFHWY-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.TLHQIFOAYT-label {
+.YHCYJAFHWY-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.TLHQIFOAYT-input {
+.YHCYJAFHWY-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#TLHQIFOAYT-popup {
+#YHCYJAFHWY-popup {
     display: none;
     color: black;
     position: absolute;
@@ -626,44 +626,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.TLHQIFOAYT-selection {
+.YHCYJAFHWY-selection {
     margin-bottom: 5px;
 }
 
-.TLHQIFOAYT-featuretable {
+.YHCYJAFHWY-featuretable {
     margin-top: 10px;
 }
 
-.TLHQIFOAYT-fname {
+.YHCYJAFHWY-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.TLHQIFOAYT-fvalue {
+.YHCYJAFHWY-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="TLHQIFOAYT-content">
-        <div id="TLHQIFOAYT-popup" style="display: none;">
+  <div id="YHCYJAFHWY-content">
+        <div id="YHCYJAFHWY-popup" style="display: none;">
         </div>
-        <div class="TLHQIFOAYT-row" id="TLHQIFOAYT-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="TLHQIFOAYT-text-wrapper" class="TLHQIFOAYT-col" style="width:70%;">
-                <div class="TLHQIFOAYT-hdr" id="TLHQIFOAYT-dochdr"></div>
-                <div id="TLHQIFOAYT-text" style="">
+        <div class="YHCYJAFHWY-row" id="YHCYJAFHWY-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="YHCYJAFHWY-text-wrapper" class="YHCYJAFHWY-col" style="width:70%;">
+                <div class="YHCYJAFHWY-hdr" id="YHCYJAFHWY-dochdr"></div>
+                <div id="YHCYJAFHWY-text" style="">
                 </div>
             </div>
-            <div id="TLHQIFOAYT-chooser" class="TLHQIFOAYT-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="YHCYJAFHWY-chooser" class="YHCYJAFHWY-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="TLHQIFOAYT-row" id="TLHQIFOAYT-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="TLHQIFOAYT-details" class="TLHQIFOAYT-col" style="width:100%; border-top-width: 0px;">
+        <div class="YHCYJAFHWY-row" id="YHCYJAFHWY-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="YHCYJAFHWY-details" class="YHCYJAFHWY-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let TLHQIFOAYT_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""} ; 
-    let TLHQIFOAYT_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(TLHQIFOAYT_data, TLHQIFOAYT_parms), "TLHQIFOAYT-").init();
+    let YHCYJAFHWY_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""} ; 
+    let YHCYJAFHWY_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(YHCYJAFHWY_data, YHCYJAFHWY_parms), "YHCYJAFHWY-").init();
     </script>
   </div>
 

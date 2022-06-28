@@ -534,25 +534,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#RVFCFZOFSN-wrapper { color: black !important; }</style>
-<div id="RVFCFZOFSN-wrapper">
+<div><style>#OVRLHAWFDJ-wrapper { color: black !important; }</style>
+<div id="OVRLHAWFDJ-wrapper">
 
 <div>
 <style>
-#RVFCFZOFSN-content {
+#OVRLHAWFDJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RVFCFZOFSN-row {
+.OVRLHAWFDJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RVFCFZOFSN-col {
+.OVRLHAWFDJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -562,23 +562,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.RVFCFZOFSN-hdr {
+.OVRLHAWFDJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RVFCFZOFSN-label {
+.OVRLHAWFDJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RVFCFZOFSN-input {
+.OVRLHAWFDJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RVFCFZOFSN-popup {
+#OVRLHAWFDJ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -593,44 +593,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.RVFCFZOFSN-selection {
+.OVRLHAWFDJ-selection {
     margin-bottom: 5px;
 }
 
-.RVFCFZOFSN-featuretable {
+.OVRLHAWFDJ-featuretable {
     margin-top: 10px;
 }
 
-.RVFCFZOFSN-fname {
+.OVRLHAWFDJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RVFCFZOFSN-fvalue {
+.OVRLHAWFDJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RVFCFZOFSN-content">
-        <div id="RVFCFZOFSN-popup" style="display: none;">
+  <div id="OVRLHAWFDJ-content">
+        <div id="OVRLHAWFDJ-popup" style="display: none;">
         </div>
-        <div class="RVFCFZOFSN-row" id="RVFCFZOFSN-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="RVFCFZOFSN-text-wrapper" class="RVFCFZOFSN-col" style="width:70%;">
-                <div class="RVFCFZOFSN-hdr" id="RVFCFZOFSN-dochdr"></div>
-                <div id="RVFCFZOFSN-text" style="">
+        <div class="OVRLHAWFDJ-row" id="OVRLHAWFDJ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="OVRLHAWFDJ-text-wrapper" class="OVRLHAWFDJ-col" style="width:70%;">
+                <div class="OVRLHAWFDJ-hdr" id="OVRLHAWFDJ-dochdr"></div>
+                <div id="OVRLHAWFDJ-text" style="">
                 </div>
             </div>
-            <div id="RVFCFZOFSN-chooser" class="RVFCFZOFSN-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="OVRLHAWFDJ-chooser" class="OVRLHAWFDJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RVFCFZOFSN-row" id="RVFCFZOFSN-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="RVFCFZOFSN-details" class="RVFCFZOFSN-col" style="width:100%; border-top-width: 0px;">
+        <div class="OVRLHAWFDJ-row" id="OVRLHAWFDJ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="OVRLHAWFDJ-details" class="OVRLHAWFDJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let RVFCFZOFSN_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 3}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
-    let RVFCFZOFSN_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(RVFCFZOFSN_data, RVFCFZOFSN_parms), "RVFCFZOFSN-").init();
+    let OVRLHAWFDJ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 3}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
+    let OVRLHAWFDJ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(OVRLHAWFDJ_data, OVRLHAWFDJ_parms), "OVRLHAWFDJ-").init();
     </script>
   </div>
 
@@ -641,25 +641,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#XDFHYFYRYH-wrapper { color: black !important; }</style>
-<div id="XDFHYFYRYH-wrapper">
+<div><style>#ASTOXHNIVW-wrapper { color: black !important; }</style>
+<div id="ASTOXHNIVW-wrapper">
 
 <div>
 <style>
-#XDFHYFYRYH-content {
+#ASTOXHNIVW-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.XDFHYFYRYH-row {
+.ASTOXHNIVW-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.XDFHYFYRYH-col {
+.ASTOXHNIVW-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -669,23 +669,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.XDFHYFYRYH-hdr {
+.ASTOXHNIVW-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.XDFHYFYRYH-label {
+.ASTOXHNIVW-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.XDFHYFYRYH-input {
+.ASTOXHNIVW-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#XDFHYFYRYH-popup {
+#ASTOXHNIVW-popup {
     display: none;
     color: black;
     position: absolute;
@@ -700,44 +700,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.XDFHYFYRYH-selection {
+.ASTOXHNIVW-selection {
     margin-bottom: 5px;
 }
 
-.XDFHYFYRYH-featuretable {
+.ASTOXHNIVW-featuretable {
     margin-top: 10px;
 }
 
-.XDFHYFYRYH-fname {
+.ASTOXHNIVW-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.XDFHYFYRYH-fvalue {
+.ASTOXHNIVW-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="XDFHYFYRYH-content">
-        <div id="XDFHYFYRYH-popup" style="display: none;">
+  <div id="ASTOXHNIVW-content">
+        <div id="ASTOXHNIVW-popup" style="display: none;">
         </div>
-        <div class="XDFHYFYRYH-row" id="XDFHYFYRYH-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="XDFHYFYRYH-text-wrapper" class="XDFHYFYRYH-col" style="width:70%;">
-                <div class="XDFHYFYRYH-hdr" id="XDFHYFYRYH-dochdr"></div>
-                <div id="XDFHYFYRYH-text" style="">
+        <div class="ASTOXHNIVW-row" id="ASTOXHNIVW-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="ASTOXHNIVW-text-wrapper" class="ASTOXHNIVW-col" style="width:70%;">
+                <div class="ASTOXHNIVW-hdr" id="ASTOXHNIVW-dochdr"></div>
+                <div id="ASTOXHNIVW-text" style="">
                 </div>
             </div>
-            <div id="XDFHYFYRYH-chooser" class="XDFHYFYRYH-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="ASTOXHNIVW-chooser" class="ASTOXHNIVW-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="XDFHYFYRYH-row" id="XDFHYFYRYH-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="XDFHYFYRYH-details" class="XDFHYFYRYH-col" style="width:100%; border-top-width: 0px;">
+        <div class="ASTOXHNIVW-row" id="ASTOXHNIVW-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="ASTOXHNIVW-details" class="ASTOXHNIVW-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let XDFHYFYRYH_data = {"annotation_sets": {}, "text": "This is some text", "features": {}, "offset_type": "j", "name": ""} ; 
-    let XDFHYFYRYH_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(XDFHYFYRYH_data, XDFHYFYRYH_parms), "XDFHYFYRYH-").init();
+    let ASTOXHNIVW_data = {"annotation_sets": {}, "text": "This is some text", "features": {}, "offset_type": "j", "name": ""} ; 
+    let ASTOXHNIVW_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(ASTOXHNIVW_data, ASTOXHNIVW_parms), "ASTOXHNIVW-").init();
     </script>
   </div>
 
@@ -753,25 +753,25 @@ display(doc2)
 ```
 
 
-<div><style>#RPGQCDIJNL-wrapper { color: black !important; }</style>
-<div id="RPGQCDIJNL-wrapper">
+<div><style>#RUKPGHCHWX-wrapper { color: black !important; }</style>
+<div id="RUKPGHCHWX-wrapper">
 
 <div>
 <style>
-#RPGQCDIJNL-content {
+#RUKPGHCHWX-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RPGQCDIJNL-row {
+.RUKPGHCHWX-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RPGQCDIJNL-col {
+.RUKPGHCHWX-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -781,23 +781,23 @@ display(doc2)
     overflow-y: auto;
 }
 
-.RPGQCDIJNL-hdr {
+.RUKPGHCHWX-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RPGQCDIJNL-label {
+.RUKPGHCHWX-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RPGQCDIJNL-input {
+.RUKPGHCHWX-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RPGQCDIJNL-popup {
+#RUKPGHCHWX-popup {
     display: none;
     color: black;
     position: absolute;
@@ -812,49 +812,51 @@ display(doc2)
     overflow: auto;
 }
 
-.RPGQCDIJNL-selection {
+.RUKPGHCHWX-selection {
     margin-bottom: 5px;
 }
 
-.RPGQCDIJNL-featuretable {
+.RUKPGHCHWX-featuretable {
     margin-top: 10px;
 }
 
-.RPGQCDIJNL-fname {
+.RUKPGHCHWX-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RPGQCDIJNL-fvalue {
+.RUKPGHCHWX-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RPGQCDIJNL-content">
-        <div id="RPGQCDIJNL-popup" style="display: none;">
+  <div id="RUKPGHCHWX-content">
+        <div id="RUKPGHCHWX-popup" style="display: none;">
         </div>
-        <div class="RPGQCDIJNL-row" id="RPGQCDIJNL-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="RPGQCDIJNL-text-wrapper" class="RPGQCDIJNL-col" style="width:70%;">
-                <div class="RPGQCDIJNL-hdr" id="RPGQCDIJNL-dochdr"></div>
-                <div id="RPGQCDIJNL-text" style="">
+        <div class="RUKPGHCHWX-row" id="RUKPGHCHWX-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="RUKPGHCHWX-text-wrapper" class="RUKPGHCHWX-col" style="width:70%;">
+                <div class="RUKPGHCHWX-hdr" id="RUKPGHCHWX-dochdr"></div>
+                <div id="RUKPGHCHWX-text" style="">
                 </div>
             </div>
-            <div id="RPGQCDIJNL-chooser" class="RPGQCDIJNL-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="RUKPGHCHWX-chooser" class="RUKPGHCHWX-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RPGQCDIJNL-row" id="RPGQCDIJNL-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="RPGQCDIJNL-details" class="RPGQCDIJNL-col" style="width:100%; border-top-width: 0px;">
+        <div class="RUKPGHCHWX-row" id="RUKPGHCHWX-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="RUKPGHCHWX-details" class="RUKPGHCHWX-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let RPGQCDIJNL_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 0}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
-    let RPGQCDIJNL_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(RPGQCDIJNL_data, RPGQCDIJNL_parms), "RPGQCDIJNL-").init();
+    let RUKPGHCHWX_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "SomeType", "start": 0, "end": 4, "id": 0, "features": {"annfeature1": 11, "annfeature2": 2, "annfeature3": 3}}, {"type": "SomeType", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "SomeType", "start": 8, "end": 12, "id": 2, "features": {}}], "next_annid": 0}}, "text": "This is some text", "features": {"feature1": "some value"}, "offset_type": "j", "name": ""} ; 
+    let RUKPGHCHWX_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(RUKPGHCHWX_data, RUKPGHCHWX_parms), "RUKPGHCHWX-").init();
     </script>
   </div>
 
 </div></div>
 
+
+### Notebook last updated
 
 
 ```python

@@ -511,25 +511,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#MZRJHHBFWL-wrapper { color: black !important; }</style>
-<div id="MZRJHHBFWL-wrapper">
+<div><style>#KWBSFVVSEY-wrapper { color: black !important; }</style>
+<div id="KWBSFVVSEY-wrapper">
 
 <div>
 <style>
-#MZRJHHBFWL-content {
+#KWBSFVVSEY-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MZRJHHBFWL-row {
+.KWBSFVVSEY-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MZRJHHBFWL-col {
+.KWBSFVVSEY-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -539,23 +539,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.MZRJHHBFWL-hdr {
+.KWBSFVVSEY-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MZRJHHBFWL-label {
+.KWBSFVVSEY-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MZRJHHBFWL-input {
+.KWBSFVVSEY-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MZRJHHBFWL-popup {
+#KWBSFVVSEY-popup {
     display: none;
     color: black;
     position: absolute;
@@ -570,44 +570,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.MZRJHHBFWL-selection {
+.KWBSFVVSEY-selection {
     margin-bottom: 5px;
 }
 
-.MZRJHHBFWL-featuretable {
+.KWBSFVVSEY-featuretable {
     margin-top: 10px;
 }
 
-.MZRJHHBFWL-fname {
+.KWBSFVVSEY-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MZRJHHBFWL-fvalue {
+.KWBSFVVSEY-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MZRJHHBFWL-content">
-        <div id="MZRJHHBFWL-popup" style="display: none;">
+  <div id="KWBSFVVSEY-content">
+        <div id="KWBSFVVSEY-popup" style="display: none;">
         </div>
-        <div class="MZRJHHBFWL-row" id="MZRJHHBFWL-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="MZRJHHBFWL-text-wrapper" class="MZRJHHBFWL-col" style="width:70%;">
-                <div class="MZRJHHBFWL-hdr" id="MZRJHHBFWL-dochdr"></div>
-                <div id="MZRJHHBFWL-text" style="">
+        <div class="KWBSFVVSEY-row" id="KWBSFVVSEY-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="KWBSFVVSEY-text-wrapper" class="KWBSFVVSEY-col" style="width:70%;">
+                <div class="KWBSFVVSEY-hdr" id="KWBSFVVSEY-dochdr"></div>
+                <div id="KWBSFVVSEY-text" style="">
                 </div>
             </div>
-            <div id="MZRJHHBFWL-chooser" class="MZRJHHBFWL-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="KWBSFVVSEY-chooser" class="KWBSFVVSEY-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MZRJHHBFWL-row" id="MZRJHHBFWL-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="MZRJHHBFWL-details" class="MZRJHHBFWL-col" style="width:100%; border-top-width: 0px;">
+        <div class="KWBSFVVSEY-row" id="KWBSFVVSEY-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="KWBSFVVSEY-details" class="KWBSFVVSEY-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let MZRJHHBFWL_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
-    let MZRJHHBFWL_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(MZRJHHBFWL_data, MZRJHHBFWL_parms), "MZRJHHBFWL-").init();
+    let KWBSFVVSEY_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let KWBSFVVSEY_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(KWBSFVVSEY_data, KWBSFVVSEY_parms), "KWBSFVVSEY-").init();
     </script>
   </div>
 
@@ -796,12 +796,12 @@ for doc in src2:
 
     length is: 5
     Original documents:
-    Document(And another document.,features=Features({'__idx_140326513765136': 0}),anns=[])
+    Document(And another document.,features=Features({'__idx_139701130587984': 0}),anns=[])
     Document(Another text.
-    This one has two lines,features=Features({'__idx_140326513765136': 1}),anns=[])
-    Document(This is the first text.,features=Features({'__idx_140326513765136': 2}),anns=[])
-    Document(some other document,features=Features({'__idx_140326513765136': 3}),anns=[])
-    Document(Another new document,features=Features({'__idx_140326513765136': 4}),anns=[])
+    This one has two lines,features=Features({'__idx_139701130587984': 1}),anns=[])
+    Document(This is the first text.,features=Features({'__idx_139701130587984': 2}),anns=[])
+    Document(some other document,features=Features({'__idx_139701130587984': 3}),anns=[])
+    Document(Another new document,features=Features({'__idx_139701130587984': 4}),anns=[])
     Updated documents:
     Document(And another document.,features=Features({'docidx': 0, '_relpath': '3.bdocjs'}),anns=['':1])
     Document(Another text.
@@ -830,25 +830,25 @@ viewer.show()
 
 
 
-<div><style>#MJYCGPLODR-wrapper { color: black !important; }</style>
-<div id="MJYCGPLODR-wrapper">
+<div><style>#YPOULURMYP-wrapper { color: black !important; }</style>
+<div id="YPOULURMYP-wrapper">
 
 <div>
 <style>
-#MJYCGPLODR-content {
+#YPOULURMYP-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.MJYCGPLODR-row {
+.YPOULURMYP-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.MJYCGPLODR-col {
+.YPOULURMYP-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -858,23 +858,23 @@ viewer.show()
     overflow-y: auto;
 }
 
-.MJYCGPLODR-hdr {
+.YPOULURMYP-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.MJYCGPLODR-label {
+.YPOULURMYP-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.MJYCGPLODR-input {
+.YPOULURMYP-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#MJYCGPLODR-popup {
+#YPOULURMYP-popup {
     display: none;
     color: black;
     position: absolute;
@@ -889,44 +889,44 @@ viewer.show()
     overflow: auto;
 }
 
-.MJYCGPLODR-selection {
+.YPOULURMYP-selection {
     margin-bottom: 5px;
 }
 
-.MJYCGPLODR-featuretable {
+.YPOULURMYP-featuretable {
     margin-top: 10px;
 }
 
-.MJYCGPLODR-fname {
+.YPOULURMYP-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.MJYCGPLODR-fvalue {
+.YPOULURMYP-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="MJYCGPLODR-content">
-        <div id="MJYCGPLODR-popup" style="display: none;">
+  <div id="YPOULURMYP-content">
+        <div id="YPOULURMYP-popup" style="display: none;">
         </div>
-        <div class="MJYCGPLODR-row" id="MJYCGPLODR-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="MJYCGPLODR-text-wrapper" class="MJYCGPLODR-col" style="width:70%;">
-                <div class="MJYCGPLODR-hdr" id="MJYCGPLODR-dochdr"></div>
-                <div id="MJYCGPLODR-text" style="">
+        <div class="YPOULURMYP-row" id="YPOULURMYP-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="YPOULURMYP-text-wrapper" class="YPOULURMYP-col" style="width:70%;">
+                <div class="YPOULURMYP-hdr" id="YPOULURMYP-dochdr"></div>
+                <div id="YPOULURMYP-text" style="">
                 </div>
             </div>
-            <div id="MJYCGPLODR-chooser" class="MJYCGPLODR-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="YPOULURMYP-chooser" class="YPOULURMYP-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="MJYCGPLODR-row" id="MJYCGPLODR-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="MJYCGPLODR-details" class="MJYCGPLODR-col" style="width:100%; border-top-width: 0px;">
+        <div class="YPOULURMYP-row" id="YPOULURMYP-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="YPOULURMYP-details" class="YPOULURMYP-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let MJYCGPLODR_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
-    let MJYCGPLODR_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(MJYCGPLODR_data, MJYCGPLODR_parms), "MJYCGPLODR-").init();
+    let YPOULURMYP_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
+    let YPOULURMYP_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(YPOULURMYP_data, YPOULURMYP_parms), "YPOULURMYP-").init();
     </script>
   </div>
 
@@ -1054,6 +1054,8 @@ for doc in tsvsrc:
 #import shutil
 #shutil.rmtree("tmp")
 ```
+
+### Notebook last updated
 
 
 ```python
