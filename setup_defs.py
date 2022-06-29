@@ -37,7 +37,7 @@ version = versionfromfile("gatenlp/version.py")
 
 def get_install_extras_require():
     extras_require = {
-        "base": ["sortedcontainers>=2.0.0"],
+        "base": ["sortedcontainers>=2.0.0", "iobes"],
         "clientibm": ["ibm-watson"],
         "clientelg": ["requests", "elg"],
         "clienttagme": ["requests"],
@@ -45,11 +45,12 @@ def get_install_extras_require():
         "clientgatecloud": ["requests"],
         "clientgooglenlp": ["google-cloud-language"],
         "clients": ["requests", "elg", "ibm-watson", "google-cloud-language"],
-        "formats": ["msgpack", "pyyaml>=5.2", "beautifulsoup4>=4.9.3", "requests", "conllu"],
+        "formats": ["msgpack", "pyyaml>=5.2", "beautifulsoup4>=4.9.3", "requests", "conllu", "iobes", ],
         "java": ["py4j"],
         "stanza": ["stanza>=1.3.0"],
         "spacy": ["spacy>=2.2"],
         "nltk": ["nltk>=3.5"],
+        "mltner": ["tner"],
         # the following are not included in all but in alldev
         "notebook": [
             "ipython",
