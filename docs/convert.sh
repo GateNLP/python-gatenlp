@@ -41,7 +41,7 @@ done
 for file in $toconvert2
 do
   echo Converting $file via HTML to Markdown
-  jupyter nbconvet -y --execute --to html ${file}.ipynb
-  tail +3 ${file}.html  | sed -e 's/<head>//' -e 's/<\/head>//' -e 's/<body>//' -e 's/<\/body>//' -e 's/<\/html>//' > ${file}.md
+  jupyter nbconvert -y --execute --to html ${file}.ipynb
+  tail +3 ${file}.html  | sed -e 's/<head>/<div>/' -e 's/<\/head>//' -e 's/<body>//' -e 's/<\/body>//' -e 's/<\/html>//' > ${file}.md
   rm ${file}.html
 done
