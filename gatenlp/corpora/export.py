@@ -69,6 +69,7 @@ class Conll2003FileDestination(DocumentDestination):
             return
         assert isinstance(doc, Document)
         for sentence_rows in doc_to_ibo(
+                doc,
                 annset_name=self.annset_name,
                 sentence_type=self.sentence_type,
                 token_type=self.token_type,
@@ -79,7 +80,7 @@ class Conll2003FileDestination(DocumentDestination):
         ):
             for token, code in sentence_rows:
                 print(token, code, sep="\t", file=self.fh)
-        self.fh.print(file=self.fh)  # empty line for sentence boundary
+        print(file=self.fh)  # empty line for sentence boundary
         self._n += 1
 
     def close(self):
