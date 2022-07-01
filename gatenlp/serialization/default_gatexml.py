@@ -204,7 +204,9 @@ class GateXmlLoader:
         # check we do have a GATE document
 
         assert root.tag == "GateDocument"
-        assert root.attrib == {"version": "3"}
+        # NOTE: there are docs around where version is less than 3 and
+        # also where encoding="windows-1252" !!!
+        # assert root.attrib == {"version": "3"}
 
         def parsefeatures(feats, ftype="Unknown", atype="Unknown", aset="Unknown", offset=None):
             """

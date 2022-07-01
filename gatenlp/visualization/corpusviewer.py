@@ -40,8 +40,9 @@ class CorpusViewer:
         self.idx = info["new"]
         self.show()
 
-    def show(self, idx=0):
-        self.idx = idx
+    def show(self, idx=None):
+        if idx is not None:
+            self.idx = idx
         clear_output()
         doc = self.corpus[self.idx]
         self.label.value = f"  {self.idx+1} / {len(self.corpus)}"

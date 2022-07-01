@@ -7,6 +7,7 @@ from gatenlp.corpora import DocumentDestination
 from gatenlp import Document
 from gatenlp.chunking import doc_to_ibo
 
+
 class Conll2003FileDestination(DocumentDestination):
     """
     Extracts tokens and BIO-like codes from the documents and writes those in CONLL (2003) format.
@@ -19,6 +20,7 @@ class Conll2003FileDestination(DocumentDestination):
             sentence_type: Optional[str] = None,
             token_type: str = "Token",
             token_feature: Optional[str] = None,
+            chunk_annset_name: Optional[str] = None,
             chunk_types: Optional[List[str]] = None,
             type2code: Optional[Dict] = None,
             scheme: str = "BIO",
@@ -33,6 +35,8 @@ class Conll2003FileDestination(DocumentDestination):
                 if the sentence contains at least one token.
             token_type: type of token annotations to use
             token_feature: if not None, use the feature instead of the covered document text
+            chunk_annset_name: is specified, the annotation set name to use for retrieving the chunk annotations,
+                otherwise annset_name is used for the chunk annotations too.
             chunk_types: a list of annotation types which identify chunks, each chunk type is used as entity type
                 Note the chunk type annotations must not overlap, but this is currently not checked, for performance
                 reasons.
@@ -48,6 +52,7 @@ class Conll2003FileDestination(DocumentDestination):
         self.sentence_type = sentence_type
         self.token_type = token_type
         self.token_feature = token_feature
+        self.chhunk_annset_name = chunk_annset_name
         self.chunk_types = chunk_types
         self.type2code = type2code
         self.scheme = scheme
@@ -74,6 +79,7 @@ class Conll2003FileDestination(DocumentDestination):
                 sentence_type=self.sentence_type,
                 token_type=self.token_type,
                 token_feature=self.token_feature,
+                chunk_annset_name=self.chunk_annset_name,
                 chunk_types=self.chunk_types,
                 type2code=self.type2code,
                 scheme=self.scheme

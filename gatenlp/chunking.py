@@ -38,10 +38,11 @@ def doc_to_ibo(
         sentence_type: Optional[str] = None,
         token_type: str = "Token",
         token_feature: Optional[str] = None,
+        chunk_annset_name: Optional[str] = None,
         chunk_types: Optional[List[str]] = None,
         type2code: Optional[Dict] = None,
         scheme: str = "BIO",
-        return_rows = True,
+        return_rows:bool = True,
 ) -> Generator[Union[List, Tuple], None, None]:
     """
     Extract tokens and corresponding token entity codes.
@@ -53,6 +54,8 @@ def doc_to_ibo(
             if the sentence contains at least one token.
         token_type: type of token annotations to use
         token_feature: if not None, use the feature instead of the covered document text
+        chunk_annset_name: is specified, the annotation set name to use for retrieving the chunk annotations,
+            otherwise annset_name is used for the chunk annotations too.
         chunk_types: a list of annotation types which identify chunks, each chunk type is used as entity type
             Note the chunk type annotations must not overlap, but this is currently not checked, for performance
             reasons.
@@ -76,7 +79,7 @@ def doc_to_ibo(
     if chunk_types is None:
         all_chunks = AnnotationSet()
     else:
-        all_chunks = doc.annset(annset_name).with_type(chunk_types)
+        all_chunks = doc.annset(annset_name if chunk_annset_name is None else chunk_annset_name).with_type(chunk_types)
     for span in spans:
         tokens = all_tokens.within(span)
         if len(tokens) == 0:

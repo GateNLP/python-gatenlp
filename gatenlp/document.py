@@ -718,6 +718,7 @@ class Document:
         """
         if fmt is None or isinstance(fmt, str):
             m = importlib.import_module(mod)
+            print("DEBUG!!!! got ", fmt, "and", source, "and", kwargs)
             loader = m.get_document_loader(source, fmt)
             doc = loader(Document, from_ext=source, **kwargs)
         else:

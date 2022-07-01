@@ -43,6 +43,11 @@ def load_module(args):
     """
     if GLOBALS["mod"] is not None:
         return GLOBALS["mod"]
+    if args.modulefile is None:
+        import gatenlp.processing.runners.module_noop
+        mod = gatenlp.processing.runners.module_noop
+        GLOBALS["mod"] = mod
+        return mod
     if not os.path.exists(args.modulefile):
         raise Exception(f"Module file {args.modulefile} does not exist")
     spec = importlib.util.spec_from_file_location("gatenlp.tmprunner", args.modulefile)
@@ -143,8 +148,14 @@ class Dir2DirExecutor:
             else:
                 if not os.path.exists(args.outdir) or not os.path.isdir(args.outdir):
                     raise Exception(f"Output directory must exist: {args.outdir}")
+                outfmt = args.outfmt
+                if outfmt is None:
+                    outfmt = args.fmt
+                outext = args.outext
+                if outext is None:
+                    outext = args.ext
                 dest = DirFilesDestination(
-                    args.outdir, "relpath", fmt=args.fmt, ext=args.ext
+                    args.outdir, "relpath", fmt=outfmt, ext=outext
                 )
             src = DirFilesSource(
                 args.dir, exts=args.ext, fmt=args.fmt, recursive=args.recursive, sort=True,
@@ -280,8 +291,9 @@ def ray_executor(args=None, workernr=0, nworkers=1):
 def build_argparser():
     argparser = argparse.ArgumentParser(
         description="Run gatenlp pipeline on directory of documents",
-        epilog="The module should define make_pipeline(args=None, workernr=0) and result_processor(result=None)" +
-               " and can optionally define add_args(argparser) to inject additional arguments into the argparser"
+        epilog="The module should define make_pipeline(args=None, nworkers=1, workernr=0) and result_processor(result=None)" +
+               " and can optionally define add_args(argparser) to inject additional arguments into the argparser." +
+               " If only one directory is specify, only format bdocjs is currently supported."
     )
     argparser.add_argument("dir", type=str,
                            help="Directory to process or input directory if --outdir is also specified"
@@ -290,18 +302,18 @@ def build_argparser():
                            help="If specified, read from dir, store result in outdir")
     argparser.add_argument("--outnone", action="store_true",
                            help="If specified, --outdir is ignored, if present and the output of the pipeline is ignored")
-    argparser.add_argument("--fmt", choices=["bdocjs"],
+    argparser.add_argument("--fmt", choices=["bdocjs", "gatexml", "bdocym", "bdocmp"], default=None,
                            help="Format of documents in dir (none: determine from file extension)")
-    argparser.add_argument("--outfmt", choices=["bdocjs"],
+    argparser.add_argument("--outfmt", choices=["bdocjs", "text", "bdocym", "bdocmp"],
                            help="Format of documents in outdir (only used if --outdir is specified)")
-    argparser.add_argument("--ext", choices=["bdocjs"], default="bdocjs",
+    argparser.add_argument("--ext", choices=["bdocjs", "xml", "txt", "bdocym", "bdocmp", "html"], default="bdocjs",
                            help="File extension of documents in dir (bdocjs)")
     argparser.add_argument("--outext", choices=["bdocjs"],
                            help="File extension of documents in outdir (only used if --outdir is specified)")
     argparser.add_argument("--recursive", action="store_true",
                            help="If specified, process all documents in all subdirectories as well")
-    argparser.add_argument("--modulefile", required=True,
-                           help="Module file that contains the make_pipeline(args=None, workernr=0) definition")
+    argparser.add_argument("--modulefile",
+                           help="Module file that contains the make_pipeline(args=None, workernr=0) definition.")
     argparser.add_argument("--nworkers", default=1, type=int,
                            help="Number of workers to run (1)")
     argparser.add_argument("--ray_address", type=str, default=None,
@@ -320,6 +332,12 @@ def build_argparser():
 def run_dir2dir():
     argparser = build_argparser()
     args, extra = argparser.parse_known_args()
+
+    if args.outdir is None:
+        if args.dir is not None and args.fmt is not None and args.fmt != "bdocjs":
+            raise Exception("If no outdir specified, only supported format is bdocjs")
+        if args.dir is not None and args.fmt is None:
+            args.fmt = "bdocjs"
     # if we detect extra args, try to find the add_args function in the module:
     add_args_fn = get_add_args(args)
     if add_args_fn is not None:
