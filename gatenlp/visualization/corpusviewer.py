@@ -45,6 +45,7 @@ class CorpusViewer:
             self.idx = idx
         clear_output()
         doc = self.corpus[self.idx]
+        self.sldr.value = self.idx
         self.label.value = f"  {self.idx+1} / {len(self.corpus)}"
         display(HBox([self.bbck, self.sldr, self.bfwd, self.label, self.bsync]))
         doc.show(**self.kwargs)
