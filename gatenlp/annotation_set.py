@@ -514,7 +514,7 @@ class AnnotationSet:
 
     # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
     #   instead, Iterable must come from typing
-    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+    def update(self, anns: Iterable[Annotation], annid_from_ann=False):
         """
         Adds shallow copies of all annotations from the iterable to the set.
 
@@ -529,6 +529,18 @@ class AnnotationSet:
                 self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
             else:
                 self.add(ann.start, ann.end, ann.type, ann.features)
+
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        """
+        DEPRECATED: same as update.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        """
+        self.update(anns, annid_from_ann=annid_from_ann)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
