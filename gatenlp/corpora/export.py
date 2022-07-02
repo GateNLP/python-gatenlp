@@ -52,7 +52,7 @@ class Conll2003FileDestination(DocumentDestination):
         self.sentence_type = sentence_type
         self.token_type = token_type
         self.token_feature = token_feature
-        self.chhunk_annset_name = chunk_annset_name
+        self.chunk_annset_name = chunk_annset_name
         self.chunk_types = chunk_types
         self.type2code = type2code
         self.scheme = scheme
@@ -86,7 +86,7 @@ class Conll2003FileDestination(DocumentDestination):
         ):
             for token, code in sentence_rows:
                 print(token, code, sep="\t", file=self.fh)
-        print(file=self.fh)  # empty line for sentence boundary
+            print(file=self.fh)  # empty line for sentence boundary
         self._n += 1
 
     def close(self):

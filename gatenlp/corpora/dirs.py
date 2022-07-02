@@ -174,7 +174,8 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             raise Exception("Parameters paths and paths_from cannot be both specified")
         super().__init__()
         EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
-        assert docname_from in ["basename", "relpath", "index", "stem", "minstem"]
+        if docname_from is not None:
+            assert docname_from in ["basename", "relpath", "index", "stem", "minstem"]
         self.docname_from = docname_from
         if paths is not None:
             self.paths = paths
