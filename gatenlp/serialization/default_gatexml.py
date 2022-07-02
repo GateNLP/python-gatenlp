@@ -6,7 +6,7 @@ from decimal import Decimal
 import xml.etree.ElementTree as ET
 from gatenlp.document import Document
 from gatenlp.utils import init_logger
-from gatenlp.urlfileutils import is_url, get_str_from_url
+from gatenlp.urlfileutils import is_url, get_str_from_url, stream_from
 
 logger = init_logger()
 
@@ -193,11 +193,16 @@ class GateXmlLoader:
 
         isurl, extstr = is_url(from_ext)
         if isurl:
-            xmlstring = get_str_from_url(extstr, encoding="utf-8")
-            root = ET.fromstring(xmlstring)
+            # xmlstring = get_str_from_url(extstr, encoding="utf-8")
+            # root = ET.fromstring(xmlstring)
+            infp = stream_from(extstr, encoding=None)
+            root = ET.fromstring(infp.read())
+            infp.close()
         else:
-            tree = ET.parse(extstr)
-            root = tree.getroot()
+            with open(extstr, "rb") as infp:
+                # tree = ET.parse(extstr)
+                # root = tree.getroot()
+                root = ET.fromstring(infp.read())
 
         # or: root = ET.fromstring(xmlstring)
 
