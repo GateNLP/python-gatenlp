@@ -82,7 +82,8 @@ for running on your own computer (NB-DL).
 
 ## Course Materials
 
-* [Gate Course 2021 - Module 11 Slides](training/module11-python.slides.html)
+* [Gate Course 2021 - Module 11 Slides](training/module11-python.slides-2021.html)
+  * [Updated 2022 version](training/module11-python.slides.html)
 
 ## Change Log
 
