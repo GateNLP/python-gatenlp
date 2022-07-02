@@ -40,13 +40,19 @@ python -m pip install -U gatenlp
 To install `gatenlp` with all dependencies run:
 
 ```
-python -m pip install gatenlp[all]
+python -m pip install gatenlp[all,notebook]
 ```
 
 To upgrade to the latest version with all dependencies:
 
 ```
-python -m pip install  -U gatenlp[all]
+python -m pip install  -U gatenlp[all,notebook]
+```
+
+To upgrade or install to the latest version, INCLUDING pre-release, alpha, or beta versions, use:
+
+```
+python -m pip install --pre -U gatenlp[all,notebook]
 ```
 
 NOTE: if this fails because of a problem installing torch (this may happen on Windows), 
