@@ -3,7 +3,7 @@ Module that defines the CorpusViewer for browsing a corpus in a notebook.
 """
 import ipywidgets as widgets
 from ipywidgets import Button, HBox
-from IPython.display import display, clear_output
+from IPython.display import display, clear_output, HTML
 
 
 class CorpusViewer:
@@ -42,10 +42,11 @@ class CorpusViewer:
 
     def show(self, idx=None):
         if idx is not None:
-            self.idx = idx
-        clear_output()
+            idx = idx-1
+            self.idx = min(max(idx, 0), len(self.corpus)-1)
         doc = self.corpus[self.idx]
         self.sldr.value = self.idx
+        clear_output()
         self.label.value = f"  {self.idx+1} / {len(self.corpus)}"
         display(HBox([self.bbck, self.sldr, self.bfwd, self.label, self.bsync]))
         doc.show(**self.kwargs)
