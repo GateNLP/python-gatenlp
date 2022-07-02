@@ -2,6 +2,8 @@
 
 ## Upcoming version
 
+* Adding several annotations to an annotation set at once can now be done with the more pythonic `update` method instead of the `add_anns`
+  method (same method signature as before).
 * Removed dependency on the recordclass package and removed `gazetteer` extra (no specific dependencies needed for the gazetteer classes any more)
 * The GateWorker by default now automatically tries additional ports when the default or specified port is in use when starting.
 * Added the `EmojiAnnotator` 
