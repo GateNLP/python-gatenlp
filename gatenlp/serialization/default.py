@@ -152,7 +152,6 @@ def get_handler(filespec, fmt, handlers, saveload, what):
     Returns:
 
     """
-    print(f"!!!! DEBUG: {saveload}/{what}/{fmt}")
     msg = f"Could not determine how to {saveload} {what} for format {fmt} in module gatenlp.serialization.default"
     if fmt:
         handler = handlers.get(fmt)
