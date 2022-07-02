@@ -1,6 +1,6 @@
 # Versions and changes
 
-## Upcoming version
+## 1.0.8a1
 
 * Adding several annotations to an annotation set at once can now be done with the more pythonic `update` method instead of the `add_anns`
   method (same method signature as before).
