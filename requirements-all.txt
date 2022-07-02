@@ -3,13 +3,14 @@ conllu
 elg
 google-cloud-language
 ibm-watson
-matchtext
+iobes
 msgpack
 nltk>=3.5
 py4j
 pyyaml>=5.2
-recordclass
+ray[default]
 requests
 sortedcontainers>=2.0.0
 spacy>=2.2
 stanza>=1.3.0
+tner
