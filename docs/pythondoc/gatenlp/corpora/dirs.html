@@ -45,6 +45,14 @@ from gatenlp.corpora.base import MultiProcessingAble
 from gatenlp.corpora.base import EveryNthBase
 
 
+def minstem(path):
+    stem = Path(path).stem
+    dotidx = stem.find(&#34;.&#34;)
+    if dotidx &gt; 0:
+        stem = stem[:dotidx]
+    return stem
+
+
 def matching_paths(
         dirpath: str,
         exts: Optional[Union[Iterable, str]] = None,
@@ -167,6 +175,7 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         recursive: bool = True,
         sort: Union[bool, Callable] = False,
         sort_reverse: bool = False,
+        docname_from: Optional[str] = None,
         nparts: int = 1,
         partnr: int = 0,
     ):
@@ -185,6 +194,9 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
                 will be used to extract the sort key.
                 The paths get always sorted if partnr is &gt; 1.
             sort_reverse: if paths should get serted in reverse order
+            docname_from: If not None set the document name from &#34;basename&#34;, &#34;stem&#34; (basename without last extension)
+                &#34;minstem&#34; (basename with all extensions removed) &#34;relpath&#34;,
+                &#34;index&#34; (sequence number of document within this part).
             nparts: only yield every nparts-th document (default 1: every document)
             partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
@@ -193,6 +205,9 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
         super().__init__()
         EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
+        if docname_from is not None:
+            assert docname_from in [&#34;basename&#34;, &#34;relpath&#34;, &#34;index&#34;, &#34;stem&#34;, &#34;minstem&#34;]
+        self.docname_from = docname_from
         if paths is not None:
             self.paths = paths
         elif paths_from is not None:
@@ -220,8 +235,21 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
         &#34;&#34;&#34;
         self._n = 0
         for p in self.paths:
-            doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            fullpath = os.path.join(self.dirpath, p)
+            doc = Document.load(fullpath, fmt=self.fmt)
             self.setrelpathfeature(doc, p)
+            if self.docname_from:
+                if self.docname_from == &#34;basename&#34;:
+                    docname = os.path.basename(fullpath)
+                elif self.docname_from == &#34;stem&#34;:
+                    docname = Path(fullpath).stem
+                elif self.docname_from == &#34;index&#34;:
+                    docname = str(self._n)
+                elif self.docname_from == &#34;relpath&#34;:
+                    docname = p
+                elif self.docname_from == &#34;minstem&#34;:
+                    docname = minstem(fullpath)
+                doc.name = docname
             self._n += 1
             yield doc
 
@@ -243,7 +271,7 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document, but replace the
+               * &#34;relpath&#34; (default): use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
@@ -255,7 +283,8 @@ class DirFilesDestination(DocumentDestination):
                    NOTE: &#34;idx&#34; by itself is equivalent to idx:1:1
                 * &#34;feature:fname&#34;: use the document feature with the feature name fname as a relative path as is
                    but add the extension
-                * &#34;name&#34;: use the document name as the relative path, but add extension.
+                * &#34;docname&#34;: use the document name as the relative path, but add extension.
+                * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
             ext: the file extension to add to all generated file names
@@ -286,8 +315,10 @@ class DirFilesDestination(DocumentDestination):
         elif path_from == &#34;relpath&#34;:
             self.file_path_maker = \
                 lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
-        elif path_from == &#34;name&#34;:
+        elif path_from == &#34;docname&#34;:
             self.file_path_maker = lambda doc=None, idx=None: doc.name
+        elif path_from == &#34;minstem&#34;:
+            self.file_path_maker = lambda doc=None, idx=None: minstem(doc.features[self.relpathfeatname()])
         elif callable(path_from):
             self.file_path_maker = path_from
         else:
@@ -644,6 +675,23 @@ only paths from the top directory.</dd>
                     yield full</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.corpora.dirs.minstem"><code class="name flex">
+<span>def <span class="ident">minstem</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def minstem(path):
+    stem = Path(path).stem
+    dotidx = stem.find(&#34;.&#34;)
+    if dotidx &gt; 0:
+        stem = stem[:dotidx]
+    return stem</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -810,7 +858,7 @@ from the document and the running number.</p>
 <dt><strong><code>path_from</code></strong></dt>
 <dd>one of options listed below. If a string is used as a path name, then the forward slash
 is always used as the directory path separator, on all systems!
-* "relpath" (default): use the relative path used when creating the document, but replace the
+* "relpath" (default): use the relative path used when creating the document, but
 replace the extension
 * "idx": just use the index/running number of the added document as the base name
 * "idx:5": use the index/running number with at least 5 digits in the name.
@@ -822,7 +870,8 @@ filename.
 NOTE: "idx" by itself is equivalent to idx:1:1
 * "feature:fname": use the document feature with the feature name fname as a relative path as is
 but add the extension
-* "name": use the document name as the relative path, but add extension.
+* "docname": use the document name as the relative path, but add extension.
+* "minstem": use the relative path with all extensions replaced by the new extension
 * somefunction: a function that should return the pathname (without extension) and should take two
 keyword arguments: doc (the document) and idx (the running index of the document).</dd>
 <dt><strong><code>ext</code></strong></dt>
@@ -850,7 +899,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document, but replace the
+               * &#34;relpath&#34; (default): use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
@@ -862,7 +911,8 @@ keyword arguments: doc (the document) and idx (the running index of the document
                    NOTE: &#34;idx&#34; by itself is equivalent to idx:1:1
                 * &#34;feature:fname&#34;: use the document feature with the feature name fname as a relative path as is
                    but add the extension
-                * &#34;name&#34;: use the document name as the relative path, but add extension.
+                * &#34;docname&#34;: use the document name as the relative path, but add extension.
+                * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
             ext: the file extension to add to all generated file names
@@ -893,8 +943,10 @@ keyword arguments: doc (the document) and idx (the running index of the document
         elif path_from == &#34;relpath&#34;:
             self.file_path_maker = \
                 lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
-        elif path_from == &#34;name&#34;:
+        elif path_from == &#34;docname&#34;:
             self.file_path_maker = lambda doc=None, idx=None: doc.name
+        elif path_from == &#34;minstem&#34;:
+            self.file_path_maker = lambda doc=None, idx=None: minstem(doc.features[self.relpathfeatname()])
         elif callable(path_from):
             self.file_path_maker = path_from
         else:
@@ -993,7 +1045,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
 </dd>
 <dt id="gatenlp.corpora.dirs.DirFilesSource"><code class="flex name class">
 <span>class <span class="ident">DirFilesSource</span></span>
-<span>(</span><span>dirpath: str, paths: Optional[Iterable[str]] = None, paths_from: Union[str, pathlib.Path, urllib.parse.ParseResult] = None, exts: Optional[Iterable[str]] = None, fmt: Optional[str] = None, recursive: bool = True, sort: Union[bool, Callable] = False, sort_reverse: bool = False, nparts: int = 1, partnr: int = 0)</span>
+<span>(</span><span>dirpath: str, paths: Optional[Iterable[str]] = None, paths_from: Union[str, pathlib.Path, urllib.parse.ParseResult] = None, exts: Optional[Iterable[str]] = None, fmt: Optional[str] = None, recursive: bool = True, sort: Union[bool, Callable] = False, sort_reverse: bool = False, docname_from: Optional[str] = None, nparts: int = 1, partnr: int = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A document source which iterates over documents represented as files in a directory.</p>
@@ -1019,6 +1071,10 @@ will be used to extract the sort key.
 The paths get always sorted if partnr is &gt; 1.</dd>
 <dt><strong><code>sort_reverse</code></strong></dt>
 <dd>if paths should get serted in reverse order</dd>
+<dt><strong><code>docname_from</code></strong></dt>
+<dd>If not None set the document name from "basename", "stem" (basename without last extension)
+"minstem" (basename with all extensions removed) "relpath",
+"index" (sequence number of document within this part).</dd>
 <dt><strong><code>nparts</code></strong></dt>
 <dd>only yield every nparts-th document (default 1: every document)</dd>
 <dt><strong><code>partnr</code></strong></dt>
@@ -1042,6 +1098,7 @@ The paths get always sorted if partnr is &gt; 1.</dd>
         recursive: bool = True,
         sort: Union[bool, Callable] = False,
         sort_reverse: bool = False,
+        docname_from: Optional[str] = None,
         nparts: int = 1,
         partnr: int = 0,
     ):
@@ -1060,6 +1117,9 @@ The paths get always sorted if partnr is &gt; 1.</dd>
                 will be used to extract the sort key.
                 The paths get always sorted if partnr is &gt; 1.
             sort_reverse: if paths should get serted in reverse order
+            docname_from: If not None set the document name from &#34;basename&#34;, &#34;stem&#34; (basename without last extension)
+                &#34;minstem&#34; (basename with all extensions removed) &#34;relpath&#34;,
+                &#34;index&#34; (sequence number of document within this part).
             nparts: only yield every nparts-th document (default 1: every document)
             partnr: start with that index, before yieldieng every nparts-th document (default 0: start at beginning)
         &#34;&#34;&#34;
@@ -1068,6 +1128,9 @@ The paths get always sorted if partnr is &gt; 1.</dd>
             raise Exception(&#34;Parameters paths and paths_from cannot be both specified&#34;)
         super().__init__()
         EveryNthBase.__init__(self, nparts=nparts, partnr=partnr)
+        if docname_from is not None:
+            assert docname_from in [&#34;basename&#34;, &#34;relpath&#34;, &#34;index&#34;, &#34;stem&#34;, &#34;minstem&#34;]
+        self.docname_from = docname_from
         if paths is not None:
             self.paths = paths
         elif paths_from is not None:
@@ -1095,8 +1158,21 @@ The paths get always sorted if partnr is &gt; 1.</dd>
         &#34;&#34;&#34;
         self._n = 0
         for p in self.paths:
-            doc = Document.load(os.path.join(self.dirpath, p), fmt=self.fmt)
+            fullpath = os.path.join(self.dirpath, p)
+            doc = Document.load(fullpath, fmt=self.fmt)
             self.setrelpathfeature(doc, p)
+            if self.docname_from:
+                if self.docname_from == &#34;basename&#34;:
+                    docname = os.path.basename(fullpath)
+                elif self.docname_from == &#34;stem&#34;:
+                    docname = Path(fullpath).stem
+                elif self.docname_from == &#34;index&#34;:
+                    docname = str(self._n)
+                elif self.docname_from == &#34;relpath&#34;:
+                    docname = p
+                elif self.docname_from == &#34;minstem&#34;:
+                    docname = minstem(fullpath)
+                doc.name = docname
             self._n += 1
             yield doc</code></pre>
 </details>
@@ -1277,6 +1353,7 @@ the directory. If False, will ignore the action and leave whatever is at the ind
 <ul class="">
 <li><code><a title="gatenlp.corpora.dirs.maker_file_path_fromidx" href="#gatenlp.corpora.dirs.maker_file_path_fromidx">maker_file_path_fromidx</a></code></li>
 <li><code><a title="gatenlp.corpora.dirs.matching_paths" href="#gatenlp.corpora.dirs.matching_paths">matching_paths</a></code></li>
+<li><code><a title="gatenlp.corpora.dirs.minstem" href="#gatenlp.corpora.dirs.minstem">minstem</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -32,7 +32,7 @@ Module that defines the CorpusViewer for browsing a corpus in a notebook.
 &#34;&#34;&#34;
 import ipywidgets as widgets
 from ipywidgets import Button, HBox
-from IPython.display import display, clear_output
+from IPython.display import display, clear_output, HTML
 
 
 class CorpusViewer:
@@ -69,9 +69,13 @@ class CorpusViewer:
         self.idx = info[&#34;new&#34;]
         self.show()
 
-    def show(self):
-        clear_output()
+    def show(self, idx=None):
+        if idx is not None:
+            idx = idx-1
+            self.idx = min(max(idx, 0), len(self.corpus)-1)
         doc = self.corpus[self.idx]
+        self.sldr.value = self.idx
+        clear_output()
         self.label.value = f&#34;  {self.idx+1} / {len(self.corpus)}&#34;
         display(HBox([self.bbck, self.sldr, self.bfwd, self.label, self.bsync]))
         doc.show(**self.kwargs)
@@ -147,9 +151,13 @@ installed (e.g. pip install gatenlp[notebook])</p>
         self.idx = info[&#34;new&#34;]
         self.show()
 
-    def show(self):
-        clear_output()
+    def show(self, idx=None):
+        if idx is not None:
+            idx = idx-1
+            self.idx = min(max(idx, 0), len(self.corpus)-1)
         doc = self.corpus[self.idx]
+        self.sldr.value = self.idx
+        clear_output()
         self.label.value = f&#34;  {self.idx+1} / {len(self.corpus)}&#34;
         display(HBox([self.bbck, self.sldr, self.bfwd, self.label, self.bsync]))
         doc.show(**self.kwargs)
@@ -165,7 +173,7 @@ installed (e.g. pip install gatenlp[notebook])</p>
 <h3>Methods</h3>
 <dl>
 <dt id="gatenlp.visualization.corpusviewer.CorpusViewer.show"><code class="name flex">
-<span>def <span class="ident">show</span></span>(<span>self)</span>
+<span>def <span class="ident">show</span></span>(<span>self, idx=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -173,9 +181,13 @@ installed (e.g. pip install gatenlp[notebook])</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def show(self):
-    clear_output()
+<pre><code class="python">def show(self, idx=None):
+    if idx is not None:
+        idx = idx-1
+        self.idx = min(max(idx, 0), len(self.corpus)-1)
     doc = self.corpus[self.idx]
+    self.sldr.value = self.idx
+    clear_output()
     self.label.value = f&#34;  {self.idx+1} / {len(self.corpus)}&#34;
     display(HBox([self.bbck, self.sldr, self.bfwd, self.label, self.bsync]))
     doc.show(**self.kwargs)</code></pre>

@@ -35,7 +35,7 @@ from decimal import Decimal
 import xml.etree.ElementTree as ET
 from gatenlp.document import Document
 from gatenlp.utils import init_logger
-from gatenlp.urlfileutils import is_url, get_str_from_url
+from gatenlp.urlfileutils import is_url, get_str_from_url, stream_from
 
 logger = init_logger()
 
@@ -222,18 +222,25 @@ class GateXmlLoader:
 
         isurl, extstr = is_url(from_ext)
         if isurl:
-            xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-            root = ET.fromstring(xmlstring)
+            # xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+            # root = ET.fromstring(xmlstring)
+            infp = stream_from(extstr, encoding=None)
+            root = ET.fromstring(infp.read())
+            infp.close()
         else:
-            tree = ET.parse(extstr)
-            root = tree.getroot()
+            with open(extstr, &#34;rb&#34;) as infp:
+                # tree = ET.parse(extstr)
+                # root = tree.getroot()
+                root = ET.fromstring(infp.read())
 
         # or: root = ET.fromstring(xmlstring)
 
         # check we do have a GATE document
 
         assert root.tag == &#34;GateDocument&#34;
-        assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+        # NOTE: there are docs around where version is less than 3 and
+        # also where encoding=&#34;windows-1252&#34; !!!
+        # assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
 
         def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
             &#34;&#34;&#34;
@@ -561,18 +568,25 @@ Map, Array, List, Set (converted to list).</p></div>
 
         isurl, extstr = is_url(from_ext)
         if isurl:
-            xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-            root = ET.fromstring(xmlstring)
+            # xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+            # root = ET.fromstring(xmlstring)
+            infp = stream_from(extstr, encoding=None)
+            root = ET.fromstring(infp.read())
+            infp.close()
         else:
-            tree = ET.parse(extstr)
-            root = tree.getroot()
+            with open(extstr, &#34;rb&#34;) as infp:
+                # tree = ET.parse(extstr)
+                # root = tree.getroot()
+                root = ET.fromstring(infp.read())
 
         # or: root = ET.fromstring(xmlstring)
 
         # check we do have a GATE document
 
         assert root.tag == &#34;GateDocument&#34;
-        assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+        # NOTE: there are docs around where version is less than 3 and
+        # also where encoding=&#34;windows-1252&#34; !!!
+        # assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
 
         def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
             &#34;&#34;&#34;
@@ -797,18 +811,25 @@ def load(clazz,
 
     isurl, extstr = is_url(from_ext)
     if isurl:
-        xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
-        root = ET.fromstring(xmlstring)
+        # xmlstring = get_str_from_url(extstr, encoding=&#34;utf-8&#34;)
+        # root = ET.fromstring(xmlstring)
+        infp = stream_from(extstr, encoding=None)
+        root = ET.fromstring(infp.read())
+        infp.close()
     else:
-        tree = ET.parse(extstr)
-        root = tree.getroot()
+        with open(extstr, &#34;rb&#34;) as infp:
+            # tree = ET.parse(extstr)
+            # root = tree.getroot()
+            root = ET.fromstring(infp.read())
 
     # or: root = ET.fromstring(xmlstring)
 
     # check we do have a GATE document
 
     assert root.tag == &#34;GateDocument&#34;
-    assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
+    # NOTE: there are docs around where version is less than 3 and
+    # also where encoding=&#34;windows-1252&#34; !!!
+    # assert root.attrib == {&#34;version&#34;: &#34;3&#34;}
 
     def parsefeatures(feats, ftype=&#34;Unknown&#34;, atype=&#34;Unknown&#34;, aset=&#34;Unknown&#34;, offset=None):
         &#34;&#34;&#34;

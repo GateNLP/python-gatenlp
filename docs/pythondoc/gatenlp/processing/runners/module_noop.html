@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>gatenlp.processing API documentation</title>
-<meta name="description" content="Package for annotators, and other things related to processing documents." />
+<title>gatenlp.processing.runners.module_noop API documentation</title>
+<meta name="description" content="No-operation pipeline for runner_dir2dir" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -19,66 +19,62 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>gatenlp.processing</code></h1>
+<h1 class="title">Module <code>gatenlp.processing.runners.module_noop</code></h1>
 </header>
 <section id="section-intro">
-<p>Package for annotators, and other things related to processing documents.</p>
+<p>No-operation pipeline for runner_dir2dir</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Package for annotators, and other things related to processing documents.
-&#34;&#34;&#34;</code></pre>
+No-operation pipeline for runner_dir2dir
+&#34;&#34;&#34;
+from gatenlp.processing.pipeline import Pipeline
+
+
+def make_pipeline(args=None, nworkers=1, workernr=0):
+    return Pipeline()
+
+
+def result_processor(result=None):
+    return None</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="gatenlp.processing.annotator" href="annotator.html">gatenlp.processing.annotator</a></code></dt>
-<dd>
-<div class="desc"><p>Module with the base class and supporting functions for all annotators.
-Any callable that can be called by passing a document can be used as an …</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.client" href="client/index.html">gatenlp.processing.client</a></code></dt>
-<dd>
-<div class="desc"><p>Module that provides various Annotators which act as clients to REST annotation services.</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.emojis" href="emojis/index.html">gatenlp.processing.emojis</a></code></dt>
+<dt id="gatenlp.processing.runners.module_noop.make_pipeline"><code class="name flex">
+<span>def <span class="ident">make_pipeline</span></span>(<span>args=None, nworkers=1, workernr=0)</span>
+</code></dt>
 <dd>
 <div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_pipeline(args=None, nworkers=1, workernr=0):
+    return Pipeline()</code></pre>
+</details>
 </dd>
-<dt><code class="name"><a title="gatenlp.processing.executor" href="executor.html">gatenlp.processing.executor</a></code></dt>
+<dt id="gatenlp.processing.runners.module_noop.result_processor"><code class="name flex">
+<span>def <span class="ident">result_processor</span></span>(<span>result=None)</span>
+</code></dt>
 <dd>
 <div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.gazetteer" href="gazetteer/index.html">gatenlp.processing.gazetteer</a></code></dt>
-<dd>
-<div class="desc"><p>Module for various gazetteer annotator implementations.</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.normalizer" href="normalizer.html">gatenlp.processing.normalizer</a></code></dt>
-<dd>
-<div class="desc"><p>Module that provides classes for normalizers. Normalizers are annotators which change the text of selected
-annotations or the entire text of the …</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.pipeline" href="pipeline.html">gatenlp.processing.pipeline</a></code></dt>
-<dd>
-<div class="desc"><p>Module that provides the Pipeline class. A Pipeline is an annotator which is configured to contain several annotators
-which get executed in sequence …</p></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.runners" href="runners/index.html">gatenlp.processing.runners</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="gatenlp.processing.tokenizer" href="tokenizer.html">gatenlp.processing.tokenizer</a></code></dt>
-<dd>
-<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def result_processor(result=None):
+    return None</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -91,20 +87,13 @@ which get executed in sequence …</p></div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="gatenlp" href="../index.html">gatenlp</a></code></li>
+<li><code><a title="gatenlp.processing.runners" href="index.html">gatenlp.processing.runners</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="gatenlp.processing.annotator" href="annotator.html">gatenlp.processing.annotator</a></code></li>
-<li><code><a title="gatenlp.processing.client" href="client/index.html">gatenlp.processing.client</a></code></li>
-<li><code><a title="gatenlp.processing.emojis" href="emojis/index.html">gatenlp.processing.emojis</a></code></li>
-<li><code><a title="gatenlp.processing.executor" href="executor.html">gatenlp.processing.executor</a></code></li>
-<li><code><a title="gatenlp.processing.gazetteer" href="gazetteer/index.html">gatenlp.processing.gazetteer</a></code></li>
-<li><code><a title="gatenlp.processing.normalizer" href="normalizer.html">gatenlp.processing.normalizer</a></code></li>
-<li><code><a title="gatenlp.processing.pipeline" href="pipeline.html">gatenlp.processing.pipeline</a></code></li>
-<li><code><a title="gatenlp.processing.runners" href="runners/index.html">gatenlp.processing.runners</a></code></li>
-<li><code><a title="gatenlp.processing.tokenizer" href="tokenizer.html">gatenlp.processing.tokenizer</a></code></li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gatenlp.processing.runners.module_noop.make_pipeline" href="#gatenlp.processing.runners.module_noop.make_pipeline">make_pipeline</a></code></li>
+<li><code><a title="gatenlp.processing.runners.module_noop.result_processor" href="#gatenlp.processing.runners.module_noop.result_processor">result_processor</a></code></li>
 </ul>
 </li>
 </ul>

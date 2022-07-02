@@ -545,7 +545,7 @@ class AnnotationSet:
 
     # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
     #   instead, Iterable must come from typing
-    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+    def update(self, anns: Iterable[Annotation], annid_from_ann=False):
         &#34;&#34;&#34;
         Adds shallow copies of all annotations from the iterable to the set.
 
@@ -560,6 +560,18 @@ class AnnotationSet:
                 self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
             else:
                 self.add(ann.start, ann.end, ann.type, ann.features)
+
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        &#34;&#34;&#34;
+        DEPRECATED: same as update.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        &#34;&#34;&#34;
+        self.update(anns, annid_from_ann=annid_from_ann)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
@@ -2227,7 +2239,7 @@ set has an owning document.</dd>
 
     # TODO/NOTE: Iterable[Annotation] with Iterable from collections.abc is not possible here prior to Python 3.9
     #   instead, Iterable must come from typing
-    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+    def update(self, anns: Iterable[Annotation], annid_from_ann=False):
         &#34;&#34;&#34;
         Adds shallow copies of all annotations from the iterable to the set.
 
@@ -2242,6 +2254,18 @@ set has an owning document.</dd>
                 self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
             else:
                 self.add(ann.start, ann.end, ann.type, ann.features)
+
+    def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
+        &#34;&#34;&#34;
+        DEPRECATED: same as update.
+
+        Args:
+            anns: an iterable of Annotations
+            annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+                an exception if the set already contains and annotation with this id.
+                If False assign a new id to the added annotation.
+        &#34;&#34;&#34;
+        self.update(anns, annid_from_ann=annid_from_ann)
 
     def remove(
         self, annoriter: Union[int, Annotation, Iterable], raise_on_notexisting=True
@@ -4018,7 +4042,7 @@ and get assigned automatically.</dd>
 <span>def <span class="ident">add_anns</span></span>(<span>self, anns: Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], annid_from_ann=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Adds shallow copies of all annotations from the iterable to the set.</p>
+<div class="desc"><p>DEPRECATED: same as update.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>anns</code></strong></dt>
@@ -4034,7 +4058,7 @@ If False assign a new id to the added annotation.</dd>
 </summary>
 <pre><code class="python">def add_anns(self, anns: Iterable[Annotation], annid_from_ann=False):
     &#34;&#34;&#34;
-    Adds shallow copies of all annotations from the iterable to the set.
+    DEPRECATED: same as update.
 
     Args:
         anns: an iterable of Annotations
@@ -4042,11 +4066,7 @@ If False assign a new id to the added annotation.</dd>
             an exception if the set already contains and annotation with this id.
             If False assign a new id to the added annotation.
     &#34;&#34;&#34;
-    for ann in anns:
-        if annid_from_ann:
-            self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
-        else:
-            self.add(ann.start, ann.end, ann.type, ann.features)</code></pre>
+    self.update(anns, annid_from_ann=annid_from_ann)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.after"><code class="name flex">
@@ -5412,6 +5432,41 @@ def startingat(
     }</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.annotation_set.AnnotationSet.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, anns: Iterable[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>], annid_from_ann=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds shallow copies of all annotations from the iterable to the set.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>anns</code></strong></dt>
+<dd>an iterable of Annotations</dd>
+<dt><strong><code>annid_from_ann</code></strong></dt>
+<dd>if True, use the same annotation id as in the annotation, this will raise
+an exception if the set already contains and annotation with this id.
+If False assign a new id to the added annotation.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, anns: Iterable[Annotation], annid_from_ann=False):
+    &#34;&#34;&#34;
+    Adds shallow copies of all annotations from the iterable to the set.
+
+    Args:
+        anns: an iterable of Annotations
+        annid_from_ann: if True, use the same annotation id as in the annotation, this will raise
+            an exception if the set already contains and annotation with this id.
+            If False assign a new id to the added annotation.
+    &#34;&#34;&#34;
+    for ann in anns:
+        if annid_from_ann:
+            self.add(ann.start, ann.end, ann.type, ann.features, annid=ann.id)
+        else:
+            self.add(ann.start, ann.end, ann.type, ann.features)</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.annotation_set.AnnotationSet.with_type"><code class="name flex">
 <span>def <span class="ident">with_type</span></span>(<span>self, *anntype: Union[str, Iterable[+T_co]], non_overlapping: bool = False)</span>
 </code></dt>
@@ -5683,6 +5738,7 @@ def within(self, start: int, end: int, ann: Optional[&#34;Annotation&#34;] = Non
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.startingat" href="#gatenlp.annotation_set.AnnotationSet.startingat">startingat</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.to_dict" href="#gatenlp.annotation_set.AnnotationSet.to_dict">to_dict</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.type_names" href="#gatenlp.annotation_set.AnnotationSet.type_names">type_names</a></code></li>
+<li><code><a title="gatenlp.annotation_set.AnnotationSet.update" href="#gatenlp.annotation_set.AnnotationSet.update">update</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.with_type" href="#gatenlp.annotation_set.AnnotationSet.with_type">with_type</a></code></li>
 <li><code><a title="gatenlp.annotation_set.AnnotationSet.within" href="#gatenlp.annotation_set.AnnotationSet.within">within</a></code></li>
 </ul>

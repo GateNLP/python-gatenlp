@@ -30,20 +30,116 @@
 <pre><code class="python">&#34;&#34;&#34;
 Module for chunking-related methods and annotators.
 &#34;&#34;&#34;
+import re
+from typing import Union, List, Optional, Dict, Generator, Tuple
+import iobes
+from gatenlp import Document, Span, AnnotationSet
 
-# NOTE!! WORK IN PROGRESS!!!
-from typing import Union, List
-from gatenlp import AnnotationSet, Annotation
+SPANENCS = dict(
+    BIO=iobes.SpanEncoding.BIO,
+    IOB=iobes.SpanEncoding.IOB,
+    IOBES=iobes.SpanEncoding.IOBES,
+    BILOU=iobes.SpanEncoding.BILOU,
+    BMEOW=iobes.SpanEncoding.BMEOW,
+    BMEWO=iobes.SpanEncoding.BMEWO,
+)
 
-def anns2ibo(
-        tokens: Union[AnnotationSet, List[Annotation]],
-        chunkanns: Union[AnnotationSet, List[Annotation]],
-        method=&#34;IBO&#34;) -&gt; List[str]:
-    if isinstance(tokens, AnnotationSet):
-        tokens = list(tokens)
-    if isinstance(chunkanns, AnnotationSet):
-        chunkanns = list(chunkanns)
-    # !!! TODO</code></pre>
+PAT_WS = re.compile(r&#34;\s+&#34;)
+
+
+def normalize_type(typename):
+    &#34;&#34;&#34;
+    Normalize the type name so it can be used as part of an BIO-like code that is usable in a conll-like dataset:
+    replace all whitespace with a hyphen.
+
+    Args:
+        typename: the chunk type name
+
+    Returns:
+        normalized chunk type name
+    &#34;&#34;&#34;
+    return re.sub(PAT_WS, &#34;-&#34;, typename)
+
+
+def doc_to_ibo(
+        doc: Document,
+        annset_name: str = &#34;&#34;,
+        sentence_type: Optional[str] = None,
+        token_type: str = &#34;Token&#34;,
+        token_feature: Optional[str] = None,
+        chunk_annset_name: Optional[str] = None,
+        chunk_types: Optional[List[str]] = None,
+        type2code: Optional[Dict] = None,
+        scheme: str = &#34;BIO&#34;,
+        return_rows:bool = True,
+) -&gt; Generator[Union[List, Tuple], None, None]:
+    &#34;&#34;&#34;
+    Extract tokens and corresponding token entity codes.
+
+    Args:
+        doc: The document to process
+        annset_name: name of the annotation set which contains all the types needed
+        sentence_type: if None, use whole document, otherwise generate one result per sentence type annotation,
+            if the sentence contains at least one token.
+        token_type: type of token annotations to use
+        token_feature: if not None, use the feature instead of the covered document text
+        chunk_annset_name: is specified, the annotation set name to use for retrieving the chunk annotations,
+            otherwise annset_name is used for the chunk annotations too.
+        chunk_types: a list of annotation types which identify chunks, each chunk type is used as entity type
+            Note the chunk type annotations must not overlap, but this is currently not checked, for performance
+            reasons.
+        type2code: an optionam dict mapping the chunk_type to the type name used in the BIO codes
+        scheme: the encoding scheme to use, default is BIO, possible: IOB, BIO, IOBES, BILOU, BMEOW, BMEWO
+        return_rows: if True, return a list of (tokenstring, code) tuples for each sentence, if False return two lists
+            of equal length, the first with the token strings and the second with the codes
+
+    Yields:
+        either one list of (tokenstring, code) tuples per sentence found or two lists, one with the tokenstrings and
+        the other with the codes.
+    &#34;&#34;&#34;
+    spanenc = SPANENCS[scheme]
+    if type2code is None:
+        type2code = {}
+    if sentence_type is None:
+        spans = [Span(0, len(doc))]
+    else:
+        spans = [a.span for a in doc.annset(annset_name).with_type(sentence_type)]
+    all_tokens = doc.annset(annset_name).with_type(token_type)
+    if chunk_types is None:
+        all_chunks = AnnotationSet()
+    else:
+        all_chunks = doc.annset(annset_name if chunk_annset_name is None else chunk_annset_name).with_type(chunk_types)
+    for span in spans:
+        tokens = all_tokens.within(span)
+        if len(tokens) == 0:
+            continue
+        # map token start offsets to token indices
+        start2idx = {t.start: idx for idx, t in enumerate(tokens)}
+        chunks = all_chunks.within(span)
+        # now we want to know which of all the tokens are covered by chunks. So for each chunk, we check
+        # which tokens are contained and append an iobes Span that points to the index of the token
+        iobes_spans = []
+        for chunk in chunks:
+            ctokens = list(tokens.within(chunk))
+            start = start2idx[ctokens[0].start]
+            end = start2idx[ctokens[-1].start]+1
+            iobes_span = iobes.Span(
+                type=type2code.get(chunk.type, normalize_type(chunk.type)),
+                start=start,
+                end=end,
+                tokens=tuple(range(start, end))
+            )
+            iobes_spans.append(iobes_span)
+        codes = iobes.write_tags(iobes_spans, spanenc, length=len(tokens))
+        assert len(tokens) == len(codes)
+        if token_feature:
+            token_strings = [t.features[token_feature] for t in tokens]
+        else:
+            token_strings = [doc[t] for t in tokens]
+        if return_rows:
+            yield [(t, c) for t, c in zip(token_strings, codes)]
+        else:
+            yield token_strings, codes</code></pre>
 </details>
 </section>
 <section>
@@ -53,23 +149,156 @@ def anns2ibo(
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="gatenlp.chunking.anns2ibo"><code class="name flex">
-<span>def <span class="ident">anns2ibo</span></span>(<span>tokens: Union[<a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a>, List[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>]], chunkanns: Union[<a title="gatenlp.annotation_set.AnnotationSet" href="annotation_set.html#gatenlp.annotation_set.AnnotationSet">AnnotationSet</a>, List[<a title="gatenlp.annotation.Annotation" href="annotation.html#gatenlp.annotation.Annotation">Annotation</a>]], method='IBO') ‑> List[str]</span>
+<dt id="gatenlp.chunking.doc_to_ibo"><code class="name flex">
+<span>def <span class="ident">doc_to_ibo</span></span>(<span>doc: <a title="gatenlp.document.Document" href="document.html#gatenlp.document.Document">Document</a>, annset_name: str = '', sentence_type: Optional[str] = None, token_type: str = 'Token', token_feature: Optional[str] = None, chunk_annset_name: Optional[str] = None, chunk_types: Optional[List[str]] = None, type2code: Optional[Dict[~KT, ~VT]] = None, scheme: str = 'BIO', return_rows: bool = True) ‑> Generator[Union[List[~T], Tuple[]], None, None]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Extract tokens and corresponding token entity codes.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>doc</code></strong></dt>
+<dd>The document to process</dd>
+<dt><strong><code>annset_name</code></strong></dt>
+<dd>name of the annotation set which contains all the types needed</dd>
+<dt><strong><code>sentence_type</code></strong></dt>
+<dd>if None, use whole document, otherwise generate one result per sentence type annotation,
+if the sentence contains at least one token.</dd>
+<dt><strong><code>token_type</code></strong></dt>
+<dd>type of token annotations to use</dd>
+<dt><strong><code>token_feature</code></strong></dt>
+<dd>if not None, use the feature instead of the covered document text</dd>
+<dt><strong><code>chunk_annset_name</code></strong></dt>
+<dd>is specified, the annotation set name to use for retrieving the chunk annotations,
+otherwise annset_name is used for the chunk annotations too.</dd>
+<dt><strong><code>chunk_types</code></strong></dt>
+<dd>a list of annotation types which identify chunks, each chunk type is used as entity type
+Note the chunk type annotations must not overlap, but this is currently not checked, for performance
+reasons.</dd>
+<dt><strong><code>type2code</code></strong></dt>
+<dd>an optionam dict mapping the chunk_type to the type name used in the BIO codes</dd>
+<dt><strong><code>scheme</code></strong></dt>
+<dd>the encoding scheme to use, default is BIO, possible: IOB, BIO, IOBES, BILOU, BMEOW, BMEWO</dd>
+<dt><strong><code>return_rows</code></strong></dt>
+<dd>if True, return a list of (tokenstring, code) tuples for each sentence, if False return two lists
+of equal length, the first with the token strings and the second with the codes</dd>
+</dl>
+<h2 id="yields">Yields</h2>
+<p>either one list of (tokenstring, code) tuples per sentence found or two lists, one with the tokenstrings and
+the other with the codes.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def anns2ibo(
-        tokens: Union[AnnotationSet, List[Annotation]],
-        chunkanns: Union[AnnotationSet, List[Annotation]],
-        method=&#34;IBO&#34;) -&gt; List[str]:
-    if isinstance(tokens, AnnotationSet):
-        tokens = list(tokens)
-    if isinstance(chunkanns, AnnotationSet):
-        chunkanns = list(chunkanns)</code></pre>
+<pre><code class="python">def doc_to_ibo(
+        doc: Document,
+        annset_name: str = &#34;&#34;,
+        sentence_type: Optional[str] = None,
+        token_type: str = &#34;Token&#34;,
+        token_feature: Optional[str] = None,
+        chunk_annset_name: Optional[str] = None,
+        chunk_types: Optional[List[str]] = None,
+        type2code: Optional[Dict] = None,
+        scheme: str = &#34;BIO&#34;,
+        return_rows:bool = True,
+) -&gt; Generator[Union[List, Tuple], None, None]:
+    &#34;&#34;&#34;
+    Extract tokens and corresponding token entity codes.
+
+    Args:
+        doc: The document to process
+        annset_name: name of the annotation set which contains all the types needed
+        sentence_type: if None, use whole document, otherwise generate one result per sentence type annotation,
+            if the sentence contains at least one token.
+        token_type: type of token annotations to use
+        token_feature: if not None, use the feature instead of the covered document text
+        chunk_annset_name: is specified, the annotation set name to use for retrieving the chunk annotations,
+            otherwise annset_name is used for the chunk annotations too.
+        chunk_types: a list of annotation types which identify chunks, each chunk type is used as entity type
+            Note the chunk type annotations must not overlap, but this is currently not checked, for performance
+            reasons.
+        type2code: an optionam dict mapping the chunk_type to the type name used in the BIO codes
+        scheme: the encoding scheme to use, default is BIO, possible: IOB, BIO, IOBES, BILOU, BMEOW, BMEWO
+        return_rows: if True, return a list of (tokenstring, code) tuples for each sentence, if False return two lists
+            of equal length, the first with the token strings and the second with the codes
+
+    Yields:
+        either one list of (tokenstring, code) tuples per sentence found or two lists, one with the tokenstrings and
+        the other with the codes.
+    &#34;&#34;&#34;
+    spanenc = SPANENCS[scheme]
+    if type2code is None:
+        type2code = {}
+    if sentence_type is None:
+        spans = [Span(0, len(doc))]
+    else:
+        spans = [a.span for a in doc.annset(annset_name).with_type(sentence_type)]
+    all_tokens = doc.annset(annset_name).with_type(token_type)
+    if chunk_types is None:
+        all_chunks = AnnotationSet()
+    else:
+        all_chunks = doc.annset(annset_name if chunk_annset_name is None else chunk_annset_name).with_type(chunk_types)
+    for span in spans:
+        tokens = all_tokens.within(span)
+        if len(tokens) == 0:
+            continue
+        # map token start offsets to token indices
+        start2idx = {t.start: idx for idx, t in enumerate(tokens)}
+        chunks = all_chunks.within(span)
+        # now we want to know which of all the tokens are covered by chunks. So for each chunk, we check
+        # which tokens are contained and append an iobes Span that points to the index of the token
+        iobes_spans = []
+        for chunk in chunks:
+            ctokens = list(tokens.within(chunk))
+            start = start2idx[ctokens[0].start]
+            end = start2idx[ctokens[-1].start]+1
+            iobes_span = iobes.Span(
+                type=type2code.get(chunk.type, normalize_type(chunk.type)),
+                start=start,
+                end=end,
+                tokens=tuple(range(start, end))
+            )
+            iobes_spans.append(iobes_span)
+        codes = iobes.write_tags(iobes_spans, spanenc, length=len(tokens))
+        assert len(tokens) == len(codes)
+        if token_feature:
+            token_strings = [t.features[token_feature] for t in tokens]
+        else:
+            token_strings = [doc[t] for t in tokens]
+        if return_rows:
+            yield [(t, c) for t, c in zip(token_strings, codes)]
+        else:
+            yield token_strings, codes</code></pre>
+</details>
+</dd>
+<dt id="gatenlp.chunking.normalize_type"><code class="name flex">
+<span>def <span class="ident">normalize_type</span></span>(<span>typename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Normalize the type name so it can be used as part of an BIO-like code that is usable in a conll-like dataset:
+replace all whitespace with a hyphen.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>typename</code></strong></dt>
+<dd>the chunk type name</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>normalized chunk type name</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normalize_type(typename):
+    &#34;&#34;&#34;
+    Normalize the type name so it can be used as part of an BIO-like code that is usable in a conll-like dataset:
+    replace all whitespace with a hyphen.
+
+    Args:
+        typename: the chunk type name
+
+    Returns:
+        normalized chunk type name
+    &#34;&#34;&#34;
+    return re.sub(PAT_WS, &#34;-&#34;, typename)</code></pre>
 </details>
 </dd>
 </dl>
@@ -90,7 +319,8 @@ def anns2ibo(
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="gatenlp.chunking.anns2ibo" href="#gatenlp.chunking.anns2ibo">anns2ibo</a></code></li>
+<li><code><a title="gatenlp.chunking.doc_to_ibo" href="#gatenlp.chunking.doc_to_ibo">doc_to_ibo</a></code></li>
+<li><code><a title="gatenlp.chunking.normalize_type" href="#gatenlp.chunking.normalize_type">normalize_type</a></code></li>
 </ul>
 </li>
 </ul>
