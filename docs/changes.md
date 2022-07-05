@@ -18,6 +18,9 @@
 * Added parameter "cols4types" to `Document.show` to specify colours for specific setname / typename combinations
 * Add support for installing and using core functionality under pyodide and jupyter-lite
 
+Also new:
+* the package [gatenlp-ml-tner](https://github.com/GateNLP/python-gatenlp-ml-tner/) can be used to train and apply transformers-based chunking/NER models
+
 
 ## 1.0.7 (2022-02-06)
 
