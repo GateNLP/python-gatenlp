@@ -48,6 +48,7 @@ class RewireAnnotator(Annotator):
         """
         if url is None:
             url = "https://api.rewire.online/classify"
+        assert auth_token
         self.auth_token = auth_token
         self.url = url
         self.min_delay_s = min_delay_ms / 1000.0
@@ -69,7 +70,10 @@ class RewireAnnotator(Annotator):
             self.url,
             json=dict(text=text),
             headers={"x-api-key": self.auth_token})
-        return response.json()
+        ret = response.json()
+        if "message" in ret and "scores" not in ret:
+            raise Exception(f"API call problem, message is: {ret['message']}")
+        return ret
 
     def __call__(self, doc, **kwargs):
         if self.ann_type is not None:
