@@ -3,7 +3,11 @@ import types
 import regex
 from gatenlp.processing.annotator import Annotator
 
-# NOTE we use NLTK's own aligner, but there is also get_original_spans(tk, s) from package tokenizations
+# !!NOTE we use NLTK's own aligner, 
+# but there is also get_original_spans(tk, s) from package tokenizations 
+# and heuristic_infer from the bistring package 
+#   https://github.com/microsoft/bistring/blob/master/python/bistring/_infer.py
+
 from nltk.tokenize.util import align_tokens
 
 # Generate token and optionally space token annotations in the given output annotation set.
