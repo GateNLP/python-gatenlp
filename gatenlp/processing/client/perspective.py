@@ -8,17 +8,19 @@ from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
 
-class RewireAnnotator(Annotator):
+class PerspectiveAnnotator(Annotator):
     """
-    An annotator that sends text to the Rewire classification service
-    (see https://rewire.online/rewire-api-access/)
+    An annotator that sends text to the Perspective classification service
+    (see https://perspectiveapi.com/)
     and uses the result to set either document or annotation features.
     """
 
     def __init__(
         self,
         url: Optional[str] = "https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-        auth_token: Optional[str] = None,
+        auth_token: str = "",
+        requested_attributes: Optional[List[str]] = None,
+        requested_attributes_feature: Optional[str] = None,
         langs: Optional[Union[str, List[str]]] = None,
         langs_feature: Optional[str] = None,
         annset_name: Optional[str] = "",
@@ -32,7 +34,11 @@ class RewireAnnotator(Annotator):
 
         Args:
             url: the annotation service endpoint, if None, the default endpoint URL
-            auth_token: the authentication token needed to use the service, this is required!
+            auth_token: (required) the authentication token needed to use the service
+            requested_attributes: (required) a list of attributes to return. Note that not all attributes are
+                available for all languages!
+            requested_attributes_feature: if specified, get the requested attributes list from that doc/ann feature
+                if it exists (fall back to requested_attributes)
             langs: None indiciates auto-detect, otherwise the language code or a list of language codes.
             langs_feature: if the text is taken from an annotation, the feature of that annotation that contains
                 the language code or list of language codes. If the feature does not exist or is empty, falls back
@@ -54,6 +60,7 @@ class RewireAnnotator(Annotator):
         except Exception as ex:
             raise Exception(f"Package google-api-python-client not installed?", ex)
         assert auth_token
+        assert requested_attributes
         self.auth_token = auth_token
         self.url = url
         self.min_delay_s = min_delay_ms / 1000.0
@@ -66,6 +73,8 @@ class RewireAnnotator(Annotator):
         self.langs_feature = langs_feature
         self.attr2feature = attr2feature
         self.annset_name = annset_name
+        self.requested_attributes = requested_attributes
+        self.requested_attributes_feature = requested_attributes_feature
         self.client = discovery.build(
             "commentanalyzer",
             "v1alpha1",
@@ -74,14 +83,14 @@ class RewireAnnotator(Annotator):
             static_discovery=False,
         )
 
-    def _call_api(self, text, langs=None, attr2feature=None):
+    def _call_api(self, text, langs=None, requested_attributes=None, attr2feature=None):
         """Send text to API respecting min delay and get back dict"""
         delay = time.time() - self._last_call_time
         if delay < self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
         request = {
             "comment": {"text": text},
-            "requirestedAttributes": {},
+            "requestedAttributes": {n: {} for n in requested_attributes},
         }
         if langs is not None:
             if isinstance(langs, str):
@@ -113,14 +122,22 @@ class RewireAnnotator(Annotator):
                 langs = self.langs
                 if self.langs_feature:
                     langs = ann.features.get(self.langs_feature, langs)
-                ret = self._call_api(txt, langs=langs, attr2feature=self.attr2feature)
+                requested_attributes = self.requested_attributes
+                if self.requested_attributes_feature:
+                    requested_attributes = ann.features.get(self.requested_attributes_feature, requested_attributes)
+                ret = self._call_api(txt, langs=langs,
+                                     attr2feature=self.attr2feature, requested_attributes=requested_attributes)
                 if isinstance(ret, dict):
                     ann.features.update(ret)
         else:
             langs = self.langs
             if self.langs_feature:
                 langs = doc.features.get(self.langs_feature, langs)
-            ret = self._call_api(doc.text, langs=langs, attr2feature=self.attr2feature)
+            requested_attributes = self.requested_attributes
+            if self.requested_attributes_feature:
+                requested_attributes = doc.features.get(self.requested_attributes_feature, requested_attributes)
+            ret = self._call_api(doc.text, langs=langs,
+                                 attr2feature=self.attr2feature, requested_attributes=requested_attributes)
             if isinstance(ret, dict):
                 doc.features.update(ret)
         return doc
