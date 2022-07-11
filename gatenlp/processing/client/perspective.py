@@ -2,9 +2,8 @@
 Perspective client.
 """
 import time
-import requests
 
-from typing import Optional
+from typing import Optional, Union, List
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
@@ -20,38 +19,40 @@ class RewireAnnotator(Annotator):
         self,
         url: Optional[str] = "https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
         auth_token: Optional[str] = None,
-        # lang="en",
+        langs: Optional[Union[str, List[str]]] = None,
+        langs_feature: Optional[str] = None,
         annset_name: Optional[str] = "",
         ann_type: Optional[str] = None,
         ann_feature: Optional[str] = None,
-        feature_hate: str = "hate",
-        feature_abuse: str = "abuse",
-        min_delay_ms=0,
+        attr2feature: Optional[dict] = None,
+        min_delay_ms: int = 1000,
     ):
         """
-        Create a Rewire annotator.
+        Create a Perspective annotator.
 
         Args:
             url: the annotation service endpoint, if None, the default endpoint URL
             auth_token: the authentication token needed to use the service, this is required!
+            langs: None indiciates auto-detect, otherwise the language code or a list of language codes.
+            langs_feature: if the text is taken from an annotation, the feature of that annotation that contains
+                the language code or list of language codes. If the feature does not exist or is empty, falls back
+                to langs. If the text is taken from the document, a document feature that contains the language code
+                or list of language codes. 
             annset_name: if an annotation type is specified, the name of the annotation set to use
             ann_type: if this is specified, the text of those annoations is getting classified and
                 the result is stored as annotaiton features. Otherwise, the whole document is classified
                 and the result is stored as document features.
             ann_feature: if ann_type is specified, and this is also specified, the text is taken from
                 that feature instead of the underlying document text.
-            feature_hate: if annotations get classified, the name of the feature to set with the
-                hate score ("hate")
-            feature_abuse: if annotations get classified, the name of the feature to set with the
-                abuse score ("abuse"
-            min_delay_ms: minimum time in ms to wait between requests to the server
+            attr2feature: a dictionary mapping attribute names to feature names. Note that each attribute name is
+                made of the actual attribute (e.g. "TOXICITY") with the score type appended after an underscore,
+                e.g. "_PROBABILITY", giving "TOXICITY_PROBABILITY". Only the summary scores are used.
+            min_delay_ms: minimum time in ms to wait between requests to the server (1000)
         """
         try:
             from googleapiclient import discovery
         except Exception as ex:
             raise Exception(f"Package google-api-python-client not installed?", ex)
-        if url is None:
-            url = "https://api.rewire.online/classify"
         assert auth_token
         self.auth_token = auth_token
         self.url = url
@@ -61,22 +62,44 @@ class RewireAnnotator(Annotator):
         self._last_call_time = 0
         self.ann_type = ann_type
         self.ann_feature = ann_feature
-        self.feature_hate = feature_hate
-        self.feature_abuse = feature_abuse
+        self.langs = langs
+        self.langs_feature = langs_feature
+        self.attr2feature = attr2feature
         self.annset_name = annset_name
+        self.client = discovery.build(
+            "commentanalyzer",
+            "v1alpha1",
+            developerKey=self.auth_token,
+            discoveryServiceUrl=self.url,
+            static_discovery=False,
+        )
 
-    def _call_api(self, text):
+    def _call_api(self, text, langs=None, attr2feature=None):
         """Send text to API respecting min delay and get back dict"""
         delay = time.time() - self._last_call_time
         if delay < self.min_delay_s:
             time.sleep(self.min_delay_s - delay)
-        response = requests.post(
-            self.url,
-            json=dict(text=text),
-            headers={"x-api-key": self.auth_token})
-        ret = response.json()
-        if "message" in ret and "scores" not in ret:
-            raise Exception(f"API call problem, message is: {ret['message']}")
+        request = {
+            "comment": {"text": text},
+            "requirestedAttributes": {},
+        }
+        if langs is not None:
+            if isinstance(langs, str):
+                langs = [langs]
+            request["languages"] = langs
+        response = self.client.comments().analyze(body=request).execute()
+        ret = {}
+        scoredata = response["attributeScores"]
+        for name, data in scoredata.items():
+            val = data["summaryScore"]["value"]
+            typ = data["summaryScore"]["type"]
+            if attr2feature is not None:
+                name = attr2feature.get(name, name)
+            ret[name+"_"+typ] = val
+        name = "languages"
+        if attr2feature is not None:
+            name = attr2feature(name, name)
+        ret[name] = response["languages"]
         return ret
 
     def __call__(self, doc, **kwargs):
@@ -87,15 +110,17 @@ class RewireAnnotator(Annotator):
                     txt = ann.features.get(self.ann_feature, "")
                 else:
                     txt = doc[ann]
-                ret = self._call_api(txt)
+                langs = self.langs
+                if self.langs_feature:
+                    langs = ann.features.get(self.langs_feature, langs)
+                ret = self._call_api(txt, langs=langs, attr2feature=self.attr2feature)
                 if isinstance(ret, dict):
-                    scores = ret["scores"]
-                    ann.features[self.feature_hate] = scores["hate"]
-                    ann.features[self.feature_abuse] = scores["abuse"]
+                    ann.features.update(ret)
         else:
-            ret = self._call_api(doc.text)
+            langs = self.langs
+            if self.langs_feature:
+                langs = doc.features.get(self.langs_feature, langs)
+            ret = self._call_api(doc.text, langs=langs, attr2feature=self.attr2feature)
             if isinstance(ret, dict):
-                scores = ret["scores"]
-                doc.features[self.feature_hate] = scores["hate"]
-                doc.features[self.feature_abuse] = scores["abuse"]
+                doc.features.update(ret)
         return doc

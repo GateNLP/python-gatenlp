@@ -1,5 +1,11 @@
 # Versions and changes
 
+## Upcoming
+
+* Client for the [Rewire](https://rewire.online/) service
+* Client for the [Perspective](https://perspectiveapi.com/) service
+
+
 ## 1.0.8a1 (2022-07-02)
 
 * Adding several annotations to an annotation set at once can now be done with the more pythonic `update` method instead of the `add_anns`
