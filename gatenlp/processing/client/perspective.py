@@ -21,6 +21,7 @@ class PerspectiveAnnotator(Annotator):
         auth_token: str = "",
         requested_attributes: Optional[List[str]] = None,
         requested_attributes_feature: Optional[str] = None,
+        do_not_store: bool = True,
         langs: Optional[Union[str, List[str]]] = None,
         langs_feature: Optional[str] = None,
         annset_name: Optional[str] = "",
@@ -39,6 +40,7 @@ class PerspectiveAnnotator(Annotator):
                 available for all languages!
             requested_attributes_feature: if specified, get the requested attributes list from that doc/ann feature
                 if it exists (fall back to requested_attributes)
+            do_not_store: if True, do not allow the text to get stored (default: True)
             langs: None indiciates auto-detect, otherwise the language code or a list of language codes.
             langs_feature: if the text is taken from an annotation, the feature of that annotation that contains
                 the language code or list of language codes. If the feature does not exist or is empty, falls back
@@ -73,6 +75,7 @@ class PerspectiveAnnotator(Annotator):
         self.langs_feature = langs_feature
         self.attr2feature = attr2feature
         self.annset_name = annset_name
+        self.do_not_store = do_not_store
         self.requested_attributes = requested_attributes
         self.requested_attributes_feature = requested_attributes_feature
         self.client = discovery.build(
@@ -91,6 +94,7 @@ class PerspectiveAnnotator(Annotator):
         request = {
             "comment": {"text": text},
             "requestedAttributes": {n: {} for n in requested_attributes},
+            "doNotStore": self.do_not_store,
         }
         if langs is not None:
             if isinstance(langs, str):
