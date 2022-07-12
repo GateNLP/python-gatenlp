@@ -71,6 +71,7 @@ class RewireAnnotator(Annotator):
         ret = response.json()
         if "message" in ret and "scores" not in ret:
             raise Exception(f"API call problem, message is: {ret['message']}")
+        ret = ret["scores"]
         if attr2feature:
             retnew = {}
             for k, v in ret.items():
@@ -89,11 +90,9 @@ class RewireAnnotator(Annotator):
                     txt = doc[ann]
                 ret = self._call_api(txt, attr2feature=self.attr2feature)
                 if isinstance(ret, dict):
-                    scores = ret["scores"]
                     ann.features.update(ret)
         else:
             ret = self._call_api(doc.text, attr2feature=self.attr2feature)
             if isinstance(ret, dict):
-                scores = ret["scores"]
                 doc.features.update(ret)
         return doc
