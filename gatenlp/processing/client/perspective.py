@@ -3,7 +3,7 @@ Perspective client.
 """
 import time
 
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Dict
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
@@ -26,7 +26,7 @@ class PerspectiveAnnotator(Annotator):
         annset_name: Optional[str] = "",
         ann_type: Optional[str] = None,
         ann_feature: Optional[str] = None,
-        attr2feature: Optional[dict] = None,
+        attr2feature: Optional[Dict[str, str]] = None,
         min_delay_ms: int = 1000,
     ):
         """

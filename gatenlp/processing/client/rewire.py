@@ -4,7 +4,7 @@ Rewire client.
 import time
 import requests
 
-from typing import Optional
+from typing import Optional, Dict
 from gatenlp.processing.annotator import Annotator
 from gatenlp.utils import init_logger
 
@@ -24,12 +24,13 @@ class RewireAnnotator(Annotator):
         annset_name: Optional[str] = "",
         ann_type: Optional[str] = None,
         ann_feature: Optional[str] = None,
-        feature_hate: str = "hate",
-        feature_abuse: str = "abuse",
+        attr2feature: Optional[Dict[str,str]] = None,
         min_delay_ms=0,
     ):
         """
-        Create a Rewire annotator.
+        Create a Rewire annotator. The annotator stores the scores returned from the
+        Rewire service as features, either in the annotation that gets processed or the document
+        features if the whole document is getting processed.
 
         Args:
             url: the annotation service endpoint, if None, the default endpoint URL
@@ -40,10 +41,8 @@ class RewireAnnotator(Annotator):
                 and the result is stored as document features.
             ann_feature: if ann_type is specified, and this is also specified, the text is taken from
                 that feature instead of the underlying document text.
-            feature_hate: if annotations get classified, the name of the feature to set with the
-                hate score ("hate")
-            feature_abuse: if annotations get classified, the name of the feature to set with the
-                abuse score ("abuse"
+            attr2feature: a dictionary mapping the attributes (score names) returned from the
+                service to feature names. Currently attributes "hate" and "abuse" are returned.
             min_delay_ms: minimum time in ms to wait between requests to the server
         """
         if url is None:
@@ -57,11 +56,10 @@ class RewireAnnotator(Annotator):
         self._last_call_time = 0
         self.ann_type = ann_type
         self.ann_feature = ann_feature
-        self.feature_hate = feature_hate
-        self.feature_abuse = feature_abuse
+        self.attr2feature = attr2feature
         self.annset_name = annset_name
 
-    def _call_api(self, text):
+    def _call_api(self, text, attr2feature=None):
         """Send text to API respecting min delay and get back dict"""
         delay = time.time() - self._last_call_time
         if delay < self.min_delay_s:
@@ -73,6 +71,12 @@ class RewireAnnotator(Annotator):
         ret = response.json()
         if "message" in ret and "scores" not in ret:
             raise Exception(f"API call problem, message is: {ret['message']}")
+        if attr2feature:
+            retnew = {}
+            for k, v in ret.items():
+                knew = attr2feature.get(k, k)
+                retnew[knew] = v
+            ret = retnew
         return ret
 
     def __call__(self, doc, **kwargs):
@@ -83,15 +87,13 @@ class RewireAnnotator(Annotator):
                     txt = ann.features.get(self.ann_feature, "")
                 else:
                     txt = doc[ann]
-                ret = self._call_api(txt)
+                ret = self._call_api(txt, attr2feature=self.attr2feature)
                 if isinstance(ret, dict):
                     scores = ret["scores"]
-                    ann.features[self.feature_hate] = scores["hate"]
-                    ann.features[self.feature_abuse] = scores["abuse"]
+                    ann.features.update(ret)
         else:
-            ret = self._call_api(doc.text)
+            ret = self._call_api(doc.text, attr2feature=self.attr2feature)
             if isinstance(ret, dict):
                 scores = ret["scores"]
-                doc.features[self.feature_hate] = scores["hate"]
-                doc.features[self.feature_abuse] = scores["abuse"]
+                doc.features.update(ret)
         return doc
