@@ -271,7 +271,10 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document, but
+
+               * &#34;default&#34; (default) a heuristic which uses &#34;relpath&#34; if it is available, otherwise uses the
+                    index with 5 digits.
+               * &#34;relpath&#34;: use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
@@ -287,6 +290,7 @@ class DirFilesDestination(DocumentDestination):
                 * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
+                   
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;
@@ -856,24 +860,30 @@ from the document and the running number.</p>
 <dt><strong><code>dirpath</code></strong></dt>
 <dd>the directory to contain the files</dd>
 <dt><strong><code>path_from</code></strong></dt>
-<dd>one of options listed below. If a string is used as a path name, then the forward slash
-is always used as the directory path separator, on all systems!
-* "relpath" (default): use the relative path used when creating the document, but
-replace the extension
-* "idx": just use the index/running number of the added document as the base name
-* "idx:5": use the index/running number with at least 5 digits in the name.
-* "idx:10:2": use the index and organize a total of 10 digits into a hierarchical
+<dd>
+<p>one of options listed below. If a string is used as a path name, then the forward slash
+is always used as the directory path separator, on all systems!</p>
+<ul>
+<li>"default" (default) a heuristic which uses "relpath" if it is available, otherwise uses the
+index with 5 digits.</li>
+<li>"relpath": use the relative path used when creating the document, but
+replace the extension</li>
+<li>"idx": just use the index/running number of the added document as the base name</li>
+<li>"idx:5": use the index/running number with at least 5 digits in the name.</li>
+<li>"idx:10:2": use the index and organize a total of 10 digits into a hierarchical
 pathname of 2 levels, so 10:2 would mean the first 5 digits are for the name of the subdirectory
 and the second 5 digits are for the file base name. 10:3 would have for levels, the first
 subdirectory level with 1 digit, the next two with 3 digits and the remaining 3 digits for the
 filename.
-NOTE: "idx" by itself is equivalent to idx:1:1
-* "feature:fname": use the document feature with the feature name fname as a relative path as is
-but add the extension
-* "docname": use the document name as the relative path, but add extension.
-* "minstem": use the relative path with all extensions replaced by the new extension
-* somefunction: a function that should return the pathname (without extension) and should take two
-keyword arguments: doc (the document) and idx (the running index of the document).</dd>
+NOTE: "idx" by itself is equivalent to idx:1:1</li>
+<li>"feature:fname": use the document feature with the feature name fname as a relative path as is
+but add the extension</li>
+<li>"docname": use the document name as the relative path, but add extension.</li>
+<li>"minstem": use the relative path with all extensions replaced by the new extension</li>
+<li>somefunction: a function that should return the pathname (without extension) and should take two
+keyword arguments: doc (the document) and idx (the running index of the document).</li>
+</ul>
+</dd>
 <dt><strong><code>ext</code></strong></dt>
 <dd>the file extension to add to all generated file names</dd>
 <dt><strong><code>fmt</code></strong></dt>
@@ -899,7 +909,10 @@ keyword arguments: doc (the document) and idx (the running index of the document
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * &#34;relpath&#34; (default): use the relative path used when creating the document, but
+
+               * &#34;default&#34; (default) a heuristic which uses &#34;relpath&#34; if it is available, otherwise uses the
+                    index with 5 digits.
+               * &#34;relpath&#34;: use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
                * &#34;idx:5&#34;: use the index/running number with at least 5 digits in the name.
@@ -915,6 +928,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
                 * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
+                   
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;

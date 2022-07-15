@@ -223,7 +223,6 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             yield doc
 
 
-
 class DirFilesDestination(DocumentDestination):
     """
     A destination where each document is stored in a file in a directory or directory tree in some
@@ -232,7 +231,7 @@ class DirFilesDestination(DocumentDestination):
     from the document and the running number.
     """
 
-    def __init__(self, dirpath, path_from: Union[str, Callable] = "relpath", ext: str = "bdocjs", fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = "default", ext: str = "bdocjs", fmt=None):
         """
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -240,7 +239,10 @@ class DirFilesDestination(DocumentDestination):
             dirpath: the directory to contain the files
             path_from: one of options listed below. If a string is used as a path name, then the forward slash
                  is always used as the directory path separator, on all systems!
-               * "relpath" (default): use the relative path used when creating the document, but
+
+               * "default" (default) a heuristic which uses "relpath" if it is available, otherwise uses the
+                    index with at least 5 digits.
+               * "relpath": use the relative path used when creating the document, but
                    replace the extension
                * "idx": just use the index/running number of the added document as the base name
                * "idx:5": use the index/running number with at least 5 digits in the name.
@@ -256,6 +258,7 @@ class DirFilesDestination(DocumentDestination):
                 * "minstem": use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
+
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         """
@@ -264,6 +267,14 @@ class DirFilesDestination(DocumentDestination):
             raise Exception("Not a directory: ", dirpath)
         self.dirpath = dirpath
         self.idx = 0
+
+        def pathmaker_default(doc=None, idx=None):
+            relpath = doc.features.get(self.relpathfeatname())
+            if relpath:
+                return os.path.splitext(doc.features[self.relpathfeatname()])[0]
+            else:
+                return f"{idx:05d}"
+
         if path_from.startswith("idx"):
             rest = path_from[
                 3:
@@ -281,6 +292,8 @@ class DirFilesDestination(DocumentDestination):
         elif path_from.startswith("feature"):
             _, fname = path_from.split(":")
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == "default":
+            self.file_path_maker = pathmaker_default
         elif path_from == "relpath":
             self.file_path_maker = \
                 lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
