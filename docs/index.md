@@ -4,14 +4,14 @@
 
 Python GateNLP is a natural language processing (NLP) and text processing framework implemented in Python. 
 
-It provides very flexible representations of documents, stand-off annotaitons with arbitrary types and features, grouped into arbitrary annotations sets,
+It provides very flexible representations of documents, stand-off annotations with arbitrary types and features, grouped into arbitrary annotations sets,
 spans, corpora, annotators, pipelines and more. Documents, annotations and corpora can be easily and interactively visualized in notebooks. 
 It provides the ability to use existing NLP tools for annotating documents out of the box: Spacy, Stanza as well as online services like 
-Gate Cloud, ELG, Google NLP, IBM Watson and others. The result of these tools get represented as GateNLP annotations making it easy to 
-write code that works with all of these tools in the same way or compares or combines the results of these tools. 
+Gate Cloud, ELG, Google NLP, IBM Watson and others. The results of these tools get represented as GateNLP annotations, making it easy to 
+write code that works with all of these tools and allowing you to compare or combine the results of these tools.
 
 In addition, GateNLP provides its own annotator tools: string-based and token based gazetteers, regular-expression-based annotators, and a very powerful
-and flexible rule-based annotator (PAMPAC) which allows to match complex pattern of annotations and text. 
+and flexible rule-based annotator (PAMPAC) which allows matching complex pattern of annotations and text. 
 
 Python GateNLP represents documents and stand-off annotations very similar to 
 the [Java GATE framework](https://gate.ac.uk/): [Annotations](annotations) describe arbitrary character ranges in the text and each annotation can have an arbitrary number of _features_.  [Documents](documents) can have arbitrary features and an arbitrary number of named [_annotation sets_](annotationsets), where each annotation set can have an arbitrary number of annotations which can overlap in any way. Python GateNLP documents can be exchanged with Java GATE by using the bdocjs/bdocym/bdocmp formats which are supported in Java GATE via the [Format Bdoc Plugin](https://gatenlp.github.io/gateplugin-Format_Bdoc/)
