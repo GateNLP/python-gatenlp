@@ -60,7 +60,7 @@ gs = GateWorker(start=False, auth_token="verysecretauthtoken")
 The gate worker instance can now be used to run arbitrary Java methods on the Java side.
 The gate worker instance provides a number of useful methods directly (see [PythonDoc for gateworker](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/gateworker.html) )
 * `gs.load_gdoc(filepath, mimetype=None`: load a GATE document on the Java side and return it to Python
-* `gs.save_gdoc(gatedocument, filepath, mimetype=None, anntypes)`: save a GATE document on the Java side
+* `gs.save_gdoc(gatedocument, filepath, mimetype=None, inline_anntypes=None, inline_annset="", inline_features=True)`: save a GATE document on the Java side
 * `gs.gdoc2pdoc(gatedocument)`: convert the Java GATE document as a Python GateNLP document and return it
 * `gs.pdoc2gdoc(doc)`: convert the Python GateNLP document to a Java GATE document and return it
 * `gs.del_resource(gatedocument)`: remove a Java GATE document on the Java side (this necessary to release memory)
@@ -76,7 +76,7 @@ In addition, there is a larger number of utility methods which are available thr
 * `loadPipelineFromFile(filepath)`: load the pipeline/controller from the given file path and return it
 * `loadDocumentFromFile(filepath)`: load a GATE document from the file and return it
 * `loadDocumentFromFile(filepath, mimetype)`: load a GATE document from the file using the format corresponding to the given mime type and return it
-* `saveDocumentToFile(gatedocument, filepath, mimetype, anntypes)`: save the document to the file, using the format corresponding to the mime type
+* `saveDocumentToFile(gatedocument, filepath, mimetype, inline_anntypes, inline_annset, inline_features)`: save the document to the file, using the format corresponding to the mime type
 * `createDocument(content)`: create a new document from the given String content and return it
 * `run4Document(pipeline, document)`: run the given pipeline on the given document
 
