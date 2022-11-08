@@ -197,7 +197,7 @@ class Span:
     @support_annotation_or_set
     def gap(self, start: int, end: int):
         """
-        Return the gep between this span and the other span. This is the distance between
+        Return the gap between this span and the other span. This is the distance between
         the last character of the first span and the first character of the second span in
         sequence, so it is always independent of the order of the two span.
 
