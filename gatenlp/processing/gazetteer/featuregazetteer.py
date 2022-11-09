@@ -42,5 +42,6 @@ class FeatureGazetteer(Annotator):
         """
         pass
 
-    def __call__(doc, **kwargs):
+    def __call__(self, doc, **kwargs):
+        # TODO
         pass

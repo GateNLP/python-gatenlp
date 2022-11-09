@@ -100,6 +100,7 @@ class PerspectiveAnnotator(Annotator):
             if isinstance(langs, str):
                 langs = [langs]
             request["languages"] = langs
+        # !!! TODO: Resource has not comments member????
         response = self.client.comments().analyze(body=request).execute()
         ret = {}
         scoredata = response["attributeScores"]

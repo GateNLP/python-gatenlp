@@ -872,7 +872,7 @@ class Document:
         Render function for Jupyter notebooks. Returns the html-ann-viewer HTML.
         This renders the HTML for notebook, for offline mode, but does not add the JS
         but instead initializes the JS in the notebook unless gatenlp.init_notebook()
-        has bee called already.
+        has been called already.
         """
         # import within this method to avoid dependencies needed for this in the whole Document module
         from gatenlp.serialization.default_htmlannviewer import show_colab, show_notebook

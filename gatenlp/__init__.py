@@ -53,8 +53,8 @@ def init_notebook():   # pragma: no cover
     """
     Helper method to initialize a Jupyter or similar notebook.
     """
-    from gatenlp.serialization.default import HtmlAnnViewerSerializer
+    from gatenlp.serialization.default_htmlannviewer import init_javascript
     from gatenlp.gatenlpconfig import gatenlpconfig
 
-    HtmlAnnViewerSerializer.init_javscript()
+    init_javascript()
     gatenlpconfig.notebook_js_initialized = True

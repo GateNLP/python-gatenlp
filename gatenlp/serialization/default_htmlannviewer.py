@@ -20,7 +20,7 @@ html_ann_viewer_serializer_js_loaded = False
 SEP = "║"
 
 
-def init_javscript():
+def init_javascript():
     """
     Initialize the notebook/html javascript.
     """

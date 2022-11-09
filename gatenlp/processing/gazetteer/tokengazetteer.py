@@ -692,6 +692,7 @@ class TokenGazetteer(GazetteerBase):
             if idx == 0:
                 node = node.get(tokenstring)   # get from defaultdict
             else:
+                # !!! TODO: defaultdict has no "nodes" member???
                 node = node.nodes.get(tokenstring)   # get from TokenGazetteerNode nodes
             if node is None:
                 return None

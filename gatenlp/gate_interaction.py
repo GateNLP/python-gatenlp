@@ -392,7 +392,7 @@ def interact(args=None, annotator=None):
             except Exception as ex:
                 error = repr(ex)
                 tb_str = traceback.format_exception(
-                    etype=type(ex), value=ex, tb=ex.__traceback__
+                    type(ex), ex, ex.__traceback__
                 )
                 print("ERROR when running python code:", file=sys.stderr)
                 for line in tb_str:
