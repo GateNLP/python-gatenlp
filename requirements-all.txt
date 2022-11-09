@@ -1,6 +1,7 @@
 beautifulsoup4>=4.9.3
 conllu
 elg
+google-api-python-client
 google-cloud-language
 ibm-watson
 iobes
