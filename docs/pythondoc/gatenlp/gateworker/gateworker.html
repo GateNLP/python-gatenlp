@@ -606,7 +606,13 @@ class GateWorker:
             mimetype = &#34;&#34;
         return self.worker.loadDocumentFromFile(path, mimetype)
 
-    def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
+    def save_gdoc(self,
+                  gdoc: py4j.java_gateway.JavaObject,
+                  path: str,
+                  mimetype: Optional[str] = None,
+                  inline_anntypes: Optional[List[str]] = None,
+                  inline_annset: Optional[str] = &#34;&#34;,
+                  inline_features: Optional[bool] = True):
         &#34;&#34;&#34;
         Save GATE document to the given path.
 
@@ -614,12 +620,18 @@ class GateWorker:
           gdoc: GATE document handle
           path: destination path
           mimetype: mimtetype, only the following types are allowed: &#34;&#34;/None: GATE XML,
-                application/fastinfoset, and all mimetypes supported by the
-                Format_Bdoc plugin. (Default value = None)
+                application/fastinfoset, text/xml for inline XML, 
+                and all mimetypes supported by the
+                Format_Bdoc plugin. (Default value = None). 
+          inline_anntypes: annotation types for inline XML export. Only works with mimetype xml.
+                If None, all types in the inline_annset are exported, if a list, only the 
+                types in the list are exported.
+          inline_annset: annotation set for inline XML export.
+          inline_features: save features as attribute for inline XML export.
         &#34;&#34;&#34;
         if mimetype is None:
             mimetype = &#34;&#34;
-        self.worker.saveDocumentToFile(gdoc, path, mimetype)
+        self.worker.saveDocumentToFile(gdoc, path, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)
 
     def gdoc2pdoc(self, gdoc: py4j.java_gateway.JavaObject) -&gt; Document:
         &#34;&#34;&#34;
@@ -1070,7 +1082,13 @@ class GateWorker:
         &#34;&#34;&#34;
         self.worker.runExecutionStarted(pipeline)
 
-    def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
+    def saveDocumentToFile(self,
+                           gdoc: py4j.java_gateway.JavaObject,
+                           filename: str,
+                           mimetype: str=&#34;&#34;,
+                           inline_anntypes: Optional[List[str]]=None,
+                           inline_annset: str=&#34;&#34;,
+                           inline_features: bool=True):
         &#34;&#34;&#34;
         Save the Java GATE document to the given file, using the given mime type.
         At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -1079,9 +1097,12 @@ class GateWorker:
         Args:
             gdoc: handle to Java GATE document
             filename: name/path of the file to save to
-            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML
+            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML, text/xml for GATE inline XML
+            inline_anntypes: annotation types for inline XML export.
+            inline_annset: annotation set name.
+            inline_features: save features as attributes.
         &#34;&#34;&#34;
-        self.worker.saveDocumentToFile(gdoc, filename, mimetype)
+        self.worker.saveDocumentToFile(gdoc, filename, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)
 
     def pannspec2gannspec(self,
                           annspec: Union[str, List[Union[str, Tuple]]]=None) -&gt; Optional[py4j.java_gateway.JavaObject]:
@@ -1120,6 +1141,17 @@ class GateWorker:
             newannspec.append(jlist)
         jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
         return jnewannspec
+
+    def panntype2ganntype(self, inline_anntypes: List[str]) -&gt; Optional[py4j.java_gateway.JavaObject]:
+        &#34;&#34;&#34;
+        Convert annotations types string list to a Java list.
+        &#34;&#34;&#34;
+        if inline_anntypes is None:
+            return None
+        # annspec is a python collection and cannot be passed directly to Java
+        # see https://www.py4j.org/advanced_topics.html#collections-conversion
+        from py4j.java_collections import ListConverter
+        return ListConverter().convert(inline_anntypes, self.gateway._gateway_client)
 
     def jsonAnnsets4Doc(self,
                         gdoc: py4j.java_gateway.JavaObject,
@@ -1992,7 +2024,13 @@ debug: show debug messages (default: False)</p></div>
             mimetype = &#34;&#34;
         return self.worker.loadDocumentFromFile(path, mimetype)
 
-    def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
+    def save_gdoc(self,
+                  gdoc: py4j.java_gateway.JavaObject,
+                  path: str,
+                  mimetype: Optional[str] = None,
+                  inline_anntypes: Optional[List[str]] = None,
+                  inline_annset: Optional[str] = &#34;&#34;,
+                  inline_features: Optional[bool] = True):
         &#34;&#34;&#34;
         Save GATE document to the given path.
 
@@ -2000,12 +2038,18 @@ debug: show debug messages (default: False)</p></div>
           gdoc: GATE document handle
           path: destination path
           mimetype: mimtetype, only the following types are allowed: &#34;&#34;/None: GATE XML,
-                application/fastinfoset, and all mimetypes supported by the
-                Format_Bdoc plugin. (Default value = None)
+                application/fastinfoset, text/xml for inline XML, 
+                and all mimetypes supported by the
+                Format_Bdoc plugin. (Default value = None). 
+          inline_anntypes: annotation types for inline XML export. Only works with mimetype xml.
+                If None, all types in the inline_annset are exported, if a list, only the 
+                types in the list are exported.
+          inline_annset: annotation set for inline XML export.
+          inline_features: save features as attribute for inline XML export.
         &#34;&#34;&#34;
         if mimetype is None:
             mimetype = &#34;&#34;
-        self.worker.saveDocumentToFile(gdoc, path, mimetype)
+        self.worker.saveDocumentToFile(gdoc, path, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)
 
     def gdoc2pdoc(self, gdoc: py4j.java_gateway.JavaObject) -&gt; Document:
         &#34;&#34;&#34;
@@ -2456,7 +2500,13 @@ debug: show debug messages (default: False)</p></div>
         &#34;&#34;&#34;
         self.worker.runExecutionStarted(pipeline)
 
-    def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
+    def saveDocumentToFile(self,
+                           gdoc: py4j.java_gateway.JavaObject,
+                           filename: str,
+                           mimetype: str=&#34;&#34;,
+                           inline_anntypes: Optional[List[str]]=None,
+                           inline_annset: str=&#34;&#34;,
+                           inline_features: bool=True):
         &#34;&#34;&#34;
         Save the Java GATE document to the given file, using the given mime type.
         At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -2465,9 +2515,12 @@ debug: show debug messages (default: False)</p></div>
         Args:
             gdoc: handle to Java GATE document
             filename: name/path of the file to save to
-            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML
+            mimetype: the mime type to determine the format, &#34;&#34; for GATE XML, text/xml for GATE inline XML
+            inline_anntypes: annotation types for inline XML export.
+            inline_annset: annotation set name.
+            inline_features: save features as attributes.
         &#34;&#34;&#34;
-        self.worker.saveDocumentToFile(gdoc, filename, mimetype)
+        self.worker.saveDocumentToFile(gdoc, filename, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)
 
     def pannspec2gannspec(self,
                           annspec: Union[str, List[Union[str, Tuple]]]=None) -&gt; Optional[py4j.java_gateway.JavaObject]:
@@ -2506,6 +2559,17 @@ debug: show debug messages (default: False)</p></div>
             newannspec.append(jlist)
         jnewannspec = ListConverter().convert(newannspec, self.gateway._gateway_client)
         return jnewannspec
+
+    def panntype2ganntype(self, inline_anntypes: List[str]) -&gt; Optional[py4j.java_gateway.JavaObject]:
+        &#34;&#34;&#34;
+        Convert annotations types string list to a Java list.
+        &#34;&#34;&#34;
+        if inline_anntypes is None:
+            return None
+        # annspec is a python collection and cannot be passed directly to Java
+        # see https://www.py4j.org/advanced_topics.html#collections-conversion
+        from py4j.java_collections import ListConverter
+        return ListConverter().convert(inline_anntypes, self.gateway._gateway_client)
 
     def jsonAnnsets4Doc(self,
                         gdoc: py4j.java_gateway.JavaObject,
@@ -3767,6 +3831,27 @@ The list returned from this is already a Java list!</p>
     return jnewannspec</code></pre>
 </details>
 </dd>
+<dt id="gatenlp.gateworker.gateworker.GateWorker.panntype2ganntype"><code class="name flex">
+<span>def <span class="ident">panntype2ganntype</span></span>(<span>self, inline_anntypes: List[str]) ‑> Optional[py4j.java_gateway.JavaObject]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert annotations types string list to a Java list.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def panntype2ganntype(self, inline_anntypes: List[str]) -&gt; Optional[py4j.java_gateway.JavaObject]:
+    &#34;&#34;&#34;
+    Convert annotations types string list to a Java list.
+    &#34;&#34;&#34;
+    if inline_anntypes is None:
+        return None
+    # annspec is a python collection and cannot be passed directly to Java
+    # see https://www.py4j.org/advanced_topics.html#collections-conversion
+    from py4j.java_collections import ListConverter
+    return ListConverter().convert(inline_anntypes, self.gateway._gateway_client)</code></pre>
+</details>
+</dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc"><code class="name flex">
 <span>def <span class="ident">pdoc2gdoc</span></span>(<span>self, pdoc: <a title="gatenlp.document.Document" href="../document.html#gatenlp.document.Document">Document</a>, annspec: Optional[List[Tuple[]]] = None) ‑> py4j.java_gateway.JavaObject</span>
 </code></dt>
@@ -3995,7 +4080,7 @@ second element is either a type name or a list of type names.</dd>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.saveDocumentToFile"><code class="name flex">
-<span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str)</span>
+<span>def <span class="ident">saveDocumentToFile</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str = '', inline_anntypes: Optional[List[str]] = None, inline_annset: str = '', inline_features: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save the Java GATE document to the given file, using the given mime type.
@@ -4009,13 +4094,25 @@ FormatBdoc plugins.</p>
 <dt><strong><code>filename</code></strong></dt>
 <dd>name/path of the file to save to</dd>
 <dt><strong><code>mimetype</code></strong></dt>
-<dd>the mime type to determine the format, "" for GATE XML</dd>
+<dd>the mime type to determine the format, "" for GATE XML, text/xml for GATE inline XML</dd>
+<dt><strong><code>inline_anntypes</code></strong></dt>
+<dd>annotation types for inline XML export.</dd>
+<dt><strong><code>inline_annset</code></strong></dt>
+<dd>annotation set name.</dd>
+<dt><strong><code>inline_features</code></strong></dt>
+<dd>save features as attributes.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def saveDocumentToFile(self, gdoc: py4j.java_gateway.JavaObject, filename: str, mimetype: str):
+<pre><code class="python">def saveDocumentToFile(self,
+                       gdoc: py4j.java_gateway.JavaObject,
+                       filename: str,
+                       mimetype: str=&#34;&#34;,
+                       inline_anntypes: Optional[List[str]]=None,
+                       inline_annset: str=&#34;&#34;,
+                       inline_features: bool=True):
     &#34;&#34;&#34;
     Save the Java GATE document to the given file, using the given mime type.
     At the moment this supports the GATE XML format (mimetype=&#34;&#34;) as well as
@@ -4024,13 +4121,16 @@ FormatBdoc plugins.</p>
     Args:
         gdoc: handle to Java GATE document
         filename: name/path of the file to save to
-        mimetype: the mime type to determine the format, &#34;&#34; for GATE XML
+        mimetype: the mime type to determine the format, &#34;&#34; for GATE XML, text/xml for GATE inline XML
+        inline_anntypes: annotation types for inline XML export.
+        inline_annset: annotation set name.
+        inline_features: save features as attributes.
     &#34;&#34;&#34;
-    self.worker.saveDocumentToFile(gdoc, filename, mimetype)</code></pre>
+    self.worker.saveDocumentToFile(gdoc, filename, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.save_gdoc"><code class="name flex">
-<span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None)</span>
+<span>def <span class="ident">save_gdoc</span></span>(<span>self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None, inline_anntypes: Optional[List[str]] = None, inline_annset: Optional[str] = '', inline_features: Optional[bool] = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save GATE document to the given path.</p>
@@ -4042,14 +4142,29 @@ FormatBdoc plugins.</p>
 <dd>destination path</dd>
 <dt><strong><code>mimetype</code></strong></dt>
 <dd>mimtetype, only the following types are allowed: ""/None: GATE XML,
-application/fastinfoset, and all mimetypes supported by the
-Format_Bdoc plugin. (Default value = None)</dd>
+application/fastinfoset, text/xml for inline XML,
+and all mimetypes supported by the
+Format_Bdoc plugin. (Default value = None). </dd>
+<dt><strong><code>inline_anntypes</code></strong></dt>
+<dd>annotation types for inline XML export. Only works with mimetype xml.
+If None, all types in the inline_annset are exported, if a list, only the
+types in the list are exported.</dd>
+<dt><strong><code>inline_annset</code></strong></dt>
+<dd>annotation set for inline XML export.</dd>
+<dt><strong><code>inline_features</code></strong></dt>
+<dd>save features as attribute for inline XML export.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_gdoc(self, gdoc: py4j.java_gateway.JavaObject, path: str, mimetype: Optional[str] = None):
+<pre><code class="python">def save_gdoc(self,
+              gdoc: py4j.java_gateway.JavaObject,
+              path: str,
+              mimetype: Optional[str] = None,
+              inline_anntypes: Optional[List[str]] = None,
+              inline_annset: Optional[str] = &#34;&#34;,
+              inline_features: Optional[bool] = True):
     &#34;&#34;&#34;
     Save GATE document to the given path.
 
@@ -4057,12 +4172,18 @@ Format_Bdoc plugin. (Default value = None)</dd>
       gdoc: GATE document handle
       path: destination path
       mimetype: mimtetype, only the following types are allowed: &#34;&#34;/None: GATE XML,
-            application/fastinfoset, and all mimetypes supported by the
-            Format_Bdoc plugin. (Default value = None)
+            application/fastinfoset, text/xml for inline XML, 
+            and all mimetypes supported by the
+            Format_Bdoc plugin. (Default value = None). 
+      inline_anntypes: annotation types for inline XML export. Only works with mimetype xml.
+            If None, all types in the inline_annset are exported, if a list, only the 
+            types in the list are exported.
+      inline_annset: annotation set for inline XML export.
+      inline_features: save features as attribute for inline XML export.
     &#34;&#34;&#34;
     if mimetype is None:
         mimetype = &#34;&#34;
-    self.worker.saveDocumentToFile(gdoc, path, mimetype)</code></pre>
+    self.worker.saveDocumentToFile(gdoc, path, mimetype, self.panntype2ganntype(inline_anntypes), inline_annset, inline_features)</code></pre>
 </details>
 </dd>
 <dt id="gatenlp.gateworker.gateworker.GateWorker.showGui"><code class="name flex">
@@ -4175,6 +4296,7 @@ when closing down the GATE worker.</p></div>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.log_actions" href="#gatenlp.gateworker.gateworker.GateWorker.log_actions">log_actions</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.newCorpus" href="#gatenlp.gateworker.gateworker.GateWorker.newCorpus">newCorpus</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pannspec2gannspec" href="#gatenlp.gateworker.gateworker.GateWorker.pannspec2gannspec">pannspec2gannspec</a></code></li>
+<li><code><a title="gatenlp.gateworker.gateworker.GateWorker.panntype2ganntype" href="#gatenlp.gateworker.gateworker.GateWorker.panntype2ganntype">panntype2ganntype</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc" href="#gatenlp.gateworker.gateworker.GateWorker.pdoc2gdoc">pdoc2gdoc</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.platform" href="#gatenlp.gateworker.gateworker.GateWorker.platform">platform</a></code></li>
 <li><code><a title="gatenlp.gateworker.gateworker.GateWorker.pluginBuild" href="#gatenlp.gateworker.gateworker.GateWorker.pluginBuild">pluginBuild</a></code></li>

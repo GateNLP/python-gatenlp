@@ -1751,7 +1751,7 @@ specifies its own list type or list types, this is ignored.</dd>
 </details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer.find"><code class="name flex">
-<span>def <span class="ident">find</span></span>(<span>self, tokens: List[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>], doc: Optional[<a title="gatenlp.document.Document" href="../../document.html#gatenlp.document.Document">Document</a>] = None, longest_only: Optional[None] = None, fromidx: Optional[int] = None, toidx: Optional[int] = None, endidx: Optional[int] = None, matchfunc: Optional[Callable] = None)</span>
+<span>def <span class="ident">find</span></span>(<span>self, tokens: List[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>], doc: Optional[<a title="gatenlp.document.Document" href="../../document.html#gatenlp.document.Document">Document</a>] = None, longest_only: Optional[bool] = None, fromidx: Optional[int] = None, toidx: Optional[int] = None, endidx: Optional[int] = None, matchfunc: Optional[Callable] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find the next match in the given index range and return a tuple with two elements: the first element
@@ -1835,7 +1835,7 @@ as the second element and the index where the match occurs or None as the third 
 </details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.tokengazetteer.TokenGazetteer.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, tokens: List[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>], doc: Optional[<a title="gatenlp.document.Document" href="../../document.html#gatenlp.document.Document">Document</a>] = None, longest_only: Optional[None] = None, skip_longest: Optional[None] = None, fromidx: Optional[int] = None, toidx: Optional[int] = None, endidx: Optional[int] = None, matchfunc: Optional[Callable] = None)</span>
+<span>def <span class="ident">find_all</span></span>(<span>self, tokens: List[<a title="gatenlp.annotation.Annotation" href="../../annotation.html#gatenlp.annotation.Annotation">Annotation</a>], doc: Optional[<a title="gatenlp.document.Document" href="../../document.html#gatenlp.document.Document">Document</a>] = None, longest_only: Optional[bool] = None, skip_longest: Optional[bool] = None, fromidx: Optional[int] = None, toidx: Optional[int] = None, endidx: Optional[int] = None, matchfunc: Optional[Callable] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find gazetteer entries in a sequence of tokens.

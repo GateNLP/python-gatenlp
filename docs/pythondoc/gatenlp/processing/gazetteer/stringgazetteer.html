@@ -1765,7 +1765,7 @@ ws_type is specified). If False, expects the proper cleaning has already been do
 </details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.find"><code class="name flex">
-<span>def <span class="ident">find</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
+<span>def <span class="ident">find</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[bool] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find the next gazetteer match(es) in the text, if any.</p>
@@ -1851,7 +1851,7 @@ as the second element and the index where the match occurs or None as the third 
 </details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.find_all"><code class="name flex">
-<span>def <span class="ident">find_all</span></span>(<span>self, text: str, start: int = 0, longest_only: Optional[None] = None, skip_longest: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
+<span>def <span class="ident">find_all</span></span>(<span>self, text: str, start: int = 0, longest_only: Optional[bool] = None, skip_longest: Optional[bool] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Find all gazetteer matches in the text, if any.</p>
@@ -2034,7 +2034,7 @@ If ws_offsets is None, then this is true if chr.isspace() is true, otherwise if 
 </details>
 </dd>
 <dt id="gatenlp.processing.gazetteer.stringgazetteer.StringGazetteer.match"><code class="name flex">
-<span>def <span class="ident">match</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[None] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
+<span>def <span class="ident">match</span></span>(<span>self, text: str, start: int = 0, end: Optional[int] = None, longest_only: Optional[bool] = None, start_offsets: Union[List[~T], Set[~T], None] = None, end_offsets: Union[List[~T], Set[~T], None] = None, ws_offsets: Union[List[~T], Set[~T], None] = None, split_offsets: Union[List[~T], Set[~T], None] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Try to start at offset start in text, if end is not None, do not match beyond end offset.</p>

@@ -254,7 +254,6 @@ class DirFilesSource(DocumentSource, EveryNthBase, MultiProcessingAble):
             yield doc
 
 
-
 class DirFilesDestination(DocumentDestination):
     &#34;&#34;&#34;
     A destination where each document is stored in a file in a directory or directory tree in some
@@ -263,7 +262,7 @@ class DirFilesDestination(DocumentDestination):
     from the document and the running number.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;relpath&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;default&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -273,7 +272,7 @@ class DirFilesDestination(DocumentDestination):
                  is always used as the directory path separator, on all systems!
 
                * &#34;default&#34; (default) a heuristic which uses &#34;relpath&#34; if it is available, otherwise uses the
-                    index with 5 digits.
+                    index with at least 5 digits.
                * &#34;relpath&#34;: use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
@@ -290,7 +289,7 @@ class DirFilesDestination(DocumentDestination):
                 * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
-                   
+
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;
@@ -299,6 +298,14 @@ class DirFilesDestination(DocumentDestination):
             raise Exception(&#34;Not a directory: &#34;, dirpath)
         self.dirpath = dirpath
         self.idx = 0
+
+        def pathmaker_default(doc=None, idx=None):
+            relpath = doc.features.get(self.relpathfeatname())
+            if relpath:
+                return os.path.splitext(doc.features[self.relpathfeatname()])[0]
+            else:
+                return f&#34;{idx:05d}&#34;
+
         if path_from.startswith(&#34;idx&#34;):
             rest = path_from[
                 3:
@@ -316,6 +323,8 @@ class DirFilesDestination(DocumentDestination):
         elif path_from.startswith(&#34;feature&#34;):
             _, fname = path_from.split(&#34;:&#34;)
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == &#34;default&#34;:
+            self.file_path_maker = pathmaker_default
         elif path_from == &#34;relpath&#34;:
             self.file_path_maker = \
                 lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
@@ -847,7 +856,7 @@ only paths from the top directory.</dd>
 </dd>
 <dt id="gatenlp.corpora.dirs.DirFilesDestination"><code class="flex name class">
 <span>class <span class="ident">DirFilesDestination</span></span>
-<span>(</span><span>dirpath, path_from: Union[str, Callable] = 'relpath', ext: str = 'bdocjs', fmt=None)</span>
+<span>(</span><span>dirpath, path_from: Union[str, Callable] = 'default', ext: str = 'bdocjs', fmt=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A destination where each document is stored in a file in a directory or directory tree in some
@@ -865,7 +874,7 @@ from the document and the running number.</p>
 is always used as the directory path separator, on all systems!</p>
 <ul>
 <li>"default" (default) a heuristic which uses "relpath" if it is available, otherwise uses the
-index with 5 digits.</li>
+index with at least 5 digits.</li>
 <li>"relpath": use the relative path used when creating the document, but
 replace the extension</li>
 <li>"idx": just use the index/running number of the added document as the base name</li>
@@ -901,7 +910,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
     from the document and the running number.
     &#34;&#34;&#34;
 
-    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;relpath&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
+    def __init__(self, dirpath, path_from: Union[str, Callable] = &#34;default&#34;, ext: str = &#34;bdocjs&#34;, fmt=None):
         &#34;&#34;&#34;
         Create a destination to store documents in files inside a directory or directory tree.
 
@@ -911,7 +920,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
                  is always used as the directory path separator, on all systems!
 
                * &#34;default&#34; (default) a heuristic which uses &#34;relpath&#34; if it is available, otherwise uses the
-                    index with 5 digits.
+                    index with at least 5 digits.
                * &#34;relpath&#34;: use the relative path used when creating the document, but
                    replace the extension
                * &#34;idx&#34;: just use the index/running number of the added document as the base name
@@ -928,7 +937,7 @@ keyword arguments: doc (the document) and idx (the running index of the document
                 * &#34;minstem&#34;: use the relative path with all extensions replaced by the new extension
                 * somefunction: a function that should return the pathname (without extension) and should take two
                    keyword arguments: doc (the document) and idx (the running index of the document).
-                   
+
             ext: the file extension to add to all generated file names
             fmt: the format to use for serializing the document, if None, will try to determine from the extension.
         &#34;&#34;&#34;
@@ -937,6 +946,14 @@ keyword arguments: doc (the document) and idx (the running index of the document
             raise Exception(&#34;Not a directory: &#34;, dirpath)
         self.dirpath = dirpath
         self.idx = 0
+
+        def pathmaker_default(doc=None, idx=None):
+            relpath = doc.features.get(self.relpathfeatname())
+            if relpath:
+                return os.path.splitext(doc.features[self.relpathfeatname()])[0]
+            else:
+                return f&#34;{idx:05d}&#34;
+
         if path_from.startswith(&#34;idx&#34;):
             rest = path_from[
                 3:
@@ -954,6 +971,8 @@ keyword arguments: doc (the document) and idx (the running index of the document
         elif path_from.startswith(&#34;feature&#34;):
             _, fname = path_from.split(&#34;:&#34;)
             self.file_path_maker = lambda doc=None, idx=None: doc.features[fname]
+        elif path_from == &#34;default&#34;:
+            self.file_path_maker = pathmaker_default
         elif path_from == &#34;relpath&#34;:
             self.file_path_maker = \
                 lambda doc=None, idx=None: os.path.splitext(doc.features[self.relpathfeatname()])[0]
