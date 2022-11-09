@@ -4,13 +4,13 @@ The GATE Worker is a module that allows to run anything in a Java GATE process f
 
 One possible use of this is to run an existing GATE pipeline on a Python GateNLP document.
 
-This is done by the python module communicating with a Java process over a socket connection. 
-Java calls on the Python side are sent over to Java, executed and the result is send back to Python. 
+This is done by the python module communicating with a Java process over a socket connection.
+Java calls on the Python side are sent over to Java, executed and the result is send back to Python.
 
 For this to work, GATE and Java have to be installed on the machine that runs the GATE Worker.
 
-The easiest way to run this is by first manually starting the GATE Worker in the Java GATE GUI and then 
-connecting to it from the Python side. 
+The easiest way to run this is by first manually starting the GATE Worker in the Java GATE GUI and then
+connecting to it from the Python side.
 
 ## Manually starting the GATE Worker from GATE
 
@@ -19,21 +19,21 @@ connecting to it from the Python side.
 3. Create a new Language Resource (NOTE: not a Processing Reource!): "PythonWorkerLr"
 
 When creating the PyhonWorkerLr, the following initialization parameters can be specified:
-* `authToken`: this is used to prevent other processes from connecting to the worker. You can either specify 
-  some string here or with `useAuthToken` set to `true` let GATE choose a random one and display it in the 
-  message pane after the resource has been created. 
-  * for testing this, enter "verysecretauthtoken" 
+* `authToken`: this is used to prevent other processes from connecting to the worker. You can either specify
+  some string here or with `useAuthToken` set to `true` let GATE choose a random one and display it in the
+  message pane after the resource has been created.
+  * for testing this, enter "verysecretauthtoken"
 * `host`:  The host name or address to bind to. The default 127.0.0.1 makes the worker only visible on the same
   machine. In order to make it visible on other machines, use the host name or IP address on the network
-  or use 0.0.0.0 
+  or use 0.0.0.0
   * for testing, keep the default of 127.0.0.1
-* `logActions`: if this is set to true, the actions requested by the Python process are logged to the message pane. 
+* `logActions`: if this is set to true, the actions requested by the Python process are logged to the message pane.
   * for testing, change to "true"
 * `port`: the port number to use. Each worker requires their own port number so if more than one worker is running
-  on a machine, they need to use different, unused port numbers. 
+  on a machine, they need to use different, unused port numbers.
   * for testing, keep the default
-* `useAuthToken`: if this is set to false, no auth token is generated and used, and the connection can be 
-  established by any process connecting to that port number. 
+* `useAuthToken`: if this is set to false, no auth token is generated and used, and the connection can be
+  established by any process connecting to that port number.
   * for testing, keep the default
 
 A GATE Worker started via the PythonWorkerLr keeps running until the resource is deleted or GATE is ended.
@@ -49,7 +49,7 @@ Once the PythonWorkerLr resource has been created it is ready to get used by a P
 from gatenlp.gateworker import GateWorker
 ```
 
-To connect to an already running worker process, the parameter `start=False` must be specified. 
+To connect to an already running worker process, the parameter `start=False` must be specified.
 In addition the auth token must be provided and the port and host, if they differ from the default.
 
 
@@ -57,10 +57,10 @@ In addition the auth token must be provided and the port and host, if they diffe
 gs = GateWorker(start=False, auth_token="verysecretauthtoken")
 ```
 
-The gate worker instance can now be used to run arbitrary Java methods on the Java side. 
+The gate worker instance can now be used to run arbitrary Java methods on the Java side.
 The gate worker instance provides a number of useful methods directly (see [PythonDoc for gateworker](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/gateworker.html) )
 * `gs.load_gdoc(filepath, mimetype=None`: load a GATE document on the Java side and return it to Python
-* `gs.save_gdoc(gatedocument, filepath, mimetype=None)`: save a GATE document on the Java side
+* `gs.save_gdoc(gatedocument, filepath, mimetype=None, inline_anntypes=None, inline_annset="", inline_features=True)`: save a GATE document on the Java side
 * `gs.gdoc2pdoc(gatedocument)`: convert the Java GATE document as a Python GateNLP document and return it
 * `gs.pdoc2gdoc(doc)`: convert the Python GateNLP document to a Java GATE document and return it
 * `gs.del_resource(gatedocument)`: remove a Java GATE document on the Java side (this necessary to release memory)
@@ -69,14 +69,14 @@ The gate worker instance provides a number of useful methods directly (see [Pyth
 * `gs.load_pdoc(filepath, mimetype=None)`: load a document on the Java side using the file format specified via the mime type and return it as a Python GateNLP document
 * `gs.log_actions(trueorfalse)`: switch logging of actions on the worker side off/on
 
-In addition, there is a larger number of utility methods which are available through `gs.worker` (see 
+In addition, there is a larger number of utility methods which are available through `gs.worker` (see
 [PythonWorker Source code](https://github.com/GateNLP/gateplugin-Python/blob/master/src/main/java/gate/plugin/python/PythonWorker.java), here are a few examples:
 
 * `loadMavenPlugin(group, artifact, version)`: make the plugin identified by the given Maven coordinates available
 * `loadPipelineFromFile(filepath)`: load the pipeline/controller from the given file path and return it
 * `loadDocumentFromFile(filepath)`: load a GATE document from the file and return it
 * `loadDocumentFromFile(filepath, mimetype)`: load a GATE document from the file using the format corresponding to the given mime type and return it
-* `saveDocumentToFile(gatedocument, filepath, mimetype)`: save the document to the file, using the format corresponding to the mime type
+* `saveDocumentToFile(gatedocument, filepath, mimetype, inline_anntypes, inline_annset, inline_features)`: save the document to the file, using the format corresponding to the mime type
 * `createDocument(content)`: create a new document from the given String content and return it
 * `run4Document(pipeline, document)`: run the given pipeline on the given document
 
@@ -276,7 +276,7 @@ function docview_annsel(obj, ev, anns) {
             for (let info of anns.values()) {
                 let fields = info.split("║")
                 let setname = fields[0]
-                let annid = fields[2]                
+                let annid = fields[2]
                 let ann = obj.docrep.ann4setnameannid(setname, annid);
                 // console.log("Looking up setname="+setname+",annid="+annid+" gave: "+ann)
                 let feats = ann.features;
@@ -286,11 +286,11 @@ function docview_annsel(obj, ev, anns) {
                     $(idpopup).hide();
                 }).appendTo(obj.id_popup);
             }
-            $(obj.id_popup).show();            
+            $(obj.id_popup).show();
         } else if (anns.size == 1) {
             // if there is just one annotation, show features immediately, without the popup
             let a = anns.values().next()["value"]
-            let fields = a.split("║")            
+            let fields = a.split("║")
             let ann = obj.docrep.ann4setnameannid(fields[0], fields[2]);
             docview_showAnn(obj, ann);
         } else {
@@ -442,7 +442,7 @@ var gatenlpDocView = class {
                 }
                 $(lbl).append(inp);
                 $(lbl).append(anntype);
-                // append the number of annotations in this set 
+                // append the number of annotations in this set
                 let n = this.docrep.annids4snametype(setname, anntype).length;
                 $(lbl).append(" (" + n + ")");
                 $(div4set).append(lbl)
@@ -480,7 +480,7 @@ var gatenlpDocView = class {
         //this.anns4offset = new Array(this.docrep.text.length + 1);
         this.anns4offset = new Array()
 
-        // for all the set/type combinations that have been selected ... 
+        // for all the set/type combinations that have been selected ...
         for (let [sname, atype] of this.chosen) {
             //console.log("sname/type: " + sname + "/" + atype);
             // get the list of annotations that match the given Setname and annotation type
@@ -488,7 +488,7 @@ var gatenlpDocView = class {
             for (let ann of anns) {
                 // console.log("processing ann: " + ann + " start=" + ann.start + " end=" + ann.end + " type=" + ann.type)
                 // store the annotation setname/typename/annid for each offset of each annotation
-                // to indicate the end of the annotation also store an empty list for the offset after the annotation 
+                // to indicate the end of the annotation also store an empty list for the offset after the annotation
                 // unless we already have something there
 
                 // trick for zero length annotations: show them as length one annotations for now
@@ -496,7 +496,7 @@ var gatenlpDocView = class {
                 if (ann.start == ann.end) endoff = endoff+1
                 for (let i = ann.start; i < endoff; i++) { // iterate until one beyond the end of the ann
                     let have = this.anns4offset[i]
-                    if (have == undefined) {                    
+                    if (have == undefined) {
                       have = { "offset": i, "anns": new Set()}
                       this.anns4offset[i] = have
                     }
@@ -505,7 +505,7 @@ var gatenlpDocView = class {
                         let tmp = this.anns4offset[i]["anns"];
                         let toadd = sname + this.sep + atype + this.sep + ann.id
                         // console.log("Trying to add "+toadd+" to "+this.set2list(tmp))
-                        tmp = tmp.add(toadd); 
+                        tmp = tmp.add(toadd);
                         //console.log("is now "+this.set2list(tmp))
                         //console.log("entry for offset "+i+" is now " + this.set2list(this.anns4offset[i]["anns"]));
                     }
@@ -515,7 +515,7 @@ var gatenlpDocView = class {
         //console.log("initial anns4Offset:")
         //console.log(this.anns4offset)
         // now all offsets have a list of set/type and set/annid tuples
-        // compress the list to only contain anything but undefined where it changes 
+        // compress the list to only contain anything but undefined where it changes
         let last = this.anns4offset[0]
         for (let i = 1; i < this.anns4offset.length+1; i++) {
             let cur = this.anns4offset[i]
@@ -526,7 +526,7 @@ var gatenlpDocView = class {
                 // we have a new list of annotations, keep it: nothing to do
                 //console.log("Offset "+i+" last undefined, this one not")
             } else if (last != undefined && cur == undefined) {
-                // we switch from some list of annotations to the empty list: 
+                // we switch from some list of annotations to the empty list:
                 // add an empty entry
                 //console.log("Offset "+i+" last one not undefined, this undefined, inserting empty list")
                 this.anns4offset[i] = { "anns": new Set(), "offset": i}
@@ -540,7 +540,7 @@ var gatenlpDocView = class {
                    // console.log("Detected equal")
                    this.anns4offset[i] = undefined
                 }
-            } 
+            }
             last = cur
         }
 	let beyond = this.docrep.text.length
@@ -557,9 +557,9 @@ var gatenlpDocView = class {
         // start with the set of annotations in the first offset (empty if undefined) as lastset, calculate color for set
         // go through all subsequent offsets
         // when we find an entry where the annotations change:
-        // * get the annotation setname/types 
+        // * get the annotation setname/types
         // * from the list of setname/types, determine a colour and store it
-        // * generate the span from last to here 
+        // * generate the span from last to here
         // * process one additional char at the end to include last span
         let spans = []
         let last = this.anns4offset[0];
@@ -571,17 +571,17 @@ var gatenlpDocView = class {
             if (info != undefined) {
                 let txt = this.docrep.text.substring(last["offset"], info["offset"]);
                 txt = txt.replace(/\n/g, "\u2002\n");
-                // console.log("Got text: "+txt) 
+                // console.log("Got text: "+txt)
                 let span = undefined;
                 if (last["anns"].size != 0) {
                     let col = this.color4types(last.anns);
-                    let sty = this.style4color(col)+"white-space:pre-wrap;" 
+                    let sty = this.style4color(col)+"white-space:pre-wrap;"
                     span = $('<span>').attr("style", sty);
                     let object = this;
                     let anns = last.anns;
                     let annhandler = function(ev) { docview_annsel(object, ev, anns) }
                     span.on("click", annhandler);
-                    // console.log("Adding styled text for "+col+"/"+sty+" : "+txt)                    
+                    // console.log("Adding styled text for "+col+"/"+sty+" : "+txt)
                 } else {
                     // console.log("Adding non-styled text "+txt)
                     span = $('<span>');
@@ -701,7 +701,7 @@ var gatenlpDocView = class {
     </div>
 
     <script type="text/javascript">
-    let FLRPDXJCVU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 1, "features": {"orth": "upperInitial", "string": "This", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 4, "end": 5, "id": 2, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 5, "end": 7, "id": 3, "features": {"orth": "lowercase", "string": "is", "kind": "word", "length": "2", "category": "VBZ"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 9, "id": 5, "features": {"orth": "lowercase", "string": "a", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 9, "end": 10, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 10, "end": 12, "id": 7, "features": {"string": "\ud83d\udca9", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 13, "end": 21, "id": 9, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 21, "end": 22, "id": 10, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 11, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 25, "id": 12, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 25, "end": 26, "id": 13, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 26, "end": 34, "id": 14, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 34, "end": 35, "id": 15, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 35, "end": 41, "id": 16, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 41, "end": 42, "id": 17, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 42, "end": 47, "id": 18, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 51, "end": 52, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 52, "end": 58, "id": 22, "features": {"orth": "upperInitial", "string": "George", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 58, "end": 59, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 59, "end": 63, "id": 24, "features": {"orth": "upperInitial", "string": "Bush", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 67, "id": 26, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 67, "end": 68, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 68, "end": 71, "id": 28, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 71, "end": 72, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 72, "end": 76, "id": 30, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "Token", "start": 76, "end": 77, "id": 31, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 0, "end": 4, "id": 32, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 5, "end": 7, "id": 33, "features": {"majorType": "country_code"}}, {"type": "Lookup", "start": 23, "end": 25, "id": 34, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 35, "end": 47, "id": 35, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 42, "end": 47, "id": 36, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 52, "end": 63, "id": 37, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 68, "end": 76, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Split", "start": 21, "end": 22, "id": 40, "features": {"kind": "internal"}}, {"type": "Split", "start": 76, "end": 77, "id": 41, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 22, "id": 42, "features": {}}, {"type": "Sentence", "start": 23, "end": 77, "id": 43, "features": {}}, {"type": "Person", "start": 35, "end": 47, "id": 56, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Person", "start": 52, "end": 63, "id": 57, "features": {"firstName": "George", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Bush", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Location", "start": 68, "end": 76, "id": 58, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}], "next_annid": 59}}, "text": "This is a \ud83d\udca9 document. It mentions Barack Obama and George Bush and New York.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""} ; 
+    let FLRPDXJCVU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 1, "features": {"orth": "upperInitial", "string": "This", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 4, "end": 5, "id": 2, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 5, "end": 7, "id": 3, "features": {"orth": "lowercase", "string": "is", "kind": "word", "length": "2", "category": "VBZ"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 9, "id": 5, "features": {"orth": "lowercase", "string": "a", "kind": "word", "length": "1", "category": "DT"}}, {"type": "SpaceToken", "start": 9, "end": 10, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 10, "end": 12, "id": 7, "features": {"string": "\ud83d\udca9", "kind": "symbol", "length": "2", "category": "NN"}}, {"type": "SpaceToken", "start": 12, "end": 13, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 13, "end": 21, "id": 9, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 21, "end": 22, "id": 10, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 11, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 25, "id": 12, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 25, "end": 26, "id": 13, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 26, "end": 34, "id": 14, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 34, "end": 35, "id": 15, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 35, "end": 41, "id": 16, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 41, "end": 42, "id": 17, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 42, "end": 47, "id": 18, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "SpaceToken", "start": 47, "end": 48, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 48, "end": 51, "id": 20, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 51, "end": 52, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 52, "end": 58, "id": 22, "features": {"orth": "upperInitial", "string": "George", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 58, "end": 59, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 59, "end": 63, "id": 24, "features": {"orth": "upperInitial", "string": "Bush", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 67, "id": 26, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 67, "end": 68, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 68, "end": 71, "id": 28, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 71, "end": 72, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 72, "end": 76, "id": 30, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "Token", "start": 76, "end": 77, "id": 31, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 0, "end": 4, "id": 32, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 5, "end": 7, "id": 33, "features": {"majorType": "country_code"}}, {"type": "Lookup", "start": 23, "end": 25, "id": 34, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 35, "end": 47, "id": 35, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 42, "end": 47, "id": 36, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 52, "end": 63, "id": 37, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 68, "end": 76, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 72, "end": 76, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Split", "start": 21, "end": 22, "id": 40, "features": {"kind": "internal"}}, {"type": "Split", "start": 76, "end": 77, "id": 41, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 22, "id": 42, "features": {}}, {"type": "Sentence", "start": 23, "end": 77, "id": 43, "features": {}}, {"type": "Person", "start": 35, "end": 47, "id": 56, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Person", "start": 52, "end": 63, "id": 57, "features": {"firstName": "George", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Bush", "kind": "fullName", "rule": "GazPerson"}}, {"type": "Location", "start": 68, "end": 76, "id": 58, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}], "next_annid": 59}}, "text": "This is a \ud83d\udca9 document. It mentions Barack Obama and George Bush and New York.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""} ;
     let FLRPDXJCVU_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
     new gatenlpDocView(new gatenlpDocRep(FLRPDXJCVU_data, FLRPDXJCVU_parms), "FLRPDXJCVU-").init();
     </script>
@@ -713,7 +713,7 @@ var gatenlpDocView = class {
 
 ## Manually starting the GATE Worker from Python
 
-After installation of Python `gatenlp`, the command `gatenlp-gate-worker` is available. 
+After installation of Python `gatenlp`, the command `gatenlp-gate-worker` is available.
 
 You can run `gatenlp-gate-worker --help` to get help information:
 
@@ -737,7 +737,7 @@ optional arguments:
 ```
 
 For example to start a gate worker as with the PythonWorkerLr above, but this time specifying a different port and auth token and switching on logging of the actions:
-    
+
 ```
 gatenlp-gate-worker --port 31333 --auth even-more-secret --log_actions
 ```
@@ -770,7 +770,7 @@ gs.gate_version
 
 
 
-The GATE worker started that way keeps running until it is interrupted from the keyboard using "Ctrl-C" or 
+The GATE worker started that way keeps running until it is interrupted from the keyboard using "Ctrl-C" or
 until the GATE worker sends the "close" request:
 
 
@@ -792,7 +792,7 @@ gs = GateWorker(start=True, auth_token="my-super-secret-auth-token")
     Process id is 789855
 
 
-    CREOLE plugin loaded: creole 
+    CREOLE plugin loaded: creole
     CREOLE plugin loaded: Format: Bdoc 1.10
     Plugin Python version: 3.0.7 commit: 9adf5ed dirty: false
     Lib interaction version: 4.1 commit: 7819f1c dirty: false
@@ -825,14 +825,14 @@ gs.close()
     Java GatenlpWorker ENDING: 789855
 
 
-## A better way to close the GATE Worker 
+## A better way to close the GATE Worker
 
 
 ```python
 # using the GateWork this way will automatically close it when exiting the with block:
 with GateWorker(start=True) as gw:
     print(gw.gate_version)
-    
+
 ```
 
     2022-06-28 00:17:04,225|INFO|gatenlp.gateworker.gateworker|Port 25333 is already in use
@@ -840,7 +840,7 @@ with GateWorker(start=True) as gw:
     Process id is 789880
 
 
-    CREOLE plugin loaded: creole 
+    CREOLE plugin loaded: creole
     CREOLE plugin loaded: Format: Bdoc 1.10
     Plugin Python version: 3.0.7 commit: 9adf5ed dirty: false
     Lib interaction version: 4.1 commit: 7819f1c dirty: false
@@ -859,17 +859,17 @@ with GateWorker(start=True) as gw:
 
 The GateWorkerAnnotator is an annotator that simplifies the common task of letting a GATE Java annotation pipeline annotate a bunch of Python gatenlp documents.  It can be used like other annotators (see [Processing](https://gatenlp.github.io/python-gatenlp/processing))
 
-To run the GateWorkerAnnotator, Java must be installed and the `java` command must be on the path. Currently only Java version 8 has been tested. 
+To run the GateWorkerAnnotator, Java must be installed and the `java` command must be on the path. Currently only Java version 8 has been tested.
 
 A simple way to install Java on Linux and choose from various Java versions is [SDKMan](https://sdkman.io/)
 
 Also, the GATE_HOME environment variable must be set, or the path to an
-installed Java GATE must get passed on using the `gatehome` parameter. 
+installed Java GATE must get passed on using the `gatehome` parameter.
 
 An installed Java GATE can be one of:
 
 * a GATE release downloaded from https://github.com/GateNLP/gate-core/releases/ and installed
-  * the GATE release will get installed into some directory 
+  * the GATE release will get installed into some directory
   * the `GATE_HOME` environment variable or the `gatehome` parameter should point to that directory
 * the [gate-core](https://github.com/GateNLP/gate-core) repository checked out locally and installed using Maven (`mvn install`)
   * the `GATE_HOME` environment variable or the `gatehome` parameter should point to the `distro` subdirectory of that repository directory
@@ -897,7 +897,7 @@ from gatenlp.processing.executor import SerialCorpusExecutor
 # use the path of your GATE pipeline instead of annie.xgapp
 # To create the GateWorkerAnnotator a GateWorker must first be created
 
-# To run the pipeline on a corpus, first initialize the pipeline using start(), then annotate all documents, 
+# To run the pipeline on a corpus, first initialize the pipeline using start(), then annotate all documents,
 # then finish the pipeline using finish().
 # At this point the same annotator can be used in the same way again to run on another corpus.
 # If the GateWorkerAnnotator is not used any more, use close() to stop the GateWorker (the GATE worker is also
@@ -910,7 +910,7 @@ with GateWorker() as gw:
     executor = SerialCorpusExecutor(pipeline, corpus=corpus)
     executor()
 
-    
+
 ```
 
     2022-06-28 00:17:06,050|INFO|gatenlp.gateworker.gateworker|Port 25333 is already in use
@@ -918,7 +918,7 @@ with GateWorker() as gw:
     Process id is 789905
 
 
-    CREOLE plugin loaded: creole 
+    CREOLE plugin loaded: creole
     CREOLE plugin loaded: Format: Bdoc 1.10
     Plugin Python version: 3.0.7 commit: 9adf5ed dirty: false
     Lib interaction version: 4.1 commit: 7819f1c dirty: false
@@ -1038,7 +1038,7 @@ corpus[1]
     </div>
 
     <script type="text/javascript">
-    let QUUNRNTKZE_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 7, "id": 0, "features": {"orth": "upperInitial", "string": "Another", "kind": "word", "length": "7", "category": "DT"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 1, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 16, "id": 2, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 16, "end": 17, "id": 3, "features": {"string": ",", "kind": "punctuation", "length": "1", "category": ","}}, {"type": "SpaceToken", "start": 17, "end": 18, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 18, "end": 22, "id": 5, "features": {"orth": "lowercase", "string": "this", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 26, "id": 7, "features": {"orth": "lowercase", "string": "one", "kind": "word", "length": "3", "category": "CD"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 27, "end": 35, "id": 9, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 35, "end": 36, "id": 10, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 36, "end": 39, "id": 11, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 39, "end": 40, "id": 12, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 40, "end": 44, "id": 13, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 14, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 45, "end": 48, "id": 15, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 48, "end": 49, "id": 16, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 49, "end": 59, "id": 17, "features": {"orth": "upperInitial", "string": "Washington", "kind": "word", "length": "10", "category": "NNP"}}, {"type": "Token", "start": 59, "end": 60, "id": 18, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 60, "end": 61, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 61, "end": 63, "id": 20, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 68, "id": 22, "features": {"orth": "lowercase", "string": "also", "kind": "word", "length": "4", "category": "RB"}}, {"type": "SpaceToken", "start": 68, "end": 69, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 69, "end": 77, "id": 24, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 77, "end": 78, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 78, "end": 81, "id": 26, "features": {"orth": "lowercase", "string": "the", "kind": "word", "length": "3", "category": "DT"}}, {"type": "SpaceToken", "start": 81, "end": 82, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 82, "end": 88, "id": 28, "features": {"orth": "lowercase", "string": "person", "kind": "word", "length": "6", "category": "NN"}}, {"type": "SpaceToken", "start": 88, "end": 89, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 89, "end": 95, "id": 30, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 31, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 96, "end": 101, "id": 32, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "Token", "start": 101, "end": 102, "id": 33, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 18, "end": 22, "id": 34, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 35, "features": {"majorType": "time", "minorType": "hour"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 36, "features": {"majorType": "number"}}, {"type": "Lookup", "start": 36, "end": 44, "id": 37, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 40, "end": 44, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 49, "end": 59, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 61, "end": 63, "id": 40, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 89, "end": 101, "id": 41, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 96, "end": 101, "id": 42, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Split", "start": 59, "end": 60, "id": 43, "features": {"kind": "internal"}}, {"type": "Split", "start": 101, "end": 102, "id": 44, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 60, "id": 45, "features": {}}, {"type": "Sentence", "start": 61, "end": 102, "id": 46, "features": {}}, {"type": "Location", "start": 36, "end": 44, "id": 61, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Location", "start": 49, "end": 59, "id": 62, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Person", "start": 89, "end": 101, "id": 63, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}], "next_annid": 64}}, "text": "Another document, this one mentions New York and Washington. It also mentions the person Barack Obama.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""} ; 
+    let QUUNRNTKZE_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 0, "end": 7, "id": 0, "features": {"orth": "upperInitial", "string": "Another", "kind": "word", "length": "7", "category": "DT"}}, {"type": "SpaceToken", "start": 7, "end": 8, "id": 1, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 8, "end": 16, "id": 2, "features": {"orth": "lowercase", "string": "document", "kind": "word", "length": "8", "category": "NN"}}, {"type": "Token", "start": 16, "end": 17, "id": 3, "features": {"string": ",", "kind": "punctuation", "length": "1", "category": ","}}, {"type": "SpaceToken", "start": 17, "end": 18, "id": 4, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 18, "end": 22, "id": 5, "features": {"orth": "lowercase", "string": "this", "kind": "word", "length": "4", "category": "DT"}}, {"type": "SpaceToken", "start": 22, "end": 23, "id": 6, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 23, "end": 26, "id": 7, "features": {"orth": "lowercase", "string": "one", "kind": "word", "length": "3", "category": "CD"}}, {"type": "SpaceToken", "start": 26, "end": 27, "id": 8, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 27, "end": 35, "id": 9, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 35, "end": 36, "id": 10, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 36, "end": 39, "id": 11, "features": {"orth": "upperInitial", "string": "New", "kind": "word", "length": "3", "category": "NNP"}}, {"type": "SpaceToken", "start": 39, "end": 40, "id": 12, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 40, "end": 44, "id": 13, "features": {"orth": "upperInitial", "string": "York", "kind": "word", "length": "4", "category": "NNP"}}, {"type": "SpaceToken", "start": 44, "end": 45, "id": 14, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 45, "end": 48, "id": 15, "features": {"orth": "lowercase", "string": "and", "kind": "word", "length": "3", "category": "CC"}}, {"type": "SpaceToken", "start": 48, "end": 49, "id": 16, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 49, "end": 59, "id": 17, "features": {"orth": "upperInitial", "string": "Washington", "kind": "word", "length": "10", "category": "NNP"}}, {"type": "Token", "start": 59, "end": 60, "id": 18, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "SpaceToken", "start": 60, "end": 61, "id": 19, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 61, "end": 63, "id": 20, "features": {"orth": "upperInitial", "string": "It", "kind": "word", "length": "2", "category": "PRP"}}, {"type": "SpaceToken", "start": 63, "end": 64, "id": 21, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 64, "end": 68, "id": 22, "features": {"orth": "lowercase", "string": "also", "kind": "word", "length": "4", "category": "RB"}}, {"type": "SpaceToken", "start": 68, "end": 69, "id": 23, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 69, "end": 77, "id": 24, "features": {"orth": "lowercase", "string": "mentions", "kind": "word", "length": "8", "category": "VBZ"}}, {"type": "SpaceToken", "start": 77, "end": 78, "id": 25, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 78, "end": 81, "id": 26, "features": {"orth": "lowercase", "string": "the", "kind": "word", "length": "3", "category": "DT"}}, {"type": "SpaceToken", "start": 81, "end": 82, "id": 27, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 82, "end": 88, "id": 28, "features": {"orth": "lowercase", "string": "person", "kind": "word", "length": "6", "category": "NN"}}, {"type": "SpaceToken", "start": 88, "end": 89, "id": 29, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 89, "end": 95, "id": 30, "features": {"orth": "upperInitial", "string": "Barack", "kind": "word", "length": "6", "category": "NNP"}}, {"type": "SpaceToken", "start": 95, "end": 96, "id": 31, "features": {"string": " ", "kind": "space", "length": "1"}}, {"type": "Token", "start": 96, "end": 101, "id": 32, "features": {"orth": "upperInitial", "string": "Obama", "kind": "word", "length": "5", "category": "NNP"}}, {"type": "Token", "start": 101, "end": 102, "id": 33, "features": {"string": ".", "kind": "punctuation", "length": "1", "category": "."}}, {"type": "Lookup", "start": 18, "end": 22, "id": 34, "features": {"majorType": "time_modifier"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 35, "features": {"majorType": "time", "minorType": "hour"}}, {"type": "Lookup", "start": 23, "end": 26, "id": 36, "features": {"majorType": "number"}}, {"type": "Lookup", "start": 36, "end": 44, "id": 37, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 40, "end": 44, "id": 38, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 49, "end": 59, "id": 39, "features": {"majorType": "location", "minorType": "city"}}, {"type": "Lookup", "start": 61, "end": 63, "id": 40, "features": {"majorType": "stop"}}, {"type": "Lookup", "start": 89, "end": 101, "id": 41, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Lookup", "start": 96, "end": 101, "id": 42, "features": {"majorType": "person_full", "gender": "male"}}, {"type": "Split", "start": 59, "end": 60, "id": 43, "features": {"kind": "internal"}}, {"type": "Split", "start": 101, "end": 102, "id": 44, "features": {"kind": "internal"}}, {"type": "Sentence", "start": 0, "end": 60, "id": 45, "features": {}}, {"type": "Sentence", "start": 61, "end": 102, "id": 46, "features": {}}, {"type": "Location", "start": 36, "end": 44, "id": 61, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Location", "start": 49, "end": 59, "id": 62, "features": {"ruleFinal": "LocFinal", "rule": "Location1", "locType": "city"}}, {"type": "Person", "start": 89, "end": 101, "id": 63, "features": {"firstName": "Barack", "ruleFinal": "PersonFinal", "gender": "male", "surname": "Obama", "kind": "fullName", "rule": "GazPerson"}}], "next_annid": 64}}, "text": "Another document, this one mentions New York and Washington. It also mentions the person Barack Obama.", "features": {"gate.SourceURL": "created from String"}, "offset_type": "j", "name": ""} ;
     let QUUNRNTKZE_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
     new gatenlpDocView(new gatenlpDocRep(QUUNRNTKZE_data, QUUNRNTKZE_parms), "QUUNRNTKZE-").init();
     </script>
