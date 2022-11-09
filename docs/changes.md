@@ -2,8 +2,8 @@
 
 ## Upcoming
 
-* Client for the [Rewire](https://rewire.online/) service
-* Client for the [Perspective](https://perspectiveapi.com/) service
+* Client for the [Rewire](https://rewire.online/) service, see [Rewire Client](https://gatenlp.github.io/python-gatenlp/client_rewire)
+* Client for the [Perspective](https://perspectiveapi.com/) service, see [Perspective Client](https://gatenlp.github.io/python-gatenlp/client_perspective)
 
 
 ## 1.0.8a1 (2022-07-02)
