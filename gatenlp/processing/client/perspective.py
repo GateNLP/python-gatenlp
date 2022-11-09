@@ -100,8 +100,10 @@ class PerspectiveAnnotator(Annotator):
             if isinstance(langs, str):
                 langs = [langs]
             request["languages"] = langs
-        # !!! TODO: Resource has not comments member????
-        response = self.client.comments().analyze(body=request).execute()
+        # pylint complains about this claiming that self.client does not have an attribute
+        # comments but this is not true.
+        # disabling that error message
+        response = self.client.comments().analyze(body=request).execute()  # pylint: disable=E1101
         ret = {}
         scoredata = response["attributeScores"]
         for name, data in scoredata.items():

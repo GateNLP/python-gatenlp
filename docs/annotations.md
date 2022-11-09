@@ -567,25 +567,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#YHCYJAFHWY-wrapper { color: black !important; }</style>
-<div id="YHCYJAFHWY-wrapper">
+<div><style>#JEILVEWRMJ-wrapper { color: black !important; }</style>
+<div id="JEILVEWRMJ-wrapper">
 
 <div>
 <style>
-#YHCYJAFHWY-content {
+#JEILVEWRMJ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.YHCYJAFHWY-row {
+.JEILVEWRMJ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.YHCYJAFHWY-col {
+.JEILVEWRMJ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -595,23 +595,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.YHCYJAFHWY-hdr {
+.JEILVEWRMJ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.YHCYJAFHWY-label {
+.JEILVEWRMJ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.YHCYJAFHWY-input {
+.JEILVEWRMJ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#YHCYJAFHWY-popup {
+#JEILVEWRMJ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -626,44 +626,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.YHCYJAFHWY-selection {
+.JEILVEWRMJ-selection {
     margin-bottom: 5px;
 }
 
-.YHCYJAFHWY-featuretable {
+.JEILVEWRMJ-featuretable {
     margin-top: 10px;
 }
 
-.YHCYJAFHWY-fname {
+.JEILVEWRMJ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.YHCYJAFHWY-fvalue {
+.JEILVEWRMJ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="YHCYJAFHWY-content">
-        <div id="YHCYJAFHWY-popup" style="display: none;">
+  <div id="JEILVEWRMJ-content">
+        <div id="JEILVEWRMJ-popup" style="display: none;">
         </div>
-        <div class="YHCYJAFHWY-row" id="YHCYJAFHWY-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="YHCYJAFHWY-text-wrapper" class="YHCYJAFHWY-col" style="width:70%;">
-                <div class="YHCYJAFHWY-hdr" id="YHCYJAFHWY-dochdr"></div>
-                <div id="YHCYJAFHWY-text" style="">
+        <div class="JEILVEWRMJ-row" id="JEILVEWRMJ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="JEILVEWRMJ-text-wrapper" class="JEILVEWRMJ-col" style="width:70%;">
+                <div class="JEILVEWRMJ-hdr" id="JEILVEWRMJ-dochdr"></div>
+                <div id="JEILVEWRMJ-text" style="">
                 </div>
             </div>
-            <div id="YHCYJAFHWY-chooser" class="YHCYJAFHWY-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="JEILVEWRMJ-chooser" class="JEILVEWRMJ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="YHCYJAFHWY-row" id="YHCYJAFHWY-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="YHCYJAFHWY-details" class="YHCYJAFHWY-col" style="width:100%; border-top-width: 0px;">
+        <div class="JEILVEWRMJ-row" id="JEILVEWRMJ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="JEILVEWRMJ-details" class="JEILVEWRMJ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let YHCYJAFHWY_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""} ; 
-    let YHCYJAFHWY_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(YHCYJAFHWY_data, YHCYJAFHWY_parms), "YHCYJAFHWY-").init();
+    let JEILVEWRMJ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Token", "start": 2, "end": 4, "id": 0, "features": {"lemma": "is"}}, {"type": "Token", "start": 0, "end": 4, "id": 1, "features": {}}, {"type": "Token", "start": 5, "end": 13, "id": 2, "features": {}}, {"type": "Document", "start": 0, "end": 13, "id": 3, "features": {}}, {"type": "Vowel", "start": 1, "end": 2, "id": 4, "features": {}}, {"type": "Vowel", "start": 3, "end": 4, "id": 5, "features": {}}], "next_annid": 6}}, "text": "Some test document", "features": {}, "offset_type": "j", "name": ""} ; 
+    let JEILVEWRMJ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(JEILVEWRMJ_data, JEILVEWRMJ_parms), "JEILVEWRMJ-").init();
     </script>
   </div>
 
@@ -723,5 +723,5 @@ import gatenlp
 print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
 
-    NB last updated with gatenlp version 1.0.8.dev3
+    NB last updated with gatenlp version 1.0.8a1
 

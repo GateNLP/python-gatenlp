@@ -66,6 +66,8 @@ for running on your own computer (NB-DL).
     * [Google NLP Client](client_googlenlp) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_googlenlp.ipynb) / [NB-DL](client_googlenlp.ipynb)
     * [TagMe Client](client_tagme) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_tagme.ipynb) / [NB-DL](client_tagme.ipynb)
     * [TextRazor Client](client_textrazor) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_textrazor.ipynb) / [NB-DL](client_textrazor.ipynb)
+    * [Perspective Client](client_perspective) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_perspective.ipynb) / [NB-DL](client_perspective.ipynb)
+    * [Rewired Client](client_rewired) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/client_rewired.ipynb) / [NB-DL](client_rewired.ipynb)
 * Modules related to NLP processing:
     * [Corpora and Document Sources / Destinations](corpora) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/corpora.ipynb) / [NB-DL](corpora.ipynb)
     * [Processing](processing) / [NB](https://nbviewer.jupyter.org/urls/gatenlp.github.io/python-gatenlp/processing.ipynb) / [NB-DL](processing.ipynb)

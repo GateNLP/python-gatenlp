@@ -86,7 +86,7 @@ def show_notebook(
     Show htmldocumentviewer in a jupyter notebook.
     """
     if not gatenlpconfig.notebook_js_initialized:
-        init_javscript()
+        init_javascript()
         gatenlpconfig.notebook_js_initialized = True
     html = doc.save_mem(
         fmt="html-ann-viewer",

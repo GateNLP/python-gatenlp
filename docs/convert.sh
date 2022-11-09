@@ -1,4 +1,4 @@
-#!/bin/bash
+
 
 # Note: the following files must get converted manually because they depend on 
 # authentication or cannot be fully automated for other reasons:
@@ -18,6 +18,8 @@ client_ibmnlu
 client_tagme
 client_textrazor
 client_googlenlp
+client_rewire
+client_perspective
 processing
 tokenizers
 gazetteers

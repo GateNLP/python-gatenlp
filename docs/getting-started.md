@@ -593,25 +593,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#DQESHZJHIC-wrapper { color: black !important; }</style>
-<div id="DQESHZJHIC-wrapper">
+<div><style>#UUFJFZZALQ-wrapper { color: black !important; }</style>
+<div id="UUFJFZZALQ-wrapper">
 
 <div>
 <style>
-#DQESHZJHIC-content {
+#UUFJFZZALQ-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.DQESHZJHIC-row {
+.UUFJFZZALQ-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.DQESHZJHIC-col {
+.UUFJFZZALQ-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -621,23 +621,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.DQESHZJHIC-hdr {
+.UUFJFZZALQ-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.DQESHZJHIC-label {
+.UUFJFZZALQ-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.DQESHZJHIC-input {
+.UUFJFZZALQ-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#DQESHZJHIC-popup {
+#UUFJFZZALQ-popup {
     display: none;
     color: black;
     position: absolute;
@@ -652,44 +652,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.DQESHZJHIC-selection {
+.UUFJFZZALQ-selection {
     margin-bottom: 5px;
 }
 
-.DQESHZJHIC-featuretable {
+.UUFJFZZALQ-featuretable {
     margin-top: 10px;
 }
 
-.DQESHZJHIC-fname {
+.UUFJFZZALQ-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.DQESHZJHIC-fvalue {
+.UUFJFZZALQ-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="DQESHZJHIC-content">
-        <div id="DQESHZJHIC-popup" style="display: none;">
+  <div id="UUFJFZZALQ-content">
+        <div id="UUFJFZZALQ-popup" style="display: none;">
         </div>
-        <div class="DQESHZJHIC-row" id="DQESHZJHIC-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="DQESHZJHIC-text-wrapper" class="DQESHZJHIC-col" style="width:70%;">
-                <div class="DQESHZJHIC-hdr" id="DQESHZJHIC-dochdr"></div>
-                <div id="DQESHZJHIC-text" style="">
+        <div class="UUFJFZZALQ-row" id="UUFJFZZALQ-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="UUFJFZZALQ-text-wrapper" class="UUFJFZZALQ-col" style="width:70%;">
+                <div class="UUFJFZZALQ-hdr" id="UUFJFZZALQ-dochdr"></div>
+                <div id="UUFJFZZALQ-text" style="">
                 </div>
             </div>
-            <div id="DQESHZJHIC-chooser" class="DQESHZJHIC-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="UUFJFZZALQ-chooser" class="UUFJFZZALQ-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="DQESHZJHIC-row" id="DQESHZJHIC-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="DQESHZJHIC-details" class="DQESHZJHIC-col" style="width:100%; border-top-width: 0px;">
+        <div class="UUFJFZZALQ-row" id="UUFJFZZALQ-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="UUFJFZZALQ-details" class="UUFJFZZALQ-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let DQESHZJHIC_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""} ; 
-    let DQESHZJHIC_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(DQESHZJHIC_data, DQESHZJHIC_parms), "DQESHZJHIC-").init();
+    let UUFJFZZALQ_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Document", "start": 0, "end": 33, "id": 0, "features": {}}], "next_annid": 1}, "NLTK": {"name": "detached-from:NLTK", "annotations": [{"type": "Token", "start": 0, "end": 4, "id": 0, "features": {}}, {"type": "Token", "start": 5, "end": 7, "id": 1, "features": {}}, {"type": "Token", "start": 8, "end": 11, "id": 2, "features": {}}, {"type": "Token", "start": 12, "end": 16, "id": 3, "features": {}}, {"type": "Token", "start": 17, "end": 19, "id": 4, "features": {}}, {"type": "Token", "start": 20, "end": 23, "id": 5, "features": {}}, {"type": "Token", "start": 24, "end": 32, "id": 6, "features": {}}, {"type": "Token", "start": 32, "end": 33, "id": 7, "features": {}}, {"type": "New1", "start": 3, "end": 5, "id": 8, "features": {}}], "next_annid": 9}}, "text": "This is the text of the document.", "features": {"purpose": "simple illustration of gatenlp basics"}, "offset_type": "j", "name": ""} ; 
+    let UUFJFZZALQ_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(UUFJFZZALQ_data, UUFJFZZALQ_parms), "UUFJFZZALQ-").init();
     </script>
   </div>
 
@@ -716,5 +716,5 @@ import gatenlp
 print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
 
-    NB last updated with gatenlp version 1.0.8.dev3
+    NB last updated with gatenlp version 1.0.8a1
 

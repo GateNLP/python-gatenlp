@@ -477,25 +477,25 @@ var gatenlpDocView = class {
 
 
 
-<div><style>#RYDRFJPQGK-wrapper { color: black !important; }</style>
-<div id="RYDRFJPQGK-wrapper">
+<div><style>#CSPQFBEJZV-wrapper { color: black !important; }</style>
+<div id="CSPQFBEJZV-wrapper">
 
 <div>
 <style>
-#RYDRFJPQGK-content {
+#CSPQFBEJZV-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.RYDRFJPQGK-row {
+.CSPQFBEJZV-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.RYDRFJPQGK-col {
+.CSPQFBEJZV-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -505,23 +505,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.RYDRFJPQGK-hdr {
+.CSPQFBEJZV-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.RYDRFJPQGK-label {
+.CSPQFBEJZV-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.RYDRFJPQGK-input {
+.CSPQFBEJZV-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#RYDRFJPQGK-popup {
+#CSPQFBEJZV-popup {
     display: none;
     color: black;
     position: absolute;
@@ -536,44 +536,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.RYDRFJPQGK-selection {
+.CSPQFBEJZV-selection {
     margin-bottom: 5px;
 }
 
-.RYDRFJPQGK-featuretable {
+.CSPQFBEJZV-featuretable {
     margin-top: 10px;
 }
 
-.RYDRFJPQGK-fname {
+.CSPQFBEJZV-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.RYDRFJPQGK-fvalue {
+.CSPQFBEJZV-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="RYDRFJPQGK-content">
-        <div id="RYDRFJPQGK-popup" style="display: none;">
+  <div id="CSPQFBEJZV-content">
+        <div id="CSPQFBEJZV-popup" style="display: none;">
         </div>
-        <div class="RYDRFJPQGK-row" id="RYDRFJPQGK-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="RYDRFJPQGK-text-wrapper" class="RYDRFJPQGK-col" style="width:70%;">
-                <div class="RYDRFJPQGK-hdr" id="RYDRFJPQGK-dochdr"></div>
-                <div id="RYDRFJPQGK-text" style="">
+        <div class="CSPQFBEJZV-row" id="CSPQFBEJZV-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="CSPQFBEJZV-text-wrapper" class="CSPQFBEJZV-col" style="width:70%;">
+                <div class="CSPQFBEJZV-hdr" id="CSPQFBEJZV-dochdr"></div>
+                <div id="CSPQFBEJZV-text" style="">
                 </div>
             </div>
-            <div id="RYDRFJPQGK-chooser" class="RYDRFJPQGK-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="CSPQFBEJZV-chooser" class="CSPQFBEJZV-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="RYDRFJPQGK-row" id="RYDRFJPQGK-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="RYDRFJPQGK-details" class="RYDRFJPQGK-col" style="width:100%; border-top-width: 0px;">
+        <div class="CSPQFBEJZV-row" id="CSPQFBEJZV-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="CSPQFBEJZV-details" class="CSPQFBEJZV-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-    let RYDRFJPQGK_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Mention", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack Obama", "id": 534366, "rho": 0.654568076133728, "link_probability": 1}}, {"type": "Mention", "start": 21, "end": 30, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Microsoft", "id": 19001, "rho": 0.2755201458930969, "link_probability": 0.41679081320762634}}, {"type": "Mention", "start": 34, "end": 42, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/New York (magazine)", "id": 714699, "rho": 0.1706334352493286, "link_probability": 0.17089588940143585}}, {"type": "Mention", "start": 43, "end": 47, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/The Last (album)", "id": 22580896, "rho": 0.026011696085333824, "link_probability": 0.002006721217185259}}, {"type": "Mention", "start": 48, "end": 51, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/Mitchell May", "id": 7995762, "rho": 0.03706134483218193, "link_probability": 0.0010793464025482535}}], "next_annid": 5}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
-    let RYDRFJPQGK_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(RYDRFJPQGK_data, RYDRFJPQGK_parms), "RYDRFJPQGK-").init();
+    let CSPQFBEJZV_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Mention", "start": 0, "end": 12, "id": 0, "features": {"url": "https://en.wikipedia.org/wiki/Barack Obama", "id": 534366, "rho": 0.654568076133728, "link_probability": 1}}, {"type": "Mention", "start": 21, "end": 30, "id": 1, "features": {"url": "https://en.wikipedia.org/wiki/Microsoft", "id": 19001, "rho": 0.2755201458930969, "link_probability": 0.41679081320762634}}, {"type": "Mention", "start": 34, "end": 42, "id": 2, "features": {"url": "https://en.wikipedia.org/wiki/New York (magazine)", "id": 714699, "rho": 0.1706334352493286, "link_probability": 0.17089588940143585}}, {"type": "Mention", "start": 43, "end": 47, "id": 3, "features": {"url": "https://en.wikipedia.org/wiki/The Last (album)", "id": 22580896, "rho": 0.026011696085333824, "link_probability": 0.002006721217185259}}, {"type": "Mention", "start": 48, "end": 51, "id": 4, "features": {"url": "https://en.wikipedia.org/wiki/Mitchell May", "id": 7995762, "rho": 0.03706134483218193, "link_probability": 0.0010793464025482535}}], "next_annid": 5}}, "text": "Barack Obama visited Microsoft in New York last May.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let CSPQFBEJZV_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(CSPQFBEJZV_data, CSPQFBEJZV_parms), "CSPQFBEJZV-").init();
     </script>
   </div>
 
@@ -589,5 +589,5 @@ import gatenlp
 print("NB last updated with gatenlp version", gatenlp.__version__)
 ```
 
-    NB last updated with gatenlp version 1.0.8.dev3
+    NB last updated with gatenlp version 1.0.8a1
 

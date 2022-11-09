@@ -15205,25 +15205,25 @@ var gatenlpDocView = class {
 
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div><style>#ACCTWRGNLT-wrapper { color: black !important; }</style>
-<div id="ACCTWRGNLT-wrapper">
+<div><style>#XMJOORILZD-wrapper { color: black !important; }</style>
+<div id="XMJOORILZD-wrapper">
 
 <div>
 <style>
-#ACCTWRGNLT-content {
+#XMJOORILZD-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.ACCTWRGNLT-row {
+.XMJOORILZD-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.ACCTWRGNLT-col {
+.XMJOORILZD-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -15233,23 +15233,23 @@ var gatenlpDocView = class {
     overflow-y: auto;
 }
 
-.ACCTWRGNLT-hdr {
+.XMJOORILZD-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.ACCTWRGNLT-label {
+.XMJOORILZD-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.ACCTWRGNLT-input {
+.XMJOORILZD-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#ACCTWRGNLT-popup {
+#XMJOORILZD-popup {
     display: none;
     color: black;
     position: absolute;
@@ -15264,44 +15264,44 @@ var gatenlpDocView = class {
     overflow: auto;
 }
 
-.ACCTWRGNLT-selection {
+.XMJOORILZD-selection {
     margin-bottom: 5px;
 }
 
-.ACCTWRGNLT-featuretable {
+.XMJOORILZD-featuretable {
     margin-top: 10px;
 }
 
-.ACCTWRGNLT-fname {
+.XMJOORILZD-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.ACCTWRGNLT-fvalue {
+.XMJOORILZD-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="ACCTWRGNLT-content">
-        <div id="ACCTWRGNLT-popup" style="display: none;">
+  <div id="XMJOORILZD-content">
+        <div id="XMJOORILZD-popup" style="display: none;">
         </div>
-        <div class="ACCTWRGNLT-row" id="ACCTWRGNLT-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="ACCTWRGNLT-text-wrapper" class="ACCTWRGNLT-col" style="width:70%;">
-                <div class="ACCTWRGNLT-hdr" id="ACCTWRGNLT-dochdr"></div>
-                <div id="ACCTWRGNLT-text" style="">
+        <div class="XMJOORILZD-row" id="XMJOORILZD-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="XMJOORILZD-text-wrapper" class="XMJOORILZD-col" style="width:70%;">
+                <div class="XMJOORILZD-hdr" id="XMJOORILZD-dochdr"></div>
+                <div id="XMJOORILZD-text" style="">
                 </div>
             </div>
-            <div id="ACCTWRGNLT-chooser" class="ACCTWRGNLT-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="XMJOORILZD-chooser" class="XMJOORILZD-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="ACCTWRGNLT-row" id="ACCTWRGNLT-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="ACCTWRGNLT-details" class="ACCTWRGNLT-col" style="width:100%; border-top-width: 0px;">
+        <div class="XMJOORILZD-row" id="XMJOORILZD-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="XMJOORILZD-details" class="XMJOORILZD-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     
     <script type="text/javascript">
-    let ACCTWRGNLT_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
-    let ACCTWRGNLT_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(ACCTWRGNLT_data, ACCTWRGNLT_parms), "ACCTWRGNLT-").init();
+    let XMJOORILZD_data = {"annotation_sets": {}, "text": "And another document.", "features": {}, "offset_type": "j", "name": ""} ; 
+    let XMJOORILZD_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(XMJOORILZD_data, XMJOORILZD_parms), "XMJOORILZD-").init();
     </script>
   </div>
 
@@ -15566,7 +15566,7 @@ index of the document, i.e. the running number of the document as the base name 
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>[&#39;3.bdocjs&#39;, &#39;1.bdocjs&#39;, &#39;0.bdocjs&#39;, &#39;2.bdocjs&#39;, &#39;4.bdocjs&#39;]
+<pre>[&#39;1.bdocjs&#39;, &#39;3.bdocjs&#39;, &#39;2.bdocjs&#39;, &#39;4.bdocjs&#39;, &#39;0.bdocjs&#39;]
 </pre>
 </div>
 </div>
@@ -15621,12 +15621,12 @@ a document source or corpus.</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Document(And another document.,features=Features({&#39;_relpath&#39;: &#39;3.bdocjs&#39;}),anns=[])
-Document(Another text.
+<pre>Document(Another text.
 This one has two lines,features=Features({&#39;_relpath&#39;: &#39;1.bdocjs&#39;}),anns=[])
-Document(This is the first text.,features=Features({&#39;_relpath&#39;: &#39;0.bdocjs&#39;}),anns=[])
+Document(And another document.,features=Features({&#39;_relpath&#39;: &#39;3.bdocjs&#39;}),anns=[])
 Document(some other document,features=Features({&#39;_relpath&#39;: &#39;2.bdocjs&#39;}),anns=[])
 Document(Another new document,features=Features({&#39;_relpath&#39;: &#39;4.bdocjs&#39;}),anns=[])
+Document(This is the first text.,features=Features({&#39;_relpath&#39;: &#39;0.bdocjs&#39;}),anns=[])
 </pre>
 </div>
 </div>
@@ -15716,19 +15716,19 @@ Document(Another new document,features=Features({&#39;_relpath&#39;: &#39;4.bdoc
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
 <pre>length is: 5
 Original documents:
-Document(And another document.,features=Features({&#39;__idx_140043450020240&#39;: 0}),anns=[])
 Document(Another text.
-This one has two lines,features=Features({&#39;__idx_140043450020240&#39;: 1}),anns=[])
-Document(This is the first text.,features=Features({&#39;__idx_140043450020240&#39;: 2}),anns=[])
-Document(some other document,features=Features({&#39;__idx_140043450020240&#39;: 3}),anns=[])
-Document(Another new document,features=Features({&#39;__idx_140043450020240&#39;: 4}),anns=[])
+This one has two lines,features=Features({&#39;__idx_139813269566096&#39;: 0}),anns=[])
+Document(And another document.,features=Features({&#39;__idx_139813269566096&#39;: 1}),anns=[])
+Document(some other document,features=Features({&#39;__idx_139813269566096&#39;: 2}),anns=[])
+Document(Another new document,features=Features({&#39;__idx_139813269566096&#39;: 3}),anns=[])
+Document(This is the first text.,features=Features({&#39;__idx_139813269566096&#39;: 4}),anns=[])
 Updated documents:
-Document(And another document.,features=Features({&#39;docidx&#39;: 0, &#39;_relpath&#39;: &#39;3.bdocjs&#39;}),anns=[&#39;&#39;:1])
 Document(Another text.
-This one has two lines,features=Features({&#39;docidx&#39;: 1, &#39;_relpath&#39;: &#39;1.bdocjs&#39;}),anns=[&#39;&#39;:1])
-Document(This is the first text.,features=Features({&#39;docidx&#39;: 2, &#39;_relpath&#39;: &#39;0.bdocjs&#39;}),anns=[&#39;&#39;:1])
-Document(some other document,features=Features({&#39;docidx&#39;: 3, &#39;_relpath&#39;: &#39;2.bdocjs&#39;}),anns=[&#39;&#39;:1])
-Document(Another new document,features=Features({&#39;docidx&#39;: 4, &#39;_relpath&#39;: &#39;4.bdocjs&#39;}),anns=[&#39;&#39;:1])
+This one has two lines,features=Features({&#39;docidx&#39;: 0, &#39;_relpath&#39;: &#39;1.bdocjs&#39;}),anns=[&#39;&#39;:1])
+Document(And another document.,features=Features({&#39;docidx&#39;: 1, &#39;_relpath&#39;: &#39;3.bdocjs&#39;}),anns=[&#39;&#39;:1])
+Document(some other document,features=Features({&#39;docidx&#39;: 2, &#39;_relpath&#39;: &#39;2.bdocjs&#39;}),anns=[&#39;&#39;:1])
+Document(Another new document,features=Features({&#39;docidx&#39;: 3, &#39;_relpath&#39;: &#39;4.bdocjs&#39;}),anns=[&#39;&#39;:1])
+Document(This is the first text.,features=Features({&#39;docidx&#39;: 4, &#39;_relpath&#39;: &#39;0.bdocjs&#39;}),anns=[&#39;&#39;:1])
 </pre>
 </div>
 </div>
@@ -15787,12 +15787,12 @@ Document(Another new document,features=Features({&#39;docidx&#39;: 4, &#39;_relp
 
 
 
-<div id="6362faec-c6ae-4700-8397-a3e8cf94da5a" class="jupyter-widgets jp-OutputArea-output ">
+<div id="4c55f180-a05e-41e5-973d-fdd648feb9af" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('6362faec-c6ae-4700-8397-a3e8cf94da5a');
+var element = document.getElementById('4c55f180-a05e-41e5-973d-fdd648feb9af');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"version_major": 2, "version_minor": 0, "model_id": "04d384cf5bb140f8b14013340d1a0d3a"}
+{"version_major": 2, "version_minor": 0, "model_id": "d60db0be7b6c4ca0b16b7cadecf2806d"}
 </script>
 </div>
 
@@ -15806,25 +15806,25 @@ var element = document.getElementById('6362faec-c6ae-4700-8397-a3e8cf94da5a');
 
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
-<div><style>#WMHUAYJFYU-wrapper { color: black !important; }</style>
-<div id="WMHUAYJFYU-wrapper">
+<div><style>#XUMUVKPYVE-wrapper { color: black !important; }</style>
+<div id="XUMUVKPYVE-wrapper">
 
 <div>
 <style>
-#WMHUAYJFYU-content {
+#XUMUVKPYVE-content {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.WMHUAYJFYU-row {
+.XUMUVKPYVE-row {
     width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-.WMHUAYJFYU-col {
+.XUMUVKPYVE-col {
     border: 1px solid grey;
     display: inline-block;
     min-width: 200px;
@@ -15834,23 +15834,23 @@ var element = document.getElementById('6362faec-c6ae-4700-8397-a3e8cf94da5a');
     overflow-y: auto;
 }
 
-.WMHUAYJFYU-hdr {
+.XUMUVKPYVE-hdr {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.WMHUAYJFYU-label {
+.XUMUVKPYVE-label {
     margin-bottom: -15px;
     display: block;
 }
 
-.WMHUAYJFYU-input {
+.XUMUVKPYVE-input {
     vertical-align: middle;
     position: relative;
     *overflow: hidden;
 }
 
-#WMHUAYJFYU-popup {
+#XUMUVKPYVE-popup {
     display: none;
     color: black;
     position: absolute;
@@ -15865,44 +15865,44 @@ var element = document.getElementById('6362faec-c6ae-4700-8397-a3e8cf94da5a');
     overflow: auto;
 }
 
-.WMHUAYJFYU-selection {
+.XUMUVKPYVE-selection {
     margin-bottom: 5px;
 }
 
-.WMHUAYJFYU-featuretable {
+.XUMUVKPYVE-featuretable {
     margin-top: 10px;
 }
 
-.WMHUAYJFYU-fname {
+.XUMUVKPYVE-fname {
     text-align: left !important;
     font-weight: bold;
     margin-right: 10px;
 }
-.WMHUAYJFYU-fvalue {
+.XUMUVKPYVE-fvalue {
     text-align: left !important;
 }
 </style>
-  <div id="WMHUAYJFYU-content">
-        <div id="WMHUAYJFYU-popup" style="display: none;">
+  <div id="XUMUVKPYVE-content">
+        <div id="XUMUVKPYVE-popup" style="display: none;">
         </div>
-        <div class="WMHUAYJFYU-row" id="WMHUAYJFYU-row1" style="min-height:5em;max-height:20em; min-height:5em;">
-            <div id="WMHUAYJFYU-text-wrapper" class="WMHUAYJFYU-col" style="width:70%;">
-                <div class="WMHUAYJFYU-hdr" id="WMHUAYJFYU-dochdr"></div>
-                <div id="WMHUAYJFYU-text" style="">
+        <div class="XUMUVKPYVE-row" id="XUMUVKPYVE-row1" style="min-height:5em;max-height:20em; min-height:5em;">
+            <div id="XUMUVKPYVE-text-wrapper" class="XUMUVKPYVE-col" style="width:70%;">
+                <div class="XUMUVKPYVE-hdr" id="XUMUVKPYVE-dochdr"></div>
+                <div id="XUMUVKPYVE-text" style="">
                 </div>
             </div>
-            <div id="WMHUAYJFYU-chooser" class="WMHUAYJFYU-col" style="width:30%; border-left-width: 0px;"></div>
+            <div id="XUMUVKPYVE-chooser" class="XUMUVKPYVE-col" style="width:30%; border-left-width: 0px;"></div>
         </div>
-        <div class="WMHUAYJFYU-row" id="WMHUAYJFYU-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
-            <div id="WMHUAYJFYU-details" class="WMHUAYJFYU-col" style="width:100%; border-top-width: 0px;">
+        <div class="XUMUVKPYVE-row" id="XUMUVKPYVE-row2" style="min-height:3em;max-height:14em; min-height: 3em;">
+            <div id="XUMUVKPYVE-details" class="XUMUVKPYVE-col" style="width:100%; border-top-width: 0px;">
             </div>
         </div>
     </div>
     
     <script type="text/javascript">
-    let WMHUAYJFYU_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "And another document.", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
-    let WMHUAYJFYU_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
-    new gatenlpDocView(new gatenlpDocRep(WMHUAYJFYU_data, WMHUAYJFYU_parms), "WMHUAYJFYU-").init();
+    let XUMUVKPYVE_data = {"annotation_sets": {"": {"name": "detached-from:", "annotations": [{"type": "Type1", "start": 0, "end": 3, "id": 0, "features": {}}], "next_annid": 1}}, "text": "Another text.\nThis one has two lines", "features": {"docidx": 0}, "offset_type": "j", "name": ""} ; 
+    let XUMUVKPYVE_parms = {"presel_set": [], "presel_list": [], "cols4types": {}} ;
+    new gatenlpDocView(new gatenlpDocRep(XUMUVKPYVE_data, XUMUVKPYVE_parms), "XUMUVKPYVE-").init();
     </script>
   </div>
 
@@ -16248,7 +16248,7 @@ Document(And another.,features=Features({&#39;f1&#39;: &#39;a&#39;, &#39;f2&#39;
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>NB last updated with gatenlp version 1.0.8.dev3
+<pre>NB last updated with gatenlp version 1.0.8a1
 </pre>
 </div>
 </div>
@@ -16266,7 +16266,7 @@ Document(And another.,features=Features({&#39;f1&#39;: &#39;a&#39;, &#39;f2&#39;
 
 
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"ef180773cda340f58e5e0f1b8845227b": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "5em"}}, "c0d56e56b19a4aeb8f805275130947ff": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "c8e00c8bd887419489c4ce2e1048e9ed": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "arrow-right", "layout": "IPY_MODEL_ef180773cda340f58e5e0f1b8845227b", "style": "IPY_MODEL_c0d56e56b19a4aeb8f805275130947ff", "tooltip": ""}}, "86e400e401db429bab97e3a78b4e7374": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "b7b16d39d08243958c607b4a0bdae69c": {"model_name": "SliderStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "SliderStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": "", "handle_color": null}}, "b7987f11ce674ef2a3ad22d119e35fd7": {"model_name": "IntSliderModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "IntSliderModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "IntSliderView", "continuous_update": true, "description": "", "description_tooltip": null, "disabled": false, "layout": "IPY_MODEL_86e400e401db429bab97e3a78b4e7374", "max": 4, "min": 0, "orientation": "horizontal", "readout": false, "readout_format": "d", "step": 1, "style": "IPY_MODEL_b7b16d39d08243958c607b4a0bdae69c", "value": 0}}, "9c7f01b7bdba4e3689d0dddbe1294bea": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "ac5a9fddd5974d69bf39b05b3941db63": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "arrow-left", "layout": "IPY_MODEL_ef180773cda340f58e5e0f1b8845227b", "style": "IPY_MODEL_9c7f01b7bdba4e3689d0dddbe1294bea", "tooltip": ""}}, "72329c1d358b4f0caa056f78a385cabc": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "66581408925a4563a1e4c273671bb38c": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "6c47bda1e33543ec833142439f884e4f": {"model_name": "LabelModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "LabelModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "LabelView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_72329c1d358b4f0caa056f78a385cabc", "placeholder": "\u200b", "style": "IPY_MODEL_66581408925a4563a1e4c273671bb38c", "value": "  1 / 5"}}, "bfd583481f4145809bc31090ee24f719": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "c6f68d91d2d04c428af8e2809208baca": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "refresh", "layout": "IPY_MODEL_ef180773cda340f58e5e0f1b8845227b", "style": "IPY_MODEL_bfd583481f4145809bc31090ee24f719", "tooltip": ""}}, "028d97757f6c410f91b8e03b47ff5cf8": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "04d384cf5bb140f8b14013340d1a0d3a": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_ac5a9fddd5974d69bf39b05b3941db63", "IPY_MODEL_b7987f11ce674ef2a3ad22d119e35fd7", "IPY_MODEL_c8e00c8bd887419489c4ce2e1048e9ed", "IPY_MODEL_6c47bda1e33543ec833142439f884e4f", "IPY_MODEL_c6f68d91d2d04c428af8e2809208baca"], "layout": "IPY_MODEL_028d97757f6c410f91b8e03b47ff5cf8"}}}, "version_major": 2, "version_minor": 0}
+{"state": {"0dd76107c39d4e2999267a03dc6d77f2": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "5em"}}, "e52cc7aeed764dc9a1c384ef328d5541": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "685be82b0563401ab724e550206e18b9": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "arrow-right", "layout": "IPY_MODEL_0dd76107c39d4e2999267a03dc6d77f2", "style": "IPY_MODEL_e52cc7aeed764dc9a1c384ef328d5541", "tooltip": ""}}, "13ccc539ebfb45d4a01f61e9147a0316": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ad87c481df31431a9fd01ad94ea64bf9": {"model_name": "SliderStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "SliderStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": "", "handle_color": null}}, "08ed54c3c7584fb5b8f733ad4ec9c7c1": {"model_name": "IntSliderModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "IntSliderModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "IntSliderView", "continuous_update": true, "description": "", "description_tooltip": null, "disabled": false, "layout": "IPY_MODEL_13ccc539ebfb45d4a01f61e9147a0316", "max": 4, "min": 0, "orientation": "horizontal", "readout": false, "readout_format": "d", "step": 1, "style": "IPY_MODEL_ad87c481df31431a9fd01ad94ea64bf9", "value": 0}}, "164bb1ff3c084d0c9f667cd3c0c0517e": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "e5e03bccd81b4eec8a1c8dbc95e43568": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "arrow-left", "layout": "IPY_MODEL_0dd76107c39d4e2999267a03dc6d77f2", "style": "IPY_MODEL_164bb1ff3c084d0c9f667cd3c0c0517e", "tooltip": ""}}, "6d73f28799684390bb89071a5cda0623": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "097007164247455e91ccac34e6201130": {"model_name": "DescriptionStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "85e6b1ede537432ca8b0990364674c9e": {"model_name": "LabelModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "LabelModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "LabelView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_6d73f28799684390bb89071a5cda0623", "placeholder": "\u200b", "style": "IPY_MODEL_097007164247455e91ccac34e6201130", "value": "  1 / 5"}}, "f98e831878d945749a46c0a5c7412e13": {"model_name": "ButtonStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "1935ce0ca41e46e58102c8dbb46e1f44": {"model_name": "ButtonModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "", "disabled": false, "icon": "refresh", "layout": "IPY_MODEL_0dd76107c39d4e2999267a03dc6d77f2", "style": "IPY_MODEL_f98e831878d945749a46c0a5c7412e13", "tooltip": ""}}, "e6609c96fc9e43a88e80e64dc6e58825": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d60db0be7b6c4ca0b16b7cadecf2806d": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_e5e03bccd81b4eec8a1c8dbc95e43568", "IPY_MODEL_08ed54c3c7584fb5b8f733ad4ec9c7c1", "IPY_MODEL_685be82b0563401ab724e550206e18b9", "IPY_MODEL_85e6b1ede537432ca8b0990364674c9e", "IPY_MODEL_1935ce0ca41e46e58102c8dbb46e1f44"], "layout": "IPY_MODEL_e6609c96fc9e43a88e80e64dc6e58825"}}}, "version_major": 2, "version_minor": 0}
 </script>
 
 
