@@ -129,7 +129,10 @@ class PerspectiveAnnotator(Annotator):
             if isinstance(langs, str):
                 langs = [langs]
             request[&#34;languages&#34;] = langs
-        response = self.client.comments().analyze(body=request).execute()
+        # pylint complains about this claiming that self.client does not have an attribute
+        # comments but this is not true.
+        # disabling that error message
+        response = self.client.comments().analyze(body=request).execute()  # pylint: disable=E1101
         ret = {}
         scoredata = response[&#34;attributeScores&#34;]
         for name, data in scoredata.items():
@@ -327,7 +330,10 @@ e.g. "_PROBABILITY", giving "TOXICITY_PROBABILITY". Only the summary scores are 
             if isinstance(langs, str):
                 langs = [langs]
             request[&#34;languages&#34;] = langs
-        response = self.client.comments().analyze(body=request).execute()
+        # pylint complains about this claiming that self.client does not have an attribute
+        # comments but this is not true.
+        # disabling that error message
+        response = self.client.comments().analyze(body=request).execute()  # pylint: disable=E1101
         ret = {}
         scoredata = response[&#34;attributeScores&#34;]
         for name, data in scoredata.items():

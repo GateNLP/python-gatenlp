@@ -423,7 +423,7 @@ def interact(args=None, annotator=None):
             except Exception as ex:
                 error = repr(ex)
                 tb_str = traceback.format_exception(
-                    etype=type(ex), value=ex, tb=ex.__traceback__
+                    type(ex), ex, ex.__traceback__
                 )
                 print(&#34;ERROR when running python code:&#34;, file=sys.stderr)
                 for line in tb_str:
@@ -702,7 +702,7 @@ processing resource to the system.</p>
             except Exception as ex:
                 error = repr(ex)
                 tb_str = traceback.format_exception(
-                    etype=type(ex), value=ex, tb=ex.__traceback__
+                    type(ex), ex, ex.__traceback__
                 )
                 print(&#34;ERROR when running python code:&#34;, file=sys.stderr)
                 for line in tb_str:

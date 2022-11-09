@@ -96,10 +96,10 @@ def init_notebook():   # pragma: no cover
     &#34;&#34;&#34;
     Helper method to initialize a Jupyter or similar notebook.
     &#34;&#34;&#34;
-    from gatenlp.serialization.default import HtmlAnnViewerSerializer
+    from gatenlp.serialization.default_htmlannviewer import init_javascript
     from gatenlp.gatenlpconfig import gatenlpconfig
 
-    HtmlAnnViewerSerializer.init_javscript()
+    init_javascript()
     gatenlpconfig.notebook_js_initialized = True</code></pre>
 </details>
 </section>
@@ -236,10 +236,10 @@ Java strings are represented as UTF16 …</p></div>
     &#34;&#34;&#34;
     Helper method to initialize a Jupyter or similar notebook.
     &#34;&#34;&#34;
-    from gatenlp.serialization.default import HtmlAnnViewerSerializer
+    from gatenlp.serialization.default_htmlannviewer import init_javascript
     from gatenlp.gatenlpconfig import gatenlpconfig
 
-    HtmlAnnViewerSerializer.init_javscript()
+    init_javascript()
     gatenlpconfig.notebook_js_initialized = True</code></pre>
 </details>
 </dd>
