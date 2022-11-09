@@ -591,9 +591,12 @@ class GateWorker:
           gdoc: GATE document handle
           path: destination path
           mimetype: mimtetype, only the following types are allowed: ""/None: GATE XML,
-                application/fastinfoset, text/xml, and all mimetypes supported by the
-                Format_Bdoc plugin. (Default value = None)
+                application/fastinfoset, text/xml for inline XML, 
+                and all mimetypes supported by the
+                Format_Bdoc plugin. (Default value = None). 
           inline_anntypes: annotation types for inline XML export. Only works with mimetype xml.
+                If None, all types in the inline_annset are exported, if a list, only the 
+                types in the list are exported.
           inline_annset: annotation set for inline XML export.
           inline_features: save features as attribute for inline XML export.
         """
@@ -1053,10 +1056,10 @@ class GateWorker:
     def saveDocumentToFile(self,
                            gdoc: py4j.java_gateway.JavaObject,
                            filename: str,
-                           mimetype: str,
-                           inline_anntypes: List[str],
-                           inline_annset: str,
-                           inline_features: bool):
+                           mimetype: str="",
+                           inline_anntypes: Optional[List[str]]=None,
+                           inline_annset: str="",
+                           inline_features: bool=True):
         """
         Save the Java GATE document to the given file, using the given mime type.
         At the moment this supports the GATE XML format (mimetype="") as well as
