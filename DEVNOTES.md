@@ -62,7 +62,7 @@ For now rather simple:
 * In plugin Python:
   * pull, make sure ready for release
   * `git submodue update --remote` 
-  * commit/push/check it compiles (check we compile with Java 8!)
+  * commit/push/check it compiles (check we compile with Java 8!!!!!!)
   * this is now the version we can release, which contains the submodule commit of what will be the gatenlp release
   * Actually create the Python plugin release the normal way
   * wait until available on Maven Central
@@ -72,7 +72,7 @@ For now rather simple:
 * !! GateNLP is now released!
 * checkout main
 * increase the gatenlp version, make it a development version (-dev0)
-* edit `java/src/main/java/gate/tools/gatenlpslave/GatenlpWorker.java` and change version
+* edit `java/src/main/java/gate/tools/gatenlpworker/GatenlpWorker.java` and change version
   to next Python plugin snapshot
 * create next Python plugin snapshot
 
@@ -116,5 +116,12 @@ Just a module, e.g. gateworker:
 ## Other stuff
 
 Build a wheel: `pip wheel .[gazetteers]` or similar, store in docs/wheels for use by pyodide
+
+## Download stats
+
+* (note: our own first version was release 2019-07)
+* by year: `pypinfo -sd 2019-07-01 --all gatenlp year`
+* by version: `pypinfo -sd 2019-07-01 --all gatenlp version`
+
 
 

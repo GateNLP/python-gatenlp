@@ -47,7 +47,7 @@ def get_install_extras_require():
         "clientperspective": ["google-api-python-client"],
         "clients": ["requests", "elg", "ibm-watson", "google-cloud-language", "google-api-python-client"],
         "formats": ["msgpack", "pyyaml>=5.2", "beautifulsoup4>=4.9.3", "requests", "conllu", "iobes", ],
-        "java": ["py4j"],
+        "java": ["py4j", "requests"],
         "stanza": ["stanza>=1.3.0"],
         "spacy": ["spacy>=2.2"],
         "nltk": ["nltk>=3.5"],
