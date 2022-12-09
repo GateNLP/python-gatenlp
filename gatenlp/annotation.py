@@ -154,6 +154,7 @@ class Annotation:   # pylint: disable=R0904
         return isinstance(other, Annotation) and \
             self.start == other.start and \
             self.end == other.end and \
+            self.type == other.type and \
             self.features == other.features
 
     def same(self, other):
@@ -168,6 +169,7 @@ class Annotation:   # pylint: disable=R0904
             self.id == other.id and \
             self.start == other.start and \
             self.end == other.end and \
+            self.type == other.type and \
             self.features == other.features
 
     def __lt__(self, other) -> bool:
