@@ -297,7 +297,7 @@ nest-asyncio==1.5.6
     #   jupyter-client
 nltk==3.7
     # via -r requirements-github.txt
-numpy>=1.22
+numpy>=1.21.6
     # via
     #   -r requirements-github.txt
     #   blis
