@@ -61,7 +61,7 @@ catalogue==2.0.8
     #   spacy
     #   srsly
     #   thinc
-certifi==2022.9.24
+certifi>=2022.12.07
     # via
     #   -r requirements-github.txt
     #   requests
