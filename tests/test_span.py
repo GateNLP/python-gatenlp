@@ -4,6 +4,17 @@ from gatenlp import Span
 
 class TestSpanRels:
 
+    def test_overlapping1(self):
+        a = Span(2, 4)
+        b = Span(0, 5)
+        c = Span(4, 10)
+        assert a.isoverlapping(b)
+        assert b.isoverlapping(a)
+        assert not a.isoverlapping(c)
+        assert not c.isoverlapping(a)
+        assert b.isoverlapping(c)
+        assert c.isoverlapping(b)
+
     def test_span_rels01(self):
         """
         Unit test method (make linter happy)

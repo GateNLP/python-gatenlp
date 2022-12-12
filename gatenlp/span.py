@@ -109,7 +109,11 @@ class Span:
         # However, if the other range is zero length we must not check for covering(end-1)!
         if start == end:
             return self.iscovering(start)
-        return self.iscovering(start) or self.iscovering(end - 1)
+        if end <= self.start:
+            return False
+        if start >= self.end:
+            return False
+        return True
 
     @support_annotation_or_set
     def iscoextensive(self, start: int, end: int) -> bool:

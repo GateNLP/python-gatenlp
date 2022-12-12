@@ -243,8 +243,11 @@ class Annotation:   # pylint: disable=R0904
         """
         if start == end:
             return self.iscovering(start)
-        else:
-            return self.iscovering(start) or self.iscovering(end - 1)
+        if end <= self.start:
+            return False
+        if start >= self.end:
+            return False
+        return True
 
     @support_annotation_or_set
     def isleftoverlapping(self, start: int, end: int) -> bool:

@@ -36,6 +36,19 @@ def make_doc():
 
 class TestAnnotationRels:
 
+
+    def test_overlapping1(self):
+        doc = Document("some document")
+        annset = doc.annset()
+        a = annset.add(2, 4, "T1")
+        b = annset.add(0, 5, "T2")
+        c = annset.add(4, 10, "T3")
+        assert a.isoverlapping(b)
+        assert b.isoverlapping(a)
+        assert not a.isoverlapping(c)
+        assert not c.isoverlapping(a)
+        assert b.isoverlapping(c)
+        assert c.isoverlapping(b)
     def test_annotation_rels01(self):
         """
         Unit test method (make linter happy)
