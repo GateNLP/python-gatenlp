@@ -739,7 +739,7 @@ class Lookahead(PampacParser):
         self.matchtype = matchtype
 
     def parse(self, location, context):
-        ret = self.parser.parse(location, context).issuccess()
+        ret = self.parser.parse(location, context)
         if ret.issuccess():
             res = ret.result(self.matchtype)
             if isinstance(res, list):
