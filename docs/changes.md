@@ -1,7 +1,14 @@
 # Versions and changes
 
-## Upcoming
+## Upcoming (1.0.9)
 
+* Minimum required Python version is now 3.8!!
+* Fixed issues #191, #189, #187
+
+## 1.0.8 (2022-11-09) 
+
+* improve inline XML output support in the GateWorker (contributed by https://github.com/paulbriton)
+* correct documentation text (contributed by https://github.com/dmarx)
 * Client for the [Rewire](https://rewire.online/) service, see [Rewire Client](https://gatenlp.github.io/python-gatenlp/client_rewire)
 * Client for the [Perspective](https://perspectiveapi.com/) service, see [Perspective Client](https://gatenlp.github.io/python-gatenlp/client_perspective)
 
