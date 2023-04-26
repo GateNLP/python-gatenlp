@@ -11,7 +11,6 @@ from abc import ABC, abstractmethod
 import functools
 from gatenlp.pam.matcher import AnnMatcher, CLASS_REGEX_PATTERN, CLASS_RE_PATTERN
 from gatenlp.pam.pampac.data import Location, Context, Result, Success, Failure
-from gatenlp.utils import support_annotation_or_set
 from gatenlp import Span
 
 __pdoc__ = {
@@ -615,7 +614,6 @@ class PampacParser(ABC):
 
         return Filter(self, _predicate, matchtype=matchtype)
 
-    @support_annotation_or_set
     def notbefore(
             self,
             type=None,
