@@ -6,7 +6,6 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gatenlp)](https://pypistats.org/packages/gatenlp)
 [![License](https://img.shields.io/github/license/GateNLP/python-gatenlp.svg)](LICENSE)
 [![GitHub Build Status](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml/badge.svg?branch=main)](https://github.com/GateNLP/python-gatenlp/actions/workflows/python-package.yml)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Join the chat at https://gitter.im/GateNLP/python-gatenlp](https://badges.gitter.im/GateNLP/python-gatenlp.svg)](https://gitter.im/GateNLP/python-gatenlp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ccc55f10e7f5479e9a882ec3aee3222a)](https://www.codacy.com/gh/GateNLP/python-gatenlp/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=GateNLP/python-gatenlp)
 [![Documentation Status](https://readthedocs.org/projects/gatenlp/badge/?version=latest)](https://gatenlp.readthedocs.io/en/latest/?badge=latest)
 
