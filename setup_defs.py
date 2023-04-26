@@ -78,6 +78,8 @@ def get_install_extras_require():
             "pytest-tornasync",
             "flake8",
             "black[d]",  # for automatic code formatting
+            "pipreqs",   # for dealing with requirements/dependencies
+            "pip-tools", # for dealing with requirements/dependencies
         ],
         "github": [
             "flake8",
