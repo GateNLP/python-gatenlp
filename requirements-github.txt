@@ -25,3 +25,4 @@ sortedcontainers>=2.4.0
 spacy>=3.5.2
 #stanza>=1.5.0
 pylint
+pytest-cov

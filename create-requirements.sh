@@ -6,6 +6,7 @@
 pipreqs --savepath tmp-requirements.txt --mode gt .
 # add packages that we know do not get detected automatically 
 echo "pylint" >> tmp-requirements.txt 
+echo "pytest-cov" >> tmp-requirements.txt
 # comment out pyodide dependency, it causes trouble! 
 sed -i -e 's/^pyodide/#pyodide/' tmp-requirements.txt
 # create a version that removes stuff not needed for github
