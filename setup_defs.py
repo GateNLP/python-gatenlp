@@ -86,24 +86,17 @@ def get_install_extras_require():
             "pytest-pep8"
         ]
     }
-    added_all = set()
-    add_all = []
-    added_alldev = set()
-    add_alldev = []
+    pck_all = set()
+    pck_alldev = set()
+    # NOTE: getting installation problems with tner, excluding mltner until resolved
     for name, pcks in extras_require.items():
-        if name not in ["dev", "notebook", "github"]:
-            for pck in pcks:
-                if pck not in added_all:
-                    add_all.append(pck)
-                    added_all.add(pck)
-        elif name not in ["github"]:
-            for pck in pcks:
-                if pck not in added_alldev:
-                    add_alldev.append(pck)
-                    added_alldev.add(pck)
-    add_all.sort()
-    add_alldev.sort()
-    extras_require.update({"all": add_all, "alldev": add_alldev})
+        if name not in ["dev", "notebook", "github", "mltner"]:
+            pck_all.update(pcks)
+        if name not in ["github", "mltner"]:
+            pck_alldev.update(pcks)
+    pck_all = sorted(list(pck_all))
+    pck_alldev = sorted(list(pck_alldev))
+    extras_require.update({"all": pck_all, "alldev": pck_alldev})
     return extras_require
 
 
