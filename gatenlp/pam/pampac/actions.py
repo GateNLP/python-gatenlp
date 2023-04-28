@@ -104,7 +104,7 @@ class Actions:
         """
         self.actions = list(actions)
 
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, annset=None):
         """
         Invokes the actions defined for this wrapper in sequence and
         returns one of the following: for no wrapped actions, no action is invoked and None is returned;
@@ -115,18 +115,20 @@ class Actions:
             succ:  the success object
             context: the context
             location:  the location
+            annset: an annotation set to use for the actions, this is only used for some actions and
+                getting ignored by most others.
 
         Returns: None, action return value or list of action return values
 
         """
         if len(self.actions) == 1:
-            return self.actions[0](succ, context=context, location=location)
+            return self.actions[0](succ, context=context, location=location, annset=annset)
         elif len(self.actions) == 0:
             return None
         else:
             ret = []
             for action in self.actions:
-                ret.append(action(succ, context=context, location=location))
+                ret.append(action(succ, context=context, location=location, annset=annset))
             return ret
 
     def add(self, action, tofront=False):
@@ -153,7 +155,7 @@ class AddAnn:
             name=None,
             ann=None,  # create a copy of this ann retrieved with GetAnn
             type=None,  # or create a new annotation with this type
-            annset=None,  # if not none, create in this set instead of the one used for matching
+            annset_name=None,  # if not none, create in this set instead of the default output set
             features=None,
             span=None,  # use literal span, GetSpan, if none, span from match
             resultidx=0,
@@ -170,7 +172,8 @@ class AddAnn:
                 a GetAnn helper for copying the annoation the helper returns. If this is specified the
                 other parameters for creating a new annotation are ignored.
             type: the type of a new annotation to create
-            annset: if not None, create the new annotation in this set instead of the one used for matching
+            annset_name: if not None, create the new annotation in a set with this name instead of the
+                default output set.
             features: the features of a new annotation to create. This can be a GetFeatures helper for copying
                 the features from another annotation in the results
             span: the span of the annotation, this can be a GetSpan helper for copying the span from another
@@ -193,14 +196,14 @@ class AddAnn:
         self.resultidx = resultidx
         self.matchidx = matchidx
         self.silent_fail = silent_fail
-        self.annset = annset
+        self.annset_name = annset_name
 
     # pylint: disable=R0912
     def _add4span(self, span, succ, context, location):
         if span is None:
             return
-        if self.annset is not None:
-            outset = self.annset
+        if self.annset_name is not None:
+            outset = context.doc.annset(self.annset_name)
         else:
             outset = context.outset
         if self.ann:
@@ -251,7 +254,7 @@ class AddAnn:
             # print(f"DEBUG: running for {self.matchidx}, span={span}")
             self._add4span(span, succ, context, location)
 
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, annset=None):
         if self.resultidx is None:
             for resultidx in range(len(succ)):
                 # print(f"DEBUG: ridx=None, running for {resultidx}")
@@ -321,7 +324,7 @@ class UpdateAnnFeatures:
         self.deepcopy = deepcopy
 
     # pylint: disable=R0912
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, annset=None):
         # determine the annotation to modify
         if self.updateann is not None:
             if isinstance(self.updateann, Annotation):
@@ -377,7 +380,7 @@ class RemoveAnn:
     Action for removing an anntoation.
     """
     def __init__(self, name=None,
-                 annset=None,
+                 annset_name=None,
                  resultidx=0, matchidx=0,
                  silent_fail=True):
         """
@@ -385,23 +388,24 @@ class RemoveAnn:
 
         Args:
             name: the name of a match from which to get the annotation to remove
-            annset: the annotation set to remove the annotation from. This must be a mutable set and
-                usually should be an attached set and has to be a set which contains the annotation
-                to be removed. Note that with complex patterns this may remove annotations which are
-                still being matched from the copy in the pampac context at a later time!
+            annset_name: the name of the annotation set to remove the annotation from. If this is the same set
+                as used for matching it may influence the matching result if the annotation is removed before
+                the remaining matching is done.
+                If this is not specified, the annotation set of the (first) input annotation is used. 
             resultidx: index of the result to use, if several (default: 0)
             matchidx: index of the match to use, if several (default: 0)
             silent_fail: if True, silently ignore the error of no annotation to get removed
         """
         assert name is not None
-        assert annset is not None
         self.name = name
-        self.annset = annset
+        assert annset_name is None or isinstance(annset_name, str), \
+            f"annset_name must be a string or None but is {annset_name}"
+        self.annset_name = annset_name
         self.resultidx = resultidx
         self.matchidx = matchidx
         self.silent_fail = silent_fail
 
-    def __call__(self, succ, context=None, location=None):
+    def __call__(self, succ, context=None, location=None, annset=None):
         match = _get_match(
             succ, self.name, self.resultidx, self.matchidx, self.silent_fail
         )
@@ -418,4 +422,6 @@ class RemoveAnn:
                 raise Exception(
                     f"Could not find an annotation for the name {self.name}"
                 )
-        self.annset.remove(theann)
+        if self.annset_name is not None:
+            annset = context.doc.annset(self.annset_name)
+        annset.remove(theann)

@@ -1,6 +1,6 @@
 # Installation
 
-Make sure you have Python 3.7 or later installed.
+Make sure you have Python 3.8 or later installed.
 
 The recommended way to install Python is to use Conda by installing  one of 
 
@@ -12,10 +12,10 @@ Alternately,
 
 
 Then create an environment for working with gatenlp. This example
-creates an environment with the name `gatenlp`, python 3.8 and activates it:
+creates an environment with the name `gatenlp`, python 3.11 and activates it:
 
 ```
-conda create -n gatenlp python==3.8
+conda create -n gatenlp python==3.11
 conda activate gatenlp
 ```
 

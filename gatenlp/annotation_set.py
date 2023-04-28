@@ -1,9 +1,9 @@
 """
 Module for AnnotationSet class which represents a named collection of
 annotations which can arbitrarily overlap.
-"""
 
-# TODO: when should two sets be equal? Currently object identity is requried!
+AnnotationSet instances compare equal by object identity and are hashable.
+"""
 
 from typing import Any, List, Union, Dict, Set, KeysView, Iterator, Generator
 # TODO: prior to Python 3.9 we need different Iterable definitions for typing and type checking
@@ -35,11 +35,11 @@ class AnnotationSet:
     """
     Represents a collection of annotations for a document.
     """
-    def __init__(self, name: str = "", owner_doc=None):
+    def __init__(self, name: str = ""):
         """
-        Creates an annotation set. This should not be used directly by the
-        user, instead the method `Document.annset(name)` should be used to
-        access the annotation set with a given name from the document.
+        Creates a detached mutable annotation set, i.e. an AnnotationSet which
+        is independent of any document. To create and get an AnnotationSet which
+        is attached to a document, use the method `Document.annset(name)`.
 
         An annotation set contains an arbitrary number of annotations, which
         can overlap in arbitrary ways. Each annotation set has a name and a
@@ -56,16 +56,28 @@ class AnnotationSet:
               set has an owning document.
         """
         self._name = name
-        self._owner_doc = owner_doc
+        self._owner_doc = None
         self._index_by_offset = None
         self._index_by_ol = None
         self._index_by_type = None
         # internally we represent the annotations as a map from
         # annotation id (int) to Annotation
         self._annotations = {}    # map from annotation id to annotation
-        self._annset = set()      # set containing the annotations itself based on the default hash implementation
+        # set of annotation instances for fast membership testing based on the default hashing
+        # strategy for Annotation
+        self._annset = set()
         self._is_immutable = False
         self._next_annid = 0
+
+    @classmethod
+    def _create(cls, name: str = "", owner_doc=None):
+        """
+        Create an attached annotation set. This method is protected to indicate that it should
+        not be used directly and instead the method `Document.annset(name)` should be used.
+        """
+        tmpset = cls(name=name)
+        tmpset._owner_doc = owner_doc
+        return tmpset
 
     @property
     def name(self):
@@ -106,9 +118,8 @@ class AnnotationSet:
         restricted to the given annotation ids. A detached annotation
         set does not have an owning document and deleting or adding
         annotations does not change the annotations stored with the document.
-        However, the annotations in a detached annotation set
-        are the same as those stored in the attached set, so updating their
-        features will modify the annotations in the document as well.
+        The annotations contained in the detached set are identical (same objects)
+        as the annotations in the original set.
 
         Args:
           restrict_to: an iterable of annotation ids, if None, all the
@@ -135,8 +146,8 @@ class AnnotationSet:
         """
         Creates an immutable detached annotation set from the annotations
         in anns which could by either a collection of annotations or
-        annotation ids (int numbers) which are assumed to be the annotation
-        ids from this set.
+        annotation ids (int numbers) from this set. It is an error for an annotation
+        to not be from this set or an annotation id not to occur in this set.
 
         The next annotation id for the created set is the highest seen
         annotation id from anns plus one.
@@ -153,53 +164,106 @@ class AnnotationSet:
         nextid = -1
         for ann in anns:
             if isinstance(ann, int):
-                annset._annotations[ann] = self._annotations[ann]
-                annid = ann
+                if ann not in self._annotations:
+                    raise Exception(
+                        "Annotation id {} not found in set {}".format(ann, self.name)
+                    )
+                ann = self._annotations[ann]
+            elif isinstance(ann, Annotation):
+                if ann not in self._annset:
+                    raise Exception(
+                        "Annotation {} not found in set {}".format(ann, self.name)
+                    )
             else:
-                annset._annotations[id] = ann
-                annid = ann.id
+                raise Exception(
+                    "Annotation {} is not an annotation or annotation id".format(ann)
+                )
+            annid = ann.id
+            annset._annotations[annid] = ann
             if annid > nextid:
                 nextid = annid
         annset._next_annid = nextid + 1
         annset._annset.update(annset._annotations.values())
         return annset
 
+
     @staticmethod
-    def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -> "AnnotationSet":
+    def create_from(anns: Union[Annotation, Iterable[Annotation]], name=None) -> "AnnotationSet":
         """
         Creates an immutable detached annotation set from the annotations
-        in anns. The set contains shallow copies of the annotations and the
-        annotation id is preserved, unless it is a duplicate in which the next
-        available id is used.
+        in anns which could by either a single annotation or a collection of annotations.
+
+        If annotations are combined from different sets and their ids are identical
+        then the annotation for which the id is already used is shallow copied and
+        the id is changed to the next free id. This means that the annotation instance
+        is different and cannot be used any more e.g. to remove the annotation from
+        the original set.
+
+        The next annotation id for the created set is the highest seen
+        annotation id from anns plus one.
 
         Args:
-            anns: an iterable of annotations or a single annotation
-            name: an optional name for the set
+          anns: an iterable of annotations or a single annotation
+          name: an optional name for the set
 
         Returns:
-            An immutable detached annotation set
+          an immutable detached annotation set
         """
         annset = AnnotationSet(name=name)
         annset._is_immutable = True
         annset._annotations = {}
-        annset._next_annid = 0
         if isinstance(anns, Annotation):
             anns = [anns]
+        # we add annotations in a way where annotations should ONLY get shallow copied if there
+        # are identical ids in the input
+        max_id = -1   # keep track of the highest id assigned to any annotation in the set so far
         for ann in anns:
-            # if the id is already in the set, assign the next available one
-            ann = ann.copy()
-            if ann.id in annset._annotations:
-                ann._id = annset._next_annid
-                annset._annotations[annset._next_annid] = ann
-                annset._next_annid += 1
-            else:
-                # if the id is not yet in the set, keep it and make sure that after adding,
-                # the next annid is adapted, if necessary!
-                annset._annotations[ann.id] = ann
-                if ann.id >= annset._next_annid:
-                    annset._next_annid = ann.id + 1
+            annid = ann.id
+            if annid in annset._annotations:
+                ann = ann.copy()
+                ann.id = max_id + 1
+                max_id = ann.id
+            annset._annotations[ann.id] = ann
+        annset._next_annid = max_id + 1
         annset._annset.update(annset._annotations.values())
         return annset
+
+    # @staticmethod
+    # def create_from(anns: Union[Iterable[Annotation], Annotation], name=None) -> "AnnotationSet":
+    #     """
+    #     Creates an immutable detached annotation set from the annotations
+    #     in anns. The set contains shallow copies of the annotations and the
+    #     annotation id is preserved, unless it is a duplicate in which the next
+    #     available id is used.
+    #
+    #     Args:
+    #         anns: an iterable of annotations or a single annotation
+    #         name: an optional name for the set
+    #
+    #     Returns:
+    #         An immutable detached annotation set
+    #     """
+    #     annset = AnnotationSet(name=name)
+    #     annset._is_immutable = True
+    #     annset._annotations = {}
+    #     annset._next_annid = 0
+    #     if isinstance(anns, Annotation):
+    #         anns = [anns]
+    #     for ann in anns:
+    #         # if the id is already in the set, assign the next available one
+    #         ann = ann.copy()
+    #         if ann.id in annset._annotations:
+    #             ann._id = annset._next_annid
+    #             annset._annotations[annset._next_annid] = ann
+    #             annset._next_annid += 1
+    #         else:
+    #             # if the id is not yet in the set, keep it and make sure that after adding,
+    #             # the next annid is adapted, if necessary!
+    #             annset._annotations[ann.id] = ann
+    #             if ann.id >= annset._next_annid:
+    #                 annset._next_annid = ann.id + 1
+    #     annset._annset.update(annset._annotations.values())
+    #     return annset
 
     @property
     def immutable(self) -> bool:
@@ -566,10 +630,15 @@ class AnnotationSet:
             raise Exception(
                 "Cannot remove an annotation from an immutable annotation set"
             )
+        # check specifically for str since it is iterable and for bool since it is int
+        if isinstance(annoriter, (str, bool)):
+            raise Exception("Not an Annotation or annotation id or iterable of those: {}".format(annoriter))
         if isinstance(annoriter, abc_Iterable):
             for a in annoriter:
                 self.remove(a, raise_on_notexisting=raise_on_notexisting)
             return
+        elif not isinstance(annoriter, (int, Annotation)):
+            raise Exception("Not an Annotation or annotation id or iterable of those: {}".format(annoriter))
         annid = None  # make pycharm happy
         if isinstance(annoriter, int):
             annid = annoriter
@@ -581,6 +650,12 @@ class AnnotationSet:
                 )
             ann = self._annotations[annid]
         elif isinstance(annoriter, Annotation):
+            if annoriter not in self._annset:
+                raise Exception(
+                    "Annotation {} not in annotation set, cannot remove".format(
+                        annoriter
+                    )
+                )
             annid = annoriter.id
             if annid not in self._annotations:
                 raise Exception(
@@ -590,15 +665,15 @@ class AnnotationSet:
                 )
             ann = annoriter
         else:
-            raise Exception("Should never happen!")
-        # NOTE: once the annotation has been removed from the set, it could
-        # still be referenced
-        # somewhere else and its features could get modified. In order to
-        # prevent logging of such changes,
-        # the owning set gets cleared for the annotation
-        ann._owner_set = None
-        del self._annotations[annid]
+            raise Exception("Not an Annotation or annotation id: {}".format(annoriter))
+        # remove from the set of annotations. This should never fail, since we
+        # checked above that the annotation is in the set.
         self._annset.remove(ann)
+        # if this annotation was owned by this set, remove the owner information
+        if ann._owner_set is self:
+            ann._owner_set = None
+        # also remove from the id to annotation map
+        del self._annotations[annid]
         if self.changelog is not None:
             self.changelog.append(
                 {"command": "annotation:remove", "set": self.name, "id": annid}
@@ -1389,6 +1464,9 @@ class AnnotationSet:
         Returns:
             `True` if the annotation exists in the set, `False` otherwise
         """
+        # we check for boolean because Python treats bool as int
+        if isinstance(annorannid, bool):
+            raise TypeError("Must be an Annotation or annotation id, not boolean")
         if isinstance(annorannid, Annotation):
             return annorannid in self._annset
         return (
@@ -1446,7 +1524,8 @@ class AnnotationSet:
         Returns:
             the annotation set
         """
-        annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
+        # annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
+        annset = AnnotationSet._create(dictrepr.get("name"), owner_doc=owner_doc)
         annset._next_annid = dictrepr.get("next_annid")
         if dictrepr.get("annotations"):
             annset._annotations = dict(
@@ -1471,7 +1550,8 @@ class AnnotationSet:
         Returns:
             the annotation set
         """
-        annset = AnnotationSet(name="", owner_doc=None)
+        # annset = AnnotationSet(name="", owner_doc=None)
+        annset = AnnotationSet._create(name="", owner_doc=None)
         annset._annotations = dict()
         maxid = 0
         for ann in anns:

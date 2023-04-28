@@ -66,7 +66,11 @@ class Pampac:
     def run(self,
             doc,
             annotations,
-            outset=None, start=None, end=None, containing_anns=None, debug=False):
+            outset=None,
+            start=None,
+            end=None,
+            containing_anns=None,
+            debug=False):
         """
         Run the rules from location start to location end (default: full document), using the annotation set or list.
 
@@ -109,6 +113,15 @@ class Pampac:
         # Runs on a single span using the given context and start location and returns a list of tuples with
         # offset and actionreturnvals for each location where a match or matches occured
         returntuples = []
+        # determine the fallback annotation set for those actions which use the annset parameter as a fallback
+        # (currently only the RemoveAnn action). If now annotation set name is specified, we use the set
+        # from which the first annotation in the input sequence comes from, if there is no annotation, we use
+        # the default annotation set.
+        fallback_annset = None
+        if len(ctx.anns) > 0:
+            fallback_annset = ctx.anns[0].owning_set()
+        else:
+            fallback_annset = ctx.doc.annset()
         while True:  # pylint: disable=R1702
             # try the rules at the current position
             cur_offset = location.text_location
@@ -130,14 +143,14 @@ class Pampac:
                 if self.select == "first":
                     idx, ret = list(rets.items())[0]
                     logger.debug("Firing rule %s at %s", idx, location)
-                    fret = self.rules[idx].action(ret, context=ctx, location=location)
+                    fret = self.rules[idx].action(ret, context=ctx, location=location, annset=fallback_annset)
                     frets.append(fret)
                     fired_rets.append(ret)
                 elif self.select == "all":
                     for idx, ret in rets.items():
                         logger.debug("Firing rule %s at %s", idx, location)
                         fret = self.rules[idx].action(
-                            ret, context=ctx, location=location
+                            ret, context=ctx, location=location, annset=fallback_annset
                         )
                         frets.append(fret)
                         fired_rets.append(ret)
@@ -146,7 +159,7 @@ class Pampac:
                         if idx == self.hp_rule_idx:
                             logger.debug("Firing rule %s at %s", idx, location)
                             fret = self.rules[idx].action(
-                                ret, context=ctx, location=location
+                                ret, context=ctx, location=location, annset=fallback_annset
                             )
                             frets.append(fret)
                             fired_rets.append(ret)
@@ -208,12 +221,12 @@ class PampacAnnotator(Annotator):
         Args:
             pampac: a Pampac instance
             annspec: annotation specification for annotations to use as input. This can be a annotation set name,
-                or a list of either annotation set names or tuples, where the first element is an annotation set
-                name and the second element is either a type name or a list of type names. E.g. `[("", "Token")]`
-                to get all annotations with type Token from the default set or or `[("", ["PER", "ORG"]), "Key"]`
-                to get all annotations with type PER or ORG from the default set and all annotations from the Key
-                set.
-            outset_name: the name of the annotation set where to add output annoations
+                or a tuple where the first element is an annotation set name and the second element is either
+                an annotation type or a list of annotation types.
+                or a list containing one such tuple (only single set annotation specifications are allowed).
+                For example to get all annotations of type "Token" or "Person" from the default set use
+                ("", ["Token", "Person"]) or [("",["Token", "Person"]).
+            outset_name: the name of the annotation set where to add output annotations
             containing_anns_desc: a specification of annotations to use for containing annotations. If specified,
                 the Pampac instance will run pattern matching on each span that corresponds to a containing annotation.
                 Containing annotations should not overlap. The outputs for each containing annotation are aggregated
@@ -226,7 +239,7 @@ class PampacAnnotator(Annotator):
 
     def __call__(self, doc, **kwargs):
         outset = doc.annset(self.outset_name)
-        anns = doc.anns(self.annspec)
+        anns = doc.anns(self.annspec, single_set=True)
         if self.containing_anns_desc is not None:
             cont = doc.anns(self.containing_anns_desc)
         else:

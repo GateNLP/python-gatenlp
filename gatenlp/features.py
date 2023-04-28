@@ -26,6 +26,9 @@ class Features(UserDict):
     logging feature changes. Any copy of an instance of Features will not receive the logger,
     in order to make sure that logging happens, the instance stored in the original owning
     object must be used.
+
+    Like a dict, a Features object compares equal to another Features object if they have the
+    same keys and values and is not hashable.
     """
 
     def __init__(self, *args, _change_logger=None, _deepcopy=False, **kwargs):

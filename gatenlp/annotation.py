@@ -8,7 +8,8 @@ from gatenlp.offsetmapper import OFFSET_TYPE_JAVA, OFFSET_TYPE_PYTHON
 from gatenlp.utils import allowspan, support_annotation_or_set
 from gatenlp.span import Span
 
-
+# TODO: add find_ann(ann) method to find all annotations which are equal to the given one
+#     this can also be used for content based membership tests, e.g. if annset.find(ann) ...
 @total_ordering
 class Annotation:   # pylint: disable=R0904
     """
@@ -561,3 +562,13 @@ class Annotation:   # pylint: disable=R0904
         """
         self._start = start
         self._end = end
+
+    def owning_set(self):
+        """
+        Return the owning set of this annotation if this is an annotation from an attached set,
+        or None if ths is from a detached set or a standalone annotation.
+
+        Returns:
+            the owning set
+        """
+        return self._owner_set

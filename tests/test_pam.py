@@ -591,7 +591,7 @@ class TestPampacRemoveAnn:
         Pampac(
             Rule(
                 AnnAt("Ann", name="match", matchtype="all"),
-                RemoveAnn("match", doc.annset())
+                RemoveAnn(name="match", annset_name="")
             ),
         ).run(doc, doc.annset().with_type("Ann", "XXX", "Person", "Token"))
         assert len(doc.annset()) == 7

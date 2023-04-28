@@ -75,7 +75,8 @@ class MsgPackSerializer:
             sname = u.unpack()
             if sname is None:
                 sname = ""
-            annset = AnnotationSet(name=sname, owner_doc=doc)
+            # annset = AnnotationSet(name=sname, owner_doc=doc)
+            annset = AnnotationSet._create(name=sname, owner_doc=doc)
             annset._next_annid = u.unpack()
             nanns = u.unpack()
             for iann in range(nanns):

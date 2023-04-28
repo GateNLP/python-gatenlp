@@ -429,7 +429,7 @@ class Document:
         """
         self._ensure_type_python()
         if name not in self._annotation_sets:
-            annset = AnnotationSet(owner_doc=self, name=name)
+            annset = AnnotationSet._create(name=name, owner_doc=self)
             self._annotation_sets[name] = annset
             if self._changelog:
                 self._changelog.append({"command": "annotations:add", "set": name})
@@ -465,7 +465,7 @@ class Document:
         if self._changelog:
             self._changelog.append({"command": "annotations:remove", "set": name})
 
-    def anns(self, annspec):
+    def anns(self, annspec, single_set=False):
         """
         Return a detached annotation set with all annotations which match the annotation specification.
         Annotation ids are preserved if possible, but if annotations from different sets have duplicate
@@ -476,13 +476,40 @@ class Document:
                 each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
                 first element of the tuple must be the annotation set name and the second element either a type
                 name or a list of type names.
+                As a special case, if annspec is a single tuple, the tuple is interpreted as a single
+                annotation set specification with the type name or list of type names as the second element.
+            single_set: if True, the specification must only contain a single annotation set name. In this case
+                the result is a detached annotation set which is a view of the original annotation set, so
+                modifications to the annotations in the result will also modify the original annotations.
 
         Returns:
             a detached, immutable set with all the annotations matching the annotation specification
         """
-        return AnnotationSet.create_from(self.yield_anns(annspec))
+        return AnnotationSet.create_from(self.yield_anns(annspec, single_set=single_set))
 
-    def yield_anns(self, annspec):
+    def annslist(self, annspec, single_set=False):
+        """
+        Return a list of all annotations which match the annotation specification, sorted in the same way as
+        in a detached annotation set. The annotations in the list are all guaranteed to be the original instances
+        from the document, so they can be modified or deleted from the set they come from.
+
+        Args:
+            annspec: either a single string which is interpreted as an annotation set name, or a list where
+                each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
+                first element of the tuple must be the annotation set name and the second element either a type
+                name or a list of type names.
+                As a special case, if annspec is a single tuple, the tuple is interpreted as a single
+                annotation set specification with the type name or list of type names as the second element.
+            single_set: if True, the specification must only contain a single annotation set name. In this case
+                the result is a list of the annotations in the original annotation set, so modifications to the
+                annotations in the result will also modify the original annotations.
+
+        Returns: a list of annotations
+        """
+        tmp = list(self.yield_anns(annspec, single_set=single_set))
+
+
+    def yield_anns(self, annspec, single_set=False):
         """
         Yield all annotations which match the annotation specification.
         The order of the annotations is unespecified.
@@ -492,16 +519,22 @@ class Document:
                 each element is either a string (annotation set name) or a tuple. If an element is a tuple, the
                 first element of the tuple must be the annotation set name and the second element either a type
                 name or a list of type names.
+                As a special case, if annspec is a single tuple, the tuple is interpreted as a single
+                annotation set specification with the type name or list of type names as the second element.
+            single_set: if True, the specification must only contain a single annotation set name. In this case
+                the result is a list of the annotations in the original annotation set, so modifications to the
+                annotations in the result will also modify the original annotations.
 
         Yields:
             all the annotations matching the annotation specification
         """
-        if isinstance(annspec, str):
-            tmpset = self._annotation_sets.get(annspec)
-            if tmpset is not None:
-                for ann in tmpset._annotations.values():
-                    yield ann
-            return
+        if isinstance(annspec, (str, tuple)):
+            annspec = [annspec]
+        if single_set:
+            if len(annspec) != 1:
+                raise Exception(
+                    "Single set specification expected, got {} set specifications".format(len(annspec))
+                )
         for spec in annspec:
             if isinstance(spec, str):
                 tmpset = self._annotation_sets.get(spec)
@@ -509,7 +542,9 @@ class Document:
                     for ann in tmpset._annotations.values():
                         yield ann
             else:
+                assert isinstance(spec, tuple) and len(spec) == 2
                 setname, types = spec
+                assert isinstance(setname, str) and isinstance(types, (str, list))
                 if isinstance(types, str):
                     types = [types]
                 tmpset = self._annotation_sets.get(setname)
@@ -806,7 +841,8 @@ class Document:
                     types = [types]
                 tmpset = self._annotation_sets.get(setname)
                 if tmpset is not None:
-                    annset = AnnotationSet(owner_doc=doc, name=setname)
+                    # annset = AnnotationSet(owner_doc=doc, name=setname)
+                    annset = AnnotationSet._create(owner_doc=doc, name=setname)
                     anns = self.annset(setname).with_type(types)
                     for ann in anns:
                         annset.add_ann(ann)
@@ -848,7 +884,8 @@ class Document:
                         types = [types]
                     tmpset = self._annotation_sets.get(setname)
                     if tmpset is not None:
-                        annset = AnnotationSet(owner_doc=doc, name=setname)
+                        # annset = AnnotationSet(owner_doc=doc, name=setname)
+                        annset = AnnotationSet._create(owner_doc=doc, name=setname)
                         anns = tmpset.with_type(types)
                         for ann in anns:
                             annset.add_ann(lib_copy.deepcopy(ann, memo))
