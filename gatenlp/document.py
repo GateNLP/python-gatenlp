@@ -510,7 +510,7 @@ class Document:
         """
         tmp = list(self.yield_anns(annspec, single_set=single_set))
         # sort by start offset and annotation id
-        tmp.sort(key=lambda ann: (ann.start(), ann.id))
+        tmp.sort(key=lambda ann: (ann.start, ann.id))
         return tmp
 
 
