@@ -239,9 +239,9 @@ class PampacAnnotator(Annotator):
 
     def __call__(self, doc, **kwargs):
         outset = doc.annset(self.outset_name)
-        anns = doc.anns(self.annspec, single_set=True)
+        anns = doc.annslist(self.annspec, single_set=True)
         if self.containing_anns_desc is not None:
-            cont = doc.anns(self.containing_anns_desc)
+            cont = doc.annslist(self.containing_anns_desc)
         else:
             cont = None
         self.pampac.run(doc, anns, outset=outset, containing_anns=cont)
