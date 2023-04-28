@@ -391,7 +391,7 @@ class RemoveAnn:
             annset_name: the name of the annotation set to remove the annotation from. If this is the same set
                 as used for matching it may influence the matching result if the annotation is removed before
                 the remaining matching is done.
-                If this is not specified, the annotation set of the (first) input annotation is used. 
+                If this is not specified, the annotation set of the (first) input annotation is used.
             resultidx: index of the result to use, if several (default: 0)
             matchidx: index of the match to use, if several (default: 0)
             silent_fail: if True, silently ignore the error of no annotation to get removed

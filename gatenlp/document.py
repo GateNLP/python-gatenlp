@@ -489,8 +489,10 @@ class Document:
 
     def annslist(self, annspec, single_set=False):
         """
-        Return a list of all annotations which match the annotation specification, sorted in the same way as
-        in a detached annotation set. The annotations in the list are all guaranteed to be the original instances
+        Return a list of all annotations which match the annotation specification, sorted by starting offset and
+        annotation id. If annotations are included from several sets, then several annotations can have the same
+        start offset and annotation id, in this case the order between those is unspecified.
+        The annotations in the list are all guaranteed to be the original instances
         from the document, so they can be modified or deleted from the set they come from.
 
         Args:
@@ -507,6 +509,9 @@ class Document:
         Returns: a list of annotations
         """
         tmp = list(self.yield_anns(annspec, single_set=single_set))
+        # sort by start offset and annotation id
+        tmp.sort(key=lambda ann: (ann.start(), ann.id))
+        return tmp
 
 
     def yield_anns(self, annspec, single_set=False):

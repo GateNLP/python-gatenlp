@@ -3,7 +3,14 @@
 ## Upcoming (1.0.9)
 
 * Minimum required Python version is now 3.8!!
-* Fixed issues #191, #189, #187
+* Fixed issues #191, #189, #187, #199, #197, #196
+* new method `Document.annslist(annspec)`
+* all methods for selecting annotations from a document using ann annotation specification (`annspec`)
+  new take the optional parameter `single_seti` which can be set to True to make sure that the 
+  specification only includes annotations from one set. 
+* (INCOMPATIBLE CHANGE) Pampac: Actions now take an optional `annset_name` instead of `annset`
+  parameter. This makes sure that the action can run as part of a PampacAnnotator on several
+  documents and always use the right set from the correct document.
 
 ## 1.0.8 (2022-11-09) 
 
