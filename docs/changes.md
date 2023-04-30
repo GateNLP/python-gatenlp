@@ -6,11 +6,20 @@
 * Fixed issues #191, #189, #187, #199, #197, #196
 * new method `Document.annslist(annspec)`
 * all methods for selecting annotations from a document using ann annotation specification (`annspec`)
-  new take the optional parameter `single_seti` which can be set to True to make sure that the 
+  new take the optional parameter `single_set=False` which can be set to True to make sure that the 
   specification only includes annotations from one set. 
 * (INCOMPATIBLE CHANGE) Pampac: Actions now take an optional `annset_name` instead of `annset`
   parameter. This makes sure that the action can run as part of a PampacAnnotator on several
   documents and always use the right set from the correct document.
+* New method `Annotation.owning_set` which returns the set that owns an Annotation:
+  * this is the attached Annotation set the Annotation is contained in
+  * or None, if the Annotation is not member of an attached Annotation set (but of one 
+    or more detached Annotation sets)
+* AnnotationSet constructor: now always creates a detached set
+  * The only supported way to create an attached set is via `doc.annset(name)`
+  * for internal use in the library, the constructor `AnnotationSet._create(name,owner_doc)` has been added
+
+
 
 ## 1.0.8 (2022-11-09) 
 
