@@ -993,7 +993,7 @@ class AnnAt(_AnnBase):
         start = next_ann.start
         matched = False
         while True:
-            if self._matcher(next_ann):
+            if self._matcher(next_ann, doc=context.doc):
                 matched = True
                 matchlocation = Location(
                     text_location=start, ann_location=location.ann_location

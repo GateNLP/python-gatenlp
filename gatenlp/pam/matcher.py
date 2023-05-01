@@ -244,8 +244,13 @@ class AnnMatcher:
             if not self.features_matcher(ann.features):
                 return False
         if self.text is not None:
+            if doc is None:
+                raise Exception("Paramter doc is needed when matching text!")
             if isinstance(self.text, (CLASS_RE_PATTERN, CLASS_REGEX_PATTERN)):
                 if not self.text.match(doc[ann]):
+                    return False
+            else:
+                if not self.text == doc[ann]:
                     return False
         return True
 
