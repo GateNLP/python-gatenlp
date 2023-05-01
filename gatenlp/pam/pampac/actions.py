@@ -482,15 +482,15 @@ class RemoveAnnAll:
 
         anns_to_remove = set()
 
-        for i, r in enumerate(succ._results):
+        for r in succ._results:
 
             # check all matches if the they fit the conditions
-            for m in r.matches:
-                ann = m.get("ann")
+            for match in r.matches:
+                ann = match.get("ann")
                 if not ann:
                     continue
                 if self.name is not None:
-                    if m.get("name") not in self.name:
+                    if match.get("name") not in self.name:
                         continue
                 if self.type is not None:
                     if ann.type not in self.type:
@@ -508,4 +508,5 @@ class RemoveAnnAll:
         if self.annset_name is not None:
             annset = context.doc.annset(self.annset_name)
 
-        [annset.remove(ann) for ann in anns_to_remove]
+        for ann in anns_to_remove:
+            annset.remove(ann)
