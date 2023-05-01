@@ -435,8 +435,8 @@ class RemoveAnnAll:
     """
 
     def __init__(self,
-                 name: Union[str, List[str]] = None,
-                 type: Union[str, List[str]] = None,
+                 names: Union[str, List[str]] = None,
+                 types: Union[str, List[str]] = None,
                  annset_name: str = None,
                  silent_fail: bool = True):
         """
@@ -445,33 +445,33 @@ class RemoveAnnAll:
         (if specified). If not match name and/or no type name is specified, the removal action is not restricted.
 
         Args:
-            name: the name, or list of names, of a match(es) from which to get the annotation to remove.
-            type: the annotation type, or list of types, of annotation within the whole matched pattern to remove
+            names: the name, or list of names, of a match(es) from which to get the annotation to remove.
+            types: the annotation type, or list of types, of annotation within the whole matched pattern to remove
             annset_name: the name of the annotation set to remove the annotation from. If this is the same set
                 as used for matching it may influence the matching result if the annotation is removed before
                 the remaining matching is done.
                 If this is not specified, the annotation set of the (first) input annotation is used.
             silent_fail: if True, silently ignore the error of no annotation to get removed
         """
-        self.name = name
-        self.ann_type = type
-        if self is not None:
-            if isinstance(self, list):
-                assert all(isinstance(c, str) for c in self), \
-                    f"name must be a string or list of strings but is {name}"
+        self.names = names
+        self.types = types
+        if names is not None:
+            if isinstance(names, list):
+                assert all(isinstance(c, str) for c in names), \
+                    f"names must be a string or list of strings but is {names}"
             else:
-                assert isinstance(name, str), \
-                    f"name must be a string or list of strings but is {name}"
-                self.name = [name]
+                assert isinstance(names, str), \
+                    f"names must be a string or list of strings but is {names}"
+                self.names = [names]
 
-        if type is not None:
-            if isinstance(type, list):
-                assert all(isinstance(c, str) for c in type), \
-                    f"type must be a string or list of strings but is {type}"
+        if types is not None:
+            if isinstance(types, list):
+                assert all(isinstance(c, str) for c in types), \
+                    f"type must be a string or list of strings but is {types}"
             else:
-                assert isinstance(type, str), \
-                    f"type must be a string or list of strings but is {type}"
-                self.type = [type]
+                assert isinstance(types, str), \
+                    f"types must be a string or list of strings but is {types}"
+                self.types = [types]
 
         assert annset_name is None or isinstance(annset_name, str), \
             f"annset_name must be a string or None but is {annset_name}"
@@ -489,11 +489,11 @@ class RemoveAnnAll:
                 ann = match.get("ann")
                 if not ann:
                     continue
-                if self.name is not None:
-                    if match.get("name") not in self.name:
+                if self.names is not None:
+                    if match.get("name") not in self.names:
                         continue
-                if self.type is not None:
-                    if ann.type not in self.type:
+                if self.types is not None:
+                    if ann.type not in self.types:
                         continue
                 anns_to_remove.add(ann)
 
@@ -502,7 +502,7 @@ class RemoveAnnAll:
                 return
             else:
                 raise Exception(
-                    f"Could not find annotations of type: {self.type} and / or of name: {self.name}"
+                    f"Could not find annotations of type: {self.types} and / or of name: {self.names}"
                 )
 
         if self.annset_name is not None:
