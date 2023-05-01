@@ -2,6 +2,7 @@
 Module for PAMPAC action classes.
 """
 from abc import ABC, abstractmethod
+from typing import List, Union
 from gatenlp import Annotation
 from gatenlp.features import Features
 
@@ -425,3 +426,86 @@ class RemoveAnn:
         if self.annset_name is not None:
             annset = context.doc.annset(self.annset_name)
         annset.remove(theann)
+
+
+class RemoveAnnAll:
+    """
+    Remove all matching annotations from all results, if the binding name (if specified) and type name (if specified)
+    matches.
+    """
+
+    def __init__(self,
+                 name: Union[str, List[str]] = None,
+                 type: Union[str, List[str]] = None,
+                 annset_name: str = None,
+                 silent_fail: bool = True):
+        """
+        Create a remove all annotation action. In order for an annotation to get removed it must match the given
+        match name or one of the match names (if specified) AND match the given type name or one of the type names
+        (if specified). If not match name and/or no type name is specified, the removal action is not restricted.
+
+        Args:
+            name: the name, or list of names, of a match(es) from which to get the annotation to remove.
+            type: the annotation type, or list of types, of annotation within the whole matched pattern to remove
+            annset_name: the name of the annotation set to remove the annotation from. If this is the same set
+                as used for matching it may influence the matching result if the annotation is removed before
+                the remaining matching is done.
+                If this is not specified, the annotation set of the (first) input annotation is used.
+            silent_fail: if True, silently ignore the error of no annotation to get removed
+        """
+        self.name = name
+        self.ann_type = type
+        if self is not None:
+            if isinstance(self, list):
+                assert all(isinstance(c, str) for c in self), \
+                    f"name must be a string or list of strings but is {name}"
+            else:
+                assert isinstance(name, str), \
+                    f"name must be a string or list of strings but is {name}"
+                self.name = [name]
+
+        if type is not None:
+            if isinstance(type, list):
+                assert all(isinstance(c, str) for c in type), \
+                    f"type must be a string or list of strings but is {type}"
+            else:
+                assert isinstance(type, str), \
+                    f"type must be a string or list of strings but is {type}"
+                self.type = [type]
+
+        assert annset_name is None or isinstance(annset_name, str), \
+            f"annset_name must be a string or None but is {annset_name}"
+        self.annset_name = annset_name
+        self.silent_fail = silent_fail
+
+    def __call__(self, succ, context=None, location=None, annset=None):
+
+        anns_to_remove = set()
+
+        for i, r in enumerate(succ._results):
+
+            # check all matches if the they fit the conditions
+            for m in r.matches:
+                ann = m.get("ann")
+                if not ann:
+                    continue
+                if self.name is not None:
+                    if m.get("name") not in self.name:
+                        continue
+                if self.type is not None:
+                    if ann.type not in self.type:
+                        continue
+                anns_to_remove.add(ann)
+
+        if not anns_to_remove:
+            if self.silent_fail:
+                return
+            else:
+                raise Exception(
+                    f"Could not find annotations of type: {self.type} and / or of name: {self.name}"
+                )
+
+        if self.annset_name is not None:
+            annset = context.doc.annset(self.annset_name)
+
+        [annset.remove(ann) for ann in anns_to_remove]
