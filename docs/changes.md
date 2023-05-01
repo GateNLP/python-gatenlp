@@ -3,7 +3,7 @@
 ## Upcoming (1.0.9)
 
 * Minimum required Python version is now 3.8!!
-* Fixed issues #191, #189, #187, #199, #197, #196
+* Fixed issues #191, #189, #187, #199, #197, #196, #202
 * new method `Document.annslist(annspec)`
 * all methods for selecting annotations from a document using ann annotation specification (`annspec`)
   new take the optional parameter `single_set=False` which can be set to True to make sure that the 
