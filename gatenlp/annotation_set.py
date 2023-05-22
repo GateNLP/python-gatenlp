@@ -1511,7 +1511,7 @@ class AnnotationSet:
         }
 
     @staticmethod
-    def from_dict(dictrepr, owner_doc=None, **kwargs):
+    def from_dict(dictrepr, owner_doc=None, name=None, **kwargs):
         """
         Create an AnnotationSet from its dict representation and optionally
         set the owning document.
@@ -1524,7 +1524,11 @@ class AnnotationSet:
         Returns:
             the annotation set
         """
-        # annset = AnnotationSet(dictrepr.get("name"), owner_doc=owner_doc)
+        setname = dictrepr.get("name", name)  # if the dict does not contain a name use the one we got as parameter instead
+        if setname is None:
+            raise Exception("The annotation set representation must contain a 'name' or the name must be passed")
+        if setname != name:
+            raise Exception("Annotation set name from key and name field must not be different")
         annset = AnnotationSet._create(dictrepr.get("name"), owner_doc=owner_doc)
         annset._next_annid = dictrepr.get("next_annid")
         if dictrepr.get("annotations"):

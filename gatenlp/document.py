@@ -665,7 +665,7 @@ class Document:
         ):
             raise Exception("Invalid offset type, cannot load: ", doc.offset_type)
         annsets = {
-            name: AnnotationSet.from_dict(adict, owner_doc=doc)
+            name: AnnotationSet.from_dict(adict, owner_doc=doc, name=name)
             for name, adict in dictrepr.get("annotation_sets", {}).items()
         }
         doc._annotation_sets = annsets

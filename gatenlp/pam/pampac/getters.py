@@ -224,9 +224,7 @@ class GetText(Getter):
         if self.name is None:
             span = _get_span(succ, self.name, self.resultidx, self.matchidx, self.silent_fail)
         else:
-            match = _get_match(
-                succ, self.name, self.resultidx, self.matchidx, self.silent_fail
-            )
+            match = _get_match(succ, self.name, self.resultidx, self.matchidx, self.silent_fail)
             span = match.get("span")
         if span:
             return context.doc[span]

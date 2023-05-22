@@ -9,6 +9,11 @@ This document gives an overview over which formats GateNLP can use to
 * read a sequence of documents (DocumentSource)
 * write a sequence of documents (DocumentDestination)
 
+NOTE: the standard format for loading/saving documents is a JSON representation of the document content
+(optionally gzip compressed) and called `bdocjs`. A detailed description of this format can be found 
+in [Format bdocjs](format-bdocjs.md)
+
+
 ## Loading individual Documents
 
 To load a document the method `Document.load(source, ...)` can be used (see [PythonDoc](https://gatenlp.github.io/python-gatenlp/pythondoc/gatenlp/document.html#gatenlp.document.Document.load)). The `source` parameter is used to specify where the document should get loaded from:
