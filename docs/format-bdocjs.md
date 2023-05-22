@@ -1,8 +1,22 @@
-# Format bdoc 
+# Format bdocjs/bdocjsgz
 
 The "Basic Document" or "Bdoc" representation is a simple way to represent GATE documents, features, annotation sets and annotations
 through basic datatypes like strings, integers, maps and arrays so that the same representation can be easily used 
 from several programming languages. The representation is limited to the following data types: string, integer, float, boolean, array/list, map (basically what is supported by basic JSON). 
+
+The `bdocjs` file format is a JSON serialization of that bdoc representation of a document as a map/dictionary usually stored as a file with the ".bdocjs" extension. The `bdocjsgz` file format is simply a gzip-compressed `bdocjs` file usually stored as a file with the `.bdocjs.gz` extension.
+
+
+## API
+
+* loading uncompressed: `doc = Document.load("SOMEFILE.bdocjs")` or `doc = Document.load("SOMEFILE.SOMEEXT", fmt="bdocjs")` if the extension is not `bdocjs`. 
+* loading compressed: same as loading uncompressed but use extension "bdocjs.gz" or `fmt="bdocjsgz"` instead
+* saving uncompressed: `doc.save("SOMEFILE.bdocjs")` or `doc.save("SOMEFILE.SOMEEXT", fmt="bdocjs")`
+* saving compressed: same as saving uncompressed but use extension "bdocjs.gz" or `fmt="bdocjsgz"` instead
+* converting a document to a JSON string of its `bdoc` representation: `doc.save_mem()`
+* converting a document to its `bdoc` dictionary representation: `doc.to_dict()`
+* creating a document from its `bdoc` dictionary representation: `doc = Document.from_dict(thebdocdict)`
+
 
 
 ## The abstract BdocDocument representation 
